@@ -342,8 +342,46 @@
         <echo level="info" message="The legacy mac installer is in: ${basedir}${file.separator}${dist.mac.legacy}"/>
     
     </target>
+
+    <target name="windows-launcher">
+        <!-- build launcher -->
+
+        <!-- To turn Windows path into MinGW path, remove colon and replace
+             backslash with forward slash, and prefix with forward slash.
+             So C:\Java\jdk1.8.0_60 becomes /c/Java/jdk1.8.0_60 -->
+
+        <loadresource property="mingw_jdk">
+            <propertyresource name="build_java_home"/>
+            <filterchain>
+                <prefixlines prefix="/"/>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replacestring from="\" to="/"/>
+                    <replacestring from=":" to=""/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
+        <loadresource property="mingw_bluej_home">
+            <propertyresource name="bluej_home"/>
+            <filterchain>
+                <prefixlines prefix="/"/>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replacestring from="\" to="/"/>
+                    <replacestring from=":" to=""/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
+
+        <exec dir="winlaunch" executable="${msys_bash}">
+            <!-- We must use the login flag or none of the PATH etc variables get set: -->
+            <arg line="--login"/>
+            <!-- Must cd to right directory, then run make: -->
+            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winlaunch;make clean bjlaunch.exe BUILD=bluej JDKDIR='${mingw_jdk}'&quot;"/>
+        </exec>
+    </target>
 	
-	<target name="windows-msi-dist" depends="dist">
+	<target name="windows-msi-dist" depends="dist,windows-launcher">
 		<delete dir="winsetup/SourceDir" />
 		<delete dir="winsetup" includes="*.wixobj" />
 		<unzip src="${dist.jar}" dest="winsetup/SourceDir" />
@@ -383,7 +421,7 @@
 		<delete dir="winsetup/SourceDir" />
 	</target>
 
-	<target name="windows-msi-bundled-dist" depends="dist">
+	<target name="windows-msi-bundled-dist" depends="dist,windows-launcher">
 		<delete dir="winsetup/SourceDir" />
 		<delete dir="winsetup" includes="*.wixobj" />
 		<unzip src="${dist.jar}" dest="winsetup/SourceDir" />

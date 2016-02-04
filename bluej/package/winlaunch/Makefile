@@ -3,18 +3,21 @@
 # Must set below, and edit version in bjlaunch.rc and in bjmanifest.xml or gfmanifest.xml
 
 # For BlueJ
+ifeq ($(BUILD),bluej)
 APPNAME=\"BlueJ\"
 GREENFOOTDEF=
 EXECNAME=bjlaunch.exe
 REQUIREDJAVA=\"1.8\"
-
+else
 # For Greenfoot
-#APPNAME=\"Greenfoot\"
-#GREENFOOTDEF=-DGREENFOOT
-#EXECNAME=gflaunch.exe
-#REQUIREDJAVA=\"1.8\"
+APPNAME=\"Greenfoot\"
+GREENFOOTDEF=-DGREENFOOT
+EXECNAME=gflaunch.exe
+REQUIREDJAVA=\"1.8\"
+endif
 
-JDKDIR=/c/Program Files/Java/jdk1.6.0_45
+# JDKDIR is set externally to something along the lines of:
+# /c/Program Files/Java/jdk1.6.0_45
 
 OBJECTS = resources.o bjlaunch.o javatest.o javaprops.o bjdialog.o
 CXXFLAGS = -Os -Wall
@@ -40,4 +43,4 @@ bjdialog.o: bjdialog.cc
 
 
 clean:
-	rm $(OBJECTS)
+	rm -f $(OBJECTS)

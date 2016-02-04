@@ -38,9 +38,8 @@ Finally:
 
 Building the Windows installer:
  InnoSetup build is no longer supported. For the MSI Windows package:
- 1. Build the executable launcher (see bluej/package/winlaunch/BUILD.TXT).
- 2. Update the Greenfoot version number in bluej/package/winsetup/greenfoot.wxs (in 2 places)
- 3. Run the Greenfoot ant script's "windows-msi-dist" target
+ 1. Update the Greenfoot version number in bluej/package/winsetup/greenfoot.wxs (in 2 places)
+ 2. Run the Greenfoot ant script's "windows-msi-dist" target
 
 
 

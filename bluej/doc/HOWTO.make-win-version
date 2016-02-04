@@ -8,11 +8,9 @@ Building the new Windows installer (msi package) requires the WiX toolset:
 
 http://wixtoolset.org/
 
-(To build the old Windows installer, you will need InnoSetup:
+You also need MinGW/MSYS to build the launcher:
 
-http://jrsoftware.org/isinfo.php
-
-Version 5.2.3 should be fine).
+http://www.mingw.org/
 
 
 Procedure:
@@ -23,24 +21,14 @@ Procedure:
  2. Building the BlueJ release ("ant dist") should have left a "bluej-dist.jar"
     file in the package directory. 
 
- 3. Build the Windows launcher (bjlaunch.exe).
- 
-    See package/winlaunch/BUILD.TXT for instructions.
-    
-    The bjlaunch.exe file must be in the package/winlaunch folder before you
-    continue.
- 
- 4a. To make the EXE installer using InnoSetup, run "ant windows-dist" from the root of the BlueJ
-     project. The resulting winsetup/BlueJ-windows-VERSION.exe is the distributable file
-     (where VERSION is the version number).
-     
- 4b. To make the MSI installer using WiX:
+ 2. To make the MSI installer using WiX:
  
      First update the version number in package/winsetup/bluej.wxs (in 2 places)
  
      Then, run "ant windows-msi-dist" from the root of the BlueJ project.
      You'll need to have WiX installed (wix.sf.net) and set wix_bin in build.properties
      to the appropriate directory (something like: C:/Program Files/Windows Installer XML v3.5/bin)
+     You'll also need to set the mingw_bash variable in build.properties
      The resulting winsetup/blueJ-VERSION.msi is the distributable file
      (where VERSION is the version number).
      
