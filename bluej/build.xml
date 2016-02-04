@@ -336,6 +336,10 @@
         <ant dir="package" target="windows-msi-bundled-dist"/>
     </target>
 
+    <target name="windows-standalone" depends="dist">
+        <ant dir="package" target="windows-standalone"/>
+    </target>
+
     <target name="mac-dist" description="build Mac distributable bundles" depends="dist">
         <ant dir="package" target="mac-dist"/>
     </target>
