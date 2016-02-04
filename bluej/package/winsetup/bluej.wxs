@@ -3,11 +3,12 @@
 
 <!--  To change the version for a new release:
         Change the Id value in the Product tag (get new GUID from http://www.guidgen.com/).  This is essential to allow upgrades from previous versions.
-        Change Version in the Product item here
-        Change Version in SOFTWAREVERSION property, below -->
+        -->
 
-<Product Name='BlueJ' Id='7d66971c-652b-4065-a6b1-b3ee313c254b' UpgradeCode='f4b4357e-6101-4cb1-8e38-3d4f3afb4be2'
-    Language='1033' Codepage='1252' Version='3.1.6' Manufacturer='BlueJ Team'>
+<!-- This next line is matched by a regex in the build file, so it is important that it be kept as-is: -->
+<Product Version='3.1.6'
+    Name='BlueJ' Id='7d66971c-652b-4065-a6b1-b3ee313c254b' UpgradeCode='f4b4357e-6101-4cb1-8e38-3d4f3afb4be2'
+    Language='1033' Codepage='1252' Manufacturer='BlueJ Team'>
     
     <Package Id='*' Keywords='Installer' Description="BlueJ Installer"
       Manufacturer='BlueJ'

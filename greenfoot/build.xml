@@ -953,5 +953,14 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <fileset dir="${bluej_home}/package/winlaunch" includes="gfmanifest.xml" />
         </replaceregexp>
 
+        <!-- And in the WiX build files: -->
+        <replaceregexp byline="true" match="(&lt;Product Version=)'.*'" replace="\1'${greenfoot.version.nosuffix}'">
+            <fileset dir="${bluej_home}/package/winsetup" includes="greenfoot.wxs" />
+        </replaceregexp>
+        <replaceregexp byline="true" match="(\s*&lt;Property\s+Id=&quot;SOFTWAREVERSION&quot;\s+Value=).*" replace="\1&quot;${greenfoot.version.nosuffix}&quot;/&gt;">
+            <fileset dir="${bluej_home}/package/winsetup" includes="greenfoot.wxs" />
+        </replaceregexp>
+
+
     </target>
 </project>

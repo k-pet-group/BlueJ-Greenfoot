@@ -456,6 +456,14 @@
             <fileset dir="package/winlaunch" includes="bjmanifest.xml" />
         </replaceregexp>
 
+        <!-- And in the WiX build files: -->
+        <replaceregexp byline="true" match="(&lt;Product Version=)'.*'" replace="\1'${bluej.version.nosuffix}'">
+            <fileset dir="package/winsetup" includes="bluej.wxs" />
+        </replaceregexp>
+        <replaceregexp byline="true" match="(\s*&lt;Property\s+Id=&quot;SOFTWAREVERSION&quot;\s+Value=).*" replace="\1&quot;${bluej.version.nosuffix}&quot;/&gt;">
+            <fileset dir="package/winsetup" includes="bluej.wxs" />
+        </replaceregexp>
+
     </target>
     
     <target name="clean-boot">

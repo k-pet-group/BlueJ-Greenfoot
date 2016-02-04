@@ -3,11 +3,12 @@
 
 <!--  To change the version for a new release:
         Change the Id value in the Product tag (get new GUID from http://www.guidgen.com/).  This is essential to allow upgrades from previous versions.
-        Change Version in the Product item here
-        Change Version in SOFTWAREVERSION property, below -->
+        -->
 
-<Product Name='Greenfoot' Id='8c838b70-3a71-41e8-91a6-4adcf2e483d0' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
-    Language='1033' Codepage='1252' Version='3.0.2' Manufacturer='Greenfoot Team'>
+<!-- This next line is matched by a regex in the build file, so it is important that it be kept as-is: -->
+<Product Version='3.0.2'
+    Name='Greenfoot' Id='8c838b70-3a71-41e8-91a6-4adcf2e483d0' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
+    Language='1033' Codepage='1252' Manufacturer='Greenfoot Team'>
     
     <Package Id='*' Keywords='Installer' Description="Greenfoot Installer"
       Manufacturer='Greenfoot'
