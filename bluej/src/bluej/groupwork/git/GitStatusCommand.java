@@ -30,6 +30,8 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
@@ -37,6 +39,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
@@ -99,50 +102,9 @@ public class GitStatusCommand extends GitCommand
             s.getRemoved().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
-
-            ObjectId masterId = repo.getRepository().resolve("master");
-
-            RevTree masterTree = getTree(repo.getRepository(), masterId);
-
-            ObjectId originMaster = repo.getRepository().resolve("origin/master");
-
-            RevTree originMasterTree = getTree(repo.getRepository(), originMaster);
-
-            //local and remote repositories differ. We need to investigate further.
-            if (originMaster != null) {
-                DiffCommand diffCommand = repo.diff();
-                try (ObjectReader reader = repo.getRepository().newObjectReader()) {
-                    CanonicalTreeParser localTreeIter = new CanonicalTreeParser();
-                    localTreeIter.reset(reader, masterTree);
-                    CanonicalTreeParser remoteTreeIter = new CanonicalTreeParser();
-                    remoteTreeIter.reset(reader, originMasterTree);
-                    //perform a diff between the local and remote tree
-                    List<DiffEntry> diffs = repo.diff()
-                            .setNewTree(localTreeIter)
-                            .setOldTree(remoteTreeIter)
-                            .call();
-
-                    //filter the results
-                    //then add the entries on the returnInfo
-                    diffs.stream().filter(p -> filter.accept(new File(gitPath, p.getNewPath())))
-                            .map((item) -> new TeamStatusInfo(new File(gitPath, item.getNewPath()), "", null, TeamStatusInfo.STATUS_BLANK, getRemoteStatusInfo(item)))
-                            .forEach((TeamStatusInfo teamInfo) -> {
-                                TeamStatusInfo status = getTeamStatusInfo(returnInfo, teamInfo.getFile());
-                                //avoid duplicate entries, 
-                                if (status == null) {
-                                    //create a new entry.
-                                    teamInfo.setStatus(TeamStatusInfo.STATUS_NEEDSADD);
-                                    returnInfo.add(teamInfo);
-                                } else {
-                                    //update an exisiting entry.
-                                    status.setRemoteStatus(teamInfo.getRemoteStatus());
-                                }
-                            });
-
-                } catch (IOException ex) {
-                    Debug.reportError("Git status command exception", ex);
-                }
-            }
+            
+            //check for differences between local and remote repo
+            diff(repo, gitPath, returnInfo);
 
         } catch (IOException | GitAPIException | NoWorkTreeException ex) {
             Debug.reportError("Git status command exception", ex);
@@ -216,6 +178,64 @@ public class GitStatusCommand extends GitCommand
 
         }
         return tree;
+    }
+    /**
+     * checks for changes between local master and origin/master
+     * @param repo git repository
+     * @param gitPath local git repository path
+     * @param returnInfo list of files where change was detected.
+     */
+    private void diff(Git repo, File gitPath, LinkedList<TeamStatusInfo> returnInfo)
+    {
+        try {
+            ObjectId masterId = repo.getRepository().resolve("master");
+
+            RevTree masterTree = getTree(repo.getRepository(), masterId);
+
+            ObjectId originMaster = repo.getRepository().resolve("origin/master");
+
+            RevTree originMasterTree = getTree(repo.getRepository(), originMaster);
+
+            //local and remote repositories differ. We need to investigate further.
+            if (originMaster != null) {
+                DiffCommand diffCommand = repo.diff();
+                try (ObjectReader reader = repo.getRepository().newObjectReader()) {
+                    CanonicalTreeParser localTreeIter = new CanonicalTreeParser();
+                    localTreeIter.reset(reader, masterTree);
+                    CanonicalTreeParser remoteTreeIter = new CanonicalTreeParser();
+                    remoteTreeIter.reset(reader, originMasterTree);
+                    //perform a diff between the local and remote tree
+                    List<DiffEntry> diffs = repo.diff()
+                            .setNewTree(localTreeIter)
+                            .setOldTree(remoteTreeIter)
+                            .call();
+
+                    //filter the results
+                    //then add the entries on the returnInfo
+                    diffs.stream().filter(p -> filter.accept(new File(gitPath, p.getNewPath())))
+                            .map((item) -> new TeamStatusInfo(new File(gitPath, item.getNewPath()), "", null, TeamStatusInfo.STATUS_BLANK, getRemoteStatusInfo(item)))
+                            .forEach((TeamStatusInfo teamInfo) -> {
+                                TeamStatusInfo status = getTeamStatusInfo(returnInfo, teamInfo.getFile());
+                                //avoid duplicate entries,
+                                if (status == null) {
+                                    //create a new entry.
+                                    returnInfo.add(teamInfo);
+                                } else {
+                                    //update an exisiting entry.
+                                    status.setRemoteStatus(teamInfo.getRemoteStatus());
+                                }
+                            });
+
+                } catch (IOException ex) {
+                    Debug.reportError("Git status command exception", ex);
+                } catch (GitAPIException ex) {
+                    Logger.getLogger(GitStatusCommand.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } catch (RevisionSyntaxException | IOException ex) {
+            Debug.reportError(ex.getMessage());
+        }
+
     }
 
 }
