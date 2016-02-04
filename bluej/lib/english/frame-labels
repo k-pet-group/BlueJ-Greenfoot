@@ -32,6 +32,8 @@ frame.classmenu.move.existing=Window
 
 # Web/documentation menu
 frame.webmenu.title=Documentation
+frame.webmenu.open.external=Open In External Browser
+
 
 # Edit menu:
 frame.editmenu.title=Edit

@@ -23,6 +23,8 @@ package bluej.editor.stride;
 
 import java.util.Collections;
 import java.util.List;
+
+import bluej.utility.Utility;
 import javafx.beans.value.ObservableStringValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -65,6 +67,7 @@ public class WebTab extends FXTab
         {
             final List<Menu> menus = Collections.singletonList(JavaFXUtil.makeMenu(Config.getString("frame.webmenu.title"),
                     mainMoveMenu,
+                    JavaFXUtil.makeMenuItem(Config.getString("frame.webmenu.open.external"), () -> Utility.openWebBrowser(browser.getEngine().getLocation()), new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)),
                     JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> tab.getParent().close(tab), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
             ));
 
