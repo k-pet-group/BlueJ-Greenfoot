@@ -55,3 +55,7 @@ frame.viewmenu.java=Java preview
 frame.viewmenu.fontbigger=Increase font size
 frame.viewmenu.fontsmaller=Decrease font size
 frame.viewmenu.fontdefault=Reset font size
+
+# Information:
+# The '$' will be replaced by the name of the superclass:
+frame.class.inherited.from=Inherited from $

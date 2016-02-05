@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2015,2016  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.editor.stride;
 
 import java.util.ArrayList;
@@ -37,20 +58,31 @@ import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 
 /**
- * Created by neil on 25/03/15.
+ * A class to manage the menus for a frame editor.
  */
 class FrameMenuManager extends TabMenuManager
 {
+    // The editor we are managing the menu for:
     private final FrameEditorTab editor;
 
+    // The edit menu items which are always shown:
     private final List<SortedMenuItem> defaultEditItems;
+    // The edit menu items which depend on where the focus currently lies:
     private final ObservableList<SortedMenuItem> contextualEditItems = FXCollections.observableArrayList();
+    // The view menu items which depend on where the focus currently lies.
+    // Note: currently unused!
     private final ObservableList<SortedMenuItem> extraViewItems = FXCollections.observableArrayList();
+    // An action to unbind the current binding on contextualEditItems.  May be null if no binding.
     private FXRunnable unbindEditItems;
+    // An action to unbind the current binding on extraViewItems.  May be null if no binding.
     private FXRunnable unbindViewItems;
+    // A listener for when the edit menu is shown:
     private EditableSlot.MenuItems editMenuListener;
+    // A listener for when the view menu is shown:
     private EditableSlot.MenuItems viewMenuListener;
+    // A list of all the menus to display in the menu bar
     private List<Menu> menus = null;
+    // Keeps track of whether Java preview mode is currently enabled:
     private final BooleanProperty javaPreviewShowing;
 
     FrameMenuManager(FrameEditorTab editor)
@@ -58,7 +90,7 @@ class FrameMenuManager extends TabMenuManager
         super(editor);
         this.editor = editor;
         this.javaPreviewShowing = new SimpleBooleanProperty(editor.getView() == View.JAVA_PREVIEW);
-        // I don't think this should go in a loop with notifyView because it converges (second listener sets property to current value):
+        // I don't think this will cause a loop with notifyView because it converges (second listener sets property to current value):
         JavaFXUtil.addChangeListener(javaPreviewShowing, b -> {
             if (b) editor.enableJavaPreview();
             else editor.disableJavaPreview();
@@ -83,6 +115,7 @@ class FrameMenuManager extends TabMenuManager
     {
         if (menus == null)
         {
+            // The edit menu consists of defaultEditItems plus contextualEditItems:
             Menu editMenu = JavaFXUtil.makeMenu(Config.getString("frame.editmenu.title"));
             JavaFXUtil.bindList(editMenu.getItems(), SortedMenuItem.sortAndAddDividers(contextualEditItems, defaultEditItems));
             editMenu.setOnShowing(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onShowing));
@@ -139,6 +172,7 @@ class FrameMenuManager extends TabMenuManager
         return menus;
     }
 
+    // Updates our menu items using binding.
     void setMenuItems(Map<EditableSlot.TopLevelMenu, EditableSlot.MenuItems> items)
     {
         if (unbindEditItems != null)
