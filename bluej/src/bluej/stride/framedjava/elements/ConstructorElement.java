@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.JavaFragment;
@@ -135,7 +134,7 @@ public class ConstructorElement extends MethodWithBodyElement
     public Frame createFrame(InteractionManager editor)
     {
         frame = new ConstructorFrame(editor, access, documentation.toString(), delegate, delegateParams, isEnable());
-        makeFrame(editor);
+        setupFrame(editor);
         return frame;
     }
     

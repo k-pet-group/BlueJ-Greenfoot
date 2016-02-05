@@ -50,6 +50,14 @@ import bluej.stride.generic.Frame;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
+/**
+ * A SlotLabel is a wrapper class for a ScalableHeightLabel (i.e. our subclass
+ * of JavaFX's Label, which allows growing and shrinking the height)
+ * which can be used as a HeaderItem in FrameContentRow.
+ * 
+ * The actual label is kept private, and this class is mainly filled with delegates
+ * which expose the necessary methods of Label.
+ */
 public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
 {
     private final ScalableHeightLabel l;

@@ -50,14 +50,26 @@ import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.frames.DebugInfo;
 import bluej.stride.framedjava.frames.MethodFrameWithBody;
 
+/**
+ * A parent class which is shared between ConstructorElement and NormalMethodElement.
+ * These two items have a lot in comment, which is collected here.
+ */
 public abstract class MethodWithBodyElement extends DocumentContainerCodeElement implements JavaSingleLineDebugHandler
 {
+    // The parameters of the constructor/method
     protected final List<ParamFragment> params;
+    // Any types which are thrown by the constructor/method
     protected final List<ThrowsTypeFragment> throwsTypes;
+    // The items in the body of the constructor/method
     protected final List<CodeElement> contents;
+    // The frame we are linked to
     protected MethodFrameWithBody<?> frame;
+    // Our access permission.
     protected AccessPermissionFragment access;
-    
+
+    /**
+     * Constructor when generated from the GUI
+     */
     public MethodWithBodyElement(MethodFrameWithBody<?> frame, AccessPermissionFragment access, List<ParamFragment> params,
             List<ThrowsTypeFragment> throwsTypes, List<CodeElement> contents, JavadocUnit documentation, boolean enabled)
     {
@@ -78,6 +90,9 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         }
     }
 
+    /**
+     * Constructor when loaded from file/clipboard
+     */
     public MethodWithBodyElement(Element el)
     {
         access = new AccessPermissionFragment(AccessPermission.fromString(el.getAttributeValue("access")));
@@ -115,7 +130,10 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         }
         enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
-    
+
+    /**
+     * Constructor when automatically generated, e.g. by Save the World in Greenfoot
+     */
     public MethodWithBodyElement(String access, List<Entry<String,String>> params, List<CodeElement> contents, String documentation)
     {
         this.access = new AccessPermissionFragment(AccessPermission.fromString(access));
@@ -132,7 +150,10 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
             }
         }
     }
-    
+
+    /**
+     * Helper method for subclasses when generating XML: add access attribute to given XML
+     */
     protected void accessToXML(LocatableElement methodEl)
     {
         if (access != null) {
@@ -140,6 +161,9 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         }
     }
 
+    /**
+     * Helper method for subclasses when generating XML: add params child element to given XML
+     */
     protected void paramsToXML(Element methodEl)
     {
         Element paramsEl = new Element("params");
@@ -148,7 +172,10 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         }
         methodEl.appendChild(paramsEl);
     }
-    
+
+    /**
+     * Helper method for subclasses when generating XML: add throws child element to given XML
+     */
     protected void throwsToXML(Element methodEl)
     {
         Element throwsEl = new Element("throws");
@@ -158,6 +185,9 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         methodEl.appendChild(throwsEl);
     }
 
+    /**
+     * Helper method for subclasses when generating XML: add body child element to given XML
+     */
     protected void bodyToXML(Element methodEl)
     {
         Element bodyEl = new Element("body");
@@ -166,7 +196,10 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         }
         methodEl.appendChild(bodyEl);
     }
-    
+
+    /**
+     * Helper method for subclasses when generating Java: Turn throws declaration into Java
+     */
     protected List<JavaFragment> throwsToJava()
     {
         if (throwsTypes.isEmpty())
@@ -180,9 +213,12 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         
         return typesAndCommas;
     }
-    
+
+    /**
+     * Helper method for subclasses when generating a Frame (in our frame field)
+     */
     @OnThread(Tag.FX)
-    protected void makeFrame(InteractionManager editor)
+    protected void setupFrame(InteractionManager editor)
     {
         frame.setAccess(access.getValue());
         

@@ -141,7 +141,7 @@ public class NormalMethodElement extends MethodWithBodyElement
     {
         frame = new NormalMethodFrame(editor, access, staticModifier, finalModifier,
                 returnType.getContent(), name.getContent(), documentation.toString(), isEnable());
-        makeFrame(editor);
+        setupFrame(editor);
         return frame;
     }
     
