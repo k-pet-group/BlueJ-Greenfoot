@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,11 +39,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.extensions.SourceType;
@@ -90,7 +87,6 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CodeElement.LocalParamInfo;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
-import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.frames.DebugInfo;
 import bluej.stride.framedjava.frames.DebugVarInfo;
 import bluej.stride.framedjava.frames.LocalCompletion;
@@ -721,7 +717,8 @@ public class FrameEditor implements Editor
 
     @Override
     public void displayMessage(String message, final int lineNumber, int column,
-            boolean beep, boolean setStepMark, String help) {
+            boolean beep, boolean setStepMark, String help)
+    {
         if (setStepMark) {
             Platform.runLater(() -> {
                 setVisibleFX(true, true);
@@ -757,7 +754,16 @@ public class FrameEditor implements Editor
                         if (curBreakpoint != null) {
                             curBreakpoint.removeHighlight();
                         }
-                        curBreakpoint = javaSource.get().handleStop(lineNumber, debugInfo);
+                        try {
+                            JavaSource js = javaSource.get();
+                            if (js == null) {
+                                js = saveJava(lastSource, false).javaSource;
+                            }
+                            curBreakpoint = js.handleStop(lineNumber, debugInfo);
+                        }
+                        catch (IOException ioe) {
+                            Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
+                        }
                     });
                 });});
         }
