@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -91,43 +91,40 @@ public class SoundRecorder
             
             final AtomicReference<List<byte[]>> partialResult = new AtomicReference<List<byte[]>>(null);
                        
-            Runnable rec = new Runnable() {
-                public void run()
-                {
-                    // We should get a chunk every half second, which is better than every second
-                    // for updating the display as we go:
-                    int bufferSize = (int) (format.getSampleRate()/2) * format.getFrameSize();
-                    LinkedList<byte[]> frames = new LinkedList<byte[]>();
-                    
-                    while (keepRecording.get()) {
-                        byte buffer[] = new byte[bufferSize];
-                    
-                        int bytesRead = line.read(buffer, 0, bufferSize);
-                                           
-                        if (bytesRead != bufferSize) {
-                            keepRecording.set(false);
-                        } else {
-                            frames.addLast(buffer);
-                            partialResult.set(new LinkedList<byte[]>(frames));
-                        }
+            Runnable rec = () -> {
+                // We should get a chunk every half second, which is better than every second
+                // for updating the display as we go:
+                int bufferSize = (int) (format.getSampleRate()/2) * format.getFrameSize();
+                LinkedList<byte[]> frames = new LinkedList<byte[]>();
+
+                while (keepRecording.get()) {
+                    byte buffer[] = new byte[bufferSize];
+
+                    int bytesRead = line.read(buffer, 0, bufferSize);
+
+                    if (bytesRead != bufferSize) {
+                        keepRecording.set(false);
+                    } else {
+                        frames.addLast(buffer);
+                        partialResult.set(new LinkedList<byte[]>(frames));
                     }
-                    
-                    partialResult.set(null);
-                    
-                    line.stop();
-                    
-                    boolean done = false;
-                    while (!done) {
-                        try {
-                            recordedResultQueue.put(merge(frames));
-                            done = true;
-                        }
-                        catch (InterruptedException e) {
-                        }
+                }
+
+                partialResult.set(null);
+
+                line.stop();
+
+                boolean done = false;
+                while (!done) {
+                    try {
+                        recordedResultQueue.put(merge(frames));
+                        done = true;
+                    }
+                    catch (InterruptedException e) {
                     }
                 }
             };
-            
+
             new Thread(rec).start();
             
             return partialResult;
@@ -136,7 +133,6 @@ public class SoundRecorder
             Debug.reportError("Problem capturing sound", e);
             return null;
         }
-        
     }
 
     /**
@@ -171,8 +167,6 @@ public class SoundRecorder
         catch (IOException e) {
             Debug.reportError("Problem writing recorded sound to WAV file", e);
         }
-        
-
     }
     
     /**
@@ -192,8 +186,6 @@ public class SoundRecorder
             curOffset += frame.length;
         }
         return result;
-            
-            
     }
 
     /**
