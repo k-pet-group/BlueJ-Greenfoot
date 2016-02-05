@@ -46,36 +46,33 @@ public class MicLevelGrabber
     private MicLevelGrabber()
     {
         format = new AudioFormat(22050, 8, 1, true, true);
-        updator = new Runnable() {
-
-            public void run() {
-                try {
-                    TargetDataLine line = (TargetDataLine) AudioSystem.getLine(new DataLine.Info(TargetDataLine.class, format));
-                    line.open();
-                    line.start();
-                    int bufferSize = (int) (format.getSampleRate() / 20) * format.getFrameSize();
-                    byte buffer[] = new byte[bufferSize];
-                    int bytesRead = line.read(buffer, 0, bufferSize);
-                    line.stop();
-                    line.close();
-                    level = (int) ((getRMS(buffer, bytesRead) / 127) * 100);
-                    reportedFailure = false;
+        updator = () -> {
+            try {
+                TargetDataLine line = (TargetDataLine) AudioSystem.getLine(new DataLine.Info(TargetDataLine.class, format));
+                line.open();
+                line.start();
+                int bufferSize = (int) (format.getSampleRate() / 20) * format.getFrameSize();
+                byte buffer[] = new byte[bufferSize];
+                int bytesRead = line.read(buffer, 0, bufferSize);
+                line.stop();
+                line.close();
+                level = (int) ((getRMS(buffer, bytesRead) / 127) * 100);
+                reportedFailure = false;
+            }
+            catch (LineUnavailableException ex) {
+                if (! reportedFailure) {
+                    System.err.println("Couldn't get mic level: line unavailable");
+                    reportedFailure = true;
                 }
-                catch (LineUnavailableException ex) {
-                    if (! reportedFailure) {
-                        System.err.println("Couldn't get mic level: line unavailable");
-                        reportedFailure = true;
-                    }
+            }
+            catch (IllegalArgumentException iae) {
+                if (! reportedFailure) {
+                    System.err.println("Couldn't get mic level: can't match 22050,8,1 audio format");
+                    reportedFailure = true;
                 }
-                catch (IllegalArgumentException iae) {
-                    if (! reportedFailure) {
-                        System.err.println("Couldn't get mic level: can't match 22050,8,1 audio format");
-                        reportedFailure = true;
-                    }
-                }
-                finally {
-                    running = false;
-                }
+            }
+            finally {
+                running = false;
             }
         };
     }
