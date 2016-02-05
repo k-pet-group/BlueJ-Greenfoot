@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -684,7 +684,7 @@ public class GreenfootImage
 
     /**
      * Draw a shape directly on the image. Shapes are specified by the <a href=
-     * "http://java.sun.com/javase/6/docs/api/java/awt/Shape.html">shape
+     * "https://docs.oracle.com/javase/8/docs/api/java/awt/Shape.html">shape
      * interface</a>.
      * @param shape the shape to be drawn.
      */
@@ -697,7 +697,7 @@ public class GreenfootImage
 
     /**
      * Draw a filled shape directly on the image. Shapes are specified by the
-     * <a href="http://java.sun.com/javase/6/docs/api/java/awt/Shape.html">shape
+     * <a href="https://docs.oracle.com/javase/8/docs/api/java/awt/Shape.html">shape
      * interface</a>.
      * @param shape the shape to be filled.
      */
