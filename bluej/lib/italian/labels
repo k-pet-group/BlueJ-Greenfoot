@@ -38,9 +38,10 @@ debugger.inspector.get=Recupera
 debugger.inspector.class.nameLabel=Classe
 debugger.inspector.enum.nameLabel=Enum
 debugger.inspector.interface.nameLabel=Interfaccia
+debugger.inspector.numFields=Numero di campi
 
-debugger.objectwrapper.methodException=Eccezione nell'accesso ai metodi:
-debugger.objectwrapper.invocationException=Eccezione all'invocazione:
+debugger.objectwrapper.methodException= Eccezione accesso ai metodi:
+debugger.objectwrapper.invocationException=Eccezione durante invocazione:
 debugger.objectwrapper.inspect=Ispeziona
 debugger.objectwrapper.remove=Rimuovi
 debugger.objectwrapper.serializable=Serializza
@@ -63,12 +64,17 @@ debugger.threadstatus.zombie=zombie
 #Debugger messages
 debugger.jdiDebugger.noBreakpointMsg=Togliere il breakpoint: su questa linea non c'\u00e8 nessun breakpoint.
 debugger.jdiDebugger.noLineNumberMsg=Questa classe \u00e8 stata compilata senza informazioni\nsui numeri di riga. Non puoi mettere breakpoint.
-debugger.jdiDebugger.noCodeMsg=Non puoi mettere un breakpoint: in questa linea non c'\u00e8 codice
-debugger.jdiDebugger.internalErrorMsg=Si \u00e8 verificato un errore interno\nmentre si tentava di mettere un breakpoint
+debugger.jdiDebugger.noCodeMsg=Impossibile impostare breakpoint: nessun codice in questa linea
+debugger.jdiDebugger.internalErrorMsg=Si \u00e8 verificato un errore interno durante il tentativo di \nset questo punto di interruzione
+
+#Debugger Accessibility messages
+debugger.accessibility.breakpoint=Processo "$" ha raggiunto un punto di interruzione.
+debugger.accessibility.paused=Processo "$" in pausa.
+
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Librerie
-classmgr.userlibraries=Librerie dell'utente
+classmgr.userlibraries=Librerie Utente
 classmgr.userliblibraries=Librerie dell'utente da
 classmgr.add=Aggiungi
 classmgr.delete=Elimina
@@ -126,9 +132,11 @@ prefmgr.edit.highlightDarker=Scuro
 
 # Interface preferences panel
 prefmgr.interface.title=Interfaccia
-prefmgr.interface.language.title=Selezione della lingua
+prefmgr.interface.language.title=Seleziona linguaggio
 prefmgr.interface.language=Lingua
-prefmgr.interface.language.restart=Sar\u00e0 necessario riavviare $APPNAME affinche l'impostazione della lingua abbia effetto.
+prefmgr.interface.language.restart=Sar\u00e0 necessario riavviare $APPNAME per l'impostazione della lingua per renderlo effettivo.
+prefmgr.accessibility.title=Accessibilit\u00e0
+prefmgr.accessibility.support=Supporto Accessibilit\u00e0
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Estensioni installate
@@ -155,8 +163,16 @@ extensions.nodescription=Non specificato.
 # Extension errors
 extmgr.error.nomanifest=Nessun file Manifesto
 extmgr.error.nomain=il Manifesto non contiene l'attributo Main-Class
-extmgr.error.notsubclass=Main class non \u00e8 una sottoclasse di Extension
-extmgr.error.cannotload=Extension non pu\u00f2 essere caricata
+extmgr.error.notsubclass=Classe Main non \u00e8 una sottoclasse di Estensione
+extmgr.error.cannotload=Estensione non pu\u00f2 essere caricata
+
+# Rasperry Pi preferences panel
+extmgr.raspberryPi.rpiPanelTitle=Rasbperry Pi
+extmgr.raspberryPi.title=Settaggi JVM
+extmgr.raspberryPi.superUser=Codice utente eseguito come root.
+prefmgr.raspberryPi.NoteLine1=\u00c8 necessario l'accesso di root per accedere GPIO e hardware nel Raspberry Pi.
+prefmgr.raspberryPi.NoteLine2=Per consentire a BlueJ di eseguire come root, sudo deve essere consentito senza la password.
+prefmgr.raspberryPi.NoteLine3=Per maggiori informazioni, visitate le faq su: http://bluej.org/faq.html#rasppi_hardware
 
 #---------------
 #Editor labels
@@ -287,11 +303,14 @@ editor.highlight.found=Trovato
 editor.highlight.notFound=\ non trovato.
 
 # Message shown in code completion pane when nothing is found
-editor.completion.noMatch=Nessuna corrispondenza
+editor.completion.noMatch=Nessun completamento corrispondenti
 
-#Messages shown when determining what function is bound to a given key
-editor.keypressed.keyIsNotBound=\ non legato alla funzione.
-editor.keypressed.callsTheFunction=\ chiamate alla funzione "
+#Message shown in code completion while processing
+editor.completion.working=Caricamento...
+
+# Messages shown when determining what function is bound to a given key
+editor.keypressed.keyIsNotBound=non \u00e8 vincolato a una funzione.
+editor.keypressed.callsTheFunction=chiama la funzione "
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version = versione Moe
@@ -361,10 +380,12 @@ pkgmgr.chooseWebPage.title=Scegli la pagina HTML di destinazione
 pkgmgr.chooseWebPage.buttonLabel=Salva la pagina HTML
 
 pkgmgr.parentpackagetarget.open=Apri
-pkgmgr.parentpackagetarget.openunamed=Apri un package senza nome
+pkgmgr.parentpackagetarget.openunamed=Apri package senza nome
+
+pkgmgr.noProjectOpened.message=Use the Project menu to create or open a project
 
 pkgmgr.packagemenu.open=Apri
-pkgmgr.packagemenu.remove=Elimina
+pkgmgr.packagemenu.remove=Rimuovi
 
 pkgmgr.classmenu.runApplet=Esegui l'applet
 pkgmgr.classmenu.edit=Apri nell'Editor
@@ -389,6 +410,13 @@ pkgmgr.test.popup.testPrefix=Test
 pkgmgr.test.popup.createTest=Crea il metodo di test...
 pkgmgr.test.popup.benchToFixture=da Object Bench a Test Fixture
 pkgmgr.test.popup.fixtureToBench=da Test Fixture a Object Bench
+
+#Accessibility
+pkgmgr.objBench.title=Object Bench
+pkgmgr.objBench.suffix.singular=oggetto
+pkgmgr.objBench.suffix.plural=oggetti
+pkgmgr.codepad.title=Codepad
+pkgmgr.graphEditor.title=Diagramma di classe
 
 # codepad messages
 pkgmgr.codepad.uninitialized=Nota: Le variabili sono automaticamente inizializate\n come campi dell'istanza.
@@ -562,11 +590,14 @@ pkgmgr.appletInBrowser=Eseguo l'applet nel browser web
 pkgmgr.exported.jar=Esportazione verso file jar completata.
 pkgmgr.error.open=Il progetto non esiste (non pi\u00f9)
 pkgmgr.checkingVersion=Connessione al server in corso...
-pkgmgr.midlet.deploying=Deploy MIDlet...
-pkgmgr.midlet.deployed=Deploy MIDlet... Fatto.
+pkgmgr.midlet.deploying=Distribuzione di MIDlet suite...
+pkgmgr.midlet.deployed=Distribuzione di MIDlet suite... Fatto.
 
-properties.heading.bluej=Propriet\u00e0 di BlueJ. Le configurazioni in questo file hanno la precedenza su quelle in \"bluej.defs\"
-properties.heading.moe=Propriet\u00e0 dell'Editor Moe. Le configurazioni in questo file hanno la precedenza su quelle in \"moe.defs\"
+# accessibility messages
+pkgmgr.accessibility.compileDone=Compilazione riuscita.
+
+properties.heading.bluej=Propriet\u00e0 BlueJ. Impostazioni in questo file \"bluej.defs\"
+properties.heading.moe=Propriet\u00e0 Modifica Moe. Impostazioni in questo file \"moe.defs\"
 
 # menus and menu items
 
@@ -770,21 +801,26 @@ graph.tooltip.classBroken=Questa classe non pu\u00f2 essere analizzata attualmen
 #Copyright
 
 menu.help.copyright.title=BlueJ Copyright, Lincenza e ridistribuzione
-menu.help.copyright.line1=BlueJ \u00e8 disponibile sotto la licenza GNU General Public License
-menu.help.copyright.line2=versione 2 con eccezione per i Classpath
-menu.help.copyright.line3=Per maggiori informazioni vedere il file LICENSE.txt
+menu.help.copyright.line0=BlueJ \u00a9 2000-2015 Michael K\u00F6lling, John Rosenberg.
+menu.help.copyright.line1=BlueJ \u00e8 disponibile sotto la GNU General Public License
+menu.help.copyright.line2=versione 2 con Classpath eccezione.
+menu.help.copyright.line3=Per altre informazioni vedere il file LICENSE.txt
 menu.help.copyright.line4=e THIRDPARTYLICENSE.txt.
 
 #Collection
 # The content for these is HTML, so don't use <, > or & without escaping:
 
 collect.status.optedin=Attualmente stai partecipando alla raccolta di informazioni
-collect.status.nextsession=Potrai prendere parte alla raccolta di informazioni la prossima volta che avvii BlueJ
-collect.status.optedout=Attualmente non stai partecipando alla raccolta di informazioni
+collect.status.nextsession=Consentire la ricerca anonima dei dati la prossima volta che BlueJ si avvia
+collect.status.optedout=Attualmente non stai partecipando alla ricerca anonima dei dati
+
+#Raspberry Pi
+raspberrypi.error.sudo=Accesso sudo senza password non disponibile. Continuando senza accesso all'hardware.\nPer maggiori informazioni, vedere: http://bluej.org/faq.html#rasppi_hardware
+raspberrypi.error.sudo.title=Nessun accesso all'hardware
 
 # About
 
-about.bluej.version=BlueJ versione
+about.bluej.version=Versione di BlueJ
 about.java.version=Java versione
 about.vm=Virtual Machine:
 about.runningOn=Sistema:
