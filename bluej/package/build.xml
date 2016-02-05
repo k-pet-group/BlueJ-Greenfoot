@@ -430,7 +430,7 @@
         </replaceregexp>
 
 
-        <zip destfile="winsetup/bluej-standalone.zip">
+        <zip destfile="winsetup/bluej-standalone-${bluej.version}.zip">
             <zipfileset dir="winsetup/standalone"/>
         </zip>
 
