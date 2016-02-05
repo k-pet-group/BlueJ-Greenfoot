@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -57,6 +57,7 @@ public class MicLevelGrabber
                     byte buffer[] = new byte[bufferSize];
                     int bytesRead = line.read(buffer, 0, bufferSize);
                     line.stop();
+                    line.close();
                     level = (int) ((getRMS(buffer, bytesRead) / 127) * 100);
                     reportedFailure = false;
                 }
