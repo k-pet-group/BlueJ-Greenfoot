@@ -75,6 +75,7 @@
         <pathelement location="${jlayer.jar.path}"/>
         <pathelement location="${bluej.projectdir}/lib/opencsv-2.3.jar"/>
         <pathelement location="${bluej.projectdir}/lib/xom-1.2.9.jar"/>
+        <pathelement location="${bluej.projectdir}/lib/diffutils-1.2.1.jar"/>
         <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
