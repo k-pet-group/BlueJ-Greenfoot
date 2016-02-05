@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2014,2015,2016  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.utility;
 
 import java.io.File;
@@ -34,11 +55,18 @@ import bluej.stride.generic.AssistContentThreadSafe;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+/**
+ * A class which manages scanning the classpath for available imports.
+ */
 public class ImportScanner
 {
+    // A lock item :
     private final Object monitor = new Object();
-    private CompletableFuture<PackageInfo> root; // Root package with "" as ident
+    // Root package with "" as ident.
+    private CompletableFuture<RootPackageInfo> root;
+    // The Reflections library we use to actually do the scanning:
     private Reflections reflections;
+    // The Project which we are scanning for:
     private Project project;
 
     public ImportScanner(Project project)
@@ -46,20 +74,24 @@ public class ImportScanner
         this.project = project;
     }
 
+    /**
+     * For each package that we scan, we hold one PackgeInfo with details on the items
+     * in that package, and links to any subpackages.  Thus the root of this tree
+     * is a single PackageInfo representing the unnamed package (held in this.root).
+     */
     private class PackageInfo
     {
         // Value can be null if details not loaded yet
         public final HashMap<String, AssistContentThreadSafe> types = new HashMap<>();
         public final HashMap<String, PackageInfo> subPackages = new HashMap<>();
     
-        public void addClass(String name)
+        // Records a class with the given name (scoped relative to this package).
+        // So first we call addClass({"java","lang"},"String") on the root package, then
+        // addClass({"lang"}, "String"} on the java package, then
+        // addClass({}, "String)" on the java.lang package.
+        protected void addClass(Iterator<String> packageIdents, String name)
         {
-            String[] splitParts = name.split("\\.", -1);
-            addClass(Arrays.asList(Arrays.copyOf(splitParts, splitParts.length - 1)).iterator(), splitParts[splitParts.length - 1]);
-        }
-        
-        private void addClass(Iterator<String> packageIdents, String name)
-        {
+            // If it's a sub-package, create it if necessary, then recurse:
             if (packageIdents.hasNext())
             {
                 String ident = packageIdents.next();
@@ -73,14 +105,27 @@ public class ImportScanner
             }
             else
             {
+                // Lives in this package:
                 types.put(name, null);
             }
         }
-        
+
+        /**
+         * Gets the type for the given name from this package, either using cached copy
+         * or by calculating it on demand.
+         * 
+         * @param prefix The package name, ending in ".", e.g. "java.lang."
+         * @param name The unqualified type name, e.g. "String".
+         */
+        @OnThread(Tag.Worker)
         private AssistContentThreadSafe getType(String prefix, String name, JavadocResolver javadocResolver)
         {
             return types.computeIfAbsent(name, s -> { 
                 Class<?> c = reflections.typeNameToClass(prefix + s);
+                // To safely get an AssistContentThreadSafe, we must create one from the Swing thread.
+                // So we need to hop across to the Swing thread.  Because we are an arbitrary background
+                // worker thread, it is safe to use invokeAndWait; we'll wait for the Swing thread to
+                // become available if we have to, without risk of deadlock, and we won't block the Swing thread: 
                 CompletableFuture<AssistContentThreadSafe> f = new CompletableFuture<>();
                 try
                 {
@@ -95,6 +140,18 @@ public class ImportScanner
             });
         }
 
+        /**
+         * Gets types arising from a given import directive in the source code.
+         * 
+         * @param prefix The prefix of this package, ending in ".".  E.g. for the java
+         *               package, we would be passed "java."
+         * @param idents The next in the sequence of identifiers.  E.g. if we are the java package
+         *               we might be passed {"lang", "String"}.  The final item may be an asterisk,
+         *               e.g. {"lang", "*"}, in which case we return all types.  Otherwise we will
+         *               return an empty list (if the type is not found), or a singleton list.
+         * @return The 
+         */
+        @OnThread(Tag.Worker)
         public List<AssistContentThreadSafe> getImportedTypes(String prefix, Iterator<String> idents, JavadocResolver javadocResolver)
         {
             if (!idents.hasNext())
@@ -108,7 +165,7 @@ public class ImportScanner
             }
             else if (idents.hasNext())
             {
-                // Look for package:
+                // Still more identifiers to follow.  Look for package:
                 if (subPackages.containsKey(s))
                     return subPackages.get(s).getImportedTypes(prefix + s + ".", idents, javadocResolver);
                 else
@@ -116,7 +173,7 @@ public class ImportScanner
             }
             else
             {
-                // Look for class:
+                // Final identifier, not an asterisk, look for class:
                 AssistContentThreadSafe ac = getType(prefix, s, javadocResolver);
                 if (ac != null)
                     return Collections.singletonList(ac);
@@ -126,29 +183,46 @@ public class ImportScanner
         }
     }
     
+    // PackageInfo, but for the root type.
+    private class RootPackageInfo extends PackageInfo
+    {
+        // Adds fully qualified class name to type list.
+        public void addClass(String name)
+        {
+            String[] splitParts = name.split("\\.", -1);
+            addClass(Arrays.asList(Arrays.copyOf(splitParts, splitParts.length - 1)).iterator(), splitParts[splitParts.length - 1]);
+        }
+    }
+    
     @OnThread(Tag.Any)
-    private CompletableFuture<PackageInfo> getRoot()
+    private CompletableFuture<? extends PackageInfo> getRoot()
     {
         synchronized (monitor)
         {
-            // Already calculated:
+            // Already started calculating:
             if (root != null)
             {
                 return root;
             }
             else
             {
+                // Start calculating:
                 root = new CompletableFuture<>();
-                // Not a lambda, for thread-checker purposes:
-                Utility.getBackground().submit(new Runnable() { @OnThread(Tag.Unique) public void run() {
-                    root.complete(findAllTypes());
-                }});
+                Utility.runBackground(() -> root.complete(findAllTypes()));
                 return root;
             }
         }
     }
-    
-    @OnThread(Tag.Any)
+
+    /**
+     * Given an import source (e.g. "java.lang.String", "java.util.*"), finds all the
+     * types that will be imported.
+     * 
+     * If the one-time on-load import scanning has not finished yet, this method will
+     * wait until it has.  Hence you should call it from a worker thread, not from a 
+     * GUI thread where it could block the GUI for a long time.
+     */
+    @OnThread(Tag.Worker)
     public List<AssistContentThreadSafe> getImportedTypes(String importSrc, JavadocResolver javadocResolver)
     {
         try
@@ -162,7 +236,8 @@ public class ImportScanner
         }
     }
     
-    @OnThread(Tag.Unique)
+    // Gets the class loader config to pass to the Reflections library
+    @OnThread(Tag.Worker)
     private ConfigurationBuilder getClassloaderConfig()
     {
         List<ClassLoader> classLoadersList = new ArrayList<ClassLoader>();
@@ -170,6 +245,7 @@ public class ImportScanner
         classLoadersList.add(ClasspathHelper.staticClassLoader());
         try
         {
+            // Safe to use invokeAndWait because we are a worker thread:
             SwingUtilities.invokeAndWait(() -> {
                 classLoadersList.add(project.getClassLoader());
             });
@@ -215,8 +291,13 @@ public class ImportScanner
             .setUrls(urls)
             .addClassLoader(cl);
     }
-    
-    @OnThread(Tag.Unique)
+
+    /**
+     * Creates a Reflections instance ready to do import scanning.
+     * @param importSrcs Currently not used by caller, but narrows imports down
+     * @return
+     */
+    @OnThread(Tag.Worker)
     private Reflections getReflections(List<String> importSrcs)
     {
         FilterBuilder filter = new FilterBuilder();
@@ -253,13 +334,13 @@ public class ImportScanner
         }
     }
 
-    @OnThread(Tag.Unique)
-    private PackageInfo findAllTypes()
+    @OnThread(Tag.Worker)
+    private RootPackageInfo findAllTypes()
     {
         reflections = getReflections(Collections.emptyList());
         
         if (reflections == null)
-            return new PackageInfo();
+            return new RootPackageInfo();
         
         Set<String> classes;
         try
@@ -275,11 +356,15 @@ public class ImportScanner
         // Also add Object itself, not found by default:
         classes.add(Object.class.getName());
 
-        PackageInfo r = new PackageInfo();
+        RootPackageInfo r = new RootPackageInfo();
         classes.forEach(c -> r.addClass(c));
         return r;
     }
 
+    /**
+     * Starts scanning for available importable types from the classpath.
+     * Will operate in a background thread.
+     */
     public void startScanning()
     {
         // This will make sure the future has started:

@@ -10,7 +10,7 @@ public enum Tag
     // FX means the FX thread, but calls to SwingUtilities.invokeLater
     // are banned.  This is used when we know the Swing thread is blocked.
     // Whereas FX_UsesSwing can make invokeLater calls.
-    FX, FX_WaitsForSwing, Swing, Swing_WaitsForFX, Unique, Simulation, Any;
+    FX, FX_WaitsForSwing, Swing, Swing_WaitsForFX, Unique, Simulation, Worker, Any;
 
     /**
      * Checks if this tag on a method is allowed when overriding the given (potentially null) parent method tag.
@@ -41,7 +41,7 @@ public enum Tag
         if (dest == null || dest == Any) // Can call dest any from any source
             return true;
         else if (dest == Tag.Unique)
-            return sameInstance && this == Tag.Unique; // Can't call a unique thread directly unless same instance
+            return sameInstance && this == Tag.Unique; // Can't call a unique thread directly unless same instance)
         else if (dest == Tag.FX && this == Tag.FX_WaitsForSwing)
             return true; // FX_UsesSwing can call FX, but not vice versa
         else if (dest == Tag.Swing && this == Tag.Swing_WaitsForFX)

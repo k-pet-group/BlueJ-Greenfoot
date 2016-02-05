@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -232,7 +232,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         methodAnns.add(new MethodRef("java.lang.Thread", "<init>", new LocatedTag(Tag.Any, false, true, "<Thread>")));
         
         
-        methodAnns.add(new MethodRef("java.util.concurrent.ScheduledExecutorService", "submit", new LocatedTag(Tag.Unique, true, true, "<ScheduledExecutor>")));
+        methodAnns.add(new MethodRef("java.util.concurrent.ScheduledExecutorService", "submit", new LocatedTag(Tag.Worker, true, true, "<ScheduledExecutor>")));
         
         // This makes Runnables ignore package tags:
         //classAnns.put("java.lang.Runnable", new LocatedTag(Tag.Any, true, false, "<Runnable>"));
@@ -917,6 +917,8 @@ class TCScanner extends TreePathScanner<Void, Void>
             return new LocatedTag(calledFrom == Tag.Swing_WaitsForFX ? Tag.FX : Tag.FX_WaitsForSwing, true, true, "<runLater>");
         else if (Arrays.asList("SwingUtilities.invokeAndWait", "SwingUtilities.invokeLater", "EventQueue.invokeLater", "EventQueue.invokeAndWait").contains(call))
             return new LocatedTag(calledFrom == Tag.FX_WaitsForSwing ? Tag.Swing : Tag.Swing_WaitsForFX, true, true, "<invokeLater>");
+        else if (Arrays.asList("background.execute").contains(call))
+            return new LocatedTag(Tag.Worker, true, true, "<Executor.execute>");
         //else if (typeName.startsWith("java.") && call.endsWith("forEach")) // Bit hacky
         //{
         //    System.err.println("Found a forEach: " + call + " so returning: " + calledFrom_);

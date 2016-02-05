@@ -1355,12 +1355,19 @@ public class Utility
             }
         };
     }
+    
+    @FunctionalInterface
+    public static interface BackgroundRunnable
+    {
+        @OnThread(Tag.Worker)
+        public void run();
+    }
 
     // The Runnable will run on an arbitrary thread
     @OnThread(Tag.Any)
-    public static void runBackground(Runnable r)
+    public static void runBackground(BackgroundRunnable r)
     {
-        background.execute(r);
+        background.execute(() -> r.run());
     }
 
     @OnThread(Tag.Any)
