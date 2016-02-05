@@ -318,42 +318,91 @@
     	<antcall target="greenfoot-dist-cleanup" />
     </target>
 
-    <target name="windows-launcher">
-        <!-- build launcher -->
-
-        <!-- To turn Windows path into MinGW path, remove colon and replace
+    <!-- To turn Windows path into MinGW path, remove colon and replace
              backslash with forward slash, and prefix with forward slash.
              So C:\Java\jdk1.8.0_60 becomes /c/Java/jdk1.8.0_60 -->
 
-        <loadresource property="mingw_jdk">
-            <propertyresource name="build_java_home"/>
-            <filterchain>
-                <prefixlines prefix="/"/>
-                <tokenfilter>
-                    <filetokenizer/>
-                    <replacestring from="\" to="/"/>
-                    <replacestring from=":" to=""/>
-                </tokenfilter>
-            </filterchain>
-        </loadresource>
-        <loadresource property="mingw_bluej_home">
-            <propertyresource name="bluej_home"/>
-            <filterchain>
-                <prefixlines prefix="/"/>
-                <tokenfilter>
-                    <filetokenizer/>
-                    <replacestring from="\" to="/"/>
-                    <replacestring from=":" to=""/>
-                </tokenfilter>
-            </filterchain>
-        </loadresource>
+    <loadresource property="mingw_jdk">
+        <propertyresource name="build_java_home"/>
+        <filterchain>
+            <prefixlines prefix="/"/>
+            <tokenfilter>
+                <filetokenizer/>
+                <replacestring from="\" to="/"/>
+                <replacestring from=":" to=""/>
+            </tokenfilter>
+        </filterchain>
+    </loadresource>
+    <loadresource property="mingw_bluej_home">
+        <propertyresource name="bluej_home"/>
+        <filterchain>
+            <prefixlines prefix="/"/>
+            <tokenfilter>
+                <filetokenizer/>
+                <replacestring from="\" to="/"/>
+                <replacestring from=":" to=""/>
+            </tokenfilter>
+        </filterchain>
+    </loadresource>
 
+    <target name="windows-launcher">
+        <!-- build launcher -->
         <exec dir="winlaunch" executable="${msys_bash}">
             <!-- We must use the login flag or none of the PATH etc variables get set: -->
             <arg line="--login"/>
             <!-- Must cd to right directory, then run make: -->
             <arg line="-c &quot;cd ${mingw_bluej_home}/package/winlaunch;make clean gflaunch.exe BUILD=greenfoot JDKDIR='${mingw_jdk}'&quot;"/>
         </exec>
+    </target>
+
+    <target name="windows-launcher-usb">
+        <!-- build launcher -->
+        <exec dir="winusblaunch" executable="${msys_bash}">
+            <!-- We must use the login flag or none of the PATH etc variables get set: -->
+            <arg line="--login"/>
+            <!-- Must cd to right directory, then run make: -->
+            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winusblaunch;make clean greenfoot.exe BUILD=greenfoot JDKDIR='${mingw_jdk}'&quot;"/>
+        </exec>
+    </target>
+
+    <target name="windows-standalone" depends="dist,windows-launcher-usb">
+        <mkdir dir="winsetup/standalone"/>
+        <delete dir="winsetup/standalone/bluej" failonerror="false"/>
+        <delete dir="winsetup/standalone/greenfoot" failonerror="false"/>
+        <delete dir="winsetup/standalone" includes="*.exe" />
+        <unzip src="greenfoot-dist.jar" dest="winsetup/standalone/greenfoot" />
+
+        <!-- Copy top-level special launcher -->
+        <copy todir="winsetup/standalone" file="winusblaunch/greenfoot.exe"/>
+
+        <!-- Copy usual launcher -->
+        <copy tofile="winsetup/standalone/greenfoot/Greenfoot.exe" file="winlaunch/gflaunch.exe"/>
+
+        <!-- Copy the JDK to be bundled -->
+        <copy todir="winsetup/standalone/greenfoot/jdk">
+            <fileset dir="${win_bundled_jdk_path}" />
+        </copy>
+
+        <!-- Fix the path to the JDK in bluej.defs -->
+        <replaceregexp byline="true">
+            <regexp pattern="#bluej\.windows\.vm=.*"/>
+            <substitution expression="bluej.windows.vm=jdk"/>
+            <fileset dir="winsetup/standalone/greenfoot/lib" includes="greenfoot.defs"/>
+        </replaceregexp>
+
+        <!-- Adjust the home directory -->
+        <replaceregexp byline="true">
+            <regexp pattern="#bluej\.userHome=.*"/>
+            <substitution expression="bluej.userHome=userhome"/>
+            <fileset dir="winsetup/standalone/greenfoot/lib" includes="greenfoot.defs"/>
+        </replaceregexp>
+
+
+        <zip destfile="winsetup/greenfoot-standalone-${greenfoot.version}.zip">
+            <zipfileset dir="winsetup/standalone"/>
+        </zip>
+
+        <delete dir="winsetup/standalone" />
     </target>
 
     <!-- windows-dist requires that a greenfoot-dist.jar file is placed into
