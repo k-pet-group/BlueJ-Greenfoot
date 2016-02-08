@@ -2559,6 +2559,7 @@ public final class MoeEditor extends JPanel
                 return action;
             }
         });
+        SwingTabbedEditor.disableCtrlTabTraversal(htmlPane);
     }
 
     /**
@@ -3235,6 +3236,7 @@ public final class MoeEditor extends JPanel
         moeCaret = new MoeCaret(this);
         sourcePane.setCaret(moeCaret);
         sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
+        SwingTabbedEditor.disableCtrlTabTraversal(sourcePane);
         
         // *** Disabled due to Java bug - see http://davmac.wordpress.com/2014/05/13/javas-nimbus-look-and-feel-and-custom-keymaps/ ***
         // The Nimbus look-and-feel doesn't normally respect the background colour setting;
@@ -3597,6 +3599,11 @@ public final class MoeEditor extends JPanel
     public JEditorPane getSourcePane()
     {
         return sourcePane;
+    }
+
+    public JEditorPane getHTMLPane()
+    {
+        return htmlPane;
     }
     
     /**

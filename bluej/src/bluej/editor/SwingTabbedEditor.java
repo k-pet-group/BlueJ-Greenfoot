@@ -31,8 +31,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.*;
 
@@ -94,6 +96,7 @@ public class SwingTabbedEditor implements TabbedEditorWindow
                 }
             });
         }
+        setupTabTraversalKeys(tabPane);
         
         window.add(tabPane);
 
@@ -149,6 +152,35 @@ public class SwingTabbedEditor implements TabbedEditorWindow
         this.project = project;
     }
 
+    // Taken from http://www.davidc.net/programming/java/how-make-ctrl-tab-switch-tabs-jtabbedpane
+    private static void setupTabTraversalKeys(JTabbedPane tabbedPane)
+    {
+        KeyStroke ctrlTab = KeyStroke.getKeyStroke("ctrl TAB");
+        KeyStroke ctrlShiftTab = KeyStroke.getKeyStroke("ctrl shift TAB");
+        disableCtrlTabTraversal(tabbedPane);
+
+
+        // Add keys to the tab's input map
+        InputMap inputMap = tabbedPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        inputMap.put(ctrlTab, "navigateNext");
+        inputMap.put(ctrlShiftTab, "navigatePrevious");
+    }
+
+    public static void disableCtrlTabTraversal(JComponent component)
+    {
+        KeyStroke ctrlTab = KeyStroke.getKeyStroke("ctrl TAB");
+        KeyStroke ctrlShiftTab = KeyStroke.getKeyStroke("ctrl shift TAB");
+        // Remove ctrl-tab from normal focus traversal
+        Set<AWTKeyStroke> forwardKeys = new HashSet<AWTKeyStroke>(component.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+        forwardKeys.remove(ctrlTab);
+        component.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forwardKeys);
+
+        // Remove ctrl-shift-tab from normal focus traversal
+        Set<AWTKeyStroke> backwardKeys = new HashSet<AWTKeyStroke>(component.getFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS));
+        backwardKeys.remove(ctrlShiftTab);
+        component.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardKeys);
+    }
+
     private void updateTitle()
     {
         final MoeEditor editor = panelToEditor.get(tabPane.getSelectedComponent());
@@ -178,7 +210,7 @@ public class SwingTabbedEditor implements TabbedEditorWindow
         if (visible)
         {
             // Must ask for editorTab before calling pack(), otherwise pack makes window zero-size:
-            
+
             Component editorTab = getMoeEditorTab(editor, partOfMove);
             
             if (!window.isShowing())
