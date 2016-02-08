@@ -521,7 +521,11 @@ public class CommitCommentsFrame extends EscapeDialog
                     commitText.setEnabled(false);
                     commitAction.setEnabled(false);
                     pushAction.setEnabled(true);
-                } 
+                } else if (!isPushAvailable && !commitAction.isEnabled()) {
+                    commitText.setEnabled(false);
+                    commitAction.setEnabled(false);
+                    pushAction.setEnabled(false);
+                }
             }
         }
         
@@ -639,6 +643,10 @@ public class CommitCommentsFrame extends EscapeDialog
                     commitText.setEnabled(false);
                     commitAction.setEnabled(false);
                     pushAction.setEnabled(true);
+                } else if (!pushAction.isEnabled() && !isCommitAvailable) {
+                    commitText.setEnabled(false);
+                    commitAction.setEnabled(false);
+                    pushAction.setEnabled(false);
                 }
             }
         }
