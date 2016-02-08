@@ -657,6 +657,7 @@ team.update=Update@U
 team.menu.update=Update from Repository...@U
 team.push=Push
 team.push.statusMessage=Pushing project into remote repository...
+team.push.statusDone=Pushing project into remote repository... Done.
 team.update.statusMessage=Updating project...
 team.update.statusDone=Updating project... Done.
 team.update.title=Update Files from Repository

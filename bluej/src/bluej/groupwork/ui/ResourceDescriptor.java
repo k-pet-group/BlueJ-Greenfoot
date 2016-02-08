@@ -30,7 +30,7 @@ import bluej.pkgmgr.Project;
  * Class to determine team resource descriptions for use in dialogs
  * 
  * @author Bruce Quig
- * @version $Id: ResourceDescriptor.java 15433 2016-02-08 14:54:23Z fdlh $
+ * @version $Id: ResourceDescriptor.java 15434 2016-02-08 21:06:24Z fdlh $
  */
 public class ResourceDescriptor
 {
@@ -49,21 +49,21 @@ public class ResourceDescriptor
                 // file has been deleted
                 switch (info.getStatus()) {
                     case TeamStatusInfo.STATUS_DELETED:
-                        status += " (" + Config.getString("team.status.delete") + "), ("+ Config.getString("team.status.needspush") +")";
+                        status += " (" + Config.getString("team.status.delete") + ")";
                         break;
                     case TeamStatusInfo.STATUS_NEEDSADD:
-                        status += " (" + Config.getString("team.status.add") + "), ("+ Config.getString("team.status.needspush") +")";
+                        status += " (" + Config.getString("team.status.add") + ")";
                         break;
                     case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
-                        status += " (" + Config.getString("team.status.new") + "), ("+ Config.getString("team.status.needspush") +")";
+                        status += " (" + Config.getString("team.status.new") + ")";
                         break;
                     case TeamStatusInfo.STATUS_REMOVED:
                     case TeamStatusInfo.STATUS_CONFLICT_LMRD:
-                        status += " (" + Config.getString("team.status.removed") + "), ("+ Config.getString("team.status.needspush") +")";
+                        status += " (" + Config.getString("team.status.removed") + ")";
                         break;
                     case TeamStatusInfo.STATUS_NEEDSMERGE:
                         if (! isPkgFile) {
-                            status += " (" + Config.getString("team.status.needsmerge") + "), ("+ Config.getString("team.status.needspush") +")";
+                            status += " (" + Config.getString("team.status.needsmerge") + ")";
                         }   break;
                     default:
                         break;

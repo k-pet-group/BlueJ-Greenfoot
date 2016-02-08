@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -68,4 +68,13 @@ public interface StatusHandle
      * @return
      */
     public Repository getRepository();
+    
+    /**
+     * Push changes into remote repository. Shall not be used on Subversion or cvs.
+     * @param filesToPush set of files to be pushed into the remote repository
+     * @return TeamworkCommand if a VCS, null otherwise.
+     */
+    public default TeamworkCommand pushAll(Set<File> filesToPush){
+        return null;
+    }
 }

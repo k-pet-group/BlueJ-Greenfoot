@@ -68,4 +68,11 @@ public class GitStatusHandle implements StatusHandle
         return repository;
     }
 
+    @Override
+    public TeamworkCommand pushAll(Set<File> filesToPush)
+    {
+        return new GitPushChangesCommand(repository);
+    }
+    
+    
 }
