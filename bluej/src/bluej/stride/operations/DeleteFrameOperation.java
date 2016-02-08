@@ -73,9 +73,14 @@ public class DeleteFrameOperation extends FrameOperation
         {
             FrameCursor focusAfter = frames.get(0).getCursorBefore();
             frames.forEach(frame -> frame.getParentCanvas().removeBlock(frame));
+            // Clear selection first to prevent problem in frame cursor focus looking at selection for menu items:
+            editor.getSelection().clear();
             focusAfter.requestFocus();
         }
-        editor.getSelection().clear();
+        else
+        {
+            editor.getSelection().clear();
+        }
     }
 
     @Override
