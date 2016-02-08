@@ -643,10 +643,11 @@ menu.view.showTestDisplay=Show Test _Results
 #menu.view.showTeamControls=Show Team Controls@G
 
 team.project.marker=Shared Project
-team.commit=Commit@I
-team.menu.commit=Commit to Repository...@I
-team.commit.title=Commit Files to Repository
-team.commit.files=Files to be committed
+team.commit=Commit/Push@I
+team.commitButton=Commit
+team.menu.commit=Commit/Push to Repository...@I
+team.commit.title=Commit/Push Files to Repository
+team.commit.files=Files to be committed to local repository or pushed into remote repository
 team.commit.comment=Commit comment
 team.commit.layout=(Diagram Layout)
 team.commit.includelayout=Commit diagram layout
