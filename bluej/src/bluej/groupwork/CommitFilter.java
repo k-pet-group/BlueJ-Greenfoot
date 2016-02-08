@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,7 @@ import bluej.pkgmgr.BlueJPackageFile;
  * modified, remotely modified, locally deleted and remotely removed.
  *
  * @author bquig
- * @version $Id: CommitFilter.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: CommitFilter.java 15433 2016-02-08 14:54:23Z fdlh $
  */
 public class CommitFilter
 {
@@ -40,6 +40,7 @@ public class CommitFilter
     public boolean accept(TeamStatusInfo statusInfo)
     {
         int stat = statusInfo.getStatus();
+        int remoteStat = statusInfo.getRemoteStatus();
         
         if (stat == TeamStatusInfo.STATUS_DELETED) {
             return true;
@@ -48,6 +49,10 @@ public class CommitFilter
             return true;
         }
         if (stat == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
+            return true;
+        }
+        
+        if (remoteStat == TeamStatusInfo.STATUS_NEEDSPUSH){
             return true;
         }
         

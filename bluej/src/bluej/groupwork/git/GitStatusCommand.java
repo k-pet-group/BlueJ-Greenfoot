@@ -28,6 +28,7 @@ import bluej.utility.Debug;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -128,13 +129,11 @@ public class GitStatusCommand extends GitCommand
      */
     private TeamStatusInfo getTeamStatusInfo(LinkedList<TeamStatusInfo> returnInfo, File file)
     {
-        for (TeamStatusInfo status : returnInfo) {
-            if (status.getFile().getPath().contains(file.getPath())) {
-                //file already exists in the list. Return it.
-                return status;
-            }
+        try {
+            return returnInfo.stream().filter(entry ->entry.getFile().getPath().contains(file.getPath())).findFirst().get();
+        } catch (Exception e){
+            return null;
         }
-        return null;
     }
 
     /**
@@ -147,13 +146,10 @@ public class GitStatusCommand extends GitCommand
     {
         switch (entry.getChangeType()) {
             case ADD:
-                return TeamStatusInfo.STATUS_NEEDSADD;
             case DELETE:
-                return TeamStatusInfo.STATUS_REMOVED;
             case MODIFY:
-                return TeamStatusInfo.STATUS_NEEDSCOMMIT;
             case RENAME:
-                return TeamStatusInfo.STATUS_RENAMED;
+                return TeamStatusInfo.STATUS_NEEDSPUSH;
         }
         return TeamStatusInfo.STATUS_WEIRD;
     }
@@ -188,6 +184,9 @@ public class GitStatusCommand extends GitCommand
     private void diff(Git repo, File gitPath, LinkedList<TeamStatusInfo> returnInfo)
     {
         try {
+            
+            File[] allFiles = gitPath.listFiles();
+            
             ObjectId masterId = repo.getRepository().resolve("master");
 
             RevTree masterTree = getTree(repo.getRepository(), masterId);
@@ -213,13 +212,15 @@ public class GitStatusCommand extends GitCommand
                     //filter the results
                     //then add the entries on the returnInfo
                     diffs.stream().filter(p -> filter.accept(new File(gitPath, p.getNewPath())))
-                            .map((item) -> new TeamStatusInfo(new File(gitPath, item.getNewPath()), "", null, TeamStatusInfo.STATUS_BLANK, getRemoteStatusInfo(item)))
+                            .map((item) -> 
+                                    new TeamStatusInfo(new File(gitPath, item.getNewPath()), "", null, TeamStatusInfo.STATUS_BLANK, getRemoteStatusInfo(item)))
                             .forEach((TeamStatusInfo teamInfo) -> {
                                 TeamStatusInfo status = getTeamStatusInfo(returnInfo, teamInfo.getFile());
                                 //avoid duplicate entries,
                                 if (status == null) {
-                                    //create a new entry.
-                                    returnInfo.add(teamInfo);
+                                    //check if the file exits.
+                                    Arrays.stream(allFiles).filter(f -> f.getPath().contains(teamInfo.getFile().getPath())).
+                                            forEach(file -> returnInfo.add(new TeamStatusInfo(file, "", null, TeamStatusInfo.STATUS_UPTODATE, TeamStatusInfo.STATUS_NEEDSPUSH)));
                                 } else {
                                     //update an exisiting entry.
                                     status.setRemoteStatus(teamInfo.getRemoteStatus());

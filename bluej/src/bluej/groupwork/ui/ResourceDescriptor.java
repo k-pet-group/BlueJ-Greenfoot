@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,7 @@ import bluej.pkgmgr.Project;
  * Class to determine team resource descriptions for use in dialogs
  * 
  * @author Bruce Quig
- * @version $Id: ResourceDescriptor.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ResourceDescriptor.java 15433 2016-02-08 14:54:23Z fdlh $
  */
 public class ResourceDescriptor
 {
@@ -45,24 +45,33 @@ public class ResourceDescriptor
             if (isPkgFile) {
                   status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
             }
-            if(annotate) {
+                if(annotate) {
                 // file has been deleted
-                if(info.getStatus() == TeamStatusInfo.STATUS_DELETED) {
-                    status += " (" + Config.getString("team.status.delete") + ")";
+                switch (info.getStatus()) {
+                    case TeamStatusInfo.STATUS_DELETED:
+                        status += " (" + Config.getString("team.status.delete") + "), ("+ Config.getString("team.status.needspush") +")";
+                        break;
+                    case TeamStatusInfo.STATUS_NEEDSADD:
+                        status += " (" + Config.getString("team.status.add") + "), ("+ Config.getString("team.status.needspush") +")";
+                        break;
+                    case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
+                        status += " (" + Config.getString("team.status.new") + "), ("+ Config.getString("team.status.needspush") +")";
+                        break;
+                    case TeamStatusInfo.STATUS_REMOVED:
+                    case TeamStatusInfo.STATUS_CONFLICT_LMRD:
+                        status += " (" + Config.getString("team.status.removed") + "), ("+ Config.getString("team.status.needspush") +")";
+                        break;
+                    case TeamStatusInfo.STATUS_NEEDSMERGE:
+                        if (! isPkgFile) {
+                            status += " (" + Config.getString("team.status.needsmerge") + "), ("+ Config.getString("team.status.needspush") +")";
+                        }   break;
+                    default:
+                        break;
                 }
-                else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSADD) {
-                    status += " (" + Config.getString("team.status.add") + ")";
-                }
-                else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
-                    status += " (" + Config.getString("team.status.new") + ")";
-                }
-                else if (info.getStatus() == TeamStatusInfo.STATUS_REMOVED
-                        || info.getStatus() == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
-                    status += " (" + Config.getString("team.status.removed") + ")";
-                }
-                else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSMERGE) {
-                    if (! isPkgFile) {
-                        status += " (" + Config.getString("team.status.needsmerge") + ")";
+                if (info.getRemoteStatus() == TeamStatusInfo.STATUS_NEEDSPUSH) {
+                    if (!isPkgFile){
+                        //file is ok in local repo, but needs to be pushed to remote repo.
+                        status += "("+ Config.getString("team.status.needspush") +")";
                     }
                 }
             }

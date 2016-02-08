@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -573,6 +573,7 @@ public class CommitCommentsFrame extends EscapeDialog
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
                 int status = statusInfo.getStatus();
+                int remoteStatus = statusInfo.getRemoteStatus();
                 if(filter.accept(statusInfo)) {
                     if (! isPkgFile) {
                         commitListModel.addElement(statusInfo);
@@ -580,7 +581,8 @@ public class CommitCommentsFrame extends EscapeDialog
                     }
                     else if (status == TeamStatusInfo.STATUS_NEEDSADD
                                 || status == TeamStatusInfo.STATUS_DELETED
-                                || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+                                || status == TeamStatusInfo.STATUS_CONFLICT_LDRM
+                                || remoteStatus == TeamStatusInfo.STATUS_NEEDSPUSH) {
                         // Package file which must be committed.
                         if (packagesToCommmit.add(statusInfo.getFile().getParentFile())) {
                             commitListModel.addElement(statusInfo);
