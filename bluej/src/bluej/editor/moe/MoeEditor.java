@@ -2998,7 +2998,29 @@ public final class MoeEditor extends JPanel
     @Override
     public void focusMethod(String methodName)
     {
-        //TODO implement it
+        focusMethod(methodName, new NodeAndPosition<ParsedNode>(getParsedNode(), 0, 0), 0);
+    }
+
+    private boolean focusMethod(String methodName, NodeAndPosition<ParsedNode> tree, int offset)
+    {
+        // This is a fairly naive traversal, which may find methods in inner classes rather
+        // than one in the outer class; but then we don't actually pass which class we are interested in,
+        // so it may be right to pick the one in the inner class anyway:
+        if (tree.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF && methodName.equals(tree.getNode().getName()))
+        {
+            switchToSourceView();
+            sourcePane.setCaretPosition(offset);
+            return true;
+        }
+        else
+        {
+            for (NodeAndPosition<ParsedNode> child : (Iterable<NodeAndPosition<ParsedNode>>)(() -> tree.getNode().getChildren(0)))
+            {
+                if (focusMethod(methodName, child, offset + child.getPosition()))
+                    return true;
+            }
+        }
+        return false;
     }
 
     // --------------------------------------------------------------------
