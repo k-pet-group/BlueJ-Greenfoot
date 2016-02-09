@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,10 +86,14 @@ class JdiThread extends DebuggerThread
     /** We track suspension status internally */
     private boolean isSuspended;
     
+    /** Any active step request */
+    StepRequest stepRequest;
+    
     /*
      * Note that we have to track suspension status internally, because JDI will happily
      * tell us that a thread is suspended when, in fact, it is suspended only because of some
-     * VM event which suspends every thread (ThreadStart / ThreadDeath).
+     * VM event which suspends every thread (ThreadStart / ThreadDeath) or because of application
+     * suspension - see https://bugs.openjdk.java.net/browse/JDK-4257690
      */
     
     // stores a stack frame that was selected for this
@@ -548,6 +552,7 @@ class JdiThread extends DebuggerThread
     public void stopped()
     {
         isSuspended = true;
+        clearPreviousStep(getRemoteThread());
     }
     
     /**
@@ -555,7 +560,18 @@ class JdiThread extends DebuggerThread
      */
     public void step()
     {
-        doStep(StepRequest.STEP_OVER);
+        boolean doStepOver = true;
+        try {
+            // We've seen a JVM bug where a step request is ignored (or severely delayed) when
+            // a native method is being executed (codeIndex() == -1). So, we use STEP_OUT instead
+            // of STEP_OVER in that case.
+            // Possibly related to: https://bugs.openjdk.java.net/browse/JDK-6980202
+            
+            Location loc = rt.frame(0).location();
+            doStepOver = (loc.codeIndex() != -1);
+        }
+        catch (IncompatibleThreadStateException itse) { }
+        doStep(doStepOver ? StepRequest.STEP_OVER : StepRequest.STEP_OUT);
     }
 
     public void stepInto()
@@ -574,14 +590,14 @@ class JdiThread extends DebuggerThread
     private void doStep(int depth)
     {
         clearPreviousStep(rt);
-        StepRequest request = eventReqMgr.createStepRequest(rt,
+        stepRequest = eventReqMgr.createStepRequest(rt,
                                              StepRequest.STEP_LINE, depth);
-        addExcludesToRequest(request);
+        addExcludesToRequest(stepRequest);
 
         // Make sure the step event is done only once
-        request.addCountFilter(1);
-        request.putProperty(VMEventHandler.DONT_RESUME, "yes");
-        request.enable();
+        stepRequest.addCountFilter(1);
+        stepRequest.putProperty(VMEventHandler.DONT_RESUME, "yes");
+        stepRequest.enable();
 
         synchronized (this) {
             if (isSuspended) {
@@ -598,27 +614,12 @@ class JdiThread extends DebuggerThread
      */
     private void clearPreviousStep(ThreadReference thread)
     {
-        if(eventReqMgr == null)
+        if (eventReqMgr == null)
             getEventRequestManager();
 
-        List<StepRequest> requests = eventReqMgr.stepRequests();
-        Iterator<StepRequest> iter = requests.iterator();
-
-        while (iter.hasNext()) {
-            StepRequest request = iter.next();
-
-            if (request != null && request.thread() != null) {
-                if (request.thread().equals(thread)) {
-                    eventReqMgr.deleteEventRequest(request);
-                    // we must break here because now we
-                    // have deleted the step event, the
-                    // list iterator is invalid
-                    // our assumption is that we can have at
-                    // most one step event for this thread
-                    // in the system.
-                    break;
-                }
-            }
+        if (stepRequest != null) {
+            eventReqMgr.deleteEventRequest(stepRequest);
+            stepRequest = null;
         }
     }
 
