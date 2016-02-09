@@ -111,7 +111,7 @@ public class Boot
         "svnkit-javahl.jar", "svnkit.jar", "trilead.jar",
         "antlr-runtime-3.4.jar", "sequence-library-1.0.3.jar",
         "sqljet-1.1.10.jar", "jsch-0.1.53.jar", "org.eclipse.jgit-4.1.0.jar", 
-        "slf4j-api-1.7.2.jar", "slf4j-jdk14-1.7.2.jar"};
+        "slf4j-api-1.7.2.jar", "slf4j-jdk14-1.7.2.jar", "xom-1.2.9.jar" };
     // The variable form of the above
     private static String [] runtimeJars = bluejJars;
     private static String [] userJars = bluejUserJars;
