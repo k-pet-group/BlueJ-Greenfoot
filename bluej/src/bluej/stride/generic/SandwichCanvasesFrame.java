@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,7 @@ import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.DebuggableFrame;
 import bluej.stride.framedjava.frames.DebuggableParentFrame;
 import bluej.stride.framedjava.frames.DebugInfo;
+import bluej.stride.framedjava.frames.GreenfootExtensionDictionary;
 import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
 import bluej.stride.framedjava.frames.GreenfootFrameUtil;
 import bluej.stride.operations.FrameOperation;
@@ -62,7 +63,7 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
     protected SandwichCanvasesElement element;
     protected final InteractionManager editor; // Saved for creating intermediate/tail canvases.
 
-    private GreenfootFrameDictionary dictionary = GreenfootFrameDictionary.getDictionary();
+    private GreenfootExtensionDictionary dictionary = GreenfootExtensionDictionary.getDictionary();
 
     /**
      * Default constructor.

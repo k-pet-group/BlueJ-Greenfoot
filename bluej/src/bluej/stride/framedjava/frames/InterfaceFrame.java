@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -285,7 +285,7 @@ public class InterfaceFrame extends DocumentedSingleCanvasFrame
     @Override
     public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
     {
-        ExtensionDescription extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
+        ExtensionDescription extendsExtension = new ExtensionDescription(GreenfootExtensionDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
             extendsList.addTypeSlotAtEnd("", true);
         });
         

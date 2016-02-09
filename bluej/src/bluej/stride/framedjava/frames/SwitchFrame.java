@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -287,7 +287,7 @@ public class SwitchFrame extends MultiCanvasFrame
     {
         List<ExtensionDescription> result = new ArrayList<>(super.getAvailableExtensions());
         if (defaultCanvas == null) {
-            result.add(new ExtensionDescription(GreenfootFrameDictionary.DEFAULT_EXTENSION_CHAR, "Add default", SwitchFrame.this::addDefault, true));
+            result.add(new ExtensionDescription(GreenfootExtensionDictionary.DEFAULT_EXTENSION_CHAR, "Add default", SwitchFrame.this::addDefault, true));
         }
         return result;
     }
@@ -397,7 +397,7 @@ public class SwitchFrame extends MultiCanvasFrame
         List<ExtensionDescription> result = new ArrayList<>();
 
         if (defaultCanvas == null) {
-            result.add(new ExtensionDescription(GreenfootFrameDictionary.DEFAULT_EXTENSION_CHAR,
+            result.add(new ExtensionDescription(GreenfootExtensionDictionary.DEFAULT_EXTENSION_CHAR,
                     "Add default", SwitchFrame.this::addDefault, true));
         }
 

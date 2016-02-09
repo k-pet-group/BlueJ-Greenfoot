@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,8 @@
 package bluej.stride.generic;
 
 
+import bluej.stride.operations.FrameOperation;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,57 +31,58 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Holds a list of all the blocks, and information about them (e.g. shortcut key, description)
+ * Holds a list of all the extensions, and information about them (e.g. shortcut key, description)
  */
-public abstract class FrameDictionary<CATEGORY>
+public abstract class ExtensionsDictionary
 {
-    // An Entry about a particular block:
-    public static class Entry<CATEGORY>
+    // An Entry about a particular extension:
+    public static class Entry
     {
-        private final FrameFactory<? extends Frame> factory;
+        private final FrameOperation operation;
         private final List<Character> shortcutKeys;
         private final String name;
         private final String description;
-        private final CATEGORY category;
+//        private final CATEGORY category;
         private final boolean validOnSelection;
-        
-        public Entry(List<Character> shortcutKeys, FrameFactory<? extends Frame> factory, boolean validOnSelection,
-                CATEGORY category, String name, String description)
+
+        public Entry(List<Character> shortcutKeys, FrameOperation operation, boolean validOnSelection, //CATEGORY category,
+                    String name, String description)
         {
-            this.shortcutKeys = new ArrayList<Character>(shortcutKeys);
-            this.factory = factory;
-            this.category = category;
+            this.shortcutKeys = new ArrayList<>(shortcutKeys);
+            this.operation = operation;
+//            this.category = category;
             this.name = name;
             this.description = description;
             this.validOnSelection = validOnSelection;
         }
-        
-        public Entry(char shortcutKey, FrameFactory<? extends Frame> factory, boolean validOnSelection,
-                CATEGORY category, String name, String description)
+
+        public Entry(char shortcutKey, FrameOperation operation, boolean validOnSelection, // CATEGORY category,
+                     String name, String description)
         {
-            this(Arrays.asList(shortcutKey), factory, validOnSelection, category, name, description);
+            this(Arrays.asList(shortcutKey), operation, validOnSelection, //category,
+                    name, description);
         }
 
-        public boolean inCategory(CATEGORY c) { return category.equals(c); }
+//        public boolean inCategory(CATEGORY c) { return category.equals(c); }
 
         public boolean hasShortcut(char k) { return shortcutKeys.contains(k); }
-        
+
         public List<Character> getReadOnlyShortcuts() { return Collections.unmodifiableList(shortcutKeys); }
 
-        public FrameFactory<? extends Frame> getFactory() { return factory; }
+        public FrameOperation getOperation() { return operation; }
 
         public String getName() { return name; }
 
         public String getDescription() { return description; }
-        
-        public CATEGORY getCategory() { return category; }
-        
-        public String getCategoryName() { return category.toString(); }
 
-        public Class<? extends Frame> getBlockClass() { return factory.getBlockClass(); }
+//        public CATEGORY getCategory() { return category; }
+//
+//        public String getCategoryName() { return category.toString(); }
+
+        public void activate(Frame frame) { operation.activate(frame); }
 
         public boolean validOnSelection() { return validOnSelection; }
-        
+
         public String getShortcuts()
         {
             StringBuilder builder = new StringBuilder();
@@ -90,34 +93,34 @@ public abstract class FrameDictionary<CATEGORY>
             return builder.toString();
         }
     }
-    
-    private final List<Entry<CATEGORY>> entries;
-    
-    protected FrameDictionary(List<Entry<CATEGORY>> entries)
+
+    private final List<Entry> entries;
+
+    protected ExtensionsDictionary(List<Entry> entries)
     {
         this.entries = entries;
     }
     
-    public List<Entry<CATEGORY>> getAllBlocks()
+    public List<Entry> getAllExtensions()
     {
         return entries;
     }
     
-    public List<Entry<CATEGORY>> getBlocksInCategory(CATEGORY c)
-    {
-        return entries.stream().filter(e -> e.inCategory(c)).collect(Collectors.toList());
-    }
-    
-    /**
-     * Return categories
-     */
-    public abstract CATEGORY[] getCategories();
-    public abstract String[] getCategoryNames();
-    
+//    public List<Entry<CATEGORY>> getBlocksInCategory(CATEGORY c)
+//    {
+//        return entries.stream().filter(e -> e.inCategory(c)).collect(Collectors.toList());
+//    }
+//
+//    /**
+//     * Return categories
+//     */
+//    public abstract CATEGORY[] getCategories();
+//    public abstract String[] getCategoryNames();
+
     /**
      * Returns empty list if no block for that key
      */
-    public List<Entry<CATEGORY>> getFramesForShortcutKey(char k)
+    public List<Entry> getExtyensionsForShortcutKey(char k)
     {
         return entries.stream().filter(e -> e.hasShortcut(k)).collect(Collectors.toList());
     }

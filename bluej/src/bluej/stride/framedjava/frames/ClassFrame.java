@@ -68,7 +68,6 @@ import bluej.stride.slots.Focus;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.editor.stride.FrameEditorTab;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.entity.EntityResolver;
@@ -481,17 +480,17 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     {
         ExtensionDescription abstractExtension = null;
         if (canvas.equals(fieldsCanvas)) {
-            abstractExtension = new ExtensionDescription(GreenfootFrameDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
+            abstractExtension = new ExtensionDescription(GreenfootExtensionDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
                     () -> abstractModifier.set(!abstractModifier.get()));
         }
         
         ExtensionDescription extendsExtension = null;
         if (!showingExtends.get()) {
-            extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
+            extendsExtension = new ExtensionDescription(GreenfootExtensionDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
                 showAndFocusExtends();
             });
         }
-        ExtensionDescription implementsExtension = new ExtensionDescription(GreenfootFrameDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
+        ExtensionDescription implementsExtension = new ExtensionDescription(GreenfootExtensionDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
             implementsSlot.addTypeSlotAtEnd("", true);
         });
         

@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import bluej.stride.framedjava.elements.MethodWithBodyElement;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.slots.AccessPermissionSlot;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.HeaderItem;
@@ -403,7 +402,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     @Override
     public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
     {
-        return Collections.singletonList(new ExtensionDescription(GreenfootFrameDictionary.THROWS_EXTENSION_CHAR,
+        return Collections.singletonList(new ExtensionDescription(GreenfootExtensionDictionary.THROWS_EXTENSION_CHAR,
                 "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true)));
     }
 

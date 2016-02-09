@@ -203,9 +203,9 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         if (callRow == null) {
             List<ExtensionDescription> extensions = new ArrayList(super.getAvailableInnerExtensions(canvas, cursor));
 
-            extensions.addAll(Arrays.asList(new ExtensionDescription(GreenfootFrameDictionary.SUPER_EXTENSION_CHAR, "Add super(..) call", () -> {
+            extensions.addAll(Arrays.asList(new ExtensionDescription(GreenfootExtensionDictionary.SUPER_EXTENSION_CHAR, "Add super(..) call", () -> {
                 addSuperThis(new SuperThisFragment(SuperThis.SUPER), null);
-            }), new ExtensionDescription(GreenfootFrameDictionary.THIS_EXTENSION_CHAR, "Add this(..) call", () -> {
+            }), new ExtensionDescription(GreenfootExtensionDictionary.THIS_EXTENSION_CHAR, "Add this(..) call", () -> {
                 addSuperThis(new SuperThisFragment(SuperThis.THIS), null);
             })));
 
