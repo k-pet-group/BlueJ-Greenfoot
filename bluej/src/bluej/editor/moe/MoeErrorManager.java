@@ -88,6 +88,7 @@ public class MoeErrorManager implements MoeDocumentListener
             Object errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
             errorInfos.add(new ErrorDetails(errorHighlightTag, startPos, endPos, message, identifier));
             setNextErrorEnabled.accept(true);
+            editor.updateHeaderHasErrors(true);
         }
         catch (BadLocationException ble) {
             throw new RuntimeException(ble);
@@ -106,6 +107,7 @@ public class MoeErrorManager implements MoeDocumentListener
         }
         errorInfos.clear();
         setNextErrorEnabled.accept(false);
+        editor.updateHeaderHasErrors(false);
     }
     
     public int getNextErrorPos(int from)
@@ -267,7 +269,12 @@ public class MoeErrorManager implements MoeDocumentListener
             return errorInfos.stream().filter(e -> e.startPos <= lineEnd && e.endPos >= lineStart).findFirst().orElse(null);
         }
     }
-    
+
+    public boolean hasErrorHighlights()
+    {
+        return !errorInfos.isEmpty();
+    }
+
     public static class ErrorDetails
     {
         public final int startPos;

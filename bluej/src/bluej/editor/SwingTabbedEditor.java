@@ -343,6 +343,14 @@ public class SwingTabbedEditor implements TabbedEditorWindow
         updateTitle();
     }
 
+    public void setErrorStatus(MoeEditor moeEditor, boolean hasErrors)
+    {
+        HeaderPanel header = editorToHeader.get(moeEditor);
+        if (header == null)
+            return; // Currently not open
+        header.updateBorder(hasErrors);
+    }
+
     /**
      * A component for the tab header; contains a title bale, and a close button
      */
@@ -360,9 +368,9 @@ public class SwingTabbedEditor implements TabbedEditorWindow
             setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
             setOpaque(false);
             label = new JLabel(editor.getTitle());
-            label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
             label.setOpaque(false);
             label.setInheritsPopupMenu(true);
+            updateBorder(editor.hasErrors());
             add(label);
             
             CloseIcon closeIcon = new CloseIcon();
@@ -421,7 +429,15 @@ public class SwingTabbedEditor implements TabbedEditorWindow
             contextMenu.add(contextMoveMenu);
             this.setComponentPopupMenu(contextMenu);
         }
-        
+
+        private void updateBorder(boolean error)
+        {
+            if (error)
+                label.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5), BorderFactory.createMatteBorder(0,0,2,0,Color.RED)));
+            else
+                label.setBorder(BorderFactory.createEmptyBorder(0, 0, 2, 5));
+        }
+
         public void setTitle(String title)
         {
             label.setText(title);
