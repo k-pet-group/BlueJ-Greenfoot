@@ -2308,7 +2308,13 @@ public class ClassTarget extends DependentTarget
 
     public void markKnownError()
     {
+        boolean old = knownError;
         knownError = true;
+        if (old == false)
+        {
+            ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), state == S_NORMAL, knownError);
+            ExtensionsManager.getInstance().delegateEvent(event);
+        }
     }
     
     public boolean hasKnownError()
