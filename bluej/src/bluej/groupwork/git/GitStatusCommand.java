@@ -146,10 +146,13 @@ public class GitStatusCommand extends GitCommand
     {
         switch (entry.getChangeType()) {
             case ADD:
+                return TeamStatusInfo.STATUS_NEEDSCHECKOUT;
             case DELETE:
+                return TeamStatusInfo.STATUS_REMOVED;
             case MODIFY:
+                return TeamStatusInfo.STATUS_NEEDSCOMMIT;
             case RENAME:
-                return TeamStatusInfo.STATUS_NEEDSPUSH;
+                return TeamStatusInfo.STATUS_RENAMED;
         }
         return TeamStatusInfo.STATUS_WEIRD;
     }
@@ -185,7 +188,6 @@ public class GitStatusCommand extends GitCommand
     {
         try {
             
-            File[] allFiles = gitPath.listFiles();
             
             ObjectId masterId = repo.getRepository().resolve("master");
 
@@ -197,7 +199,6 @@ public class GitStatusCommand extends GitCommand
 
             //local and remote repositories differ. We need to investigate further.
             if (originMaster != null) {
-                DiffCommand diffCommand = repo.diff();
                 try (ObjectReader reader = repo.getRepository().newObjectReader()) {
                     CanonicalTreeParser localTreeIter = new CanonicalTreeParser();
                     localTreeIter.reset(reader, masterTree);
@@ -211,22 +212,41 @@ public class GitStatusCommand extends GitCommand
 
                     //filter the results
                     //then add the entries on the returnInfo
-                    diffs.stream().filter(p -> filter.accept(new File(gitPath, p.getNewPath())))
-                            .map((item) -> 
-                                    new TeamStatusInfo(new File(gitPath, item.getNewPath()), "", null, TeamStatusInfo.STATUS_BLANK, getRemoteStatusInfo(item)))
-                            .forEach((TeamStatusInfo teamInfo) -> {
-                                TeamStatusInfo status = getTeamStatusInfo(returnInfo, teamInfo.getFile());
-                                //avoid duplicate entries,
-                                if (status == null) {
-                                    //check if the file exits.
-                                    Arrays.stream(allFiles).filter(f -> f.getPath().contains(teamInfo.getFile().getPath())).
-                                            forEach(file -> returnInfo.add(new TeamStatusInfo(file, "", null, TeamStatusInfo.STATUS_UPTODATE, TeamStatusInfo.STATUS_NEEDSPUSH)));
-                                } else {
-                                    //update an exisiting entry.
-                                    status.setRemoteStatus(teamInfo.getRemoteStatus());
+                    
+                    for (DiffEntry entry:diffs){
+                        if (filter.accept(new File(gitPath, entry.getOldPath()))){
+                            int gitRemoteStatusInfo = getRemoteStatusInfo(entry);
+                            File file;
+                            if (gitRemoteStatusInfo == TeamStatusInfo.STATUS_NEEDSCHECKOUT){
+                                file = new File(gitPath, entry.getNewPath());
+                            } else {
+                                file = new File(gitPath, entry.getOldPath());
+                            }
+                            TeamStatusInfo item = new TeamStatusInfo(file, "", null, TeamStatusInfo.STATUS_BLANK, gitRemoteStatusInfo);
+                            TeamStatusInfo currentStatusInfo = getTeamStatusInfo(returnInfo, file);
+                            if (currentStatusInfo == null){
+                                //file does not appear in the current returnInfo.
+                                //this means that either the file is uptodate 
+                                //locally or it needs to be added, since it
+                                //appears in the remote repo.
+                                if (entry.getChangeType() == DiffEntry.ChangeType.ADD){
+                                    if (file.exists()) {
+                                        //file exists locally, therefore local status is updtodate
+                                        item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
+                                    } else {
+                                        //file does not exists locally, therefore local repo needs
+                                        //to be updated.
+                                        item.setStatus(TeamStatusInfo.STATUS_BLANK);
+                                    }
                                 }
-                            });
-
+                                returnInfo.add(item);
+                            } else {
+                                //update remote status.
+                                currentStatusInfo.setRemoteStatus(item.getRemoteStatus());
+                            }
+                        }
+                    }
+                    
                 } catch (IOException ex) {
                     Debug.reportError("Git status command exception", ex);
                 } catch (GitAPIException ex) {

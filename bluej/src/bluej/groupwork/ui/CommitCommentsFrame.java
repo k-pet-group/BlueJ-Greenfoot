@@ -474,7 +474,10 @@ public class CommitCommentsFrame extends EscapeDialog
                 int remoteStatus = statusInfo.getRemoteStatus();
                 if (filter.accept(statusInfo)) {
                     if (!isPkgFile) {
-                        if (remoteStatus == TeamStatusInfo.STATUS_NEEDSPUSH) {
+                        if (remoteStatus == TeamStatusInfo.STATUS_NEEDSCHECKOUT ||
+                                remoteStatus == TeamStatusInfo.STATUS_REMOVED ||
+                                remoteStatus == TeamStatusInfo.STATUS_NEEDSCOMMIT ||
+                                remoteStatus == TeamStatusInfo.STATUS_RENAMED) {
                             filesToPush.add(file);
                             if (status == TeamStatusInfo.STATUS_UPTODATE) {
                                 // file is okay locally, but needs to be pushed, therefore,

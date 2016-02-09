@@ -28,7 +28,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 15433 2016-02-08 14:54:23Z fdlh $
+ * @version $Id: TeamStatusInfo.java 15437 2016-02-09 00:08:56Z fdlh $
  */
 public class TeamStatusInfo
 {
@@ -88,8 +88,6 @@ public class TeamStatusInfo
     /** The file was renamed **/
     public final static int STATUS_RENAMED = 15;
     
-    /** The file needs to be pushed **/
-    public final static int STATUS_NEEDSPUSH = 16;
     
     /* It has no status, only used for default constructor while waiting for cvs */
     public final static int STATUS_BLANK = 11;
@@ -127,6 +125,7 @@ public class TeamStatusInfo
         this.localVersion = localVersion;
         this.remoteVersion = remoteVersion;
         this.status = status;
+        this.remoteStatus = TeamStatusInfo.STATUS_BLANK;
     }
     
     /**

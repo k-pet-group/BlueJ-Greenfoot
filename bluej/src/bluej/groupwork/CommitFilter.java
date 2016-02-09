@@ -29,7 +29,7 @@ import bluej.pkgmgr.BlueJPackageFile;
  * modified, remotely modified, locally deleted and remotely removed.
  *
  * @author bquig
- * @version $Id: CommitFilter.java 15433 2016-02-08 14:54:23Z fdlh $
+ * @version $Id: CommitFilter.java 15437 2016-02-09 00:08:56Z fdlh $
  */
 public class CommitFilter
 {
@@ -42,19 +42,19 @@ public class CommitFilter
         int stat = statusInfo.getStatus();
         int remoteStat = statusInfo.getRemoteStatus();
         
-        if (stat == TeamStatusInfo.STATUS_DELETED) {
+        if (stat == TeamStatusInfo.STATUS_DELETED || remoteStat == TeamStatusInfo.STATUS_DELETED ) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSADD) {
+        if (stat == TeamStatusInfo.STATUS_NEEDSADD || remoteStat == TeamStatusInfo.STATUS_NEEDSADD) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
+        if (stat == TeamStatusInfo.STATUS_NEEDSCOMMIT || remoteStat == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
+            return true;
+        }
+        if (remoteStat == TeamStatusInfo.STATUS_NEEDSCHECKOUT){
             return true;
         }
         
-        if (remoteStat == TeamStatusInfo.STATUS_NEEDSPUSH){
-            return true;
-        }
         
         if (BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
             boolean conflict = (stat == TeamStatusInfo.STATUS_CONFLICT_ADD);
