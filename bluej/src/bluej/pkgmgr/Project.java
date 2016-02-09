@@ -45,8 +45,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -791,7 +789,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param name
      *            The name of this object or "null" if the name is unobtainable
      * @param pkg
-     *            The package all this belongs to
+     *            The package all this belongs to (may be null)
      * @param ir
      *            the InvokerRecord explaining how we got this result/object if
      *            null, the "get" button is permanently disabled
@@ -814,12 +812,16 @@ public class Project implements DebuggerListener, InspectorManager
         }
         
         // See if it is on the bench:
-        if (! Config.isGreenfoot()) {
+        // (Also check pkg != null since the data collection mechanism can't deal with null pkg).
+        if (! Config.isGreenfoot() && pkg != null) {
             String benchName = null;
-            for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
-            {
-                if (ow.getObject().equals(obj)){
-                    benchName = ow.getName();
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+            if (pmf != null) {
+                for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
+                {
+                    if (ow.getObject().equals(obj)){
+                        benchName = ow.getName();
+                    }
                 }
             }
 
