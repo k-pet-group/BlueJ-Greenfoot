@@ -131,7 +131,7 @@ prefmgr.interface.language.title=Language selection
 prefmgr.interface.language=Language
 prefmgr.interface.language.restart=You will need to restart $APPNAME for the language setting to take effect.
 prefmgr.accessibility.title=Accessibility
-prefmgr.accessibility.support=Accessibility Support
+prefmgr.accessibility.support=Accessibility Mode [only for use with screen readers]
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions
