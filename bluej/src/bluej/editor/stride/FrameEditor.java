@@ -757,7 +757,7 @@ public class FrameEditor implements Editor
                         try {
                             JavaSource js = javaSource.get();
                             if (js == null) {
-                                js = saveJava(lastSource, false).javaSource;
+                                js = saveJava(lastSource, true).javaSource;
                             }
                             curBreakpoint = js.handleStop(lineNumber, debugInfo);
                         }
