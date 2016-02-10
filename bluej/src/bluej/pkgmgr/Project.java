@@ -1848,12 +1848,12 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Show the source code at a particular position
      */
-    public void showSource(String className, String sourceName, int lineNumber)
+    public void showSource(DebuggerThread thread, String className, String sourceName, int lineNumber)
     {
         String packageName = JavaNames.getPrefix(className);
         Package pkg = getPackage(packageName);
         if (pkg != null) {
-            pkg.showSourcePosition(sourceName, lineNumber);
+            pkg.showSourcePosition(thread, sourceName, lineNumber);
         }
     }
 

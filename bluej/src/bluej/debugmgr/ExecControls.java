@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -192,7 +192,9 @@ public class ExecControls extends JFrame
 
     /**
      * Show or hide the ExecControl window.
+     * (Deprecated; use setVisible()).
      */
+    @Deprecated
     public void showHide(boolean show)
     {
         setVisible(show);
@@ -485,7 +487,9 @@ public class ExecControls extends JFrame
             selectedThread.setSelectedFrame(index);
                 
             if (! autoSelectionEvent) {
-                project.showSource(selectedThread.getClass(index), selectedThread.getClassSourceName(index),
+                project.showSource(selectedThread,
+                        selectedThread.getClass(index),
+                        selectedThread.getClassSourceName(index),
                         selectedThread.getLineNumber(index));
             }
             

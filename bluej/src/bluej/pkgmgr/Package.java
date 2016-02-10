@@ -2204,16 +2204,13 @@ public final class Package extends Graph
     }
 
     /**
-     * A thread has hit a breakpoint or done a step. Organise display (highlight
-     * line in source, pop up exec controls).
+     * A thread has hit a breakpoint, done a step or selected a frame in the debugger. Display the source
+     * code with the relevant line highlighted.
      */
-    public boolean showSource(String sourcename, int lineNo, String threadName, boolean breakpoint)
+    public boolean showSource(DebuggerThread thread, String sourcename, int lineNo, boolean breakpoint, String msg)
     {
-        String msg = " ";
-        
-        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
-            msg = breakpoint ? Config.getString("debugger.accessibility.breakpoint") : Config.getString("debugger.accessibility.paused");
-            msg = msg.replace("$", threadName);
+        if (msg == null) {
+            msg = " ";
         }
         
         boolean bringToFront = !sourcename.equals(lastSourceName);
@@ -2223,6 +2220,25 @@ public final class Package extends Graph
                 true, null) && breakpoint) {
             showMessageWithText("break-no-source", sourcename);
         }
+
+        return bringToFront;
+    }
+
+    /**
+     * Show the specified line of the specified source file. Open the editor if necessary.
+     * @param sourcename  The source file to show
+     * @param lineNo      The line number to show
+     * @return  true if the editor was the most recent editor to have a message displayed
+     */
+    public boolean showSource(String sourcename, int lineNo)
+    {
+        String msg = " ";
+        
+        boolean bringToFront = !sourcename.equals(lastSourceName);
+        lastSourceName = sourcename;
+
+        showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront,
+                true, null);
 
         return bringToFront;
     }
@@ -2393,9 +2409,14 @@ public final class Package extends Graph
      */
     public void hitBreakpoint(DebuggerThread thread)
     {
-        showSource(thread.getClassSourceName(0), thread.getLineNumber(0), thread.getName(), true);
-
-        getProject().getExecControls().showHide(true);
+        String msg = null;
+        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
+            msg = Config.getString("debugger.accessibility.breakpoint");
+            msg = msg.replace("$", thread.getName());
+        }
+        
+        showSource(thread, thread.getClassSourceName(0), thread.getLineNumber(0), true, msg);
+        getProject().getExecControls().setVisible(true);
         getProject().getExecControls().makeSureThreadIsSelected(thread);
     }
 
@@ -2405,23 +2426,25 @@ public final class Package extends Graph
      */
     public void hitHalt(DebuggerThread thread)
     {
-        int frame = thread.getSelectedFrame();
-        if (showSource(thread.getClassSourceName(frame), thread.getLineNumber(frame), thread.getName(), thread.isAtBreakpoint())) {
-            getProject().getExecControls().setVisible(true);
+        boolean breakpoint = thread.isAtBreakpoint();
+        String msg = null;
+        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
+            msg = breakpoint ? Config.getString("debugger.accessibility.breakpoint") : Config.getString("debugger.accessibility.paused");
+            msg = msg.replace("$", thread.getName());
         }
-
-        getProject().getExecControls().showHide(true);
+        
+        int frame = thread.getSelectedFrame();
+        showSource(thread, thread.getClassSourceName(frame), thread.getLineNumber(frame), breakpoint, msg);
+        getProject().getExecControls().setVisible(true);
         getProject().getExecControls().makeSureThreadIsSelected(thread);
     }
 
     /**
      * Display a source file from this package at the specified position.
      */
-    public void showSourcePosition(String sourceName, int lineNumber)
+    public void showSourcePosition(DebuggerThread thread, String sourceName, int lineNumber)
     {
-        if (showSource(sourceName, lineNumber, null, false)) {
-            getProject().getExecControls().setVisible(true);
-        }
+        showSource(thread, sourceName, lineNumber, false, null);
     }
     
     /**
