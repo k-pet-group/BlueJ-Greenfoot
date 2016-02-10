@@ -224,7 +224,9 @@ public class ExecutionTwirler extends JButton
             public void actionPerformed(ActionEvent e)
             {
                 GProject gproj = gfFrame.getProject();
-                gproj.toggleExecControls();
+                if (! gproj.isExecControlVisible()) {
+                    gproj.toggleExecControls();
+                }
                 gproj.haltExecution();
             }
         };
