@@ -33,9 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import bluej.collect.DataCollector;
 import bluej.collect.StrideEditReason;
-import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -51,8 +49,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -78,8 +74,6 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.GreenfootFrameCategory;
 import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
-import bluej.stride.framedjava.frames.NormalMethodFrame;
-import bluej.stride.framedjava.frames.VarFrame;
 import bluej.stride.generic.FrameDictionary.Entry;
 import bluej.stride.operations.PasteFrameOperation;
 import bluej.stride.slots.EditableSlot;
@@ -165,37 +159,6 @@ public class FrameCursor implements RecallableFocus
                     nonIgnoredFrames.stream().flatMap(f -> f.getAvailableSelectionModifiers().stream())
                             .filter(e -> e.getShortcutKey() == keyFinal).forEach(e -> e.activate());
                     return true;
-                }
-
-                // Toggle variable final
-                if (key == 'n') {
-                    List<Frame> nonIgnoredFrames1 = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
-//                    if (nonIgnoredFrames1.stream().allMatch(f -> f instanceof VarFrame)) {
-//                        //TODO This should be refactored
-//                        new ToggleBooleanProperty(editor, VarFrame.TOGGLE_FINAL_VAR, VarFrame.FINAL_NAME).activate(nonIgnoredFrames1);
-//                        return true;
-//                    }
-                    if (nonIgnoredFrames1.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
-                        //TODO This should be refactored
-                        new ToggleBooleanProperty(editor, NormalMethodFrame.TOGGLE_FINAL_METHOD, NormalMethodFrame.FINAL_NAME)
-                                .activate(nonIgnoredFrames1);
-                        return true;
-                    }
-                }
-                // Toggle variable static
-                if (key == 's') {
-                    List<Frame> nonIgnoredFrames2 = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
-//                    if (nonIgnoredFrames2.stream().allMatch(f -> f instanceof VarFrame && ((VarFrame)f).isField(getParentCanvas()))) {
-//                        //TODO This should be refactored
-//                        new ToggleBooleanProperty(editor, VarFrame.TOGGLE_STATIC_VAR, VarFrame.STATIC_NAME).activate(nonIgnoredFrames2);
-//                        return true;
-//                    }
-                    if (nonIgnoredFrames2.stream().allMatch(f -> f instanceof NormalMethodFrame)) {
-                        //TODO This should be refactored
-                        new ToggleBooleanProperty(editor, NormalMethodFrame.TOGGLE_STATIC_METHOD, NormalMethodFrame.STATIC_NAME)
-                                .activate(nonIgnoredFrames2);
-                        return true;
-                    }
                 }
             }
 
@@ -878,22 +841,18 @@ public class FrameCursor implements RecallableFocus
         d.textProperty().bind(new SimpleStringProperty(entry.getShortcuts() + "\t  " + entry.getName()));
         d.setPrefWidth(250);
         MenuItem item = new MenuItem(entry.getName());
-        
+
         // Delete (with hover preview)
-        item.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e)
-            {
-                editor.beginRecordingState(FrameCursor.this);
-                editor.recordEdits(StrideEditReason.FLUSH);
-                Frame newFrame = entry.getFactory().createBlock(editor);
-                cursor.insertBlockAfter(newFrame);
-                editor.recordEdits(StrideEditReason.SINGLE_FRAME_INSERTION_CONTEXT_MENU);
-                newFrame.focusWhenJustAdded();
-                editor.endRecordingState(null);
-                editor.getSelection().clear();
-                e.consume();
-            }
+        item.setOnAction(e -> {
+            editor.beginRecordingState(FrameCursor.this);
+            editor.recordEdits(StrideEditReason.FLUSH);
+            Frame newFrame = entry.getFactory().createBlock(editor);
+            cursor.insertBlockAfter(newFrame);
+            editor.recordEdits(StrideEditReason.SINGLE_FRAME_INSERTION_CONTEXT_MENU);
+            newFrame.focusWhenJustAdded();
+            editor.endRecordingState(null);
+            editor.getSelection().clear();
+            e.consume();
         });
         return item;
     }

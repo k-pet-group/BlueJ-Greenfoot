@@ -320,14 +320,27 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
     public List<ExtensionDescription> getAvailablePrefixes()
     {
-        return Utility.concat(super.getAvailablePrefixes(), Arrays.asList(
-                new ExtensionDescription('s', "Add/Remove static", () ->
-                    // , KeyCode.S
-                    new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME).activate(this), false, false),
-                new ExtensionDescription('n', "Add/Remove final", () ->
-                    // , KeyCode.N
-                    new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME).activate(this), false, false)
-        ));
+        final List<ExtensionDescription> prefixes = new ArrayList<>(super.getAvailablePrefixes());
+        addStaticFinalToList(prefixes);
+        return prefixes;
+    }
+
+    @Override
+    public List<ExtensionDescription> getAvailableSelectionModifiers()
+    {
+        final List<ExtensionDescription> modifiers = new ArrayList<>(super.getAvailableSelectionModifiers());
+        addStaticFinalToList(modifiers);
+        return modifiers;
+    }
+
+    private void addStaticFinalToList(List<ExtensionDescription> actions)
+    {
+        actions.add(new ExtensionDescription('s', "Add/Remove static", () ->
+                // , KeyCode.S
+                new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME).activate(this), false, true));
+        actions.add(new ExtensionDescription('n', "Add/Remove final", () ->
+                //, KeyCode.N
+                new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME).activate(this), false, true));
     }
     
     // Used by ReturnFrame
