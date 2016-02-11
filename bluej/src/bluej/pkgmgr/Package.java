@@ -2970,7 +2970,8 @@ public final class Package extends Graph
             // Display status dialog for accessibility. If chainObserver is set, we assume
             // that the chained observer will fulfill this responsibility instead.
             if (successful && chainObserver == null && PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
-                if (getEditor().isVisible()) {
+                // getEditor can return null in Greenfoot
+                if (getEditor() != null && getEditor().isVisible()) {
                     DialogManager.showText(getEditor(), Config.getString("pkgmgr.accessibility.compileDone"));
                 }
             }
