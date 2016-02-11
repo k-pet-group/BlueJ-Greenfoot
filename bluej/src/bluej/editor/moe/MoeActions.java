@@ -744,6 +744,9 @@ public final class MoeActions
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), actions.get("code-completion"));
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), actions.get("autoindent"));
             }
+            if (version < 310) {
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK ), actions.get("next-error"));
+            }
             return true;
         }
         catch (IOException | ClassNotFoundException exc) {
