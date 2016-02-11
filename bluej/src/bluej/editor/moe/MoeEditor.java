@@ -4108,7 +4108,8 @@ public final class MoeEditor extends JPanel
     // package visible
     void updateHeaderHasErrors(boolean hasErrors)
     {
-        this.swingTabbedEditor.setErrorStatus(this, hasErrors);
+        if (swingTabbedEditor != null)
+            swingTabbedEditor.setErrorStatus(this, hasErrors);
     }
 
     public boolean hasErrors()
