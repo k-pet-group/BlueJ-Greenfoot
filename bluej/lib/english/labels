@@ -175,7 +175,7 @@ prefmgr.raspberryPi.NoteLine3=For more information, please see faq at: http://bl
 editor.title=BlueJ: Editor
 
 #button lables for toolbar commands
-editor.next-errorLabel = Next Error
+editor.next-errorLabel = Compile
 editor.compileLabel = Compile
 editor.undoLabel = Undo
 editor.cutLabel = Cut
