@@ -2266,29 +2266,62 @@ public final class Package extends Graph
     private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep,
             boolean bringToFront, boolean setStepMark, String help)
     {
-        return showEditorMessage(filename, lineNo, new MessageCalculator() {
-            @Override
-            public String calculateMessage(Editor e) { return message; }
-          }, beep, bringToFront, setStepMark, help);
+        Editor editor = editorForTarget(filename, bringToFront);
+        if (editor != null) {
+            editor.displayMessage(message, lineNo, 0, beep, setStepMark, help);
+        }
+        else {
+            Debug.message(filename + ", line" + lineNo + ": " + message);
+        }
+        return true;
     }
 
     /**
-     * Display an enhanced error message associated with a specific line in a
-     * class. This is done by opening the class's source, highlighting the line
-     * and showing the message in the editor's information area.
+     * Find or open the Editor for a given source file. The editor is opened and displayed if it is not
+     * currently visible. If the source file is in another package, a package editor frame will be
+     * opened for that package.
+     * 
+     * @param filename   The source file name
+     * @param bringToFront  True if the editor should be brought to the front of the window z-order
+     * @return  The editor for the given source file, or null if there is no editor.
      */
-    private boolean showEditorMessage(String filename, int lineNo, MessageCalculator messageCalc, boolean beep,
-            boolean bringToFront, boolean setStepMark, String help)
+    private Editor editorForTarget(String filename, boolean bringToFront)
+    {
+        Target t = getTargetForSource(filename);
+        if (! (t instanceof ClassTarget)) {
+            return null;
+        }
+
+        ClassTarget ct = (ClassTarget) t;
+        
+        Editor editor = ct.getEditor();
+        if (editor != null) {
+            if (! editor.isOpen() || bringToFront) {
+                t.setVisible(true);
+            }
+        }
+        
+        return editor;
+    }
+    
+    /**
+     * Find the target for a given source file. If the target is in another package, a package editor
+     * frame is opened for the package (if not open already).
+     * 
+     * @param filename  The source file name
+     * @return  The corresponding target, or null if the target doesn't exist.
+     */
+    private Target getTargetForSource(String filename)
     {
         String fullName = getProject().convertPathToPackageName(filename);
         if (fullName == null) {
-            return false;
+            return null;
         }
         
         String packageName = JavaNames.getPrefix(fullName);
         String className = JavaNames.getBase(fullName);
-
-        ClassTarget t = null;
+        
+        Target t = null;
 
         // check if the error is from a file belonging to another package
         if (! packageName.equals(getQualifiedName())) {
@@ -2304,28 +2337,14 @@ public final class Package extends Graph
 
                 pmf.setVisible(true);
 
-                t = (ClassTarget) pkg.getTarget(className);
+                t = pkg.getTarget(className);
             }
         }
         else {
-            t = (ClassTarget) getTarget(className);
+            t = getTarget(className);
         }
-
-        if (t == null) {
-            return false;
-        }
-
-        Editor editor = t.getEditor();
-        if (editor != null) {
-            if (bringToFront || !editor.isOpen()) {
-                t.open();
-            }
-            editor.displayMessage(messageCalc.calculateMessage(editor), lineNo, 0, beep, setStepMark, help);
-        }
-        else {
-            Debug.message(t.getDisplayName() + ", line" + lineNo + ": " + messageCalc.calculateMessage(null));
-        }
-        return true;
+        
+        return t;
     }
     
     // Reminds me of http://thedailywtf.com/Articles/What_Is_Truth_0x3f_.aspx :-)
@@ -2349,40 +2368,12 @@ public final class Package extends Graph
             return ErrorShown.EDITOR_NOT_FOUND;
         }
         
-        String fullName = getProject().convertPathToPackageName(diagnostic.getFileName());
-        if (fullName == null) {
+        Target target = getTargetForSource(fileName);
+        if (! (target instanceof ClassTarget)) {
             return ErrorShown.EDITOR_NOT_FOUND;
         }
         
-        String packageName = JavaNames.getPrefix(fullName);
-        String className = JavaNames.getBase(fullName);
-
-        ClassTarget t = null;
-
-        // check if the error is from a file belonging to another package
-        if (! packageName.equals(getQualifiedName())) {
-
-            Package pkg = getProject().getPackage(packageName);
-            
-            if (pkg != null) {
-                PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-
-                if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
-                    pmf = PkgMgrFrame.createFrame(pkg);
-                }
-
-                pmf.setVisible(true);
-
-                t = (ClassTarget) pkg.getTarget(className);
-            }
-        }
-        else {
-            t = (ClassTarget) getTarget(className);
-        }
-
-        if (t == null) {
-            return ErrorShown.EDITOR_NOT_FOUND;
-        }
+        ClassTarget t = (ClassTarget) target;
 
         Editor editor = t.getEditor();
         if (editor != null) {
