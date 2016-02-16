@@ -111,24 +111,23 @@ import bluej.utility.javafx.JavaFXUtil;
 @OnThread(Tag.Swing)
 public class FrameEditor implements Editor
 {
-    /**
-     * Whether the code has been successfully compiled since last edit
-     */
+    /** Whether the code has been successfully compiled since last edit */
     @OnThread(Tag.Swing) private boolean isCompiled;
+    
     // If the code has been changed since last save (only modify on FX thread):
     // Start true, because we haven't actually saved before, so technically we have changed:
-    private boolean changedSinceLastSave = true;
+    @OnThread(Tag.FX) private boolean changedSinceLastSave = true;
     // The code at point of last save (only modify on FX thread)
-    private String lastSavedSource = null;
+    @OnThread(Tag.FX) private String lastSavedSource = null;
     // Only touch on FX thread:
-    private SaveJavaResult lastSavedJavaFX = null;
+    @OnThread(Tag.FX) private SaveJavaResult lastSavedJavaFX = null;
     // Only touch on Swing thread:
-    private SaveJavaResult lastSavedJavaSwing = null;
-    /**
-     * Location of the .stride file
-     */
+    @OnThread(Tag.Swing) private SaveJavaResult lastSavedJavaSwing = null;
+    
+    /** Location of the .stride file */
     private File frameFilename;
     private File javaFilename;
+    
     private final EntityResolver resolver;
     private final EditorWatcher watcher;
     private final JavadocResolver javadocResolver;
