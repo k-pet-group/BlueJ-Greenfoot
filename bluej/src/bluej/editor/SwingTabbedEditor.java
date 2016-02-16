@@ -145,7 +145,7 @@ public class SwingTabbedEditor implements TabbedEditorWindow
                 super.windowClosed(ev);
                 List<MoeEditor> editors = new ArrayList<>(editorToPanel.keySet());
                 editors.forEach(e -> setEditorVisible(false, e));
-                project.removeSwingTabbedEditor(SwingTabbedEditor.this);
+                savePositionAndClose();
             }
         });
         
@@ -251,10 +251,16 @@ public class SwingTabbedEditor implements TabbedEditorWindow
             if (tabPane.getTabCount() == 0)
             {
                 window.dispose();
-                project.removeSwingTabbedEditor(this);
+                savePositionAndClose();
             }
             editorToHeader.values().forEach(HeaderPanel::updateMoveNew);
         }
+    }
+
+    private void savePositionAndClose()
+    {
+        startSize = new Rectangle(getX(), getY(), getWidth(), getHeight());
+        project.removeSwingTabbedEditor(this);
     }
 
     /**

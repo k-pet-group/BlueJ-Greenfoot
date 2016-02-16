@@ -127,8 +127,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     /** Relative to window overlay, not to scene */
     private final SimpleDoubleProperty mouseDragXProperty = new SimpleDoubleProperty();
     private final SimpleDoubleProperty mouseDragYProperty = new SimpleDoubleProperty();
-    /** The starting size of the window.  May be null. */
-    private final Rectangle startSize;
+    /** The starting size of the window.  May be null. Updated on window close. */
+    private Rectangle startSize;
     /** The actual window */
     private Stage stage;
     /** The scene within the stage */
@@ -293,6 +293,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         tabPane.getTabs().addListener((ListChangeListener<? super Tab>) e -> {
             if (tabPane.getTabs().isEmpty())
             {
+                startSize = new Rectangle((int)stage.getX(), (int)stage.getY(), (int)stage.getWidth(), (int)stage.getHeight());
                 stage.close();
                 project.removeFXTabbedEditor(this);
             }
