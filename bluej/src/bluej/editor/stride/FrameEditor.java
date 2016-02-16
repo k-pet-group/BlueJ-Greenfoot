@@ -114,7 +114,7 @@ public class FrameEditor implements Editor
     /**
      * Whether the code has been successfully compiled since last edit
      */
-    private boolean isCompiled;
+    @OnThread(Tag.Swing) private boolean isCompiled;
     // If the code has been changed since last save (only modify on FX thread):
     // Start true, because we haven't actually saved before, so technically we have changed:
     private boolean changedSinceLastSave = true;
@@ -981,9 +981,11 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FX)
     public void codeModified()
     {
-        isCompiled = false;
         changedSinceLastSave = true;
-        SwingUtilities.invokeLater(() -> watcher.modificationEvent(this));
+        SwingUtilities.invokeLater(() -> {
+            isCompiled = false;
+            watcher.modificationEvent(this);            
+        });
     }
     
     @Override
