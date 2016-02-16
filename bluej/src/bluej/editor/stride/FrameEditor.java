@@ -62,7 +62,6 @@ import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
-import bluej.debugger.DebuggerThreadTreeModel;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
@@ -148,7 +147,7 @@ public class FrameEditor implements Editor
      * Errors from compilation to be shown once the editor is opened
      * (and thus we don't have to recompile just because the editor opens)
      */
-    private final List<QueuedError> queuedErrors = new ArrayList<>();
+    @OnThread(Tag.FX) private final List<QueuedError> queuedErrors = new ArrayList<>();
 
     /**
      * A callback to call (on the Swing thread) when this editor is opened.
@@ -499,13 +498,20 @@ public class FrameEditor implements Editor
             @Override
             @OnThread(Tag.Swing)
             public void displayMessage(String message, int lineNumber, int column,
-                    boolean beep, boolean setStepMark, String help) { FrameEditor.this.displayMessage(message, lineNumber, column, beep, setStepMark, help); }
+                    boolean beep, String help) { FrameEditor.this.displayMessage(message, lineNumber, column, beep, help); }
 
             @Override
             @OnThread(Tag.Swing)
             public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex)
             {
                 return FrameEditor.this.displayDiagnostic(diagnostic, errorIndex);
+            }
+            
+            @Override
+            public void setStepMark(int lineNumber, String message,
+                    boolean isBreak, DebuggerThread thread)
+            {
+                FrameEditor.this.setStepMark(lineNumber, message, isBreak, thread);
             }
 
             @Override
@@ -717,87 +723,10 @@ public class FrameEditor implements Editor
 
     @Override
     public void displayMessage(String message, final int lineNumber, int column,
-            boolean beep, boolean setStepMark, String help)
+            boolean beep, String help)
     {
-        if (setStepMark) {
-            Platform.runLater(() -> {
-                setVisibleFX(true, true);
-                SwingUtilities.invokeLater(() -> {
-                    Debug.message("Hit breakpoint in EditorFrame");
-                    //TODO: get thread model, find simulation thread, find top of stack, show locals/members
-                    DebuggerThread t = getSimulationThread();
-                    HashMap<String, DebugVarInfo> vars = new HashMap<String, DebugVarInfo>();
-                    if (t != null) {
-                        DebuggerObject currentObject = t.getCurrentObject(0);
-                        if (currentObject != null && !currentObject.isNullObject()) {
-                            Map<String, Set<String>> restrictedClasses = pkg.getProject().getExecControls().getRestrictedClasses();
-                            List<DebuggerField> fields = currentObject.getFields();
-                            for (DebuggerField field : fields)
-                            {
-                                if (! Modifier.isStatic(field.getModifiers())) {
-                                    String declaringClass = field.getDeclaringClassName();
-                                    Set<String> whiteList = restrictedClasses.get(declaringClass);
-                                    if (whiteList == null || whiteList.contains(field.getName())) {
-                                        if (field.isReferenceType()) {
-                                            vars.put(field.getName(), new ReferenceDebugVarInfo(pkg, null, field));
-                                        }
-                                        else {
-                                            vars.put(field.getName(), new PrimitiveDebugVarInfo(field.getValueString()));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    debugInfo.addVarState(vars);
-                    Platform.runLater(() -> {
-                        if (curBreakpoint != null) {
-                            curBreakpoint.removeHighlight();
-                        }
-                        try {
-                            JavaSource js = javaSource.get();
-                            if (js == null) {
-                                js = saveJava(lastSource, true).javaSource;
-                            }
-                            curBreakpoint = js.handleStop(lineNumber, debugInfo);
-                        }
-                        catch (IOException ioe) {
-                            Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
-                        }
-                    });
-                });});
-        }
-        else
-        {
-            //This is a message from a clickable stack trace following an exception
-            Debug.message("Will select: " + lineNumber);
-            Platform.runLater(() -> JavaFXUtil.onceNotNull(javaSource, js -> js.handleException(lineNumber)));
-        }
-    }
-
-    private DebuggerThread findThread(DebuggerThreadTreeModel model, Object t, String targetName)
-    {
-        DebuggerThread thread = model.getNodeAsDebuggerThread(t);
-        if (thread != null && targetName.equals(thread.getName())) {
-            return thread;
-        }
-        for (int i = 0; i < model.getChildCount(t); i++)
-        {
-            DebuggerThread child = findThread(model, model.getChild(t, i), targetName);
-            if (child != null) {
-                return child;
-            }
-        }
-        return null;
-    }
-
-    @SuppressWarnings("unused")
-    private void printAndChildren(DebuggerThreadTreeModel model, Object t)
-    {
-        Debug.message("Thread: " + t.toString());
-        for (int i = 0; i < model.getChildCount(t); i++) {
-            printAndChildren(model, model.getChild(t, i));
-        }
+        //This is a message from a clickable stack trace following an exception
+        Platform.runLater(() -> JavaFXUtil.onceNotNull(javaSource, js -> js.handleException(lineNumber)));
     }
 
     @Override
@@ -816,7 +745,7 @@ public class FrameEditor implements Editor
             }
         }
 
-        // We are on the compile thread, but need to do GUI bits on the FX thread:
+        // We are on the Swing EDT, but need to do GUI bits on the FX thread:
         Platform.runLater(() -> {
             // Don't show javac errors if we are not valid for compilation:
             if (panel != null && panel.getSource() != null)
@@ -831,10 +760,59 @@ public class FrameEditor implements Editor
             else
             {
                 queuedErrors.add(new QueuedError(diagnostic.getStartLine(), diagnostic.getStartColumn(), diagnostic.getEndLine(), diagnostic.getEndColumn(), diagnostic.getMessage(), diagnostic.getIdentifier()));
-
             }
         });
         return false;
+    }
+    
+    @Override
+    public void setStepMark(int lineNumber, String message, boolean isBreak,
+            DebuggerThread thread)
+    {
+        Platform.runLater(() -> {
+            setVisibleFX(true, true);
+            SwingUtilities.invokeLater(() -> {
+                HashMap<String, DebugVarInfo> vars = new HashMap<String, DebugVarInfo>();
+                if (thread != null) {
+                    DebuggerObject currentObject = thread.getCurrentObject(0);
+                    if (currentObject != null && !currentObject.isNullObject()) {
+                        Map<String, Set<String>> restrictedClasses = pkg.getProject().getExecControls().getRestrictedClasses();
+                        List<DebuggerField> fields = currentObject.getFields();
+                        for (DebuggerField field : fields)
+                        {
+                            if (! Modifier.isStatic(field.getModifiers())) {
+                                String declaringClass = field.getDeclaringClassName();
+                                Set<String> whiteList = restrictedClasses.get(declaringClass);
+                                if (whiteList == null || whiteList.contains(field.getName())) {
+                                    if (field.isReferenceType()) {
+                                        vars.put(field.getName(), new ReferenceDebugVarInfo(pkg, null, field));
+                                    }
+                                    else {
+                                        vars.put(field.getName(), new PrimitiveDebugVarInfo(field.getValueString()));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                debugInfo.addVarState(vars);
+                Platform.runLater(() -> {
+                    if (curBreakpoint != null) {
+                        curBreakpoint.removeHighlight();
+                    }
+                    try {
+                        JavaSource js = javaSource.get();
+                        if (js == null) {
+                            js = saveJava(lastSource, true).javaSource;
+                        }
+                        curBreakpoint = js.handleStop(lineNumber, debugInfo);
+                    }
+                    catch (IOException ioe) {
+                        Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
+                    }
+                });
+            });
+        });
     }
 
     @Override
@@ -1021,28 +999,6 @@ public class FrameEditor implements Editor
         return false;
     }
 
-    public void step()
-    {
-        DebuggerThread t = getSimulationThread();
-        t.step();
-    }
-
-
-    private DebuggerThread getSimulationThread()
-    {
-        DebuggerThreadTreeModel model = pkg.getDebugger().getThreadTreeModel();
-        DebuggerThread t = findThread(model, model.getRoot(), "SimulationThread"); //TODO this makes it Greenfoot specific
-        return t;
-    }
-
-
-    public void cont()
-    {
-        DebuggerThread t = getSimulationThread();
-        t.cont();        
-    }
-
-
     @Override
     public void compileFinished(boolean successful)
     {
@@ -1101,7 +1057,9 @@ public class FrameEditor implements Editor
         }
         else
         {
-            queuedErrors.clear();
+            Platform.runLater(() -> {
+                queuedErrors.clear();
+            });
             return earlyErrorCheck(lastSource.findEarlyErrors());
         }
     }

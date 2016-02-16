@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -178,15 +178,14 @@ public class JavaNames
      * Returns null if the file is outside the base
      * directory.
      *
-     *<p>The behaviour of this function is not guaranteed if
+     * <p>For example, if baseDir is /foo/bar and the f parameter
+     * is /foo/bar/p1/s1/TestName.java, the result will be
+     * "p1.s1.TestName".
+     *
+     * <p>The behaviour of this function is not guaranteed if
      * you pass in a directory name. It is meant for filenames
      * like /foo/bar/p1/s1/TestName.java
-     *
-     * <p>An example of its use is if your baseDir was the
-     * directory /foo/bar and you passed in
-     * /foo/bar/p1/s1/TestName.java the function would
-     * return p1.s1.TestName
-     *
+     * 
      * <p>Makes no guarantee that the returned name is a valid
      * Java identifier (ie. some of the directory names used
      * may not be valid java identifiers but no check is made
@@ -194,7 +193,10 @@ public class JavaNames
      */
     public static String convertFileToQualifiedName(File baseDir, File f)
     {
-        File pathFile = f.getAbsoluteFile();
+        File pathFile = f;
+        if (! pathFile.isAbsolute()) {
+            pathFile = new File(baseDir, pathFile.getPath());
+        }
         File parent = null;
         String name = "";
 

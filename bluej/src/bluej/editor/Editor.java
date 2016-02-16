@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,12 +25,13 @@ import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.compiler.Diagnostic;
+import bluej.debugger.DebuggerThread;
 import bluej.editor.stride.FrameEditor;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -98,12 +99,11 @@ public interface Editor
      *        highlighted)
      * @param column        the column to move the cursor to
      * @param beep        if true, do a system beep
-     * @param setStepMark    if true, set step mark (for single stepping)
      * @param help        name of help group (may be null); this should be the compiler
      *                    name such as "javac".
      */
     void displayMessage(String message, int lineNumber, int column, 
-                        boolean beep, boolean setStepMark, String help);
+                        boolean beep, String help);
 
     /**
      * Display a diagnostic message from the compiler.
@@ -114,6 +114,17 @@ public interface Editor
      *          only show the first error, for example, or the first N.
      */
     boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex);
+    
+    /**
+     * Set a step mark due to execution hitting a break point / completing a step, or selection
+     * of a stack frame in the debugger.
+     * 
+     * @param lineNumber  The line number of the step/selection
+     * @param message     Message to be displayed (may be null)
+     * @param isBreak     Thread execution was suspended at the given line (i.e. breakpoint/step/halt).
+     * @param thread      The thread that was suspended/selected
+     */
+    void setStepMark(int lineNumber, String message, boolean isBreak, DebuggerThread thread);
     
     /**
      *  Display a message into the info area.

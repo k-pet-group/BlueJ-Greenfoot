@@ -93,6 +93,7 @@ import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.compiler.Diagnostic;
+import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.SwingTabbedEditor;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
@@ -206,7 +207,7 @@ public final class MoeEditor extends JPanel
     private Info info;                      // the info number label
     private JPanel statusArea;              // the status area
     private StatusLabel saveState;          // the status label
-    private JComboBox interfaceToggle;
+    private JComboBox<String> interfaceToggle;
     private GoToLineDialog goToLineDialog;
     // find functionality
     private FindPanel finder;
@@ -832,21 +833,16 @@ public final class MoeEditor extends JPanel
      * @param lineNumber  The line to highlight
      * @param column   the column to move the cursor to
      * @param beep   if true, do a system beep
-     * @param setStepMark  if true, set step mark (for single stepping)
      * @param help  name of help group (may be null)
      */
     @Override
     public void displayMessage(String message, int lineNumber, int column, boolean beep, 
-            boolean setStepMark, String help)
+            String help)
     {
         switchToSourceView();
 
         Element line = getSourceLine(lineNumber);
         int pos = line.getStartOffset();
-
-        if (setStepMark) {
-            setStepMark(pos);
-        }
 
         // highlight the line
 
@@ -871,9 +867,6 @@ public final class MoeEditor extends JPanel
     @Override
     public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex)
     {
-//        if (errorIndex != 0)
-//            return false; // We only show the first error
-        
         switchToSourceView();
         
         Element line = getSourceLine((int) diagnostic.getStartLine());
@@ -889,8 +882,6 @@ public final class MoeEditor extends JPanel
             }
 
             // highlight the error and the line on which it occurs
-//            errorManager.removeErrorHighlight();
-//            checkIfFreshLine();
             // If error is zero-width, make it one character wide:
             if (endPos == startPos)
             {
@@ -916,11 +907,35 @@ public final class MoeEditor extends JPanel
         }
 
         // display the message
-
-        //info.messageImportant(diagnostic.getMessage());
         info.setHelp("javac"); // TODO the compiler name, or the additional help text,
                                // should really be a property of the diagnostic object.
         return true;
+    }
+    
+    @Override
+    public void setStepMark(int lineNumber, String message, boolean isBreak,
+            DebuggerThread thread)
+    {
+        switchToSourceView();
+
+        Element line = getSourceLine(lineNumber);
+        int pos = line.getStartOffset();
+
+        if (isBreak) {
+            setStepMark(pos);
+        }
+
+        // highlight the line
+
+        sourcePane.setCaretPosition(pos);
+        sourcePane.moveCaretPosition(line.getEndOffset() - 1);  // w/o line break
+        moeCaret.setPersistentHighlight();
+
+        // display the message
+
+        if (message != null) {
+            info.messageImportant(message);
+        }
     }
 
     /**
@@ -3532,10 +3547,10 @@ public final class MoeEditor extends JPanel
     /**
      * Create a combo box for the toolbar
      */
-    private JComboBox createInterfaceSelector()
+    private JComboBox<String> createInterfaceSelector()
     {
         String[] choiceStrings = {implementationString, interfaceString};
-        interfaceToggle = new JComboBox(choiceStrings);
+        interfaceToggle = new JComboBox<String>(choiceStrings);
 
         interfaceToggle.setRequestFocusEnabled(false);
         interfaceToggle.setFont(PrefMgr.getStandardFont());

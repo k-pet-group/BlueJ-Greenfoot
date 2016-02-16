@@ -146,6 +146,22 @@ public final class Package extends Graph
     /** error code */
     public static final int CREATE_ERROR = 5;
 
+    /** Reason code for displaying source line */
+    private enum ShowSourceReason
+    {
+        STEP_OR_HALT,    // a step or other halt 
+        BREAKPOINT_HIT,  // a breakpoint was hit
+        FRAME_SELECTED;   // the stack frame was selected in the debugger
+        
+        /**
+         * Check whether this reason corresponds to a suspension event (breakpoint/step/etc).
+         */
+        public boolean isSuspension()
+        {
+            return this == STEP_OR_HALT || this == BREAKPOINT_HIT;
+        }
+    }
+    
     /**
      * In the top left corner of each package we have a fixed target - either a
      * ParentPackageTarget or a ReadmeTarget. These are there locations
@@ -2207,20 +2223,20 @@ public final class Package extends Graph
      * A thread has hit a breakpoint, done a step or selected a frame in the debugger. Display the source
      * code with the relevant line highlighted.
      */
-    public boolean showSource(DebuggerThread thread, String sourcename, int lineNo, boolean breakpoint, String msg)
+    private boolean showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
     {
-        if (msg == null) {
-            msg = " ";
-        }
-        
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
-        if (!showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront,
-                true, null) && breakpoint) {
+        // showEditorMessage:
+        Editor editor = editorForTarget(sourcename, bringToFront);
+        if (editor != null) {
+            editor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
+        }
+        else if (reason == ShowSourceReason.BREAKPOINT_HIT) {
             showMessageWithText("break-no-source", sourcename);
         }
-
+        
         return bringToFront;
     }
 
@@ -2238,7 +2254,7 @@ public final class Package extends Graph
         lastSourceName = sourcename;
 
         showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront,
-                true, null);
+                null);
 
         return bringToFront;
     }
@@ -2264,11 +2280,11 @@ public final class Package extends Graph
      * the message in the editor's information area.
      */
     private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep,
-            boolean bringToFront, boolean setStepMark, String help)
+            boolean bringToFront, String help)
     {
         Editor editor = editorForTarget(filename, bringToFront);
         if (editor != null) {
-            editor.displayMessage(message, lineNo, 0, beep, setStepMark, help);
+            editor.displayMessage(message, lineNo, 0, beep, help);
         }
         else {
             Debug.message(filename + ", line" + lineNo + ": " + message);
@@ -2406,7 +2422,7 @@ public final class Package extends Graph
             msg = msg.replace("$", thread.getName());
         }
         
-        showSource(thread, thread.getClassSourceName(0), thread.getLineNumber(0), true, msg);
+        showSource(thread, thread.getClassSourceName(0), thread.getLineNumber(0), ShowSourceReason.BREAKPOINT_HIT, msg);
         getProject().getExecControls().setVisible(true);
         getProject().getExecControls().makeSureThreadIsSelected(thread);
     }
@@ -2425,7 +2441,8 @@ public final class Package extends Graph
         }
         
         int frame = thread.getSelectedFrame();
-        showSource(thread, thread.getClassSourceName(frame), thread.getLineNumber(frame), breakpoint, msg);
+        ShowSourceReason reason = breakpoint ? ShowSourceReason.BREAKPOINT_HIT : ShowSourceReason.STEP_OR_HALT;
+        showSource(thread, thread.getClassSourceName(frame), thread.getLineNumber(frame), reason, msg);
         getProject().getExecControls().setVisible(true);
         getProject().getExecControls().makeSureThreadIsSelected(thread);
     }
@@ -2435,7 +2452,7 @@ public final class Package extends Graph
      */
     public void showSourcePosition(DebuggerThread thread, String sourceName, int lineNumber)
     {
-        showSource(thread, sourceName, lineNumber, false, null);
+        showSource(thread, sourceName, lineNumber, ShowSourceReason.FRAME_SELECTED, null);
     }
     
     /**
@@ -2468,7 +2485,7 @@ public final class Package extends Graph
             SourceLocation loc = iter.next();
             String filename = new File(getPath(), loc.getFileName()).getPath();
             int lineNo = loc.getLineNumber();
-            done = showEditorMessage(filename, lineNo, message, true, true, false, "exception");
+            done = showEditorMessage(filename, lineNo, message, true, true, "exception");
             if (firstTime && !done) {
                 message += " (in " + loc.getClassName() + ")";
                 firstTime = false;
@@ -2487,7 +2504,7 @@ public final class Package extends Graph
      */
     public void exceptionMessage(String className, int lineNumber)
     {
-        showEditorMessage(className, lineNumber, "", false, true, false, "exception");
+        showEditorMessage(className, lineNumber, "", false, true, "exception");
     }
 
     /**
