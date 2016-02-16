@@ -321,6 +321,7 @@ public class FrameCatalogue extends VBox
                 {
                     Frame f = factory.createBlock(currentCursor.getEditor());
                     currentCursor.insertBlockAfter(f);
+                    f.markFresh();
                     f.focusWhenJustAdded();
                     editor.recordEdits(StrideEditReason.SINGLE_FRAME_INSERTION_CHEAT);
                 }
@@ -334,6 +335,7 @@ public class FrameCatalogue extends VBox
                     currentCursor.insertBlockBefore(newFrame);
                     selected.forEach(f -> f.getParentCanvas().removeBlock(f));
                     selection.clear();
+                    newFrame.markFresh();
                     newFrame.focusWhenJustAdded();
                     editor.recordEdits(StrideEditReason.SELECTION_WRAP_CHEAT);
                 }
