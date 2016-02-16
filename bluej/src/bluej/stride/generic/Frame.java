@@ -1379,7 +1379,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
                 //Case 2, 3, 3.5a, 3.5b and 4:
                 boolean isClickOnMargin = sceneX >= headerRowBounds.getMinX() && sceneX < canvasBounds.getMinX()
                     && !isDrag;
-                return canvases.get(canvasIndex).findClosestCursor(sceneX, sceneY, exclude, isDrag, canDescend && !isClickOnMargin);
+                final FrameCursor cursor = canvases.get(canvasIndex).findClosestCursor(sceneX, sceneY, exclude, isDrag, canDescend && !isClickOnMargin);
+                if (cursor != null)
+                    return cursor;
             }
         }
 
