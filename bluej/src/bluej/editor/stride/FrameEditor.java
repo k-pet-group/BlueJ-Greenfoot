@@ -24,7 +24,10 @@ package bluej.editor.stride;
 
 
 import java.awt.print.PrinterJob;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -38,26 +41,19 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import bluej.collect.DiagnosticWithShown;
-import bluej.collect.StrideEditReason;
-import bluej.extensions.SourceType;
-import bluej.stride.framedjava.ast.JavaFragment;
-import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
-import bluej.stride.framedjava.errors.DirectSlotError;
-import bluej.stride.framedjava.errors.SyntaxCodeError;
-import bluej.utility.Utility;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
+import bluej.collect.DiagnosticWithShown;
+import bluej.collect.StrideEditReason;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
@@ -66,6 +62,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
+import bluej.extensions.SourceType;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;
@@ -78,14 +75,18 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.stride.framedjava.ast.ASTUtility;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
+import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.JavaSource;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CodeElement.LocalParamInfo;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
+import bluej.stride.framedjava.errors.DirectSlotError;
+import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.DebugInfo;
 import bluej.stride.framedjava.frames.DebugVarInfo;
 import bluej.stride.framedjava.frames.LocalCompletion;
@@ -97,7 +98,12 @@ import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager.Kind;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
+import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * FrameEditor implements Editor, the interface to the rest of BlueJ that existed
@@ -125,23 +131,28 @@ public class FrameEditor implements Editor
     @OnThread(Tag.Swing) private SaveJavaResult lastSavedJavaSwing = null;
     
     /** Location of the .stride file */
+    ReadWriteLock filenameLock = new ReentrantReadWriteLock();
     private File frameFilename;
     private File javaFilename;
     
     private final EntityResolver resolver;
     private final EditorWatcher watcher;
     private final JavadocResolver javadocResolver;
+    
     /**
      * Set to the latest version of the JavaSource.  null if the editor has not yet been opened;
      * you can observe it to see when it becomes non-null if you want to do something when
      * the editor opens.
      */
-    private final SimpleObjectProperty<JavaSource> javaSource;
+    @OnThread(Tag.FX) private final SimpleObjectProperty<JavaSource> javaSource;
     private bluej.pkgmgr.Package pkg;
     private FrameEditorTab panel;
     private final DebugInfo debugInfo = new DebugInfo();
     private HighlightedBreakpoint curBreakpoint;
-    private TopLevelCodeElement lastSource;
+    
+    /** Stride source at last save. Assigned on FX thread only, readable on any thread. */
+    private AtomicReference<TopLevelCodeElement> lastSourceRef = new AtomicReference<>();
+    
     /**
      * Errors from compilation to be shown once the editor is opened
      * (and thus we don't have to recompile just because the editor opens)
@@ -185,14 +196,14 @@ public class FrameEditor implements Editor
         this.pkg = pkg;
         this.javaSource = new SimpleObjectProperty<>();
         this.callbackOnOpen = callbackOnOpen;
-        lastSource = Loader.loadTopLevelElement(frameFilename, resolver);
+        lastSourceRef.set(Loader.loadTopLevelElement(frameFilename, resolver));
     }
     
     @OnThread(Tag.FX)
     private void createPanel(boolean visible, boolean toFront)
     {
         //Debug.message("&&&&&& Creating panel: " + System.currentTimeMillis());
-        this.panel = new FrameEditorTab(pkg.getProject(), resolver, this, lastSource);
+        this.panel = new FrameEditorTab(pkg.getProject(), resolver, this, lastSourceRef.get());
         //Debug.message("&&&&&& Adding panel to editor: " + System.currentTimeMillis());
         pkg.getProject().getDefaultFXTabbedEditor().addTab(this.panel, visible, toFront);
         //Debug.message("&&&&&& Done! " + System.currentTimeMillis());
@@ -221,7 +232,7 @@ public class FrameEditor implements Editor
         Platform.runLater(() -> {
             if (panel != null)
             {
-                lastSource = panel.getSource();
+                lastSourceRef.set(panel.getSource());
                 panel.setWindowVisible(false, false);
                 panel.cleanup();
                 panel = null;
@@ -307,6 +318,8 @@ public class FrameEditor implements Editor
 
         try
         {
+            TopLevelCodeElement lastSource = lastSourceRef.get();
+            
             // If frame editor is closed, we just need to write the Java code
             if (panel == null || panel.getSource() == null)
             {
@@ -321,9 +334,14 @@ public class FrameEditor implements Editor
                 return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()), null); // classFrame not initialised yet
 
             // Save Frame source:
-            FileOutputStream os = new FileOutputStream(frameFilename);
-            Utility.serialiseCodeTo(source.toXML(), os);
-            os.close();
+            Lock readLock = filenameLock.readLock();            
+            readLock.lock();
+            try (FileOutputStream os = new FileOutputStream(frameFilename)) {
+                Utility.serialiseCodeTo(source.toXML(), os);
+            }
+            finally {
+                readLock.unlock();
+            }
 
             lastSavedJavaFX = saveJava(panel.getSource(), true);
             changedSinceLastSave = false;
@@ -348,7 +366,7 @@ public class FrameEditor implements Editor
         Platform.runLater(() -> {
             try
             {
-                saveJava(lastSource, false);
+                saveJava(lastSourceRef.get(), false);
                 q.complete(Optional.empty());
             } catch (IOException e)
             {
@@ -802,7 +820,7 @@ public class FrameEditor implements Editor
                     try {
                         JavaSource js = javaSource.get();
                         if (js == null) {
-                            js = saveJava(lastSource, true).javaSource;
+                            js = saveJava(lastSourceRef.get(), true).javaSource;
                         }
                         curBreakpoint = js.handleStop(lineNumber, debugInfo);
                     }
@@ -849,18 +867,20 @@ public class FrameEditor implements Editor
     public void reInitBreakpoints()
     {
         watcher.clearAllBreakpoints();
-        if (javaSource.get() == null) {
-            try {
-                save();
+        Platform.runLater(() -> {
+            if (javaSource.get() == null) {
+                try {
+                    save();
+                }
+                catch (IOException e) {
+                    Debug.reportError(e);
+                }
             }
-            catch (IOException e) {
-                Debug.reportError(e);
+            if (javaSource.get() != null)
+            {
+                javaSource.get().registerBreakpoints(this, watcher);
             }
-        }
-        if (javaSource.get() != null)
-        {
-            javaSource.get().registerBreakpoints(this, watcher);
-        }
+        });
     }
 
     @Override
@@ -1061,7 +1081,10 @@ public class FrameEditor implements Editor
             Platform.runLater(() -> {
                 queuedErrors.clear();
             });
-            return earlyErrorCheck(lastSource.findEarlyErrors());
+            
+            // Note lastSourceRef may refer to a stale source, but this shouldn't cause any
+            // significant issues.
+            return earlyErrorCheck(lastSourceRef.get().findEarlyErrors());
         }
     }
 
