@@ -35,6 +35,7 @@ import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.utility.javafx.ScalableHeightLabel;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
@@ -429,5 +430,12 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     public void setDocComment(boolean docComment)
     {
         previewCommentStart.setText(docComment ? "/**" : "/*");
+    }
+
+    @Override
+    public ObservableBooleanValue effectivelyFocusedProperty()
+    {
+        // No dropdowns etc, so effectively-focused just means focused:
+        return focusedProperty();
     }
 }

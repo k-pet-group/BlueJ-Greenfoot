@@ -29,9 +29,12 @@ import java.util.List;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.util.Duration;
 //import javafx.scene.input.KeyCode;
 
 import bluej.stride.framedjava.ast.AccessPermission;
@@ -96,7 +99,10 @@ public class VarFrame extends SingleLineFrame
     private final BooleanProperty showingValue = new SimpleBooleanProperty(false);
     private final SlotLabel equalLabel = new SlotLabel("=");
     private final ExpressionSlot<FilledExpressionSlotFragment> slotValue; // not always valid
+    private final BooleanProperty slotValueBlank = new SimpleBooleanProperty(true);
     private VarElement element;
+
+    private final BooleanProperty hasKeyboardFocus = new SimpleBooleanProperty(false);
 
     /**
      * Default constructor.
@@ -109,8 +115,6 @@ public class VarFrame extends SingleLineFrame
 
         staticModifier.set(isStatic);
         finalModifier.set(isFinal);
-        // If it's final, show initialisation value from outset:
-        showingValue.set(isFinal);
 
         modifiers.put(STATIC_NAME, staticModifier);
         modifiers.put(FINAL_NAME, finalModifier);
@@ -175,7 +179,6 @@ public class VarFrame extends SingleLineFrame
         });
 
         FXRunnable runAddValSlot = () -> {
-                showingValue.set(true);
                 // And move focus in:
                 getHeaderRow().focusRight(slotName);
         };
@@ -195,6 +198,19 @@ public class VarFrame extends SingleLineFrame
 
         JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this));
         JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this));
+
+        hasKeyboardFocus.bind(
+                (accessModifier.and(access.effectivelyFocusedProperty()))
+                .or(slotType.effectivelyFocusedProperty())
+                .or(slotName.effectivelyFocusedProperty())
+                .or(slotValue.effectivelyFocusedProperty())
+                );
+
+        slotValue.onTextPropertyChange(s -> slotValueBlank.set(s.isEmpty()));
+        // We must make the showing immediate when you get keyboard focus, as otherwise there
+        // are problems with focusing the slot and then it disappears:
+        ReadOnlyBooleanProperty keyFocusDelayed = JavaFXUtil.delay(hasKeyboardFocus, Duration.ZERO, Duration.millis(100));
+        showingValue.bind(keyFocusDelayed.or(slotValueBlank.not()));
     }
     
     // If varValue is null, that means the slot is not shown
@@ -209,7 +225,6 @@ public class VarFrame extends SingleLineFrame
         }
         slotType.setText(varType);
         slotName.setText(varName);
-        showingValue.set(varValue != null);
         if (varValue != null) {
             slotValue.setText(varValue);
         }
@@ -221,7 +236,7 @@ public class VarFrame extends SingleLineFrame
     {
         element = new VarElement(this, accessModifier.get() ? new AccessPermissionFragment(access.getValue(AccessPermission.EMPTY)) : null,
                 staticModifier.get(), finalModifier.get(), slotType.getSlotElement(), slotName.getSlotElement(), 
-                showingValue.get() ? slotValue.getSlotElement() : null, frameEnabledProperty.get());
+                showingValue.get() && !slotValue.getText().isEmpty() ? slotValue.getSlotElement() : null, frameEnabledProperty.get());
     }
     
     @Override
@@ -340,12 +355,6 @@ public class VarFrame extends SingleLineFrame
     }
 
     @Override
-    public void checkForEmptySlot()
-    {
-        showingValue.set((isFresh() && finalModifier.get()) || !slotValue.isEmpty() || slotValue.isShowingSuggestions());
-    }
-
-    @Override
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
@@ -365,29 +374,6 @@ public class VarFrame extends SingleLineFrame
             return Collections.emptyList();
         }
         return Arrays.asList(name);
-    }
-
-    @Override
-    public boolean backspaceAtStart(FrameContentItem row, HeaderItem src)
-    {
-        if (src == slotValue) {
-            showingValue.set(false);
-            slotName.requestFocus(Focus.RIGHT);
-            return true;
-        }
-        else
-            return super.backspaceAtStart(row, src);
-    }
-
-    @Override
-    public boolean deleteAtEnd(FrameContentItem row, HeaderItem src)
-    {
-        if (src == slotName)
-        {
-            showingValue.set(false);
-            return false; // No need to move focus
-        }
-        return false;
     }
 
     @Override

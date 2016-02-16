@@ -33,6 +33,9 @@ import java.util.stream.Stream;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.slots.UnderlineContainer;
 import bluej.utility.javafx.binding.DeepListBinding;
+
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -79,6 +82,16 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
      * "notifyHasNoFocus" than "youHadFocusButJustLostIt"
      */
     public void lostFocus();
+
+    /**
+     * A property reflecting whether the field is "effectively focused"
+     *
+     * "Effectively focused" means that either the field has actual JavaFX GUI
+     * focus, or code completion is showing for this slot, meaning it doesn't
+     * have GUI focus, but for our purposes it is logically the focus owner
+     * within the editor.
+     */
+    public ObservableBooleanValue effectivelyFocusedProperty();
 
     /**
      * Called to cleanup any state or overlays when the slot is going to be removed.

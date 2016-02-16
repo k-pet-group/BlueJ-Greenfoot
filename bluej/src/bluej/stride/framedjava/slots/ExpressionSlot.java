@@ -37,7 +37,9 @@ import bluej.stride.framedjava.ast.SuperThis;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.slots.InfixExpression.RangeType;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringExpression;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -158,10 +160,12 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     private final List<FrameCatalogue.Hint> hints;
     private final ObservableList<String> recentValues = FXCollections.observableArrayList();
     private CaretPos mostRecentPos;
-    private boolean hadFocus;
     private String valueOnGain;
     private boolean editable = true;
     private ChoiceSlot<SuperThis> paramsToConstructor;
+    private final BooleanProperty focusedProperty = new SimpleBooleanProperty(false);
+    // We must keep a reference to this to avoid problems with GC and weak listeners:
+    private final BooleanBinding effectivelyFocusedProperty;
 
     public ExpressionSlot(InteractionManager editor,
             Frame parentFrame, CodeFrame<?> parentCodeFrame, FrameContentRow row, String stylePrefix, List<FrameCatalogue.Hint> hints)
@@ -173,6 +177,8 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         this.completionCalculator = new ExpressionCompletionCalculator(editor);
         this.hints = hints;
         topLevel = new InfixExpression(editor, this, stylePrefix);
+
+        effectivelyFocusedProperty = focusedProperty.or(fakeCaretShowing);
         
         this.textMirror.bind(topLevel.textProperty());
         textMirror.addListener((a, b, c) -> {
@@ -1058,7 +1064,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     @Override
     public void lostFocus()
     {
-        if (hadFocus)
+        if (focusedProperty.get())
         {
 
             // Don't show new value as old:
@@ -1072,7 +1078,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
 
             editor.endRecordingState(this);
         }
-        hadFocus = false;
+        focusedProperty.set(false);
         topLevel.getAllExpressions().forEach(InfixExpression::deselect);
         notifyLostFocusExcept(null);
         lostFocusActions.forEach(FXRunnable::run);
@@ -1082,12 +1088,12 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     {
         // Tell other slots they've lost focus:
         notifyLostFocusExcept(focus);
-        if (!hadFocus)
+        if (!focusedProperty.get())
         {
             valueOnGain = getText();
             editor.beginRecordingState(this);
         }
-        hadFocus = true;
+        focusedProperty.set(true);
     }
 
     private void notifyLostFocusExcept(ExpressionSlotField except)
@@ -1426,5 +1432,11 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     boolean isConstructorParams()
     {
         return paramsToConstructor != null;
+    }
+
+    @Override
+    public ObservableBooleanValue effectivelyFocusedProperty()
+    {
+        return effectivelyFocusedProperty;
     }
 }

@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.embed.swing.SwingFXUtils;
@@ -284,6 +285,11 @@ public class ScrollFreeTextArea
     public boolean isFocused()
     {
         return textArea.isFocused();
+    }
+
+    public ObservableBooleanValue focusedProperty()
+    {
+        return textArea.focusedProperty();
     }
 
     protected void setFocusTraversable(boolean on)

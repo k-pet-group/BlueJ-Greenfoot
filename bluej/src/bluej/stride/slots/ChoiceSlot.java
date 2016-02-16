@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,14 +29,14 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import bluej.editor.stride.FrameCatalogue;
-import bluej.stride.framedjava.ast.JavaFragment;
-import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -49,6 +49,10 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+
+import bluej.editor.stride.FrameCatalogue;
+import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.slots.TextOverlayPosition;
 import bluej.stride.generic.Frame;
@@ -78,7 +82,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     private final InteractionManager editor;
     private final Frame parentFrame;
     private final FrameContentRow row;
-    private SuggestionList dropdown;
+    private final ObjectProperty<SuggestionList> dropdown = new SimpleObjectProperty<>(null);
     private final List<T> choices;
     private T previousSelection;
     private T selection;
@@ -88,6 +92,8 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     private final DummyTextField dummyField; // An empty text field, just used to show a cursor and handle input
     private final ErrorUnderlineCanvas errorMarker;
     private Function<T, Boolean> isValid;
+    // We must keep a reference to this to avoid problems with GC and weak listeners:
+    private final BooleanBinding effectivelyFocusedProperty;
 
     public ChoiceSlot(final InteractionManager editor, Frame parentFrame, FrameContentRow row, final List<T> choices, Function<T, Boolean> isValid, final String stylePrefix, Map<T, String> hints)
     {
@@ -176,7 +182,9 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         dummyField.setMinWidth(Region.USE_PREF_SIZE);
         pane.heightProperty().addListener((a, b, c) -> refreshError());
         pane.widthProperty().addListener((a, b, c) -> refreshError());
-        
+
+        effectivelyFocusedProperty = dummyField.focusedProperty().or(dropdown.isNotNull());
+
         setValue(null);
     }
     
@@ -186,7 +194,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
      */
     public void showSuggestions(T curHighlight)
     {
-        dropdown = new SuggestionList(editor, Utility.mapList(choices, t -> new SuggestionDetails(t.toString())), null, SuggestionList.SuggestionShown.RARE, i -> { i = i < 0 ? 0 : i; futureDisplay.setText(choices.get(i).toString()); }, new SuggestionListListener() {
+        dropdown.set(new SuggestionList(editor, Utility.mapList(choices, t -> new SuggestionDetails(t.toString())), null, SuggestionList.SuggestionShown.RARE, i -> { i = i < 0 ? 0 : i; futureDisplay.setText(choices.get(i).toString()); }, new SuggestionListListener() {
             public void suggestionListChoiceClicked(int highlighted)
             {
                 if (highlighted != -1)
@@ -259,7 +267,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             {
                 JavaFXUtil.setPseudoclass("bj-transparent", true, pane);
                 editor.endRecordingState(ChoiceSlot.this);
-                dropdown = null;
+                dropdown.set(null);
             }
             
             private Optional<T> getCompletion(int highlighted)
@@ -269,9 +277,9 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
                 {
                     return Optional.of(choices.get(highlighted));
                 }
-                else if (dropdown.eligibleCount() == 1  && curDisplay.getText().length() > 0)
+                else if (dropdown.get().eligibleCount() == 1  && curDisplay.getText().length() > 0)
                 {
-                    return Optional.of(choices.get(dropdown.getFirstEligible()));
+                    return Optional.of(choices.get(dropdown.get().getFirstEligible()));
                 }
                 return Optional.empty();
             }
@@ -291,14 +299,14 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
                 }
             }
             
-        });
+        }));
                 
-        dropdown.show(pane, new ReadOnlyDoubleWrapper(0), pane.heightProperty());
+        dropdown.get().show(pane, new ReadOnlyDoubleWrapper(0), pane.heightProperty());
         
-        dropdown.calculateEligible(curDisplay.getText(), false, false);
-        dropdown.setHighlighted(curHighlight == null ? -1 : choices.indexOf(curHighlight), true);
+        dropdown.get().calculateEligible(curDisplay.getText(), false, false);
+        dropdown.get().setHighlighted(curHighlight == null ? -1 : choices.indexOf(curHighlight), true);
         // Must come after we've set highlight:
-        dropdown.updateVisual(curDisplay.getText(), true);
+        dropdown.get().updateVisual(curDisplay.getText(), true);
     }
 
     /**
@@ -368,7 +376,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         public void cut()
         {
             copy();
-            dropdown.setHighlighted(-1, false);
+            dropdown.get().setHighlighted(-1, false);
             update("");
         }
 
@@ -418,16 +426,16 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
 
         private void update(String newVal)
         {
-            dropdown.calculateEligible(newVal, false, false);
-            if (dropdown.eligibleCount() == 0)
+            dropdown.get().calculateEligible(newVal, false, false);
+            if (dropdown.get().eligibleCount() == 0)
             {
                 //Invalid input; does not further complete any possible completions.  Rollback:
-                dropdown.calculateEligible(curDisplay.getText(), false, false);
+                dropdown.get().calculateEligible(curDisplay.getText(), false, false);
             }
             else
             {
                 curDisplay.setText(newVal);
-                dropdown.updateVisual(newVal, false);
+                dropdown.get().updateVisual(newVal, false);
             }
         }
     }
@@ -619,5 +627,11 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         clone.minWidthProperty().bind(pane.widthProperty());
         clone.prefHeightProperty().bind(pane.heightProperty());
         return Stream.of(clone);
+    }
+
+    @Override
+    public ObservableBooleanValue effectivelyFocusedProperty()
+    {
+        return effectivelyFocusedProperty;
     }
 }

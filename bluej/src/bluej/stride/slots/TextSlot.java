@@ -50,6 +50,7 @@ import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -114,7 +115,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     private final ObservableList<String> recentValues = FXCollections.observableArrayList();
     private CodeError hoverErrorCurrentlyShown;
     // We must keep a reference to this to avoid problems with GC and weak listeners:
-    private BooleanBinding effectivelyFocusedProperty;
+    private final BooleanBinding effectivelyFocusedProperty;
 
     protected TextSlot(InteractionManager editor, Frame frameParent, CodeFrame<? extends CodeElement> codeFrameParent, FrameContentRow row, CompletionCalculator completionCalculator, String stylePrefix, List<FrameCatalogue.Hint> hints)
     {
@@ -147,7 +148,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
      * have GUI focus, but for our purposes it is logically the focus owner
      * within the editor.
      */
-    public ObservableValue<Boolean> effectivelyFocusedProperty()
+    public ObservableBooleanValue effectivelyFocusedProperty()
     {
         return effectivelyFocusedProperty;
     }
