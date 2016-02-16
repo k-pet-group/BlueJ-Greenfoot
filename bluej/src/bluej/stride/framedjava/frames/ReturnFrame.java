@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -119,7 +119,7 @@ public class ReturnFrame extends SingleLineFrame
     @Override
     public void regenerateCode()
     {
-        element = new ReturnElement(this, showingValue.get() ? value.getSlotElement() : null, frameEnabledProperty.get());
+        element = new ReturnElement(this, showingValue.get() && !value.getText().isEmpty() ? value.getSlotElement() : null, frameEnabledProperty.get());
     }
     
     @Override
