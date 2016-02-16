@@ -532,6 +532,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         
         private void showSuggestionDisplay(SuggestionListListener listener)
         {
+            if (completionCalculator == null)
+                return; // Completion not possible in this slot
+
             suggestionXOffset.set(calculateCaretPosition(getStartOfCurWord()));
             FXConsumer<SuggestionList> handler = s ->
             {
