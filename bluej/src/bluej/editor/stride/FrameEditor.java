@@ -41,7 +41,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -151,7 +150,7 @@ public class FrameEditor implements Editor
     private HighlightedBreakpoint curBreakpoint;
     
     /** Stride source at last save. Assigned on FX thread only, readable on any thread. */
-    private AtomicReference<TopLevelCodeElement> lastSourceRef = new AtomicReference<>();
+    private volatile TopLevelCodeElement lastSource;
     
     /**
      * Errors from compilation to be shown once the editor is opened
@@ -196,14 +195,14 @@ public class FrameEditor implements Editor
         this.pkg = pkg;
         this.javaSource = new SimpleObjectProperty<>();
         this.callbackOnOpen = callbackOnOpen;
-        lastSourceRef.set(Loader.loadTopLevelElement(frameFilename, resolver));
+        lastSource = Loader.loadTopLevelElement(frameFilename, resolver);
     }
     
     @OnThread(Tag.FX)
     private void createPanel(boolean visible, boolean toFront)
     {
         //Debug.message("&&&&&& Creating panel: " + System.currentTimeMillis());
-        this.panel = new FrameEditorTab(pkg.getProject(), resolver, this, lastSourceRef.get());
+        this.panel = new FrameEditorTab(pkg.getProject(), resolver, this, lastSource);
         //Debug.message("&&&&&& Adding panel to editor: " + System.currentTimeMillis());
         pkg.getProject().getDefaultFXTabbedEditor().addTab(this.panel, visible, toFront);
         //Debug.message("&&&&&& Done! " + System.currentTimeMillis());
@@ -232,7 +231,7 @@ public class FrameEditor implements Editor
         Platform.runLater(() -> {
             if (panel != null)
             {
-                lastSourceRef.set(panel.getSource());
+                lastSource = panel.getSource();
                 panel.setWindowVisible(false, false);
                 panel.cleanup();
                 panel = null;
@@ -318,8 +317,6 @@ public class FrameEditor implements Editor
 
         try
         {
-            TopLevelCodeElement lastSource = lastSourceRef.get();
-            
             // If frame editor is closed, we just need to write the Java code
             if (panel == null || panel.getSource() == null)
             {
@@ -366,7 +363,7 @@ public class FrameEditor implements Editor
         Platform.runLater(() -> {
             try
             {
-                saveJava(lastSourceRef.get(), false);
+                saveJava(lastSource, false);
                 q.complete(Optional.empty());
             } catch (IOException e)
             {
@@ -820,7 +817,7 @@ public class FrameEditor implements Editor
                     try {
                         JavaSource js = javaSource.get();
                         if (js == null) {
-                            js = saveJava(lastSourceRef.get(), true).javaSource;
+                            js = saveJava(lastSource, true).javaSource;
                         }
                         curBreakpoint = js.handleStop(lineNumber, debugInfo);
                     }
@@ -1084,7 +1081,7 @@ public class FrameEditor implements Editor
             
             // Note lastSourceRef may refer to a stale source, but this shouldn't cause any
             // significant issues.
-            return earlyErrorCheck(lastSourceRef.get().findEarlyErrors());
+            return earlyErrorCheck(lastSource.findEarlyErrors());
         }
     }
 
