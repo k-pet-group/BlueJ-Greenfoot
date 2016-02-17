@@ -149,6 +149,11 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     private SuggestionList suggestionDisplay;
     // The node (i.e. text field) which the suggestion list is shown above/below
     private Region suggestionNode;
+    // Keeps track of whether we are currently code completing, for the purposes of
+    // deciding whether to generate code for optional slots.  This is not necessarily the same
+    // as suggestionDisplayProperty.get() != null, because we set this flag before
+    // we show the GUI
+    private boolean currentlyCompleting = false;
     // Some fields for file completions when we are completing string literals:
     private List<FileCompletion> fileCompletions;
     private Map<KeyCode, Runnable> fileCompletionShortcuts;
@@ -548,6 +553,10 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
             errorAndFixDisplay.hide();
             errorAndFixDisplay = null;
         }
+
+        shownErrors.clear();
+        clearErrorMarkers();
+        overlay.clearUnderlines();
     }
 
     public void replace(int startPosInSlot, int endPosInSlot, boolean javaPos, String s)
@@ -726,6 +735,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
             
         }
         else {
+            currentlyCompleting = true;
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
             editor.regenerateAndReparse(this);
             final int stringPos = topLevel.caretPosToStringPos(topLevel.getCurrentPos(), true);
@@ -1413,6 +1423,11 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         CaretPos p = topLevel.insert_(topLevel.getFirstField(), 0, beforeCursor, false);
         topLevel.insertAtPos(p, afterCursor);
         Platform.runLater(() -> topLevel.positionCaret(p));
+    }
+
+    public boolean isCurrentlyCompleting()
+    {
+        return currentlyCompleting;
     }
 
 

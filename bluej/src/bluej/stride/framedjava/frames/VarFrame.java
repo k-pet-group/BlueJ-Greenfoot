@@ -173,7 +173,7 @@ public class VarFrame extends SingleLineFrame
         JavaFXUtil.addChangeListener(showingValue, showing -> {
             if (!showing) {
                 slotValue.setText("");
-                slotValue.clearErrorMarkers();
+                slotValue.cleanup();
             }
             editor.modifiedFrame(this);
         });
@@ -234,9 +234,14 @@ public class VarFrame extends SingleLineFrame
     @Override
     public void regenerateCode()
     {
+        // We generate the return value iff:
+        //   - The value is currently visible, AND
+        //     - the text is non-empty, OR
+        //     - we have triggered code completion in the slot
+        final boolean generateValue = showingValue.get() && (!slotValue.getText().isEmpty() || slotValue.isCurrentlyCompleting());
         element = new VarElement(this, accessModifier.get() ? new AccessPermissionFragment(access.getValue(AccessPermission.EMPTY)) : null,
                 staticModifier.get(), finalModifier.get(), slotType.getSlotElement(), slotName.getSlotElement(), 
-                showingValue.get() && !slotValue.getText().isEmpty() ? slotValue.getSlotElement() : null, frameEnabledProperty.get());
+                generateValue ? slotValue.getSlotElement() : null, frameEnabledProperty.get());
     }
     
     @Override

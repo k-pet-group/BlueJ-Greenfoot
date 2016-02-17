@@ -80,7 +80,12 @@ public class ReturnFrame extends SingleLineFrame
         value = new OptionalExpressionSlot(editor, this, this, getHeaderRow(), "return-");
         value.setSimplePromptText("expression");
         value.bindTargetType(returnType);
-        
+
+        JavaFXUtil.addChangeListener(showingValue, showing -> {
+            if (!showing)
+                value.cleanup();
+        });
+
         spacer.setOnMouseClicked(e -> {
             showingValue.set(true);
             value.requestFocus();
@@ -119,7 +124,12 @@ public class ReturnFrame extends SingleLineFrame
     @Override
     public void regenerateCode()
     {
-        element = new ReturnElement(this, showingValue.get() && !value.getText().isEmpty() ? value.getSlotElement() : null, frameEnabledProperty.get());
+        // We generate the return value iff:
+        //   - The value is currently visible, AND
+        //     - the text is non-empty, OR
+        //     - we have triggered code completion in the slot
+        final boolean generateReturnValue = showingValue.get() && (!value.getText().isEmpty() || value.isCurrentlyCompleting());
+        element = new ReturnElement(this, generateReturnValue ? value.getSlotElement() : null, frameEnabledProperty.get());
     }
     
     @Override
