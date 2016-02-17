@@ -233,7 +233,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         @Override
         public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl,
-                SuggestionListListener listener, String targetType, FXConsumer<SuggestionList> handler) {
+                                                 SuggestionListListener listener, FXConsumer<SuggestionList> handler) {
             
             ClassFrame classFrame = (ClassFrame)ASTUtility.getTopLevelElement(codeEl).getFrame();
             

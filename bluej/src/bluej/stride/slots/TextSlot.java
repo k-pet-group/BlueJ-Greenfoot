@@ -51,7 +51,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -86,12 +85,16 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
 /**
- * A custom text box with handling for arrow keys etc. for moving between blocks/cursor (pseudo-)"modes"
- * @author Fraser McKay
+ * A slot which handles single-field text input, for example variable name definition.
+ *
+ * The class is abstract, with some abstract methods to do with specific context behaviour that
+ * are implemented by slim subclasses, but the vast majority of the functionality lies in this class.
  */
 public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implements EditableSlot, ErrorFixListener, CopyableHeaderItem
 {
+    // Listeners which get informed of changes in the content of the slot
     private final List<SlotValueListener> listeners = new ArrayList<SlotValueListener>();
+    // The editor in which this slot ultimately lies.
     protected final InteractionManager editor;
     
     // These two variables always point to the same thing, but due to Java's type
@@ -99,24 +102,47 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     protected final Frame frameParent;
     private final CodeFrame<? extends CodeElement> codeFrameParent;
 
+    // The row in which we lie
     private final FrameContentRow row;
- 
+
+    // The class dealing with the actual GUI text field item
     private final SlotTextField field;
+    // The suggestion list/autocomplete (contains null if not currently showing)
     private final ObjectProperty<SuggestionList> suggestionDisplayProperty = new SimpleObjectProperty<>();
+    // The calculator which works out which completions are valid.  May be null if completion is not possible here.
     private final CompletionCalculator completionCalculator;
+    // The X offset at which to show the autocomplete GUI item
     private final SimpleDoubleProperty suggestionXOffset = new SimpleDoubleProperty();
+    // The code which is generated from this slot, depends on the kind of slot
     private SLOT_FRAGMENT slotElement;
+    // The display showing any errors and quick fixes.  Null if not showing.
     private ErrorAndFixDisplay errorAndFixDisplay;
-    
+
+    // The list of all errors currently associated with the slot
     private final List<CodeError> allErrors = new ArrayList<>();
+    // The list of all errors actually showing for the slot.  (If two errors overlap,
+    // // only one of them is shown, so allErrors may have more than shownErrors)
     private final List<CodeError> shownErrors = new ArrayList<>();
-    private StringExpression targetType;
+    // The underlines currently being shown (for indicating link sources)
     private final List<Underline> underlines = new ArrayList<>();
+    // List of recent values of the slot, for local undo
     private final ObservableList<String> recentValues = FXCollections.observableArrayList();
+    // The error currently being shown due to mouse hover, if any (null if none)
     private CodeError hoverErrorCurrentlyShown;
     // We must keep a reference to this to avoid problems with GC and weak listeners:
     private final BooleanBinding effectivelyFocusedProperty;
 
+    /**
+     * Creates a text slot.  Will be called from subclasses only
+     *
+     * @param editor The editor in which we lie
+     * @param frameParent The frame in which we lie
+     * @param codeFrameParent Ditto, but typed as CodeFrame
+     * @param row The row in which we lie
+     * @param completionCalculator The completion calculator to be used for auto-completion.  Null iff auto-completion should be disabled
+     * @param stylePrefix The prefix to use for CSS style classes
+     * @param hints Hints to show in the cheat sheet when this slot is focused.
+     */
     protected TextSlot(InteractionManager editor, Frame frameParent, CodeFrame<? extends CodeElement> codeFrameParent, FrameContentRow row, CompletionCalculator completionCalculator, String stylePrefix, List<FrameCatalogue.Hint> hints)
     {
         this.editor = editor;
@@ -153,29 +179,31 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         return effectivelyFocusedProperty;
     }
 
+    /**
+     * The class dealing with the actual GUI component
+     */
     public class SlotTextField extends AnnotatableTextField
     {
+        // The piece of text from the beginning of the slot up until the beginning of
+        // the current word we are completing on.  So for example if we are completing
+        // "hello|" (pipe indicates cursor), lastBeforePrefix will be "".  If we complete
+        // "he.said.hello|", lastBeforePrefix will be "he.said."  See getStartOfCurWord for more
+        // info on detecting the current word.
         private String lastBeforePrefix;
-        private String valueOnGain; // Value when we gained focus
-        private final DoubleProperty towardsMonospaceProperty = new SimpleDoubleProperty(0.0);
+        // Value when we gained focus, used for recording local undo
+        private String valueOnGain;
+
         /**
-         * Default constructor.
+         * Constructor.
+         * @param stylePrefix  The prefix to use for CSS style classes
+         * @param overlay The overlay on which to draw errors, underlines, etc
          */
         private SlotTextField(String stylePrefix, ErrorUnderlineCanvas overlay)
         {
             super(overlay);
             addStyleClasses("text-slot", stylePrefix + "text-slot");
             prefWidthProperty().set(10);
-            
-            /*
-             * getNode().setOnKeyPressed(new EventHandler<KeyEvent>(){
-                @Override
-                public void handle(KeyEvent event){
-                    //If 'delete'/backspace
-                    if (event.getCode() == KeyCode.BACK_SPACE)
-                    {
-             */
-            
+
             SuggestionListListener suggestionListener = new SuggestionListListener() {
                 @Override
                 public void suggestionListChoiceClicked(int highlighted)
@@ -187,6 +215,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 @Override
                 public Response suggestionListKeyTyped(KeyEvent event, int highlighted)
                 {
+                    // Space completes single selections and moves to next slot:
                     if (event.getCharacter().equals(" ") && completeIfPossible(highlighted))
                     {
                         row.focusRight(TextSlot.this);
@@ -231,6 +260,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                                 return Response.DISMISS;
                             }
                         case RIGHT:
+                            // Pressing right inserts the string common to all current completions:
                             Optional<String> common = suggestionDisplayProperty.get().getLongestCommonPrefix();
                             if (common.isPresent())
                             {
@@ -254,6 +284,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                             setTransparent(false);
                             return Response.DISMISS;
                         case TAB:
+                            // Make Tab/Shift-Tab still work when code completion is shown:
                             if (event.isShiftDown())
                                 row.focusLeft(TextSlot.this);
                             else
@@ -368,13 +399,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                         setTransparent(false);
                         //Stop the behaviour of selecting text when tabbing to a field:
                         //Need to wrap in runLater as selection happens after this method
-                        Platform.runLater(new Runnable(){
-                            @Override
-                            public void run()
-                            {
-                                deselect();
-                            }
-                        });
+                        Platform.runLater(this::deselect);
                         showErrorAtCaret(getCaretPosition());                        
                     }
                     else {
@@ -452,8 +477,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             minWidthProperty().bind(new DoubleBinding() {
                 { super.bind(textProperty());
                   super.bind(promptTextProperty());
-                  super.bind(fontProperty());
-                  super.bind(towardsMonospaceProperty()); }
+                  super.bind(fontProperty()); }
 
                 private String lastText;
                 private double monospaceWidth;
@@ -462,32 +486,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 protected double computeValue()
                 {
                     String effectiveText = textProperty().get().length() > 0 ? textProperty().get() : promptTextProperty().get();
-                    double varSpaceWidth = Math.max(10, 5 + measureString(effectiveText));
-
-                    double m = towardsMonospaceProperty().get();
-                    if (m == 1.0)
-                    {
-                        // If we have reached 1, our font will have switched to monospace, so just store that and we're done
-                        lastText = effectiveText;
-                        monospaceWidth = varSpaceWidth;
-                        return varSpaceWidth;
-                    }
-                    else if (m == 0.0)
-                    {
-                        return varSpaceWidth; // Don't need to consider monospace at all
-                    }
-                    else
-                    {
-                        // Animating; need to calc width:
-                        if (!effectiveText.equals(lastText))
-                        {
-                            lastText = effectiveText;
-                            Font font = Font.font("monospace", getFont().getSize());
-                            monospaceWidth = Math.max(10, 5 + measureString(lastText, font));
-                        }
-                        //Debug.message("Animating \"" + getText() + "\" from: " + varSpaceWidth + " to: " + monospaceWidth + " via " + m);
-                        return varSpaceWidth + m * (monospaceWidth - varSpaceWidth);
-                    }
+                    return Math.max(10, 5 + measureString(effectiveText));
                 }
             });
             prefWidthProperty().bind(minWidthProperty());
@@ -500,11 +499,6 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             
             // runLater, to allow parent's constructor to execute:
             Platform.runLater(() -> setContextMenu(MenuItems.makeContextMenu(getMenuItems(true))));
-        }
-
-        public DoubleProperty towardsMonospaceProperty()
-        {
-            return towardsMonospaceProperty;
         }
 
         public final int getCaretPosition()
@@ -547,12 +541,12 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
             editor.regenerateAndReparse(null);
             final int stringPos = field.getCaretPosition();
-            completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, (targetType == null || getStartOfCurWord() != 0) ? null : targetType.get(), handler);
+            completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, handler);
             editor.recordCodeCompletionStarted(getSlotElement(), stringPos, getCurWord());
         }
 
 
-        // Make this visible in this class:
+        // Make the parent method visible in this class:
         @Override
         protected double calculateCaretPosition(int beforeIndex)
         {
@@ -851,28 +845,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         field.positionCaret(info);
         return field.getNode();
     }
-    
-    public void bindTargetType(StringExpression targetTypeBinding)
-    {
-        this.targetType = targetTypeBinding;
-    }
-
-    public void setTargetType(String targetType)
-    {
-        this.targetType = new SimpleStringProperty(targetType);        
-    }
 
     public Stream<CodeError> getCurrentErrors()
     {
         return shownErrors.stream();
     }
-    /*
-    @Override
-    public Stream<EditableSlot> getHeaderItems()
-    {
-        return Stream.of(this);
-    }
-    */
     
     public void addUnderline(Underline u)
     {

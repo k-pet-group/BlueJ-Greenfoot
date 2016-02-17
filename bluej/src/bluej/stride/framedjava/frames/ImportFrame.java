@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,6 @@ import java.util.stream.Stream;
 import bluej.parser.AssistContent.Access;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.links.PossibleLink;
@@ -85,8 +84,8 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
             
             @Override
             public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl,
-                    SuggestionListListener clickListener, String targetType,
-                    FXConsumer<SuggestionList> handler)
+                                                     SuggestionListListener clickListener,
+                                                     FXConsumer<SuggestionList> handler)
             {
                 imports = new ArrayList<>(new TreeSet<>(editor.getOtherPopularImports().stream().filter(ac ->
                         // Only if visible:

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import bluej.utility.Utility;
 import javafx.scene.control.TextField;
@@ -71,7 +70,7 @@ public class TypeCompletionCalculator implements CompletionCalculator
 
     @Override
     public void withCalculatedSuggestionList(PosInSourceDoc pos,
-            CodeElement codeEl, SuggestionListListener listener, String targetType, FXConsumer<SuggestionList> handler) {
+                                             CodeElement codeEl, SuggestionListListener listener, FXConsumer<SuggestionList> handler) {
         
         editor.withTypes(superType, true, kinds, acs -> {
             this.acs = new ArrayList<>(acs);

@@ -109,7 +109,6 @@ public class TryFrame extends SandwichCanvasesFrame
 
         TypeTextSlot type = new TypeTextSlot(editor, this, this, row, new TypeCompletionCalculator(editor, Throwable.class), "catch-type-");
         type.setPromptText("type");
-        type.setTargetType("Exception");
         type.addValueListener(new SlotValueListener() {
             @Override
             public boolean valueChanged(HeaderItem slot, String oldValue, String newValue, FocusParent<HeaderItem> parent) {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,7 @@ import bluej.utility.javafx.FXConsumer;
 
 public interface CompletionCalculator
 {
-    public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl, SuggestionListListener clickListener, String targetType, FXConsumer<SuggestionList> handler);
+    public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl, SuggestionListListener clickListener, FXConsumer<SuggestionList> handler);
     
     public boolean execute(TextField field, int highlighted, int startOfCurWord);
 }
