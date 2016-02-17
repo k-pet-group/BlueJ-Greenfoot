@@ -59,6 +59,7 @@ import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -634,7 +635,7 @@ public class GreenfootUtil
         // to create the new font. So it is not necessary, as is done in some examples that can be
         // found in the wild, to retrieve the original attribute map and modify it; we can just
         // create a new map and put the attributes we want in it.
-        Map<TextAttribute,Integer> attr = new TreeMap<>();                
+        Map<TextAttribute,Integer> attr = new HashMap<>();
         attr.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
         Font underLineFont = f.deriveFont(attr);
         return underLineFont;
