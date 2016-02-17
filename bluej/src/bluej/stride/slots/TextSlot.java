@@ -264,7 +264,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                             Optional<String> common = suggestionDisplayProperty.get().getLongestCommonPrefix();
                             if (common.isPresent())
                             {
+                                boolean single = suggestionDisplayProperty.get().eligibleCount() == 1;
                                 field.replaceText(getStartOfCurWord(), field.getCaretPosition(), common.get());
+                                // If this was the only completion, we've inserted all of it, so dismiss:
+                                if (single)
+                                    return Response.DISMISS;
                             }
                             else
                             {
