@@ -998,31 +998,32 @@ public class ClassTarget extends DependentTarget
                 }
             }
 
-            if (sourceAvailable == SourceType.Java)
+            if (sourceAvailable == SourceType.Java) {
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
                         getBaseName(), project::getDefaultSwingTabbedEditor, this, isCompiled(), resolver,
                         project.getJavadocResolver(), this::recordEditorOpen);
-                else if (sourceAvailable == SourceType.Stride)
-                {
-                    final CompletableFuture<Editor> q = new CompletableFuture<>();
-                    // need to pull some parameters out while on the Swing thread:
-                    File frameSourceFile = getFrameSourceFile();
-                    File javaSourceFile = getJavaSourceFile();
-                    JavadocResolver javadocResolver = project.getJavadocResolver();
-                    Package pkg = getPackage();
-                    final Runnable openCallback = this::recordEditorOpen;
-                    Platform.runLater(() -> {
-                        q.complete(new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback));
-                    });
+            }
+            else if (sourceAvailable == SourceType.Stride) {
+                final CompletableFuture<Editor> q = new CompletableFuture<>();
+                // need to pull some parameters out while on the Swing thread:
+                File frameSourceFile = getFrameSourceFile();
+                File javaSourceFile = getJavaSourceFile();
+                JavadocResolver javadocResolver = project.getJavadocResolver();
+                Package pkg = getPackage();
+                final Runnable openCallback = this::recordEditorOpen;
+                Platform.runLater(() -> {
+                    q.complete(new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback));
+                });
 
-                    try {
-                        editor = q.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        Debug.reportError(e);
-                    }
+                try {
+                    editor = q.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    Debug.reportError(e);
                 }
-                // editor may be null if source has been deleted
+            }
+            
+            // editor may be null if source has been deleted
             // for example.
             if (editor != null) {
                 editor.showInterface(showInterface);
