@@ -130,11 +130,12 @@ public class FrameEditor implements Editor
     @OnThread(Tag.Swing) private SaveJavaResult lastSavedJavaSwing = null;
     
     /** Location of the .stride file */
-    ReadWriteLock filenameLock = new ReentrantReadWriteLock();
-    private File frameFilename;
-    private File javaFilename;
+    @OnThread(Tag.Any) private final ReadWriteLock filenameLock = new ReentrantReadWriteLock();
+    // These fields should only be used with the lock above, but once locked, can be accessed from any thread:
+    @OnThread(Tag.Any) private File frameFilename;
+    @OnThread(Tag.Any) private File javaFilename;
     
-    private final EntityResolver resolver;
+    @OnThread(Tag.FX) private final EntityResolver resolver;
     private final EditorWatcher watcher;
     private final JavadocResolver javadocResolver;
     
@@ -144,10 +145,10 @@ public class FrameEditor implements Editor
      * the editor opens.
      */
     @OnThread(Tag.FX) private final SimpleObjectProperty<JavaSource> javaSource;
-    private bluej.pkgmgr.Package pkg;
-    private FrameEditorTab panel;
+    private final bluej.pkgmgr.Package pkg;
+    @OnThread(Tag.FX) private FrameEditorTab panel;
     private final DebugInfo debugInfo = new DebugInfo();
-    private HighlightedBreakpoint curBreakpoint;
+    @OnThread(Tag.FX) private HighlightedBreakpoint curBreakpoint;
     
     /** Stride source at last save. Assigned on FX thread only, readable on any thread. */
     private volatile TopLevelCodeElement lastSource;
@@ -160,8 +161,10 @@ public class FrameEditor implements Editor
 
     /**
      * A callback to call (on the Swing thread) when this editor is opened.
+     * Callback can be accessed from any thread to be queued up, but should always
+     * be passed to SwingUtilities.invokeLater
      */
-    private final Runnable callbackOnOpen;
+    @OnThread(Tag.Any) private final Runnable callbackOnOpen;
 
     /**
      * A javac compile error.

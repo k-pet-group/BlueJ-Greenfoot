@@ -152,13 +152,14 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     private ScheduledFuture<?> hoverTabTask;
     /** The picture being shown of the currently dragged frames */
     private ImageView dragIcon = null;
-    /** Cached so it can be read from any thread: */
-    private String projectTitle;
+    /** Cached so it can be read from any thread.  Written to once on Swing thread in initialise,
+     * then effectively final thereafter */
+    @OnThread(Tag.Any) private String projectTitle;
     /** Atomic caches to be read from Swing thread: */
-    private AtomicInteger locationX = new AtomicInteger(0);
-    private AtomicInteger locationY = new AtomicInteger(0);
-    private AtomicInteger locationWidth = new AtomicInteger(700);
-    private AtomicInteger locationHeight = new AtomicInteger(700);
+    private final AtomicInteger locationX = new AtomicInteger(0);
+    private final AtomicInteger locationY = new AtomicInteger(0);
+    private final AtomicInteger locationWidth = new AtomicInteger(700);
+    private final AtomicInteger locationHeight = new AtomicInteger(700);
     private StringProperty titleStatus = new SimpleStringProperty("");
 
     // Neither the constructor nor any initialisers should do any JavaFX work until

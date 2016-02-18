@@ -51,7 +51,7 @@ import bluej.utility.JavaUtils;
 @OnThread(Tag.Swing)
 public class MethodCompletion extends AssistContent
 {
-    private MethodReflective method;
+    @OnThread(Tag.Any) private final MethodReflective method;
     private JavadocResolver javadocResolver;
     private Map<String,GenTypeParameter> typeArgs;
     

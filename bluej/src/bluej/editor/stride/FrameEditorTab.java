@@ -175,8 +175,10 @@ import bluej.utility.javafx.JavaFXUtil;
 public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements InteractionManager
 {
     private final static List<Future<List<AssistContentThreadSafe>>> popularImports = new ArrayList<>();
-    private static Future<List<AssistContentThreadSafe>> javaLangImports;
-    private static List<AssistContentThreadSafe> prims;
+    // This static field can be accessed by any thread from an instance, but is initialised once
+    // in the FrameEditorTab constructor by the first constructed instance, so is thread safe:
+    @OnThread(Tag.Any) private static Future<List<AssistContentThreadSafe>> javaLangImports;
+    @OnThread(Tag.Swing) private static List<AssistContentThreadSafe> prims;
     // We keep track ourselves of which item is focused.  Only focusable things in the editor
     // should be frame cursors and slots:
     private final SimpleObjectProperty<CursorOrSlot> focusedItem = new SimpleObjectProperty<>(null);
@@ -200,7 +202,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     // (ignoring focus becoming null)
     private boolean manualScrolledSinceLastFocusChange = false;
     private CursorOrSlot focusOwnerDuringLastManualScroll = null;
-    private TopLevelFrame<? extends TopLevelCodeElement> topLevelFrame;
+    // Frame won't change after initialiseFX, so it's effectively final,
+    // and protected by an FX tab, so it's ok for the field to be read from any thread:
+    @OnThread(Tag.Any) private TopLevelFrame<? extends TopLevelCodeElement> topLevelFrame;
     private ContextMenu menu;
     // The debugger controls (currently unused):
     private HBox controlPanel;
@@ -209,7 +213,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private StackPane scrollAndOverlays;
     private StackPane scrollContent;
     private final ObjectProperty<FXTabbedEditor> parent = new SimpleObjectProperty<>();
-    private Project project;
+    private final Project project;
     private ScrollPane scroll;
     private boolean selectingByDrag;
     private BirdseyeManager birdseyeManager;

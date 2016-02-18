@@ -774,12 +774,12 @@ class TCScanner extends TreePathScanner<Void, Void>
             if ((ann.isPresent() == false && invokedOnTag.tag != Tag.Any) || (ann.isPresent() && !ann.get().tag.canCall(invokedOnTag.tag, sameInstance)))
             {
                 if (!inSynthetic())
-                    trees.printMessage(Kind.ERROR, "\nMethod " + invokeTargetType.toString() + "." + name + " being called requires " + invokedOnTag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified") + " lambda: " + lambdaScopeStack.size() + " " + lambdaScopeStack.stream().map(x -> "" + x).collect(Collectors.joining(", ")), errorLocation, cu);
+                    trees.printMessage(Kind.ERROR, "\n    Method " + invokeTargetType.toString() + "." + name + " being called requires " + invokedOnTag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified") + " lambda: " + lambdaScopeStack.size() + " " + lambdaScopeStack.stream().map(x -> "" + x).collect(Collectors.joining(", ")), errorLocation, cu);
             }
             
             if (ann.isPresent() && ann.get().tag == Tag.FX && Arrays.asList("SwingUtilities.invokeAndWait", "EventQueue.invokeAndWait").contains(methodSelect))
             {
-                trees.printMessage(Kind.ERROR, "\nSwing invokeAndWait method is being called, but from tag " + ann.get() + " (you need FX_UsesSwing)", errorLocation, cu);
+                trees.printMessage(Kind.ERROR, "\n    Swing invokeAndWait method is being called, but from tag " + ann.get() + " (you need FX_UsesSwing)", errorLocation, cu);
             }
         }
         /*
@@ -1073,7 +1073,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         List<LocatedTag> tags = tagStream.filter(t -> t != null).distinct().collect(Collectors.toList());
         if (tags.size() > 1)
         {
-            trees.printMessage(Kind.ERROR, "Multiple conflicting thread tags: " + tags.stream().map(Object::toString).collect(Collectors.joining(", ")), tree, cu);
+            trees.printMessage(Kind.ERROR, "\n    Multiple conflicting thread tags: " + tags.stream().map(Object::toString).collect(Collectors.joining(", ")), tree, cu);
         }
         return tags.isEmpty() ? null : tags.get(0);
     }
@@ -1118,7 +1118,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         if (lambdaClassMembers.size() != 1)
         {
             if (issueError && !(lambdaClassType.getKind() == TypeKind.TYPEVAR))
-                trees.printMessage(Kind.ERROR, "\nLambda type " + lambdaClassElement.getSimpleName() + " seems to have multiple members: " + lambdaClassMembers.stream().map(Element::getSimpleName).map(Object::toString).collect(Collectors.joining(", ")), errorLocation, cu);
+                trees.printMessage(Kind.ERROR, "\n    Lambda type " + lambdaClassElement.getSimpleName() + " seems to have multiple members: " + lambdaClassMembers.stream().map(Element::getSimpleName).map(Object::toString).collect(Collectors.joining(", ")), errorLocation, cu);
             return null;
         }
         LocatedTag lambdaAnn = null;
@@ -1285,6 +1285,10 @@ class TCScanner extends TreePathScanner<Void, Void>
     @Override
     public Void visitIdentifier(IdentifierTree node, Void aVoid)
     {
+        // Can't have unsafe field accesses in constructors or initialisers:
+        if (methodScopeStack.size() > 0 && (methodScopeStack.getLast().item == null || methodScopeStack.getLast().item.getReturnType() == null))
+            return super.visitIdentifier(node, aVoid);
+        
         LocatedTag tag = fields.get(node.getName().toString());
         if (tag != null) 
         {
@@ -1295,7 +1299,7 @@ class TCScanner extends TreePathScanner<Void, Void>
             
             if (ann.isPresent() && !ann.get().tag.canCall(tag.tag, true))
             {
-                trees.printMessage(Kind.ERROR, "\nField " + node.getName() + " being called requires " + tag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified"), node, cu);
+                trees.printMessage(Kind.ERROR, "\n    Field " + node.getName() + " being called requires " + tag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified"), node, cu);
             }
         }
         
@@ -1305,15 +1309,80 @@ class TCScanner extends TreePathScanner<Void, Void>
     @Override
     public Void visitVariable(VariableTree node, Void aVoid)
     {
+        // Deal with fields for top-level classes (TODO handle inner classes):
+        
+        /*
+        The rule for accessing fields is:
+        
+         - If the field is final:
+           - If the field is primitive or String or AtomicInteger, access is allowed from Any thread
+           - If the type of the field (possibly by way of the field type's package) has a tag, access is allowed from Any thread.  E.g. you may have a "final Package pkg;" field.  Any thread should be able to access the field, because all of Package's methods are protected by the Swing tag anyway.  Contrast with "final List foo;" -- this should not allow access from any thread because you can get race hazards modifying the list.
+         - Otherwise, the field receives the tag from its enclosing type (or enclosing type's package).  So for example, Project is tagged Swing; all of Project's fields are also tagged Swing.
+        
+        Thus you should only get field problems flagged when some methods have different tags to the class as a whole, or you use fields from inside invokeLater/runLater.  Otherwise, all your methods are assumed to be running on the same thread, and thus there are no race hazards.
+        */
+        
         if (typeScopeStack.size() == 1 && methodScopeStack.size() == 0)
         {
             // Field of top-level class
             LocatedTag explicit = getSourceTag(node, () -> cu.getPackageName().toString() + typeScopeStack.stream().map(TCScanner::typeToName).collect(Collectors.joining(".")));
             if (explicit != null)
+            {
                 fields.put(node.getName().toString(), explicit);
+                return super.visitVariable(node, aVoid);
+            }
+            else if (node.getModifiers().getFlags().contains(Modifier.VOLATILE))
+            {
+                // Already tagged volatile, no need to protect it further:
+                fields.put(node.getName().toString(), new LocatedTag(Tag.Any, false, false, "volatile"));
+                return super.visitVariable(node, aVoid);
+            }
             // Also give it default tag from class if none explicitly:
-            //else
-            //    fields.put(node.getName().toString(), getSourceTag(typeScopeStack.getLast().item, () -> cu.getPackageName().toString()));
+            else if (node.getModifiers().getFlags().contains(Modifier.FINAL))
+            {
+                // If they are final-primitive or final-immutable or final-atomic, no safety issues:
+                if (Arrays.asList("String", "int", "double", "boolean", "char", "float", "short", "long", "AtomicInteger").contains(node.getType().toString()))
+                {
+                    fields.put(node.getName().toString(), new LocatedTag(Tag.Any, false, false, "final String/primitive"));
+                    return super.visitVariable(node, aVoid);
+                }
+                else
+                {
+                    TypeMirror typeMirror = trees.getTypeMirror(trees.getPath(cu, node));
+                    if (typeMirror == null)
+                        trees.printMessage(Kind.ERROR, "Null TypeMirror", node, cu);
+                    Element element = types.asElement(typeMirror);
+                    if (element == null)
+                    {
+                        // Probably means it's an an array type, so no special tag
+                    }
+                    else
+                    {
+                        LocatedTag varTypeTag = getRemoteTag(element, () -> node.getType().toString(), node);
+                        if (varTypeTag != null)
+                        {
+                            // The class's methods are controlled by a tag, so it's ok so access the final variable from any thread:
+                            fields.put(node.getName().toString(), new LocatedTag(Tag.Any, false, false, "final BlueJ class"));
+                            return super.visitVariable(node, aVoid);
+                        }
+                        else
+                        {
+                            // No tag on class, but might be one on package:
+                            PackageElement pkg = elements.getPackageOf(element);
+                            LocatedTag pkgTag = getRemoteTag(pkg, () -> node.getType().toString(), node);
+                            if (pkgTag != null)
+                            {
+                                // Same logic as above
+                                fields.put(node.getName().toString(), new LocatedTag(Tag.Any, false, false, "final BlueJ class"));
+                                return super.visitVariable(node, aVoid);
+                            }
+                        }
+                    }
+                }
+                
+            }
+            
+            fields.put(node.getName().toString(), getSourceTag(typeScopeStack.getLast().item, () -> cu.getPackageName().toString()));
         }
         return super.visitVariable(node, aVoid);
     }

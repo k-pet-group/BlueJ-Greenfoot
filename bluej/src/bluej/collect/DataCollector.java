@@ -78,7 +78,7 @@ public @OnThread(Tag.Swing) class DataCollector
     /**
      * Session identifier.  Never changes after startSession() has been called:
      */
-    private static String sessionUuid;
+    @OnThread(Tag.Any) private static String sessionUuid;
     
     /**
      * These three variables can change during the execution:

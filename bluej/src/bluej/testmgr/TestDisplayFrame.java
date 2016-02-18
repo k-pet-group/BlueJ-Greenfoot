@@ -437,44 +437,44 @@ public class TestDisplayFrame
             }
         }
     }
-}
 
-class MyCellRenderer extends JLabel implements ListCellRenderer
-{
-    final static Icon errorIcon = Config.getFixedImageAsIcon("error.gif");
-    final static Icon failureIcon = Config.getFixedImageAsIcon("failure.gif");
-    final static Icon okIcon = Config.getFixedImageAsIcon("ok.gif");
-
-    // This is the only method defined by ListCellRenderer.
-    // We just reconfigure the JLabel each time we're called.
-    public Component getListCellRendererComponent(
-            JList list,
-            Object value,            // value to display
-            int index,               // cell index
-            boolean isSelected,      // is the cell selected
-            boolean cellHasFocus)    // the list and the cell have the focus
+    private static class MyCellRenderer extends JLabel implements ListCellRenderer
     {
-        if (value instanceof DebuggerTestResult) {
-            DebuggerTestResult dtr = (DebuggerTestResult) value;
-            setText(dtr.getName() + " (" + dtr.getRunTimeMs() + "ms)");
-            setIcon((dtr.isSuccess()) ? okIcon : (dtr.isFailure() ? failureIcon : errorIcon));
-        } else {
-            setText(value.toString());
+        final static Icon errorIcon = Config.getFixedImageAsIcon("error.gif");
+        final static Icon failureIcon = Config.getFixedImageAsIcon("failure.gif");
+        final static Icon okIcon = Config.getFixedImageAsIcon("ok.gif");
+    
+        // This is the only method defined by ListCellRenderer.
+        // We just reconfigure the JLabel each time we're called.
+        public Component getListCellRendererComponent(
+                JList list,
+                Object value,            // value to display
+                int index,               // cell index
+                boolean isSelected,      // is the cell selected
+                boolean cellHasFocus)    // the list and the cell have the focus
+        {
+            if (value instanceof DebuggerTestResult) {
+                DebuggerTestResult dtr = (DebuggerTestResult) value;
+                setText(dtr.getName() + " (" + dtr.getRunTimeMs() + "ms)");
+                setIcon((dtr.isSuccess()) ? okIcon : (dtr.isFailure() ? failureIcon : errorIcon));
+            } else {
+                setText(value.toString());
+            }
+    
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());
+                setOpaque(true);
+            }
+            else {
+                setBackground(list.getBackground());
+                setForeground(list.getForeground());
+                setOpaque(false);
+            }
+            setEnabled(list.isEnabled());
+            setFont(list.getFont());
+    
+            return this;
         }
-
-        if (isSelected) {
-            setBackground(list.getSelectionBackground());
-            setForeground(list.getSelectionForeground());
-            setOpaque(true);
-        }
-        else {
-            setBackground(list.getBackground());
-            setForeground(list.getForeground());
-            setOpaque(false);
-        }
-        setEnabled(list.isEnabled());
-        setFont(list.getFont());
-
-        return this;
     }
 }
