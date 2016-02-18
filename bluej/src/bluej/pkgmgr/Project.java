@@ -45,6 +45,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.concurrent.Semaphore;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -2261,14 +2262,27 @@ public class Project implements DebuggerListener, InspectorManager
             saveEditorLocation(props, swingCachedEditorSizes.get(i), "editor.swing." + i);
         }
 
-        for (int i = 0; i < fXTabbedEditors.size(); i++)
+        Semaphore s = new Semaphore(0);
+        ArrayList<FXTabbedEditor> fxEditors = new ArrayList<>();
+        ArrayList<Rectangle> fxCachedSizes = new ArrayList<>();
+        Platform.runLater(new Runnable() {
+            @OnThread(Tag.Any)
+            public void run() {
+                fxEditors.addAll(fXTabbedEditors);
+                fxCachedSizes.addAll(fxCachedEditorSizes);
+                s.release();
+            }
+        });
+        s.acquireUninterruptibly();
+        
+        for (int i = 0; i < fxEditors.size(); i++)
         {
-            saveEditorLocation(props, fXTabbedEditors.get(i), "editor.fx." + i);
+            saveEditorLocation(props, fxEditors.get(i), "editor.fx." + i);
         }
         // Also put out the cached sizes after the end of the editors:
-        for (int i = fXTabbedEditors.size(); i < fxCachedEditorSizes.size(); i++)
+        for (int i = fxEditors.size(); i < fxCachedSizes.size(); i++)
         {
-            saveEditorLocation(props, fxCachedEditorSizes.get(i), "editor.fx." + i);
+            saveEditorLocation(props, fxCachedSizes.get(i), "editor.fx." + i);
         }
     }
 
