@@ -185,9 +185,9 @@ public class Project implements DebuggerListener, InspectorManager
     private Charset characterSet;
     
     private final List<SwingTabbedEditor> swingTabbedEditors = new ArrayList<>();
-    private final List<FXTabbedEditor> fXTabbedEditors = new ArrayList<>();
+    @OnThread(Tag.FX) private final List<FXTabbedEditor> fXTabbedEditors = new ArrayList<>();
     private final List<Rectangle> swingCachedEditorSizes = new ArrayList<>();
-    private final List<Rectangle> fxCachedEditorSizes = new ArrayList<>();
+    @OnThread(Tag.FX) private final List<Rectangle> fxCachedEditorSizes = new ArrayList<>();
     
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private Timer compilerTimer;
@@ -263,7 +263,7 @@ public class Project implements DebuggerListener, InspectorManager
         new JFXPanel();
         // Prevent JavaFX exiting when all JavaFX windows are closed (would prevent re-opening editor):
         Platform.setImplicitExit(false);
-        createNewFXTabbedEditor();
+        Platform.runLater(() -> createNewFXTabbedEditor());
         createNewSwingTabbedEditor();
 
         // Must do this after the editors have been created:
@@ -2219,14 +2219,13 @@ public class Project implements DebuggerListener, InspectorManager
      * Warning: this method executes on Swing thread, and expects to be able
      * to wait for the FX thread.
      */
+    @OnThread(Tag.FX)
     public FXTabbedEditor createNewFXTabbedEditor()
     {
-        FXTabbedEditor ed = new FXTabbedEditor(Project.this, recallPosition(EditorType.FX, fXTabbedEditors.size()));
+        FXTabbedEditor ed = new FXTabbedEditor(Project.this, recallFxPosition(fXTabbedEditors.size()));
         ed.initialise();
-        Platform.runLater(() -> {
-            fXTabbedEditors.add(ed);
-            fXTabbedEditors.forEach(FXTabbedEditor::updateMoveMenus);
-        });
+        fXTabbedEditors.add(ed);
+        fXTabbedEditors.forEach(FXTabbedEditor::updateMoveMenus);
         return ed;
     }
 
@@ -2327,6 +2326,27 @@ public class Project implements DebuggerListener, InspectorManager
 
         // Add the number on:
         String prefix = (ed == EditorType.FX ? "editor.fx." : "editor.swing.") + index;
+        Properties props = getPackage("").getLastSavedProperties();
+        int x = Integer.parseInt(props.getProperty(prefix +  ".x", "-1"));
+        int y = Integer.parseInt(props.getProperty(prefix + ".y", "-1"));
+        int width = Integer.parseInt(props.getProperty(prefix + ".width", "-1"));
+        int height = Integer.parseInt(props.getProperty(prefix + ".height", "-1"));
+        if (x >= 0 && y >= 0 && width > 100 && height > 100)
+            return new Rectangle(x, y, width, height);
+        else
+            return null;
+    }
+    
+    @OnThread(Tag.FX)
+    private Rectangle recallFxPosition(int index)
+    {
+        // First check if we have a cache since we've been opened:
+        List<Rectangle> cache = fxCachedEditorSizes;
+        if (index < cache.size() && cache.get(index) != null)
+            return cache.get(index);
+
+        // Add the number on:
+        String prefix = "editor.fx." + index;
         Properties props = getPackage("").getLastSavedProperties();
         int x = Integer.parseInt(props.getProperty(prefix +  ".x", "-1"));
         int y = Integer.parseInt(props.getProperty(prefix + ".y", "-1"));

@@ -172,40 +172,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     }
 
     /**
-     * Initialises the FXTabbedEditor.  Called from Swing, it blocks waiting for
-     * the FX thread to complete the loading, so that further calls from Swing
-     * know it has been initialised
+     * Initialises the FXTabbedEditor.
      */
-    @OnThread(Tag.Swing)
     public void initialise()
     {
-        if (Platform.isFxApplicationThread())
-            throw new IllegalStateException("Unexpected call of initialise from FX thread");
-        
-        Object o = new Object();
         projectTitle = project.getProjectName();
-        synchronized (o)
-        {
-            Platform.runLater(() -> {
-                stage = new Stage();
-                //add the greenfoot icon to the Stride editor.
-                stage.getIcons().add(BlueJTheme.getApplicationFxIcon("greenfoot", true));
-                
-                initialiseFX();
-                synchronized (o) {
-                    o.notify();
-                }
-            });
-            
-            try
-            {
-                o.wait();
-            }
-            catch (InterruptedException e)
-            {
-                Debug.reportError(e);
-            }
-        }
+        stage = new Stage();
+        //add the greenfoot icon to the Stride editor.
+        stage.getIcons().add(BlueJTheme.getApplicationFxIcon("greenfoot", true));
+
+        initialiseFX();
     }
 
     /**
