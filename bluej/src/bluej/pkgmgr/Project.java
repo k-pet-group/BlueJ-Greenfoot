@@ -135,6 +135,8 @@ public class Project implements DebuggerListener, InspectorManager
     // instance fields
     /** the path of the project directory. */
     private final File projectDir;
+    /** reference to the unnamed package */
+    @OnThread(Tag.Any) private final Package unnamedPackage; 
     /** Resolve javadoc for this project */
     private final JavadocResolver javadocResolver;
     /** collection of open packages in this project
@@ -196,19 +198,20 @@ public class Project implements DebuggerListener, InspectorManager
     // give us the right semantics regardless:
     private volatile CompileReason latestCompileReason;
 
-    /* ------------------- end of field declarations ------------------- */
     private BProject singleBProject;  // Every Project has none or one BProject
     private boolean closing = false;
     /** The scanner for available imports.  May be null if not requested yet. */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private ImportScanner importScanner;
 
+    /* ------------------- end of field declarations ------------------- */
+
     /**
      * Construct a project in the directory projectDir.
      * This must contain the root bluej.pkg of a nested package
      * (this should by its nature be the unnamed package).
      */
-    private Project(File projectDir)
+    private Project(File projectDir) throws IOException
     {
         if (projectDir == null) {
             throw new NullPointerException();
@@ -250,14 +253,10 @@ public class Project implements DebuggerListener, InspectorManager
         packages = new TreeMap<String, Package>();
         docuGenerator = new DocuGenerator(this);
 
-        try {
-            Package unnamed = new Package(this);
-            Properties props = unnamed.getLastSavedProperties();
-            setProjectProperties(props);
-            packages.put("", unnamed);
-        } catch (IOException exc) {
-            Debug.reportError("could not read package file (unnamed package)");
-        }
+        unnamedPackage = new Package(this);
+        Properties props = unnamedPackage.getLastSavedProperties();
+        setProjectProperties(props);
+        packages.put("", unnamedPackage);
 
         // This line initialises JavaFX:
         new JFXPanel();
@@ -467,8 +466,13 @@ public class Project implements DebuggerListener, InspectorManager
         Project proj = projects.get(projectDir);
 
         if (proj == null) {
-            proj = new Project(projectDir);
-            projects.put(projectDir, proj);
+            try {
+                proj = new Project(projectDir);
+                projects.put(projectDir, proj);
+            }
+            catch (IOException ioe) {
+                return null;
+            }
         }
 
         if (startingPackageName.equals("")) {
@@ -2181,7 +2185,7 @@ public class Project implements DebuggerListener, InspectorManager
 
     public SwingTabbedEditor createNewSwingTabbedEditor()
     {
-        SwingTabbedEditor newEditor = new SwingTabbedEditor(this, recallPosition(EditorType.SWING, swingTabbedEditors.size()));
+        SwingTabbedEditor newEditor = new SwingTabbedEditor(this, recallPosition(swingTabbedEditors.size()));
         swingTabbedEditors.add(newEditor);
         updateSwingTabbedEditorDestinations();
         return newEditor;
@@ -2315,46 +2319,37 @@ public class Project implements DebuggerListener, InspectorManager
         Platform.runLater(() -> fXTabbedEditors.forEach(fte -> fte.setTitleStatus(status)));
     }
 
-    private static enum EditorType { SWING, FX }
-
-    private Rectangle recallPosition(EditorType ed, int index)
+    @OnThread(Tag.Any)
+    private Rectangle recallPosition(String prefix, List<Rectangle> cache, int index)
     {
         // First check if we have a cache since we've been opened:
-        List<Rectangle> cache = (ed == EditorType.FX ? fxCachedEditorSizes : swingCachedEditorSizes);
-        if (index < cache.size() && cache.get(index) != null)
+        if (index < cache.size() && cache.get(index) != null) {
             return cache.get(index);
+        }
 
         // Add the number on:
-        String prefix = (ed == EditorType.FX ? "editor.fx." : "editor.swing.") + index;
-        Properties props = getPackage("").getLastSavedProperties();
+        Properties props = unnamedPackage.getLastSavedProperties();
+        prefix = prefix + "." + index;
         int x = Integer.parseInt(props.getProperty(prefix +  ".x", "-1"));
         int y = Integer.parseInt(props.getProperty(prefix + ".y", "-1"));
         int width = Integer.parseInt(props.getProperty(prefix + ".width", "-1"));
         int height = Integer.parseInt(props.getProperty(prefix + ".height", "-1"));
-        if (x >= 0 && y >= 0 && width > 100 && height > 100)
+        if (x >= 0 && y >= 0 && width > 100 && height > 100) {
             return new Rectangle(x, y, width, height);
-        else
+        }
+        else {
             return null;
+        }
+    }
+    
+    private Rectangle recallPosition(int index)
+    {
+        return recallPosition("editor.swing", swingCachedEditorSizes, index);
     }
     
     @OnThread(Tag.FX)
     private Rectangle recallFxPosition(int index)
     {
-        // First check if we have a cache since we've been opened:
-        List<Rectangle> cache = fxCachedEditorSizes;
-        if (index < cache.size() && cache.get(index) != null)
-            return cache.get(index);
-
-        // Add the number on:
-        String prefix = "editor.fx." + index;
-        Properties props = getPackage("").getLastSavedProperties();
-        int x = Integer.parseInt(props.getProperty(prefix +  ".x", "-1"));
-        int y = Integer.parseInt(props.getProperty(prefix + ".y", "-1"));
-        int width = Integer.parseInt(props.getProperty(prefix + ".width", "-1"));
-        int height = Integer.parseInt(props.getProperty(prefix + ".height", "-1"));
-        if (x >= 0 && y >= 0 && width > 100 && height > 100)
-            return new Rectangle(x, y, width, height);
-        else
-            return null;
+        return recallPosition("editor.fx", fxCachedEditorSizes, index);
     }
 }
