@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2013,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -131,9 +131,9 @@ public final class Terminal extends JFrame
     private JCheckBoxMenuItem recordCalls;
     private JCheckBoxMenuItem unlimitedBuffering;
 
-    private Reader in = new TerminalReader();
-    private Writer out = new TerminalWriter(false);
-    private Writer err = new TerminalWriter(true);
+    @OnThread(Tag.Any) private final Reader in = new TerminalReader();
+    @OnThread(Tag.Any) private final Writer out = new TerminalWriter(false);
+    @OnThread(Tag.Any) private final Writer err = new TerminalWriter(true);
 
     /** Used for lazy initialisation  */
     private boolean initialised = false; 

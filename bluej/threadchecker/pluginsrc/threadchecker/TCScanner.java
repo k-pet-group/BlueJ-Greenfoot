@@ -976,6 +976,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         {
             Tag tag = null;
             boolean ignoreParent = false;
+            boolean requireSynchronized = false;
             for (String s : a.getArguments().stream().map(Object::toString).collect(Collectors.toList()))
             {
                 for (Tag t : Arrays.asList(Tag.values()))
@@ -987,9 +988,11 @@ class TCScanner extends TreePathScanner<Void, Void>
                 }
                 if (s.equals("ignoreParent = true"))
                     ignoreParent = true;
+                if (s.equals("requireSynchronized = true"))
+                    requireSynchronized = true;
             }
             if (tag != null)
-                return new LocatedTag(tag, ignoreParent, false, info);
+                return new LocatedTag(tag, ignoreParent, requireSynchronized, false, info);
             
             throw new IllegalStateException("Unknown tag: " + a.getArguments().get(0) + " in " + info);
         }
@@ -1010,6 +1013,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         List<String> stringValues = keyVals.collect(Collectors.toList());
         Tag tag = null;
         boolean ignoreParent = false;
+        boolean requireSynchronized = false;
         for (String s : stringValues)
         {
             for (Tag t : Arrays.asList(Tag.values()))
@@ -1021,13 +1025,15 @@ class TCScanner extends TreePathScanner<Void, Void>
             }
             if (s.equals("ignoreParent() = true"))
                 ignoreParent = true;
+            if (s.equals("requireSynchronized() = true"))
+                requireSynchronized = true;
         }
         //Debug:
         //if ("bluej.pkgmgr.PkgMgrFrame.setStatus".equals(info))
         //    throw new IllegalStateException("" + stringValues.stream().collect(Collectors.joining("++")) + " " + ignoreParent);
         
         if (tag != null)
-            return new LocatedTag(tag, ignoreParent, false, info);
+            return new LocatedTag(tag, ignoreParent, requireSynchronized, false, info);
         throw new IllegalArgumentException("Unknown tag: " + stringValues.stream().collect(Collectors.joining(", ")) + " in " + cu.getSourceFile().toString());
     }
     
@@ -1299,7 +1305,12 @@ class TCScanner extends TreePathScanner<Void, Void>
             
             if (ann.isPresent() && !ann.get().tag.canCall(tag.tag, true))
             {
-                trees.printMessage(Kind.ERROR, "\n    Field " + node.getName() + " being called requires " + tag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified"), node, cu);
+                trees.printMessage(Kind.ERROR, "\n    Field " + node.getName() + " being used requires " + tag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified"), node, cu);
+            }
+            
+            if (tag.requireSynchronized() && methodScopeStack.size() > 0 && methodScopeStack.getLast().item != null && !methodScopeStack.getLast().item.getModifiers().getFlags().contains(Modifier.SYNCHRONIZED))
+            {
+                trees.printMessage(Kind.ERROR, "\n    Field " + node.getName() + " being used requires synchronized but method is not synchronized", node, cu);
             }
         }
         
@@ -1315,7 +1326,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         The rule for accessing fields is:
         
          - If the field is final:
-           - If the field is primitive or String or AtomicInteger, access is allowed from Any thread
+           - If the field is primitive or String or File or AtomicInteger, access is allowed from Any thread
            - If the type of the field (possibly by way of the field type's package) has a tag, access is allowed from Any thread.  E.g. you may have a "final Package pkg;" field.  Any thread should be able to access the field, because all of Package's methods are protected by the Swing tag anyway.  Contrast with "final List foo;" -- this should not allow access from any thread because you can get race hazards modifying the list.
          - Otherwise, the field receives the tag from its enclosing type (or enclosing type's package).  So for example, Project is tagged Swing; all of Project's fields are also tagged Swing.
         
@@ -1324,7 +1335,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         
         if (typeScopeStack.size() == 1 && methodScopeStack.size() == 0)
         {
-            // Field of top-level class
+            // Field of top-level class.  Look for tags on the field itself:
             LocatedTag explicit = getSourceTag(node, () -> cu.getPackageName().toString() + typeScopeStack.stream().map(TCScanner::typeToName).collect(Collectors.joining(".")));
             if (explicit != null)
             {
@@ -1337,11 +1348,10 @@ class TCScanner extends TreePathScanner<Void, Void>
                 fields.put(node.getName().toString(), new LocatedTag(Tag.Any, false, false, "volatile"));
                 return super.visitVariable(node, aVoid);
             }
-            // Also give it default tag from class if none explicitly:
             else if (node.getModifiers().getFlags().contains(Modifier.FINAL))
             {
                 // If they are final-primitive or final-immutable or final-atomic, no safety issues:
-                if (Arrays.asList("String", "int", "double", "boolean", "char", "float", "short", "long", "AtomicInteger").contains(node.getType().toString()))
+                if (Arrays.asList("String", "int", "double", "boolean", "char", "float", "short", "long", "File", "AtomicInteger").contains(node.getType().toString()))
                 {
                     fields.put(node.getName().toString(), new LocatedTag(Tag.Any, false, false, "final String/primitive"));
                     return super.visitVariable(node, aVoid);
@@ -1381,8 +1391,11 @@ class TCScanner extends TreePathScanner<Void, Void>
                 }
                 
             }
-            
-            fields.put(node.getName().toString(), getSourceTag(typeScopeStack.getLast().item, () -> cu.getPackageName().toString()));
+            // Give it default tag from class if none explicitly:
+            Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path));
+
+            Optional<LocatedTag> ann = getCurrentTag(superTypes, cu);
+            fields.put(node.getName().toString(), ann.orElse(null));
         }
         return super.visitVariable(node, aVoid);
     }

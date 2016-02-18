@@ -126,7 +126,8 @@ public class ErrorAndFixDisplay
     private void recordShow()
     {
         final EditorWatcher watcher = editor.getFrameEditor().getWatcher();
-        SwingUtilities.invokeLater(() -> watcher.recordShowErrorMessage(error.getIdentifier(), Utility.mapList(fixes, FixDisplay::getDisplayText)));
+        List<String> fixDisplayText = Utility.mapList(fixes, FixDisplay::getDisplayText);
+        SwingUtilities.invokeLater(() -> watcher.recordShowErrorMessage(error.getIdentifier(), fixDisplayText));
     }
 
     public void showAbove(final Region n)

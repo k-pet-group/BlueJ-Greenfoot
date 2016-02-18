@@ -12,22 +12,34 @@ class LocatedTag
 {
     final Tag tag;
     private final boolean ignoreParent;
+    private final boolean requireSynchronized;
     private final String info;
     private final boolean applyToAllSubclassMethods;
     
     private final static HashMap<String, LocatedTag> foundTags = new HashMap<>();
-    
+
     public LocatedTag(Tag tag, boolean ignoreParent, boolean applyToAllSubclassMethods, Supplier<String> info)
     {
-        this(tag, ignoreParent, applyToAllSubclassMethods, info.get());
+        this(tag, ignoreParent, false, applyToAllSubclassMethods, info);
     }
     
+    public LocatedTag(Tag tag, boolean ignoreParent, boolean requireSynchronized, boolean applyToAllSubclassMethods, Supplier<String> info)
+    {
+        this(tag, ignoreParent, requireSynchronized, applyToAllSubclassMethods, info.get());
+    }
+
     public LocatedTag(Tag tag, boolean ignoreParent, boolean applyToAllSubclassMethods, String info)
+    {
+        this(tag, ignoreParent, false, applyToAllSubclassMethods, info);
+    }
+    
+    public LocatedTag(Tag tag, boolean ignoreParent, boolean requireSynchronized, boolean applyToAllSubclassMethods, String info)
     {
         if (tag == null)
             throw new NullPointerException();
         this.tag = tag;
         this.ignoreParent = ignoreParent;
+        this.requireSynchronized = requireSynchronized;
         this.applyToAllSubclassMethods = applyToAllSubclassMethods;
         this.info = info;
         
@@ -62,6 +74,8 @@ class LocatedTag
     {
         return ignoreParent;
     }
+    
+    public boolean requireSynchronized() { return requireSynchronized; }
 
     public boolean applyToAllSubclassMethods()
     {

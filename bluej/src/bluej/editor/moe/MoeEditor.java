@@ -417,7 +417,6 @@ public final class MoeEditor extends JPanel
      * @return true if it is an action that should be disabled while editing the readme file,
      *         or false otherwise
      */
-    @OnThread(Tag.Any)
     private static boolean isNonReadmeAction(String actionName)
     {
         ArrayList<String> flaggedActions = getNonReadmeActions();
@@ -427,7 +426,6 @@ public final class MoeEditor extends JPanel
     /**
      * Get a list of actions not applicable in the readme.txt file
      */
-    @OnThread(Tag.Any)
     private static ArrayList<String> getNonReadmeActions ()
     {
         if (readMeActions == null) {

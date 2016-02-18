@@ -36,4 +36,5 @@ import java.lang.annotation.Target;
 public @interface OnThread {
     Tag value();
     boolean ignoreParent() default false;
+    boolean requireSynchronized() default false;
 }

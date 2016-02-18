@@ -189,13 +189,18 @@ public class Project implements DebuggerListener, InspectorManager
     private final List<Rectangle> swingCachedEditorSizes = new ArrayList<>();
     private final List<Rectangle> fxCachedEditorSizes = new ArrayList<>();
     
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private Timer compilerTimer;
-    private CompileReason latestCompileReason;
+    // We don't put a lock on this because we could deadlock with scheduleCompilation
+    // It's not crucial anyway (just for data recording), and volatile should
+    // give us the right semantics regardless:
+    private volatile CompileReason latestCompileReason;
 
     /* ------------------- end of field declarations ------------------- */
     private BProject singleBProject;  // Every Project has none or one BProject
     private boolean closing = false;
     /** The scanner for available imports.  May be null if not requested yet. */
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private ImportScanner importScanner;
 
     /**

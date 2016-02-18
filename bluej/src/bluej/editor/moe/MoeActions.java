@@ -581,7 +581,6 @@ public final class MoeActions
     /**
      * Return an action with a given name.
      */
-    @OnThread(Tag.Any)
     public Action getActionByName(String name)
     {
         return actions.get(name);

@@ -36,7 +36,7 @@ public abstract class DirectSlotError extends CodeError
     }
 
     @OnThread(Tag.Any)
-    public DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
+    public synchronized DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
     {
         final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, getMessage(), javaFileName, -1, -1, -1, -1, getIdentifier());
         diagnostic.setXPath(path, -1, -1);

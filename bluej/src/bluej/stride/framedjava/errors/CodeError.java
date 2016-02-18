@@ -41,6 +41,7 @@ public abstract class CodeError
     private final BooleanProperty focusedProperty = new SimpleBooleanProperty(false);
     protected final JavaFragment relevantSlot;
     private final BooleanProperty freshProperty = new SimpleBooleanProperty(false);
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     protected String path;
     protected boolean recordedShownIndicator = false;
 
@@ -169,7 +170,7 @@ public abstract class CodeError
     public abstract int getIdentifier();
 
     @OnThread(Tag.Any)
-    public void recordPath(String path)
+    public synchronized void recordPath(String path)
     {
         this.path = path;
     }

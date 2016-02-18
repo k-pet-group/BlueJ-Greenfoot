@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -94,6 +94,7 @@ public class PrefMgr
     // initialised by a call to setEditorFontSize()
     private static int editorFontSize;
     private static Font editorStandardFont;
+    @OnThread(Tag.FX)
     private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
 
     // preference variables: (other than fonts)
@@ -111,6 +112,7 @@ public class PrefMgr
     private static List<String> recentProjects;
     
     // flags are all boolean preferences
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static HashMap<String,String> flags = new HashMap<String,String>();
 
     /**
@@ -206,7 +208,7 @@ public class PrefMgr
      * constants in this class.
      */
     @OnThread(Tag.Any)
-    public static boolean getFlag(String flag)
+    public static synchronized boolean getFlag(String flag)
     {
         String value = flags.get(flag);
         if(value == null){
@@ -222,7 +224,7 @@ public class PrefMgr
      * @param enabled The new value of the flag
      */
     @OnThread(Tag.Any)
-    public static void setFlag(String flag, boolean enabled)
+    public static synchronized void setFlag(String flag, boolean enabled)
     {
         String value = String.valueOf(enabled);
         String systemDefault = Config.getDefaultPropString(flag, "");

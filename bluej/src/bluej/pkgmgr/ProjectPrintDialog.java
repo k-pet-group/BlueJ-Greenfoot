@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,7 +44,7 @@ import bluej.utility.EscapeDialog;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 12519 2014-10-09 11:58:21Z nccb $
+ * @version $Id: ProjectPrintDialog.java 15494 2016-02-18 15:49:41Z nccb $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends EscapeDialog
@@ -58,11 +58,16 @@ public class ProjectPrintDialog extends EscapeDialog
     private JCheckBox printHighlighting;
     
     // We store these values for use afterwards, off the Swing thread:
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean printDiagramSelected;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean printSourceSelected;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean printReadmeSelected;
-    
+
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean printLineNumbersSelected;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean printHighlightingSelected;
 
     /**
@@ -177,7 +182,7 @@ public class ProjectPrintDialog extends EscapeDialog
      *         printed
      */
     @OnThread(Tag.Any)
-    public boolean printDiagram()
+    public synchronized boolean printDiagram()
     {
         return printDiagramSelected;
     }
@@ -189,7 +194,7 @@ public class ProjectPrintDialog extends EscapeDialog
      *         printed
      */
     @OnThread(Tag.Any)
-    public boolean printSource()
+    public synchronized boolean printSource()
     {
         return printSourceSelected;
     }
@@ -201,13 +206,13 @@ public class ProjectPrintDialog extends EscapeDialog
      *         printed
      */
     @OnThread(Tag.Any)
-    public boolean printReadme()
+    public synchronized boolean printReadme()
     {
         return printReadmeSelected;
     }
                 
     // While on Swing thread, store selections ready for later retrieval from another thread:
-    private void storeValues()
+    private synchronized void storeValues()
     {
         printDiagramSelected = printDiagram.isSelected();
         printSourceSelected = printSource.isSelected();
@@ -217,13 +222,13 @@ public class ProjectPrintDialog extends EscapeDialog
     }
     
     @OnThread(Tag.Any)
-    public boolean printLineNumbers()
+    public synchronized boolean printLineNumbers()
     {
         return printLineNumbersSelected;
     }
     
     @OnThread(Tag.Any)
-    public boolean printHighlighting()
+    public synchronized boolean printHighlighting()
     {
         return printHighlightingSelected;
     }

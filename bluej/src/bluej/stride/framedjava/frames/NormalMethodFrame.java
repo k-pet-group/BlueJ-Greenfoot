@@ -114,6 +114,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             }
         }
     };
+    @OnThread(Tag.Swing)
     private String curOverrideSource = null;
     private final TypeTextSlot returnType;
     private final TextSlot<NameDefSlotFragment> methodName;

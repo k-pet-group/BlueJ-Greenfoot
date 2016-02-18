@@ -191,6 +191,7 @@ public class PkgMgrFrame extends JFrame
     private static final AtomicInteger nextTestIdentifier = new AtomicInteger(0); 
     // set PageFormat for default page for default printer
     // this variable is lazy initialised
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static PageFormat pageFormat = null;
     private static final List<PkgMgrFrame> frames = new ArrayList<>(); // of PkgMgrFrames
     private static final ExtensionsManager extMgr = ExtensionsManager.getInstance();
@@ -204,6 +205,8 @@ public class PkgMgrFrame extends JFrame
     private AbstractButton imgDependsButton;
     private AbstractButton runButton;
     private JLabel statusbar;
+    // Initialised once, effectively final thereafter:
+    @OnThread(Tag.Any)
     private ActivityIndicator progressbar;
     private JLabel testStatusMessage;
     private JLabel recordingLabel;
@@ -759,7 +762,7 @@ public class PkgMgrFrame extends JFrame
      * @return common PageFormat object representing page preferences
      */
     @OnThread(Tag.Any)
-    public static PageFormat getPageFormat()
+    public static synchronized PageFormat getPageFormat()
     {
         if (pageFormat == null) {
             pageFormat = PrinterJob.getPrinterJob().defaultPage();
@@ -789,7 +792,7 @@ public class PkgMgrFrame extends JFrame
      * @param page
      *            the new PageFormat
      */
-    public static void setPageFormat(PageFormat page)
+    public static synchronized void setPageFormat(PageFormat page)
     {
         pageFormat = page;
         // We must get the measurements from the paper (which ignores orientation)

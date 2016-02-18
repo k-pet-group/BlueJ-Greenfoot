@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -153,7 +153,6 @@ public class PrintDialog extends EscapeDialog
      * @return true if radio button is selected meaning line numbers should be
      *         printed
      */
-    @OnThread(Tag.Any)
     public boolean printLineNumbers()
     {
         return printLineNumbersSelected;
@@ -165,7 +164,6 @@ public class PrintDialog extends EscapeDialog
      * @return true if radio button is selected meaning source code should be
      *         printed with syntax highlighting
      */
-    @OnThread(Tag.Any)
     public boolean printHighlighting()
     {
         return printHighlightingSelected;

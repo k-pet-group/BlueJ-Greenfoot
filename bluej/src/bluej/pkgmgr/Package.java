@@ -306,6 +306,7 @@ public final class Package extends Graph
         return project;
     }
 
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private BPackage singleBPackage;  // Every Package has none or one BPackage
     
     /**
