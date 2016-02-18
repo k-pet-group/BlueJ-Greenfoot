@@ -1,7 +1,7 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -403,25 +404,33 @@ public class FrameSelection
         // To disable
         if (key == '\\') {
             // If all disabled, enabled all. Otherwise, disable all.
-            boolean allDisabled = selection.stream().filter(f -> f.canHaveEnabledState(false)).allMatch(f -> !f.isFrameEnabled());
+            boolean allDisabled = getCanHaveEnabledState(false).allMatch(f -> !f.isFrameEnabled());
 
             // TODO Refactor the Enable/Disable FrameOperations to make them more consistent and use them instead of next lines
             editor.beginRecordingState(cursor);
-            selection.stream().filter(f -> f.canHaveEnabledState(allDisabled ? true : false))
-                    .forEach(t -> t.setFrameEnabled(allDisabled ? true : false));
+            getCanHaveEnabledState(allDisabled ? true : false).forEach(t -> t.setFrameEnabled(allDisabled ? true : false));
             editor.endRecordingState(cursor);
 
             return true;
         }
 
-        List<Frame> nonIgnoredFrames = selection.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
-        if (nonIgnoredFrames.stream().allMatch(f -> f.getAvailableSelectionModifiers().stream()
+        if (getNonIgnored().allMatch(f -> f.getAvailableSelectionModifiers().stream()
                 .filter(m -> m.getShortcutKey() == key).count() == 1)) {
-            nonIgnoredFrames.stream().flatMap(f -> f.getAvailableSelectionModifiers().stream())
+            getNonIgnored().flatMap(f -> f.getAvailableSelectionModifiers().stream())
                     .filter(e -> e.getShortcutKey() == key).forEach(e -> e.activate());
             return true;
         }
 
         return false;
+    }
+
+    private Stream<Frame> getCanHaveEnabledState(boolean state)
+    {
+        return selection.stream().filter(f -> f.canHaveEnabledState(state));
+    }
+
+    private Stream<Frame> getNonIgnored()
+    {
+        return selection.stream().filter(f -> f.isEffectiveFrame());
     }
 }
