@@ -2101,7 +2101,7 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Gets the FXTabbedEditor which should be used for adding new tabs
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FX)
     public FXTabbedEditor getDefaultFXTabbedEditor()
     {
         return fXTabbedEditors.get(0);
