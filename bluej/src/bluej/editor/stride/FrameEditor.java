@@ -522,6 +522,7 @@ public class FrameEditor implements Editor
             }
             
             @Override
+            @OnThread(Tag.Swing)
             public void setStepMark(int lineNumber, String message,
                     boolean isBreak, DebuggerThread thread)
             {
@@ -866,16 +867,14 @@ public class FrameEditor implements Editor
         watcher.clearAllBreakpoints();
         Platform.runLater(() -> {
             if (javaSource.get() == null) {
-                try {
-                    save();
-                }
-                catch (IOException e) {
+                IOException e = _saveFX().exception;
+                if (e != null)
                     Debug.reportError(e);
-                }
             }
             if (javaSource.get() != null)
             {
-                javaSource.get().registerBreakpoints(this, watcher);
+                JavaSource latestSource = this.javaSource.get();
+                SwingUtilities.invokeLater(() -> latestSource.registerBreakpoints(this, watcher));
             }
         });
     }
