@@ -96,6 +96,7 @@ class TCScanner extends TreePathScanner<Void, Void>
     private final LinkedList<PathAnd<MethodTree>> methodScopeStack = new LinkedList<>();
     // A list of tags that our nested lambdas are desugaring to:
     private final LinkedList<LocatedTag> lambdaScopeStack = new LinkedList<>();
+    private final Map<String, LocatedTag> fields = new HashMap<>();
     private final List<String> objectMembers;
     
     // Types and methods can nest, e.g.
@@ -290,8 +291,12 @@ class TCScanner extends TreePathScanner<Void, Void>
     public Void visitClass(ClassTree tree, Void arg1)
     {
         addCur(typeScopeStack, tree);
+        HashMap fieldCopy = new HashMap(fields);
+        fields.clear();
         Void r = super.visitClass(tree, arg1);
         typeScopeStack.removeLast();
+        fields.clear();
+        fields.putAll(fieldCopy);
         return r;
     }
 
@@ -1042,6 +1047,14 @@ class TCScanner extends TreePathScanner<Void, Void>
     {
         return checkSingle(t.getModifiers().getAnnotations().stream().map(a -> getSourceTag(a, () -> enclosingStem.get() + "." + t.getSimpleName().toString() + " class")), t);
     }
+
+    /**
+     * Fetches a tag by looking at annotations on a given piece of program source
+     */
+    private LocatedTag getSourceTag(VariableTree t, Supplier<String> enclosingStem)
+    {
+        return checkSingle(t.getModifiers().getAnnotations().stream().map(a -> getSourceTag(a, () -> enclosingStem.get() + "." + t.getName().toString() + " field")), t);
+    }
     
     /**
      * Fetches a tag by looking at annotations on a given piece of program source
@@ -1268,6 +1281,40 @@ class TCScanner extends TreePathScanner<Void, Void>
         }
         //public WrapDescent() { this(null, null); }
     }
-    
-    
+
+    @Override
+    public Void visitIdentifier(IdentifierTree node, Void aVoid)
+    {
+        LocatedTag tag = fields.get(node.getName().toString());
+        if (tag != null) 
+        {
+            // Our present tag:
+            Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path));
+
+            Optional<LocatedTag> ann = getCurrentTag(superTypes, node);
+            
+            if (ann.isPresent() && !ann.get().tag.canCall(tag.tag, true))
+            {
+                trees.printMessage(Kind.ERROR, "\nField " + node.getName() + " being called requires " + tag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified"), node, cu);
+            }
+        }
+        
+        return super.visitIdentifier(node, aVoid);
+    }
+
+    @Override
+    public Void visitVariable(VariableTree node, Void aVoid)
+    {
+        if (typeScopeStack.size() == 1 && methodScopeStack.size() == 0)
+        {
+            // Field of top-level class
+            LocatedTag explicit = getSourceTag(node, () -> cu.getPackageName().toString() + typeScopeStack.stream().map(TCScanner::typeToName).collect(Collectors.joining(".")));
+            if (explicit != null)
+                fields.put(node.getName().toString(), explicit);
+            // Also give it default tag from class if none explicitly:
+            //else
+            //    fields.put(node.getName().toString(), getSourceTag(typeScopeStack.getLast().item, () -> cu.getPackageName().toString()));
+        }
+        return super.visitVariable(node, aVoid);
+    }
 }
