@@ -186,7 +186,7 @@ public final class Package extends Graph
      * package, or the properties which were most recently saved to disk for
      * this package
      */
-    private SortedProperties lastSavedProps = new SortedProperties();
+    private volatile SortedProperties lastSavedProps = new SortedProperties();
 
     /** all the targets in a package */
     private TargetCollection targets;
@@ -518,6 +518,11 @@ public final class Package extends Graph
         return editor;
     }
 
+    /**
+     * Get the package properties, as most recently saved. The returned Properties set should be considered
+     * immutable.
+     */
+    @OnThread(Tag.Any)
     public Properties getLastSavedProperties()
     {
         return lastSavedProps;
