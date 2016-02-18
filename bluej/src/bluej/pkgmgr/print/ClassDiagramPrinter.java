@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr.print;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -36,11 +37,11 @@ import java.util.Date;
 
 import javax.swing.SwingUtilities;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Provides the ability to print a package class diagram
@@ -95,7 +96,14 @@ public class ClassDiagramPrinter implements Printable
         calculatePages();
         try {
             // call the Printable interface to do the actual printing
-            printerJob.print();
+            EventQueue.invokeAndWait(() -> {
+                try {
+                    printerJob.print();
+                }
+                catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
             
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -125,6 +133,7 @@ public class ClassDiagramPrinter implements Printable
      * Method that implements Printable interface and does that actual printing of
      * class diagram.
      */
+    @OnThread(Tag.Swing)
     public int print(Graphics g, PageFormat pageFormat, int pageIndex)
     {
         if(pageIndex >= pages) {
