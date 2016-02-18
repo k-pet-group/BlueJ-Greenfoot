@@ -21,24 +21,17 @@
  */
 package bluej.editor.stride;
 
-import javax.swing.*;
-
 import bluej.BlueJTheme;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import bluej.compiler.CompileReason;
 import bluej.pkgmgr.TabbedEditorWindow;
@@ -51,24 +44,20 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -78,9 +67,6 @@ import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -88,7 +74,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
-import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -859,14 +844,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         }
     }
 
-    @OnThread(Tag.FX)
     public void moveToNewLater(FXTab tab)
     {
-        // Because createNewFXTabbedEditor waits for the FX thread, we must use run laters:
-        SwingUtilities.invokeLater(() -> {
-            FXTabbedEditor newWindow = project.createNewFXTabbedEditor();
-            Platform.runLater(() -> moveTabTo(tab, newWindow));
-        });
+        FXTabbedEditor newWindow = project.createNewFXTabbedEditor();
+        moveTabTo(tab, newWindow);
     }
 
     public void moveTabTo(FXTab tab, FXTabbedEditor destination)
