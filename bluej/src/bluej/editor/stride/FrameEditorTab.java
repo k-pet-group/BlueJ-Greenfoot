@@ -1711,7 +1711,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         {
             topLevelFrame.getAllFrames().forEach(f -> {
                 if (f instanceof NormalMethodFrame) {
-                    SwingUtilities.invokeLater(() -> ((NormalMethodFrame) f).updateOverrideDisplay((ClassElement) el));
+                    ((NormalMethodFrame) f).updateOverrideDisplay((ClassElement) el);
                 }
             });
         }

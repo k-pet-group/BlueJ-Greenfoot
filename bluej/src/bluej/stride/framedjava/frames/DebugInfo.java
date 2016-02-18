@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,6 +45,7 @@ import bluej.utility.javafx.JavaFXUtil;
 public class DebugInfo
 {
     private final IdentityHashMap<FrameCursor, Display> displays = new IdentityHashMap<>();
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private Map<String,DebugVarInfo> prevState, state;
     
     @OnThread(Tag.Any)
@@ -54,14 +55,14 @@ public class DebugInfo
     }
     
     @OnThread(Tag.Any)
-    public void addVarState(Map<String,DebugVarInfo> state)
+    public synchronized void addVarState(Map<String,DebugVarInfo> state)
     {
         this.prevState = this.state;
         this.state = state;
     }
     
     
-    public Display getInfoDisplay(FrameCursor f)
+    public synchronized Display getInfoDisplay(FrameCursor f)
     {
         if (displays.containsKey(f))
         {

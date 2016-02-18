@@ -3147,7 +3147,6 @@ public final class MoeEditor extends JPanel
     /**
      * Gets the resource attribute of the MoeEditor object
      */
-    @OnThread(Tag.Any)
     private String getResource(String name)
     {
         return Config.getPropString(name, null, resources);
