@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,22 @@
  */
 package bluej.editor.stride;
 
+import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
+import bluej.stride.generic.FrameCursor;
+import bluej.stride.generic.InteractionManager;
+import bluej.stride.operations.AbstractOperation;
+import bluej.stride.operations.AbstractOperation.ItemLabel;
+import bluej.stride.operations.FrameOperation;
+import bluej.stride.slots.EditableSlot.MenuItems;
+import bluej.stride.slots.EditableSlot.SortedMenuItem;
+import bluej.stride.slots.EditableSlot.TopLevelMenu;
+import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.MultiListener;
+import bluej.utility.Utility;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,13 +47,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.operations.AbstractOperation.ItemLabel;
-import bluej.stride.slots.EditableSlot.SortedMenuItem;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.MultiListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -51,14 +60,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.FillRule;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.operations.AbstractOperation;
-import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.EditableSlot.MenuItems;
-import bluej.stride.slots.EditableSlot.TopLevelMenu;
-import bluej.utility.Utility;
-import bluej.utility.javafx.JavaFXUtil;
 
 /**
  * A class for keeping track of the current frame selection.  A frame selection is
@@ -67,7 +68,7 @@ import bluej.utility.javafx.JavaFXUtil;
  */
 public class FrameSelection
 {
-    private final ObservableList<Frame> selection = FXCollections.observableList(new ArrayList<Frame>());
+    private final ObservableList<Frame> selection = FXCollections.observableList(new ArrayList<>());
     private final Canvas selectionHighlight = new Canvas();
     private final InteractionManager editor;
     private boolean deletePreview;
@@ -385,5 +386,42 @@ public class FrameSelection
             return null;
         else
             return (selection.get(0).getCursorBefore());
+    }
+
+    public boolean executeKey(FrameCursor cursor, final char key)
+    {
+        // If there is only on selected frame and it accept the key typed as an extension
+        if (selection.size() == 1) {
+            for (ExtensionDescription extension : selection.get(0).getAvailableExtensions()) {
+                if (extension.getShortcutKey() == key) {
+                    extension.activate();
+                    return true;
+                }
+            }
+        }
+
+        // To disable
+        if (key == '\\') {
+            // If all disabled, enabled all. Otherwise, disable all.
+            boolean allDisabled = selection.stream().filter(f -> f.canHaveEnabledState(false)).allMatch(f -> !f.isFrameEnabled());
+
+            // TODO Refactor the Enable/Disable FrameOperations to make them more consistent and use them instead of next lines
+            editor.beginRecordingState(cursor);
+            selection.stream().filter(f -> f.canHaveEnabledState(allDisabled ? true : false))
+                    .forEach(t -> t.setFrameEnabled(allDisabled ? true : false));
+            editor.endRecordingState(cursor);
+
+            return true;
+        }
+
+        List<Frame> nonIgnoredFrames = selection.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
+        if (nonIgnoredFrames.stream().allMatch(f -> f.getAvailableSelectionModifiers().stream()
+                .filter(m -> m.getShortcutKey() == key).count() == 1)) {
+            nonIgnoredFrames.stream().flatMap(f -> f.getAvailableSelectionModifiers().stream())
+                    .filter(e -> e.getShortcutKey() == key).forEach(e -> e.activate());
+            return true;
+        }
+
+        return false;
     }
 }

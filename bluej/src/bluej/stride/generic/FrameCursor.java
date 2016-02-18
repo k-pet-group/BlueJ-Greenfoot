@@ -125,42 +125,9 @@ public class FrameCursor implements RecallableFocus
                 //    .forEach(t -> t.setCollapsed(key == '-')); // otherwise it's plus
                 return true;
             }
-            if (selection) {
-                List<Frame> targets = editor.getSelection().getSelected();
 
-                // If there is only on selected frame and it accept the key typed as an extension
-                if (targets.size() == 1) {
-                    for (ExtensionDescription extension : targets.get(0).getAvailableExtensions()) {
-                        if (extension.getShortcutKey() == key) {
-                            extension.activate();
-                            return true;
-                        }
-                    }
-                }
-
-                // To disable
-                if (key == '\\') {
-                    // If all disabled, enabled all. Otherwise, disable all.
-                    boolean allDisabled = targets.stream().filter(f -> f.canHaveEnabledState(false)).allMatch(f -> !f.isFrameEnabled());
-
-                    // TODO Refactor the Enable/Disable FrameOperations to make them more consistent and use them instead of next lines
-                    editor.beginRecordingState(this);
-                    targets.stream().filter(f -> f.canHaveEnabledState(allDisabled ? true : false))
-                            .forEach(t -> t.setFrameEnabled(allDisabled ? true : false));
-                    editor.endRecordingState(this);
-
-                    return true;
-                }
-
-                final char keyFinal = key;
-                List<Frame> nonIgnoredFrames = targets.stream().filter(f -> f.isEffectiveFrame()).collect(Collectors.toList());
-                if (nonIgnoredFrames.stream().allMatch(f -> f.getAvailableSelectionModifiers().stream()
-                        .filter(m -> m.getShortcutKey() == keyFinal).count() == 1)) {
-                    nonIgnoredFrames.stream().flatMap(f -> f.getAvailableSelectionModifiers().stream())
-                            .filter(e -> e.getShortcutKey() == keyFinal).forEach(e -> e.activate());
-                    return true;
-                }
-            }
+            if (selection && editor.getSelection().executeKey(this, key))
+                return true;
 
             if (!selection) {
                 Frame before = getFrameBefore();
