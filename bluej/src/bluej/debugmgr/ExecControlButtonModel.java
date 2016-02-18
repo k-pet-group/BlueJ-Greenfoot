@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,8 +34,8 @@ import bluej.pkgmgr.PkgMgrFrame;
  */
 public class ExecControlButtonModel extends JToggleButton.ToggleButtonModel
 {
-	private PkgMgrFrame pmf;
-	
+    private PkgMgrFrame pmf;
+    
     public ExecControlButtonModel(PkgMgrFrame pmf)
     {
         super();
@@ -44,26 +44,26 @@ public class ExecControlButtonModel extends JToggleButton.ToggleButtonModel
 
     public boolean isSelected()
     {
-    	if (pmf.isEmptyFrame()) {
-			// if no project is open, we default to off
-			return false;
-    	}
-    	else if (!pmf.getProject().hasExecControls()) {
-			// we don't want to create the ExecControls frame unless we
-			// have to, so if its not made yet, default to off
-			return false;
-    	}
-    	else {
-			// otherwise, ask the ExecControls if they're visible
-			return pmf.getProject().getExecControls().isVisible();
-    	}
+        if (pmf.isEmptyFrame()) {
+            // if no project is open, we default to off
+            return false;
+        }
+        else if (!pmf.getProject().hasExecControls()) {
+            // we don't want to create the ExecControls frame unless we
+            // have to, so if its not made yet, default to off
+            return false;
+        }
+        else {
+            // otherwise, ask the ExecControls if they're visible
+            return pmf.getProject().getExecControls().isVisible();
+        }
     }
 
     public void setSelected(boolean b)
     {
-		if (!pmf.isEmptyFrame()) {
-			super.setSelected(b);
-			pmf.getProject().getExecControls().showHide(b);
-		}
+        if (!pmf.isEmptyFrame()) {
+            super.setSelected(b);
+            pmf.getProject().getExecControls().setVisible(b);
+        }
     }
 }
