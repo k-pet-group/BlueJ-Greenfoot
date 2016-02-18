@@ -35,6 +35,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -284,11 +285,11 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     @Override
     public List<FrameOperation> getContextOperations()
     {
-        List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
+        List<FrameOperation> operations = new ArrayList<>(super.getContextOperations());
         
         InteractionManager editor = getEditor();
         
-        r.add(new CustomFrameOperation(editor, "method->constructor",
+        operations.add(new CustomFrameOperation(editor, "method->constructor",
                 Arrays.asList("Change", "to constructor"), MenuItemOrder.TRANSFORM, this, () -> {
                     
                     // TODO AA enhance the code
@@ -304,7 +305,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
                 }
         ));
         
-        r.add(new CustomFrameOperation(editor, "concrete->abstract",
+        operations.add(new CustomFrameOperation(editor, "concrete->abstract",
                 Arrays.asList("Change", "to abstract"), MenuItemOrder.TRANSFORM, this, () -> {
             FrameCursor c = getCursorBefore();
             
@@ -314,10 +315,9 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             c.getParentCanvas().removeBlock(this);
         }));
         
-        r.add(new ToggleBooleanProperty(editor, TOGGLE_STATIC_METHOD, STATIC_NAME));
-        r.add(new ToggleBooleanProperty(editor, TOGGLE_FINAL_METHOD, FINAL_NAME));
+        addStaticFinalOperations(operations);
 
-        return r;
+        return operations;
     }
 
     public List<ExtensionDescription> getAvailablePrefixes()
@@ -328,11 +328,17 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableSelectionModifiers()
+    public List<FrameOperation> getAvailableSelectionModifiers()
     {
-        final List<ExtensionDescription> modifiers = new ArrayList<>(super.getAvailableSelectionModifiers());
-        addStaticFinalToList(modifiers);
+        final List<FrameOperation> modifiers = new ArrayList<>(super.getAvailableSelectionModifiers());
+        addStaticFinalOperations(modifiers);
         return modifiers;
+    }
+
+    private void addStaticFinalOperations(List<FrameOperation> operations)
+    {
+        operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME, KeyCode.N));
+        operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME, KeyCode.S));
     }
 
     private void addStaticFinalToList(List<ExtensionDescription> actions)

@@ -31,11 +31,10 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
-//import javafx.scene.input.KeyCode;
 
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
@@ -52,7 +51,6 @@ import bluej.stride.generic.CanvasParent;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameContentItem;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
@@ -362,13 +360,10 @@ public class VarFrame extends SingleLineFrame
     @Override
     public List<FrameOperation> getContextOperations()
     {
-        List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
-        // is in class?
-        if (isField(getParentCanvas())) {
-            r.add(new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_VAR, STATIC_NAME));
-        }
-        r.add(new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_VAR, FINAL_NAME));
-        return r;
+        //final
+        List<FrameOperation> operations = new ArrayList<>(super.getContextOperations());
+        addStaticFinalOperations(operations);
+        return operations;
     }
 
     @Override
@@ -431,7 +426,7 @@ public class VarFrame extends SingleLineFrame
     public List<ExtensionDescription> getAvailablePrefixes()
     {
         List<ExtensionDescription> prefixes = new ArrayList<>(super.getAvailablePrefixes());
-        addStaticFinalToList(prefixes);
+        addStaticFinalExtension(prefixes);
         return prefixes;
     }
 
@@ -439,19 +434,28 @@ public class VarFrame extends SingleLineFrame
     public List<ExtensionDescription> getAvailableExtensions()
     {
         final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions());
-        addStaticFinalToList(extensions);
+        addStaticFinalExtension(extensions);
         return extensions;
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableSelectionModifiers()
+    public List<FrameOperation> getAvailableSelectionModifiers()
     {
-        final List<ExtensionDescription> modifiers = new ArrayList<>(super.getAvailableSelectionModifiers());
-        addStaticFinalToList(modifiers);
+        final List<FrameOperation> modifiers = new ArrayList<>(super.getAvailableSelectionModifiers());
+        addStaticFinalOperations(modifiers);
         return modifiers;
     }
 
-    private void addStaticFinalToList(List<ExtensionDescription> actions)
+    private void addStaticFinalOperations(List<FrameOperation> operations)
+    {
+        operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_VAR, FINAL_NAME, KeyCode.N));
+        // is in class?
+        if (isField(getParentCanvas())) {
+            operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_VAR, STATIC_NAME, KeyCode.S));
+        }
+    }
+
+    private void addStaticFinalExtension(List<ExtensionDescription> actions)
     {
         actions.add(new ExtensionDescription('n', "Add/Remove final", () ->
                 //, KeyCode.N

@@ -123,4 +123,9 @@ public abstract class FrameOperation extends AbstractOperation
 
         return getLabels().get(0).getOrder().item(item);
     }
+
+    public KeyCombination getShortcut()
+    {
+        return shortcut;
+    }
 }

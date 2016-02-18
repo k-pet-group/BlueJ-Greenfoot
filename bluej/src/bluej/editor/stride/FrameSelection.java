@@ -415,9 +415,10 @@ public class FrameSelection
         }
 
         if (getNonIgnored().allMatch(f -> f.getAvailableSelectionModifiers().stream()
-                .filter(m -> m.getShortcutKey() == key).count() == 1)) {
+                .filter(m -> m.getShortcut().getName().toLowerCase().charAt(0) == key).count() == 1)) {
             getNonIgnored().flatMap(f -> f.getAvailableSelectionModifiers().stream())
-                    .filter(e -> e.getShortcutKey() == key).forEach(e -> e.activate());
+                    .filter(m -> m.getShortcut().getName().toLowerCase().charAt(0) == key)
+                    .findAny().get().activate(getNonIgnored().collect(Collectors.toList()));
             return true;
         }
 

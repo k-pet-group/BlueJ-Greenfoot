@@ -738,7 +738,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * e.g. selecting multiple vars and then pressing a key to make them static.
      * By default, no selection modifiers: override to specify.
      */
-    public List<ExtensionDescription> getAvailableSelectionModifiers()
+    public List<FrameOperation> getAvailableSelectionModifiers()
     {
         return Collections.emptyList();
     }
