@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr.print;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -30,6 +31,7 @@ import java.awt.Rectangle;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -144,13 +146,19 @@ public class PackagePrinter extends Thread implements Printable
         g.setClip(currentColumn * printArea.width, currentRow * printArea.height,
                   printArea.width, printArea.height);
 
-        pkg.getEditor().paint(g);
+        try {
+            EventQueue.invokeAndWait(() -> pkg.getEditor().paint(g));
+        }
+        catch (InvocationTargetException ite) {
+            throw new RuntimeException(ite.getCause());
+        }
+        catch (InterruptedException ie) {
+            throw new RuntimeException(ie);
+        }
 
         currentPage = pageIndex;
         return Printable.PAGE_EXISTS;
-         
     }
-
  
 
     /**

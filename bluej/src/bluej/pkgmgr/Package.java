@@ -513,7 +513,6 @@ public final class Package extends Graph
         this.editor = editor;
     }
     
-    @OnThread(Tag.Any)
     public PackageEditor getEditor()
     {
         return editor;
