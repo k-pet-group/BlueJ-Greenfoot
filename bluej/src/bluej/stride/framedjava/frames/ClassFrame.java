@@ -127,6 +127,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     
     private final Implements implementsSlot;
     
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private ClassElement element;
     private final EntityResolver projectResolver;
 
@@ -758,7 +759,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     public void withInheritedItems(Set<CompletionKind> kinds, FXConsumer<Map<String, List<AssistContentThreadSafe>>> handler)
     {
         // Get all available items
-        editor.withAccessibleMembers(element.getPosInsideClass(), kinds, true, allMembers ->
+        editor.withAccessibleMembers(getCode().getPosInsideClass(), kinds, true, allMembers ->
         {
             // Split by class:
             HashMap<String, List<AssistContentThreadSafe>> methodsByClass = new HashMap<>();

@@ -67,6 +67,7 @@ public class InterfaceFrame extends DocumentedSingleCanvasFrame
     
     private final ExtendsList extendsList;
     
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private InterfaceElement element;
     private final EntityResolver projectResolver;
     
