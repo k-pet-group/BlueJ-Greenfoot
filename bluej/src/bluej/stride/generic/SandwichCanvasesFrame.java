@@ -32,7 +32,6 @@ import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.DebuggableFrame;
 import bluej.stride.framedjava.frames.DebuggableParentFrame;
 import bluej.stride.framedjava.frames.DebugInfo;
-import bluej.stride.framedjava.frames.GreenfootExtensionDictionary;
 import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
 import bluej.stride.framedjava.frames.GreenfootFrameUtil;
 import bluej.stride.operations.FrameOperation;
@@ -63,7 +62,7 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
     protected SandwichCanvasesElement element;
     protected final InteractionManager editor; // Saved for creating intermediate/tail canvases.
 
-    private GreenfootExtensionDictionary dictionary = GreenfootExtensionDictionary.getDictionary();
+    private GreenfootFrameDictionary dictionary = GreenfootFrameDictionary.getDictionary();
 
     /**
      * Default constructor.

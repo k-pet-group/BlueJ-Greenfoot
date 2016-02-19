@@ -481,17 +481,17 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     {
         ExtensionDescription abstractExtension = null;
         if (canvas.equals(fieldsCanvas)) {
-            abstractExtension = new ExtensionDescription(GreenfootExtensionDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
+            abstractExtension = new ExtensionDescription(GreenfootFrameDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
                     () -> abstractModifier.set(!abstractModifier.get()));
         }
         
         ExtensionDescription extendsExtension = null;
         if (!showingExtends.get()) {
-            extendsExtension = new ExtensionDescription(GreenfootExtensionDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
+            extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
                 showAndFocusExtends();
             });
         }
-        ExtensionDescription implementsExtension = new ExtensionDescription(GreenfootExtensionDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
+        ExtensionDescription implementsExtension = new ExtensionDescription(GreenfootFrameDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
             implementsSlot.addTypeSlotAtEnd("", true);
         });
         

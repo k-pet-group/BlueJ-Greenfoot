@@ -40,6 +40,16 @@ public class GreenfootFrameDictionary extends FrameDictionary<GreenfootFrameCate
         return instance;
     }
 
+    private Map<String, Character> extensions = new HashMap<>();
+
+    public static final char ABSTRACT_EXTENSION_CHAR = 'b';
+    public static final char DEFAULT_EXTENSION_CHAR = 'd';//
+    public static final char EXTENDS_EXTENSION_CHAR = 'e';
+    public static final char IMPLEMENTS_EXTENSION_CHAR = 'i';
+    public static final char THIS_EXTENSION_CHAR = 't';
+    public static final char SUPER_EXTENSION_CHAR = 'u';
+    public static final char THROWS_EXTENSION_CHAR = 'o';
+
     private GreenfootFrameDictionary()
     {
         super(Arrays.asList(
@@ -70,6 +80,13 @@ public class GreenfootFrameDictionary extends FrameDictionary<GreenfootFrameCate
             //TODO When implementing a stride debugger.
             //new Entry<>('z', BreakpointFrame.getFactory(), false, GreenfootFrameCategory.COMMENT, "Breakpoint", "Pauses execution, for debugging")
         ));
+
+        extensions.put("catch", 'c');
+        //TODO Commenting it out should not do any bug, test it
+        //extensions.put("default", 'd');
+        extensions.put("else", 'e');
+        extensions.put("elseif", 'l');
+        extensions.put("finally", 'n');
     }
 
     @Override
@@ -163,5 +180,10 @@ public class GreenfootFrameDictionary extends FrameDictionary<GreenfootFrameCate
     public static FrameTypeCheck checkImport()
     {
         return checkCategories(GreenfootFrameCategory.IMPORT);
+    }
+
+    public char getExtensionChar(String tailCanvasCaption)
+    {
+        return extensions.get(tailCanvasCaption);
     }
 }

@@ -286,7 +286,7 @@ public class InterfaceFrame extends DocumentedSingleCanvasFrame
     @Override
     public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
     {
-        ExtensionDescription extendsExtension = new ExtensionDescription(GreenfootExtensionDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
+        ExtensionDescription extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
             extendsList.addTypeSlotAtEnd("", true);
         });
         

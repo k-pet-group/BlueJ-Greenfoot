@@ -402,7 +402,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     @Override
     public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
     {
-        return Collections.singletonList(new ExtensionDescription(GreenfootExtensionDictionary.THROWS_EXTENSION_CHAR,
+        return Collections.singletonList(new ExtensionDescription(GreenfootFrameDictionary.THROWS_EXTENSION_CHAR,
                 "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true)));
     }
 
