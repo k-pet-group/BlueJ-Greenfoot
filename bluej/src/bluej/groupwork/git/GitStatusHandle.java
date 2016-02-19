@@ -59,7 +59,7 @@ public class GitStatusHandle implements StatusHandle
     @Override
     public TeamworkCommand updateTo(UpdateListener listener, Set<File> files, Set<File> forceFiles)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new GitMergeCommand(repository, listener, files, forceFiles);
     }
 
     @Override
