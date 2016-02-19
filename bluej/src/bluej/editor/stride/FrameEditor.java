@@ -1064,27 +1064,16 @@ public class FrameEditor implements Editor
     @Override
     public boolean compileStarted()
     {
-        if (panel != null)
-        {
-            Platform.runLater(() -> panel.flagErrorsAsOld());
-            TopLevelCodeElement el = panel.getSource();
-            if (el != null)
-            {
-                // By using count, we force evaluation of the whole stream:
-                return earlyErrorCheck(el.findEarlyErrors());
-            }
-            return true;
-        }
-        else
-        {
-            Platform.runLater(() -> {
+        Platform.runLater(() -> {
+            if (panel != null)
+                panel.flagErrorsAsOld();
+            else
                 queuedErrors.clear();
-            });
-            
-            // Note lastSourceRef may refer to a stale source, but this shouldn't cause any
-            // significant issues.
-            return earlyErrorCheck(lastSource.findEarlyErrors());
-        }
+        });
+        // Note lastSourceRef may refer to a stale source, but this shouldn't cause any
+        // significant issues.  In fact, it probably makes sense to use the source at
+        // point of last save, rather than any modifications in the window since.
+        return earlyErrorCheck(lastSource.findEarlyErrors());
     }
 
     /**
