@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.slots.UnderlineContainer;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.binding.DeepListBinding;
 
 import javafx.beans.value.ObservableBooleanValue;
@@ -253,7 +254,7 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
         public Menu makeSubMenu()
         {
             Menu menu = new Menu();
-            JavaFXUtil.bindMap(menu.getItems(), items, SortedMenuItem::getItem);
+            JavaFXUtil.bindMap(menu.getItems(), items, SortedMenuItem::getItem, FXRunnable::run);
             menu.onShowingProperty().set(e -> onShowing());
             menu.onHiddenProperty().set(e -> onHidden());
             return menu;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -919,34 +919,38 @@ public class JavaFXUtil
      * @param dest The destination list to copy to
      * @param src The source list to copy from
      * @param func The function to apply to each item from src, when copying into dest.
+     * @param changeWrapper A callback which will be passed the change function.  You can use this,
+     *                      for example, to acquire and release a lock before/after list modification of dest
      */
-    public static <SRC2, DEST2> void bindMap(List<DEST2> dest, ObservableList<SRC2> src, Function<SRC2, DEST2> func)
+    public static <SRC2, DEST2> void bindMap(List<DEST2> dest, ObservableList<SRC2> src, Function<SRC2, DEST2> func, FXConsumer<FXRunnable> changeWrapper)
     {
-        dest.clear();
-        dest.addAll(Utility.mapList(src, func));
+        changeWrapper.accept(() -> {
+            dest.clear();
+            dest.addAll(Utility.mapList(src, func));
+        });
         
         src.addListener(new ListChangeListener<SRC2>()
         {
-
             @Override
             public void onChanged(ListChangeListener.Change<? extends SRC2> changes)
             {
-                while (changes.next())
-                {
-                    if (changes.wasPermutated() || changes.wasUpdated())
+                changeWrapper.accept(() -> {
+                    while (changes.next())
                     {
-                        // Same code for updated, replaced and permutation, just recalc the range:
-                        for (int i = changes.getFrom(); i < changes.getTo(); i++)
-                            dest.set(i, func.apply(src.get(i)));
+                        if (changes.wasPermutated() || changes.wasUpdated())
+                        {
+                            // Same code for updated, replaced and permutation, just recalc the range:
+                            for (int i = changes.getFrom(); i < changes.getTo(); i++)
+                                dest.set(i, func.apply(src.get(i)));
+                        } else
+                        {
+                            for (int i = 0; i < changes.getRemovedSize(); i++)
+                                dest.remove(changes.getFrom());
+                            for (int i = 0; i < changes.getAddedSubList().size(); i++)
+                                dest.add(i + changes.getFrom(), func.apply(changes.getAddedSubList().get(i)));
+                        }
                     }
-                    else
-                    {
-                        for (int i = 0; i < changes.getRemovedSize(); i++)
-                            dest.remove(changes.getFrom());
-                        for (int i = 0; i < changes.getAddedSubList().size(); i++)
-                            dest.add(i + changes.getFrom(), func.apply(changes.getAddedSubList().get(i)));
-                    }
-                }
+                });
             }
         });
     }

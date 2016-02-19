@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -182,7 +184,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private final SimpleObjectProperty<CursorOrSlot> focusedItem = new SimpleObjectProperty<>(null);
     private final TopLevelCodeElement initialSource;
     // Name of the top-level class/interface
-    private final StringProperty nameProperty = new SimpleStringProperty(); 
+    private final StringProperty nameProperty = new SimpleStringProperty();
+    @OnThread(Tag.Any)
+    private final ReadWriteLock importedTypesLock = new ReentrantReadWriteLock();
+    @OnThread(Tag.Any) // but only when the lock is acquired!
     private final List<Future<List<AssistContentThreadSafe>>> importedTypes;
     private final FrameSelection selection = new FrameSelection(this);
     private final FrameEditor editor;
@@ -693,7 +698,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         regenerateAndReparse(null);
 
         // When imports change, we provide a new future to calculate the types:
-        JavaFXUtil.bindMap(this.importedTypes, topLevelFrame.getImports(), this::importsUpdated);
+        JavaFXUtil.bindMap(this.importedTypes, topLevelFrame.getImports(), this::importsUpdated, change -> {
+            importedTypesLock.writeLock().lock();
+            change.run();
+            importedTypesLock.writeLock().unlock();
+        });
 
         if (topLevelFrame != null)
         {
@@ -1867,7 +1876,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.Any)
     private Stream<AssistContentThreadSafe> getAllImportedTypes()
     {
-        return Stream.concat(Stream.of(javaLangImports), importedTypes.stream()).map(FrameEditorTab::getFutureList).flatMap(List::stream);
+        importedTypesLock.readLock().lock();
+        ArrayList<Future<List<AssistContentThreadSafe>>> importedTypesCopy = new ArrayList<>(importedTypes);
+        importedTypesLock.readLock().unlock();
+        return Stream.concat(Stream.of(javaLangImports), importedTypesCopy.stream()).map(FrameEditorTab::getFutureList).flatMap(List::stream);
     }
     
     @OnThread(Tag.Any)
