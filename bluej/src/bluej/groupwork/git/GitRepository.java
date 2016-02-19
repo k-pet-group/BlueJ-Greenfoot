@@ -36,6 +36,14 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.RevWalkUtils;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /**
@@ -60,7 +68,6 @@ public class GitRepository implements Repository
      * @param projectPath path to save the project to.
      * @param protocol protocol used when communicating to the server
      * @param reposUrl repository's path on the remote server
-     * @param fileRepoBuilder git object to create repositories
      * @param userName user name to be used to authenticate on the server
      * @param password user password
      * @param yourName user name to be registered on the local git repository
@@ -231,4 +238,59 @@ public class GitRepository implements Repository
     {
         return this.projectPath;
     }
+    
+    
+    /** Utility methods **/
+    
+    /**
+     * given a objectID, returns the RevTree it belongs to.
+     *
+     * @param repo the repository
+     * @param objID the objectId
+     * @return the tree if found.
+     * @throws IncorrectObjectTypeException
+     * @throws IOException
+     */
+    public RevTree getTree(org.eclipse.jgit.lib.Repository repo, ObjectId objID) throws IncorrectObjectTypeException, IOException
+    {
+        RevTree tree;
+        try (RevWalk walk = new RevWalk(repo)) {
+            RevCommit commit = walk.parseCommit(objID);
+
+            // a commit points to a tree
+            tree = walk.parseTree(commit.getTree().getId());
+
+        }
+        return tree;
+    }
+    
+    
+    /**
+     * finds out if local or remote is ahead.
+     *
+     * @param repo git repository
+     * @param local master
+     * @param remote origin/master
+     * @return true if local is ahead of origin/master. False otherwise.
+     * @throws IOException
+     */
+    public boolean isLocalAhead(Git repo, Ref local, Ref remote) throws IOException
+    {
+        RevWalk walk = new RevWalk(repo.getRepository());
+        try {
+            RevCommit localCommit = walk.parseCommit(local.getObjectId());
+            RevCommit remoteCommit = walk.parseCommit(remote.getObjectId());
+            walk.setRevFilter(RevFilter.MERGE_BASE);
+            walk.markStart(localCommit);
+            walk.markStart(remoteCommit);
+            RevCommit mergeBase = walk.next();
+            walk.reset();
+            walk.setRevFilter(RevFilter.ALL);
+            return RevWalkUtils.count(walk, localCommit, mergeBase) >= RevWalkUtils.count(walk, remoteCommit, mergeBase);
+
+        } finally {
+            walk.dispose();
+        }
+    }
+
 }
