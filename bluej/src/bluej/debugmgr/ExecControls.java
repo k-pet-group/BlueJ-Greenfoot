@@ -138,7 +138,9 @@ public class ExecControls extends JFrame
     private DebuggerThreadTreeModel threadModel;
     
     private JComponent mainPanel;
-    private JList stackList, staticList, instanceList, localList;
+    private JList<SourceLocation> stackList;
+    private JList<String> staticList, localList;
+    private JList<DebuggerField> instanceList;
     private JButton stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
     private CardLayout cardLayout;
     private JPanel flipPanel;
@@ -190,16 +192,6 @@ public class ExecControls extends JFrame
         createWindow();
     }
 
-    /**
-     * Show or hide the ExecControl window.
-     * (Deprecated; use setVisible()).
-     */
-    @Deprecated
-    public void showHide(boolean show)
-    {
-        setVisible(show);
-    }
-    
     /**
      * Sets the restricted classes - classes for which only some fields should be displayed.
      * 
@@ -464,9 +456,9 @@ public class ExecControls extends JFrame
      */
     private void clearThreadDetails()
     {
-        stackList.setListData(empty);
+        stackList.setListData(new SourceLocation[0]);
         staticList.setListData(empty);
-        instanceList.setListData(empty);
+        instanceList.setListData(new DebuggerField[0]);
         localList.setListData(empty);
     }
 
@@ -535,11 +527,11 @@ public class ExecControls extends JFrame
             instanceList.setListData(listData.toArray(new DebuggerField[listData.size()]));
         }
         else {
-            instanceList.setListData(new String[0]);
+            instanceList.setListData(new DebuggerField[0]);
         }
         
         localList.setFixedCellWidth(-1);
-        localList.setListData(selectedThread.getLocalVariables(frameNo).toArray());
+        localList.setListData(selectedThread.getLocalVariables(frameNo).toArray(empty));
     }
 
     /**
@@ -626,7 +618,7 @@ public class ExecControls extends JFrame
         // create static variable panel
         JScrollPane staticScrollPane = new JScrollPane();
         {
-            staticList = new JList(new DefaultListModel());
+            staticList = new JList<>(new DefaultListModel<>());
             {
                 staticList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 staticList.addListSelectionListener(this);
@@ -643,7 +635,7 @@ public class ExecControls extends JFrame
         // create instance variable panel
         JScrollPane instanceScrollPane = new JScrollPane();
         {
-            instanceList = new JList(new DefaultListModel());
+            instanceList = new JList<>(new DefaultListModel<>());
             {
                 instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 instanceList.addListSelectionListener(this);
@@ -661,7 +653,7 @@ public class ExecControls extends JFrame
         // create local variable panel
         JScrollPane localScrollPane = new JScrollPane();
         {
-            localList = new JList(new DefaultListModel());
+            localList = new JList<>(new DefaultListModel<>());
             {
                 localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 localList.addListSelectionListener(this);
@@ -691,7 +683,7 @@ public class ExecControls extends JFrame
 
         // Create stack listing panel
 
-        stackList = new JList(new DefaultListModel());
+        stackList = new JList<>(new DefaultListModel<>());
         stackList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         stackList.addListSelectionListener(this);
         stackList.setFixedCellWidth(150);

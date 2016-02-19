@@ -2460,8 +2460,9 @@ public class PkgMgrFrame extends JFrame
      */
     public void showDebugger()
     {
-        if (!isEmptyFrame())
-            getProject().getExecControls().showHide(true);
+        if (!isEmptyFrame()) {
+            getProject().getExecControls().setVisible(true);
+        }
     }
 
     /**

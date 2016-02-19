@@ -364,7 +364,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
                     Project thisProject = Project.getProject(getBProject().getDir());
                     ExecControls execControls = thisProject.getExecControls();
                     execControls.makeSureThreadIsSelected(simulationThread.get());
-                    execControls.showHide(!execControls.isVisible());
+                    execControls.setVisible(!execControls.isVisible());
                     execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
                 }
                 catch (ProjectNotOpenException pnoe) {
