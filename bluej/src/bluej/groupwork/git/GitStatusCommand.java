@@ -28,11 +28,8 @@ import bluej.utility.Debug;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
@@ -43,10 +40,13 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.RevWalkUtils;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 /**
@@ -104,6 +104,11 @@ public class GitStatusCommand extends GitCommand
                 returnInfo.add(teamInfo);
             });
             
+            if (includeRemote){
+                //update information about remote repository.
+                GitFetchCommand fetchCommand = new GitFetchCommand(this.getRepository());
+                fetchCommand.getResult();
+            }
             //check for differences between local and remote repo
             diff(repo, gitPath, returnInfo);
 
@@ -146,6 +151,7 @@ public class GitStatusCommand extends GitCommand
     {
         switch (entry.getChangeType()) {
             case ADD:
+            case COPY:
                 return TeamStatusInfo.STATUS_NEEDSCHECKOUT;
             case DELETE:
                 return TeamStatusInfo.STATUS_REMOVED;
@@ -202,13 +208,23 @@ public class GitStatusCommand extends GitCommand
                 try (ObjectReader reader = repo.getRepository().newObjectReader()) {
                     CanonicalTreeParser localTreeIter = new CanonicalTreeParser();
                     localTreeIter.reset(reader, masterTree);
+                    
                     CanonicalTreeParser remoteTreeIter = new CanonicalTreeParser();
                     remoteTreeIter.reset(reader, originMasterTree);
+                    
+                    DiffCommand diffCommand = repo.diff();
+                    List<DiffEntry> diffs;
+                    
+                    //check which tree is ahead.
+                    if (this.getRepository().isLocalAhead(repo, repo.getRepository().getRef("master"), repo.getRepository().getRef("origin/master"))){
+                        diffCommand.setNewTree(localTreeIter);
+                        diffCommand.setOldTree(remoteTreeIter);
+                    } else {
+                        diffCommand.setNewTree(remoteTreeIter);
+                        diffCommand.setOldTree(localTreeIter);
+                    }
                     //perform a diff between the local and remote tree
-                    List<DiffEntry> diffs = repo.diff()
-                            .setNewTree(localTreeIter)
-                            .setOldTree(remoteTreeIter)
-                            .call();
+                    diffs = diffCommand.call();
 
                     //filter the results
                     //then add the entries on the returnInfo
@@ -236,9 +252,30 @@ public class GitStatusCommand extends GitCommand
                                     } else {
                                         //file does not exists locally, therefore local repo needs
                                         //to be updated.
-                                        item.setStatus(TeamStatusInfo.STATUS_BLANK);
+                                        item.setStatus(TeamStatusInfo.STATUS_NEEDSUPDATE);
                                     }
                                 }
+                                if (entry.getChangeType() == DiffEntry.ChangeType.DELETE){
+                                    if (file.exists()) {
+                                        //file exits locally, therefore it was deleted in the remote.
+                                        item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
+                                    } else {
+                                        //file was deleted locally. Needs to be pushed.
+                                        item.setRemoteStatus(TeamStatusInfo.STATUS_DELETED);
+                                        item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
+                                    }
+                                }
+                                if (entry.getChangeType() == DiffEntry.ChangeType.MODIFY){
+                                    //if we got a modify, there must be a local file.
+                                    //update local status.
+                                    item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
+                                }
+                                
+                                if (entry.getChangeType() == DiffEntry.ChangeType.RENAME){
+                                    item.setRemoteStatus(TeamStatusInfo.STATUS_RENAMED);
+                                    item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
+                                }
+
                                 returnInfo.add(item);
                             } else {
                                 //update remote status.
@@ -247,10 +284,8 @@ public class GitStatusCommand extends GitCommand
                         }
                     }
                     
-                } catch (IOException ex) {
+                } catch (IOException | GitAPIException ex) {
                     Debug.reportError("Git status command exception", ex);
-                } catch (GitAPIException ex) {
-                    Logger.getLogger(GitStatusCommand.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         } catch (RevisionSyntaxException | IOException ex) {
@@ -258,5 +293,5 @@ public class GitStatusCommand extends GitCommand
         }
 
     }
-
+    
 }
