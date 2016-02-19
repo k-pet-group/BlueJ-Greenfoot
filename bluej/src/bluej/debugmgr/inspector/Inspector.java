@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,13 +25,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -42,7 +38,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -68,7 +63,6 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 
 /**
@@ -159,8 +153,6 @@ public abstract class Inspector extends JFrame
      */
     protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir, Color valueFieldColor)
     {
-        super(Config.isLinux() ? null : AWTUtilitiesWrapper.getBestGC());
-        
         if(inspectorManager == null) {
             throw new NullPointerException("An inspector must have an InspectorManager.");
         }
@@ -619,136 +611,8 @@ public abstract class Inspector extends JFrame
         });
     }
     
-   /**
-    * Taken from the source code at: http://java.sun.com/developer/technicalArticles/GUI/translucent_shaped_windows/
-    *
-    * @author Anthony Petrov
-    */
-   private static class AWTUtilitiesWrapper {
-
-       private static Class<?> awtUtilitiesClass;
-       private static Class<?> translucencyClass;
-       // private static Method mIsTranslucencySupported,  mSetWindowShape,  mSetWindowOpacity;
-       private static Method mIsTranslucencyCapable, mSetWindowOpaque;
-       //public static Object PERPIXEL_TRANSPARENT,  TRANSLUCENT,  PERPIXEL_TRANSLUCENT;
-
-       static void init() {
-           try {
-               awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
-               translucencyClass = Class.forName("com.sun.awt.AWTUtilities$Translucency");
-               if (translucencyClass.isEnum()) {
-                   Object[] kinds = translucencyClass.getEnumConstants();
-                   //if (kinds != null) {
-                       //PERPIXEL_TRANSPARENT = kinds[0];
-                       //TRANSLUCENT = kinds[1];
-                       //PERPIXEL_TRANSLUCENT = kinds[2];
-                   //}
-               }
-               // mIsTranslucencySupported = awtUtilitiesClass.getMethod("isTranslucencySupported", translucencyClass);
-               mIsTranslucencyCapable = awtUtilitiesClass.getMethod("isTranslucencyCapable", GraphicsConfiguration.class);
-               // mSetWindowShape = awtUtilitiesClass.getMethod("setWindowShape", Window.class, Shape.class);
-               // mSetWindowOpacity = awtUtilitiesClass.getMethod("setWindowOpacity", Window.class, float.class);
-               mSetWindowOpaque = awtUtilitiesClass.getMethod("setWindowOpaque", Window.class, boolean.class);
-           } catch (ClassNotFoundException cnfe) {
-               Debug.log("Sun AWT translucency classes not available (ClassNotFoundException).");
-           } catch (Exception ex) {
-               Debug.reportError("Couldn't support AWTUtilities", ex);
-           }
-       }
-
-       static {
-           init();
-       }
-       
-       private static boolean isSupported(Method method, Object kind) {
-           if (awtUtilitiesClass == null ||
-                   method == null)
-           {
-               return false;
-           }
-           try {
-               Object ret = method.invoke(null, kind);
-               if (ret instanceof Boolean) {
-                   return ((Boolean)ret).booleanValue();
-               }
-           } catch (Exception ex) {
-               Debug.reportError("Couldn't support AWTUtilities", ex);
-           }
-           return false;
-       }
-       
-       /*
-       public static boolean isTranslucencySupported(Object kind) {
-           if (translucencyClass == null) {
-               return false;
-           }
-           return isSupported(mIsTranslucencySupported, kind);
-       }
-       */
-       
-       public static boolean isTranslucencyCapable(GraphicsConfiguration gc) {
-           return isSupported(mIsTranslucencyCapable, gc);
-       }
-       
-       private static void set(Method method, Window window, Object value) {
-           if (awtUtilitiesClass == null ||
-                   method == null || !isTranslucencyCapable(window.getGraphicsConfiguration()))
-           {
-               return;
-           }
-           try {
-               method.invoke(null, window, value);
-           } catch (Exception ex) {
-               Debug.reportError("Couldn't support AWTUtilities: ", ex);
-           }
-       }
-       
-       /*
-       public static void setWindowShape(Window window, Shape shape) {
-           set(mSetWindowShape, window, shape);
-       }
-
-       public static void setWindowOpacity(Window window, float opacity) {
-           set(mSetWindowOpacity, window, Float.valueOf(opacity));
-       }
-       */
-       
-       public static void setWindowOpaque(Window window, boolean opaque) {
-           set(mSetWindowOpaque, window, Boolean.valueOf(opaque));
-       }
-       
-       public static GraphicsConfiguration getBestGC() {
-           GraphicsConfiguration translucencyCapableGC = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-           if (!AWTUtilitiesWrapper.isTranslucencyCapable(translucencyCapableGC)) {
-               translucencyCapableGC = null;
-
-               GraphicsEnvironment env =
-                       GraphicsEnvironment.getLocalGraphicsEnvironment();
-               GraphicsDevice[] devices = env.getScreenDevices();
-
-               for (int i = 0; i < devices.length && translucencyCapableGC == null; i++) {
-                   GraphicsConfiguration[] configs = devices[i].getConfigurations();
-                   for (int j = 0; j < configs.length && translucencyCapableGC == null; j++) {
-                       if (AWTUtilitiesWrapper.isTranslucencyCapable(configs[j])) {
-                           translucencyCapableGC = configs[j];
-                       }
-                   }
-               }
-           }
-           if (translucencyCapableGC == null) {
-               Debug.message("No translucency capable GC");
-           }
-           return translucencyCapableGC;
-       }
-   }
-   
-   protected void setWindowOpaque(boolean b)
-   {
-       AWTUtilitiesWrapper.setWindowOpaque(this, b);
-   }
-   
-   public int getUniqueId()
-   {
-       return uniqueId;
-   }
+    public int getUniqueId()
+    {
+        return uniqueId;
+    }
 }

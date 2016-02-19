@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -147,14 +147,11 @@ public class ObjectInspector extends Inspector
             DialogManager.centreWindow(thisInspector, parent);
         }
 
-        if (Config.isMacOS() || Config.isWinOS()) {
-            // Window translucency doesn't seem to work on linux.
-            // We'll assume that it might not work on any OS other
-            // than those on which it's known to work: MacOS and Windows.
-            thisInspector.setWindowOpaque(false);
-        }
+        // Set translucent background (shaped window):
+        setBackground(new Color(0,0,0,0));
+        
         if ( !Config.isMacOS() || Config.isJava17() ) {
-            // Java 1.6 on MacOS automatically makes tranparent windows
+            // Java 1.6 on MacOS automatically makes transparent windows
             // draggable by their content - no need to do it ourselves.
             // It has to be done on Java 1.7
             thisInspector.installListenersForMoveDrag();
