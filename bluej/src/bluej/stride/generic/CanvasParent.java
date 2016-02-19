@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,8 +24,7 @@ package bluej.stride.generic;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import bluej.stride.framedjava.frames.GreenfootFrameCategory;
-import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 
 public interface CanvasParent extends CursorFinder
 {
@@ -69,7 +68,7 @@ public interface CanvasParent extends CursorFinder
             return getFrame().getCursorAfter();
     }
 
-    List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor);
+    List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas);
 
     InteractionManager getEditor();
 
@@ -78,11 +77,12 @@ public interface CanvasParent extends CursorFinder
         // By default, notify editor of all changes:
         getEditor().modifiedFrame(null);
     }
-    
+
+    // package-visible
     static boolean processInnerExtensionKey(CanvasParent p, FrameCanvas canvas, FrameCursor cursor, char c, RecallableFocus rc, boolean atTop)
     {
-        List<ExtensionDescription> candidates = p.getAvailableInnerExtensions(canvas, cursor).stream()
-                .filter(e -> e.getShortcutKey() == c && (e.worksThroughout() || atTop))
+        List<ExtensionDescription> candidates = p.getAvailableExtensions(canvas, cursor).stream()
+                .filter(e -> e.getShortcutKey() == c && e.validFor(atTop ? ExtensionSource.INSIDE_FIRST : ExtensionSource.INSIDE_LATER))
                 .collect(Collectors.toList());
         
         if (candidates.size() == 0) {
@@ -91,14 +91,11 @@ public interface CanvasParent extends CursorFinder
         if (candidates.size() > 1) {
             throw new IllegalStateException("Ambiguous inner extension for: " + (int)c);
         }
-        
-        if (candidates.get(0).isAvailable()) {
-            p.getEditor().beginRecordingState(rc);
-            candidates.get(0).activate();
-            p.getEditor().endRecordingState(rc);
-            return true;
-        }
-        return false;
+
+        p.getEditor().beginRecordingState(rc);
+        candidates.get(0).activate();
+        p.getEditor().endRecordingState(rc);
+        return true;
     }
 
     Frame getFrame();

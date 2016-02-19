@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.collect.StrideEditReason;
+import bluej.editor.stride.FrameCatalogue.Hint;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ConstructorCompletion;
@@ -57,6 +58,8 @@ import bluej.stride.framedjava.ast.links.PossibleMethodUseLink;
 import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.ast.links.PossibleVarLink;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
+import bluej.stride.generic.ExtensionDescription;
+import bluej.utility.javafx.FXSupplier;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -1032,7 +1035,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             animateProgress.addOnStopped(() -> FXRunnable.runLater(remove));
         }
 
-        getParent().scheduleUpdateCatalogue(this, newView == View.NORMAL ? getFocusedCursor() : null, CodeCompletionState.NOT_POSSIBLE, false, newView, Collections.emptyList());
+        getParent().scheduleUpdateCatalogue(this, newView == View.NORMAL ? getFocusedCursor() : null, CodeCompletionState.NOT_POSSIBLE, false, newView, Collections.emptyList(), Collections.emptyList());
     }
 
     public BooleanProperty cheatSheetShowingProperty()
@@ -1260,13 +1263,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         JavaFXUtil.addChangeListener(f.getNode().focusedProperty(), new FXConsumer<Boolean>()
         {
-
             private FXRunnable cancelTimer;
 
             public void accept(Boolean focused)
             {
                 if (getParent() != null)
-                    getParent().scheduleUpdateCatalogue(FrameEditorTab.this, focused ? f : null, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
+                    getParent().scheduleUpdateCatalogue(FrameEditorTab.this, focused ? f : null, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList(), Collections.emptyList());
 
                 if (cancelTimer != null)
                 {
@@ -1500,7 +1502,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         if (f != null)
             f.trackBlank(); // Do this even if loading
-        if (isLoading())
+        if (isLoading() || getParent() == null)
             return;
         editor.codeModified();
         registerStackHighlight(null);
@@ -1990,14 +1992,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
-    public void setupFocusableSlotComponent(EditableSlot parent, Node node, boolean canCodeComplete, List<FrameCatalogue.Hint> hints)
+    public void setupFocusableSlotComponent(EditableSlot parent, Node node, boolean canCodeComplete, FXSupplier<List<ExtensionDescription>> getExtensions, List<Hint> hints)
     {
         node.focusedProperty().addListener((a, b, focused) -> {
             if (focused)
             {
                 selection.clear();
             }
-            getParent().scheduleUpdateCatalogue(FrameEditorTab.this, null, focused && canCodeComplete ? CodeCompletionState.POSSIBLE : CodeCompletionState.NOT_POSSIBLE, false, getView(), hints);
+            getParent().scheduleUpdateCatalogue(FrameEditorTab.this, null, focused && canCodeComplete ? CodeCompletionState.POSSIBLE : CodeCompletionState.NOT_POSSIBLE, false, getView(), getExtensions.get(), hints);
         });
 
         node.addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
@@ -2211,7 +2213,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @Override
     public void setupSuggestionWindow(Stage window) {
         JavaFXUtil.addChangeListener(window.focusedProperty(), focused ->
-                        getParent().scheduleUpdateCatalogue(FrameEditorTab.this, null, focused ? CodeCompletionState.SHOWING : CodeCompletionState.NOT_POSSIBLE, false, View.NORMAL, Collections.emptyList())
+                        getParent().scheduleUpdateCatalogue(FrameEditorTab.this, null, focused ? CodeCompletionState.SHOWING : CodeCompletionState.NOT_POSSIBLE, false, View.NORMAL, Collections.emptyList(), Collections.emptyList())
         );
     }
 
@@ -2244,7 +2246,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     
     public void updateCatalog(FrameCursor f)
     {
-        getParent().scheduleUpdateCatalogue(FrameEditorTab.this, f, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList());
+        getParent().scheduleUpdateCatalogue(FrameEditorTab.this, f, CodeCompletionState.NOT_POSSIBLE, !selection.getSelected().isEmpty(), getView(), Collections.emptyList(), Collections.emptyList());
     }
 
     //package-visible

@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-import javafx.scene.layout.Region;
 
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
@@ -183,9 +183,9 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     }
     
     @Override
-    public List<ExtensionDescription> getAvailableExtensions()
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
-        return Arrays.asList(new ExtensionDescription('t', "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true)));
+        return Arrays.asList(new ExtensionDescription('t', "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER));
     }
 
     @Override

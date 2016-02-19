@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import bluej.stride.generic.FrameCursor;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -423,27 +425,19 @@ public class VarFrame extends SingleLineFrame
         return true;
     }
 
-    public List<ExtensionDescription> getAvailablePrefixes()
-    {
-        List<ExtensionDescription> prefixes = new ArrayList<>(super.getAvailablePrefixes());
-        addStaticFinalExtension(prefixes);
-        return prefixes;
-    }
-
     @Override
-    public List<ExtensionDescription> getAvailableExtensions()
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
-        final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions());
-        addStaticFinalExtension(extensions);
+        final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(innerCanvas, cursorInCanvas));
+        extensions.add(new ExtensionDescription('n', "Add/Remove final", () ->
+                //, KeyCode.N
+                new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_VAR, FINAL_NAME).activate(this), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+        if (isField(getParentCanvas())) {
+            extensions.add(new ExtensionDescription('s', "Add/Remove static", () ->
+                    // , KeyCode.S
+                    new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_VAR, STATIC_NAME).activate(this), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+        }
         return extensions;
-    }
-
-    @Override
-    public List<FrameOperation> getAvailableSelectionModifiers()
-    {
-        final List<FrameOperation> modifiers = new ArrayList<>(super.getAvailableSelectionModifiers());
-        addStaticFinalOperations(modifiers);
-        return modifiers;
     }
 
     private void addStaticFinalOperations(List<FrameOperation> operations)
@@ -455,15 +449,4 @@ public class VarFrame extends SingleLineFrame
         }
     }
 
-    private void addStaticFinalExtension(List<ExtensionDescription> actions)
-    {
-        actions.add(new ExtensionDescription('n', "Add/Remove final", () ->
-                //, KeyCode.N
-                new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_VAR, FINAL_NAME).activate(this), false, true));
-        if (isField(getParentCanvas())) {
-            actions.add(new ExtensionDescription('s', "Add/Remove static", () ->
-                    // , KeyCode.S
-                    new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_VAR, STATIC_NAME).activate(this), false, true));
-        }
-    }
 }

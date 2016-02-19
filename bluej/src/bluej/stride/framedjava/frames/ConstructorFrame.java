@@ -30,6 +30,7 @@ import java.util.Optional;
 import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
 import bluej.stride.framedjava.elements.CodeElement;
 
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.FXCollections;
@@ -199,22 +200,22 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor) {
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas) {
         if (callRow == null) {
-            List<ExtensionDescription> extensions = new ArrayList(super.getAvailableInnerExtensions(canvas, cursor));
+            List<ExtensionDescription> extensions = new ArrayList(super.getAvailableExtensions(canvas, cursorInCanvas));
 
             extensions.addAll(Arrays.asList(new ExtensionDescription(GreenfootFrameDictionary.SUPER_EXTENSION_CHAR, "Add super(..) call", () -> {
                 addSuperThis(new SuperThisFragment(SuperThis.SUPER), null);
-            }), new ExtensionDescription(GreenfootFrameDictionary.THIS_EXTENSION_CHAR, "Add this(..) call", () -> {
+            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER), new ExtensionDescription(GreenfootFrameDictionary.THIS_EXTENSION_CHAR, "Add this(..) call", () -> {
                 addSuperThis(new SuperThisFragment(SuperThis.THIS), null);
-            })));
+            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER)));
 
             return extensions;
         }
         else {
             return Arrays.asList(new ExtensionDescription('\b', "Remove super/this call", () -> {
                 removeSuperThis();
-            }, true, true));
+            }, true, ExtensionSource.INSIDE_FIRST));
         }
     }
 

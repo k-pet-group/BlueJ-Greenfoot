@@ -34,7 +34,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.compiler.CompileReason;
+import bluej.editor.stride.FrameCatalogue.Hint;
 import bluej.pkgmgr.TabbedEditorWindow;
+import bluej.stride.generic.ExtensionDescription;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -247,7 +249,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
             {
                 if (!(selTab instanceof FrameEditorTab))
                 {
-                    scheduleUpdateCatalogue(null, null, CodeCompletionState.NOT_POSSIBLE, false, Frame.View.NORMAL, Collections.emptyList());
+                    scheduleUpdateCatalogue(null, null, CodeCompletionState.NOT_POSSIBLE, false, Frame.View.NORMAL, Collections.emptyList(), Collections.emptyList());
                 }
             }
         });
@@ -706,9 +708,9 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
      * @param viewMode The current view mode (if a frame editor tab is showing)
      * @param hints The list of hints that should be displayed
      */
-    public void scheduleUpdateCatalogue(FrameEditorTab editor, FrameCursor c, CodeCompletionState codeCompletion, boolean selection, Frame.View viewMode, List<FrameCatalogue.Hint> hints)
+    public void scheduleUpdateCatalogue(FrameEditorTab editor, FrameCursor c, CodeCompletionState codeCompletion, boolean selection, Frame.View viewMode, List<ExtensionDescription> altExtensions, List<Hint> hints)
     {
-        cataloguePane.scheduleUpdateCatalogue(editor, viewMode == Frame.View.NORMAL ? c : null, codeCompletion, selection, viewMode, hints);
+        cataloguePane.scheduleUpdateCatalogue(editor, viewMode == Frame.View.NORMAL ? c : null, codeCompletion, selection, viewMode, altExtensions, hints);
     }
 
     /**

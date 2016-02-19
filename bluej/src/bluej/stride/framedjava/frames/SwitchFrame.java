@@ -39,6 +39,7 @@ import bluej.stride.framedjava.frames.BreakFrame.BreakEncloser;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameContentRow;
@@ -282,16 +283,6 @@ public class SwitchFrame extends MultiCanvasFrame
         return defaultCanvas;
     }
 
-    @Override
-    public List<ExtensionDescription> getAvailableExtensions()
-    {
-        List<ExtensionDescription> result = new ArrayList<>(super.getAvailableExtensions());
-        if (defaultCanvas == null) {
-            result.add(new ExtensionDescription(GreenfootFrameDictionary.DEFAULT_EXTENSION_CHAR, "Add default", SwitchFrame.this::addDefault, true));
-        }
-        return result;
-    }
-
     public DebuggableParentFrame getCasesDebug()
     {
         return new DebuggableParentFrame() {
@@ -392,24 +383,24 @@ public class SwitchFrame extends MultiCanvasFrame
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
-        List<ExtensionDescription> result = new ArrayList<>();
+        List<ExtensionDescription> result = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
 
         if (defaultCanvas == null) {
             result.add(new ExtensionDescription(GreenfootFrameDictionary.DEFAULT_EXTENSION_CHAR,
-                    "Add default", SwitchFrame.this::addDefault, true));
+                    "Add default", SwitchFrame.this::addDefault, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.INSIDE_LATER, ExtensionSource.AFTER));
         }
 
         if (canvas == casesCanvas)
         {
             result.add(new ExtensionDescription('\b', "Remove switch/cases, keep contents", () ->
-                    new PullUpContentsOperation(editor).activate(getFrame()), false, false));
+                    new PullUpContentsOperation(editor).activate(getFrame()), false, ExtensionSource.INSIDE_FIRST));
         }
         if (defaultCanvas != null && canvas == defaultCanvas)
         {
             result.add(new ExtensionDescription('\b', "Remove default, keep contents",
-                    SwitchFrame.this::pullUpDefaultContents, false, false));
+                    SwitchFrame.this::pullUpDefaultContents, false, ExtensionSource.INSIDE_FIRST));
         }
 
         return result;

@@ -90,7 +90,7 @@ class InheritedCanvas
             }
 
             @Override
-            public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+            public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursor)
             {
                 return Collections.emptyList();
             }

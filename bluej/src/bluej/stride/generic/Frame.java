@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
@@ -724,69 +725,53 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     }
 
     /**
-     * Allows blocks to respond to a keypress when the cursor
-     * is just after the block, e.g. pressing a key to extend an if with an else.
      * By default, no extensions: override to specify.
+     *
+     * @param innerCanvas The inner canvas which we are asking about extensions for.
+     *                    If we are not asking for inner extensions (e.g. instead before, or after)
+     *                    then will be null.
+     * @param cursorInCanvas The cursor position in the inner canvas.  Will be non-null iff innerCanvas is non-null
      */
-    public List<ExtensionDescription> getAvailableExtensions()
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
-        return Collections.emptyList();
-    }
+        if (innerCanvas != null)
+            return Collections.emptyList();
 
-    /**
-     * Allows blocks to respond to a keypress when they are selected.
-     * e.g. selecting multiple vars and then pressing a key to make them static.
-     * By default, no selection modifiers: override to specify.
-     */
-    public List<FrameOperation> getAvailableSelectionModifiers()
-    {
-        return Collections.emptyList();
-    }
-
-    public final boolean notifyExtensionKey(char c, RecallableFocus rc)
-    {
-        return notifyKey(c, rc, getAvailableExtensions(), "extension");
-    }
-
-    /**
-     * Allows blocks to respond to a keypress when the cursor
-     * is just before the block, e.g. pressing a '\\' key to disable a frame.
-     */
-    public List<ExtensionDescription> getAvailablePrefixes()
-    {
         return Arrays.asList(new ExtensionDescription('\\', "Disable/Enable frames", () -> {
             if (canHaveEnabledState(isFrameEnabled()))
             {
                 setFrameEnabled(!isFrameEnabled());
             }
-        }, false, false));
-    }
-    
-    public final boolean notifyPrefixKey(char c, RecallableFocus rc)
-    {
-        return notifyKey(c, rc, getAvailablePrefixes(), "prefix");
+        }, false, ExtensionSource.BEFORE, ExtensionSource.AFTER));
     }
 
-    private boolean notifyKey(char c, RecallableFocus rc, List<ExtensionDescription> extensions, String label)
+    public final boolean notifyKeyAfter(char c, RecallableFocus rc)
+    {
+        return notifyKey(c, rc, getAvailableExtensions(null, null), ExtensionSource.AFTER);
+    }
+
+    public final boolean notifyKeyBefore(char c, RecallableFocus rc)
+    {
+        return notifyKey(c, rc, getAvailableExtensions(null, null), ExtensionSource.BEFORE);
+    }
+
+    private final boolean notifyKey(char c, RecallableFocus rc, List<ExtensionDescription> extensions, ExtensionSource src)
     {
         List<ExtensionDescription> candidates = extensions.stream()
-                .filter(e -> e.getShortcutKey() == c)
+                .filter(e -> e.getShortcutKey() == c && e.validFor(src))
                 .collect(Collectors.toList());
         
         if (candidates.size() == 0) {
             return false;
         }
         if (candidates.size() > 1) {
-            throw new IllegalStateException("Ambiguous " + label + " for: " + (int)c);
+            throw new IllegalStateException("Ambiguous " + src + " for: " + (int)c);
         }
-        
-        if (candidates.get(0).isAvailable()){
-            editor.beginRecordingState(rc);
-            candidates.get(0).activate();
-            editor.endRecordingState(rc);
-            return true;
-        }
-        return false;
+
+        editor.beginRecordingState(rc);
+        candidates.get(0).activate();
+        editor.endRecordingState(rc);
+        return true;
     }
 
     /**

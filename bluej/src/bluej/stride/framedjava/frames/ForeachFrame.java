@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameCursor;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
@@ -184,11 +185,11 @@ public class ForeachFrame extends SingleCanvasFrame
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
-        return Utility.concat(super.getAvailableInnerExtensions(canvas, cursor),
+        return Utility.concat(super.getAvailableExtensions(canvas, cursorInCanvas),
                 Arrays.asList(new ExtensionDescription('\b', "Remove loop, keep contents", () ->
-                        new PullUpContentsOperation(getEditor()).activate(this), false, false)));
+                        new PullUpContentsOperation(getEditor()).activate(this), false, ExtensionSource.INSIDE_FIRST)));
     }
     
     @Override

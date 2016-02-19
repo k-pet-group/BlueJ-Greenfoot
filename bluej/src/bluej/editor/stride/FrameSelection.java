@@ -22,6 +22,7 @@
 package bluej.editor.stride;
 
 import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameCursor;
@@ -393,8 +394,12 @@ public class FrameSelection
     {
         // If there is only on selected frame and it accept the key typed as an extension
         if (selection.size() == 1) {
-            for (ExtensionDescription extension : selection.get(0).getAvailableExtensions()) {
-                if (extension.getShortcutKey() == key) {
+            for (ExtensionDescription extension : selection.get(0).getAvailableExtensions(null, null)) {
+                if (extension.getShortcutKey() == key &&
+                        (extension.validFor(ExtensionSource.AFTER)
+                        || extension.validFor(ExtensionSource.BEFORE)
+                        || extension.validFor(ExtensionSource.SELECTION)))
+                {
                     extension.activate();
                     return true;
                 }
@@ -414,11 +419,12 @@ public class FrameSelection
             return true;
         }
 
-        if (getNonIgnored().allMatch(f -> f.getAvailableSelectionModifiers().stream()
-                .filter(m -> m.getShortcut().getName().toLowerCase().charAt(0) == key).count() == 1)) {
-            getNonIgnored().flatMap(f -> f.getAvailableSelectionModifiers().stream())
-                    .filter(m -> m.getShortcut().getName().toLowerCase().charAt(0) == key)
-                    .findAny().get().activate(getNonIgnored().collect(Collectors.toList()));
+        // Check that all the frames have exactly one extension for that key:
+        if (getNonIgnored().allMatch(f -> f.getAvailableExtensions(null, null).stream()
+                .filter(m -> m.validFor(ExtensionSource.SELECTION) && m.getShortcutKey() == key).count() == 1)) {
+            getNonIgnored().flatMap(f -> f.getAvailableExtensions(null, null).stream())
+                    .filter(m -> m.validFor(ExtensionSource.SELECTION) && m.getShortcutKey() == key)
+                    .forEach(ExtensionDescription::activate);
             return true;
         }
 

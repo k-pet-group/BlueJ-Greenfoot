@@ -53,6 +53,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 
@@ -532,8 +533,15 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
     {
         ExpressionSlotField f = new ExpressionSlotField(this, content, stringLiteral);
         if (editor != null) // Can be null during testing
-            editor.setupFocusableSlotComponent(slot, f.getNodeForPos(null), true, slot.getHints());
+            editor.setupFocusableSlotComponent(slot, f.getNodeForPos(null), true, slot::getExtensions, slot.getHints());
         f.onKeyPressedProperty().set(event -> {
+            if (event.isShiftDown() && event.isControlDown() && event.getCharacter().length() > 0 && event.getCode() != KeyCode.CONTROL && event.getCode() != KeyCode.SHIFT)
+            {
+                slot.notifyModifiedPress(event.getText().toLowerCase().charAt(0));
+                event.consume();
+                return;
+            }
+
             //Which key?
             switch (event.getCode())
             {

@@ -34,6 +34,7 @@ import bluej.stride.framedjava.frames.DebuggableParentFrame;
 import bluej.stride.framedjava.frames.DebugInfo;
 import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
 import bluej.stride.framedjava.frames.GreenfootFrameUtil;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
@@ -41,6 +42,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -248,18 +250,6 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);
     }
 
-    @Override
-    public List<ExtensionDescription> getAvailableExtensions()
-    {
-        List<ExtensionDescription> r = new ArrayList<>(super.getAvailableExtensions());
-        if (tailCanvas == null) {
-            //TODO AA look at last bool param
-            r.add(new ExtensionDescription(dictionary.getExtensionChar(intermediateCanvasCaption), "Add " + intermediateCanvasCaption, this::addIntermediateCanvas));
-            r.add(new ExtensionDescription(dictionary.getExtensionChar(tailCanvasCaption), "Add " + tailCanvasCaption, this::addTailCanvas, true));
-        }
-        return r;
-    }
-
     public DebuggableParentFrame getFirstCanvasDebug()
     {
         return new DebuggableParentFrame() {
@@ -328,38 +318,55 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursor)
     {
         List<ExtensionDescription> inners = new ArrayList<>();
 
         if (canvas == firstCanvas)
         {
             inners.add(new ExtensionDescription('\b', "Remove " + frameCaption + ", keep contents", () ->
-                    new PullUpContentsOperation(editor).activate(getFrame()), false, false));//TODO last param is true?
+                    new PullUpContentsOperation(editor).activate(getFrame()), false, ExtensionSource.INSIDE_FIRST));
         }
 
-        if ( canvas == firstCanvas || intermediateCanvases.contains(canvas) )
+        if ( canvas == firstCanvas || intermediateCanvases.contains(canvas) || canvas == null)
         {
-            inners.add(new ExtensionDescription(dictionary.getExtensionChar(intermediateCanvasCaption), "Add " + intermediateCanvasCaption, () ->
-                    addIntermediateCanvas(canvas, cursor, canvases.indexOf(canvas) + 1), true));
+
+            // This extension will be picked if you are in the first (mandatory) canvas, an
+            // intermediate canvas, or if you are afterwards and there is no tail canvas.
+            List<ExtensionSource> otherSources = new ArrayList<>();
+            otherSources.addAll(Arrays.asList(ExtensionSource.INSIDE_FIRST, ExtensionSource.INSIDE_LATER));
+            // Only allow AFTER if there's no final canvas:
+            if (tailCanvas == null)
+                otherSources.add(ExtensionSource.AFTER);
+            inners.add(new ExtensionDescription(dictionary.getExtensionChar(intermediateCanvasCaption), "Add " + intermediateCanvasCaption, () -> {
+                if (cursor == null)
+                    addIntermediateCanvas();
+                else
+                    addIntermediateCanvas(canvas, cursor, canvases.indexOf(canvas) + 1);
+            }, true, ExtensionSource.MODIFIER, otherSources.toArray(new ExtensionSource[0])));
         }
 
         if (intermediateCanvases.contains(canvas))
         {
             inners.add(new ExtensionDescription('\b', "Remove " + intermediateCanvasCaption + ", keep contents", () ->
-                pullUpCanvasContents(getCursorBefore(canvas), canvas), false, false));//TODO last one is true?
+                pullUpCanvasContents(getCursorBefore(canvas), canvas), false, ExtensionSource.INSIDE_FIRST));//TODO last one is true?
         }
 
-        if (Utility.findLast(getCanvases()).orElse(null) == canvas && tailCanvas == null)
+        if ((canvas == null || Utility.findLast(getCanvases()).orElse(null) == canvas) && tailCanvas == null)
         {
-            inners.add(new ExtensionDescription(dictionary.getExtensionChar(tailCanvasCaption), "Add " + tailCanvasCaption, () ->
-                    addTailCanvas(canvas, cursor), true));
+            // This will be picked if you are in the last canvas or outside, and there is no tail canvas:
+            inners.add(new ExtensionDescription(dictionary.getExtensionChar(tailCanvasCaption), "Add " + tailCanvasCaption, () -> {
+                if (cursor == null)
+                    addTailCanvas();
+                else
+                    addTailCanvas(canvas, cursor);
+            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.INSIDE_LATER, ExtensionSource.MODIFIER, ExtensionSource.AFTER));
         }
 
         if (tailCanvas != null && tailCanvas == canvas)
         {
             inners.add(new ExtensionDescription('\b', "Remove " + tailCanvasCaption + ", keep contents", () ->
-                    pullUpCanvasContents(getCursorBefore(canvas), canvas), false, false));//TODO last one is true?
+                    pullUpCanvasContents(getCursorBefore(canvas), canvas), false, ExtensionSource.INSIDE_FIRST));
         }
 
         return inners;

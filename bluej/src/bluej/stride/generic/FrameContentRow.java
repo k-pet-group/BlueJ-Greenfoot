@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,16 @@
  */
 package bluej.stride.generic;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import bluej.utility.Debug;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
@@ -37,7 +40,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
@@ -425,5 +427,26 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
     public ObservableBooleanValue mouseHoveringProperty()
     {
         return mouseHovering;
+    }
+
+    public final List<ExtensionDescription> getExtensions()
+    {
+        if (parentFrame.getHeaderRow() == this)
+            return parentFrame.getAvailableExtensions(null, null);
+        else
+            return Collections.emptyList();
+    }
+
+    public void notifyModifiedPress(char c)
+    {
+        List<ExtensionDescription> possibles = getExtensions().stream().filter(ext -> ext.validFor(ExtensionSource.MODIFIER) && ext.getShortcutKey() == c).collect(Collectors.toList());
+        if (possibles.size() == 1)
+        {
+            possibles.get(0).activate();
+        }
+        else if (possibles.size() > 1)
+        {
+            Debug.message("Ambiguous alt keypress for " + parentFrame.getClass() + " for " + c);
+        }
     }
 }

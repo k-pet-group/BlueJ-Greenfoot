@@ -36,6 +36,7 @@ import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.ast.SuperThis;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.slots.InfixExpression.RangeType;
+import bluej.stride.generic.ExtensionDescription;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringExpression;
@@ -1428,6 +1429,18 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     public boolean isCurrentlyCompleting()
     {
         return currentlyCompleting;
+    }
+
+    //package-visible:
+    List<ExtensionDescription> getExtensions()
+    {
+        return row.getExtensions();
+    }
+
+    //package-visible:
+    void notifyModifiedPress(char c)
+    {
+        row.notifyModifiedPress(c);
     }
 
 

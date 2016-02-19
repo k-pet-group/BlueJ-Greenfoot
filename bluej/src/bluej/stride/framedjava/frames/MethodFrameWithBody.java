@@ -27,11 +27,11 @@ package bluej.stride.framedjava.frames;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import bluej.stride.framedjava.elements.MethodWithBodyElement;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.slots.AccessPermissionSlot;
@@ -400,10 +400,12 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
-        return Collections.singletonList(new ExtensionDescription(GreenfootFrameDictionary.THROWS_EXTENSION_CHAR,
-                "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true)));
+        ArrayList<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
+        extensions.add(new ExtensionDescription(GreenfootFrameDictionary.THROWS_EXTENSION_CHAR,
+                "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER));
+        return extensions;
     }
 
     public void addThrows(String type)

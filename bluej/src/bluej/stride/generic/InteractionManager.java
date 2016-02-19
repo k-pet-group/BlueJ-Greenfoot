@@ -28,6 +28,7 @@ import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.utility.javafx.FXSupplier;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
@@ -171,7 +172,7 @@ public interface InteractionManager
      * Adds any necessary listeners to the given Node that will be a focusable part of the given EditableSlot,
      * for example making sure that the node is always in the visible viewport when focused.  If not (sufficiently) visible, it will be scrolled to.
      */
-    public void setupFocusableSlotComponent(EditableSlot parent, Node focusableComponent, boolean canCodeComplete, List<FrameCatalogue.Hint> hints);
+    public void setupFocusableSlotComponent(EditableSlot parent, Node focusableComponent, boolean canCodeComplete, FXSupplier<List<ExtensionDescription>> getExtensions, List<FrameCatalogue.Hint> hints);
 
     /**
      * Add any necessary listeners to a code completion window

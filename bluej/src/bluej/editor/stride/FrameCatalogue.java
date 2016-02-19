@@ -1,12 +1,15 @@
 package bluej.editor.stride;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import bluej.collect.StrideEditReason;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.binding.ConcatListBinding;
 import javafx.collections.FXCollections;
@@ -26,6 +29,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -203,7 +207,7 @@ public class FrameCatalogue extends VBox
                 AnchorPane.setBottomAnchor(imageView, 0.0);
                 AnchorPane.setRightAnchor(imageView, 0.0);
                 item.getChildren().add(imageView);
-                HBox keyAndName = getKeyAndName(getDisplayShortcut(e.getShortcuts()), e.getName(), true);
+                Pane keyAndName = getKeyAndName(Collections.singletonList(getDisplayShortcut(e.getShortcuts())), e.getName(), true);
                 item.getChildren().addAll(keyAndName);
                 setupClick(item, e.getFactory());
                 
@@ -229,22 +233,8 @@ public class FrameCatalogue extends VBox
             }
 
             // Add code completion hint:
-            Label ctrl = new Label("Ctrl");
-            JavaFXUtil.addStyleClass(ctrl, "catalogue-key");
-            Label space = new Label("Space");
-            JavaFXUtil.addStyleClass(space, "catalogue-key");
-            JavaFXUtil.setPseudoclass("bj-wide", true, ctrl, space);
-            Label plus = new Label("+");
-            ctrl.setTextOverrun(OverrunStyle.CLIP);
-            space.setTextOverrun(OverrunStyle.CLIP);
-            plus.setTextOverrun(OverrunStyle.CLIP);
-            Label name = new Label(Config.getString("frame.catalogue.codecompletion"));
-            name.setWrapText(true);
-            name.styleProperty().set("-fx-label-padding: 0 0 0 3");
-            HBox hbox = new HBox(ctrl, plus, space, name);
-            hbox.setSpacing(1.0);
-            hbox.setFillHeight(false);
-            hbox.setAlignment(Pos.CENTER_LEFT);
+            Node hbox = makeTextItem(Arrays.asList("Ctrl", "Space"), Config.getString("frame.catalogue.codecompletion"), false);
+            JavaFXUtil.setPseudoclass("bj-catalogue-special", true, hbox);
             standardItems.add(hbox);
             catalogueUpdate.add((c, codeCompletion, selection, birdseye) -> {
                 hbox.setVisible(codeCompletion == CodeCompletionState.POSSIBLE);
@@ -254,7 +244,7 @@ public class FrameCatalogue extends VBox
             hbox.setManaged(false);
 
             FXBiConsumer<String, String> addCodeCompletionShortcut = (shortcut, actionName) -> {
-                Node content = makeTextItem(shortcut, actionName, false);
+                Node content = makeTextItem(Collections.singletonList(shortcut), actionName, false);
                 standardItems.add(content);
                 catalogueUpdate.add((c, codeCompletion, selection, birdseye) -> {
                     content.setVisible(codeCompletion == CodeCompletionState.SHOWING);
@@ -267,7 +257,7 @@ public class FrameCatalogue extends VBox
             addCodeCompletionShortcut.accept("\u21B5", Config.getString("frame.catalogue.codecompletion.select"));
 
             FXBiConsumer<String, String> addBirdseyeShortcut = (shortcut, actionName) -> {
-                Node content = makeTextItem(shortcut, actionName, false);
+                Node content = makeTextItem(Collections.singletonList(shortcut), actionName, false);
                 standardItems.add(content);
                 catalogueUpdate.add((c, codeCompletion, selection, view) -> {
                     content.setVisible(view.isBirdseye());
@@ -279,7 +269,7 @@ public class FrameCatalogue extends VBox
             addBirdseyeShortcut.accept("\u2193", Config.getString("frame.catalogue.birdseye.down"));
             addBirdseyeShortcut.accept("\u21B5", Config.getString("frame.catalogue.birdseye.select"));
 
-            Node content = makeTextItem("Esc", Config.getString("frame.catalogue.birdseye.exit"), false);
+            Node content = makeTextItem(Collections.singletonList("Esc"), Config.getString("frame.catalogue.birdseye.exit"), false);
             standardItems.add(content);
             catalogueUpdate.add((c, codeCompletion, selection, view) -> {
                 content.setVisible(view == Frame.View.JAVA_PREVIEW);
@@ -290,22 +280,49 @@ public class FrameCatalogue extends VBox
         ConcatListBinding.bind(getChildren(), FXCollections.observableArrayList(standardItems, extensionItems, hintItems));
     }
 
-    private HBox getKeyAndName(String shortcut, String title, boolean showingPreview)
+    private Pane getKeyAndName(List<String> shortcutKeys, String title, boolean showingPreview)
     {
-        Label keyLabel = new Label(shortcut);
-        keyLabel.setMouseTransparent(true);
-        JavaFXUtil.addStyleClass(keyLabel, "catalogue-key");
+        HBox keysHBox = new HBox(shortcutKeys.stream().map(shortcut -> {
+            Label keyLabel = new Label(shortcut);
+            keyLabel.setMouseTransparent(true);
+            JavaFXUtil.addStyleClass(keyLabel, "catalogue-key");
+            if (shortcut.length() > 1)
+            {
+                JavaFXUtil.setPseudoclass("bj-wide", true, keyLabel);
+                keyLabel.setTextOverrun(OverrunStyle.CLIP);
+            }
+            return (Node)keyLabel;
+        }).collect(Utility.intersperse(() -> (Node)new Label("+"))).toArray(new Node[0]));
+        keysHBox.setSpacing(1.0);
+        keysHBox.setFillHeight(false);
+        keysHBox.setAlignment(Pos.CENTER_LEFT);
         Label name = new Label(title);
         name.setWrapText(true);
         name.setMaxWidth(showingPreview ? 100.0 : 160.0);
         name.setMouseTransparent(true);
-        HBox keyAndName = new HBox(keyLabel, name);
-        keyAndName.setSpacing(5.0);
+        Pane keyAndName;
+        if (shortcutKeys.size() == 1)
+        {
+            keyAndName = new HBox(keysHBox, name) {
+                {
+                    setSpacing(5.0);
+                    setFillHeight(false);
+                    setAlignment(Pos.CENTER_LEFT);
+                }
+            };
+        }
+        else
+        {
+            keyAndName = new VBox(keysHBox, name) {
+                {
+                    setSpacing(5.0);
+                }
+            };
+            name.setStyle("-fx-padding: 0 0 0 15;");
+        }
         AnchorPane.setLeftAnchor(keyAndName, 0.0);
         AnchorPane.setTopAnchor(keyAndName, 0.0);
         AnchorPane.setBottomAnchor(keyAndName, 0.0);
-        keyAndName.setFillHeight(false);
-        keyAndName.setAlignment(Pos.CENTER_LEFT);
         return keyAndName;
     }
 
@@ -392,7 +409,7 @@ public class FrameCatalogue extends VBox
 
     // Pass null if there is no currently focused cursor
     // package-visible
-    void scheduleUpdateCatalogue(FrameEditorTab editor, FrameCursor c, CodeCompletionState codeCompletion, boolean selection, Frame.View viewMode, List<Hint> hints)
+    void scheduleUpdateCatalogue(FrameEditorTab editor, FrameCursor c, CodeCompletionState codeCompletion, boolean selection, Frame.View viewMode, List<ExtensionDescription> altExtensions, List<Hint> hints)
     {
         currentCursor = c;
         // Schedule an update to happen in half a second:
@@ -407,13 +424,13 @@ public class FrameCatalogue extends VBox
             {
                 fillCatalogue(editor);
                 catalogueUpdate.forEach(updater -> updater.update(c, codeCompletion, selection, viewMode));
-                updateExtensions(selection ? null : c);
+                updateExtensions(selection ? null : c, altExtensions);
                 replaceHints(hints);
             }
         });
     }
 
-    private void updateExtensions(FrameCursor c)
+    private void updateExtensions(FrameCursor c, List<ExtensionDescription> altExtensions)
     {
         extensionItems.clear();
 
@@ -427,11 +444,11 @@ public class FrameCatalogue extends VBox
             CanvasParent parent = c.getParentCanvas().getParent();
             if (parent != null && c.canInsert())
             {
-                for (ExtensionDescription ext : parent.getAvailableInnerExtensions(c.getParentCanvas(), c))
+                for (ExtensionDescription ext : parent.getAvailableExtensions(c.getParentCanvas(), c))
                 {
-                    if (!keysAlreadyUsed.contains(ext.getShortcutKey()) && (frameBefore == null || ext.worksThroughout()) && ext.showInCatalogue())
+                    if (!keysAlreadyUsed.contains(ext.getShortcutKey()) && ext.validFor(frameBefore == null ? ExtensionSource.INSIDE_FIRST : ExtensionSource.INSIDE_LATER) && ext.showInCatalogue())
                     {
-                        Node item = makeTextItem(getDisplayShortcut("" + ext.getShortcutKey()), ext.getDescription(), true);
+                        Node item = makeTextItem(Collections.singletonList(getDisplayShortcut("" + ext.getShortcutKey())), ext.getDescription(), true);
                         setupClick(item, c, ext::activate);
                         extensionItems.add(item);
                         keysAlreadyUsed.add(ext.getShortcutKey());
@@ -439,15 +456,13 @@ public class FrameCatalogue extends VBox
                 }
             }
 
-
-
             if (frameAfter != null && frameAfter.isFrameEnabled())
             {
-                for (ExtensionDescription ext : frameAfter.getAvailablePrefixes())
+                for (ExtensionDescription ext : frameAfter.getAvailableExtensions(null, null))
                 {
-                    if (!keysAlreadyUsed.contains(ext.getShortcutKey()) && ext.showInCatalogue())
+                    if (!keysAlreadyUsed.contains(ext.getShortcutKey()) && ext.validFor(ExtensionSource.BEFORE) && ext.showInCatalogue())
                     {
-                        Node item = makeTextItem(getDisplayShortcut("" + ext.getShortcutKey()), ext.getDescription(), true);
+                        Node item = makeTextItem(Collections.singletonList(getDisplayShortcut("" + ext.getShortcutKey())), ext.getDescription(), true);
                         setupClick(item, c, ext::activate);
                         extensionItems.add(item);
                         keysAlreadyUsed.add(ext.getShortcutKey());
@@ -457,11 +472,11 @@ public class FrameCatalogue extends VBox
 
             if (frameBefore != null && frameBefore.isFrameEnabled())
             {
-                for (ExtensionDescription ext : frameBefore.getAvailableExtensions())
+                for (ExtensionDescription ext : frameBefore.getAvailableExtensions(null, null))
                 {
-                    if (!keysAlreadyUsed.contains(ext.getShortcutKey()) && ext.showInCatalogue())
+                    if (!keysAlreadyUsed.contains(ext.getShortcutKey()) && ext.validFor(ExtensionSource.AFTER) && ext.showInCatalogue())
                     {
-                        Node item = makeTextItem(getDisplayShortcut("" + ext.getShortcutKey()), ext.getDescription(), true);
+                        Node item = makeTextItem(Collections.singletonList(getDisplayShortcut("" + ext.getShortcutKey())), ext.getDescription(), true);
                         setupClick(item, c, ext::activate);
                         extensionItems.add(item);
                         keysAlreadyUsed.add(ext.getShortcutKey());
@@ -469,9 +484,19 @@ public class FrameCatalogue extends VBox
                 }
             }
         }
+
+        for (ExtensionDescription ext : altExtensions)
+        {
+            if (ext.validFor(ExtensionSource.MODIFIER) && ext.showInCatalogue())
+            {
+                Node item = makeTextItem(Arrays.asList("Ctrl", "Shift", getDisplayShortcut("" + ext.getShortcutKey())), ext.getDescription(), true);
+                setupClick(item, c, ext::activate);
+                extensionItems.add(item);
+            }
+        }
     }
 
-    private Node makeTextItem(String shortcut, String description, boolean clickable)
+    private Node makeTextItem(List<String> shortcut, String description, boolean clickable)
     {
         AnchorPane item = new AnchorPane();
         JavaFXUtil.addStyleClass(item, "catalogue-item");

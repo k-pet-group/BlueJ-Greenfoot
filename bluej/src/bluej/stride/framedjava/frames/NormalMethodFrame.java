@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
@@ -320,19 +321,16 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         return operations;
     }
 
-    public List<ExtensionDescription> getAvailablePrefixes()
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
-        final List<ExtensionDescription> prefixes = new ArrayList<>(super.getAvailablePrefixes());
-        addStaticFinalToList(prefixes);
-        return prefixes;
-    }
-
-    @Override
-    public List<FrameOperation> getAvailableSelectionModifiers()
-    {
-        final List<FrameOperation> modifiers = new ArrayList<>(super.getAvailableSelectionModifiers());
-        addStaticFinalOperations(modifiers);
-        return modifiers;
+        final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
+        extensions.add(new ExtensionDescription('s', "Add/Remove static", () ->
+                // , KeyCode.S
+                new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME).activate(this), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+        extensions.add(new ExtensionDescription('n', "Add/Remove final", () ->
+                //, KeyCode.N
+                new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME).activate(this), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+        return extensions;
     }
 
     private void addStaticFinalOperations(List<FrameOperation> operations)
@@ -341,16 +339,6 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME, KeyCode.S));
     }
 
-    private void addStaticFinalToList(List<ExtensionDescription> actions)
-    {
-        actions.add(new ExtensionDescription('s', "Add/Remove static", () ->
-                // , KeyCode.S
-                new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME).activate(this), false, true));
-        actions.add(new ExtensionDescription('n', "Add/Remove final", () ->
-                //, KeyCode.N
-                new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME).activate(this), false, true));
-    }
-    
     // Used by ReturnFrame
     public StringExpression returnTypeProperty()
     {

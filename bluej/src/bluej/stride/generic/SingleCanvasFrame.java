@@ -26,19 +26,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javafx.beans.binding.DoubleExpression;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 
-import bluej.stride.framedjava.frames.GreenfootFrameCategory;
 import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
@@ -281,7 +275,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
         return Collections.emptyList();
     }

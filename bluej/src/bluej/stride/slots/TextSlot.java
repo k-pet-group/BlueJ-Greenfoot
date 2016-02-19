@@ -42,14 +42,11 @@ import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.StringExpression;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -63,7 +60,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Font;
 import javafx.util.Duration;
 import bluej.Config;
 import bluej.stride.framedjava.ast.TextSlotFragment;
@@ -153,7 +149,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             throw new IllegalArgumentException("frameParent and codeFrameParent are not same object");
         this.row = row;
         field = new SlotTextField(stylePrefix, row.getOverlay());
-        editor.setupFocusableSlotComponent(this, field.getFocusableNode(), completionCalculator != null, hints);
+        editor.setupFocusableSlotComponent(this, field.getFocusableNode(), completionCalculator != null, row::getExtensions, hints);
         
         // Always disallow semi-colons:
         listeners.add((slot, oldValue, newValue, parent) -> {
@@ -311,6 +307,13 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             
             //React to up/down arrows, and ENTER in the same way as tabs (move focus on)
             this.onKeyPressedProperty().set(event -> {
+                    if (event.isShiftDown() && event.isControlDown() && event.getCharacter().length() > 0 && event.getCode() != KeyCode.CONTROL && event.getCode() != KeyCode.SHIFT)
+                    {
+                        row.notifyModifiedPress(event.getText().toLowerCase().charAt(0));
+                        event.consume();
+                        return;
+                    }
+
                     //Which key?
                     switch (event.getCode())
                     {

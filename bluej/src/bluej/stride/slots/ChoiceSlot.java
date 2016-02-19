@@ -113,7 +113,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         StackPane.setAlignment(curDisplay.getNode(), Pos.CENTER_LEFT);
         StackPane.setAlignment(futureDisplay, Pos.CENTER_LEFT);
                 
-        editor.setupFocusableSlotComponent(this, dummyField, false, hints.entrySet().stream().map(e -> new FrameCatalogue.Hint(e.getKey().toString(), e.getValue())).collect(Collectors.toList()));
+        editor.setupFocusableSlotComponent(this, dummyField, false, row::getExtensions, hints.entrySet().stream().map(e -> new FrameCatalogue.Hint(e.getKey().toString(), e.getValue())).collect(Collectors.toList()));
         
         pane.getStyleClass().addAll("choice-slot", stylePrefix + "choice-slot");
         

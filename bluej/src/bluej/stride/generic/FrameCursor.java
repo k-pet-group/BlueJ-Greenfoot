@@ -138,12 +138,12 @@ public class FrameCursor implements RecallableFocus
                     return true;
                 }
                 // Otherwise check the frame after us:
-                else if ( getFrameAfter() != null && getFrameAfter().notifyPrefixKey(key, FrameCursor.this) ) {
+                else if ( getFrameAfter() != null && getFrameAfter().notifyKeyBefore(key, FrameCursor.this) ) {
                     // Done
                     return true;
                 }
                 // Otherwise check the frame before us:
-                else if ( before != null && before.notifyExtensionKey(key, FrameCursor.this) ) {
+                else if ( before != null && before.notifyKeyAfter(key, FrameCursor.this) ) {
                     // Done
                     return true;
                 }

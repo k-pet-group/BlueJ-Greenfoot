@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.utility.javafx.SharedTransition;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.value.ObservableStringValue;
@@ -284,11 +285,12 @@ public class InterfaceFrame extends DocumentedSingleCanvasFrame
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
+        // We deliberately don't include superclass extensions; we can't be disabled
         ExtensionDescription extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
             extendsList.addTypeSlotAtEnd("", true);
-        });
+        }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
         
         return Arrays.asList(extendsExtension);
     }

@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.application.Platform;
@@ -477,23 +478,24 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     }
 
     @Override
-    public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
+        // We deliberately don't include super.getAvailableExtensions; we can't be disabled
         ExtensionDescription abstractExtension = null;
-        if (canvas.equals(fieldsCanvas)) {
-            abstractExtension = new ExtensionDescription(GreenfootFrameDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
-                    () -> abstractModifier.set(!abstractModifier.get()));
-        }
-        
+        ExtensionDescription implementsExtension = null;
         ExtensionDescription extendsExtension = null;
-        if (!showingExtends.get()) {
-            extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
-                showAndFocusExtends();
-            });
+        if (fieldsCanvas.equals(canvas) || canvas == null) {
+            abstractExtension = new ExtensionDescription(GreenfootFrameDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
+                    () -> abstractModifier.set(!abstractModifier.get()), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
+            implementsExtension = new ExtensionDescription(GreenfootFrameDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
+                implementsSlot.addTypeSlotAtEnd("", true);
+            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
+            if (!showingExtends.get()) {
+                extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
+                    showAndFocusExtends();
+                }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
+            }
         }
-        ExtensionDescription implementsExtension = new ExtensionDescription(GreenfootFrameDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
-            implementsSlot.addTypeSlotAtEnd("", true);
-        });
         
         return Utility.nonNulls(Arrays.asList(abstractExtension, extendsExtension, implementsExtension));
     }
@@ -531,7 +533,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             }
             
             @Override
-            public List<ExtensionDescription> getAvailableInnerExtensions(FrameCanvas canvas, FrameCursor cursor)
+            public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursor)
             {
                 return Collections.emptyList();
             }
