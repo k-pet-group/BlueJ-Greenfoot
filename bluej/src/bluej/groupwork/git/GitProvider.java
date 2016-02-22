@@ -152,7 +152,16 @@ public class GitProvider implements TeamworkProvider
         String server = settings.getServer();
         String prefix = settings.getPrefix();
 
-        String gitUrl = protocol + "://" + server;
+        String gitUrl = protocol + "://";
+        
+        //There is a bug in jGit where the username is ignored in a ssh connection.
+        //the workaround is to inject the username in the url string.
+        
+        if (protocol.contains("ssh")){
+            gitUrl += settings.getUserName()+"@";
+        }
+        
+        gitUrl += server;
         if (prefix.length() != 0 && !prefix.startsWith("/")) {
             gitUrl += "/";
         }
