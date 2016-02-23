@@ -236,15 +236,36 @@ public class BProject
         return projectId.getBluejProject();
     }
 
-    public void openWebViewTab(String customUrl) throws ProjectNotOpenException
+    /**
+     * Open a tab (in the window with the FX-based editors, which at the moment includes
+     * the Stride editors but not the Java editors) with a web browser showing the given URL.
+     * If any open web browser tab is already showing that URL (either because it's been opened
+     * by this method before and not navigated away from, or because the user already navigated
+     * to that page), it is shown and focused instead of opening another browser with the same page.
+     *
+     * @param url The URL to open in the web browser
+     * @throws ProjectNotOpenException if the project has been closed by the user
+     */
+    public void openWebViewTab(String url) throws ProjectNotOpenException
     {
         Project bjProject = projectId.getBluejProject();
         Platform.runLater(() -> {
             FXTabbedEditor fXTabbedEditor = bjProject.getDefaultFXTabbedEditor();
-            fXTabbedEditor.openWebViewTab(customUrl);            
+            fXTabbedEditor.openWebViewTab(url);
         });        
     }
 
+    /**
+     * Schedules a compilation of the project.
+     *
+     * @param immediate If true, compile now.  Otherwise, wait for the default time
+     *                  (currently 1 second) then perform a compilation.  Any other
+     *                  compilation requests from extensions or internally (e.g. due to code
+     *                  editing) will reset the timer to 1 second again, so the compilation
+     *                  will always occur 1 second after the call to the most recent scheduleCompilation
+     *                  call.  e.g. if you call this every 900ms, compilation will never occur.
+     * @throws ProjectNotOpenException if the project has been closed by the user
+     */
     public void scheduleCompilation(boolean immediate) throws ProjectNotOpenException
     {
         projectId.getBluejProject().scheduleCompilation(immediate, CompileReason.EXTENSION);
