@@ -27,12 +27,11 @@ import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
-import threadchecker.OnThread;
 
 /**
- * @author Michael Kolling
  * Interface between the editor and the rest of BlueJ
  * The editor uses this class
+ * @author Michael Kolling
  */
 public interface EditorWatcher
 {
@@ -81,6 +80,14 @@ public interface EditorWatcher
      */
     String getProperty(String key);
 
+    /**
+     * Schedule compilation due to reload or modification
+     * @param immediate  True if compilation should be performed immediately; false if compilation should be
+     *                   postponed until the user VM is idle
+     * @param reason    Reason for compilation
+     */
+    public void scheduleCompilation(boolean immediate, CompileReason reason);
+    
     default void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits)
     {
         recordEdit(sourceType, curSource, includeOneLineEdits, null);
@@ -114,4 +121,4 @@ public interface EditorWatcher
     void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement);
 
     void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key);
-} // end class EditorWatcher
+}

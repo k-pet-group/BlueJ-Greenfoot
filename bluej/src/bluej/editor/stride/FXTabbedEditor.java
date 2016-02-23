@@ -33,7 +33,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import bluej.compiler.CompileReason;
 import bluej.editor.stride.FrameCatalogue.Hint;
 import bluej.pkgmgr.TabbedEditorWindow;
 import bluej.stride.generic.ExtensionDescription;
@@ -486,15 +485,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     public Project getProject()
     {
         return project;
-    }
-
-    /**
-     * Schedules a future compilation (@see Project.scheduleCompilation)
-     */
-    @OnThread(Tag.Any)
-    public void scheduleCompilation()
-    {
-        project.scheduleCompilation(false, CompileReason.MODIFIED, project.getUnnamedPackage());
     }
 
     /**

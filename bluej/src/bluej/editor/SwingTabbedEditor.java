@@ -39,7 +39,6 @@ import java.util.Set;
 import javax.swing.*;
 
 import bluej.Config;
-import bluej.compiler.CompileReason;
 import bluej.pkgmgr.TabbedEditorWindow;
 import bluej.utility.Utility;
 import threadchecker.OnThread;
@@ -303,14 +302,6 @@ public class SwingTabbedEditor implements TabbedEditorWindow
         MoeEditor editor = panelToEditor.get(tabPane.getSelectedComponent());
         editor.getSourcePane().requestFocusInWindow();
         editor.getSourcePane().setVisible(true);
-    }
-
-    /**
-     * Delegate for Project.scheduleCompilation
-     */
-    public void scheduleCompilation(boolean immediate, CompileReason reason)
-    {
-        project.scheduleCompilation(immediate, reason, project.getPackage(""));
     }
 
     /**

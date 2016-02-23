@@ -53,6 +53,7 @@ import javax.swing.text.BadLocationException;
 
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
+import bluej.compiler.CompileReason;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
@@ -1002,7 +1003,8 @@ public class FrameEditor implements Editor
         changedSinceLastSave = true;
         SwingUtilities.invokeLater(() -> {
             isCompiled = false;
-            watcher.modificationEvent(this);            
+            watcher.modificationEvent(this);
+            watcher.scheduleCompilation(false, CompileReason.MODIFIED);
         });
     }
     

@@ -1246,6 +1246,12 @@ public class ClassTarget extends DependentTarget
         }
         
     }
+    
+    @Override
+    public void scheduleCompilation(boolean immediate, CompileReason reason)
+    {
+        getPackage().getProject().scheduleCompilation(false, reason, getPackage());
+    }
 
     /**
      * Called when this class target has just been successfully compiled.

@@ -1507,7 +1507,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         editor.codeModified();
         registerStackHighlight(null);
         updateErrorOverviewBar(true);
-        getParent().scheduleCompilation();
         SuggestedFollowUpDisplay.modificationIn(this);
     }
 

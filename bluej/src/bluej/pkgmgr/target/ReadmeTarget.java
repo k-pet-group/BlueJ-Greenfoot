@@ -258,8 +258,9 @@ public class ReadmeTarget extends EditableTarget
     @Override
     public void recordShowErrorIndicator(int identifier) { }
 
-    /*
-                         * The "compile" function was invoked in the editor
-                         */
+    @Override
     public void compile(Editor editor, CompileReason reason) {}
+    
+    @Override
+    public void scheduleCompilation(boolean immediate, CompileReason reason) {}
 }

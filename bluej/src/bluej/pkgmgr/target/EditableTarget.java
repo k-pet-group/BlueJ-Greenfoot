@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import bluej.compiler.CompileReason;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.Package;
