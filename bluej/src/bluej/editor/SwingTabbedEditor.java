@@ -310,7 +310,7 @@ public class SwingTabbedEditor implements TabbedEditorWindow
      */
     public void scheduleCompilation(boolean immediate, CompileReason reason)
     {
-        project.scheduleCompilation(immediate, reason);
+        project.scheduleCompilation(immediate, reason, project.getPackage(""));
     }
 
     /**

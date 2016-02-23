@@ -913,7 +913,9 @@ public class PkgMgrFrame extends JFrame
             }
             else {
                 showTestingTools(wantToSeeTestingTools());
-            }                
+            }
+            
+            pkg.getProject().scheduleCompilation(true, CompileReason.LOADED, pkg);
         }
         
         DataCollector.packageOpened(pkg);
@@ -1402,7 +1404,7 @@ public class PkgMgrFrame extends JFrame
         }
 
         // Schedule compilation of new class:
-        pkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS);
+        pkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS, pkg);
         
         DataCollector.addClass(pkg, target);
         

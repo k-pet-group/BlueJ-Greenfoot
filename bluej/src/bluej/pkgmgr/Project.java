@@ -21,7 +21,10 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -36,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -47,20 +51,16 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
 
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.Timer;
 
-import javax.swing.*;
-
-import bluej.compiler.CompileReason;
-import bluej.utility.ImportScanner;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.BlueJEvent;
 import bluej.Boot;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
+import bluej.compiler.CompileReason;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerEvent;
@@ -100,9 +100,14 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.FileUtility.WriteCapabilities;
+import bluej.utility.ImportScanner;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.views.View;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -191,12 +196,16 @@ public class Project implements DebuggerListener, InspectorManager
     private final List<Rectangle> swingCachedEditorSizes = new ArrayList<>();
     @OnThread(Tag.FX) private final List<Rectangle> fxCachedEditorSizes = new ArrayList<>();
     
+    /** 1 second timer before starting auto-compile */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private Timer compilerTimer;
     // We don't put a lock on this because we could deadlock with scheduleCompilation
     // It's not crucial anyway (just for data recording), and volatile should
     // give us the right semantics regardless:
     private volatile CompileReason latestCompileReason;
+    /** Packages scheduled for autocompilation */
+    @OnThread(value = Tag.Any,requireSynchronized = true)
+    private Set<Package> scheduledPkgs = new HashSet<>();
 
     private BProject singleBProject;  // Every Project has none or one BProject
     private boolean closing = false;
@@ -278,11 +287,6 @@ public class Project implements DebuggerListener, InspectorManager
         File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");
         isSharedProject = ccfFile.isFile();
         teamActions = new TeamActionGroup(isSharedProject);
-        
-        // Compile once on load.  If Greenfoot, it will schedule when ready, so we only need do this
-        // for BlueJ:
-        if (!Config.isGreenfoot())
-            scheduleCompilation(false, CompileReason.LOADED);
     }
 
     /**
@@ -496,7 +500,6 @@ public class Project implements DebuggerListener, InspectorManager
         
         ExtensionsManager.getInstance().projectOpening(proj);
         DataCollector.projectOpened(proj, ExtensionsManager.getInstance().getLoadedExtensions(proj));
-        
 
         return proj;
     }
@@ -1043,6 +1046,15 @@ public class Project implements DebuggerListener, InspectorManager
         return initialPackageName;
     }
 
+    /**
+     * Get a reference to the "unnamed" package
+     */
+    @OnThread(Tag.Any)
+    public Package getUnnamedPackage()
+    {
+        return unnamedPackage;
+    }
+    
     /**
      * Get an existing package from the project. The package is opened (i.e a new
      * Package object is constructed) if it's not already open. All parent packages on
@@ -2136,19 +2148,25 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     @OnThread(Tag.Any)
-    public synchronized void scheduleCompilation(boolean immediate, CompileReason reason)
+    public synchronized void scheduleCompilation(boolean immediate, CompileReason reason, Package pkg)
     {
         if (immediate)
         {
-            if (compilerTimer != null)
-                compilerTimer.stop();
+            if (compilerTimer != null) {
+                scheduledPkgs.remove(pkg);
+                if (scheduledPkgs.isEmpty()) {
+                    compilerTimer.stop();
+                }
+            }
 
             // We must use invokeLater, even if already on event queue,
             // to make sure all actions are resolved (e.g. auto-indent post-newline)
-            EventQueue.invokeLater(() -> getPackage("").compileOnceIdle(reason));
+            EventQueue.invokeLater(() -> pkg.compileOnceIdle(reason));
         }
         else
         {
+            scheduledPkgs.add(pkg);
+            
             if (compilerTimer != null)
             {
                 // Re-use existing timer, to avoid lots of reallocation:
@@ -2158,13 +2176,14 @@ public class Project implements DebuggerListener, InspectorManager
             else
             {
                 latestCompileReason = reason;
-                // needs to be anonymous inner class for compiler plugin:
                 ActionListener listener = new ActionListener()
                 {
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        getPackage("").compileOnceIdle(latestCompileReason);
+                        for (Package p : scheduledPkgs) {
+                            p.compileOnceIdle(latestCompileReason);
+                        }
                     }
                 };
                 compilerTimer = new Timer(1000, listener);

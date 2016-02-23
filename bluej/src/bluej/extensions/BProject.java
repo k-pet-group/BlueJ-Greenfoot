@@ -268,6 +268,8 @@ public class BProject
      */
     public void scheduleCompilation(boolean immediate) throws ProjectNotOpenException
     {
-        projectId.getBluejProject().scheduleCompilation(immediate, CompileReason.EXTENSION);
+        Project bjProject = projectId.getBluejProject();
+        // TODO this needs a package argument
+        bjProject.scheduleCompilation(immediate, CompileReason.EXTENSION, bjProject.getPackage(""));
     }
 }
