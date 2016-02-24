@@ -22,13 +22,13 @@
 package bluej.teamwork;
 
 
-import bluej.Config;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.TeamworkProvider;
+import bluej.parser.InitConfig;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -55,7 +55,6 @@ import org.junit.Test;
 public class GitTester
 {
 
-    private static final File BLUEJ_DIR = new File("/home/heday/data/NetBeansProjects/bluej/lib"); //BlueJ's lib folder
     private static final String PROTOCOL = "file"; //git communication protocol
     private static final String SERVER = "";
     private static String REMOTE_REPO_ADDRESS; //remote repository address in the filesystem.
@@ -83,7 +82,7 @@ public class GitTester
     {
         try {
             commandLineProps = new Properties();
-            Config.initialise(BLUEJ_DIR, commandLineProps, false);
+            InitConfig.init();
             gitProvider = loadProvider("bluej.groupwork.git.GitProvider");
             initRepository();
         } catch (Throwable ex) {
