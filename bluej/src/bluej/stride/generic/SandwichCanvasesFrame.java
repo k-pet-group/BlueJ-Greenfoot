@@ -349,7 +349,7 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         if (intermediateCanvases.contains(canvas))
         {
             inners.add(new ExtensionDescription('\b', "Remove " + intermediateCanvasCaption + ", keep contents", () ->
-                pullUpCanvasContents(getCursorBefore(canvas), canvas), false, ExtensionSource.INSIDE_FIRST));//TODO last one is true?
+                pullUpCanvasContents(getCursorBefore(canvas), canvas), false, ExtensionSource.INSIDE_FIRST));
         }
 
         if ((canvas == null || Utility.findLast(getCanvases()).orElse(null) == canvas) && tailCanvas == null)
