@@ -424,7 +424,7 @@ public class FrameSelection
                 .filter(m -> m.validFor(ExtensionSource.SELECTION) && m.getShortcutKey() == key).count() == 1)) {
             getNonIgnored().flatMap(f -> f.getAvailableExtensions(null, null).stream())
                     .filter(m -> m.validFor(ExtensionSource.SELECTION) && m.getShortcutKey() == key)
-                    .findAny().get().activate(getNonIgnored().collect(Collectors.toList()));
+                    .findAny().ifPresent(e -> e.activate(getNonIgnored().collect(Collectors.toList())));
             return true;
         }
 
