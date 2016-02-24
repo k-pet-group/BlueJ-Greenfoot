@@ -184,7 +184,9 @@ public abstract class SingleLineFrame extends Frame
         public FrameState(Image picture, Element value, String xml)
         {
             this.picture = picture;
-            this.value = value;
+            // We must take a copy because value is probably a LocatableElement, which retains
+            // a lot of references which we don't want to keep alive, we just need the XML part:
+            this.value = new Element(value);
             this.cachedXML = xml;
         }
 
