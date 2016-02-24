@@ -1540,28 +1540,29 @@ public final class Package extends Graph
      */
     public void compileOnceIdle(CompileReason reason)
     {
-        if (isDebuggerIdle())
-        {
-            compile(reason);
-        }
-        else if (!waitingForIdleToCompile)
-        {
-            waitingForIdleToCompile = true;
-            // No lambda as we need to also remove:
-            getDebugger().addDebuggerListener(new DebuggerListener() {
-                @Override
-                public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
-                {
-                    if (e.getNewState() == Debugger.IDLE)
+        if (! waitingForIdleToCompile) {
+            if (isDebuggerIdle())
+            {
+                compile(reason);
+            }
+            else {
+                waitingForIdleToCompile = true;
+                // No lambda as we need to also remove:
+                getDebugger().addDebuggerListener(new DebuggerListener() {
+                    @Override
+                    public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
                     {
-                        getDebugger().removeDebuggerListener(this);
-                        // We call compileOnceIdle, not compile, because we might not still be idle
-                        // by the time we run on the Swing thread, so we may have to do the whole
-                        // thing again:
-                        SwingUtilities.invokeLater(() -> { waitingForIdleToCompile = false; compileOnceIdle(reason); });
+                        if (e.getNewState() == Debugger.IDLE)
+                        {
+                            getDebugger().removeDebuggerListener(this);
+                            // We call compileOnceIdle, not compile, because we might not still be idle
+                            // by the time we run on the Swing thread, so we may have to do the whole
+                            // thing again:
+                            SwingUtilities.invokeLater(() -> { waitingForIdleToCompile = false; compileOnceIdle(reason); });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
