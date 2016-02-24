@@ -234,7 +234,14 @@ public final class Package extends Graph
     private PackageEditor editor;
     
     /** True if we currently have a compile queued up waiting for debugger to become idle */
-    private boolean waitingForIdleToCompile = false; 
+    private boolean waitingForIdleToCompile = false;
+    
+    /** Whether we have issued a package compilation, and not yet seen its conclusion */
+    private boolean currentlyCompiling = false;
+    
+    /** Whether a compilation has been queued (behind the current compile job). Only one compile can be queued. */
+    private boolean queuedCompile = false;
+    private CompileReason queuedReason;
     
     /** File pointing at the directory for this package */
     private File dir;
@@ -1260,7 +1267,8 @@ public final class Package extends Graph
     /**
      * The standard compile user function: Find and compile all uncompiled
      * classes.
-     * @param observer 
+     * @param observer  An observer to be notified of compilation progress.
+     *                  The callback methods will be called on the Swing EDT.
      */
     public void compile(CompileObserver compObserver, CompileReason reason)
     {
@@ -1305,7 +1313,30 @@ public final class Package extends Graph
      */
     public void compile(CompileReason reason)
     {
-        compile((CompileObserver)null, reason);
+        if (! currentlyCompiling) { 
+            currentlyCompiling = true;
+            compile(new CompileObserver() {
+                    @Override
+                    public void compilerMessage(Diagnostic diagnostic) {  }
+                    @Override
+                    public void startCompile(CompileInputFile[] sources, CompileReason reason) { }
+                    @Override
+                    public void endCompile(CompileInputFile[] sources, boolean succesful)
+                    {
+                        // This will be called on the Swing thread.
+                        currentlyCompiling = false;
+                        if (queuedCompile) {
+                            queuedCompile = false;
+                            compile(queuedReason);
+                            queuedReason = null;
+                        }
+                    }
+                }, reason);
+        }
+        else {
+            queuedCompile = true;
+            queuedReason = reason;
+        }
     }
     
     /**
@@ -1548,7 +1579,7 @@ public final class Package extends Graph
             else {
                 waitingForIdleToCompile = true;
                 // No lambda as we need to also remove:
-                getDebugger().addDebuggerListener(new DebuggerListener() {
+                DebuggerListener dlistener = new DebuggerListener() {
                     @Override
                     public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
                     {
@@ -1558,10 +1589,25 @@ public final class Package extends Graph
                             // We call compileOnceIdle, not compile, because we might not still be idle
                             // by the time we run on the Swing thread, so we may have to do the whole
                             // thing again:
-                            SwingUtilities.invokeLater(() -> { waitingForIdleToCompile = false; compileOnceIdle(reason); });
+                            SwingUtilities.invokeLater(() -> {
+                                if (waitingForIdleToCompile) {
+                                    waitingForIdleToCompile = false;
+                                    compileOnceIdle(reason);
+                                }
+                            });
                         }
                     }
-                });
+                };
+                
+                getDebugger().addDebuggerListener(dlistener);
+                
+                // Potential race: the debugger may have gone idle just before we added the listener.
+                // Check for that now:
+                if (isDebuggerIdle()) {
+                    waitingForIdleToCompile = false;
+                    compile(reason);
+                    getDebugger().removeDebuggerListener(dlistener);
+                }
             }
         }
     }
