@@ -411,7 +411,7 @@ public class BPackage
     }
 
     /**
-     * Schedules a compilation of the project.
+     * Schedules a compilation of the package.
      *
      * @param immediate If true, compile now.  Otherwise, wait for the default time
      *                  (currently 1 second) then perform a compilation.  Any other
