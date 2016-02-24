@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -285,15 +285,17 @@ public abstract class JavaParentNode extends ParentParsedNode
         if (prevToken != null && startpos == nodePos) {
             // The completion position is at the end of some token.
             // The parent might have a prior expression sibling which might end in a dot.
-            int offset = getOffsetFromParent();
-            int ppos = nodePos - offset;
-            child = parentNode.getNodeTree().findNodeAtOrBefore(nodePos - 1, ppos);
-            if (child != null && child.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION
-                    && child.getEnd() == nodePos) {
-                CodeSuggestions suggests = ExpressionNode.suggestAsExpression(pos, child.getPosition(),
-                        this, defaultType, document);
-                if (suggests != null) {
-                    return suggests;
+            if (parentNode != null) {
+                int offset = getOffsetFromParent();
+                int ppos = nodePos - offset;
+                child = parentNode.getNodeTree().findNodeAtOrBefore(nodePos - 1, ppos);
+                if (child != null && child.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION
+                        && child.getEnd() == nodePos) {
+                    CodeSuggestions suggests = ExpressionNode.suggestAsExpression(pos, child.getPosition(),
+                            this, defaultType, document);
+                    if (suggests != null) {
+                        return suggests;
+                    }
                 }
             }
         }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1059,7 +1059,7 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.Runnable", suggests.getSuggestionType().toString());
     }
 
-    public void testRegression573() throws BadLocationException
+    public void testRegression571() throws BadLocationException
     {
         // Exception when completing on invalid code:
         
