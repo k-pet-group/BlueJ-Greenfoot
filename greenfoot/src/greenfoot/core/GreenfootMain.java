@@ -24,7 +24,6 @@ package greenfoot.core;
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.ObjectTracker;
-import greenfoot.actions.NewSubActorAction;
 import greenfoot.actions.NewSubWorldAction;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
@@ -146,6 +145,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     /**
      * Initializes the singleton. This can only be done once - subsequent calls
      * will have no effect.
+     * 
+     * @param rBlueJ   remote BlueJ instance
+     * @param pkg      remote reference to the unnamed package of the project corresponding to this Greenfoot instance
+     * @param wizard   whether to run the "new project wizard"
+     * @param sourceType  default source type for the new project
      */
     public static void initialize(RBlueJ rBlueJ, RPackage pkg, boolean wizard, SourceType sourceType)
     {
@@ -227,7 +231,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                             proj.greenfootReady();
                         }
-                        catch (Exception exc) {
+                        catch (RemoteException exc) {
                             Debug.reportError("Error when opening scenario", exc);
                         }
                     }
