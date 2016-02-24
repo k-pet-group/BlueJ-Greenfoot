@@ -433,15 +433,13 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
             {
                 // No need to generate and parse it again, just use existing one, but
                 // add in our positions in case they used different fragments:
-                DocAndPositions dap = documentCache.get(src);
-                dap.fragmentPositions.putAll(positions);
-                return dap;
+                sourceDocument = documentCache.get(src);
+                sourceDocument.fragmentPositions.putAll(positions);
             }
             else
             {
-                DocAndPositions dap = new DocAndPositions(src, java, positions);
-                documentCache.put(src, dap);
-                return dap;
+                sourceDocument = new DocAndPositions(src, java, positions);
+                documentCache.put(src, sourceDocument);
             }
         }
         return sourceDocument;
