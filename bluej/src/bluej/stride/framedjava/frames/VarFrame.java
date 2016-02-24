@@ -429,13 +429,11 @@ public class VarFrame extends SingleLineFrame
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
         final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(innerCanvas, cursorInCanvas));
-        extensions.add(new ExtensionDescription('n', "Add/Remove final", () ->
-                //, KeyCode.N
-                new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_VAR, FINAL_NAME).activate(this), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+        extensions.add(new ExtensionDescription('n', "Add/Remove final", new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_VAR, FINAL_NAME),
+                this, true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
         if (isField(getParentCanvas())) {
-            extensions.add(new ExtensionDescription('s', "Add/Remove static", () ->
-                    // , KeyCode.S
-                    new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_VAR, STATIC_NAME).activate(this), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+            extensions.add(new ExtensionDescription('s', "Add/Remove static", new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_VAR, STATIC_NAME),
+                    this, true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
         }
         return extensions;
     }

@@ -324,12 +324,10 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
         final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
-        extensions.add(new ExtensionDescription('s', "Add/Remove static", () ->
-                // , KeyCode.S
-                new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME).activate(this), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
-        extensions.add(new ExtensionDescription('n', "Add/Remove final", () ->
-                //, KeyCode.N
-                new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME).activate(this), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+        extensions.add(new ExtensionDescription('s', "Add/Remove static", new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME),
+                this, true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+        extensions.add(new ExtensionDescription('n', "Add/Remove final", new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME),
+                this, true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
         return extensions;
     }
 

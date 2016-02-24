@@ -21,6 +21,8 @@
  */
 package bluej.stride.generic;
 
+import bluej.stride.operations.FrameOperation;
+import bluej.utility.Debug;
 import bluej.utility.javafx.FXRunnable;
 
 import java.util.ArrayList;
@@ -37,20 +39,30 @@ public class ExtensionDescription
     // Note that the character may be '\b', for backspace.
     private final char shortcut;
     private final String description;
-    private final FXRunnable action;
     private final boolean showInCatalogue;
     private final List<ExtensionSource> validSources;
-/*
-    public ExtensionDescription(char shortcut, String description, FXRunnable action)
-    {
-        this(shortcut, description, action, false, true);
-    }*/
+
+    private FXRunnable action;
+    private FrameOperation operation;
+    private Frame frame;
 
     public ExtensionDescription(char shortcut, String description, FXRunnable action, boolean showInCatalogue, ExtensionSource firstSrc, ExtensionSource... restSrc)
     {
+        this(shortcut, description, showInCatalogue, firstSrc, restSrc);
+        this.action = action;
+    }
+
+    public ExtensionDescription(char shortcut, String description, FrameOperation operation, Frame frame, boolean showInCatalogue, ExtensionSource firstSrc, ExtensionSource... restSrc)
+    {
+        this(shortcut, description, showInCatalogue, firstSrc, restSrc);
+        this.operation = operation;
+        this.frame = frame;
+    }
+
+    private ExtensionDescription(char shortcut, String description, boolean showInCatalogue, ExtensionSource firstSrc, ExtensionSource... restSrc)
+    {
         this.shortcut = shortcut;
         this.description = description;
-        this.action = action;
         this.showInCatalogue = showInCatalogue;
         validSources = new ArrayList<>();
         validSources.add(firstSrc);
@@ -66,14 +78,28 @@ public class ExtensionDescription
     {
         return description;
     }
-    
-    /**
-     * @return true if the key was allowed in this context, and has been processed,
-     *          false if the key should be dealt with by the caller instead.
-     */
+
     public void activate()
     {
-        action.run();
+        if (action != null) {
+            action.run();
+        }
+        else if(operation != null) {
+            operation.activate(frame);
+        }
+        else {
+            Debug.reportError("Action and Operation shouldn't be both null in ExtensionDescription:: " + description);
+        }
+    }
+
+    public void activate(List<Frame> frames)
+    {
+        if(operation != null) {
+            operation.activate(frames);
+        }
+        else {
+            Debug.reportError("Operation shouldn't be null when calling activate(frames) in ExtensionDescription:: " + description);
+        }
     }
 
     public boolean showInCatalogue() { return showInCatalogue; }
