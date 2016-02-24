@@ -28,7 +28,6 @@ import java.util.ListIterator;
 
 import javafx.application.Platform;
 import bluej.collect.DataCollector;
-import bluej.compiler.CompileReason;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -253,23 +252,5 @@ public class BProject
             FXTabbedEditor fXTabbedEditor = bjProject.getDefaultFXTabbedEditor();
             fXTabbedEditor.openWebViewTab(url);
         });        
-    }
-
-    /**
-     * Schedules a compilation of the project.
-     *
-     * @param immediate If true, compile now.  Otherwise, wait for the default time
-     *                  (currently 1 second) then perform a compilation.  Any other
-     *                  compilation requests from extensions or internally (e.g. due to code
-     *                  editing) will reset the timer to 1 second again, so the compilation
-     *                  will always occur 1 second after the call to the most recent scheduleCompilation
-     *                  call.  e.g. if you call this every 900ms, compilation will never occur.
-     * @throws ProjectNotOpenException if the project has been closed by the user
-     */
-    public void scheduleCompilation(boolean immediate) throws ProjectNotOpenException
-    {
-        Project bjProject = projectId.getBluejProject();
-        // TODO this needs a package argument
-        bjProject.scheduleCompilation(immediate, CompileReason.EXTENSION, bjProject.getPackage(""));
     }
 }

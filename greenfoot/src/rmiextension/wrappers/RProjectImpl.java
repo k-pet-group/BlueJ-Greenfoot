@@ -447,11 +447,15 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     @Override
-    public void greenfootReady() throws ProjectNotOpenException, RemoteException
+    public void greenfootReady() throws RemoteException
     {
-        getBProject().scheduleCompilation(false);
+        try {
+            getBProject().getPackage("").scheduleCompilation(false);
+        }
+        catch (ProjectNotOpenException|PackageNotFoundException pne) {
+            // can't happen.
+        }
     }
-
 
     @Override
     public void startImportsScan() throws RemoteException, ProjectNotOpenException

@@ -409,4 +409,23 @@ public class BPackage
             return "BPackage: INVALID";  
         }
     }
+
+    /**
+     * Schedules a compilation of the project.
+     *
+     * @param immediate If true, compile now.  Otherwise, wait for the default time
+     *                  (currently 1 second) then perform a compilation.  Any other
+     *                  compilation requests from extensions or internally (e.g. due to code
+     *                  editing) will reset the timer to 1 second again, so the compilation
+     *                  will always occur 1 second after the call to the most recent scheduleCompilation
+     *                  call.  e.g. if you call this every 900ms, compilation will never occur.
+     * @throws ProjectNotOpenException if the project has been closed by the user
+     * @throws PackageNotFoundException if the package has been deleted
+     */
+    public void scheduleCompilation(boolean immediate) throws ProjectNotOpenException, PackageNotFoundException
+    {
+        Package bjPkg = packageId.getBluejPackage();
+        Project bjProject = bjPkg.getProject();
+        bjProject.scheduleCompilation(immediate, CompileReason.EXTENSION, bjPkg);
+    }
 }

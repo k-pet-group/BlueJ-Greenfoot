@@ -25,6 +25,7 @@ import bluej.Boot;
 import bluej.Config;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
+import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.SourceType;
 import bluej.extensions.event.ApplicationEvent;
@@ -253,9 +254,9 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
                 ProjectManager.instance().removeNewProject(directory);
 
                 try {
-                    wrapped.scheduleCompilation(false);
+                    wrapped.getPackage("").scheduleCompilation(false);
                 }
-                catch (ProjectNotOpenException e) {
+                catch (ProjectNotOpenException|PackageNotFoundException e) {
                     Debug.reportError(e);
                 }
             });
