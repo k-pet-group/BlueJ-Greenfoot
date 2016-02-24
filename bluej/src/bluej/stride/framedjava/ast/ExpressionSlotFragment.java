@@ -27,20 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import bluej.stride.framedjava.ast.links.PossibleLink;
-import bluej.stride.framedjava.ast.links.PossibleMethodUseLink;
-import bluej.stride.framedjava.ast.links.PossibleTypeLink;
-import bluej.stride.framedjava.ast.links.PossibleVarLink;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import javafx.application.Platform;
 import bluej.parser.JavaParser;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.errors.UndeclaredVariableInExpressionError;
@@ -175,7 +169,7 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
     }
 
     @Override
-    public String getJavaCode(Destination dest, ExpressionSlot<?> completing)
+    public String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator)
     {
         // If we are code completing, use the exact text:
         if (!dest.substitute() || slot == completing || (javaCode != null && Parser.parseableAsExpression(wrapForParse(javaCode))))

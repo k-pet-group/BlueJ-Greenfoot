@@ -24,9 +24,7 @@ package bluej.stride.framedjava.ast;
 import java.security.InvalidParameterException;
 import java.util.stream.Stream;
 
-import bluej.stride.framedjava.ast.JavaFragment.Destination;
 import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.ErrorShower;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
@@ -59,7 +57,7 @@ public class FrameFragment extends JavaFragment
     }
     
     @Override
-    protected String getJavaCode(Destination dest, ExpressionSlot<?> completing)
+    protected String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator)
     {
         return content;
     }

@@ -40,6 +40,7 @@ import javax.swing.text.BadLocationException;
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
+import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
@@ -310,7 +311,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     {
         return new JavaFragment() {
             @Override
-            protected String getJavaCode(Destination dest, ExpressionSlot<?> completing)
+            protected String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator)
             {
                 return getName();
             }

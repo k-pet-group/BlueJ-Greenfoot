@@ -21,17 +21,14 @@
  */
 package bluej.stride.framedjava.elements;
 
-import java.util.List;
-import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.JavaSource;
 import bluej.stride.framedjava.ast.TextSlotFragment;
-import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.ImportFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
@@ -108,7 +105,7 @@ public class ImportElement extends CodeElement
         }
 
         @Override
-        protected String getJavaCode(Destination dest, ExpressionSlot<?> completing)
+        protected String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator)
         {
             return getContent();
         }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -76,17 +76,21 @@ public class Parser
         }
     }
 
-    // We generate new names via a UUID because we don't want duplicates between
-    // different dummy names; this would cause confusion and potential nuisance
-    // compile errors
-    public static String generateNewDummyName()
+    private static final String DUMMY_STEM = "code__dummy__gf3gen__";
+
+    public static class DummyNameGenerator
     {
-        return "code__dummy__gf3gen__" + UUID.randomUUID().toString().replace('-', '_');
+        private int index = 0;
+
+        public String generateNewDummyName()
+        {
+            return DUMMY_STEM + (index++);
+        }
     }
     
     public static boolean isDummyName(String name)
     {
-        return name.startsWith("code__dummy__gf3gen__");
+        return name.startsWith(DUMMY_STEM);
     }
 
     public static boolean parseableAsNameDef(String s)

@@ -57,7 +57,7 @@ public abstract class JavaFragment
         }
     };
     
-    protected abstract String getJavaCode(Destination dest, ExpressionSlot<?> completing);
+    protected abstract String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator);
 
     @OnThread(Tag.FX)
     public abstract ErrorShower getErrorShower();

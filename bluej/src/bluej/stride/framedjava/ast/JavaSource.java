@@ -152,6 +152,7 @@ public class JavaSource
     @OnThread(Tag.Any)
     private String toJavaCodeString(Destination dest, ExpressionSlot<?> completing, Recorder recorder)
     {
+        final Parser.DummyNameGenerator nameGen = new Parser.DummyNameGenerator();
         StringBuilder sourceString = new StringBuilder();
         int lineNumber = 1;
         for (SourceLine line : lines) {
@@ -160,7 +161,7 @@ public class JavaSource
             oneLineString.append(line.indent);
             for (JavaFragment fragment : line.content) {
                 int lineLength = oneLineString.length();
-                String codeLine = fragment.getJavaCode(dest, completing);
+                String codeLine = fragment.getJavaCode(dest, completing, nameGen);
                 recorder.recordPosition(fragment, sourceLength + lineLength, lineNumber, lineLength + 1, codeLine.length());
                 if (codeLine.contains("\n") || codeLine.contains("\r")) {
                     throw new IllegalStateException("Source line contains \\n or \\r! Line: " + codeLine);

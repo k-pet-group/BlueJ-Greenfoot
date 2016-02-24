@@ -21,19 +21,12 @@
  */
 package bluej.stride.framedjava.ast;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
-import bluej.stride.framedjava.ast.links.PossibleLink;
-import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.EmptyError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.errors.UnneededSemiColonError;
 import bluej.stride.framedjava.slots.ExpressionSlot;
-import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.TextSlot;
 
 public class NameDefSlotFragment extends TextSlotFragment
@@ -58,12 +51,12 @@ public class NameDefSlotFragment extends TextSlotFragment
     }
 
     @Override
-    public String getJavaCode(Destination dest, ExpressionSlot<?> completing)
+    public String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator)
     {
         if (!dest.substitute() || (content != null && Parser.parseableAsNameDef(content)))
             return content;
         else
-            return Parser.generateNewDummyName();
+            return dummyNameGenerator.generateNewDummyName();
     }
     
     @Override

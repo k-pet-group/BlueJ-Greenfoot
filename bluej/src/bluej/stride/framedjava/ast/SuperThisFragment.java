@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.errors.ErrorShower;
 import bluej.stride.framedjava.frames.ConstructorFrame;
-import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -65,7 +64,7 @@ public class SuperThisFragment extends ChoiceSlotFragment
     }
 
     @Override
-    public String getJavaCode(Destination dest, ExpressionSlot<?> completing)
+    public String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator)
     {
         return value.getJavaCode();
     }

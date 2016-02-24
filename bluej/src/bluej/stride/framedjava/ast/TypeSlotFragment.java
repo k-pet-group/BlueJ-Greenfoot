@@ -26,14 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
-import bluej.stride.framedjava.ast.links.PossibleLink;
-import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
-import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.EmptyError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
@@ -61,7 +57,7 @@ public class TypeSlotFragment extends TextSlotFragment
     }
 
     @Override
-    public String getJavaCode(Destination dest, ExpressionSlot<?> completing)
+    public String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator)
     {
         if (!dest.substitute() || (content != null && Parser.parseableAsType(content)))
             return content;
