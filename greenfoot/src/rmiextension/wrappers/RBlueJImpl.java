@@ -35,7 +35,6 @@ import bluej.extensions.event.CompileListener;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
-import bluej.utility.ImportScanner;
 import bluej.utility.Utility;
 import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.RApplicationListener;
