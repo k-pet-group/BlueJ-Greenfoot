@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import static junit.framework.TestCase.assertEquals;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -55,11 +56,11 @@ public class GitTester
 {
 
     private static final File BLUEJ_DIR = new File("/home/heday/data/NetBeansProjects/bluej/lib"); //BlueJ's lib folder
-    private static final String PROTOCOL = "ssh"; //git communication protocol
-    private static final String SERVER = "localhost"; //server address. Usually localhost.
+    private static final String PROTOCOL = "file"; //git communication protocol
+    private static final String SERVER = "";
     private static String REMOTE_REPO_ADDRESS; //remote repository address in the filesystem.
-    private static final String USER_NAME="tester"; //username to access the repository (ssh's login)
-    private static final String PASSWORD="atsui"; //ssh's password.
+    private static final String USER_NAME=""; 
+    private static final String PASSWORD=""; 
     
     private Properties commandLineProps;
 
@@ -77,6 +78,7 @@ public class GitTester
      * General settings common to Git operations
      *
      */
+    @Before
     public void initialize()
     {
         try {
