@@ -41,17 +41,14 @@ public class ToggleBooleanProperty extends FrameOperation
 {
     private String name;
     private SimpleStringProperty label;
+    private final char key;
 
-    public ToggleBooleanProperty(InteractionManager editor, String identifier, String name, KeyCode keyCode)
+    public ToggleBooleanProperty(InteractionManager editor, String identifier, String name, char key)
     {
-        super(editor, identifier, Combine.ALL, keyCode == null ? null : new KeyCodeCombination(keyCode));
+        super(editor, identifier, Combine.ALL, null);
         this.name = name;
         this.label = new SimpleStringProperty("Toggle " + name);
-    }
-
-    public ToggleBooleanProperty(InteractionManager editor, String identifier, String name)
-    {
-        this(editor, identifier, name, null);
+        this.key = key;
     }
 
     /**
@@ -96,5 +93,15 @@ public class ToggleBooleanProperty extends FrameOperation
     public boolean onlyOnContextMenu()
     {
         return true;
+    }
+
+    public String getLabel()
+    {
+        return label.get();
+    }
+
+    public char getKey()
+    {
+        return key;
     }
 }

@@ -315,26 +315,27 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             c.insertBlockAfter(el.createFrame(getEditor()));
             c.getParentCanvas().removeBlock(this);
         }));
-        
-        addStaticFinalOperations(operations);
+
+        operations.addAll(getStaticFinalOperations());
 
         return operations;
     }
 
-    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
+    @Override
+    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
         final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
-        extensions.add(new ExtensionDescription('s', "Add/Remove static", new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME),
-                this, true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
-        extensions.add(new ExtensionDescription('n', "Add/Remove final", new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME),
-                this, true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION));
+        getStaticFinalOperations().stream().forEach(op -> extensions.add(new ExtensionDescription(op, this, true,
+                ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION)));
         return extensions;
     }
 
-    private void addStaticFinalOperations(List<FrameOperation> operations)
+    private List<ToggleBooleanProperty> getStaticFinalOperations()
     {
-        operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME, KeyCode.N));
-        operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME, KeyCode.S));
+        List<ToggleBooleanProperty> operations = new ArrayList<>();
+        operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_FINAL_METHOD, FINAL_NAME, 'n'));
+        operations.add(new ToggleBooleanProperty(getEditor(), TOGGLE_STATIC_METHOD, STATIC_NAME, 's'));
+        return operations;
     }
 
     // Used by ReturnFrame

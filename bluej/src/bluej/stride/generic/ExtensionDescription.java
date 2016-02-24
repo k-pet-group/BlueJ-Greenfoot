@@ -21,7 +21,7 @@
  */
 package bluej.stride.generic;
 
-import bluej.stride.operations.FrameOperation;
+import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXRunnable;
 
@@ -31,7 +31,7 @@ import java.util.List;
 
 public class ExtensionDescription
 {
-    public static enum ExtensionSource
+    public enum ExtensionSource
     {
         BEFORE, AFTER, INSIDE_FIRST, INSIDE_LATER, MODIFIER, SELECTION;
     }
@@ -43,7 +43,7 @@ public class ExtensionDescription
     private final List<ExtensionSource> validSources;
 
     private FXRunnable action;
-    private FrameOperation operation;
+    private ToggleBooleanProperty operation;
     private Frame frame;
 
     public ExtensionDescription(char shortcut, String description, FXRunnable action, boolean showInCatalogue, ExtensionSource firstSrc, ExtensionSource... restSrc)
@@ -52,9 +52,9 @@ public class ExtensionDescription
         this.action = action;
     }
 
-    public ExtensionDescription(char shortcut, String description, FrameOperation operation, Frame frame, boolean showInCatalogue, ExtensionSource firstSrc, ExtensionSource... restSrc)
+    public ExtensionDescription(ToggleBooleanProperty operation, Frame frame, boolean showInCatalogue, ExtensionSource firstSrc, ExtensionSource... restSrc)
     {
-        this(shortcut, description, showInCatalogue, firstSrc, restSrc);
+        this(operation.getKey(), operation.getLabel(), showInCatalogue, firstSrc, restSrc);
         this.operation = operation;
         this.frame = frame;
     }
