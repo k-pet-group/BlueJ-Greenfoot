@@ -23,7 +23,10 @@ package bluej.parser.nodes;
 
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.text.Document;
 import javax.swing.text.Element;
@@ -65,8 +68,8 @@ public abstract class JavaParentNode extends ParentParsedNode
 
     protected JavaParentNode parentNode;
     
-    protected Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
-    protected Map<String,FieldNode> variables = new HashMap<String,FieldNode>();
+    protected Map<String,ParsedNode> classNodes = new HashMap<>();
+    protected Map<String,Set<FieldNode>> variables = new HashMap<>();
 
     public JavaParentNode(JavaParentNode parent)
     {
@@ -99,9 +102,14 @@ public abstract class JavaParentNode extends ParentParsedNode
     public void insertVariable(FieldNode varNode, int pos, int size)
     {
         super.insertNode(varNode, pos, size);
-        if (! variables.containsKey(varNode.getName())) {
-            variables.put(varNode.getName(), varNode);
+        
+        Set<FieldNode> varList = variables.get(varNode.getName());
+        if (varList == null) {
+            varList = new HashSet<FieldNode>(1);
+            variables.put(varNode.getName(), varList);
         }
+        
+        varList.add(varNode);
     }
     
     /**
@@ -123,10 +131,19 @@ public abstract class JavaParentNode extends ParentParsedNode
             classNodes.put(child.getName(), child);
         }
         if (child.getNodeType() == NODETYPE_FIELD) {
-            if (variables.get(oldName) == child) {
-                variables.remove(oldName);
+            Set<FieldNode> varset = variables.get(oldName);
+            if (varset != null) {
+                varset.remove(child);
+                if (varset.isEmpty()) {
+                    variables.remove(oldName);
+                }
             }
-            variables.put(child.getName(), (FieldNode) child);
+            varset = variables.get(child.getName());
+            if (varset == null) {
+                varset = new HashSet<>();
+                variables.put(child.getName(), varset);
+            }
+            varset.add((FieldNode) child);
         }
     }
 
@@ -140,8 +157,9 @@ public abstract class JavaParentNode extends ParentParsedNode
             if (classNodes.get(childName) == child.getNode()) {
                 classNodes.remove(childName);
             }
-            if (variables.get(childName) == child.getNode()) {
-                variables.remove(childName);
+            Set<FieldNode> varset = variables.get(childName);
+            if (varset != null) {
+                varset.remove(child.getNode());
             }
         }
     }
@@ -204,8 +222,9 @@ public abstract class JavaParentNode extends ParentParsedNode
      */
     public JavaEntity getValueEntity(String name, Reflective querySource)
     {
-        FieldNode var = variables.get(name);
-        if (var != null) {
+        Set<FieldNode> varset = variables.get(name);
+        if (varset != null && ! varset.isEmpty()) {
+            FieldNode var = varset.iterator().next();
             JavaEntity fieldType = var.getFieldType().resolveAsType();
             if (fieldType != null) {
                 return new ValueEntity(fieldType.getType());
@@ -237,6 +256,43 @@ public abstract class JavaParentNode extends ParentParsedNode
     public JavaEntity getValueEntity(String name, Reflective querySource, int fromPosition)
     {
         return getValueEntity(name, querySource);
+    }
+    
+    /**
+     * Resolve a value, based on what is visible from a given position within the node,
+     * not allowing for forward declarations.
+     * 
+     * @param name    reference symbol
+     * @param querySource  container of reference symbol for resolution purpose
+     * @param fromPosition   position within the node to resolve at
+     * @return    A JavaEntity reflecting the result of the resolution
+     */
+    protected JavaEntity getPositionedValueEntity(String name, Reflective querySource, int fromPosition)
+    {
+        Set<FieldNode> varset = variables.get(name);
+        if (varset != null) {
+            Iterator<FieldNode> i = varset.iterator();
+            while (i.hasNext()) {
+                FieldNode var = i.next();
+                if (var.getOffsetFromParent() <= fromPosition) {
+                    JavaEntity fieldType = var.getFieldType().resolveAsType();
+                    if (fieldType != null) {
+                        return new ValueEntity(fieldType.getType());
+                    }
+                }
+            }
+        }
+        
+        JavaEntity rval = null;
+        if (parentNode != null) {
+            rval = parentNode.getValueEntity(name, querySource, getOffsetFromParent());
+        }
+        
+        if (rval == null) {
+            rval = resolvePackageOrClass(name, querySource, fromPosition);
+        }
+        
+        return rval;
     }
     
     @Override

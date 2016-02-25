@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
-import bluej.parser.entity.ValueEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
@@ -93,24 +92,7 @@ public class MethodBodyNode extends IncrementalParsingNode
     @Override
     public JavaEntity getValueEntity(String name, Reflective querySource, int fromPosition)
     {
-        FieldNode var = variables.get(name);
-        if (var != null && var.getOffsetFromParent() <= fromPosition) {
-            JavaEntity fieldType = var.getFieldType().resolveAsType();
-            if (fieldType != null) {
-                return new ValueEntity(fieldType.getType());
-            }
-        }
-        
-        JavaEntity rval = null;
-        if (parentNode != null) {
-            rval = parentNode.getValueEntity(name, querySource, getOffsetFromParent());
-        }
-        
-        if (rval == null) {
-            rval = resolvePackageOrClass(name, querySource, fromPosition);
-        }
-        
-        return rval;
+        return getPositionedValueEntity(name, querySource, fromPosition);
     }
     
     @Override
