@@ -2181,8 +2181,13 @@ public class Project implements DebuggerListener, InspectorManager
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        for (Package p : scheduledPkgs) {
-                            p.compileOnceIdle(latestCompileReason);
+                        synchronized (Project.this)
+                        {
+                            for (Package p : scheduledPkgs)
+                            {
+                                p.compileOnceIdle(latestCompileReason);
+                            }
+                            scheduledPkgs.clear();
                         }
                     }
                 };
