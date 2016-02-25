@@ -61,7 +61,6 @@ public class GitTester
     private static final String USER_NAME=""; 
     private static final String PASSWORD=""; 
     
-    private Properties commandLineProps;
 
     private File fileTestA;
 
@@ -81,7 +80,6 @@ public class GitTester
     public void initialize()
     {
         try {
-            commandLineProps = new Properties();
             InitConfig.init();
             gitProvider = loadProvider("bluej.groupwork.git.GitProvider");
             initRepository();
@@ -94,23 +92,6 @@ public class GitTester
     {
         File repoFolder = Files.createTempDirectory("test_git_repository").toFile();
         repoFolder.deleteOnExit(); 
-        
-        //set POSIX attributes.        
-        Set<PosixFilePermission> perms = new HashSet<>();
-        //add owners permission
-        perms.add(PosixFilePermission.OWNER_READ);
-        perms.add(PosixFilePermission.OWNER_WRITE);
-        perms.add(PosixFilePermission.OWNER_EXECUTE);
-        //add group permissions
-        perms.add(PosixFilePermission.GROUP_READ);
-        perms.add(PosixFilePermission.GROUP_WRITE);
-        perms.add(PosixFilePermission.GROUP_EXECUTE);
-        //add others permissions
-        perms.add(PosixFilePermission.OTHERS_READ);
-        perms.add(PosixFilePermission.OTHERS_WRITE);
-        perms.add(PosixFilePermission.OTHERS_EXECUTE);
-        
-        Files.setPosixFilePermissions(repoFolder.toPath(), perms);
         
         REMOTE_REPO_ADDRESS = repoFolder.getAbsolutePath();
         org.eclipse.jgit.lib.Repository r = new FileRepositoryBuilder().setGitDir(repoFolder).setBare().build();
