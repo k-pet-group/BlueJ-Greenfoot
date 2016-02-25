@@ -65,8 +65,6 @@ import javax.swing.text.TextAction;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.MoeIndent.AutoIndentInformation;
@@ -114,7 +112,7 @@ public final class MoeActions
     public FindNextAction findNextAction;
     public FindNextBackwardAction findNextBackwardAction;
     // frequently needed actions
-    public NextErrorAction nextErrorAction;
+    public CompileOrNextErrorAction compileOrNextErrorAction;
     public Action contentAssistAction;
     private Action[] actionTable; // table of all known actions
     private HashMap<Object, Action> actions; // the same actions in a hash-map
@@ -543,7 +541,7 @@ public final class MoeActions
     // next error.
     public void setNextErrorEnabled(boolean enabled)
     {
-        nextErrorAction.setEnabled(enabled);
+        compileOrNextErrorAction.setEnabled(enabled);
     }
 
     // --------------------------------------------------------------------
@@ -744,7 +742,7 @@ public final class MoeActions
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), actions.get("autoindent"));
             }
             if (version < 310) {
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK ), actions.get("next-error"));
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK ), actions.get("compile"));
             }
             return true;
         }
@@ -1095,7 +1093,7 @@ public final class MoeActions
     {
         undoAction = new UndoAction(editor);
         redoAction = new RedoAction(editor);
-        nextErrorAction = new NextErrorAction(editor);
+        compileOrNextErrorAction = new CompileOrNextErrorAction(editor);
 
         // get all actions into arrays
         Action[] textActions = textComponent.getActions();
@@ -1147,7 +1145,7 @@ public final class MoeActions
                 findNextAction=new FindNextAction(editor),
                 findNextBackwardAction=new FindNextBackwardAction(editor),
                 new ReplaceAction(editor),
-                nextErrorAction, 
+                compileOrNextErrorAction,
                 new GoToLineAction(editor), 
                 new ToggleInterfaceAction(editor), 
                 new ToggleBreakPointAction(editor),
@@ -1269,7 +1267,7 @@ public final class MoeActions
                 actions.get("find-next"),
                 actions.get("find-next-backward"), 
                 actions.get("replace"),
-                actions.get("next-error"), 
+                actions.get("compile"),
                 actions.get("toggle-interface-view"),
                 actions.get("toggle-breakpoint"), 
                 actions.get("go-to-line"),
@@ -1323,7 +1321,7 @@ public final class MoeActions
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_SHORTCUT_MASK), actions.get("find-next-backward"));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK), actions.get("replace"));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_L, SHORTCUT_MASK), actions.get("go-to-line"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK), actions.get("next-error"));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK), actions.get("compile"));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_J, SHORTCUT_MASK), actions.get("toggle-interface-view"));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_B, SHORTCUT_MASK), actions.get("toggle-breakpoint"));
         // "key-bindings" not bound
@@ -2278,18 +2276,18 @@ public final class MoeActions
         }
     }
 
-    public class NextErrorAction extends MoeAbstractAction
+    public class CompileOrNextErrorAction extends MoeAbstractAction
     {
-        public NextErrorAction(MoeEditor editor)
+        public CompileOrNextErrorAction(MoeEditor editor)
         {
-            super("next-error", editor);
+            super("compile", editor);
             setEnabled(false);
         }
 
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            getEditor().showNextError();
+            getEditor().compileOrShowNextError();
         }
     }
 

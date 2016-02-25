@@ -252,7 +252,6 @@ public final class MoeEditor extends JPanel
     private int oldCaretLineNumber = -1;
     private ErrorDisplay errorDisplay;
     private boolean madeChangeOnCurrentLine = false;
-    private AbstractButton nextErrorButton;
     /** Manages display of compiler and parse errors */
     private final MoeErrorManager errorManager = new MoeErrorManager(this, enable ->
         setNextErrorEnabled(enable || madeChangeOnCurrentLine, madeChangeOnCurrentLine)
@@ -430,7 +429,7 @@ public final class MoeEditor extends JPanel
     {
         if (readMeActions == null) {
             readMeActions = new ArrayList<>();
-            readMeActions.add("next-error");
+            readMeActions.add("compile");
             readMeActions.add("autoindent");
             readMeActions.add("insert-method");
             readMeActions.add("add-javadoc");
@@ -453,7 +452,7 @@ public final class MoeEditor extends JPanel
             editActions.add("reload");
             editActions.add("print");
             editActions.add("page-setup");
-            editActions.add("next-error");
+            editActions.add("compile");
             editActions.add("cut-to-clipboard");
             editActions.add("indent-block");
             editActions.add("deindent-block");
@@ -3508,8 +3507,6 @@ public final class MoeEditor extends JPanel
         if (action != null) {
             Action tbAction = new ToolbarAction(action, label);
             button = new JButton(tbAction);
-            if (key.equals("next-error"))
-                nextErrorButton = button;
         }
         else {
             button = new JButton("Unknown");
@@ -4060,17 +4057,19 @@ public final class MoeEditor extends JPanel
         return windowTitle;
     }
 
-    public void showNextError()
+    public void compileOrShowNextError()
     {
         if (madeChangeOnCurrentLine)
         {
             watcher.scheduleCompilation(true, CompileReason.USER);
             madeChangeOnCurrentLine = false;
         }
-        
-        int pos = errorManager.getNextErrorPos(sourcePane.getCaretPosition());
-        if (pos >= 0)
-            sourcePane.setCaretPosition(pos);
+        else
+        {
+            int pos = errorManager.getNextErrorPos(sourcePane.getCaretPosition());
+            if (pos >= 0)
+                sourcePane.setCaretPosition(pos);
+        }
     }
     
     private void setNextErrorEnabled(boolean enabled, boolean compile)
@@ -4078,7 +4077,6 @@ public final class MoeEditor extends JPanel
         if (actions != null)
         {
             actions.setNextErrorEnabled(enabled);
-            nextErrorButton.setText(Config.getString(compile ? "editor.compileLabel" : "editor.next-errorLabel"));
         }
     }
 

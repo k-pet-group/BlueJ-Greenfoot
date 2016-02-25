@@ -175,7 +175,6 @@ prefmgr.raspberryPi.NoteLine3=Para m\u00e1s informaci\u00f3n, por favor vea la l
 editor.title=BlueJ: Editor
 
 #button labels for toolbar commands
-editor.next-errorLabel = Siguiente Error
 editor.compileLabel = Compilar
 editor.undoLabel = Deshacer
 editor.cutLabel = Cortar
