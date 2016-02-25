@@ -110,7 +110,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     private JavaFragment classKeyword;
     /**
      * The generated Java code for this class, used for doing code completion without
-     * needing to always be flushing to disk.
+     * needing to always regenerate the document.
      */
     private DocAndPositions sourceDocument;
     // Keep track of which slot was completing when we generated sourceDocument,
@@ -121,8 +121,13 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
      * that we use the correct document for the given content, even when we are hopping
      * across threads and potentially generating several documents in a short space
      * of time, concurrent with looking up information in them.
+     *
+     * This cache does not have a size limit, but that shouldn't matter as it is per-instance
+     * so the only potential differences in source code are down to which slot is being completed,
+     * giving a limit on the number of documents we could generate for a given source version
+     * (each ClassElement is immutable).
      */
-    private HashMap<String, DocAndPositions> documentCache = new HashMap<>();
+    private final HashMap<String, DocAndPositions> documentCache = new HashMap<>();
 
     /**
      * Creates a class element from the given frame (when generating code elements for
