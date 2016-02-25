@@ -275,13 +275,6 @@ public interface Editor
      */
     void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodCall, Consumer<Boolean> after);
 
-    /**
-     * Shows the next error in the editor, if there are any.  This will differ slightly by editor,
-     * but broadly: if the cursor is outside an error, it should be taken to the next error (and details displayed)
-     * or if it is already in an error, it should be taken to the next error, cycling if necessary. 
-     */
-    void showNextError();
-
     void cancelFreshState();
 
     void focusMethod(String methodName);

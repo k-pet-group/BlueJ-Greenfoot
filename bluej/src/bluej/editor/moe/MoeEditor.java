@@ -4059,8 +4059,7 @@ public final class MoeEditor extends JPanel
     {
         return windowTitle;
     }
-    
-    @Override
+
     public void showNextError()
     {
         if (madeChangeOnCurrentLine)

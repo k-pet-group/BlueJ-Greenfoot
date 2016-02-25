@@ -703,13 +703,6 @@ public class FrameEditor implements Editor
             {
                 return FrameEditor.this.compileStarted();    
             }
-            
-            @Override
-            @OnThread(Tag.Swing)
-            public void showNextError()
-            {
-                FrameEditor.this.showNextError();
-            }
 
             @Override
             @OnThread(Tag.Swing)
@@ -1218,7 +1211,6 @@ public class FrameEditor implements Editor
                   .collect(Collectors.toList());
     }
 
-    @Override
     public void showNextError()
     {
        Platform.runLater(() -> panel.nextError());
