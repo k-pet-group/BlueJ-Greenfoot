@@ -30,7 +30,6 @@ import bluej.pkgmgr.PkgMgrFrame;
  * be compiled.
  * 
  * @author Davin McCall
- * @version $Id: CompileAction.java 15289 2016-01-15 17:08:04Z nccb $
  */
 final public class CompileAction extends PkgMgrAction
 {
@@ -43,6 +42,13 @@ final public class CompileAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.getPackage().compile(CompileReason.USER);
+        
+        if (! pmf.getPackage().isDebuggerIdle()) {
+            // The debugger is NOT idle, show a message about it.
+            pmf.getPackage().showMessage("compile-while-executing");
+        }
+        else {
+            pmf.getPackage().compile(CompileReason.USER);
+        }
     }
 }

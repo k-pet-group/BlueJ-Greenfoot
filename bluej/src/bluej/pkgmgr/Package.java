@@ -1265,17 +1265,22 @@ public final class Package extends Graph
     }
     
     /**
-     * The standard compile user function: Find and compile all uncompiled
-     * classes.
+     * Find and compile all uncompiled classes, and get reports of compilation
+     * status/results via the specified CompileObserver.
+     * <p>
+     * In general this should be called only when the debugger is
+     * in the idle state (or at least not when executing user code). A new
+     * project classloader will be created which can be used to load the
+     * newly compiled classes, once they are ready.
+     * 
      * @param observer  An observer to be notified of compilation progress.
      *                  The callback methods will be called on the Swing EDT.
+     *                  The 'endCompile' method will always be called; other
+     *                  methods may not be called if the compilation is aborted
+     *                  (sources cannot be saved etc).
      */
     public void compile(CompileObserver compObserver, CompileReason reason)
     {
-        if (!checkCompile()) {
-            return;
-        }
-
         Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
 
         try {
@@ -1297,6 +1302,11 @@ public final class Package extends Graph
                 project.newRemoteClassLoaderLeavingBreakpoints();
                 doCompile(toCompile, new PackageCompileObserver(compObserver), reason);
             }
+            else {
+                if (compObserver != null) {
+                    compObserver.endCompile(new CompileInputFile[0], true);
+                }
+            }
         }
         catch (IOException ioe) {
             // Abort compile
@@ -1304,12 +1314,19 @@ public final class Package extends Graph
             for (ClassTarget ct : toCompile) {
                 ct.setQueued(false);
             }
+            if (compObserver != null) {
+                compObserver.endCompile(new CompileInputFile[0], false);
+            }
         }
     }
     
     /**
-     * The standard compile user function: Find and compile all uncompiled
-     * classes.
+     * Find and compile all uncompiled classes.
+     * <p>
+     * In general this should be called only when the debugger is
+     * in the idle state (or at least not when executing user code). A new
+     * project classloader will be created which can be used to load the
+     * newly compiled classes, once they are ready.
      */
     public void compile(CompileReason reason)
     {
