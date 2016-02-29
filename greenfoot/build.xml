@@ -51,7 +51,7 @@
     <property name="greenfoot.version.nosuffix" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
 
     <!-- Suffix added after version number in output files -->
-    <property name="greenfoot.rcsuffix" value=""/>
+    <property name="greenfoot.rcsuffix" value="-rc1"/>
 
     <!-- Location of the bluej lib dir -->
     <property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
@@ -87,9 +87,11 @@
     <property name="bluej.installer.jar"  location="${bluej.projectdir}/package/Greenfoot-generic.jar"/>
     <property name="bluej.dist.jar"  location="${bluej.projectdir}/package/greenfoot-dist.jar"/>
     <property name="greenfoot.dist.mac"  location="${bluej.projectdir}/package/Greenfoot-mac.zip"/>
+    <property name="bluej.msi" location="${bluej.projectdir}/package/winsetup/greenfoot-${greenfoot.version}-bundled.msi"/>
+    <property name="bluej.standalone" location="${bluej.projectdir}/package/winsetup/greenfoot-standalone-${greenfoot.version}.zip"/>
 
     <!-- Location of the zip with the sources for greenfoot -->
-    <property name="greenfoot.source.zip" location="package/Greenfoot-source-${greenfoot.version}.zip"/>
+    <property name="greenfoot.source.zip" location="package/Greenfoot-source-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
     
     <!-- Location of the source files for greenfoot -->
     <property name="src" location="src"/>
@@ -521,22 +523,24 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
     <target name="debian-dist">
         <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="debian-dist" />
-        <move file="${bluej.projectdir}/package/greenfoot-${greenfoot.version}.deb" tofile="${package}/greenfoot-${greenfoot.version.nodots}.deb" />
+        <move file="${bluej.projectdir}/package/greenfoot-${greenfoot.version}.deb" tofile="${package}/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
     </target>
 
     <target name="windows-standalone" depends="update-images, dist">
         <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-standalone" />
+        <move file="${bluej.standalone}" tofile="${package}/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
     </target>
 
     <target name="windows-msi-dist" depends="update-images, dist">
         <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-msi-dist" />
         <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-msi-bundled-dist" />
+        <move file="${bluej.msi}" tofile="${package}/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.msi"/>
     </target>
 
     <target name="mac-dist" depends="dist">
         <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="mac-dist" />
-        <move file="${greenfoot.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
-        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
+        <move file="${greenfoot.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}-unsigned.zip"/>
+        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}-unsigned.zip"/>
     </target>
 
     <target name="clean" description="clean up" >
