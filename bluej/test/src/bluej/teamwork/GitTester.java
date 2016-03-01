@@ -44,12 +44,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.TestCase;
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -226,6 +222,47 @@ public class GitTester
             Assert.fail("Something went wrong.");
         }
 
+    }
+
+    @Test
+    public void testAddFolderWithFile()
+    {
+        try {
+            testCheckoutRepo();
+            File tempFolder, tempFile;
+            tempFolder = Files.createTempDirectory(fileTestA.toPath(), "addedDirectory").toFile();
+            tempFolder.deleteOnExit();
+            tempFolder.mkdir();
+            
+            PrintWriter tempFileWriter;
+            tempFile = File.createTempFile("CreatedFile", "inSubdirectory", tempFolder);
+            tempFile.deleteOnExit();
+            tempFileWriter = new PrintWriter(tempFile);
+            tempFileWriter.println("random content.");
+            tempFileWriter.close();
+            
+            LinkedHashSet<File> newFiles = new LinkedHashSet<>();
+            newFiles.add(tempFile);
+            newFiles.add(tempFolder);
+
+            TeamworkCommand commitAllCmd = repository.commitAll(newFiles, new LinkedHashSet<>(), new LinkedHashSet<>(), newFiles, "This commit was made by the GitTester. It should add a file to the repository.");
+            response = commitAllCmd.getResult();
+
+            assertEquals(response.isError(), false);
+            assertEquals(tempFolder.exists(), true);
+
+            TestStatusListener listener;
+            listener = new TestStatusListener();
+            TeamworkCommand repoStatus = repository.getStatus(listener, new CodeFileFilter(tsc.getIgnoreFiles(), false, repository.getMetadataFilter()), true);
+            response = repoStatus.getResult();
+            assertEquals(listener.getResources().size(), 1);
+            assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDSCHECKOUT);
+            assertEquals(listener.getResources().get(0).getFile().getAbsolutePath(), tempFile.getAbsolutePath());
+
+        } catch (IOException ex) {
+            Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
+            Assert.fail("Something went wrong.");
+        }
     }
 
     private static TeamworkProvider loadProvider(String name) throws Throwable
