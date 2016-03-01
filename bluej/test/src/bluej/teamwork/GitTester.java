@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Level;
@@ -66,7 +67,7 @@ public class GitTester
 
     private File fileTestA;
 
-    private Repository repository;
+    private Repository repositoryA;
     private TeamSettingsController tsc;
 
     private TeamworkCommandResult response;
@@ -128,10 +129,10 @@ public class GitTester
                 fileTestA.deleteOnExit();
                 tsc = new TeamSettingsController(fileTestA.getAbsoluteFile());
 
-                repository = gitProvider.getRepository(fileTestA, settings);
+                repositoryA = gitProvider.getRepository(fileTestA, settings);
 
                 // Select parent directory for the new project
-                TeamworkCommand checkoutCmd = repository.checkout(fileTestA);
+                TeamworkCommand checkoutCmd = repositoryA.checkout(fileTestA);
                 response = checkoutCmd.getResult();
 
                 failed = response.isError();
@@ -157,7 +158,7 @@ public class GitTester
             tempFileWriter.close();
             LinkedHashSet<File> newFiles = new LinkedHashSet<>();
             newFiles.add(tempFile);
-            TeamworkCommand commitAllCmd = repository.commitAll(newFiles, new LinkedHashSet<>(), new LinkedHashSet<>(), newFiles, "This commit was made by the GitTester. It should add a file to the repository.");
+            TeamworkCommand commitAllCmd = repositoryA.commitAll(newFiles, new LinkedHashSet<>(), new LinkedHashSet<>(), newFiles, "This commit was made by the GitTester. It should add a file to the repository.");
             commitAllCmd.getResult();
             try (Git repo = Git.open(fileTestA)) {
                 repo.push().call();
@@ -195,11 +196,7 @@ public class GitTester
             } finally {
                 if (tempFileWriter != null) {
                     tempFileWriter.close();
-                    LinkedHashSet<File> newFiles = new LinkedHashSet<>();
-                    newFiles.add(tempFile);
-
-                    TeamworkCommand commitAllCmd = repository.commitAll(newFiles, new LinkedHashSet<>(), new LinkedHashSet<>(), newFiles, "This commit was made by the GitTester. It should add a file to the repository.");
-                    response = commitAllCmd.getResult();
+                    response = addFileToRepo(tempFile);
 
                 }
 
@@ -210,7 +207,7 @@ public class GitTester
             assertEquals(tempFile.exists(), true);
             TestStatusListener listener;
             listener = new TestStatusListener();
-            TeamworkCommand repoStatus = repository.getStatus(listener, new CodeFileFilter(tsc.getIgnoreFiles(), false, repository.getMetadataFilter()), false);
+            TeamworkCommand repoStatus = repositoryA.getStatus(listener, new CodeFileFilter(tsc.getIgnoreFiles(), false, repositoryA.getMetadataFilter()), false);
             response = repoStatus.getResult();
 
             assertEquals(listener.getResources().size(), 1);
@@ -224,6 +221,16 @@ public class GitTester
 
     }
 
+    private TeamworkCommandResult addFileToRepo(File... files)
+    {
+        LinkedHashSet<File> newFiles = new LinkedHashSet<>();
+        newFiles.addAll(Arrays.asList(files));
+        TeamworkCommand commitAllCmd = repositoryA.commitAll(newFiles, new LinkedHashSet<>(), new LinkedHashSet<>(), newFiles, "This commit was made by the GitTester. It should add a file to the repository.");
+        response = commitAllCmd.getResult();
+        return response;
+    }
+    
+
     @Test
     public void testAddFolderWithFile()
     {
@@ -233,27 +240,22 @@ public class GitTester
             tempFolder = Files.createTempDirectory(fileTestA.toPath(), "addedDirectory").toFile();
             tempFolder.deleteOnExit();
             tempFolder.mkdir();
-            
+
             PrintWriter tempFileWriter;
             tempFile = File.createTempFile("CreatedFile", "inSubdirectory", tempFolder);
             tempFile.deleteOnExit();
             tempFileWriter = new PrintWriter(tempFile);
             tempFileWriter.println("random content.");
             tempFileWriter.close();
-            
-            LinkedHashSet<File> newFiles = new LinkedHashSet<>();
-            newFiles.add(tempFile);
-            newFiles.add(tempFolder);
 
-            TeamworkCommand commitAllCmd = repository.commitAll(newFiles, new LinkedHashSet<>(), new LinkedHashSet<>(), newFiles, "This commit was made by the GitTester. It should add a file to the repository.");
-            response = commitAllCmd.getResult();
+            response = addFileToRepo(new File[]{tempFolder, tempFile});
 
             assertEquals(response.isError(), false);
             assertEquals(tempFolder.exists(), true);
 
             TestStatusListener listener;
             listener = new TestStatusListener();
-            TeamworkCommand repoStatus = repository.getStatus(listener, new CodeFileFilter(tsc.getIgnoreFiles(), false, repository.getMetadataFilter()), true);
+            TeamworkCommand repoStatus = repositoryA.getStatus(listener, new CodeFileFilter(tsc.getIgnoreFiles(), false, repositoryA.getMetadataFilter()), true);
             response = repoStatus.getResult();
             assertEquals(listener.getResources().size(), 1);
             assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDSCHECKOUT);
