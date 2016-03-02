@@ -40,13 +40,10 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.revwalk.RevWalkUtils;
-import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 /**
@@ -85,7 +82,15 @@ public class GitStatusCommand extends GitCommand
             });
             
             s.getUncommittedChanges().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSCOMMIT)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
+                TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
+                if ( existingStatusInfo != null){
+                    //this file was missing and uncommited -> deleted.
+                    //update the file status.
+                    existingStatusInfo.setStatus(teamInfo.getStatus());
+                } else {
+                    //add this new entry to the returnInfo.
+                    returnInfo.add(teamInfo);
+                }
             });
 
             s.getConflicting().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSMERGE)).forEach((teamInfo) -> {
@@ -124,7 +129,7 @@ public class GitStatusCommand extends GitCommand
         }
         return new TeamworkCommandResult();
     }
-
+    
     /**
      * checks if a file already has an entry on returnInfo
      *
