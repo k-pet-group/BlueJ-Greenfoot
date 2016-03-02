@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,6 @@ package bluej.debugger;
  * This class holds a location in some source code
  *
  * @author  Michael Kolling
- * @version $Id: SourceLocation.java 6215 2009-03-30 13:28:25Z polle $
  */
 public final class SourceLocation
 {
@@ -34,6 +33,13 @@ public final class SourceLocation
     private String methodname;
     private int lineNumber;
 
+    /**
+     * Construct a SourceLocation instance.
+     * @param classname   Name of the class
+     * @param filename    Name of the source file, relative to the source root (may be null)
+     * @param methodname  Name of the method
+     * @param lineNumber  Line number
+     */
     public SourceLocation(String classname, String filename, 
                           String methodname, int lineNumber)
     {
@@ -48,6 +54,10 @@ public final class SourceLocation
         return classname;
     }
 
+    /**
+     * Get the name of the source file corresponding to this SourceLocation, if known.
+     * @return  The relative path to the source file, or null
+     */
     public String getFileName()
     {
         return filename;

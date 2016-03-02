@@ -2552,12 +2552,15 @@ public final class Package extends Graph
 
         while (!done && iter.hasNext()) {
             SourceLocation loc = iter.next();
-            String filename = new File(getPath(), loc.getFileName()).getPath();
-            int lineNo = loc.getLineNumber();
-            done = showEditorMessage(filename, lineNo, message, true, true, "exception");
-            if (firstTime && !done) {
-                message += " (in " + loc.getClassName() + ")";
-                firstTime = false;
+            String locFileName = loc.getFileName();
+            if (locFileName != null) {
+                String filename = new File(getPath(), locFileName).getPath();
+                int lineNo = loc.getLineNumber();
+                done = showEditorMessage(filename, lineNo, message, true, true, "exception");
+                if (firstTime && !done) {
+                    message += " (in " + loc.getClassName() + ")";
+                    firstTime = false;
+                }
             }
         }
         if (!done) {
