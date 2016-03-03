@@ -80,6 +80,16 @@ public interface Repository
      * This is used *only* by distributed version control.
      */
     public TeamworkCommand pushChanges();
+    
+    /**
+     * Pull project changes from remote repository.
+     * This is used *only* by distributed version control.
+     */
+    public default TeamworkCommand pullChanges()
+    {
+        return null;
+    }
+
     /**
      * Get status of all the given files.
      * Returns a List of TeamStatusInfo.
