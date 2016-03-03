@@ -29,9 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ObjectId;
@@ -72,17 +70,15 @@ public class GitMergeCommand extends GitCommand implements UpdateResults
 
                 ResolveMerger resolveMerger = (ResolveMerger) MergeStrategy.RESOLVE.newMerger(repo.getRepository());
 
-                boolean isMergeSuccessful = resolveMerger.merge(false, new ObjectId[]{masterId, originMaster});
+                boolean isMergeSuccessful = resolveMerger.merge(true, new ObjectId[]{masterId, originMaster});
                 if (isMergeSuccessful) {
                     return new TeamworkCommandResult(); //nothing to be done.
                 } else {
                     //Check what went wrong.
-                    Map<String, ResolveMerger.MergeFailureReason> mergeConflicts = resolveMerger.getFailingPaths();
-                    LinkedList<String> keys = new LinkedList<>(mergeConflicts.keySet());
-                    for (String key : keys) {
-                        File f = new File(this.getRepository().getProjectPath(), key);
+                    List<String> mergeConflicts = resolveMerger.getUnmergedPaths();
+                    mergeConflicts.stream().map((unmergetPath) -> new File(this.getRepository().getProjectPath(), unmergetPath)).forEach((f) -> {
                         this.conflicts.add(f);
-                    }
+                    });
                 }
 
                 if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
@@ -98,13 +94,13 @@ public class GitMergeCommand extends GitCommand implements UpdateResults
     @Override
     public List<File> getConflicts()
     {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return conflicts;
     }
 
     @Override
     public Set<File> getBinaryConflicts()
     {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return binaryConflicts;
     }
 
     @Override
