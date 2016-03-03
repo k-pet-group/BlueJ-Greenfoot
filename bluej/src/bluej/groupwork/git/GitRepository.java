@@ -132,6 +132,12 @@ public class GitRepository implements Repository
     {
         return new GitPushChangesCommand(this);
     }
+    
+    @Override
+    public TeamworkCommand pullChanges()
+    {
+        return new GitPullChangesCommand(this);
+    }
 
     @Override
     public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote) 
