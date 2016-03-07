@@ -1084,13 +1084,6 @@ public class FrameEditor implements Editor
         return !earlyList.isEmpty();
     }
 
-
-    public boolean readyToCompile()
-    {
-        // Hacky proxy for this, but it will do for now:
-        return pkg.getDebugger() != null;
-    }
-
     public AssistContent[] getCompletions(TopLevelCodeElement allCode, PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl)
     {
         CodeSuggestions suggests = allCode.getCodeSuggestions(pos, completing);
