@@ -28,7 +28,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 15437 2016-02-09 00:08:56Z fdlh $
+ * @version $Id: TeamStatusInfo.java 15575 2016-03-07 01:49:19Z fdlh $
  */
 public class TeamStatusInfo
 {
@@ -91,7 +91,29 @@ public class TeamStatusInfo
     
     /* It has no status, only used for default constructor while waiting for cvs */
     public final static int STATUS_BLANK = 11;
+
+    /* File needs to be pushed to remote repository*/
+    public final static int STATUS_NEEDS_PUSH = 16;
+
+    /* File is up-to-date on the remote repository*/
+    public final static int REMOTE_STATUS_UPTODATE = 17;
+
+    /* File has been created on remote repository */
+    public final static int REMOTE_STATUS_ADDED = 18;
     
+    /* File has been deleted on remote repository */
+    public final static int REMOTE_STATUS_DELETED = 19;
+    
+    /* File has been modified on remote repository */
+    public final static int REMOTE_STATUS_MODIFIED = 20;
+    
+    /* File has been removed on the remote repository */
+    //public final static int REMOTE_STATUS_REMOVED = 21;
+    
+    /* File has been renamed */
+    public final static int REMOTE_STATUS_RENAMED = 21;
+    
+
     public final static String [] statusStrings = {
         "team.statusinfo.upToDate",
         "team.statusinfo.needsCheckout",
@@ -107,7 +129,14 @@ public class TeamStatusInfo
         "",
         "team.statusinfo.conflictAdd",
         "team.statusinfo.conflictLMRD",
-        "team.statusinfo.conflictLDRM"
+        "team.statusinfo.conflictLDRM",
+        "team.statusinfo.renamed",
+        "team.statusinfo.needsPush",
+        "team.statusinfo.upToDate",
+        "team.statusinfo.remoteAdded",
+        "team.statusinfo.remoteDeleted",
+        "team.statusinfo.remoteModified",
+        "team.statusinfo.remoteRenamed"
     };
     
     /**
@@ -125,7 +154,8 @@ public class TeamStatusInfo
         this.localVersion = localVersion;
         this.remoteVersion = remoteVersion;
         this.status = status;
-        this.remoteStatus = TeamStatusInfo.STATUS_BLANK;
+        this.remoteStatus = TeamStatusInfo.REMOTE_STATUS_UPTODATE; //no information about the remote status, therefore assume it is up-to-date: 
+                                                                   //this will be re-writen by getStatus command, if necessary.
     }
     
     /**
