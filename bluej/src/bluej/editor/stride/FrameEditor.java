@@ -316,8 +316,9 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FX)
     private SaveResult _saveFX()
     {
-        if (!changedSinceLastSave)
+        if (!changedSinceLastSave) {
             return new SaveResult(lastSavedSource, lastSavedJavaFX);
+        }
 
         try
         {
@@ -349,6 +350,7 @@ public class FrameEditor implements Editor
             lastSavedSource = Utility.serialiseCodeToString(source.toXML());
         
             panel.saved();
+            lastSource = panel.getSource();
             return new SaveResult(lastSavedSource, lastSavedJavaFX);
         }
         catch (IOException e)
