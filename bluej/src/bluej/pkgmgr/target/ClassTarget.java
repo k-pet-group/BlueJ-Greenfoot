@@ -390,27 +390,31 @@ public class ClassTarget extends DependentTarget
     public void setState(int newState)
     {
         if (state != newState) {
+            boolean oldKnownError = knownError;
             getPackage().getProject().removeInspectorInstance(getQualifiedName());
             
             if (newState == S_COMPILING)
             {
                 knownError = false;
-                if (getSourceType() == SourceType.Stride)
-                    getEditor(); // Open the editor (doesn't show anything, but allows access to source)
+                if (getSourceType() == SourceType.Stride) {
+                    getEditor(); // Create editor if necessary
+                }
                 if (editor != null)
                 {
-                    if (editor.compileStarted())
-                        markKnownError();
+                    if (editor.compileStarted()) {
+                        knownError = true;
+                    }
                 }
             }
             else
             {
-                if (editor != null)
+                if (editor != null) {
                     editor.compileFinished(newState == S_NORMAL);
+                }
             }
             
-            // Notify extensions if necessary. Note we don't distinguish
-            // S_COMPILING and S_INVALID.
+            // Notify extensions if necessary. Note extensions can't distinguish S_COMPILING and S_INVALID;
+            // they are informed only if the class is currently compiled.
             if (newState == S_NORMAL) {
                 modifiedSinceCompile = false;
                 if (editor != null) {
@@ -419,7 +423,7 @@ public class ClassTarget extends DependentTarget
                 ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), true, false);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
-            else if (state == S_NORMAL || newState == S_INVALID) {
+            else if (state == S_NORMAL || newState == S_INVALID || knownError != oldKnownError) {
                 ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), false, hasKnownError());
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
@@ -2313,17 +2317,21 @@ public class ClassTarget extends DependentTarget
         return new CompileInputFile(getJavaSourceFile(), getSourceFile());
     }
 
+    /**
+     * Mark that there is a known compilation error with this target.
+     * (Mark is cleared when state is set to COMPILING).
+     */
     public void markKnownError()
     {
-        boolean old = knownError;
+        // Errors are marked as part of compilation, so we expect that a suitable ClassEvent
+        // is generated when compilation finishes; no need for it here.
         knownError = true;
-        if (old == false)
-        {
-            ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), state == S_NORMAL, knownError);
-            ExtensionsManager.getInstance().delegateEvent(event);
-        }
     }
     
+    /**
+     * Check whether there was a compilation error for this target, last time
+     * compilation was attempted.
+     */
     public boolean hasKnownError()
     {
         return knownError;
