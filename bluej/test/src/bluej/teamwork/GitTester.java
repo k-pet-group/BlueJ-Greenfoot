@@ -34,17 +34,28 @@ import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.UpdateListener;
 import bluej.groupwork.UpdateResults;
 import bluej.groupwork.git.GitStatusHandle;
+import bluej.groupwork.ui.ConflictsDialog;
 import bluej.parser.InitConfig;
+import bluej.pkgmgr.BlueJPackageFile;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ReadmeTarget;
+import bluej.pkgmgr.target.Target;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -251,7 +262,7 @@ public class GitTester
             listener = getRepoStatus(repositoryA, false);
 
             assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
+            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_UPTODATE);
             assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
         } catch (IOException ex) {
             Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
@@ -290,7 +301,7 @@ public class GitTester
 
             listener = getRepoStatus(repositoryA, true);
             assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
+            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_UPTODATE);
             assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
 
         } catch (IOException ex) {
@@ -376,7 +387,7 @@ public class GitTester
             listener = getRepoStatus(repositoryA, true);
 
             assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
+            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_UPTODATE);
             assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
             
             //push.
@@ -623,10 +634,111 @@ public class GitTester
         }
 
         @Override
-        public void handleConflicts(UpdateResults updateResults)
+        public void handleConflicts(UpdateResults updateServerResponse)
         {
-            
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            if (updateServerResponse == null) {
+                return;
+            }
+
+            if (updateServerResponse.getConflicts().size() <= 0
+                    && updateServerResponse.getBinaryConflicts().size() <= 0) {
+                return;
+            }
+
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        /** A list of files to replace with repository version */
+                        Set<File> filesToOverride = new HashSet<File>();
+
+                        // Binary conflicts
+                        for (Iterator<File> i = updateServerResponse.getBinaryConflicts().iterator();
+                                i.hasNext(); ) {
+                            File f = i.next();
+
+                            if (BlueJPackageFile.isPackageFileName(f.getName())) {
+                                filesToOverride.add(f);
+                            }
+                            else {
+                                // TODO make the displayed file path relative to project
+                                int answer = DialogManager.askQuestion(PkgMgrFrame.getMostRecent(),
+                                        "team-binary-conflict", new String[] {f.getName()});
+                                if (answer == 0) {
+                                    // keep local version
+                                }
+                                else {
+                                    // use repository version
+                                    filesToOverride.add(f);
+                                }
+                            }
+                        }
+
+                        //TODO: implement overrideFiles!!!!!!!!!!!!!!!!!
+                        //updateServerResponse.overrideFiles(filesToOverride);
+
+                        List<String> blueJconflicts = new LinkedList<String>();
+                        List<String> nonBlueJConflicts = new LinkedList<String>();
+                        List<Target> targets = new LinkedList<Target>();
+
+                        for (Iterator<File> i = updateServerResponse.getConflicts().iterator();
+                                i.hasNext();) {
+                            File file = i.next();
+
+                            // Calculate the file base name
+                            String baseName = file.getName();
+
+                            // bluej package file may come up as a conflict, but it won't cause a problem,
+                            // so it can be ignored.
+                            if (! BlueJPackageFile.isPackageFileName(baseName)) {
+                                Target target = null;
+
+//                                if (baseName.endsWith(".java") || baseName.endsWith(".class")) {
+//                                    String pkg = project.getPackageForFile(file);
+//                                    if (pkg != null) {
+//                                        String targetId = filenameToTargetIdentifier(baseName);
+//                                        targetId = JavaNames.combineNames(pkg, targetId);
+//                                        target = project.getTarget(targetId);
+//                                    }
+//                                }
+//                                else if (baseName.equals("README.TXT")) {
+//                                    String pkg = project.getPackageForFile(file);
+//                                    if (pkg != null) {
+//                                        String targetId = ReadmeTarget.README_ID;
+//                                        targetId = JavaNames.combineNames(pkg, targetId);
+//                                        target = project.getTarget(targetId);
+//                                    }
+//                                }
+
+//                                String fileName = makeRelativePath(project.getProjectDir(), file);
+//                                
+//                                if (target == null) {
+//                                    nonBlueJConflicts.add(fileName);
+//                                } else {
+//                                    blueJconflicts.add(fileName);
+//                                    targets.add(target);
+//                                }
+                            }
+                        }
+
+                        if (! blueJconflicts.isEmpty() || ! nonBlueJConflicts.isEmpty()) {
+//                            project.clearAllSelections();
+//                            project.selectTargetsInGraphs(targets);
+
+//                            ConflictsDialog conflictsDialog = new ConflictsDialog(project,
+//                                    blueJconflicts, nonBlueJConflicts);
+//                            conflictsDialog.setVisible(true);
+                        }
+                    }
+                });
+            }
+            catch (InvocationTargetException ite) {
+                throw new Error(ite);
+            }
+            catch (InterruptedException ie) {
+                // Probably indicates an application exit; just ignore it.
+            }
         }
 
     }
