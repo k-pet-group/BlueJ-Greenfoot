@@ -603,6 +603,7 @@ public class GreenfootFrame extends JFrame
         d.width = 100;
         executionControl.setPreferredSize(d);
         executionControl.setMaximumSize(d);
+        executionTwirler.setVisible(false);
         
         // the control panel
         
@@ -1169,6 +1170,7 @@ public class GreenfootFrame extends JFrame
                 {
                     updateBackgroundMessage();
                     executionTwirler.setEnabled(true);
+                    executionTwirler.setVisible(true);
                 }
             });
             timer.setRepeats(false);
@@ -1184,6 +1186,7 @@ public class GreenfootFrame extends JFrame
     {
         timer.stop();
         executionTwirler.setEnabled(false);
+        executionTwirler.setVisible(false);
     }
 
     /**
