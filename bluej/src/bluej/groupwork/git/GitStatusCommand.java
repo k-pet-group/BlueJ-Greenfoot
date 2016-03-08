@@ -118,7 +118,7 @@ public class GitStatusCommand extends GitCommand
             }
 
             RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/master", "HEAD");
-
+            
             //find diffs between master/head and the forkpoint.
             //this will produce the list of file to push.
             listOfDiffs = getDiffs(repo, "HEAD", forkPoint);
@@ -132,6 +132,8 @@ public class GitStatusCommand extends GitCommand
         } catch (IOException | GitAPIException | NoWorkTreeException ex) {
             Debug.reportError("Git status command exception", ex);
         }
+        //Git does not show any add up-to-date file. We need to add them maually to returnInfo.
+        addUpToDateFiles(returnInfo, gitPath);
         if (listener != null) {
             while (!returnInfo.isEmpty()) {
                 TeamStatusInfo teamInfo = (TeamStatusInfo) returnInfo.removeFirst();
@@ -140,6 +142,18 @@ public class GitStatusCommand extends GitCommand
             listener.statusComplete(new GitStatusHandle(getRepository()));
         }
         return new TeamworkCommandResult();
+    }
+    
+    private void addUpToDateFiles(LinkedList<TeamStatusInfo> returnInfo, File gitPath)
+    {
+        for (File item:gitPath.listFiles()){
+            if (!filter.accept(item)) continue; // only process acceptable files.
+            TeamStatusInfo itemStatus = getTeamStatusInfo(returnInfo, item);
+            if (itemStatus == null){
+                //file does not exist in the list, therefore it is up-to-date.
+                returnInfo.add(new TeamStatusInfo(item,"",null,TeamStatusInfo.STATUS_UPTODATE,TeamStatusInfo.REMOTE_STATUS_UPTODATE));
+            }
+        }
     }
 
     /**
@@ -207,19 +221,19 @@ public class GitStatusCommand extends GitCommand
         try (RevWalk walk = new RevWalk(repository)) {
             RevCommit tipCommit = walk.lookupCommit(repository.resolve(tip));
             List<ReflogEntry> reflog = repository.getReflogReader(base).getReverseEntries();
-            if (reflog.isEmpty()) {
-                return null; // no fork point.
-            }
-            for (int i = 0; i <= reflog.size(); i++) {
-                ObjectId id = i < reflog.size() ? reflog.get(i).getNewId() : reflog.get(i - 1).getOldId();
-                RevCommit commit = walk.lookupCommit(id);
-                if (walk.isMergedInto(commit, tipCommit)) {
-                    //found the fork point.
-                    walk.parseBody(commit);
-                    return commit;
+                if (reflog.isEmpty()) {
+                    return null; // no fork point.
+                }
+                for (int i = 0; i <= reflog.size(); i++) {
+                    ObjectId id = i < reflog.size() ? reflog.get(i).getNewId() : reflog.get(i - 1).getOldId();
+                    RevCommit commit = walk.lookupCommit(id);
+                    if (walk.isMergedInto(commit, tipCommit)) {
+                        //found the fork point.
+                        walk.parseBody(commit);
+                        return commit;
+                    }
                 }
             }
-        }
         return null; //no fork point.
     }
 
@@ -254,8 +268,8 @@ public class GitStatusCommand extends GitCommand
                     entries.stream().forEach((entry) -> {
                         diffs.add(entry);
                     });
-                    
-                }            
+
+                }
             }
         } catch (IncorrectObjectTypeException ex) {
             Debug.reportError(ex.getMessage());
