@@ -58,6 +58,7 @@ public class GitShareCommand extends GitCommand
                 StoredConfig config = repo.getRepository().getConfig();
                 //set remote repository
                 config.setString("remote", "origin", "url", getRepository().getReposUrl());
+                config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
                 config.save();
                 repo.close();
             } else {
