@@ -42,12 +42,11 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.SwingWorker;
 
-
 /**
  * An action to perform a checkout of a module in CVS. The module is checked
  * out into some directory (chosen by the user) and then opened as a BlueJ
  * project.
- * 
+ *
  * @author Kasper
  */
 public class CheckoutAction extends TeamAction
@@ -86,59 +85,72 @@ public class CheckoutAction extends TeamAction
         TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
         TeamSettingsDialog tsd = tsc.getTeamSettingsDialog();
         tsd.setLocationRelativeTo(oldFrame);
-        
-        String moduleName = new String("/");
+
         if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
+            File projectDir;
             if (!tsc.getRepository(true).isDVCS()) {
                 //if not DVCS, we need to select module.
                 ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame, tsc.getRepository(true));
                 moduleDialog.setLocationRelativeTo(oldFrame);
                 moduleDialog.setVisible(true);
 
-                moduleName = moduleDialog.getModuleName();
-            }
-            if (moduleName != null || tsc.getRepository(true).isDVCS()) {
-                // Select parent directory for the new project
-                
-                File parentDir = FileUtility.getDirName(oldFrame, Config.getString("team.checkout.filechooser.title"),
-                        Config.getString("team.checkout.filechooser.button"), true, true);
-                
-                if (parentDir != null) {
+                String moduleName = moduleDialog.getModuleName();
+                if (moduleName != null) {
+                    File parentDir = FileUtility.getDirName(oldFrame, Config.getString("team.checkout.filechooser.title"),
+                            Config.getString("team.checkout.filechooser.button"), true, true);
                     
                     if (Package.isPackage(parentDir)) {
                         Debug.message("Attempted to checkout a project into an existing project: " + parentDir);
                         DialogManager.showError(null, "team-cannot-import-into-existing-project");
                         return;
                     }
-                    
-                    File projectDir = new File(parentDir, moduleName);
-                    if (projectDir.exists()) {
-                        DialogManager.showError(null, "directory-exists");
+                    projectDir = new File(parentDir, moduleName);
+                } else {
+                    //null module.
+                    return;
+                }
+            } else {
+                //it is a DVCS project.
+                //there is no module selection in a DVCS project. Therefore,
+                //the selected file is the project dir.
+                projectDir = FileUtility.getDirName(oldFrame, Config.getString("team.checkout.DVCS.filechooser.title"),
+                        Config.getString("team.checkout.filechooser.button"), true, true);
+                if (projectDir != null) {
+                    if (Package.isPackage(projectDir)) {
+                        Debug.message("Attempted to checkout a project into an existing project: " + projectDir);
+                        DialogManager.showError(null, "team-cannot-import-into-existing-project");
                         return;
                     }
-                    
-                    PkgMgrFrame newFrame;
-                    if (oldFrame.isEmptyFrame()) {
-                        newFrame = oldFrame;
-                    }
-                    else {
-                        newFrame = PkgMgrFrame.createFrame();
-                        if(Config.isJava15()) {
-                            newFrame.setLocationByPlatform(true);
-                        }
-                        newFrame.setVisible(true);
-                        newFrame.setEnabled(false);
-                    }
-                    
-                    new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
+                } else {
+                    //no project dir. nothing to do.
+                    return;
                 }
             }
+
+            if (projectDir.exists()) {
+                DialogManager.showError(null, "directory-exists");
+                return;
+            }
+
+            PkgMgrFrame newFrame;
+            if (oldFrame.isEmptyFrame()) {
+                newFrame = oldFrame;
+            } else {
+                newFrame = PkgMgrFrame.createFrame();
+                if (Config.isJava15()) {
+                    newFrame.setLocationByPlatform(true);
+                }
+                newFrame.setVisible(true);
+                newFrame.setEnabled(false);
+            }
+
+            new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
         }
     }
-    
+
     /**
      * A worker to perform the checkout operation.
-     * 
+     *
      * @author Davin McCall
      */
     private class CheckoutWorker extends SwingWorker
@@ -147,10 +159,10 @@ public class CheckoutAction extends TeamAction
         private PkgMgrFrame newFrame;
         private File projDir;
         private TeamSettingsController tsc;
-        
+
         private TeamworkCommandResult response;
         private boolean failed = true;
-        
+
         public CheckoutWorker(PkgMgrFrame newFrame, Repository repository, File projDir, TeamSettingsController tsc)
         {
             this.newFrame = newFrame;
@@ -158,7 +170,7 @@ public class CheckoutAction extends TeamAction
             this.projDir = projDir;
             this.tsc = tsc;
         }
-        
+
         /*
          * Get the files from the repository.
          * @see bluej.utility.SwingWorker#construct()
@@ -169,7 +181,7 @@ public class CheckoutAction extends TeamAction
             newFrame.startProgress();
             TeamworkCommand checkoutCmd = repository.checkout(projDir);
             response = checkoutCmd.getResult();
-            
+
             failed = response.isError();
 
             newFrame.stopProgress();
@@ -181,7 +193,7 @@ public class CheckoutAction extends TeamAction
 
             return response;
         }
-        
+
         /*
          * Now open the directory as a BlueJ project.
          * @see bluej.utility.SwingWorker#finished()
@@ -196,9 +208,9 @@ public class CheckoutAction extends TeamAction
                         return;
                     }
                 }
-                
+
                 Project project = Project.openProject(projDir.toString(), newFrame);
-                
+
                 project.setTeamSettingsController(tsc);
                 Package initialPackage = project.getPackage(project.getInitialPackageName());
                 newFrame.openPackage(initialPackage);
@@ -209,7 +221,7 @@ public class CheckoutAction extends TeamAction
                 cleanup();
             }
         }
-        
+
         /**
          * Clean up after failed checkout.
          */

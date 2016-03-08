@@ -740,6 +740,7 @@ team.moduleselect.show=Show
 team.checkingout=Checking out project...
 team.checkedout=Checking out project... Done.
 team.checkout.filechooser.title=Choose a checkout location
+team.checkout.DVCS.filechooser.title=Choose a checkout Name and Location 
 team.checkout.filechooser.button=Checkout
 
 team.import.initialMessage=Initial sharing of project
