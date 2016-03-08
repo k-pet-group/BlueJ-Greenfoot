@@ -104,7 +104,7 @@ public class GitStatusCommand extends GitCommand
                 returnInfo.add(teamInfo);
             });
 
-            s.getRemoved().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
+            s.getRemoved().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
 
@@ -282,7 +282,7 @@ public class GitStatusCommand extends GitCommand
 
                 if (existingStatusInfo == null) {
                     //needs to add the file to the list.
-                    TeamStatusInfo item = new TeamStatusInfo(file, "", null, TeamStatusInfo.STATUS_NEEDS_PUSH, TeamStatusInfo.STATUS_NEEDS_PUSH);
+                    TeamStatusInfo item = new TeamStatusInfo(file, "", null, TeamStatusInfo.STATUS_UPTODATE, TeamStatusInfo.STATUS_NEEDS_PUSH);
                     returnInfo.add(item);
                 } else {
                     //there is a status for this file.

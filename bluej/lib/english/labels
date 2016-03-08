@@ -695,7 +695,7 @@ team.status.add=add to repository
 team.status.new=new file
 team.status.removed=delete
 team.status.needsmerge=merge updates
-team.status.needspush=push to repository
+team.status.needsupdate=update from repository
 
 team.nocommitfiles=No files to commit
 team.noupdatefiles=No files to update

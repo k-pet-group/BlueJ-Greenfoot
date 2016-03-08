@@ -30,7 +30,7 @@ import bluej.pkgmgr.Project;
  * Class to determine team resource descriptions for use in dialogs
  * 
  * @author Bruce Quig
- * @version $Id: ResourceDescriptor.java 15437 2016-02-09 00:08:56Z fdlh $
+ * @version $Id: ResourceDescriptor.java 15581 2016-03-08 13:49:20Z fdlh $
  */
 public class ResourceDescriptor
 {
@@ -68,10 +68,11 @@ public class ResourceDescriptor
                     default:
                         break;
                 }
-                if (info.getRemoteStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
+                if (info.getRemoteStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT ||
+                        info.getRemoteStatus() == TeamStatusInfo.STATUS_DELETED) {
                     if (!isPkgFile){
                         //file is ok in local repo, but needs to be pushed to remote repo.
-                        status += "("+ Config.getString("team.status.needspush") +")";
+                        status += "("+ Config.getString("team.status.needsupdate") +")";
                     }
                 }
             }

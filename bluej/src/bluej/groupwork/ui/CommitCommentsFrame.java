@@ -91,7 +91,6 @@ public class CommitCommentsFrame extends EscapeDialog
     private CommitAction commitAction;
     private CommitWorker commitWorker;
     private PushAction pushAction;
-    private PushWorker pushWorker;
 
     private Project project;
     
@@ -108,6 +107,7 @@ public class CommitCommentsFrame extends EscapeDialog
     public CommitCommentsFrame(Project proj)
     {
         project = proj;
+        repository = project.getRepository();
         changedLayoutFiles = new HashSet<TeamStatusInfo>();
         createUI();
         DialogManager.centreDialog(this);
@@ -126,7 +126,7 @@ public class CommitCommentsFrame extends EscapeDialog
             changedLayoutFiles.clear();
             commitOrPushListModel.removeAllElements();
             
-            repository = project.getRepository();
+            
             
             if (repository != null) {
                 try {
@@ -143,8 +143,6 @@ public class CommitCommentsFrame extends EscapeDialog
                 startProgress();
                 commitWorker = new CommitWorker();
                 commitWorker.start();
-                pushWorker = new PushWorker();
-                pushWorker.start();
             }
             else {
                 super.setVisible(false);
@@ -224,17 +222,19 @@ public class CommitCommentsFrame extends EscapeDialog
             commitButton.setAction(commitAction);
             getRootPane().setDefaultButton(commitButton);
             
-            pushAction = new PushAction(this);
-            pushButton = BlueJTheme.getOkButton();
-            pushButton.setAction(pushAction);
-
+            if (repository.isDVCS()){
+                pushAction = new PushAction(this);
+                pushButton = BlueJTheme.getOkButton();
+                pushButton.setAction(pushAction);
+            }
+                
             JButton closeButton = BlueJTheme.getCancelButton();
             closeButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
                         commitWorker.abort();
                         commitAction.cancel();
-                        pushAction.cancel();
+                        if (repository.isDVCS()) pushAction.cancel();
                         setVisible(false);
                     }
                 });
@@ -271,7 +271,7 @@ public class CommitCommentsFrame extends EscapeDialog
             
             buttonPanel.add(progressBar);
             buttonPanel.add(commitButton);
-            buttonPanel.add(pushButton);
+            if (repository.isDVCS()) buttonPanel.add(pushButton);
             buttonPanel.add(closeButton);
             bottomPanel.add(checkBoxPanel, BorderLayout.SOUTH);
         }
@@ -403,139 +403,8 @@ public class CommitCommentsFrame extends EscapeDialog
         includeLayout.setEnabled(hasChanged);
     }
     
-    class PushWorker extends SwingWorker implements StatusListener
-    {
-        
-        List<TeamStatusInfo> response;
-        TeamworkCommand command;
-        TeamworkCommandResult result;
-        private boolean aborted, isPushAvailable;
-        
-        public PushWorker()
-        {
-            super();
-            response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
-            command = repository.getStatus(this, filter, false);
-            isPushAvailable = false;
-        }
-        
-        public boolean isPushAvailable()
-        {
-            return this.isPushAvailable;
-        }
-        
-        @OnThread(Tag.Unique)
-        @Override
-        public Object construct()
-        {
-            result = command.getResult();
-            return response;
-        }
-
-        /*
-         * @see bluej.groupwork.StatusListener#gotStatus(bluej.groupwork.TeamStatusInfo)
-         */
-        @OnThread(Tag.Any)
-        @Override
-        public void gotStatus(TeamStatusInfo info)
-        {
-            response.add(info);
-        }
-
-        /*
-         * @see bluej.groupwork.StatusListener#statusComplete(bluej.groupwork.CommitHandle)
-         */
-        @OnThread(Tag.Any)
-        @Override
-        public void statusComplete(StatusHandle statusHandle)
-        {
-            pushAction.setStatusHandle(statusHandle);
-        }
-        
-                /**
-         * Go through the status list, and figure out which files to push, and
-         * of those which are to be added (i.e. which aren't in the repository) and
-         * which are to be removed.
-         * 
-         * @param info  The list of files with status (List of TeamStatusInfo)
-         * @param filesToPush  The set to store the files to push
-         */
-        private void getPushFileSet(List<TeamStatusInfo> info, Set<File> filesToPush)
-        {
-            
-            CommitFilter filter = new CommitFilter();
-            Map<File,File> modifiedLayoutDirs = new HashMap<>();
-
-            for (TeamStatusInfo statusInfo : info) {
-                File file = statusInfo.getFile();
-                boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
-                int status = statusInfo.getStatus();
-                int remoteStatus = statusInfo.getRemoteStatus();
-                if (filter.accept(statusInfo)) {
-                    if (!isPkgFile) {
-                        if (remoteStatus == TeamStatusInfo.STATUS_NEEDSCHECKOUT ||
-                                remoteStatus == TeamStatusInfo.STATUS_REMOVED ||
-                                remoteStatus == TeamStatusInfo.STATUS_NEEDSCOMMIT ||
-                                remoteStatus == TeamStatusInfo.STATUS_RENAMED) {
-                            filesToPush.add(file);
-                            if (status == TeamStatusInfo.STATUS_UPTODATE) {
-                                // file is okay locally, but needs to be pushed, therefore,
-                                //it is not in the commitOrPushListModel. Needs to be
-                                //added
-                                commitOrPushListModel.addElement(statusInfo);
-                            }
-                        }
-                    }
-                }
-            }
-            setLayoutChanged (! changedLayoutFiles.isEmpty());
-        }
-        
-        
-        @Override
-        public void finished()
-        {
-            stopProgress();
-            if (!aborted) {
-                if (result.isError()) {
-                    TeamUtils.handleServerResponse(result, CommitCommentsFrame.this);
-                    setVisible(false);
-                } else if (response != null) {
-
-                    Set<File> filesToPush = new HashSet<>();
-
-                    List<TeamStatusInfo> info = response;
-                    getPushFileSet(info, filesToPush);
-
-                    pushAction.setFilesToPush(filesToPush);
-                    if (!filesToPush.isEmpty())
-                        this.isPushAvailable = true;
-
-                }
-
-                if (commitOrPushListModel.isEmpty()) {
-                    commitOrPushListModel.addElement(noFilesToCommit);
-                } else if (commitOrPushListModel.size() > 1 && (commitOrPushListModel.get(0) instanceof String)) {
-                    //not empty!
-                    commitOrPushListModel.remove(0);
-                } else if (isPushAvailable && !commitAction.isEnabled()) {
-                    //there are files to push
-                    commitText.setEnabled(false);
-                    commitAction.setEnabled(false);
-                    pushAction.setEnabled(true);
-                } else if (!isPushAvailable && !commitAction.isEnabled()) {
-                    commitText.setEnabled(false);
-                    commitAction.setEnabled(false);
-                    pushAction.setEnabled(false);
-                }
-            }
-        }
-        
-    }
-
     /**
-    * Inner class to do the actual cvs status check to populate commit dialog
+    * Inner class to do the actual version control status check to populate commit dialog
     * to ensure that the UI is not blocked during remote call
     */
     class CommitWorker extends SwingWorker implements StatusListener
@@ -543,25 +412,33 @@ public class CommitCommentsFrame extends EscapeDialog
         List<TeamStatusInfo> response;
         TeamworkCommand command;
         TeamworkCommandResult result;
-        private boolean aborted, isCommitAvailable;
+        private boolean aborted, isCommitAvailable, isPushAvailable;
 
         public CommitWorker()
         {
             super();
-            response = new ArrayList<TeamStatusInfo>();
+            response = new ArrayList<>();
             FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
             command = repository.getStatus(this, filter, false);
             isCommitAvailable = false;
+            isPushAvailable = false;
         }
         
-        public boolean isCommitAvailable(){
+        public boolean isCommitAvailable()
+        {
             return this.isCommitAvailable;
+        }
+        
+        public boolean isPushAvailable()
+        {
+            return this.isPushAvailable;
         }
         
         /*
          * @see bluej.groupwork.StatusListener#gotStatus(bluej.groupwork.TeamStatusInfo)
          */
         @OnThread(Tag.Any)
+        @Override
         public void gotStatus(TeamStatusInfo info)
         {
             response.add(info);
@@ -575,6 +452,7 @@ public class CommitCommentsFrame extends EscapeDialog
         public void statusComplete(StatusHandle statusHandle)
         {
             commitAction.setStatusHandle(statusHandle);
+            if (repository.isDVCS()) pushAction.setStatusHandle(statusHandle); 
         }
         
         @OnThread(Tag.Unique)
@@ -603,6 +481,7 @@ public class CommitCommentsFrame extends EscapeDialog
                     Set<File> filesToCommit = new HashSet<File>();
                     Set<File> filesToAdd = new LinkedHashSet<File>();
                     Set<File> filesToDelete = new HashSet<File>();
+                    Set<File> filesToPush = new HashSet<File>();
                     Set<File> mergeConflicts = new HashSet<File>();
                     Set<File> deleteConflicts = new HashSet<File>();
                     Set<File> otherConflicts = new HashSet<File>();
@@ -613,6 +492,7 @@ public class CommitCommentsFrame extends EscapeDialog
                     getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete,
                             mergeConflicts, deleteConflicts, otherConflicts,
                             needsMerge, modifiedLayoutFiles);
+                    if (repository.isDVCS()) getPushFileSets(info, filesToPush);
 
                     if (!mergeConflicts.isEmpty() || !deleteConflicts.isEmpty()
                             || !otherConflicts.isEmpty() || !needsMerge.isEmpty()) {
@@ -625,9 +505,10 @@ public class CommitCommentsFrame extends EscapeDialog
                     commitAction.setFiles(filesToCommit);
                     commitAction.setNewFiles(filesToAdd);
                     commitAction.setDeletedFiles(filesToDelete);
-                    if (!filesToAdd.isEmpty() || !filesToCommit.isEmpty() || !filesToDelete.isEmpty())
+                    if (!filesToAdd.isEmpty() || !filesToCommit.isEmpty() || !filesToDelete.isEmpty()) {
                         this.isCommitAvailable = true;
-
+                    }
+                    this.isPushAvailable = !filesToPush.isEmpty();
                 }
 
                 if (commitOrPushListModel.isEmpty()) {
@@ -635,21 +516,25 @@ public class CommitCommentsFrame extends EscapeDialog
                 } else if (commitOrPushListModel.size() > 1 && (commitOrPushListModel.get(0) instanceof String)) {
                     //not empty!
                     commitOrPushListModel.remove(0);
-                } else if (isCommitAvailable) {
-                    //there are files to commit.
-                    commitText.setEnabled(true);
-                    commitText.requestFocusInWindow();
-                    commitAction.setEnabled(true);
-                    pushAction.setEnabled(false);
-                } else if (!isCommitAvailable() && pushAction.isEnabled()) {
-                    //there are files to push
-                    commitText.setEnabled(false);
-                    commitAction.setEnabled(false);
-                    pushAction.setEnabled(true);
-                } else if (!pushAction.isEnabled() && !isCommitAvailable) {
-                    commitText.setEnabled(false);
-                    commitAction.setEnabled(false);
-                    pushAction.setEnabled(false);
+                } 
+                if (repository.isDVCS()) {
+
+                    if (isCommitAvailable()) {
+                        //there are files to commit.
+                        commitText.setEnabled(true);
+                        commitText.requestFocusInWindow();
+                        commitAction.setEnabled(true);
+                        pushAction.setEnabled(false);
+                    } else if (!isCommitAvailable() && isPushAvailable()) {
+                        //there are files to push
+                        commitText.setEnabled(false);
+                        commitAction.setEnabled(false);
+                        pushAction.setEnabled(true);
+                    } else if (!isCommitAvailable() && !isPushAvailable()) {
+                        commitText.setEnabled(false);
+                        commitAction.setEnabled(false);
+                        pushAction.setEnabled(false);
+                    }
                 }
             }
         }
@@ -800,6 +685,43 @@ public class CommitCommentsFrame extends EscapeDialog
                 }
             }
             
+            setLayoutChanged (! changedLayoutFiles.isEmpty());
+        }
+        
+        /**
+         * Go through the status list, and figure out which files to push, 
+         * 
+         * @param info  The list of files with status (List of TeamStatusInfo)
+         * @param filesToPush  The set to store the files to push
+         */
+        private void getPushFileSets(List<TeamStatusInfo> info, Set<File> filesToPush)
+        {
+            
+            CommitFilter filter = new CommitFilter();
+            Map<File,File> modifiedLayoutDirs = new HashMap<>();
+
+            for (TeamStatusInfo statusInfo : info) {
+                File file = statusInfo.getFile();
+                boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
+                int status = statusInfo.getStatus();
+                int remoteStatus = statusInfo.getRemoteStatus();
+                if (filter.accept(statusInfo)) {
+                    if (!isPkgFile) {
+                        if (remoteStatus == TeamStatusInfo.STATUS_NEEDS_PUSH ||
+                                remoteStatus == TeamStatusInfo.REMOTE_STATUS_ADDED ||
+                                remoteStatus == TeamStatusInfo.REMOTE_STATUS_DELETED ||
+                                remoteStatus == TeamStatusInfo.REMOTE_STATUS_MODIFIED) {
+                            filesToPush.add(file);
+                            if (status == TeamStatusInfo.STATUS_UPTODATE) {
+                                // file is okay locally, but needs to be pushed, therefore,
+                                //it is not in the commitOrPushListModel. Needs to be
+                                //added
+                                commitOrPushListModel.addElement(statusInfo);
+                            }
+                        }
+                    }
+                }
+            }
             setLayoutChanged (! changedLayoutFiles.isEmpty());
         }
     }

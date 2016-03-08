@@ -29,7 +29,7 @@ import bluej.pkgmgr.BlueJPackageFile;
  * modified, remotely modified, locally deleted and remotely removed.
  *
  * @author bquig
- * @version $Id: CommitFilter.java 15437 2016-02-09 00:08:56Z fdlh $
+ * @version $Id: CommitFilter.java 15581 2016-03-08 13:49:20Z fdlh $
  */
 public class CommitFilter
 {
@@ -52,6 +52,9 @@ public class CommitFilter
             return true;
         }
         if (remoteStat == TeamStatusInfo.STATUS_NEEDSCHECKOUT){
+            return true;
+        }
+        if (remoteStat == TeamStatusInfo.STATUS_NEEDS_PUSH) {
             return true;
         }
         
