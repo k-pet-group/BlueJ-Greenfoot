@@ -59,7 +59,7 @@ public class GitStatusHandle implements StatusHandle
     @Override
     public TeamworkCommand updateTo(UpdateListener listener, Set<File> files, Set<File> forceFiles)
     {
-        return new GitMergeCommand(repository, listener, files, forceFiles);
+        return new GitUpdateToCommand(repository, listener, files, forceFiles);
     }
 
     @Override

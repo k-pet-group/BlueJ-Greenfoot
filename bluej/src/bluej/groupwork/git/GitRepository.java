@@ -154,13 +154,13 @@ public class GitRepository implements Repository
     @Override
     public boolean prepareDeleteDir(File dir) 
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return true;
     }
 
     @Override
     public void prepareCreateDir(File dir) 
     {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        
     }
 
     @Override

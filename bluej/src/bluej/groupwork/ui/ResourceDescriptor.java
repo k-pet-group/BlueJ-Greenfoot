@@ -30,7 +30,6 @@ import bluej.pkgmgr.Project;
  * Class to determine team resource descriptions for use in dialogs
  * 
  * @author Bruce Quig
- * @version $Id: ResourceDescriptor.java 15581 2016-03-08 13:49:20Z fdlh $
  */
 public class ResourceDescriptor
 {
@@ -38,14 +37,14 @@ public class ResourceDescriptor
     public static String getResource(Project project, Object value, boolean annotate)
     {
         String status = value.toString();
-        if(value instanceof TeamStatusInfo) {
-            TeamStatusInfo info = (TeamStatusInfo)value;
+        if (value instanceof TeamStatusInfo) {
+            TeamStatusInfo info = (TeamStatusInfo) value;
             boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
 
             if (isPkgFile) {
-                  status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
+                status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
             }
-                if(annotate) {
+            if (annotate) {
                 // file has been deleted
                 switch (info.getStatus()) {
                     case TeamStatusInfo.STATUS_DELETED:
@@ -64,20 +63,21 @@ public class ResourceDescriptor
                     case TeamStatusInfo.STATUS_NEEDSMERGE:
                         if (! isPkgFile) {
                             status += " (" + Config.getString("team.status.needsmerge") + ")";
-                        }   break;
+                        }
+                        break;
                     default:
                         break;
                 }
-                if (info.getRemoteStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT ||
-                        info.getRemoteStatus() == TeamStatusInfo.STATUS_DELETED) {
-                    if (!isPkgFile){
+                if (info.getRemoteStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT
+                        || info.getRemoteStatus() == TeamStatusInfo.STATUS_DELETED) {
+                    if (!isPkgFile) {
                         //file is ok in local repo, but needs to be pushed to remote repo.
-                        status += "("+ Config.getString("team.status.needsupdate") +")";
+                        status += "(" + Config.getString("team.status.needsupdate") + ")";
                     }
                 }
             }
         }
-        
+
         return status;
     }
    
