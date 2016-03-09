@@ -1207,7 +1207,7 @@ public final class MoeActions
                 actions.get("indent-block"), 
                 actions.get("deindent-block"),
 
-                actions.get(DefaultEditorKit.selectWordAction), // 22
+                actions.get(DefaultEditorKit.selectWordAction), // 23
                 actions.get(DefaultEditorKit.selectLineAction),
                 actions.get(DefaultEditorKit.selectParagraphAction),
                 actions.get(DefaultEditorKit.selectAllAction),
@@ -1217,7 +1217,7 @@ public final class MoeActions
                 actions.get(DefaultEditorKit.selectionDownAction),
                 actions.get(DefaultEditorKit.selectionBeginWordAction),
                 actions.get(DefaultEditorKit.selectionEndWordAction),
-                actions.get(DefaultEditorKit.selectionPreviousWordAction), // 32
+                actions.get(DefaultEditorKit.selectionPreviousWordAction), // 33
                 actions.get(DefaultEditorKit.selectionNextWordAction),
                 actions.get(DefaultEditorKit.selectionBeginLineAction),
                 actions.get(DefaultEditorKit.selectionEndLineAction),
@@ -1229,7 +1229,7 @@ public final class MoeActions
                 actions.get(DefaultEditorKit.selectionEndAction), 
                 actions.get("unselect"),
 
-                actions.get(DefaultEditorKit.backwardAction), // 43
+                actions.get(DefaultEditorKit.backwardAction), // 44
                 actions.get(DefaultEditorKit.forwardAction),
                 actions.get(DefaultEditorKit.upAction), 
                 actions.get(DefaultEditorKit.downAction),
@@ -1238,7 +1238,7 @@ public final class MoeActions
                 actions.get(DefaultEditorKit.previousWordAction),
                 actions.get(DefaultEditorKit.nextWordAction),
                 actions.get(DefaultEditorKit.beginLineAction),
-                actions.get(DefaultEditorKit.endLineAction),    // 52
+                actions.get(DefaultEditorKit.endLineAction),    // 53
                 actions.get(DefaultEditorKit.beginParagraphAction),
                 actions.get(DefaultEditorKit.endParagraphAction),
                 actions.get(DefaultEditorKit.pageUpAction),
@@ -1246,18 +1246,17 @@ public final class MoeActions
                 actions.get(DefaultEditorKit.beginAction),
                 actions.get(DefaultEditorKit.endAction),
 
-                actions.get("save"), // 59
+                actions.get("save"), // 60
                 actions.get("reload"), 
                 actions.get("close"), 
                 actions.get("print"),
                 actions.get("page-setup"),
 
-                actions.get("key-bindings"), // 64
+                actions.get("key-bindings"), // 65
                 actions.get("preferences"),
 
-                actions.get("describe-key"), // 66
+                actions.get("describe-key"), // 67
                 actions.get("help-mouse"), 
-                actions.get("show-manual"),
                 actions.get("about-editor"),
 
                 // misc functions
@@ -1286,7 +1285,7 @@ public final class MoeActions
                 Config.getString("editor.functions.misc")
         };
 
-        categoryIndex = new int[] { 0, 43, 59, 64, 66, 70, 83 };
+        categoryIndex = new int[] { 0, 44, 60, 65, 67, 70, 83 };
     }
 
     // --------------------------------------------------------------------
@@ -1329,7 +1328,6 @@ public final class MoeActions
         // "about-editor" not bound
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_MASK), actions.get("describe-key"));
         // "help-mouse" not bound
-        // "show-manual" not bound
 
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_MASK), actions.get(DefaultEditorKit.copyAction));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_MASK), actions.get(DefaultEditorKit.cutAction));
