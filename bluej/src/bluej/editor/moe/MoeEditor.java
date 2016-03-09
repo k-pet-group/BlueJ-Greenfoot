@@ -141,8 +141,8 @@ public final class MoeEditor extends JPanel
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 310;
-    final static String versionString = "3.1.0";
+    final static int version = 320;
+    final static String versionString = "3.2.0";
 
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
@@ -194,7 +194,10 @@ public final class MoeEditor extends JPanel
     //private StringProperty titleProperty;
     //private final AtomicBoolean panelOpen = new AtomicBoolean();
     public MoeUndoManager undoManager;
+    
+    /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
+    
     private final Properties resources;
     private AbstractDocument document;
     private MoeSyntaxDocument sourceDocument;
@@ -209,6 +212,7 @@ public final class MoeEditor extends JPanel
     private StatusLabel saveState;          // the status label
     private JComboBox<String> interfaceToggle;
     private GoToLineDialog goToLineDialog;
+    
     // find functionality
     private FindPanel finder;
     private ReplacePanel replacer;
@@ -287,7 +291,9 @@ public final class MoeEditor extends JPanel
         undoManager = new MoeUndoManager(this);
 
         initWindow(parameters.getProjectResolver());
-        watcher.scheduleCompilation(false, CompileReason.LOADED);
+        if (watcher != null) {
+            watcher.scheduleCompilation(false, CompileReason.LOADED);
+        }
         callbackOnOpen = parameters.getCallbackOnOpen();
 
         undoMenuItem = findMenuItem("undo");
@@ -1603,7 +1609,9 @@ public final class MoeEditor extends JPanel
         {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
-            watcher.scheduleCompilation(true, CompileReason.MODIFIED);
+            if (watcher != null) {
+                watcher.scheduleCompilation(true, CompileReason.MODIFIED);
+            }
             madeChangeOnCurrentLine = false; // Not since last compilation
         }
         else
@@ -1650,7 +1658,9 @@ public final class MoeEditor extends JPanel
         {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
-            watcher.scheduleCompilation(true, CompileReason.MODIFIED);
+            if (watcher != null) {
+                watcher.scheduleCompilation(true, CompileReason.MODIFIED);
+            }
             madeChangeOnCurrentLine = false; // Not since last compilation
         }
         else
@@ -2832,7 +2842,9 @@ public final class MoeEditor extends JPanel
             setSaved();  // notify watcher that we are saved
             
             scheduleReparseRunner();
-            watcher.scheduleCompilation(false, CompileReason.LOADED);
+            if (watcher != null) {
+                watcher.scheduleCompilation(false, CompileReason.LOADED);
+            }
         }
         catch (FileNotFoundException ex) {
             info.warning(Config.getString("editor.info.fileDisappeared"));
@@ -2968,7 +2980,7 @@ public final class MoeEditor extends JPanel
         {
             recordEdit(true);
 
-            if (madeChangeOnCurrentLine)
+            if (madeChangeOnCurrentLine && watcher != null)
             {
                 watcher.scheduleCompilation(true, CompileReason.MODIFIED);
             }
@@ -3002,7 +3014,7 @@ public final class MoeEditor extends JPanel
     {
         if (madeChangeOnCurrentLine)
         {
-            if (swingTabbedEditor != null) {
+            if (swingTabbedEditor != null && watcher != null) {
                 watcher.scheduleCompilation(true, CompileReason.MODIFIED);
             }
             madeChangeOnCurrentLine = false;
@@ -3057,8 +3069,10 @@ public final class MoeEditor extends JPanel
                     int ypos = pos.y + (3*pos.height/2) + spLoc.y;
                     errorDisplay.setLocation(xpos, ypos);
                     errorDisplay.setVisible(true);
-
-                    watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
+                    
+                    if (watcher != null) {
+                        watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
+                    }
                 }
                 catch (BadLocationException ble)
                 {
@@ -4059,16 +4073,19 @@ public final class MoeEditor extends JPanel
 
     public void compileOrShowNextError()
     {
-        if (madeChangeOnCurrentLine)
-        {
-            watcher.scheduleCompilation(true, CompileReason.USER);
-            madeChangeOnCurrentLine = false;
-        }
-        else
-        {
-            int pos = errorManager.getNextErrorPos(sourcePane.getCaretPosition());
-            if (pos >= 0)
-                sourcePane.setCaretPosition(pos);
+        if (watcher != null) {
+            if (madeChangeOnCurrentLine)
+            {
+                watcher.scheduleCompilation(true, CompileReason.USER);
+                madeChangeOnCurrentLine = false;
+            }
+            else
+            {
+                int pos = errorManager.getNextErrorPos(sourcePane.getCaretPosition());
+                if (pos >= 0) {
+                    sourcePane.setCaretPosition(pos);
+                }
+            }
         }
     }
     
@@ -4088,8 +4105,9 @@ public final class MoeEditor extends JPanel
             showErrorOverlay(null, 0);
         }
 
-        if (visible)
+        if (visible && watcher != null) {
             watcher.recordSelected();
+        }
     }
 
     /**
@@ -4100,15 +4118,20 @@ public final class MoeEditor extends JPanel
      */
     public void setParent(SwingTabbedEditor swingTabbedEditor, boolean partOfMove)
     {
-        if (!partOfMove && swingTabbedEditor != null)
-            watcher.recordOpen();
-        else if (!partOfMove && swingTabbedEditor == null)
-            watcher.recordClose();
+        if (watcher != null) {
+            if (!partOfMove && swingTabbedEditor != null) {
+                watcher.recordOpen();
+            }
+            else if (!partOfMove && swingTabbedEditor == null) {
+                watcher.recordClose();
+            }
 
-        // If we are closing, force a compilation in case there are pending changes:
-        if (swingTabbedEditor == null) {
-            watcher.scheduleCompilation(false, CompileReason.MODIFIED);
+            // If we are closing, force a compilation in case there are pending changes:
+            if (swingTabbedEditor == null) {
+                watcher.scheduleCompilation(false, CompileReason.MODIFIED);
+            }
         }
+        
         this.swingTabbedEditor = swingTabbedEditor;
         if (this.swingTabbedEditor != null) {
             this.swingTabbedEditor.setJMenuBar(this, menubar, (JMenu)menubar.getMenu(0).getItem(0));
