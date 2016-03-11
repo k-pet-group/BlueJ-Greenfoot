@@ -72,6 +72,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 import bluej.utility.Utility;
+import java.util.LinkedList;
 
 
 /**
@@ -81,7 +82,7 @@ import bluej.utility.Utility;
  */
 public class CommitCommentsFrame extends EscapeDialog
 {
-    private JList commitFiles;
+    private JList commitOrPushFiles;
     private JPanel topPanel;
     private JPanel bottomPanel;
     private JTextArea commitText;
@@ -96,6 +97,9 @@ public class CommitCommentsFrame extends EscapeDialog
     
     private Repository repository;
     private DefaultListModel commitOrPushListModel;
+    
+    /* These lists will contain the files to be commited and pushed. */
+    private LinkedList<TeamStatusInfo> filesToCommitList,filesToPushList;
     
     private Set<TeamStatusInfo> changedLayoutFiles;
     
@@ -155,8 +159,15 @@ public class CommitCommentsFrame extends EscapeDialog
      */
     protected void createUI()
     {
-        setTitle(Config.getString("team.commit.title"));
+        if (repository.isDVCS()){
+            setTitle(Config.getString("team.commit.dcvs.title"));
+        }else {
+            setTitle(Config.getString("team.commit.title"));
+        }
+        
         commitOrPushListModel = new DefaultListModel();
+        filesToCommitList = new LinkedList<>();
+        filesToPushList = new LinkedList<>();
         
         //setIconImage(BlueJTheme.getIconImage());
         setLocation(Config.getLocation("bluej.commitdisplay"));
@@ -185,10 +196,10 @@ public class CommitCommentsFrame extends EscapeDialog
             commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             topPanel.add(commitFilesLabel, BorderLayout.NORTH);
 
-            commitFiles = new JList(commitOrPushListModel);
-            commitFiles.setCellRenderer(new FileRenderer(project));
-            commitFiles.setEnabled(false);
-            commitFileScrollPane.setViewportView(commitFiles);
+            commitOrPushFiles = new JList(commitOrPushListModel);
+            commitOrPushFiles.setCellRenderer(new FileRenderer(project));
+            commitOrPushFiles.setEnabled(false);
+            commitFileScrollPane.setViewportView(commitOrPushFiles);
             
             topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
         }
@@ -254,14 +265,21 @@ public class CommitCommentsFrame extends EscapeDialog
                     JCheckBox layoutCheck = (JCheckBox)e.getSource();
                     if(layoutCheck.isSelected()) {
                         addModifiedLayouts();
-                        if(!commitButton.isEnabled())
+                        if(!commitButton.isEnabled()){
                             commitAction.setEnabled(true);
+                            if (repository.isDVCS()) pushAction.setEnabled(false);
+                            commitText.setEnabled(true);
+                        }
+                                
                     }
                     // unselected
                     else {
                         removeModifiedLayouts();
-                        if(isCommitListEmpty())
+                        if(isCommitListEmpty()){
                             commitAction.setEnabled(false);
+                            if (repository.isDVCS() && !filesToPushList.isEmpty()) pushAction.setEnabled(true);
+                            commitText.setEnabled(false);
+                        }
                     }
                 }
             });
@@ -295,6 +313,8 @@ public class CommitCommentsFrame extends EscapeDialog
     public void reset()
     {
         commitOrPushListModel.clear();
+        filesToCommitList.clear();
+        filesToPushList.clear();
         setComment("");
     }
     
@@ -303,7 +323,9 @@ public class CommitCommentsFrame extends EscapeDialog
         // remove modified layouts from list of files shown for commit
         for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
             TeamStatusInfo info = it.next();
-            if (! packagesToCommmit.contains(info.getFile().getParentFile())) {
+            if (! packagesToCommmit.contains(info.getFile().getParentFile()) 
+                    && ! filesToCommitList.contains(info) 
+                    && !filesToPushList.contains(info)) {
                 commitOrPushListModel.removeElement(info);
             }
         }
@@ -315,7 +337,7 @@ public class CommitCommentsFrame extends EscapeDialog
     
     private boolean isCommitListEmpty()
     {
-        return commitOrPushListModel.isEmpty() || commitOrPushListModel.contains(noFilesToCommit);
+        return filesToCommitList.isEmpty();
     }
     
     private void addModifiedLayouts()
@@ -330,7 +352,9 @@ public class CommitCommentsFrame extends EscapeDialog
             TeamStatusInfo info = it.next();
             File parentFile = info.getFile().getParentFile();
             if (! displayedLayouts.contains(parentFile)
-                    && ! packagesToCommmit.contains(parentFile)) {
+                    && ! packagesToCommmit.contains(parentFile)
+                    && ! filesToCommitList.contains(info) 
+                    && !filesToPushList.contains(info)) {
                 commitOrPushListModel.addElement(info);
                 displayedLayouts.add(info.getFile().getParentFile());
             }
@@ -510,13 +534,18 @@ public class CommitCommentsFrame extends EscapeDialog
                     }
                     this.isPushAvailable = !filesToPush.isEmpty();
                 }
-
-                if (commitOrPushListModel.isEmpty()) {
-                    commitOrPushListModel.addElement(noFilesToCommit);
+                
+                updateCommitOrPushListModel(filesToCommitList);
+                if (repository.isDVCS()) updateCommitOrPushListModel(filesToPushList);
+                
+                if (filesToCommitList.isEmpty() && filesToPushList.isEmpty()) {
+                    if (commitOrPushListModel.isEmpty()) {
+                        commitOrPushListModel.addElement(noFilesToCommit);
+                    }
                 } else if (commitOrPushListModel.size() > 1 && (commitOrPushListModel.get(0) instanceof String)) {
                     //not empty!
                     commitOrPushListModel.remove(0);
-                } 
+                }
                 if (repository.isDVCS()) {
 
                     if (isCommitAvailable()) {
@@ -535,15 +564,12 @@ public class CommitCommentsFrame extends EscapeDialog
                         commitAction.setEnabled(false);
                         pushAction.setEnabled(false);
                     }
-                } else {
-                    if(commitOrPushListModel.isEmpty()) {
+                } else if (commitOrPushListModel.isEmpty()) {
                     commitOrPushListModel.addElement(noFilesToCommit);
-                }
-                else {
+                } else {
                     commitText.setEnabled(true);
                     commitText.requestFocusInWindow();
                     commitAction.setEnabled(true);
-                }
                 }
             }
         }
@@ -622,7 +648,6 @@ public class CommitCommentsFrame extends EscapeDialog
                 Set<File> filesToRemove, Set<File> mergeConflicts, Set<File> deleteConflicts,
                 Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles)
         {
-            //boolean includeLayout = project.getTeamSettingsController().includeLayout();
 
             CommitFilter filter = new CommitFilter();
             Map<File,File> modifiedLayoutDirs = new HashMap<>();
@@ -631,10 +656,9 @@ public class CommitCommentsFrame extends EscapeDialog
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
                 int status = statusInfo.getStatus();
-                int remoteStatus = statusInfo.getRemoteStatus();
                 if(filter.accept(statusInfo)) {
                     if (! isPkgFile && status != TeamStatusInfo.STATUS_UPTODATE) {
-                        commitOrPushListModel.addElement(statusInfo);
+                        filesToCommitList.add(statusInfo);
                         filesToCommit.add(file);
                         }
                     else if (status == TeamStatusInfo.STATUS_NEEDSADD
@@ -642,7 +666,7 @@ public class CommitCommentsFrame extends EscapeDialog
                             || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
                         // Package file which must be committed.
                         if (packagesToCommmit.add(statusInfo.getFile().getParentFile())) {
-                            commitOrPushListModel.addElement(statusInfo);
+                            filesToCommitList.add(statusInfo);
                             File otherPkgFile = modifiedLayoutDirs.remove(file.getParentFile());
                             if (otherPkgFile != null) {
                                 removeChangedLayoutFile(otherPkgFile);
@@ -674,8 +698,7 @@ public class CommitCommentsFrame extends EscapeDialog
                         filesToRemove.add(statusInfo.getFile());
                     }
                 }
-                else {
-                    if(! isPkgFile) {
+                else  if (!isPkgFile) {
                     if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
                         mergeConflicts.add(statusInfo.getFile());
                     }
@@ -691,7 +714,6 @@ public class CommitCommentsFrame extends EscapeDialog
                         needsMerge.add(statusInfo.getFile());
                     }
                 }
-            }
             }
 
             setLayoutChanged (! changedLayoutFiles.isEmpty());
@@ -724,12 +746,18 @@ public class CommitCommentsFrame extends EscapeDialog
                                 // file is okay locally, but needs to be pushed, therefore,
                                 //it is not in the commitOrPushListModel. Needs to be
                                 //added
-                                commitOrPushListModel.addElement(statusInfo);
+                                //commitOrPushListModel.addElement(statusInfo);
+                                filesToPushList.add(statusInfo);
                             }
                         }
                 }
             }
-            setLayoutChanged (! changedLayoutFiles.isEmpty());
+        }
+        private void updateCommitOrPushListModel(List<TeamStatusInfo> listOfStatusInfo)
+        {
+            for (TeamStatusInfo entry:listOfStatusInfo){
+                commitOrPushListModel.addElement(entry);
+            }
         }
     }
 }
