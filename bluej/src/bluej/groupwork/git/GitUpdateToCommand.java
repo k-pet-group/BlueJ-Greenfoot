@@ -85,17 +85,27 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
 
             //before performing the merge, move package.bluej in order to avoid uneccessary conflicts.
             File packageBluejBackup = moveFile("package", "bluej");
-
+            ObjectId headBeforeMerge = repo.getRepository().resolve("HEAD");
             merge.include(repo.getRepository().resolve("origin/master")); // merge with remote repository.
             MergeResult mergeResult = merge.call();
             switch (mergeResult.getMergeStatus()) {
                 case FAST_FORWARD:
                     //no conflicts. this was a fast-forward merge. files where only added.
-                    //move package.bluej back.
-                    Files.move(packageBluejBackup, new File(getRepository().getProjectPath(), "package.bluej"));
+                    //if package.bluej is in forceFiles, then leave the repo as it is.
+                    if (packageBluejBackup != null) {
+                        if (!forceFiles.stream().anyMatch(file -> file.getName().equals("package.bluej"))) {
+                            //package.bluej is not in the forceFiles list, therefore must be restored.
+                            //move package.bluej back.
+                            Files.move(packageBluejBackup, new File(getRepository().getProjectPath(), "package.bluej"));
+                        } else {
+                            //remove the backup copy.
+                            packageBluejBackup.delete();
+                        }
+                    }
+                    
                     //now we need to find out what files where affected by this merge.
                     //to do so, we compare the commits affected by this merge.
-                    processChanges(repo, mergeResult);
+                    processChanges(repo, headBeforeMerge, mergeResult);
             }
 
             if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
@@ -126,16 +136,16 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     @Override
     public void overrideFiles(Set<File> files)
     {
-        
+
     }
 
-    private void processChanges(Git repo, MergeResult mergeResult)
+    private void processChanges(Git repo, ObjectId headBeforeMerge, MergeResult mergeResult)
     {
         try {
 
                 RevTree masterTree = getTree(repo.getRepository(), repo.getRepository().resolve("HEAD"));
 
-                RevTree baseTree = getTree(repo.getRepository(), repo.getRepository().resolve("HEAD~"));
+                RevTree baseTree = getTree(repo.getRepository(), headBeforeMerge);
 
                 //Base and  new Head differ. We need to investigate further.
                 if (baseTree != null) {

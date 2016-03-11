@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ package bluej.groupwork;
  * be changed when we next update. 
  *
  * @author Davin McCall
- * @version $Id: UpdateFilter.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class UpdateFilter
 {
@@ -38,25 +37,30 @@ public class UpdateFilter
     {
         boolean isDir = statusInfo.getFile().isDirectory();
         int stat = statusInfo.getStatus();
+        int remoteStat = statusInfo.getRemoteStatus();
         
-        if (stat == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
+        if (stat == TeamStatusInfo.STATUS_NEEDSCHECKOUT || remoteStat == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSMERGE) {
+        if (stat == TeamStatusInfo.STATUS_NEEDSMERGE || remoteStat == TeamStatusInfo.STATUS_NEEDSMERGE) {
             return ! isDir;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSUPDATE) {
+        if (stat == TeamStatusInfo.STATUS_NEEDSUPDATE || remoteStat == TeamStatusInfo.STATUS_NEEDSUPDATE) {
             return ! isDir;
         }
-        if (stat == TeamStatusInfo.STATUS_REMOVED) {
+        if (stat == TeamStatusInfo.STATUS_REMOVED || remoteStat == TeamStatusInfo.STATUS_REMOVED) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+        if (stat == TeamStatusInfo.STATUS_CONFLICT_LDRM || remoteStat == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
             // Locally deleted, remotely modified. Update pulls the repository version
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
+        if (stat == TeamStatusInfo.STATUS_CONFLICT_LMRD || remoteStat == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
             // Update will succeed if forced (for bluej.pkg files)
+            return true;
+        }
+        
+        if (remoteStat == TeamStatusInfo.REMOTE_STATUS_MODIFIED){
             return true;
         }
     

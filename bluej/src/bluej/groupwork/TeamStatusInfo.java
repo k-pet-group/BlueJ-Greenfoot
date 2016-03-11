@@ -28,7 +28,6 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 15575 2016-03-07 01:49:19Z fdlh $
  */
 public class TeamStatusInfo
 {
@@ -96,16 +95,16 @@ public class TeamStatusInfo
     public final static int STATUS_NEEDS_PUSH = 16;
 
     /* File is up-to-date on the remote repository*/
-    public final static int REMOTE_STATUS_UPTODATE = 17;
+    public final static int REMOTE_STATUS_UPTODATE = STATUS_UPTODATE;
 
     /* File has been created on remote repository */
-    public final static int REMOTE_STATUS_ADDED = 18;
+    public final static int REMOTE_STATUS_ADDED = STATUS_NEEDSADD;
     
     /* File has been deleted on remote repository */
-    public final static int REMOTE_STATUS_DELETED = 19;
+    public final static int REMOTE_STATUS_DELETED = STATUS_REMOVED;
     
     /* File has been modified on remote repository */
-    public final static int REMOTE_STATUS_MODIFIED = 20;
+    public final static int REMOTE_STATUS_MODIFIED = STATUS_NEEDSUPDATE;
     
     /* File has been removed on the remote repository */
     //public final static int REMOTE_STATUS_REMOVED = 21;
