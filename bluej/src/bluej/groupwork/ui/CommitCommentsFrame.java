@@ -107,8 +107,8 @@ public class CommitCommentsFrame extends EscapeDialog
     public CommitCommentsFrame(Project proj)
     {
         project = proj;
-        repository = project.getRepository();
         changedLayoutFiles = new HashSet<TeamStatusInfo>();
+        repository = project.getTeamSettingsController().getRepository(false);
         createUI();
         DialogManager.centreDialog(this);
     }
@@ -126,7 +126,7 @@ public class CommitCommentsFrame extends EscapeDialog
             changedLayoutFiles.clear();
             commitOrPushListModel.removeAllElements();
             
-            
+            repository = project.getRepository();
             
             if (repository != null) {
                 try {
@@ -535,6 +535,15 @@ public class CommitCommentsFrame extends EscapeDialog
                         commitAction.setEnabled(false);
                         pushAction.setEnabled(false);
                     }
+                } else {
+                    if(commitOrPushListModel.isEmpty()) {
+                    commitOrPushListModel.addElement(noFilesToCommit);
+                }
+                else {
+                    commitText.setEnabled(true);
+                    commitText.requestFocusInWindow();
+                    commitAction.setEnabled(true);
+                }
                 }
             }
         }
@@ -614,7 +623,7 @@ public class CommitCommentsFrame extends EscapeDialog
                 Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles)
         {
             //boolean includeLayout = project.getTeamSettingsController().includeLayout();
-            
+
             CommitFilter filter = new CommitFilter();
             Map<File,File> modifiedLayoutDirs = new HashMap<>();
 
@@ -625,8 +634,8 @@ public class CommitCommentsFrame extends EscapeDialog
                 int remoteStatus = statusInfo.getRemoteStatus();
                 if(filter.accept(statusInfo)) {
                     if (! isPkgFile && status != TeamStatusInfo.STATUS_UPTODATE) {
-                            commitOrPushListModel.addElement(statusInfo);
-                            filesToCommit.add(file);
+                        commitOrPushListModel.addElement(statusInfo);
+                        filesToCommit.add(file);
                         }
                     else if (status == TeamStatusInfo.STATUS_NEEDSADD
                             || status == TeamStatusInfo.STATUS_DELETED
@@ -655,8 +664,8 @@ public class CommitCommentsFrame extends EscapeDialog
                             // We must commit the file unconditionally
                             filesToCommit.add(file);
                         }
-                    }
-                    
+                    } 
+
                     if (status == TeamStatusInfo.STATUS_NEEDSADD) {
                         filesToAdd.add(statusInfo.getFile());
                     }
@@ -667,24 +676,24 @@ public class CommitCommentsFrame extends EscapeDialog
                 }
                 else {
                     if(! isPkgFile) {
-                        if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
-                            mergeConflicts.add(statusInfo.getFile());
-                        }
-                        if (status == TeamStatusInfo.STATUS_UNRESOLVED
-                                || status == TeamStatusInfo.STATUS_CONFLICT_ADD
-                                || status == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
-                            deleteConflicts.add(statusInfo.getFile());
-                        }
-                        if (status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
-                            otherConflicts.add(statusInfo.getFile());
-                        }
-                        if (status == TeamStatusInfo.STATUS_NEEDSMERGE) {
-                            needsMerge.add(statusInfo.getFile());
-                        }
+                    if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
+                        mergeConflicts.add(statusInfo.getFile());
+                    }
+                    if (status == TeamStatusInfo.STATUS_UNRESOLVED
+                            || status == TeamStatusInfo.STATUS_CONFLICT_ADD
+                            || status == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
+                        deleteConflicts.add(statusInfo.getFile());
+                    }
+                    if (status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+                        otherConflicts.add(statusInfo.getFile());
+                    }
+                    if (status == TeamStatusInfo.STATUS_NEEDSMERGE) {
+                        needsMerge.add(statusInfo.getFile());
                     }
                 }
             }
-            
+            }
+
             setLayoutChanged (! changedLayoutFiles.isEmpty());
         }
         
@@ -702,11 +711,10 @@ public class CommitCommentsFrame extends EscapeDialog
 
             for (TeamStatusInfo statusInfo : info) {
                 File file = statusInfo.getFile();
-                boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
+                //boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
                 int status = statusInfo.getStatus();
                 int remoteStatus = statusInfo.getRemoteStatus();
                 if (filter.accept(statusInfo)) {
-                    if (!isPkgFile) {
                         if (remoteStatus == TeamStatusInfo.STATUS_NEEDS_PUSH ||
                                 remoteStatus == TeamStatusInfo.REMOTE_STATUS_ADDED ||
                                 remoteStatus == TeamStatusInfo.REMOTE_STATUS_DELETED ||
@@ -719,7 +727,6 @@ public class CommitCommentsFrame extends EscapeDialog
                                 commitOrPushListModel.addElement(statusInfo);
                             }
                         }
-                    }
                 }
             }
             setLayoutChanged (! changedLayoutFiles.isEmpty());
