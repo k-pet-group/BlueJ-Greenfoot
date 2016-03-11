@@ -57,6 +57,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -161,7 +162,7 @@ public class GitTester
                 Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
                 Assert.fail("could not create Git repo.");
             }
-            assertEquals(failed, false);
+            assertEquals(false, failed);
 
             //In order to have the Status command working, we need to manually push.
             //this will properly create the master branch. This seems to be the default
@@ -172,11 +173,11 @@ public class GitTester
             createFileWithContent(tempFile, "random content.");
             LinkedHashSet<File> newFiles = new LinkedHashSet<>();
             newFiles.add(tempFile);
-            TeamworkCommand commitAllCmd = repositoryA.commitAll(newFiles, 
-                    new LinkedHashSet<>(), new LinkedHashSet<>(), newFiles, 
+            TeamworkCommand commitAllCmd = repositoryA.commitAll(newFiles,
+                    new LinkedHashSet<>(), new LinkedHashSet<>(), newFiles,
                     "This commit was made by the GitTester as the first commit of the repostiory. "
-                            + "It should add a file to the repository. This will finish preparing "
-                            + "the repository for use.");
+                    + "It should add a file to the repository. This will finish preparing "
+                    + "the repository for use.");
             commitAllCmd.getResult();
             try (Git repo = Git.open(fileTestA)) {
                 repo.push().call();
@@ -225,7 +226,7 @@ public class GitTester
             Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
             Assert.fail("could not create Git repo.");
         }
-        assertEquals(failed, false);
+        assertEquals(false, failed);
 
     }
 
@@ -236,9 +237,11 @@ public class GitTester
     @Test
     public void testAddFile()
     {
+
         try {
             File tempFile = null;
             TestStatusListener listener;
+            TeamStatusInfo statusItem = null;
             try {
                 testCheckoutRepoA();
                 tempFile = File.createTempFile("addedFile", "java", fileTestA);
@@ -249,21 +252,25 @@ public class GitTester
                 Assert.fail("could not create temporary file");
             } finally {
                 listener = getRepoStatus(repositoryA, false);
-                assertEquals(listener.getResources().size(), 1);
-                assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_NEEDSADD);
-                assertEquals(listener.getResources().get(0).getFile().getAbsolutePath(), tempFile.getAbsolutePath());
+
+                assertEquals(2, listener.getResources().size());
+                statusItem = getStatusItemFromListener(listener, tempFile);
+                
+                assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getStatus());
+                assertEquals(tempFile.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
                 response = addFileToRepo(repositoryA, "This commit was made by the GitTester. It should add a file to the repository.", tempFile);
             }
 
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
             TestCase.assertNotNull(tempFile);
-            assertEquals(tempFile.exists(), true);
+            assertEquals(true, tempFile.exists());
 
             listener = getRepoStatus(repositoryA, false);
-
-            assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_UPTODATE);
-            assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
+            statusItem = getStatusItemFromListener(listener, tempFile);
+            
+            assertEquals(2, listener.getResources().size());
+            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getStatus());
+            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getRemoteStatus());
         } catch (IOException ex) {
             Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
             Assert.fail("Something went wrong.");
@@ -289,20 +296,26 @@ public class GitTester
             createFileWithContent(tempFile, "random content.");
 
             TestStatusListener listener = getRepoStatus(repositoryA, true);
-            assertEquals(listener.getResources().size(), 2);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_NEEDSADD);
-            assertEquals(listener.getResources().get(0).getFile().getAbsolutePath(), tempFile.getAbsolutePath());
-            assertEquals(listener.getResources().get(1).getStatus(), TeamStatusInfo.STATUS_NEEDSADD);
-            assertEquals(listener.getResources().get(1).getFile().getAbsolutePath(), tempFolder.getAbsolutePath());
+            assertEquals(3, listener.getResources().size());
+            
+            TeamStatusInfo statusItem = getStatusItemFromListener(listener, tempFile);
+            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getStatus());
+            assertEquals(tempFile.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
+            
+            statusItem = getStatusItemFromListener(listener, tempFolder);
+            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getStatus());
+            assertEquals(tempFolder.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
             response = addFileToRepo(repositoryA, "This commit was made by the GitTester. It should add a file and a directory to the repository.", new File[]{tempFolder, tempFile});
 
-            assertEquals(response.isError(), false);
-            assertEquals(tempFolder.exists(), true);
+            assertEquals(false, response.isError());
+            assertEquals(true, tempFolder.exists());
 
             listener = getRepoStatus(repositoryA, true);
-            assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_UPTODATE);
-            assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
+            assertEquals(2, listener.getResources().size());
+            
+            statusItem = getStatusItemFromListener(listener, tempFile);
+            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getStatus());
+            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getRemoteStatus());
 
         } catch (IOException ex) {
             Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
@@ -338,15 +351,17 @@ public class GitTester
             assertEquals(tempFolder.exists(), false);
 
             TestStatusListener listener = getRepoStatus(repositoryA, true);
-            assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_DELETED);
-            assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.REMOTE_STATUS_ADDED);
-            assertEquals(listener.getResources().get(0).getFile().getAbsolutePath(), tempFile.getAbsolutePath());
+            assertEquals(2, listener.getResources().size());
+            
+            TeamStatusInfo statusItem = getStatusItemFromListener(listener, tempFile);
+            assertEquals(TeamStatusInfo.STATUS_DELETED, statusItem.getStatus());
+            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getRemoteStatus());
+            assertEquals(tempFile.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
 
             response = RemoveFileFromRepo(repositoryA, "This commit should remove a file and a directory from the repository", new File[]{tempFile, tempFolder});
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
             listener = getRepoStatus(repositoryA, true);
-            assertEquals(listener.getResources().size(), 0);
+            assertEquals(1, listener.getResources().size());
 
         } catch (IOException ex) {
             Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
@@ -374,36 +389,40 @@ public class GitTester
 
             listener = getRepoStatus(repositoryA, true);
 
-            assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_NEEDSADD);
-            assertEquals(listener.getResources().get(0).getFile().getAbsolutePath(), tempFileRepoA.getAbsolutePath());
+            assertEquals(2, listener.getResources().size());
+            
+            TeamStatusInfo statusItem = getStatusItemFromListener(listener, tempFileRepoA);
+            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getStatus());
+            assertEquals(tempFileRepoA.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
 
             // add, commit and push tempFileRepoA.
             response = addFileToRepo(repositoryA, "File added to repository A. This should not create a conflict.", tempFileRepoA);
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
             TestCase.assertNotNull(tempFileRepoA);
-            assertEquals(tempFileRepoA.exists(), true);
-            
+            assertEquals(true, tempFileRepoA.exists());
+
             listener = getRepoStatus(repositoryA, true);
 
-            assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_UPTODATE);
-            assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
-            
+            statusItem = getStatusItemFromListener(listener, tempFileRepoA);
+            assertEquals(2, listener.getResources().size());
+            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getStatus());
+            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getRemoteStatus());
+
             //push.
             response = repositoryA.pushChanges().getResult();
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
 
             listener = getRepoStatus(repositoryA, true);
-            assertEquals(listener.getResources().size(), 0);
+            assertEquals(2, listener.getResources().size());
 
             //done. 
             //now, update repositoryB so it can get the same file.
             listener = getRepoStatus(repositoryB, true);
-            assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.REMOTE_STATUS_ADDED);
-            assertEquals(listener.getResources().get(0).getStatus(), TeamStatusInfo.STATUS_NEEDSUPDATE);
-            assertEquals(listener.getResources().get(0).getFile().getName(), tempFileRepoA.getName());
+            assertEquals(2, listener.getResources().size());
+            statusItem = getStatusItemFromListener(listener, tempFileRepoA);
+            assertEquals(TeamStatusInfo.STATUS_NEEDSCHECKOUT, statusItem.getRemoteStatus());
+            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getStatus());
+            assertEquals(tempFileRepoA.getName(), statusItem.getFile().getName());
 
             GitStatusHandle statusHandler = listener.getStatusHandle();
             HashSet<File> filesHashSet = new HashSet<>();
@@ -415,7 +434,7 @@ public class GitTester
             TeamworkCommand updateTo = statusHandler.updateTo(new TestUpdateListener(null, statusHandler, filesHashSet, new HashSet<>()), filesHashSet, new HashSet<>());
             response = updateTo.getResult();
 
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
             for (File tmp : fileTestB.listFiles()) {
                 if (tmp.getName().equals(tempFileRepoA.getName())) {
                     tempFileRepoB = tmp;
@@ -423,41 +442,43 @@ public class GitTester
                 }
             }
             TestCase.assertNotNull(tempFileRepoB);
-            assertEquals(tempFileRepoB.exists(), true);
+            assertEquals(true, tempFileRepoB.exists());
 
             //In repositoryA, edit the file, commit, push.
             createFileWithContent(tempFileRepoA, fileContent + "edit on repoA");
 
             response = addFileToRepo(repositoryA, SERVER, tempFileRepoA);
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
             TestCase.assertNotNull(tempFileRepoA);
-            assertEquals(tempFileRepoA.exists(), true);
+            assertEquals(true, tempFileRepoA.exists());
             listener = getRepoStatus(repositoryA, true);
 
-            assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.STATUS_NEEDS_PUSH);
-            assertEquals(listener.getResources().get(0).getFile().getAbsolutePath(), tempFileRepoA.getAbsolutePath());
+            assertEquals(2, listener.getResources().size());
+            statusItem = getStatusItemFromListener(listener, tempFileRepoA);
+            assertEquals(TeamStatusInfo.STATUS_NEEDSCOMMIT, statusItem.getRemoteStatus());
+            assertEquals(tempFileRepoA.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
 
             //push.
             response = repositoryA.pushChanges().getResult();
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
 
             //In repoB, edit the same file
             createFileWithContent(tempFileRepoB, fileContent + "edit on repository B. This should raise a conflict.");
             response = addFileToRepo(repositoryB, SERVER, tempFileRepoB);
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
             TestCase.assertNotNull(tempFileRepoB);
-            assertEquals(tempFileRepoB.exists(), true);
+            assertEquals(true, tempFileRepoB.exists());
             listener = getRepoStatus(repositoryB, true);
-            assertEquals(listener.getResources().size(), 1);
-            assertEquals(listener.getResources().get(0).getRemoteStatus(), TeamStatusInfo.REMOTE_STATUS_ADDED);
-            assertEquals(listener.getResources().get(0).getFile().getAbsolutePath(), tempFileRepoB.getAbsolutePath());
-            
-            //push.
+            assertEquals(2, listener.getResources().size());
+            statusItem = getStatusItemFromListener(listener, tempFileRepoB);
+            assertEquals(TeamStatusInfo.STATUS_NEEDSMERGE, statusItem.getRemoteStatus());
+            assertEquals(tempFileRepoB.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
+
+            //push. this sho
             response = repositoryB.pushChanges().getResult();
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
             listener = getRepoStatus(repositoryB, true);
-            assertEquals(listener.getResources().size(), 1);
+            assertEquals(2, listener.getResources().size());
 
             //this file should be marked as a conflicting one.
             statusHandler = listener.getStatusHandle();
@@ -468,7 +489,9 @@ public class GitTester
 
             updateTo = statusHandler.updateTo(new TestUpdateListener(null, statusHandler, filesHashSet, new HashSet<>()), filesHashSet, new HashSet<>());
             response = updateTo.getResult();
-            assertEquals(response.isError(), false);
+            assertEquals(false, response.isError());
+            
+            //TODO: add status checks.
 
         } catch (IOException ex) {
             Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
@@ -509,6 +532,18 @@ public class GitTester
         deletedFiles.addAll(Arrays.asList(files));
         TeamworkCommand commitAllCmd = repo.commitAll(new LinkedHashSet<>(), new LinkedHashSet<>(), deletedFiles, deletedFiles, message);
         result = commitAllCmd.getResult();
+        return result;
+    }
+
+    private TeamStatusInfo getStatusItemFromListener(TestStatusListener listener, File tempFile)
+    {
+        TeamStatusInfo result = null;
+        for (TeamStatusInfo item : listener.getResources()) {
+            if (item.getFile().getName().equals(tempFile.getName())) {
+                result = item;
+                break;
+            }
+        }
         return result;
     }
 
@@ -612,25 +647,25 @@ public class GitTester
         @Override
         public void fileAdded(File f)
         {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            //do nothing
         }
 
         @Override
         public void fileRemoved(File f)
         {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            //do nothing.
         }
 
         @Override
         public void fileUpdated(File f)
         {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            //do nothing.
         }
 
         @Override
         public void dirRemoved(File f)
         {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            //do nothing.
         }
 
         @Override
@@ -646,29 +681,30 @@ public class GitTester
             }
 
             try {
-                EventQueue.invokeAndWait(new Runnable() {
+                EventQueue.invokeAndWait(new Runnable()
+                {
                     @Override
                     public void run()
                     {
-                        /** A list of files to replace with repository version */
+                        /**
+                         * A list of files to replace with repository version
+                         */
                         Set<File> filesToOverride = new HashSet<File>();
 
                         // Binary conflicts
                         for (Iterator<File> i = updateServerResponse.getBinaryConflicts().iterator();
-                                i.hasNext(); ) {
+                                i.hasNext();) {
                             File f = i.next();
 
                             if (BlueJPackageFile.isPackageFileName(f.getName())) {
                                 filesToOverride.add(f);
-                            }
-                            else {
+                            } else {
                                 // TODO make the displayed file path relative to project
                                 int answer = DialogManager.askQuestion(PkgMgrFrame.getMostRecent(),
-                                        "team-binary-conflict", new String[] {f.getName()});
+                                        "team-binary-conflict", new String[]{f.getName()});
                                 if (answer == 0) {
                                     // keep local version
-                                }
-                                else {
+                                } else {
                                     // use repository version
                                     filesToOverride.add(f);
                                 }
@@ -677,7 +713,6 @@ public class GitTester
 
                         //TODO: implement overrideFiles!!!!!!!!!!!!!!!!!
                         //updateServerResponse.overrideFiles(filesToOverride);
-
                         List<String> blueJconflicts = new LinkedList<String>();
                         List<String> nonBlueJConflicts = new LinkedList<String>();
                         List<Target> targets = new LinkedList<Target>();
@@ -691,7 +726,7 @@ public class GitTester
 
                             // bluej package file may come up as a conflict, but it won't cause a problem,
                             // so it can be ignored.
-                            if (! BlueJPackageFile.isPackageFileName(baseName)) {
+                            if (!BlueJPackageFile.isPackageFileName(baseName)) {
                                 Target target = null;
 
 //                                if (baseName.endsWith(".java") || baseName.endsWith(".class")) {
@@ -710,7 +745,6 @@ public class GitTester
 //                                        target = project.getTarget(targetId);
 //                                    }
 //                                }
-
 //                                String fileName = makeRelativePath(project.getProjectDir(), file);
 //                                
 //                                if (target == null) {
@@ -722,7 +756,7 @@ public class GitTester
                             }
                         }
 
-                        if (! blueJconflicts.isEmpty() || ! nonBlueJConflicts.isEmpty()) {
+                        if (!blueJconflicts.isEmpty() || !nonBlueJConflicts.isEmpty()) {
 //                            project.clearAllSelections();
 //                            project.selectTargetsInGraphs(targets);
 
@@ -732,11 +766,9 @@ public class GitTester
                         }
                     }
                 });
-            }
-            catch (InvocationTargetException ite) {
+            } catch (InvocationTargetException ite) {
                 throw new Error(ite);
-            }
-            catch (InterruptedException ie) {
+            } catch (InterruptedException ie) {
                 // Probably indicates an application exit; just ignore it.
             }
         }
