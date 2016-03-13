@@ -118,7 +118,7 @@ public class GitRepository implements Repository
         //we dont' need a list of binary files and regular files. merge them.
         newFiles.addAll(binaryNewFiles);
 
-        return new GitCommitAllCommand(this, newFiles, deletedFiles, commitComment);
+        return new GitCommitAllCommand(this, newFiles, deletedFiles, files, commitComment);
     }
 
     @Override

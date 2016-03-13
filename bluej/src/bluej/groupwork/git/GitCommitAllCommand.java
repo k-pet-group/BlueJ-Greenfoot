@@ -43,14 +43,16 @@ public class GitCommitAllCommand extends GitCommand
 
     protected Set<File> newFiles;
     protected Set<File> deletedFiles;
+    protected Set<File> files;
     protected String commitComment;
 
     public GitCommitAllCommand(GitRepository repository, Set<File> newFiles,
-            Set<File> deletedFiles, String commitComment) 
+            Set<File> deletedFiles, Set<File> files, String commitComment) 
     {
         super(repository);
         this.newFiles = newFiles;
         this.deletedFiles = deletedFiles;
+        this.files = files;
         this.commitComment = commitComment;
     }
 
@@ -65,18 +67,38 @@ public class GitCommitAllCommand extends GitCommand
             Path basePath;
             basePath = Paths.get(this.getRepository().getProjectPath().toString());
             
-            
+            //files for addition
             for (File f:newFiles){
                 String fileName = basePath.relativize(f.toPath()).toString();
                 if (!fileName.isEmpty()){
                     repo.add().addFilepattern(fileName).call();
                 }
             }
+            
+            //files for removal
+            for (File f:deletedFiles){
+                String fileName = basePath.relativize(f.toPath()).toString();
+                if (!fileName.isEmpty()){
+                    repo.rm().addFilepattern(fileName).call();
+                }
+            }
+            
 
             //deleted files are handled by the commit command.
-            //by setting setAll to true, we are including modified
+            //by setting setAll to true, we are forcibly including modified
             //and deleted files to the commit.
-            commit.setAll(true);
+            //setting it to false allow us to add the modified files 
+            //we want include
+            commit.setAll(false);
+
+            //modified files
+            for (File f:files){
+                String fileName = basePath.relativize(f.toPath()).toString();
+                if (!fileName.isEmpty()){
+                    commit.setOnly(fileName);
+                }
+            }
+
             //add the comment to the commit.
             commit.setMessage(commitComment);
             //set name and email of the author of the commit.

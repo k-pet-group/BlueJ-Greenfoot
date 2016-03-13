@@ -51,8 +51,8 @@ public class GitStatusHandle implements StatusHandle
     {
         //we dont' need a list of binary files and regular files. merge them.
         newFiles.addAll(binaryNewFiles);
-        
-            return new GitCommitAllCommand(repository, newFiles, deletedFiles, commitComment);
+
+        return new GitCommitAllCommand(repository, newFiles, deletedFiles, files, commitComment);
 
     }
 
