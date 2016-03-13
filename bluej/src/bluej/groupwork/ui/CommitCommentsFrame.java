@@ -40,11 +40,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -73,6 +71,9 @@ import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 import bluej.utility.Utility;
 import java.util.LinkedList;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 
 
 /**
@@ -82,7 +83,7 @@ import java.util.LinkedList;
  */
 public class CommitCommentsFrame extends EscapeDialog
 {
-    private JList commitOrPushFiles;
+    private JTable commitOrPushFiles;
     private JPanel topPanel;
     private JPanel bottomPanel;
     private JTextArea commitText;
@@ -96,7 +97,8 @@ public class CommitCommentsFrame extends EscapeDialog
     private Project project;
     
     private Repository repository;
-    private DefaultListModel commitOrPushListModel;
+    private MyTableModel commitOrPushTableModel;
+    private String[] columnNames;
     
     /* These lists will contain the files to be commited and pushed. */
     private LinkedList<TeamStatusInfo> filesToCommitList,filesToPushList;
@@ -128,7 +130,7 @@ public class CommitCommentsFrame extends EscapeDialog
             includeLayout.setSelected(false);
             includeLayout.setEnabled(false);
             changedLayoutFiles.clear();
-            commitOrPushListModel.removeAllElements();
+            commitOrPushTableModel.clear();
             
             repository = project.getRepository();
             
@@ -164,8 +166,17 @@ public class CommitCommentsFrame extends EscapeDialog
         }else {
             setTitle(Config.getString("team.commit.title"));
         }
-        
-        commitOrPushListModel = new DefaultListModel();
+        if (repository.isDVCS()){
+            columnNames = new String[]{"File Name",
+                                "Operation",
+                                "Commit",
+                                "Push"};
+        }else {
+            columnNames = new String[]{"File Name",
+                                "Operation",
+                                "Commit"};
+        }
+        commitOrPushTableModel = new MyTableModel(columnNames);
         filesToCommitList = new LinkedList<>();
         filesToPushList = new LinkedList<>();
         
@@ -196,11 +207,24 @@ public class CommitCommentsFrame extends EscapeDialog
             commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             topPanel.add(commitFilesLabel, BorderLayout.NORTH);
 
-            commitOrPushFiles = new JList(commitOrPushListModel);
-            commitOrPushFiles.setCellRenderer(new FileRenderer(project));
+            commitOrPushFiles = new JTable(commitOrPushTableModel);
             commitOrPushFiles.setEnabled(false);
             commitFileScrollPane.setViewportView(commitOrPushFiles);
+
+            //Center headers.
+            TableCellRenderer rendererFromHeader = commitOrPushFiles.getTableHeader().getDefaultRenderer();
+            JLabel headerLabel = (JLabel) rendererFromHeader;
+            headerLabel.setHorizontalAlignment(JLabel.CENTER);
+
             
+            commitOrPushFiles.getColumnModel().getColumn(0).setPreferredWidth(100);
+            commitOrPushFiles.getColumnModel().getColumn(1).setPreferredWidth(90);
+            
+            if (repository.isDVCS()){
+                commitOrPushFiles.getColumnModel().getColumn(columnNames.length-2).setPreferredWidth(20);
+            }
+            commitOrPushFiles.getColumnModel().getColumn(columnNames.length-1).setPreferredWidth(20);
+                        
             topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
         }
 
@@ -312,7 +336,7 @@ public class CommitCommentsFrame extends EscapeDialog
 
     public void reset()
     {
-        commitOrPushListModel.clear();
+        commitOrPushTableModel.clear();
         filesToCommitList.clear();
         filesToPushList.clear();
         setComment("");
@@ -326,11 +350,11 @@ public class CommitCommentsFrame extends EscapeDialog
             if (! packagesToCommmit.contains(info.getFile().getParentFile()) 
                     && ! filesToCommitList.contains(info) 
                     && !filesToPushList.contains(info)) {
-                commitOrPushListModel.removeElement(info);
+                commitOrPushTableModel.removeElement(info);
             }
         }
-        if (commitOrPushListModel.isEmpty()) {
-            commitOrPushListModel.addElement(noFilesToCommit);
+        if (commitOrPushTableModel.isEmpty()) {
+            commitOrPushTableModel.addElement(noFilesToCommit);
             commitText.setEnabled(false);
         }
     }
@@ -342,8 +366,8 @@ public class CommitCommentsFrame extends EscapeDialog
     
     private void addModifiedLayouts()
     {
-        if(commitOrPushListModel.contains(noFilesToCommit)) {
-            commitOrPushListModel.removeElement(noFilesToCommit);
+        if(commitOrPushTableModel.contains(noFilesToCommit)) {
+            commitOrPushTableModel.removeElement(noFilesToCommit);
             commitText.setEnabled(true);
         }
         // add diagram layout files to list of files to be committed
@@ -355,7 +379,7 @@ public class CommitCommentsFrame extends EscapeDialog
                     && ! packagesToCommmit.contains(parentFile)
                     && ! filesToCommitList.contains(info) 
                     && !filesToPushList.contains(info)) {
-                commitOrPushListModel.addElement(info);
+                commitOrPushTableModel.addElement(info);
                 displayedLayouts.add(info.getFile().getParentFile());
             }
         }
@@ -427,6 +451,209 @@ public class CommitCommentsFrame extends EscapeDialog
         includeLayout.setEnabled(hasChanged);
     }
     
+    private class MyTableModel extends AbstractTableModel
+    {
+
+        public String[] columnNames;
+        private final ArrayList<Object> data = new ArrayList<>();
+
+        MyTableModel(String[] columnNames)
+        {
+            this.columnNames = columnNames;
+        }
+
+        @Override
+        public int getRowCount()
+        {
+            return data.size();
+        }
+
+        @Override
+        public int getColumnCount()
+        {
+            return columnNames.length;
+        }
+
+        @Override
+        public String getColumnName(int column)
+        {
+            return columnNames[column];
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex)
+        {
+            Object result = null;
+            Object objectItem = data.get(rowIndex);
+            if (objectItem instanceof TeamStatusInfo) {
+                TeamStatusInfo item = (TeamStatusInfo) objectItem;
+                if (columnIndex < columnNames.length) {
+                    switch (columnIndex) {
+                        case 0:
+                            result = ResourceDescriptor.getResource(project, item, true);
+                            break;
+                        case 1:
+                            if (item.getStatus() != TeamStatusInfo.STATUS_UPTODATE) {
+                                //operation is the local operation.
+                                result = TeamStatusInfo.getStatusString(item.getStatus());
+                            } else if (item.getRemoteStatus() != TeamStatusInfo.STATUS_UPTODATE) {
+                                result = TeamStatusInfo.getStatusString(item.getRemoteStatus());
+                            } else {
+                                //status is up-to-date.
+                                result = TeamStatusInfo.getStatusString(TeamStatusInfo.STATUS_UPTODATE);
+                            }
+                            break;
+                        case 2:
+                            result = item.getStatus() != TeamStatusInfo.STATUS_UPTODATE;
+                            break;
+                        case 3:
+                            result = item.getRemoteStatus() != TeamStatusInfo.STATUS_UPTODATE;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            } else if (columnIndex == 0) {
+                result = objectItem;
+            }
+            return result;
+        }
+
+        /**
+         * returns the Class each row element belongs to. This method is mostly
+         * used internally to draw the table.
+         *
+         * @param c row number.
+         * @return
+         */
+        @Override
+        public Class getColumnClass(int c)
+        {
+            Class result = null;
+            if (c < columnNames.length) {
+                switch (c) {
+                    case 0:
+                        result = String.class;
+                        break;
+                    case 1:
+                        result = String.class;
+                        break;
+                    case 2:
+                        result = Boolean.class;
+                        break;
+                    case 3:
+                        result = Boolean.class;
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                result = null;
+            }
+            return result;
+        }
+
+        /**
+         * clear the tableModel.
+         */
+        public void clear()
+        {
+            data.clear();
+            fireTableDataChanged();
+        }
+
+        /**
+         * checks if the tableModel is empty.
+         *
+         * @return
+         */
+        public boolean isEmpty()
+        {
+            return data.isEmpty();
+        }
+
+        /**
+         * checks if the tableModel contains the passed element.
+         *
+         * @param element
+         * @return
+         */
+        public boolean contains(Object element)
+        {
+            return data.contains(element);
+        }
+
+        /**
+         * adds a String as an element of the tableModel
+         *
+         * @param element
+         */
+        public void addElement(String element)
+        {
+            data.add(element);
+            int index = data.indexOf(element);
+            fireTableRowsInserted(index, index);
+        }
+
+        /**
+         * adds a TeamStatusInfo to the tableModel
+         *
+         * @param element
+         */
+        public void addElement(TeamStatusInfo element)
+        {
+            data.add(element);
+            int index = data.indexOf(element);
+            fireTableRowsInserted(index, index);
+        }
+
+        /**
+         * removes the passed element from the tableModel.
+         *
+         * @param element
+         */
+        public void removeElement(Object element)
+        {
+            int index = data.indexOf(element);
+            data.remove(element);
+            fireTableRowsDeleted(index, index);
+        }
+
+        /**
+         * removes the i-th element of the tableModel.
+         *
+         * @param i
+         */
+        public void remove(int i)
+        {
+            int index = data.indexOf(i);
+            data.remove(i);
+            fireTableRowsDeleted(index, index);
+        }
+
+        /**
+         * returns the i-th element of the tableModel
+         *
+         * @param i
+         * @return
+         */
+        public Object get(int i)
+        {
+            return data.get(i);
+        }
+
+        /**
+         * gets the number of elements in the TableModel.
+         *
+         * @return
+         */
+        public int size()
+        {
+            return data.size();
+        }
+
+    }
+
     /**
     * Inner class to do the actual version control status check to populate commit dialog
     * to ensure that the UI is not blocked during remote call
@@ -537,14 +764,14 @@ public class CommitCommentsFrame extends EscapeDialog
                 
                 updateCommitOrPushListModel(filesToCommitList);
                 if (repository.isDVCS()) updateCommitOrPushListModel(filesToPushList);
-                
+               
                 if (filesToCommitList.isEmpty() && filesToPushList.isEmpty()) {
-                    if (commitOrPushListModel.isEmpty()) {
-                        commitOrPushListModel.addElement(noFilesToCommit);
+                    if (commitOrPushTableModel.isEmpty()) {
+                        commitOrPushTableModel.addElement(noFilesToCommit);
                     }
-                } else if (commitOrPushListModel.size() > 1 && (commitOrPushListModel.get(0) instanceof String)) {
+                } else if (commitOrPushTableModel.size() > 1 && (commitOrPushTableModel.get(0) instanceof String)) {
                     //not empty!
-                    commitOrPushListModel.remove(0);
+                    commitOrPushTableModel.remove(0);
                 }
                 if (repository.isDVCS()) {
 
@@ -564,8 +791,8 @@ public class CommitCommentsFrame extends EscapeDialog
                         commitAction.setEnabled(false);
                         pushAction.setEnabled(false);
                     }
-                } else if (commitOrPushListModel.isEmpty()) {
-                    commitOrPushListModel.addElement(noFilesToCommit);
+                } else if (commitOrPushTableModel.isEmpty()) {
+                    commitOrPushTableModel.addElement(noFilesToCommit);
                 } else {
                     commitText.setEnabled(true);
                     commitText.requestFocusInWindow();
@@ -656,7 +883,7 @@ public class CommitCommentsFrame extends EscapeDialog
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
                 int status = statusInfo.getStatus();
-                if(filter.accept(statusInfo)) {
+                if(filter.accept(statusInfo, true)) {
                     if (! isPkgFile && status != TeamStatusInfo.STATUS_UPTODATE) {
                         filesToCommitList.add(statusInfo);
                         filesToCommit.add(file);
@@ -729,34 +956,32 @@ public class CommitCommentsFrame extends EscapeDialog
         {
             
             CommitFilter filter = new CommitFilter();
-            Map<File,File> modifiedLayoutDirs = new HashMap<>();
 
             for (TeamStatusInfo statusInfo : info) {
                 File file = statusInfo.getFile();
-                //boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
-                int status = statusInfo.getStatus();
                 int remoteStatus = statusInfo.getRemoteStatus();
-                if (filter.accept(statusInfo)) {
-                        if (remoteStatus == TeamStatusInfo.STATUS_NEEDS_PUSH ||
-                                remoteStatus == TeamStatusInfo.REMOTE_STATUS_ADDED ||
-                                remoteStatus == TeamStatusInfo.REMOTE_STATUS_DELETED ||
-                                remoteStatus == TeamStatusInfo.REMOTE_STATUS_MODIFIED) {
+                if (filter.accept(statusInfo, false)) {
+                        if (remoteStatus == TeamStatusInfo.STATUS_NEEDSCOMMIT ||
+                                remoteStatus == TeamStatusInfo.STATUS_NEEDS_PUSH ||
+                                remoteStatus == TeamStatusInfo.STATUS_NEEDSADD ||
+                                remoteStatus == TeamStatusInfo.STATUS_DELETED ||
+                                remoteStatus == TeamStatusInfo.STATUS_NEEDSUPDATE) {
                             filesToPush.add(file);
-                            if (status == TeamStatusInfo.STATUS_UPTODATE) {
-                                // file is okay locally, but needs to be pushed, therefore,
-                                //it is not in the commitOrPushListModel. Needs to be
-                                //added
-                                //commitOrPushListModel.addElement(statusInfo);
-                                filesToPushList.add(statusInfo);
-                            }
+                            filesToPushList.add(statusInfo);
                         }
                 }
             }
         }
-        private void updateCommitOrPushListModel(List<TeamStatusInfo> listOfStatusInfo)
+        
+        /**
+         * Update CommitOrPushListModel with the list of statusInfo. This will update
+         * the table.
+         * @param listOfStatusInfo 
+         */
+        private void updateCommitOrPushListModel(Iterable<TeamStatusInfo> listOfStatusInfo)
         {
-            for (TeamStatusInfo entry:listOfStatusInfo){
-                commitOrPushListModel.addElement(entry);
+            for (TeamStatusInfo entry : listOfStatusInfo) {
+                commitOrPushTableModel.addElement(entry);
             }
         }
     }

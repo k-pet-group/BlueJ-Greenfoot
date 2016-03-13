@@ -29,32 +29,39 @@ import bluej.pkgmgr.BlueJPackageFile;
  * modified, remotely modified, locally deleted and remotely removed.
  *
  * @author bquig
- * @version $Id: CommitFilter.java 15581 2016-03-08 13:49:20Z fdlh $
  */
 public class CommitFilter
 {
     /**
      * Filter to identify which files in a repository will be altered at 
      * the next commit.
+     * @param statusInfo the statusInfo to be filtered
+     * @param local if the commit is between working copy and local tree or 
+     *              between local tree and remote tree.
+     * @return 
      */
-    public boolean accept(TeamStatusInfo statusInfo)
+    public boolean accept(TeamStatusInfo statusInfo, boolean local)
     {
-        int stat = statusInfo.getStatus();
-        int remoteStat = statusInfo.getRemoteStatus();
+        int stat;
+        if (local){
+            stat = statusInfo.getStatus();
+        } else {
+            stat = statusInfo.getRemoteStatus();
+        }
         
-        if (stat == TeamStatusInfo.STATUS_DELETED || remoteStat == TeamStatusInfo.STATUS_DELETED ) {
+        if (stat == TeamStatusInfo.STATUS_DELETED) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSADD || remoteStat == TeamStatusInfo.STATUS_NEEDSADD) {
+        if (stat == TeamStatusInfo.STATUS_NEEDSADD) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSCOMMIT || remoteStat == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
+        if (stat == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
             return true;
         }
-        if (remoteStat == TeamStatusInfo.STATUS_NEEDSCHECKOUT){
+        if (!local && stat == TeamStatusInfo.STATUS_NEEDSCHECKOUT){
             return true;
         }
-        if (remoteStat == TeamStatusInfo.STATUS_NEEDS_PUSH) {
+        if (!local && stat == TeamStatusInfo.STATUS_NEEDS_PUSH) {
             return true;
         }
         
