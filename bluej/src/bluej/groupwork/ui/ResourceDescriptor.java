@@ -45,8 +45,10 @@ public class ResourceDescriptor
                 status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
             }
             if (annotate) {
+                //the descriptor for a DCVS repository is in RemoteStatus, and in Status otherwise.
+                int infoStatus = project.getTeamSettingsController().getRepository(false).isDVCS()? info.getRemoteStatus():info.getStatus();
                 // file has been deleted
-                switch (info.getStatus()) {
+                switch (infoStatus) {
                     case TeamStatusInfo.STATUS_DELETED:
                         status += " (" + Config.getString("team.status.delete") + ")";
                         break;

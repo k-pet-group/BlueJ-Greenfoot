@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -486,7 +486,8 @@ public class UpdateFilesFrame extends EscapeDialog
             TeamViewFilter viewFilter = new TeamViewFilter();
             for (Iterator<TeamStatusInfo> it = info.iterator(); it.hasNext();) {
                 TeamStatusInfo statusInfo = it.next();
-                int status = statusInfo.getStatus();
+                //update must look in the remoteStatus in a DVCS. if not DVCS, look into the local status.
+                int status = repository.isDVCS()?statusInfo.getRemoteStatus():statusInfo.getStatus(); 
                 if(filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) { 
                         updateListModel.addElement(statusInfo);
