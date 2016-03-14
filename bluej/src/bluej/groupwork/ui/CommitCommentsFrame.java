@@ -937,18 +937,19 @@ public class CommitCommentsFrame extends EscapeDialog
                     } 
                     else {
                         if (!remote) {
-                        // add file to list of files that may be added to commit
-                        File parentFile = file.getParentFile();
-                        if (!packagesToCommmit.contains(parentFile)) {
-                            modifiedLayoutFiles.add(file);
-                            modifiedLayoutDirs.put(parentFile, file);
-                            // keep track of StatusInfo objects representing changed diagrams
-                            changedLayoutFiles.add(statusInfo);
-                        } else {
-                            // We must commit the file unconditionally
-                            filesToCommit.add(file);
-                        }
-                    }
+                            // add file to list of files that may be added to commit
+                            File parentFile = file.getParentFile();
+                            if (!packagesToCommmit.contains(parentFile)) {
+                                modifiedLayoutFiles.add(file);
+                                modifiedLayoutDirs.put(parentFile, file);
+                                // keep track of StatusInfo objects representing changed diagrams
+                                changedLayoutFiles.add(statusInfo);
+                            } else {
+                                // We must commit the file unconditionally
+                                filesToCommit.add(file);
+                            }
+                        } 
+                    } 
 
                     if (status == TeamStatusInfo.STATUS_NEEDSADD) {
                         filesToAdd.add(statusInfo.getFile());
