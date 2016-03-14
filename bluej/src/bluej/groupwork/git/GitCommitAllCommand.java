@@ -68,17 +68,17 @@ public class GitCommitAllCommand extends GitCommand
             basePath = Paths.get(this.getRepository().getProjectPath().toString());
             
             //files for addition
-            for (File f:newFiles){
+            for (File f : newFiles) {
                 String fileName = basePath.relativize(f.toPath()).toString();
-                if (!fileName.isEmpty()){
+                if (!fileName.isEmpty() && !f.isDirectory()) {
                     repo.add().addFilepattern(fileName).call();
                 }
             }
             
             //files for removal
-            for (File f:deletedFiles){
+            for (File f : deletedFiles) {
                 String fileName = basePath.relativize(f.toPath()).toString();
-                if (!fileName.isEmpty()){
+                if (!fileName.isEmpty()) {
                     repo.rm().addFilepattern(fileName).call();
                 }
             }
@@ -92,9 +92,9 @@ public class GitCommitAllCommand extends GitCommand
             commit.setAll(false);
 
             //modified files
-            for (File f:files){
+            for (File f : files) {
                 String fileName = basePath.relativize(f.toPath()).toString();
-                if (!fileName.isEmpty()){
+                if (!fileName.isEmpty() && !f.isDirectory()) {
                     commit.setOnly(fileName);
                 }
             }
