@@ -34,15 +34,12 @@ import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.UpdateListener;
 import bluej.groupwork.UpdateResults;
 import bluej.groupwork.git.GitStatusHandle;
-import bluej.groupwork.ui.ConflictsDialog;
 import bluej.parser.InitConfig;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,7 +54,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -340,7 +336,7 @@ public class GitTester
             tempFile = File.createTempFile("CreatedFile", "inSubdirectory", tempFolder);
             tempFile.deleteOnExit();
             createFileWithContent(tempFile, "random content.");
-            response = addFileToRepo(repositoryA, "This commit was made by the GitTester. It should add a file and a directory to the repository.", new File[]{tempFolder, tempFile});
+            response = addFileToRepo(repositoryA, "This commit was made by the GitTester. It should add a file and a directory to the repository.", new File[]{tempFile});
             //so far, we added a directory and a file inside that directory.
 
             //now we need to remove them.
@@ -358,7 +354,7 @@ public class GitTester
             assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getRemoteStatus());
             assertEquals(tempFile.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
 
-            response = RemoveFileFromRepo(repositoryA, "This commit should remove a file and a directory from the repository", new File[]{tempFile, tempFolder});
+            response = RemoveFileFromRepo(repositoryA, "This commit should remove a file and a directory from the repository", new File[]{tempFile});
             assertEquals(false, response.isError());
             listener = getRepoStatus(repositoryA, true);
             assertEquals(1, listener.getResources().size());
