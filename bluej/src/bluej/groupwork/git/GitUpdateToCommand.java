@@ -103,10 +103,10 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         }
                     }
                     
-                    //now we need to find out what files where affected by this merge.
-                    //to do so, we compare the commits affected by this merge.
-                    processChanges(repo, headBeforeMerge, mergeResult);
             }
+            //now we need to find out what files where affected by this merge.
+            //to do so, we compare the commits affected by this merge.
+            processChanges(repo, headBeforeMerge, mergeResult);
 
             if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
                 listener.handleConflicts(this);
