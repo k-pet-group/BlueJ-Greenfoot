@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -271,6 +271,17 @@ public class TeamSettingsController
         if (user == null) {
             user = "";
         }
+        
+        String yourName = getPropString("bluej.teamsettings.yourName");
+        if (yourName == null){
+            yourName = "";
+        }
+        
+        String yourEmail = getPropString("bluej.teamsettings.yourEmail");
+        if (yourEmail == null){
+            yourEmail = "";
+        }
+        
         String group = getPropString("bluej.teamsettings.groupname");
         if(group == null) {
             group = "";
@@ -289,6 +300,8 @@ public class TeamSettingsController
         
         if (provider != null) {
             settings = initProviderSettings(user, group, password, provider);
+            settings.setYourName(yourName);
+            settings.setYourEmail(yourEmail);
         }
     }
     
@@ -429,6 +442,23 @@ public class TeamSettingsController
         String userKey = "bluej.teamsettings.user";
         String userValue = settings.getUserName();
         setPropString(userKey, userValue);
+        
+        String yourNameKey = "bluej.teamsettings.yourName";
+        String yourNameValue = "";
+        
+        if (teamSettingsDialog.getSettings().getProvider().needsName()){
+            //save field "your name"
+            yourNameValue = settings.getYourName();
+            setPropString(yourNameKey, yourNameValue);
+        }
+        String yourEmailKey = "bluej.teamsettings.yourEmail";
+        String yourEmailValue = "";
+        if (teamSettingsDialog.getSettings().getProvider().needsEmail()){
+            //save field "your email"
+            yourEmailValue = settings.getYourEmail();
+            setPropString(yourEmailKey, yourEmailValue);
+        }
+        
 
         String providerKey = "bluej.teamsettings.vcs";
         
@@ -471,6 +501,12 @@ public class TeamSettingsController
         if (useAsDefault) {
             Config.putPropString(providerKey, providerName);
             Config.putPropString(userKey, userValue);
+            if (teamSettingsDialog.getSettings().getProvider().needsName()){
+                Config.putPropString(yourNameKey, yourNameValue);
+            }
+            if (teamSettingsDialog.getSettings().getProvider().needsEmail()){
+                Config.putPropString(yourEmailKey, yourEmailValue);
+            }
             Config.putPropString(serverKey, serverValue);
             Config.putPropString(prefixKey, prefixValue);
             Config.putPropString(groupKey, groupValue);

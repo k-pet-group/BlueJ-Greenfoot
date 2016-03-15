@@ -132,11 +132,14 @@ public class TeamSettingsPanel extends JPanel
      */
     public FocusTraversalPolicy getTraversalPolicy(FocusTraversalPolicy delegate)
     {
-        if (getUser().length() != 0) {
-            return new TeamPanelFocusPolicy(passwordField, delegate);
-        }
-        else {
+        if (yourNameField.isEditable() && getYourName().length()==0){
             return delegate;
+        } else if ((yourEmailField.isEditable() && getYourEmail().length()==0)){
+            return new TeamPanelFocusPolicy(yourEmailField, delegate);
+        } else if ( getUser().length() == 0) {
+            return new TeamPanelFocusPolicy(userField, delegate);
+        } else {
+            return new TeamPanelFocusPolicy(passwordField, delegate);
         }
     }
     
@@ -300,6 +303,17 @@ public class TeamSettingsPanel extends JPanel
         if (user != null) {
             setUser(user);
         }
+        
+        String yourName = teamSettingsController.getPropString("bluej.teamsettings.yourName");
+        if (yourName != null){
+            setYourName(yourName);
+        }
+        
+        String yourEmail = teamSettingsController.getPropString("bluej.teamsettings.yourEmail");
+        if (yourEmail != null){
+            setYourEmail(yourEmail);
+        }
+        
         String password = teamSettingsController.getPasswordString();
         if (password != null) {
             setPassword(password);
@@ -389,6 +403,16 @@ public class TeamSettingsPanel extends JPanel
     private void setUser(String user)
     {
         userField.setText(user);
+    }
+    
+    private void setYourName(String yourName)
+    {
+        yourNameField.setText(yourName);
+    }
+    
+    private void setYourEmail(String yourEmail)
+    {
+        yourEmailField.setText(yourEmail);
     }
     
     private void setPassword(String password)
