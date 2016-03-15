@@ -128,7 +128,7 @@ public class CheckoutAction extends TeamAction
             }
 
             if (projectDir.exists()) {
-                DialogManager.showError(null, "directory-exists");
+                DialogManager.showError(null, "directory-exists-non-empty");
                 return;
             }
 
