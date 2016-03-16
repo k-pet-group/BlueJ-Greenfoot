@@ -38,7 +38,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
  *
  * @author Fabio Hedayioglu
  */
-public class GitCommitAllCommand extends GitCommand 
+public class GitCommitAllCommand extends GitCommand
 {
 
     protected Set<File> newFiles;
@@ -47,7 +47,7 @@ public class GitCommitAllCommand extends GitCommand
     protected String commitComment;
 
     public GitCommitAllCommand(GitRepository repository, Set<File> newFiles,
-            Set<File> deletedFiles, Set<File> files, String commitComment) 
+            Set<File> deletedFiles, Set<File> files, String commitComment)
     {
         super(repository);
         this.newFiles = newFiles;
@@ -62,11 +62,11 @@ public class GitCommitAllCommand extends GitCommand
         try (Git repo = Git.open(this.getRepository().getProjectPath())) {
             CommitCommand commit = repo.commit();
             //stage new files
-            
+
             //jGit works with relative paths.
             Path basePath;
             basePath = Paths.get(this.getRepository().getProjectPath().toString());
-            
+
             //files for addition
             for (File f : newFiles) {
                 String fileName = basePath.relativize(f.toPath()).toString();
@@ -74,7 +74,7 @@ public class GitCommitAllCommand extends GitCommand
                     repo.add().addFilepattern(fileName).call();
                 }
             }
-            
+
             //files for removal
             for (File f : deletedFiles) {
                 String fileName = basePath.relativize(f.toPath()).toString();
@@ -82,7 +82,7 @@ public class GitCommitAllCommand extends GitCommand
                     repo.rm().addFilepattern(fileName).call();
                 }
             }
-            
+
 
             //deleted files are handled by the commit command.
             //by setting setAll to true, we are forcibly including modified
@@ -95,6 +95,9 @@ public class GitCommitAllCommand extends GitCommand
             for (File f : files) {
                 String fileName = basePath.relativize(f.toPath()).toString();
                 if (!fileName.isEmpty() && !f.isDirectory()) {
+                    if (!deletedFiles.contains(f)) {
+                        repo.add().addFilepattern(fileName).call();
+                    }
                     commit.setOnly(fileName);
                 }
             }

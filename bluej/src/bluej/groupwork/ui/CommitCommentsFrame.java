@@ -764,10 +764,10 @@ public class CommitCommentsFrame extends EscapeDialog
 
                         this.isPushAvailable = !filesToCommit.isEmpty() || !filesToAdd.isEmpty() || !filesToDelete.isEmpty();
                         if (!mergeConflicts.isEmpty() || !deleteConflicts.isEmpty()
-                                || !otherConflicts.isEmpty() || !needsMerge.isEmpty()) {
+                                || !otherConflicts.isEmpty() ) {
 
                             handleConflicts(mergeConflicts, deleteConflicts,
-                                    otherConflicts, needsMerge);
+                                    otherConflicts, null);
                             return;
                         }
                     }

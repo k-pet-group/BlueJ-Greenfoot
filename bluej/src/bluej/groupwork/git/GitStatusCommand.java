@@ -93,9 +93,6 @@ public class GitStatusCommand extends GitCommand
                 }
             });
 
-            s.getConflicting().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSMERGE)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
 
             s.getUntracked().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSADD)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
@@ -108,6 +105,14 @@ public class GitStatusCommand extends GitCommand
             s.getRemoved().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_REMOVED)).forEach((teamInfo) -> {
                 returnInfo.add(teamInfo);
             });
+            
+            s.getConflicting().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, TeamStatusInfo.STATUS_NEEDSMERGE)).forEach((teamInfo) -> {
+                TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
+                if (existingStatusInfo == null){
+                    returnInfo.add(teamInfo);
+                }
+            });
+
 
             //check for files to push to remote repository.
             List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;

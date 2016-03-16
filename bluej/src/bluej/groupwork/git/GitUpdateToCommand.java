@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
@@ -78,7 +79,8 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     {
 
         try (Git repo = Git.open(this.getRepository().getProjectPath())) {
-
+            File gitPath = this.getRepository().getProjectPath();
+            
             MergeCommand merge = repo.merge();
             merge.setCommit(true);
             merge.setFastForward(MergeCommand.FastForwardMode.FF);
@@ -102,7 +104,13 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                             packageBluejBackup.delete();
                         }
                     }
-                    
+                    break;
+                case CONFLICTING:
+                    //update the conflicts list.
+                    Map<String, int[][]> allConflicts = mergeResult.getConflicts();
+                    allConflicts.keySet().stream().map((path) -> new File(gitPath, path)).forEach((f) -> {
+                        conflicts.add(f);
+                    });
             }
             //now we need to find out what files where affected by this merge.
             //to do so, we compare the commits affected by this merge.
@@ -175,6 +183,14 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                                     listener.fileUpdated(new File(this.getRepository().getProjectPath(), entry.getNewPath()));
                             }
                         });
+                        
+                        //notify conflicting files as changed files.
+                        Map<String, int[][]> allConflicts = mergeResult.getConflicts();
+                        if (allConflicts != null){
+                            allConflicts.keySet().stream().map((path) -> new File(this.getRepository().getProjectPath(), path)).forEach((f) -> {
+                                listener.fileUpdated(f);
+                            });
+                        }
 
                     } catch (IncorrectObjectTypeException ex) {
                         Debug.reportError(ex.getMessage());
