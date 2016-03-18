@@ -77,4 +77,14 @@ public interface StatusHandle
     public default TeamworkCommand pushAll(Set<File> filesToPush){
         return null;
     }
+    
+    /**
+     * checks if, usually after a merge commit, the current repository state must
+     * be pushed into the remote repository. This must be implemented by DCVS 
+     * systems such as GIT.
+     * @return 
+     */
+    public default boolean pushNeeded(){
+        return true;
+    }
 }

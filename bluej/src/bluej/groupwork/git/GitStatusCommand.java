@@ -24,12 +24,13 @@ package bluej.groupwork.git;
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamworkCommandResult;
+import static bluej.groupwork.git.GitUtillities.findForkPoint;
+import static bluej.groupwork.git.GitUtillities.getDiffs;
+import static bluej.groupwork.git.GitUtillities.getFileNameFromDiff;
 import bluej.utility.Debug;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -37,18 +38,9 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
-import org.eclipse.jgit.errors.RevisionSyntaxException;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.ReflogEntry;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 /**
  * Checks the status of a Git repository
@@ -73,6 +65,7 @@ public class GitStatusCommand extends GitCommand
     @Override
     public TeamworkCommandResult getResult()
     {
+        boolean didFilesChange = true;
         LinkedList<TeamStatusInfo> returnInfo = new LinkedList<>();
         File gitPath = this.getRepository().getProjectPath();
 
@@ -124,26 +117,30 @@ public class GitStatusCommand extends GitCommand
             }
 
             RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/master", "HEAD");
-
             
             //find diffs between master/head and the forkpoint.
             listOfDiffsLocal = getDiffs(repo, "HEAD", forkPoint);
             //check for differences between forkpoint and remote repo head.
             listOfDiffsRemote = getDiffs(repo, "origin/master", forkPoint);
             updateRemoteStatus(gitPath, listOfDiffsLocal, listOfDiffsRemote, returnInfo);
+            
+            if (returnInfo.isEmpty()){
+                didFilesChange = false;
+            }
 
+            //Git does not show any add up-to-date file. We need to add them maually to returnInfo.
+            addUpToDateFiles(returnInfo, gitPath);
+            if (listener != null) {
+                while (!returnInfo.isEmpty()) {
+                    TeamStatusInfo teamInfo = returnInfo.removeFirst();
+                    listener.gotStatus(teamInfo);
+                }
+                listener.statusComplete(new GitStatusHandle(getRepository(), didFilesChange && isAhead(repo)));
+            }
         } catch (IOException | GitAPIException | NoWorkTreeException ex) {
             Debug.reportError("Git status command exception", ex);
         }
-        //Git does not show any add up-to-date file. We need to add them maually to returnInfo.
-        addUpToDateFiles(returnInfo, gitPath);
-        if (listener != null) {
-            while (!returnInfo.isEmpty()) {
-                TeamStatusInfo teamInfo = (TeamStatusInfo) returnInfo.removeFirst();
-                listener.gotStatus(teamInfo);
-            }
-            listener.statusComplete(new GitStatusHandle(getRepository()));
-        }
+        
         return new TeamworkCommandResult();
     }
 
@@ -197,106 +194,6 @@ public class GitStatusCommand extends GitCommand
                 return TeamStatusInfo.REMOTE_STATUS_RENAMED;
         }
         return TeamStatusInfo.STATUS_WEIRD;
-    }
-
-    /**
-     * given a objectID, returns the RevTree it belongs to.
-     *
-     * @param repo the repository
-     * @param objID the objectId
-     * @return the tree if found.
-     * @throws IncorrectObjectTypeException
-     * @throws IOException
-     */
-    private RevTree getTree(Repository repo, ObjectId objID) throws IncorrectObjectTypeException, IOException
-    {
-        RevTree tree;
-        try (RevWalk walk = new RevWalk(repo)) {
-            RevCommit commit = walk.parseCommit(objID);
-
-            // a commit points to a tree
-            tree = walk.parseTree(commit.getTree().getId());
-
-        }
-        return tree;
-    }
-
-    public static RevCommit findForkPoint(Repository repository, String base, String tip) throws IOException
-    {
-        try (RevWalk walk = new RevWalk(repository)) {
-            RevCommit tipCommit = walk.lookupCommit(repository.resolve(tip));
-            List<ReflogEntry> reflog = repository.getReflogReader(base).getReverseEntries();
-            if (reflog.isEmpty()) {
-                return null; // no fork point.
-            }
-            for (int i = 0; i <= reflog.size(); i++) {
-                ObjectId id = i < reflog.size() ? reflog.get(i).getNewId() : reflog.get(i - 1).getOldId();
-                RevCommit commit = walk.lookupCommit(id);
-                if (walk.isMergedInto(commit, tipCommit)) {
-                    //found the fork point.
-                    walk.parseBody(commit);
-                    return commit;
-                }
-            }
-        }
-        return null; //no fork point.
-    }
-
-    private List<DiffEntry> getDiffs(Git repo, String masterString, RevCommit forkPoint)
-    {
-        List<DiffEntry> diffs = new ArrayList<>();
-        try {
-
-            ObjectId master = repo.getRepository().resolve(masterString);
-
-            RevTree masterTree = getTree(repo.getRepository(), master);
-
-            ObjectId branchBId = repo.getRepository().resolve(forkPoint.getName());
-
-            RevTree ForkTree = getTree(repo.getRepository(), branchBId);
-
-            //Head and  repositories differ. We need to investigate further.
-            if (ForkTree != null) {
-                try (ObjectReader reader = repo.getRepository().newObjectReader()) {
-                    CanonicalTreeParser masterTreeIter = new CanonicalTreeParser();
-                    masterTreeIter.reset(reader, masterTree);
-
-                    CanonicalTreeParser forkTreeIter = new CanonicalTreeParser();
-                    forkTreeIter.reset(reader, ForkTree);
-
-                    //perform a diff between the local and remote tree
-                    DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-                    df.setRepository(repo.getRepository());
-                    List<DiffEntry> entries = df.scan(forkTreeIter, masterTreeIter);
-
-                    entries.stream().forEach((entry) -> {
-                        diffs.add(entry);
-                    });
-
-                }
-            }
-        } catch (IncorrectObjectTypeException ex) {
-            Debug.reportError(ex.getMessage());
-        } catch (RevisionSyntaxException | IOException ex) {
-            Debug.reportError(ex.getMessage());
-        }
-        return diffs;
-    }
-    
-    
-
-    private String getFileNameFromDiff(DiffEntry entry)
-    {
-        String result;
-        if (entry == null) {
-            return "";
-        }
-        if (entry.getChangeType() != DiffEntry.ChangeType.DELETE) {
-            result = entry.getNewPath();
-        } else {
-            result = entry.getOldPath();
-        }
-        return result;
     }
 
     private Optional<DiffEntry> getDiffFromList(List<DiffEntry> list, DiffEntry entry)
@@ -394,102 +291,20 @@ public class GitStatusCommand extends GitCommand
         }
     }
 
-    private void updateReturnInfoWithLocal(File gitPath, List<DiffEntry> diffs, LinkedList<TeamStatusInfo> returnInfo)
-    {
-        //filter the results
-        //then add the entries on the returnInfo
-        for (DiffEntry entry : diffs) {
-            if (filter.accept(new File(gitPath, entry.getOldPath()))) {
-                File file;
-                if (entry.getChangeType() != DiffEntry.ChangeType.DELETE) {
-                    file = new File(gitPath, entry.getNewPath());
-                } else {
-                    file = new File(gitPath, entry.getOldPath());
-                }
-                TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, file);
-                //if there is no existing status info, need to add to the list
-
-                if (existingStatusInfo == null) {
-                    //needs to add the file to the list.
-                    TeamStatusInfo item = new TeamStatusInfo(file, "", null, TeamStatusInfo.STATUS_UPTODATE, getRemoteStatusInfo(entry));
-                    returnInfo.add(item);
-                } else {
-                    //there is a status for this file.
-                    //we need to update the remote status.
-                    existingStatusInfo.setRemoteStatus(getRemoteStatusInfo(entry));
-                }
-
-            }
-        }
-
-    }
-
     /**
-     * checks for changes between local master and origin/master
-     *
-     * @param repo git repository
-     * @param gitPath local git repository path
-     * @param returnInfo list of files where change was detected.
+     * checks if the repository is ahead and if behindCount = 0.
+     * @param repo
+     * @return
+     * @throws IOException 
      */
-    private void diff(File gitPath, List<DiffEntry> diffs, LinkedList<TeamStatusInfo> returnInfo)
+    private boolean isAhead(Git repo) throws IOException
     {
-
-        //filter the results
-        //then add the entries on the returnInfo
-        for (DiffEntry entry : diffs) {
-            if (filter.accept(new File(gitPath, entry.getOldPath()))) {
-                int gitRemoteStatusInfo = getRemoteStatusInfo(entry);
-                File file;
-                if (gitRemoteStatusInfo == TeamStatusInfo.REMOTE_STATUS_ADDED || gitRemoteStatusInfo == TeamStatusInfo.REMOTE_STATUS_MODIFIED) {
-                    file = new File(gitPath, entry.getNewPath());
-                } else {
-                    file = new File(gitPath, entry.getOldPath());
-                }
-                TeamStatusInfo item = new TeamStatusInfo(file, "", null, TeamStatusInfo.STATUS_BLANK, gitRemoteStatusInfo);
-                TeamStatusInfo localStatusInfo = getTeamStatusInfo(returnInfo, file);
-                if (localStatusInfo == null) {
-                    //file does not appear in the current returnInfo.
-                    //this means that either the file is uptodate 
-                    //locally or it needs to be added, since it
-                    //appears in the remote repo.
-                    if (entry.getChangeType() == DiffEntry.ChangeType.ADD) {
-                        if (file.exists()) {
-                            //file exists locally, therefore local status is updtodate
-                            item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
-                        } else {
-                            //file does not exists locally, therefore local repo needs
-                            //to be updated.
-                            item.setStatus(TeamStatusInfo.STATUS_NEEDSUPDATE);
-                        }
-                    }
-                    if (entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
-                        if (file.exists()) {
-                            //file exits locally, therefore it was deleted in the remote.
-                            item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
-                        } else {
-                            //file was deleted locally. Needs to be pushed.
-                            item.setRemoteStatus(TeamStatusInfo.STATUS_DELETED);
-                            item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
-                        }
-                    }
-                    if (entry.getChangeType() == DiffEntry.ChangeType.MODIFY) {
-                        //if we got a modify, there must be a local file.
-                        //update local status.
-                        item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
-                    }
-
-                    if (entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
-                        item.setRemoteStatus(TeamStatusInfo.STATUS_RENAMED);
-                        item.setStatus(TeamStatusInfo.STATUS_UPTODATE);
-                    }
-
-                    returnInfo.add(item);
-                } else {
-                    //update remote status.
-                    localStatusInfo.setRemoteStatus(item.getRemoteStatus());
-                }
-            }
-        }
+        BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        int aheadCount = bts.getAheadCount();
+        int behindCount = bts.getBehindCount();
+        
+        if (behindCount == 0 && aheadCount > 0) return true;
+        return false;
     }
 
 }

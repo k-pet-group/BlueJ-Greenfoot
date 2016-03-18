@@ -40,10 +40,12 @@ public class GitStatusHandle implements StatusHandle
 {
 
     private GitRepository repository;
+    private final boolean pushNeeded;
 
-    public GitStatusHandle(GitRepository repository)
+    public GitStatusHandle(GitRepository repository, boolean pushNeeded)
     {
         this.repository = repository;
+        this.pushNeeded = pushNeeded;
     }
 
     @Override
@@ -73,6 +75,13 @@ public class GitStatusHandle implements StatusHandle
     {
         return new GitPushChangesCommand(repository);
     }
+
+    @Override
+    public boolean pushNeeded()
+    {
+        return pushNeeded;
+    }
+    
     
     
 }
