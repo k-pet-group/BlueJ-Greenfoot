@@ -23,10 +23,14 @@ package bluej.groupwork.git;
 
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
+import bluej.utility.DialogManager;
 import java.io.IOException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
 
 /**
  * Git command to push project changes to the upstream repository.
@@ -47,7 +51,19 @@ public class GitPushChangesCommand extends GitCommand
         try (Git repo = Git.open(this.getRepository().getProjectPath())) {
             PushCommand push = repo.push();
             disableFingerprintCheck(push);
-            push.call();
+            Iterable<PushResult> pushResults = push.call();
+            for (PushResult r:pushResults){
+                Iterable<RemoteRefUpdate> updates = r.getRemoteUpdates();
+                for (RemoteRefUpdate remoteRefUpdate: updates){
+                    if (remoteRefUpdate.getStatus() != Status.OK && remoteRefUpdate.getStatus() != Status.UP_TO_DATE){
+                        if (remoteRefUpdate.getMessage() == null){
+                            String message = DialogManager.getMessage("team-uptodate-failed");
+                            return new TeamworkCommandError(message, message);
+                        }
+                        return new TeamworkCommandError(remoteRefUpdate.getMessage(),remoteRefUpdate.getMessage());
+                    }
+                }
+            }
         } catch (IOException | GitAPIException ex) {
             return new TeamworkCommandError(ex.getMessage(),ex.getLocalizedMessage());
         }
