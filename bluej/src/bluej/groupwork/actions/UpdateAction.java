@@ -316,6 +316,17 @@ public class UpdateAction extends AbstractAction
                         int n = fileName.lastIndexOf(".");
                         String name = fileName.substring(0, n);
                         Target t = pkg.getTarget(name);
+                        
+                                               
+                       if (t == null && f.exists()) {
+                           //create new target.
+                           ClassTarget ct = pkg.addClass(name);
+                           pkg.positionNewTarget(ct);
+                           DataCollector.addClass(pkg, ct);
+                           ct.reload();
+                           return;
+                       }
+                       
                         if (! (t instanceof ClassTarget)) {
                             return;
                         }
