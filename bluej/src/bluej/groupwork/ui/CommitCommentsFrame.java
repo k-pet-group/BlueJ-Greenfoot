@@ -108,6 +108,8 @@ public class CommitCommentsFrame extends EscapeDialog
     /** The packages whose layout should be committed compulsorily */
     private Set<File> packagesToCommmit = new HashSet<File>();
     
+    private boolean PushWithNoChanges = false;
+    
     private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 
 
     public CommitCommentsFrame(Project proj)
@@ -168,12 +170,12 @@ public class CommitCommentsFrame extends EscapeDialog
         }
         if (repository.isDVCS()){
             columnNames = new String[]{"File Name",
-                                "Operation",
+                                "Status",
                                 "Commit",
                                 "Push"};
         }else {
             columnNames = new String[]{"File Name",
-                                "Operation",
+                                "Status",
                                 "Commit"};
         }
         commitOrPushTableModel = new MyTableModel(columnNames);
@@ -702,6 +704,7 @@ public class CommitCommentsFrame extends EscapeDialog
         @Override
         public void statusComplete(StatusHandle statusHandle)
         {
+            if (statusHandle.pushNeeded()) PushWithNoChanges = true;
             commitAction.setStatusHandle(statusHandle);
             if (repository.isDVCS()) pushAction.setStatusHandle(statusHandle); 
         }
@@ -729,14 +732,14 @@ public class CommitCommentsFrame extends EscapeDialog
                     TeamUtils.handleServerResponse(result, CommitCommentsFrame.this);
                     setVisible(false);
                 } else if (response != null) {
-                    Set<File> filesToCommit = new HashSet<File>();
-                    Set<File> filesToAdd = new LinkedHashSet<File>();
-                    Set<File> filesToDelete = new HashSet<File>();
-                    Set<File> mergeConflicts = new HashSet<File>();
-                    Set<File> deleteConflicts = new HashSet<File>();
-                    Set<File> otherConflicts = new HashSet<File>();
-                    Set<File> needsMerge = new HashSet<File>();
-                    Set<File> modifiedLayoutFiles = new HashSet<File>();
+                    Set<File> filesToCommit = new HashSet<>();
+                    Set<File> filesToAdd = new LinkedHashSet<>();
+                    Set<File> filesToDelete = new HashSet<>();
+                    Set<File> mergeConflicts = new HashSet<>();
+                    Set<File> deleteConflicts = new HashSet<>();
+                    Set<File> otherConflicts = new HashSet<>();
+                    Set<File> needsMerge = new HashSet<>();
+                    Set<File> modifiedLayoutFiles = new HashSet<>();
 
                     List<TeamStatusInfo> info = response;
                     getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete,
@@ -758,16 +761,65 @@ public class CommitCommentsFrame extends EscapeDialog
                         this.isCommitAvailable = true;
                     }
                     if (repository.isDVCS()) {
-                        getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete,
-                                mergeConflicts, deleteConflicts, otherConflicts,
-                                needsMerge, modifiedLayoutFiles, true);
+                        Set<File> filesToCommitInPush = new HashSet<>();
+                        Set<File> filesToAddInPush = new HashSet<>();
+                        Set<File> filesToDeleteInPush = new HashSet<>();
+                        Set<File> mergeConflictsInPush = new HashSet<>();
+                        Set<File> deleteConflictsInPush = new HashSet<>();
+                        Set<File> otherConflictsInPush = new HashSet<>();
+                        Set<File> needsMergeInPush = new HashSet<>();
+                        
+                        getCommitFileSets(info, filesToCommitInPush, filesToAddInPush, filesToDeleteInPush,
+                                mergeConflictsInPush, deleteConflictsInPush, otherConflictsInPush,
+                                needsMergeInPush, modifiedLayoutFiles, true);
 
-                        this.isPushAvailable = !filesToCommit.isEmpty() || !filesToAdd.isEmpty() || !filesToDelete.isEmpty();
-                        if (!mergeConflicts.isEmpty() || !deleteConflicts.isEmpty()
-                                || !otherConflicts.isEmpty() ) {
+                        this.isPushAvailable = PushWithNoChanges || !filesToCommitInPush.isEmpty() || !filesToAddInPush.isEmpty() || !filesToDeleteInPush.isEmpty();
+                        //in the case we are commiting the resolution of a merge, we should check if the same file that is beingmarked as otherConflict 
+                        //on the remote branch is being commitd to the local branch. if it is, then this is the user resolution to the conflict and we should 
+                        //procceed with the commit. and then with the push as normal.
+                        boolean conflicts;
+                        conflicts = !mergeConflictsInPush.isEmpty() || !deleteConflictsInPush.isEmpty()
+                                || !otherConflictsInPush.isEmpty() || !needsMergeInPush.isEmpty();
+                        if (conflicts) {
+                            //there is a file in some of the conflict list.
+                            //check if this fill will commit normally. if it will, we should allow.
+                            Set<File> conflictingFilesInPush = new HashSet<>();
+                            conflictingFilesInPush.addAll(mergeConflictsInPush);
+                            conflictingFilesInPush.addAll(deleteConflictsInPush);
+                            conflictingFilesInPush.addAll(otherConflictsInPush);
+                            conflictingFilesInPush.addAll(needsMergeInPush);
+                            
+                            for (File conflictEntry:conflictingFilesInPush){
+                                if (filesToCommit.contains(conflictEntry)){
+                                    conflictingFilesInPush.remove(conflictEntry);
+                                    mergeConflictsInPush.remove(conflictEntry);
+                                    deleteConflictsInPush.remove(conflictEntry);
+                                    otherConflictsInPush.remove(conflictEntry);
+                                    needsMergeInPush.remove(conflictEntry);
+                                    
+                                } 
+                                if (filesToAdd.contains(conflictEntry)){
+                                    conflictingFilesInPush.remove(conflictEntry);
+                                    mergeConflictsInPush.remove(conflictEntry);
+                                    deleteConflictsInPush.remove(conflictEntry);
+                                    otherConflictsInPush.remove(conflictEntry);
+                                    needsMergeInPush.remove(conflictEntry);
+                                } 
+                                if (filesToDelete.contains(conflictEntry)){
+                                    conflictingFilesInPush.remove(conflictEntry);
+                                    mergeConflictsInPush.remove(conflictEntry);
+                                    deleteConflictsInPush.remove(conflictEntry);
+                                    otherConflictsInPush.remove(conflictEntry);
+                                    needsMergeInPush.remove(conflictEntry);
+                                }
+                            }
+                            conflicts = !conflictingFilesInPush.isEmpty();
+                        }
+            
+                        if (conflicts) {
 
-                            handleConflicts(mergeConflicts, deleteConflicts,
-                                    otherConflicts, null);
+                            handleConflicts(mergeConflictsInPush, deleteConflictsInPush,
+                                    otherConflictsInPush, null);
                             return;
                         }
                     }
@@ -953,12 +1005,12 @@ public class CommitCommentsFrame extends EscapeDialog
 
                     if (status == TeamStatusInfo.STATUS_NEEDSADD) {
                         filesToAdd.add(statusInfo.getFile());
-                    }
+                        }
                     else if (status == TeamStatusInfo.STATUS_DELETED
                             || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
                         filesToRemove.add(statusInfo.getFile());
+                        }
                     }
-                }
                 else  if (!isPkgFile) {
                     if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
                         mergeConflicts.add(statusInfo.getFile());
@@ -973,9 +1025,9 @@ public class CommitCommentsFrame extends EscapeDialog
                     }
                     if (status == TeamStatusInfo.STATUS_NEEDSMERGE) {
                         needsMerge.add(statusInfo.getFile());
+                        }
                     }
                 }
-            }
 
             setLayoutChanged (! changedLayoutFiles.isEmpty());
         }
