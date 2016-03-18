@@ -25,9 +25,10 @@ import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateListener;
 import bluej.groupwork.UpdateResults;
-import bluej.utility.Debug;
+import static bluej.groupwork.git.GitUtillities.findForkPoint;
+import static bluej.groupwork.git.GitUtillities.getDiffs;
+import static bluej.groupwork.git.GitUtillities.getFileNameFromDiff;
 import com.google.common.io.Files;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,16 +42,8 @@ import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 /**
  * Git command to pull project changes from the upstream repository.
@@ -80,14 +73,18 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
 
         try (Git repo = Git.open(this.getRepository().getProjectPath())) {
             File gitPath = this.getRepository().getProjectPath();
-            
+
             MergeCommand merge = repo.merge();
             merge.setCommit(true);
             merge.setFastForward(MergeCommand.FastForwardMode.FF);
 
             //before performing the merge, move package.bluej in order to avoid uneccessary conflicts.
             File packageBluejBackup = moveFile("package", "bluej");
+
             ObjectId headBeforeMerge = repo.getRepository().resolve("HEAD");
+            ObjectId headOfRemoteBeforeMerge = repo.getRepository().resolve("origin/master");
+
+            RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/master", "HEAD");
             merge.include(repo.getRepository().resolve("origin/master")); // merge with remote repository.
             MergeResult mergeResult = merge.call();
             switch (mergeResult.getMergeStatus()) {
@@ -106,6 +103,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                     }
                     break;
                 case CONFLICTING:
+                    //update the head to compare in order to process the changes.
                     //update the conflicts list.
                     Map<String, int[][]> allConflicts = mergeResult.getConflicts();
                     allConflicts.keySet().stream().map((path) -> new File(gitPath, path)).forEach((f) -> {
@@ -114,7 +112,10 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             }
             //now we need to find out what files where affected by this merge.
             //to do so, we compare the commits affected by this merge.
-            processChanges(repo, headBeforeMerge, mergeResult);
+            List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
+            listOfDiffsLocal = getDiffs(repo, headBeforeMerge.getName(), forkPoint);
+            listOfDiffsRemote = getDiffs(repo, headOfRemoteBeforeMerge.getName(), forkPoint);
+            processChanges(repo, listOfDiffsLocal, listOfDiffsRemote, conflicts);
 
             if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
                 listener.handleConflicts(this);
@@ -147,90 +148,45 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
 
     }
 
-    private void processChanges(Git repo, ObjectId headBeforeMerge, MergeResult mergeResult)
+    private void processChanges(Git repo, List<DiffEntry> listOfDiffsLocal, List<DiffEntry> listOfDiffsRemote, List<File> conflicts)
     {
-        try {
-
-                RevTree masterTree = getTree(repo.getRepository(), repo.getRepository().resolve("HEAD"));
-
-                RevTree baseTree = getTree(repo.getRepository(), headBeforeMerge);
-
-                //Base and  new Head differ. We need to investigate further.
-                if (baseTree != null) {
-                    try (ObjectReader reader = repo.getRepository().newObjectReader()) {
-                        CanonicalTreeParser masterTreeIter = new CanonicalTreeParser();
-                        masterTreeIter.reset(reader, masterTree);
-
-                        CanonicalTreeParser forkTreeIter = new CanonicalTreeParser();
-                        forkTreeIter.reset(reader, baseTree);
-
-                        //perform a diff between the local and remote tree
-                        DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-                        df.setRepository(repo.getRepository());
-                        List<DiffEntry> entries = df.scan(forkTreeIter, masterTreeIter);
-
-                        entries.stream().forEach((DiffEntry entry) -> {
-
-                            switch (entry.getChangeType()) {
-                                case ADD:
-                                case COPY:
-                                    listener.fileAdded(new File(this.getRepository().getProjectPath(), entry.getNewPath()));
-                                    break;
-                                case DELETE:
-                                    listener.fileRemoved(new File(this.getRepository().getProjectPath(), entry.getOldPath()));
-                                    break;
-                                case MODIFY:
-                                    listener.fileUpdated(new File(this.getRepository().getProjectPath(), entry.getNewPath()));
-                            }
-                        });
-                        
-                        //notify conflicting files as changed files.
-                        Map<String, int[][]> allConflicts = mergeResult.getConflicts();
-                        if (allConflicts != null){
-                            allConflicts.keySet().stream().map((path) -> new File(this.getRepository().getProjectPath(), path)).forEach((f) -> {
-                                listener.fileUpdated(f);
-                            });
+        for (DiffEntry remoteDiffItem : listOfDiffsRemote) {
+            File file = new File(this.getRepository().getProjectPath(), getFileNameFromDiff(remoteDiffItem));
+            if (conflicts.contains(file)) {
+                listener.fileUpdated(file);
+            } else {
+                switch (remoteDiffItem.getChangeType()) {
+                    case ADD:
+                    case COPY:
+                        listener.fileAdded(file);
+                        break;
+                    case DELETE:
+                        if (file.exists()){
+                            listener.fileRemoved(file);
                         }
-
-                    } catch (IncorrectObjectTypeException ex) {
-                        Debug.reportError(ex.getMessage());
-                    } catch (RevisionSyntaxException | IOException ex) {
-                        Debug.reportError(ex.getMessage());
-                    }
+                        break;
+                    case MODIFY:
+                        listener.fileUpdated(file);
+                        break;
                 }
-        } catch (IOException ex) {
-            Debug.reportError(ex.getMessage());
+            }
+        }
+        
+        for (DiffEntry localDiffItem : listOfDiffsLocal) {
+            File file = new File(this.getRepository().getProjectPath(), getFileNameFromDiff(localDiffItem));
+            if (!conflicts.contains(file) && localDiffItem.getChangeType() == DiffEntry.ChangeType.MODIFY) {
+                listener.fileUpdated(file);
+            }
         }
     }
 
     /**
-     * given a objectID, returns the RevTree it belongs to.
+     * move a file from a location to a temporary location.
      *
-     * @param repo the repository
-     * @param objID the objectId
-     * @return the tree if found.
-     * @throws IncorrectObjectTypeException
-     * @throws IOException
-     */
-    private RevTree getTree(Repository repo, ObjectId objID) throws IncorrectObjectTypeException, IOException
-    {
-        RevTree tree;
-        try (RevWalk walk = new RevWalk(repo)) {
-            RevCommit commit = walk.parseCommit(objID);
-
-            // a commit points to a tree
-            tree = walk.parseTree(commit.getTree().getId());
-
-        }
-        return tree;
-    }
-
-    /**
-     * move a file from a location to a temprary location.
      * @param fileName
      * @param extension
      * @return the new file.
-     * @throws IOException 
+     * @throws IOException
      */
     private File moveFile(String fileName, String extension) throws IOException
     {
