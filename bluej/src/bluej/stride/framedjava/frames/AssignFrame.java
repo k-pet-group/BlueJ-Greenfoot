@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -52,7 +52,8 @@ import bluej.stride.slots.SlotLabel;
 public class AssignFrame extends SingleLineFrame
   implements CodeFrame<AssignElement>, DebuggableFrame
 {
-    
+
+    public static final String ASSIGN_SYMBOL = "\u21D0";
     private final ExpressionSlot<FilledExpressionSlotFragment> slotLHS;
     private final ExpressionSlot<FilledExpressionSlotFragment> slotRHS;
     private AssignElement element;
@@ -69,7 +70,7 @@ public class AssignFrame extends SingleLineFrame
         slotRHS.setSimplePromptText("new-value");
         slotLHS = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "assign-lhs-");
         slotLHS.setSimplePromptText("variable");
-        setHeaderRow(slotLHS, new SlotLabel("="), slotRHS, previewSemi);
+        setHeaderRow(slotLHS, new SlotLabel(ASSIGN_SYMBOL), slotRHS, previewSemi);
         
         slotLHS.bindClosingChar(slotRHS, '=');
         slotLHS.bindClosingChar(slotRHS, ' ');

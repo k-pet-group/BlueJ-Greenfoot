@@ -97,7 +97,7 @@ public class VarFrame extends SingleLineFrame
     private final TypeTextSlot slotType;
     private final VariableNameDefTextSlot slotName;
     private final BooleanProperty showingValue = new SimpleBooleanProperty(false);
-    private final SlotLabel equalLabel = new SlotLabel("=");
+    private final SlotLabel equalLabel = new SlotLabel(AssignFrame.ASSIGN_SYMBOL);
     private final ExpressionSlot<FilledExpressionSlotFragment> slotValue; // not always valid
     private final BooleanProperty slotValueBlank = new SimpleBooleanProperty(true);
     private VarElement element;
