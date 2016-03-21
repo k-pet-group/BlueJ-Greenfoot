@@ -72,13 +72,14 @@ public class UpdateFilter
      */
     public boolean updateAlways(TeamStatusInfo statusInfo)
     {
-        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
+        int remoteStatus = statusInfo.getRemoteStatus();
+        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT || remoteStatus == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
             return true;
         }
-        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_REMOVED) {
+        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_REMOVED || remoteStatus == TeamStatusInfo.STATUS_REMOVED) {
             return true;
         }
-        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
+        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_CONFLICT_LMRD || remoteStatus == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
             return true;
         }
         return false;

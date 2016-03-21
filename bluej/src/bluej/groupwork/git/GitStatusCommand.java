@@ -39,8 +39,10 @@ import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.NoWorkTreeException;
-import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.revwalk.RevCommit;
+import static bluej.groupwork.git.GitUtillities.isAheadOnly;
+import java.util.Map;
+import org.eclipse.jgit.lib.IndexDiff;
 
 /**
  * Checks the status of a Git repository
@@ -105,7 +107,32 @@ public class GitStatusCommand extends GitCommand
                     returnInfo.add(teamInfo);
                 }
             });
-
+            
+            Map conflictsMap = s.getConflictingStageState();
+            conflictsMap.keySet().stream().forEach(key -> {
+                File f = new File(gitPath, (String) key);
+                TeamStatusInfo statusInfo = getTeamStatusInfo(returnInfo, f);
+                if (statusInfo == null) {
+                    statusInfo = new TeamStatusInfo(f, "", null, TeamStatusInfo.STATUS_BLANK);
+                }
+                IndexDiff.StageState state = (IndexDiff.StageState) conflictsMap.get(key);
+                switch (state) {
+                    case DELETED_BY_THEM:
+                        statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_LMRD);
+                        break;
+                    case DELETED_BY_US:
+                        statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_LDRM);
+                        break;
+                    case BOTH_ADDED:
+                        statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_ADD);
+                        break;
+                    case BOTH_MODIFIED:
+                        statusInfo.setStatus(TeamStatusInfo.STATUS_NEEDSMERGE);
+                        break;                       
+                }
+            });
+                
+            
 
             //check for files to push to remote repository.
             List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
@@ -135,7 +162,7 @@ public class GitStatusCommand extends GitCommand
                     TeamStatusInfo teamInfo = returnInfo.removeFirst();
                     listener.gotStatus(teamInfo);
                 }
-                listener.statusComplete(new GitStatusHandle(getRepository(), didFilesChange && isAhead(repo)));
+                listener.statusComplete(new GitStatusHandle(getRepository(), didFilesChange && isAheadOnly(repo)));
             }
         } catch (IOException | GitAPIException | NoWorkTreeException ex) {
             Debug.reportError("Git status command exception", ex);
@@ -291,20 +318,5 @@ public class GitStatusCommand extends GitCommand
         }
     }
 
-    /**
-     * checks if the repository is ahead and if behindCount = 0.
-     * @param repo
-     * @return
-     * @throws IOException 
-     */
-    private boolean isAhead(Git repo) throws IOException
-    {
-        BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
-        int aheadCount = bts.getAheadCount();
-        int behindCount = bts.getBehindCount();
-        
-        if (behindCount == 0 && aheadCount > 0) return true;
-        return false;
-    }
 
 }

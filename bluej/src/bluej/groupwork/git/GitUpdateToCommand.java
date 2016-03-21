@@ -43,6 +43,7 @@ import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 /**
@@ -77,6 +78,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             MergeCommand merge = repo.merge();
             merge.setCommit(true);
             merge.setFastForward(MergeCommand.FastForwardMode.FF);
+            merge.setStrategy(MergeStrategy.RECURSIVE);
 
             //before performing the merge, move package.bluej in order to avoid uneccessary conflicts.
             File packageBluejBackup = moveFile("package", "bluej");
@@ -109,6 +111,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                     allConflicts.keySet().stream().map((path) -> new File(gitPath, path)).forEach((f) -> {
                         conflicts.add(f);
                     });
+                    break;
             }
             //now we need to find out what files where affected by this merge.
             //to do so, we compare the commits affected by this merge.
@@ -161,7 +164,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         listener.fileAdded(file);
                         break;
                     case DELETE:
-                        if (file.exists()){
+                        if (!file.exists()){
                             listener.fileRemoved(file);
                         }
                         break;

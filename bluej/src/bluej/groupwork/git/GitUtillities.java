@@ -31,6 +31,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.ReflogEntry;
@@ -160,5 +161,46 @@ public class GitUtillities
         }
         return result;
     }
-
+    
+    /**
+     * checks if the repository is ahead and if behindCount = 0.
+     * @param repo
+     * @return
+     * @throws IOException 
+     */
+    public static boolean isAheadOnly(Git repo) throws IOException
+    {
+        BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        int aheadCount = bts.getAheadCount();
+        int behindCount = bts.getBehindCount();
+        
+        return behindCount == 0 && aheadCount > 0;
+    }
+    
+    /**
+     * get the number of commits the repository is ahead the remote.
+     * @param repo
+     * @return
+     * @throws IOException 
+     */
+    public static int getAheadCount(Git repo) throws IOException
+    {
+        BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        int aheadCount = bts.getAheadCount();
+        return aheadCount;
+    }
+    
+    /**
+     * get the number of commits the repository is behind the remote.
+     * @param repo
+     * @return
+     * @throws IOException 
+     */
+    public static int getBehindCount(Git repo) throws IOException
+    {
+        BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        int behindCount = bts.getBehindCount();
+        return behindCount;
+    }
+    
 }
