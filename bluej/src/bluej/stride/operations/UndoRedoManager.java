@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,14 @@
  */
 package bluej.stride.operations;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import bluej.editor.stride.FrameEditorTab;
 import bluej.stride.generic.FrameState;
 import bluej.utility.Debug;
+import bluej.utility.javafx.FXRunnable;
 
 /**
  * An undo/redo manager for the frame editor. A stack of farme states is maintained;
@@ -40,6 +43,7 @@ public class UndoRedoManager
     private boolean recording = false;
     private boolean restoring = false;
     private final LinkedList<FrameState> statesStack = new LinkedList<FrameState>();
+    private final List<FXRunnable> listeners = new ArrayList<>();
     // TODO Add it to the defs file
     private final int MAX_CAPACITY = 30;
 
@@ -62,15 +66,16 @@ public class UndoRedoManager
                 newState = true;
                 // Remove all old states that been reverted and can't be reached any more
                 while (canRedo()) {
-                    statesStack.removeLast();
+                    statesStack.remove(statesStack.size() - 1);
                 }
                 statesStack.add(state);
                 current++;
                 if (statesStack.size() > MAX_CAPACITY) {
-                    statesStack.removeFirst();
                     current--;
+                    statesStack.remove(0);
                 }
             }
+            runListeners();
         }
     }
     
@@ -101,9 +106,17 @@ public class UndoRedoManager
         recording = false;
         if ( canUndo() ) {
             current--;
+            runListeners();
             return statesStack.get(current);
         }
         return null;
+    }
+
+    private void runListeners()
+    {
+        // Take copy to allow removal by listeners:
+        ArrayList<FXRunnable> listenersCopy = new ArrayList<>(listeners);
+        listenersCopy.forEach(FXRunnable::run);
     }
 
     public FrameState redo()
@@ -111,6 +124,7 @@ public class UndoRedoManager
         recording = false;
         if ( canRedo() ) {
             current++;
+            runListeners();
             return statesStack.get(current);
         }
         return null;
@@ -129,6 +143,44 @@ public class UndoRedoManager
     public void stopRestoring()
     {
         restoring = false;
+    }
+
+    public FrameState getCurrent()
+    {
+        return statesStack.get(current);
+    }
+
+    public void addListener(FXRunnable listChangeListener)
+    {
+        listeners.add(listChangeListener);
+    }
+
+    public void removeListener(FXRunnable listChangeListener)
+    {
+        listeners.remove(listChangeListener);
+    }
+
+    /**
+     * Matches exact reference, not just state.  Must be possible within that many undos,
+     * but not be the current state.
+     */
+    public boolean canUndoToReference(FrameState restoreTarget, int withinNumUndos)
+    {
+        int index = -1;
+        // Can't use indexOf because we want to match reference:
+        for (int i = 0; i < statesStack.size(); i++)
+        {
+            if (statesStack.get(i) == restoreTarget)
+            {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1)
+            return false;
+        if (index < current && current - index <= withinNumUndos)
+            return true;
+        return false;
     }
 
     /*

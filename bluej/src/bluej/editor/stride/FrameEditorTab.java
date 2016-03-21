@@ -208,6 +208,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private CodeOverlayPane codeOverlayPane;
     // Second window overlay, in front, for showing editor banners
     private VBox bannerPane;
+    private boolean undoBannerShowing = false;
     // A property to observe for when the scroll value changes on scroll pane:
     private Observable observableScroll;
     private ViewportHeightBinding viewportHeight;
@@ -2460,21 +2461,45 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void showUndoDeleteBanner(int totalEffort)
     {
         //Debug.message("Total effort: " + totalEffort);
-        if (totalEffort >= 20)
+        if (totalEffort >= 20 && !undoBannerShowing)
         {
+            undoBannerShowing = true;
+            CircleCountdown countdown = new CircleCountdown(40, Color.BLACK, Duration.seconds(15));
             TextFlow bannerText = new TextFlow();
+            BorderPane banner = new BorderPane(bannerText);
+
+            final FrameState restoreTarget = undoRedoManager.getCurrent();
+            // Must use anonymous class to have "this" reference:
+            undoRedoManager.addListener(new FXRunnable() {
+                @Override
+                public void run()
+                {
+                    if (!undoRedoManager.canUndoToReference(restoreTarget, 2))
+                    {
+                        undoRedoManager.removeListener(this);
+                        countdown.stop();
+                        bannerPane.getChildren().remove(banner);
+                        undoBannerShowing = false;
+                    }
+                }
+            });
+                
             JavaFXUtil.addStyleClass(bannerText, "banner-undo-delete-text");
             Button undoButton = new Button("Click here if you want to undo");
             JavaFXUtil.addStyleClass(undoButton, "banner-undo-delete-button");
+            undoButton.setOnAction(e -> {
+                while (undoRedoManager.canUndoToReference(restoreTarget, 3))
+                    undo();
+            });
+            // TODO localise
             bannerText.getChildren().addAll(new Text("You just deleted a large piece of code.  "), undoButton);
-            // TODO make the undo button go back to current undo state
-            // TODO remove if the user triggers undo!
-            // TODO remove if user makes two more undo states
             Button close = new Button("Close");
             JavaFXUtil.addStyleClass(close, "banner-undo-delete-close");
-            BorderPane banner = new BorderPane(bannerText);
-            CircleCountdown countdown = new CircleCountdown(40, Color.BLACK, Duration.seconds(15));
-            countdown.addOnFinished(() -> bannerPane.getChildren().remove(banner));
+            
+            countdown.addOnFinished(() -> {
+                bannerPane.getChildren().remove(banner);
+                undoBannerShowing = false;
+            });
             banner.setRight(new VBox(close, countdown));
             JavaFXUtil.addStyleClass(banner, "banner-undo-delete");
             //bannerText.styleProperty().bind(new ReadOnlyStringWrapper("-fx-font-size:").concat(PrefMgr.strideFontSizeProperty().multiply(4).divide(3).asString()).concat("pt;"));
@@ -2483,6 +2508,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             close.setOnAction(e -> {
                 countdown.stop();
                 bannerPane.getChildren().remove(banner);
+                undoBannerShowing = false;
                 // If we don't explicitly focus something, focus will vanish.  Ideally we'd refocus
                 // the last item, but it's too late here to know what that is, focus is already on the button.
                 focusWhenShown();
