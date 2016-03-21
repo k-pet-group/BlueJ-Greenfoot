@@ -1034,4 +1034,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(editor.getFontSizeCSS()).concat(";"));
         return Stream.of(f);
     }
+
+    @Override
+    public int calculateEffort()
+    {
+        // We put a ceiling of 4 keypresses, approximating code completion:
+        return Math.min(4, getText().length());
+    }
 }

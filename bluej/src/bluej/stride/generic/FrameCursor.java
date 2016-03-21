@@ -433,6 +433,8 @@ public class FrameCursor implements RecallableFocus
                 if (toDelete.stream().allMatch(f -> f.getParentCanvas() == getParentCanvas()))
                 {
                     editor.recordEdits(StrideEditReason.FLUSH);
+                    int effort = toDelete.stream().mapToInt(Frame::calculateEffort).sum();
+                    editor.showUndoDeleteBanner(effort);
                     // We might get deleted during this code, so cache value of getParentCanvas:
                     FrameCanvas c = getParentCanvas();
                     toDelete.forEach(f -> c.removeBlock(f));
@@ -458,6 +460,7 @@ public class FrameCursor implements RecallableFocus
                     editor.beginRecordingState(FrameCursor.this);
                     FrameCursor cursorBeforeTarget = parentCanvas.getCursorBefore(target);
                     editor.recordEdits(StrideEditReason.FLUSH);
+                    editor.showUndoDeleteBanner(target.calculateEffort());
                     parentCanvas.removeBlock(target);
                     editor.recordEdits(StrideEditReason.DELETE_FRAMES_KEY_BKSP);
                     editor.modifiedFrame(target);
@@ -497,6 +500,7 @@ public class FrameCursor implements RecallableFocus
                 {
                     editor.beginRecordingState(FrameCursor.this);
                     editor.recordEdits(StrideEditReason.FLUSH);
+                    editor.showUndoDeleteBanner(target.calculateEffort());
                     parentCanvas.removeBlock(target);
                     editor.recordEdits(StrideEditReason.DELETE_FRAMES_KEY_DELETE);
                     editor.modifiedFrame(target);

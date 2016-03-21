@@ -438,4 +438,10 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         // No dropdowns etc, so effectively-focused just means focused:
         return focusedProperty();
     }
+
+    @Override
+    public int calculateEffort()
+    {
+        return getText().length();
+    }
 }

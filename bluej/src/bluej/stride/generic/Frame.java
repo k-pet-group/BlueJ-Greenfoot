@@ -1442,4 +1442,28 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return f.header.getNode();
     }
+
+    /**
+     * When we are deciding whether to display a message about a frame deletion that the user may
+     * want to undo, we only want to show the message for "large" frames.  So we don't show it
+     * for say a single assignment frame, or perhaps even an if frame with a single method call,
+     * but we do show it for a method or other container with several inner frames.  To measure
+     * this, we use the idea of "effort": how many keystrokes (roughly) it would take to recreate
+     * a particular piece of code.
+     *
+     * This method performs the calculation of effort.  See comments inside for how it works
+     *
+     * @return The effort required to (re-)create this frame and all inner frames.
+     */
+    public int calculateEffort()
+    {
+        // One to create the frame in the first place:
+        int effort = 1;
+        // Plus the effort to create the content of our direct slots:
+        effort += getEditableSlotsDirect().mapToInt(EditableSlot::calculateEffort).sum();
+        // Plus the effort to create our contained frames:
+        effort += getAllFrames().filter(f -> f != this).mapToInt(Frame::calculateEffort).sum();
+        // We omit how much effort it was to add extensions, etc: this only needs to be a rough calculation.
+        return effort;
+    }
 }

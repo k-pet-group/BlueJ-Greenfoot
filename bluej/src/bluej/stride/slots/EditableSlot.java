@@ -128,6 +128,13 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
      */
     public boolean isAlmostBlank();
 
+    /**
+     * The amount of effort (roughly, keypresses) required to create this slot's content
+     *
+     * See the documentation of Frame.calculateEffort for more information.
+     */
+    public int calculateEffort();
+
     public static enum TopLevelMenu { EDIT, VIEW }
 
     // This is an ordering across all menus

@@ -103,6 +103,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -201,6 +202,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     // The overlays (see individual class documentation)
     private WindowOverlayPane windowOverlayPane;
     private CodeOverlayPane codeOverlayPane;
+    // Second window overlay, in front, for showing editor banners
+    private VBox bannerPane;
     // A property to observe for when the scroll value changes on scroll pane:
     private Observable observableScroll;
     private ViewportHeightBinding viewportHeight;
@@ -364,13 +367,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         JavaFXUtil.addStyleClass(contentRoot, "frame-editor-tab-content", initialSource.getStylePrefix() + "frame-editor-tab-content");
         scrollAndOverlays = new StackPane();
         windowOverlayPane = new WindowOverlayPane();
+        bannerPane = new VBox();
         scroll = new ScrollPane();
         scroll.getStyleClass().add("frame-editor-scroll-pane");
         scroll.setFitToWidth(true);
         observableScroll = scroll.vvalueProperty();
         viewportHeight = new ViewportHeightBinding(scroll);
 
-        scrollAndOverlays.getChildren().addAll(scroll, windowOverlayPane.getNode());
+        scrollAndOverlays.getChildren().addAll(scroll, windowOverlayPane.getNode(), bannerPane);
 
         // Make class block fill window width:
         scroll.setFitToWidth(true);
@@ -2445,5 +2449,18 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void recordErrorIndicatorShown(int identifier)
     {
         SwingUtilities.invokeLater(() -> editor.getWatcher().recordShowErrorIndicator(identifier));
+    }
+
+    @Override
+    public void showUndoDeleteBanner(int totalEffort)
+    {
+        Debug.message("Total effort: " + totalEffort);
+        if (totalEffort >= 20)
+        {
+            HBox banner = new HBox();
+            banner.getChildren().addAll(new Label("You just deleted a large piece of code.  Press Ctrl-Z N times or "), new Button("Click here to undo"), new Button("X"));
+            // TODO should we use a flow pane so content can wrap?  Or TextFlow?
+            bannerPane.getChildren().add(banner);
+        }
     }
 }

@@ -1498,6 +1498,11 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         return effectivelyFocusedProperty;
     }
 
+    @Override
+    public int calculateEffort()
+    {
+        return topLevel.calculateEffort();
+    }
 
     /**
      * Helper pair class for recording references to plain variables: gives

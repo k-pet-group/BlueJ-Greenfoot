@@ -63,6 +63,8 @@ public class DeleteFrameOperation extends FrameOperation
     protected void execute(List<Frame> frames)
     {
         editor.recordEdits(StrideEditReason.FLUSH);
+        int effort = frames.stream().mapToInt(Frame::calculateEffort).sum();
+        editor.showUndoDeleteBanner(effort);
         deleteFrames(frames, editor);
         editor.recordEdits(StrideEditReason.DELETE_FRAMES_MENU);
     }

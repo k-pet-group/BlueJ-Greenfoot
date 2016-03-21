@@ -252,6 +252,8 @@ public interface InteractionManager
 
     public ReadOnlyObjectProperty<Frame.View> viewProperty();
 
+    public void showUndoDeleteBanner(int totalEffort);
+
     public static enum Kind
     {
         CLASS_NON_FINAL, CLASS_FINAL, INTERFACE, ENUM, PRIMITIVE;

@@ -634,4 +634,11 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     {
         return effectivelyFocusedProperty;
     }
+
+    @Override
+    public int calculateEffort()
+    {
+        // Not much effort to select choice, and often left as-is; approximate as one keypress:
+        return 1;
+    }
 }

@@ -2978,6 +2978,11 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
         return anchorPos != null || (parent != null && parent.isInSelection());
     }
 
+    public int calculateEffort()
+    {
+        return fields.stream().filter(f -> f != null).mapToInt(ExpressionSlotComponent::calculateEffort).sum() + operators.stream().filter(op -> op != null).mapToInt(op -> op.get().length()).sum();
+    }
+
     /**
      * The escape status in a String literal.  For example, in the string literal:
      *   "Hi!\n C:\\Program Files"
