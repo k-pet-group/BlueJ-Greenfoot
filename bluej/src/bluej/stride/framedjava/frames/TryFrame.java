@@ -42,6 +42,7 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.FocusParent;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
+import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.SlotValueListener;
 import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.stride.slots.TypeTextSlot;
@@ -109,6 +110,7 @@ public class TryFrame extends SandwichCanvasesFrame
 
         TypeTextSlot type = new TypeTextSlot(editor, this, this, row, new TypeCompletionCalculator(editor, Throwable.class), "catch-type-");
         type.setPromptText("type");
+        type.addValueListener(SlotTraversalChars.IDENTIFIER);
         type.addValueListener(new SlotValueListener() {
             @Override
             public boolean valueChanged(HeaderItem slot, String oldValue, String newValue, FocusParent<HeaderItem> parent) {
