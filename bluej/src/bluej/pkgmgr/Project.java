@@ -2181,13 +2181,20 @@ public class Project implements DebuggerListener, InspectorManager
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
+                        Set<Package> pkgsToCompile;
+                        
                         synchronized (Project.this)
                         {
-                            for (Package p : scheduledPkgs)
-                            {
-                                p.compileOnceIdle(latestCompileReason);
-                            }
+                            // Avoid holding Project lock for too long by making a copy of the
+                            // lock-protected set now:
+                            pkgsToCompile = scheduledPkgs;
+                            scheduledPkgs = new HashSet<>();
                             scheduledPkgs.clear();
+                        }
+                        
+                        for (Package p : pkgsToCompile)
+                        {
+                            p.compileOnceIdle(latestCompileReason);
                         }
                     }
                 };
