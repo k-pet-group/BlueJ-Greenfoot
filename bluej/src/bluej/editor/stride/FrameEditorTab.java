@@ -59,6 +59,7 @@ import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.ast.links.PossibleVarLink;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.utility.javafx.CircleCountdown;
 import bluej.utility.javafx.FXSupplier;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -2463,21 +2464,24 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         {
             TextFlow bannerText = new TextFlow();
             JavaFXUtil.addStyleClass(bannerText, "banner-undo-delete-text");
-            Button undoButton = new Button("Click here to undo");
+            Button undoButton = new Button("Click here if you want to undo");
             JavaFXUtil.addStyleClass(undoButton, "banner-undo-delete-button");
-            bannerText.getChildren().addAll(new Text("You just deleted a large piece of code.  Press Ctrl-Z N times or "), undoButton);
-            // TODO make the undo button do something
+            bannerText.getChildren().addAll(new Text("You just deleted a large piece of code.  "), undoButton);
+            // TODO make the undo button go back to current undo state
             // TODO remove if the user triggers undo!
-            // TODO remove after a set time
+            // TODO remove if user makes two more undo states
             Button close = new Button("Close");
             JavaFXUtil.addStyleClass(close, "banner-undo-delete-close");
             BorderPane banner = new BorderPane(bannerText);
-            banner.setRight(close);
+            CircleCountdown countdown = new CircleCountdown(40, Color.BLACK, Duration.seconds(15));
+            countdown.addOnFinished(() -> bannerPane.getChildren().remove(banner));
+            banner.setRight(new VBox(close, countdown));
             JavaFXUtil.addStyleClass(banner, "banner-undo-delete");
             //bannerText.styleProperty().bind(new ReadOnlyStringWrapper("-fx-font-size:").concat(PrefMgr.strideFontSizeProperty().multiply(4).divide(3).asString()).concat("pt;"));
             banner.styleProperty().bind(new ReadOnlyStringWrapper("-fx-font-size:").concat(PrefMgr.strideFontSizeProperty().asString()).concat("pt;"));
             bannerPane.getChildren().add(0, banner);
             close.setOnAction(e -> {
+                countdown.stop();
                 bannerPane.getChildren().remove(banner);
                 // If we don't explicitly focus something, focus will vanish.  Ideally we'd refocus
                 // the last item, but it's too late here to know what that is, focus is already on the button.
