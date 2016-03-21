@@ -272,11 +272,14 @@ public class GProject extends RProjectListenerImpl
     
     /**
      * Check if the this project was open previously, and the VM has been restarted.
+     * (Calling this method also clears the "VM restarted" flag).
      */
     public boolean isVmRestarted()
     {
         try {
-            return rProject.isVMRestarted();
+            boolean r = rProject.isVMRestarted();
+            rProject.setVmRestarted(false);
+            return r;
         } catch (RemoteException re) {
             Debug.reportError("Checking VM restart status", re);
             throw new InternalGreenfootError(re);

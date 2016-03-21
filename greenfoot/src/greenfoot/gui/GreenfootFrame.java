@@ -540,6 +540,7 @@ public class GreenfootFrame extends JFrame
             public void actionPerformed(ActionEvent e)
             {
                 try {
+                    project.getRProject().setVmRestarted(true);
                     project.getRProject().restartVM();
                 }
                 catch (RemoteException e1) {

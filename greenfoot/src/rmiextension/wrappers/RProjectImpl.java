@@ -409,7 +409,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             // throws an illegal state exception
             // if this is called whilst the remote VM
             // is already restarting 
-            vmRestarted = true;
             getBProject().restartVM();
         }
         catch (IllegalStateException ise) {
