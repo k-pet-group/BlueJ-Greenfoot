@@ -759,6 +759,14 @@ public class CommitCommentsFrame extends EscapeDialog
                     if (!filesToAdd.isEmpty() || !filesToCommit.isEmpty() || !filesToDelete.isEmpty()) {
                         this.isCommitAvailable = true;
                     }
+                    
+                    if (!mergeConflicts.isEmpty() || !deleteConflicts.isEmpty() || !otherConflicts.isEmpty()) {
+
+                        handleConflicts(mergeConflicts, deleteConflicts,
+                                otherConflicts, null);
+                        return;
+                    }
+                    
                     if (repository.isDVCS()) {
                         Set<File> filesToCommitInPush = new HashSet<>();
                         Set<File> filesToAddInPush = new HashSet<>();
