@@ -26,6 +26,7 @@ import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateListener;
 import bluej.groupwork.UpdateResults;
 import static bluej.groupwork.git.GitUtillities.findForkPoint;
+import static bluej.groupwork.git.GitUtillities.getDiffFromList;
 import static bluej.groupwork.git.GitUtillities.getDiffs;
 import static bluej.groupwork.git.GitUtillities.getFileNameFromDiff;
 import com.google.common.io.Files;
@@ -59,6 +60,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     private final UpdateListener listener;
     private final List<File> conflicts = new ArrayList<>();
     private final Set<File> binaryConflicts = new HashSet<>();
+    private List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
 
     public GitUpdateToCommand(GitRepository repository, UpdateListener listener, Set<File> files, Set<File> forceFiles)
     {
@@ -115,10 +117,10 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             }
             //now we need to find out what files where affected by this merge.
             //to do so, we compare the commits affected by this merge.
-            List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
+            
             listOfDiffsLocal = getDiffs(repo, headBeforeMerge.getName(), forkPoint);
             listOfDiffsRemote = getDiffs(repo, headOfRemoteBeforeMerge.getName(), forkPoint);
-            processChanges(repo, listOfDiffsLocal, listOfDiffsRemote, conflicts);
+            processChanges(repo, conflicts);
 
             if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
                 listener.handleConflicts(this);
@@ -148,39 +150,47 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     @Override
     public void overrideFiles(Set<File> files)
     {
-
+        for (File f : files) {
+            DiffEntry remoteDiffItem = getDiffFromList(new File(f.getName()), listOfDiffsRemote);
+            if (remoteDiffItem != null && remoteDiffItem.getChangeType() == DiffEntry.ChangeType.DELETE) {
+                //remove file.
+                f.delete();
+                listener.fileRemoved(f);
+            } else {
+                listener.fileUpdated(f);
+            }
+        }
     }
 
-    private void processChanges(Git repo, List<DiffEntry> listOfDiffsLocal, List<DiffEntry> listOfDiffsRemote, List<File> conflicts)
+    private void processChanges(Git repo, List<File> conflicts)
     {
         for (DiffEntry remoteDiffItem : listOfDiffsRemote) {
             File file = new File(this.getRepository().getProjectPath(), getFileNameFromDiff(remoteDiffItem));
-            if (conflicts.contains(file)) {
-                listener.fileUpdated(file);
-            } else {
-                switch (remoteDiffItem.getChangeType()) {
-                    case ADD:
-                    case COPY:
-                        listener.fileAdded(file);
-                        break;
-                    case DELETE:
-                        if (!file.exists()){
-                            listener.fileRemoved(file);
-                        }
-                        break;
-                    case MODIFY:
+            DiffEntry localDiffItem = getDiffFromList(remoteDiffItem, listOfDiffsLocal);
+            
+            switch (remoteDiffItem.getChangeType()) {
+                case ADD:
+                case COPY:
+                    listener.fileAdded(file);
+                    break;
+                case DELETE:
+                    if (localDiffItem != null && localDiffItem.getChangeType() == DiffEntry.ChangeType.MODIFY) {
+                        //use the file selection mechanism.
+                        conflicts.remove(file);
+                        binaryConflicts.add(file);
+                    }
+                    if (!file.exists()) {
+                        listener.fileRemoved(file);
+                    } else {
                         listener.fileUpdated(file);
-                        break;
-                }
+                    }
+                    break;
+                case MODIFY:
+                    listener.fileUpdated(file);
+                    break;
             }
         }
-        
-        for (DiffEntry localDiffItem : listOfDiffsLocal) {
-            File file = new File(this.getRepository().getProjectPath(), getFileNameFromDiff(localDiffItem));
-            if (!conflicts.contains(file) && localDiffItem.getChangeType() == DiffEntry.ChangeType.MODIFY) {
-                listener.fileUpdated(file);
-            }
-        }
+
     }
 
     /**

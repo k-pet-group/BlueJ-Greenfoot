@@ -95,6 +95,8 @@ public class UpdateFilesFrame extends EscapeDialog
     
     private static String noFilesToUpdate = Config.getString("team.noupdatefiles"); 
 
+    private boolean PullWithNoChanges = false;
+    
     public UpdateFilesFrame(Project proj)
     {
         project = proj;
@@ -385,6 +387,7 @@ public class UpdateFilesFrame extends EscapeDialog
         @OnThread(Tag.Any)
         public void statusComplete(StatusHandle statusHandle)
         {
+            PullWithNoChanges = statusHandle.pullNeeded();
             this.statusHandle = statusHandle;
         }
         
@@ -460,7 +463,7 @@ public class UpdateFilesFrame extends EscapeDialog
                         addModifiedLayouts();
                     }
 
-                    if(updateListModel.isEmpty()) {
+                    if(updateListModel.isEmpty() && !PullWithNoChanges) {
                         updateListModel.addElement(noFilesToUpdate);
                     }
                     else {

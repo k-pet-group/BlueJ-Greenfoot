@@ -128,7 +128,11 @@ public class GitStatusCommand extends GitCommand
                         }
                         break;
                     case DELETED_BY_US:
-                        statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_LDRM);
+                        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_BLANK){
+                            statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_LDRM);
+                        } else if (!statusInfo.getFile().exists()){
+                            statusInfo.setStatus(TeamStatusInfo.STATUS_DELETED);
+                        }
                         break;
                     case BOTH_ADDED:
                         statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_ADD);

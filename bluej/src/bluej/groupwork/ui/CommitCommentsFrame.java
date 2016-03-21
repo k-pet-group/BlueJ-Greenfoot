@@ -108,7 +108,7 @@ public class CommitCommentsFrame extends EscapeDialog
     /** The packages whose layout should be committed compulsorily */
     private Set<File> packagesToCommmit = new HashSet<File>();
     
-    private boolean PushWithNoChanges = false;
+    private boolean pushWithNoChanges = false;
     
     private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 
 
@@ -704,7 +704,7 @@ public class CommitCommentsFrame extends EscapeDialog
         @Override
         public void statusComplete(StatusHandle statusHandle)
         {
-            if (statusHandle.pushNeeded()) PushWithNoChanges = true;
+            pushWithNoChanges = statusHandle.pushNeeded();
             commitAction.setStatusHandle(statusHandle);
             if (repository.isDVCS()) pushAction.setStatusHandle(statusHandle); 
         }
@@ -780,14 +780,14 @@ public class CommitCommentsFrame extends EscapeDialog
                                 mergeConflictsInPush, deleteConflictsInPush, otherConflictsInPush,
                                 needsMergeInPush, modifiedLayoutFiles, true);
 
-                        this.isPushAvailable = PushWithNoChanges || !filesToCommitInPush.isEmpty() || !filesToAddInPush.isEmpty() || !filesToDeleteInPush.isEmpty();
+                        this.isPushAvailable = pushWithNoChanges || !filesToCommitInPush.isEmpty() || !filesToAddInPush.isEmpty() || !filesToDeleteInPush.isEmpty();
                         //in the case we are commiting the resolution of a merge, we should check if the same file that is beingmarked as otherConflict 
                         //on the remote branch is being commitd to the local branch. if it is, then this is the user resolution to the conflict and we should 
                         //procceed with the commit. and then with the push as normal.
                         boolean conflicts;
                         conflicts = !mergeConflictsInPush.isEmpty() || !deleteConflictsInPush.isEmpty()
                                 || !otherConflictsInPush.isEmpty() || !needsMergeInPush.isEmpty();
-                        if (this.isPushAvailable && conflicts) {
+                        if (!this.isCommitAvailable && conflicts) {
                             //there is a file in some of the conflict list.
                             //check if this fill will commit normally. if it will, we should allow.
                             Set<File> conflictingFilesInPush = new HashSet<>();
@@ -823,7 +823,7 @@ public class CommitCommentsFrame extends EscapeDialog
                             conflicts = !conflictingFilesInPush.isEmpty();
                         }
             
-                        if (this.isPushAvailable && conflicts) {
+                        if (!this.isCommitAvailable && conflicts) {
 
                             handleConflicts(mergeConflictsInPush, deleteConflictsInPush,
                                     otherConflictsInPush, null);
@@ -832,7 +832,8 @@ public class CommitCommentsFrame extends EscapeDialog
                         
                     updateLists(info, filesToCommitInPush, filesToCommitList);
                     updateLists(info, filesToAddInPush, filesToCommitList);
-                    updateLists(info, filesToDeleteInPush, filesToCommitList);                    
+                    updateLists(info, filesToDeleteInPush, filesToCommitList);   
+                    updateLists(info, mergeConflictsInPush, filesToCommitList);
 
                     }
                     

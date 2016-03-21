@@ -23,6 +23,7 @@ package bluej.groupwork.git;
 
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
+import static bluej.groupwork.git.GitUtillities.getBehindCount;
 import bluej.utility.Debug;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.Set;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.UnmergedPathException;
 
 /**
  * A git command to commit all files.
@@ -98,7 +100,9 @@ public class GitCommitAllCommand extends GitCommand
                     if (!deletedFiles.contains(f)) {
                         repo.add().addFilepattern(fileName).call();
                     }
-                    commit.setOnly(fileName);
+                    if (getBehindCount(repo) == 0) {
+                        commit.setOnly(fileName);
+                    }
                 }
             }
 
@@ -107,8 +111,10 @@ public class GitCommitAllCommand extends GitCommand
             //set name and email of the author of the commit.
             commit.setAuthor(getRepository().getYourName(), getRepository().getYourEmail());
             commit.call();
-
-        } catch (IOException | GitAPIException ex) {
+        } catch (UnmergedPathException | GitAPIException ex) {
+            Debug.reportError(ex.getMessage());
+            return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
+        } catch (IOException ex) {
             Debug.reportError(ex.getMessage());
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         }

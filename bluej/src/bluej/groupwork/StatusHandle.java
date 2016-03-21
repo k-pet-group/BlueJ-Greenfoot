@@ -87,4 +87,14 @@ public interface StatusHandle
     public default boolean pushNeeded(){
         return true;
     }
+    
+    /**
+     * checks if, the current repository state must be pulled from the remote 
+     * repository. This must be implemented by DCVS 
+     * systems such as GIT.
+     * @return 
+     */
+    public default boolean pullNeeded(){
+        return true;
+    }
 }
