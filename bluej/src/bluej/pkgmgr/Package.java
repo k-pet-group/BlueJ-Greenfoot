@@ -1566,7 +1566,14 @@ public final class Package extends Graph
      */
     public boolean isDebuggerIdle()
     {
-        int status = getDebugger().getStatus();
+        Debugger debugger = getDebugger();
+        if (debugger == null) {
+            // This method can be called during Project construction, when the debugger
+            // has not been created yet. Return true in this case, since the debugger
+            // is considered idle while the remote VM is starting.
+            return true;
+        }
+        int status = debugger.getStatus();
         return (status == Debugger.IDLE) || (status == Debugger.NOTREADY);
     }
 
