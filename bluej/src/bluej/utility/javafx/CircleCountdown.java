@@ -46,7 +46,7 @@ public class CircleCountdown extends Canvas
     public CircleCountdown(double size, Color strokeColor, Duration duration)
     {
         super(size, size);
-        timeline = new Timeline(new KeyFrame(duration, new KeyValue(time, 0)));
+        timeline = new Timeline(20.0, new KeyFrame(duration, new KeyValue(time, 0)));
 
         FXConsumer<Number> update = t -> {
             GraphicsContext gc = getGraphicsContext2D();

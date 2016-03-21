@@ -59,3 +59,7 @@ frame.viewmenu.fontdefault=Reset font size
 # Information:
 # The '$' will be replaced by the name of the superclass:
 frame.class.inherited.from=Inherited from $
+
+frame.undobanner.text=You just deleted a large piece of code.  If you didn't mean to, you can
+frame.undobanner.button=Undo this change
+frame.undobanner.close=Close

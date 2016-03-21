@@ -2467,6 +2467,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             CircleCountdown countdown = new CircleCountdown(40, Color.BLACK, Duration.seconds(15));
             TextFlow bannerText = new TextFlow();
             BorderPane banner = new BorderPane(bannerText);
+            BorderPane.setAlignment(bannerText, Pos.TOP_LEFT);
 
             final FrameState restoreTarget = undoRedoManager.getCurrent();
             // Must use anonymous class to have "this" reference:
@@ -2485,15 +2486,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             });
                 
             JavaFXUtil.addStyleClass(bannerText, "banner-undo-delete-text");
-            Button undoButton = new Button("Click here if you want to undo");
+            Button undoButton = new Button(Config.getString("frame.undobanner.button"));
             JavaFXUtil.addStyleClass(undoButton, "banner-undo-delete-button");
             undoButton.setOnAction(e -> {
                 while (undoRedoManager.canUndoToReference(restoreTarget, 3))
                     undo();
             });
-            // TODO localise
-            bannerText.getChildren().addAll(new Text("You just deleted a large piece of code.  "), undoButton);
-            Button close = new Button("Close");
+            bannerText.getChildren().addAll(new Text(Config.getString("frame.undobanner.text") + " "), undoButton);
+            Button close = new Button(Config.getString("frame.undobanner.close"));
             JavaFXUtil.addStyleClass(close, "banner-undo-delete-close");
             
             countdown.addOnFinished(() -> {
