@@ -1,0 +1,17 @@
+.banner-undo-delete {
+    -fx-background-color: orange;
+    -fx-text-fill: black;
+    -fx-padding: 0.5em 2em 0.5em 2em;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: black;
+}
+
+.banner-undo-delete .banner-undo-delete-text {
+    -fx-padding: 0 2em 0 0;
+}
+
+.banner-undo-delete .banner-undo-delete-button, .banner-undo-delete .banner-undo-delete-close {
+    -fx-background-radius: 0.6em;
+    -fx-border-radius: 0.6em;
+    -fx-padding: 0em 0.5em 0em 0.5em;
+}

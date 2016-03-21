@@ -71,6 +71,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -107,6 +108,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -368,6 +371,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         scrollAndOverlays = new StackPane();
         windowOverlayPane = new WindowOverlayPane();
         bannerPane = new VBox();
+        bannerPane.setPickOnBounds(false);
         scroll = new ScrollPane();
         scroll.getStyleClass().add("frame-editor-scroll-pane");
         scroll.setFitToWidth(true);
@@ -2454,13 +2458,31 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @Override
     public void showUndoDeleteBanner(int totalEffort)
     {
-        Debug.message("Total effort: " + totalEffort);
+        //Debug.message("Total effort: " + totalEffort);
         if (totalEffort >= 20)
         {
-            HBox banner = new HBox();
-            banner.getChildren().addAll(new Label("You just deleted a large piece of code.  Press Ctrl-Z N times or "), new Button("Click here to undo"), new Button("X"));
-            // TODO should we use a flow pane so content can wrap?  Or TextFlow?
-            bannerPane.getChildren().add(banner);
+            TextFlow bannerText = new TextFlow();
+            JavaFXUtil.addStyleClass(bannerText, "banner-undo-delete-text");
+            Button undoButton = new Button("Click here to undo");
+            JavaFXUtil.addStyleClass(undoButton, "banner-undo-delete-button");
+            bannerText.getChildren().addAll(new Text("You just deleted a large piece of code.  Press Ctrl-Z N times or "), undoButton);
+            // TODO make the undo button do something
+            // TODO remove if the user triggers undo!
+            // TODO remove after a set time
+            Button close = new Button("Close");
+            JavaFXUtil.addStyleClass(close, "banner-undo-delete-close");
+            BorderPane banner = new BorderPane(bannerText);
+            banner.setRight(close);
+            JavaFXUtil.addStyleClass(banner, "banner-undo-delete");
+            //bannerText.styleProperty().bind(new ReadOnlyStringWrapper("-fx-font-size:").concat(PrefMgr.strideFontSizeProperty().multiply(4).divide(3).asString()).concat("pt;"));
+            banner.styleProperty().bind(new ReadOnlyStringWrapper("-fx-font-size:").concat(PrefMgr.strideFontSizeProperty().asString()).concat("pt;"));
+            bannerPane.getChildren().add(0, banner);
+            close.setOnAction(e -> {
+                bannerPane.getChildren().remove(banner);
+                // If we don't explicitly focus something, focus will vanish.  Ideally we'd refocus
+                // the last item, but it's too late here to know what that is, focus is already on the button.
+                focusWhenShown();
+            });
         }
     }
 }
