@@ -25,6 +25,7 @@ import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamworkCommandResult;
 import static bluej.groupwork.git.GitUtillities.findForkPoint;
+import static bluej.groupwork.git.GitUtillities.getBehindCount;
 import static bluej.groupwork.git.GitUtillities.getDiffs;
 import static bluej.groupwork.git.GitUtillities.getFileNameFromDiff;
 import bluej.utility.Debug;
@@ -118,7 +119,13 @@ public class GitStatusCommand extends GitCommand
                 IndexDiff.StageState state = (IndexDiff.StageState) conflictsMap.get(key);
                 switch (state) {
                     case DELETED_BY_THEM:
-                        statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_LMRD);
+                        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_BLANK){
+                            statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_LMRD);
+                        } else if (statusInfo.getStatus() == TeamStatusInfo.STATUS_NEEDSCOMMIT && !statusInfo.getFile().exists()){
+                            //if the file doesn't exist, but git report as needs commit, it means that the file was in a LMRD state,
+                            //but the user choose to delete it.
+                            statusInfo.setStatus(TeamStatusInfo.STATUS_DELETED);
+                        }
                         break;
                     case DELETED_BY_US:
                         statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_LDRM);
@@ -128,8 +135,9 @@ public class GitStatusCommand extends GitCommand
                         break;
                     case BOTH_MODIFIED:
                         statusInfo.setStatus(TeamStatusInfo.STATUS_NEEDSMERGE);
-                        break;                       
+                        break;
                 }
+
             });
                 
             
@@ -162,7 +170,7 @@ public class GitStatusCommand extends GitCommand
                     TeamStatusInfo teamInfo = returnInfo.removeFirst();
                     listener.gotStatus(teamInfo);
                 }
-                listener.statusComplete(new GitStatusHandle(getRepository(), didFilesChange && isAheadOnly(repo)));
+                listener.statusComplete(new GitStatusHandle(getRepository(), didFilesChange && isAheadOnly(repo), didFilesChange && getBehindCount(repo) > 0));
             }
         } catch (IOException | GitAPIException | NoWorkTreeException ex) {
             Debug.reportError("Git status command exception", ex);
@@ -251,11 +259,19 @@ public class GitStatusCommand extends GitCommand
             switch (remoteDiffItem.getChangeType()) {
                 case MODIFY:
                     if (localDiffItem.isPresent()) {
+                        TeamStatusInfo entry = getTeamStatusInfo(returnInfo, file);
                         switch (localDiffItem.get().getChangeType()) {
                             case MODIFY:
-                                updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_NEEDSMERGE);
+                                if (entry == null){
+                                    //this file was in need of a merge, however, since it does not appears 
+                                    //in the local status, the merge was committed and needs to be pushed.
+                                    updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_NEEDS_PUSH);
+                                } else {
+                                    updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_NEEDSMERGE);
+                                }
                                 break;
                             case DELETE:
+                                
                                 updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_CONFLICT_LDRM);
                                 break;
                             case ADD:
