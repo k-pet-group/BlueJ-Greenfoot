@@ -23,6 +23,7 @@ package bluej.groupwork.git;
 
 import bluej.utility.Debug;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -162,6 +163,37 @@ public class GitUtillities
         return result;
     }
     
+    
+    /**
+     * return a diff from a list based on the file name.
+     * @param entry
+     * @param list
+     * @return 
+     */
+    public static DiffEntry getDiffFromList(DiffEntry entry, List<DiffEntry> list)
+    {
+        File entryFile = new File(getFileNameFromDiff(entry));
+        return getDiffFromList(entryFile, list);
+    }
+
+    /**
+     * return a diff from a list based on the file name.
+     *
+     * @param entry
+     * @param list
+     * @return
+     */
+    public static DiffEntry getDiffFromList(File entryFile, List<DiffEntry> list)
+    {
+        for (DiffEntry e : list) {
+            File fe = new File(getFileNameFromDiff(e));
+            if (entryFile.equals(fe)) {
+                return e;
+            }
+        }
+        return null;
+    }
+    
     /**
      * checks if the repository is ahead and if behindCount = 0.
      * @param repo
@@ -188,6 +220,22 @@ public class GitUtillities
         BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
         int aheadCount = bts.getAheadCount();
         return aheadCount;
+    }
+    
+    /**
+     * checks if the repository is behind and if aheadCount = 0.
+     *
+     * @param repo
+     * @return
+     * @throws IOException
+     */
+    public static boolean isBehindOnly(Git repo) throws IOException
+    {
+        BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        int aheadCount = bts.getAheadCount();
+        int behindCount = bts.getBehindCount();
+
+        return aheadCount == 0 && behindCount > 0;
     }
     
     /**
