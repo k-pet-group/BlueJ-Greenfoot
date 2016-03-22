@@ -286,7 +286,13 @@ public class Project implements DebuggerListener, InspectorManager
         // Check whether this is a shared project
         File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");
         isSharedProject = ccfFile.isFile();
-        teamActions = new TeamActionGroup(isSharedProject);
+        boolean isDVCS=false;
+        if (isSharedProject){
+            TeamSettingsController tsc = new TeamSettingsController(this);
+            isDVCS = tsc.getRepository(false).isDVCS();
+        }
+        
+        teamActions = new TeamActionGroup(isSharedProject, isDVCS);
     }
 
     /**

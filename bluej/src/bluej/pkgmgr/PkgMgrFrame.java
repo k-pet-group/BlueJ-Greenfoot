@@ -902,7 +902,14 @@ public class PkgMgrFrame extends JFrame
             this.viewMenuManager.addExtensionMenu(pkg.getProject());
         
             teamActions = pkg.getProject().getTeamActions();
-            resetTeamActions();             
+            resetTeamActions();
+            
+            //update TeamSettings menu items.
+            if (pkg.getProject().getTeamSettingsController().getRepository(false).isDVCS()) {
+                commitMenuItem.setText(Config.getString("team.menu.commitPush"));
+            } else {
+                commitMenuItem.setText(Config.getString("team.menu.commit"));
+            }
            
             // In Java-ME packages, we display Java-ME controls in the
             // test panel. We are just using the real estate of the test panel.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,9 +36,9 @@ import bluej.pkgmgr.Project;
  */
 public class CommitCommentAction extends TeamAction
 {
-    public CommitCommentAction()
+    public CommitCommentAction(String label)
     {
-        super("team.commit", true);
+        super(label, true);
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.commit"));
     }
     

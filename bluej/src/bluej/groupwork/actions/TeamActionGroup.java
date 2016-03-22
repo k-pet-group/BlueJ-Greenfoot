@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,16 +37,34 @@ public class TeamActionGroup
     private StatusAction statusAction = new StatusAction();
     private UpdateDialogAction updateAction = new UpdateDialogAction();
     private TeamSettingsAction teamSettingsAction = new TeamSettingsAction();
-    private CommitCommentAction commitCommentAction = new CommitCommentAction();
+    private CommitCommentAction commitCommentAction;
     private ImportAction importAction = new ImportAction();
     private ShowLogAction showLogAction = new ShowLogAction();
     
     /**
      * Construct a new team action group, with various actions disabled
      * or enabled depending whether we are in team mode or non-team mode.
+     * 
+     * @param teamMode should teamMode be enabled
      */
     public TeamActionGroup(boolean teamMode)
     {
+        this(teamMode, false);
+    }
+    /**
+     * Construct a new team action group, with various actions disabled
+     * or enabled depending whether we are in team mode or non-team mode.
+     * 
+     * @param teamMode should teamMode be enabled
+     * @param isDCVS is this a distributed version control? (e.g. git).
+     */
+    public TeamActionGroup(boolean teamMode, boolean isDCVS)
+    {
+        String label = "team.commit";
+        if (isDCVS){
+            label = "team.commitPush";
+        }
+        commitCommentAction = new CommitCommentAction(label);
         setTeamMode(teamMode);
     }
     
