@@ -88,6 +88,14 @@ public class DebugInfo
             }
         }
     }
+
+    public void hideAllDisplays()
+    {
+        displays.forEach((cursor, display) -> {
+            cursor.getParentCanvas().getSpecialBefore(cursor).getChildren().remove(display);
+        });
+        displays.clear();
+    }
     
     public class Display extends AnchorPane implements HighlightedBreakpoint
     {
@@ -110,6 +118,8 @@ public class DebugInfo
         private VBox makeDisplay(Map<String, DebugVarInfo> prevVars,
                 Map<String, DebugVarInfo> vars) {
             VBox disp = new VBox();
+            // TEMPORARILY DISABLED until more work on debugger is done:
+            /*
             for (Map.Entry<String, DebugVarInfo> var : vars.entrySet())
             {
                 DebugVarInfo prev = prevVars == null ? null : prevVars.get(var.getKey());
@@ -122,7 +132,7 @@ public class DebugInfo
                 disp.getChildren().add(row);
                 row.getStyleClass().add("debug-info");
             }
-            
+            */
             return disp;
         }
         

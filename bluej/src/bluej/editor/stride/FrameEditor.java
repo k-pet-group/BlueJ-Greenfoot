@@ -786,6 +786,7 @@ public class FrameEditor implements Editor
     public void setStepMark(int lineNumber, String message, boolean isBreak,
             DebuggerThread thread)
     {
+        removeStepMark();
         Platform.runLater(() -> {
             setVisibleFX(true, true);
             SwingUtilities.invokeLater(() -> {
@@ -841,7 +842,10 @@ public class FrameEditor implements Editor
     @Override
     public void removeStepMark()
     {
-        // TODO Auto-generated method stub
+        Platform.runLater(() -> {
+            if (debugInfo != null)
+                debugInfo.hideAllDisplays();
+        });
     }
 
     @Override
