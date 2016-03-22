@@ -99,10 +99,6 @@ public class GitCommitAllCommand extends GitCommand
                 if (!fileName.isEmpty() && !f.isDirectory()) {
                     if (!deletedFiles.contains(f)) {
                         repo.add().addFilepattern(fileName).call();
-                        Status fileStatus = repo.status().addPath(f.getName()).call();
-                        if (fileStatus.getUncommittedChanges().contains(f.getName()) ){
-                            commit.setOnly(fileName);
-                        }
                     }
                 }
             }
