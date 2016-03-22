@@ -348,6 +348,11 @@ public class SwingTabbedEditor implements TabbedEditorWindow
         header.updateBorder(hasErrors);
     }
 
+    public boolean isVisible()
+    {
+        return window.isVisible();
+    }
+
     /**
      * A component for the tab header; contains a title bale, and a close button
      */

@@ -842,7 +842,6 @@ public final class MoeEditor extends JPanel
     public void displayMessage(String message, int lineNumber, int column, boolean beep, 
             String help)
     {
-        setVisible(true);
         switchToSourceView();
 
         Element line = getSourceLine(lineNumber);
@@ -920,7 +919,6 @@ public final class MoeEditor extends JPanel
     public void setStepMark(int lineNumber, String message, boolean isBreak,
             DebuggerThread thread)
     {
-        setVisible(true);
         switchToSourceView();
 
         Element line = getSourceLine(lineNumber);
@@ -4065,7 +4063,7 @@ public final class MoeEditor extends JPanel
     @Override
     public boolean isOpen()
     {
-        return isVisible();
+        return swingTabbedEditor != null && swingTabbedEditor.isVisible();
     }
     
     public String getTitle()

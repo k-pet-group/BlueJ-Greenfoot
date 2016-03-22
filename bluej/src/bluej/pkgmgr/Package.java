@@ -2389,7 +2389,7 @@ public final class Package extends Graph
         Editor editor = ct.getEditor();
         if (editor != null) {
             if (! editor.isOpen() || bringToFront) {
-                t.setVisible(true);
+                ct.open();;
             }
         }
         
