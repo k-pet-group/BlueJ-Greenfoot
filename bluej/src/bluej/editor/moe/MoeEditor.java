@@ -920,6 +920,7 @@ public final class MoeEditor extends JPanel
     public void setStepMark(int lineNumber, String message, boolean isBreak,
             DebuggerThread thread)
     {
+        setVisible(true);
         switchToSourceView();
 
         Element line = getSourceLine(lineNumber);
