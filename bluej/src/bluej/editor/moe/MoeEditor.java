@@ -842,6 +842,7 @@ public final class MoeEditor extends JPanel
     public void displayMessage(String message, int lineNumber, int column, boolean beep, 
             String help)
     {
+        setVisible(true);
         switchToSourceView();
 
         Element line = getSourceLine(lineNumber);

@@ -740,7 +740,10 @@ public class FrameEditor implements Editor
             boolean beep, String help)
     {
         //This is a message from a clickable stack trace following an exception
-        Platform.runLater(() -> JavaFXUtil.onceNotNull(javaSource, js -> js.handleException(lineNumber)));
+        Platform.runLater(() -> JavaFXUtil.onceNotNull(javaSource, js -> {
+            setVisibleFX(true, true);
+            js.handleException(lineNumber);
+        }));
     }
 
     @Override
