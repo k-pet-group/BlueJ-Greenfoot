@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -93,12 +93,19 @@ public abstract class Actor
 
     static GreenfootImage greenfootImage;
 
+    // The following variables cache various aspects of an actor's size, including
+    // its bounding box after rotation.
+    
     /** Axis-aligned bounding rectangle of the object, in pixels. */
     private Rect boundingRect;
     /** X-coordinates of the rotated bounding rectangle's corners */
     private int[] boundingXs = new int[4];
     /** Y-coordinates of the rotated bounding rectangle's corners */
     private int[] boundingYs = new int[4];
+    /** Cached image width */
+    private int imageWidth;
+    /** Cached image hieght */
+    private int imageHeight;
 
     static {
         //Do this in a 'try' since a failure at this point will crash Greenfoot.
@@ -443,10 +450,19 @@ public abstract class Actor
 
         boolean sizeChanged = true;
 
-        if (image != null && this.image != null) {
-            if (image.getWidth() == this.image.getWidth() && image.getHeight() == this.image.getHeight()) {
+        if (image != null) {
+            if (image.getWidth() == imageWidth && image.getHeight() == imageHeight) {
                 sizeChanged = false;
             }
+            else {
+                imageWidth = image.getWidth();
+                imageHeight = image.getHeight();
+            }
+        }
+        else {
+            sizeChanged = imageHeight != 0 || imageWidth != 0;
+            imageWidth = 0;
+            imageHeight = 0;
         }
 
         this.image = image;

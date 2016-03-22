@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,8 +26,6 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,21 +50,7 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
 
     public String getGreenfootLogoPath()
     {
-        String resourceName = "greenfoot/TestUtilDelegate.class";
-        String classes = getClass().getClassLoader().getResource(resourceName).toString();
-        File startingDir = null;
-        try {
-            startingDir = new File(new URI(classes)).getParentFile().getParentFile();
-        }
-        catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        while((startingDir != null) &&
-                !(new File(startingDir, "images").isDirectory())) {
-            startingDir = startingDir.getParentFile();
-        }
-        File imageFile = new File(startingDir, "images/greenfoot.png");
-        return imageFile.toString();
+        return "greenfoot.png";
     }
 
     public String getNewProjectName(Component parent)

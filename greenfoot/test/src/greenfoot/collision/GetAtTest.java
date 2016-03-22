@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,9 +23,10 @@ package greenfoot.collision;
 
 import java.util.List;
 
+import greenfoot.GreenfootImage;
+import greenfoot.TestObject;
 import greenfoot.TestUtilDelegate;
 import greenfoot.World;
-import greenfoot.TestObject;
 import greenfoot.WorldCreator;
 import greenfoot.util.GreenfootUtil;
 import junit.framework.TestCase;
@@ -41,7 +42,6 @@ public class GetAtTest extends TestCase
         GreenfootUtil.initialise(new TestUtilDelegate());        
     }
     
-    @SuppressWarnings("unchecked")
     public void testPixelOdd()
     {
         world = WorldCreator.createWorld(100, 100, 1);
@@ -49,7 +49,7 @@ public class GetAtTest extends TestCase
         TestObject actor1 = new TestObject(21, 21);
         world.addObject(actor1, 50 , 50);
 
-        List result = world.getObjectsAt(50, 50, TestObject.class);
+        List<TestObject> result = world.getObjectsAt(50, 50, TestObject.class);
         assertTrue(result.contains(actor1));
 
         result = world.getObjectsAt(60, 60, TestObject.class);
@@ -66,7 +66,6 @@ public class GetAtTest extends TestCase
 
     }
 
-    @SuppressWarnings("unchecked")
     public void testPixelEven()
     {
         world = WorldCreator.createWorld(100, 100, 1);
@@ -74,7 +73,7 @@ public class GetAtTest extends TestCase
         TestObject actor1 = new TestObject(20, 20);
         world.addObject(actor1, 50, 50);
 
-        List result = world.getObjectsAt(50, 50, TestObject.class);
+        List<TestObject> result = world.getObjectsAt(50, 50, TestObject.class);
         assertTrue(result.contains(actor1));
         
         result = world.getObjectsAt(59, 59, TestObject.class);
@@ -94,7 +93,6 @@ public class GetAtTest extends TestCase
     /**
      * Test that collision checking works when an actor is rotated.
      */
-    @SuppressWarnings("unchecked")
     public void testRotation()
     {
         world = WorldCreator.createWorld(100, 100, 1);
@@ -102,7 +100,7 @@ public class GetAtTest extends TestCase
         // add object spanning (30, 40)-(69, 59)
         TestObject actor1 = new TestObject(40, 20);
         world.addObject(actor1, 50, 50);
-        List result = world.getObjectsAt(30, 40, TestObject.class);
+        List<TestObject> result = world.getObjectsAt(30, 40, TestObject.class);
         assertTrue(result.contains(actor1));
        
         result = world.getObjectsAt(69, 59, TestObject.class);
@@ -122,7 +120,6 @@ public class GetAtTest extends TestCase
     /** 
      * Test that the collision checker can handle rotated actors. 
      */
-    @SuppressWarnings("unchecked")
     public void testRotation2() 
     {
         world = WorldCreator.createWorld(10, 10, 50);
@@ -135,7 +132,7 @@ public class GetAtTest extends TestCase
 
         actor2.setRotation(45);
         
-        List result = world.getObjectsAt(5, 0, TestObject.class);
+        List<TestObject> result = world.getObjectsAt(5, 0, TestObject.class);
         assertTrue(result.contains(actor2));
 
         //After the rotation, it should not overlap surrounding cells.
@@ -151,7 +148,6 @@ public class GetAtTest extends TestCase
     /** 
      * Test that the collision checker can handle rotated actors. 
      */
-    @SuppressWarnings("unchecked")
     public void testRotation3() 
     {
         // This test currently fails, but I'm not convinced it *should* pass. Do we really want rotated
@@ -167,7 +163,7 @@ public class GetAtTest extends TestCase
         actor2.setRotation(45);
         world.addObject(actor2, 5, 0);
         
-        List result = world.getObjectsAt(5, 0, TestObject.class);
+        List<TestObject> result = world.getObjectsAt(5, 0, TestObject.class);
         assertTrue(result.contains(actor2));
 
         //After the rotation, it should now overlap surrounding cells.
@@ -181,7 +177,6 @@ public class GetAtTest extends TestCase
     }
     
     
-    @SuppressWarnings("unchecked")
     public void testBigCells() 
     {
         world = WorldCreator.createWorld(10, 10, 50);
@@ -189,7 +184,7 @@ public class GetAtTest extends TestCase
         TestObject actor1 = new TestObject(50, 50);
         world.addObject(actor1, 1, 1);
 
-        List result = world.getObjectsAt(1, 1, TestObject.class);
+        List<TestObject> result = world.getObjectsAt(1, 1, TestObject.class);
         assertTrue(result.contains(actor1));
         result = world.getObjectsAt(0, 0, TestObject.class);
         assertFalse(result.contains(actor1));
@@ -237,5 +232,34 @@ public class GetAtTest extends TestCase
         assertSame(actor1.getOneObjectAtP(0, 9, TestObject.class), actor3);
         assertSame(actor1.getOneObjectAtP(9, 9, TestObject.class), actor4);
         assertSame(actor2.getOneObjectAtP(-9, 0, TestObject.class), actor1);
+    }
+    
+    public void testResize()
+    {
+        // (Fails in Greenfoot 3.0.2.)
+        class BadLeaf extends TestObject {
+            public BadLeaf()
+            {
+                super(512, 433);
+            }
+            
+            @Override
+            protected void addedToWorld(World world)
+            {
+                GreenfootImage myImage = getImage();
+                myImage.scale(60, 60);
+                setImage(new GreenfootImage(60, 60));
+                getOneObjectAtOffset(0, 0, TestObject.class);
+            }
+        };
+        
+        world = WorldCreator.createWorld(10, 10, 60);
+        TestObject wombat = new TestObject(58, 45);
+        world.addObject(wombat, 4, 7);
+        
+        world.addObject(new BadLeaf(), 3, 5);
+        world.addObject(new BadLeaf(), 2, 9);
+        
+        assertNull(wombat.getOneObjectAtP(1, 0, TestObject.class));
     }
 }
