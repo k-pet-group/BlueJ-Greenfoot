@@ -577,7 +577,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         topLevelFrame.regenerateCode();
         TopLevelCodeElement el = topLevelFrame.getCode();
         el.updateSourcePositions();
-        loading = false;
+        // Use double runLater because some items may lag behind in runLaters:
+        Platform.runLater(() -> {
+            Platform.runLater(() -> {
+                loading = false;
+            });
+        });
         nameProperty.bind(topLevelFrame.nameProperty());
         // Whenever name changes, trigger recompile even without leaving slot:
         JavaFXUtil.addChangeListener(topLevelFrame.nameProperty(), n -> {
