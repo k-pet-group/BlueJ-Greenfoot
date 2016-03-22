@@ -722,7 +722,7 @@ team.statusinfo.conflictLDRM=Removed locally and modified in repository (conflic
 team.statusinfo.renamed=File was renamed
 
 team.statusinfo.dcvs.needsCheckout=Added 
-team.statusinfo.dcvs.needsUpdate=Modified 
+team.statusinfo.dcvs.needsUpdate=Modified locally
 team.statusinfo.dcvs.removed=Removed
 team.statusinfo.dcvs.needsAdd=Added
 team.statusinfo.dcvs.needsCommit=Modified
