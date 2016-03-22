@@ -314,6 +314,11 @@ public class GitStatusCommand extends GitCommand
                         }
                     } else {
                         updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_NEEDSCHECKOUT);
+                        if (!file.exists()){
+                            //this file will be added, but does not exist in the local repository.
+                            TeamStatusInfo tsi = getTeamStatusInfo(returnInfo, file);
+                            tsi.setStatus(TeamStatusInfo.STATUS_NEEDSCHECKOUT);
+                        }
                     }
             }
         }

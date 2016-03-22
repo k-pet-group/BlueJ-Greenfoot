@@ -719,6 +719,15 @@ team.statusinfo.weird=???
 team.statusinfo.conflictAdd=Added locally and in repository (conflict)
 team.statusinfo.conflictLMRD=Modified locally and removed from repository (conflict)
 team.statusinfo.conflictLDRM=Removed locally and modified in repository (conflict)
+team.statusinfo.renamed=File was renamed
+
+team.statusinfo.dcvs.needsCheckout=Added 
+team.statusinfo.dcvs.needsUpdate=Modified 
+team.statusinfo.dcvs.removed=Removed
+team.statusinfo.dcvs.needsAdd=Added
+team.statusinfo.dcvs.needsCommit=Modified
+team.statusinfo.dcvs.deleted=Removed
+team.statusinfo.dcvs.needsPush=Needs push
 
 team.settings.title = Team Settings
 team.settings.personal=Personal

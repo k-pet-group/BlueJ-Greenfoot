@@ -97,20 +97,11 @@ public class TeamStatusInfo
     /* File is up-to-date on the remote repository*/
     public final static int REMOTE_STATUS_UPTODATE = STATUS_UPTODATE;
 
-    /* File has been created on remote repository */
-    public final static int REMOTE_STATUS_ADDED = STATUS_NEEDSADD;
-    
-    /* File has been deleted on remote repository */
-    public final static int REMOTE_STATUS_DELETED = STATUS_REMOVED;
-    
     /* File has been modified on remote repository */
     public final static int REMOTE_STATUS_MODIFIED = STATUS_NEEDSUPDATE;
     
-    /* File has been removed on the remote repository */
-    //public final static int REMOTE_STATUS_REMOVED = 21;
-    
     /* File has been renamed */
-    public final static int REMOTE_STATUS_RENAMED = 21;
+    public final static int REMOTE_STATUS_RENAMED = STATUS_RENAMED;
     
 
     public final static String [] statusStrings = {
@@ -130,12 +121,27 @@ public class TeamStatusInfo
         "team.statusinfo.conflictLMRD",
         "team.statusinfo.conflictLDRM",
         "team.statusinfo.renamed",
-        "team.statusinfo.needsPush",
+        "team.statusinfo.dcvs.needsPush"
+    };
+    
+    public final static String [] dcvsStatusStrings = {
         "team.statusinfo.upToDate",
-        "team.statusinfo.remoteAdded",
-        "team.statusinfo.remoteDeleted",
-        "team.statusinfo.remoteModified",
-        "team.statusinfo.remoteRenamed"
+        "team.statusinfo.dcvs.needsCheckout",
+        "team.statusinfo.dcvs.deleted",
+        "team.statusinfo.dcvs.needsUpdate",
+        "team.statusinfo.dcvs.needsCommit",
+        "team.statusinfo.needsMerge",
+        "team.statusinfo.dcvs.needsAdd",    
+        "team.statusinfo.dcvs.removed",
+        "team.statusinfo.unresolved",
+        "team.statusinfo.hasConflicts",
+        "team.statusinfo.weird",
+        "",
+        "team.statusinfo.conflictAdd",
+        "team.statusinfo.conflictLMRD",
+        "team.statusinfo.conflictLDRM",
+        "team.statusinfo.renamed",
+        "team.statusinfo.dcvs.needsPush"
     };
     
     /**
@@ -219,6 +225,14 @@ public class TeamStatusInfo
         if(status == STATUS_BLANK)
             return "";
         return Config.getString(statusStrings[status]);
+    }
+    
+    public static String getDCVSStatusString(int status)
+    {
+        if (status == STATUS_BLANK) {
+            return "";
+        }
+        return Config.getString(dcvsStatusStrings[status]);
     }
     
 }

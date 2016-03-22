@@ -499,7 +499,7 @@ public class CommitCommentsFrame extends EscapeDialog
                                 //operation is the local operation.
                                 result = TeamStatusInfo.getStatusString(item.getStatus());
                             } else if (item.getRemoteStatus() != TeamStatusInfo.STATUS_UPTODATE) {
-                                result = TeamStatusInfo.getStatusString(item.getRemoteStatus());
+                                result = TeamStatusInfo.getDCVSStatusString(item.getRemoteStatus());
                             } else {
                                 //status is up-to-date.
                                 result = TeamStatusInfo.getStatusString(TeamStatusInfo.STATUS_UPTODATE);

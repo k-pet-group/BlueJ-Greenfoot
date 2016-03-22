@@ -34,7 +34,6 @@ import javax.swing.table.DefaultTableCellRenderer;
  * StatusCellRenderer.java
  * Renderer to add colour to the status message of resources inside a StatusFrame
  * @author Bruce Quig
- * @cvs $Id: StatusMessageCellRenderer.java 15351 2016-01-25 14:42:45Z fdlh $
  */
 public class StatusMessageCellRenderer extends DefaultTableCellRenderer 
 {
@@ -115,8 +114,12 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
 
         if(colName.equals(Config.getString("team.status.resource")) || colName.equals(Config.getString("team.status.version"))) {
             return value.toString();
-        }        
-        return TeamStatusInfo.getStatusString(statusValue);
+        }
+        if (colName.equals(Config.getString("team.status.remoteStatus"))) {
+            return TeamStatusInfo.getDCVSStatusString(statusValue);
+        } else {
+            return TeamStatusInfo.getStatusString(statusValue);
+        }
     }
     
     /**
