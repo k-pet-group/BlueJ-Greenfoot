@@ -23,7 +23,6 @@ package bluej.groupwork.git;
 
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
-import static bluej.groupwork.git.GitUtillities.getBehindCount;
 import bluej.utility.Debug;
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +33,7 @@ import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.UnmergedPathException;
+import org.eclipse.jgit.api.Status;
 
 /**
  * A git command to commit all files.
@@ -99,9 +99,10 @@ public class GitCommitAllCommand extends GitCommand
                 if (!fileName.isEmpty() && !f.isDirectory()) {
                     if (!deletedFiles.contains(f)) {
                         repo.add().addFilepattern(fileName).call();
-                    }
-                    if (getBehindCount(repo) == 0) {
-                        commit.setOnly(fileName);
+                        Status fileStatus = repo.status().addPath(f.getName()).call();
+                        if (fileStatus.getUncommittedChanges().contains(f.getName()) ){
+                            commit.setOnly(fileName);
+                        }
                     }
                 }
             }

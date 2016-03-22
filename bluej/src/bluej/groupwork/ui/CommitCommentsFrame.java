@@ -745,28 +745,27 @@ public class CommitCommentsFrame extends EscapeDialog
                     getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete,
                             mergeConflicts, deleteConflicts, otherConflicts,
                             needsMerge, modifiedLayoutFiles, false);
-                    
 
                     commitAction.setFiles(filesToCommit);
-                    commitAction.setNewFiles(filesToAdd);                    
+                    commitAction.setNewFiles(filesToAdd);
                     commitAction.setDeletedFiles(filesToDelete);
-                    
+
                     //update the table with files to commit.
                     updateLists(info, filesToCommit, filesToCommitList);
                     updateLists(info, filesToAdd, filesToCommitList);
-                    updateLists(info, filesToDelete, filesToCommitList);                    
+                    updateLists(info, filesToDelete, filesToCommitList);
 
                     if (!filesToAdd.isEmpty() || !filesToCommit.isEmpty() || !filesToDelete.isEmpty()) {
                         this.isCommitAvailable = true;
                     }
-                    
+
                     if (!mergeConflicts.isEmpty() || !deleteConflicts.isEmpty() || !otherConflicts.isEmpty()) {
 
                         handleConflicts(mergeConflicts, deleteConflicts,
                                 otherConflicts, null);
                         return;
                     }
-                    
+
                     if (repository.isDVCS()) {
                         Set<File> filesToCommitInPush = new HashSet<>();
                         Set<File> filesToAddInPush = new HashSet<>();
@@ -775,7 +774,7 @@ public class CommitCommentsFrame extends EscapeDialog
                         Set<File> deleteConflictsInPush = new HashSet<>();
                         Set<File> otherConflictsInPush = new HashSet<>();
                         Set<File> needsMergeInPush = new HashSet<>();
-                        
+
                         getCommitFileSets(info, filesToCommitInPush, filesToAddInPush, filesToDeleteInPush,
                                 mergeConflictsInPush, deleteConflictsInPush, otherConflictsInPush,
                                 needsMergeInPush, modifiedLayoutFiles, true);
@@ -795,24 +794,24 @@ public class CommitCommentsFrame extends EscapeDialog
                             conflictingFilesInPush.addAll(deleteConflictsInPush);
                             conflictingFilesInPush.addAll(otherConflictsInPush);
                             conflictingFilesInPush.addAll(needsMergeInPush);
-                            
-                            for (File conflictEntry:conflictingFilesInPush){
-                                if (filesToCommit.contains(conflictEntry)){
+
+                            for (File conflictEntry : conflictingFilesInPush) {
+                                if (filesToCommit.contains(conflictEntry)) {
                                     conflictingFilesInPush.remove(conflictEntry);
                                     mergeConflictsInPush.remove(conflictEntry);
                                     deleteConflictsInPush.remove(conflictEntry);
                                     otherConflictsInPush.remove(conflictEntry);
                                     needsMergeInPush.remove(conflictEntry);
-                                    
-                                } 
-                                if (filesToAdd.contains(conflictEntry)){
+
+                                }
+                                if (filesToAdd.contains(conflictEntry)) {
                                     conflictingFilesInPush.remove(conflictEntry);
                                     mergeConflictsInPush.remove(conflictEntry);
                                     deleteConflictsInPush.remove(conflictEntry);
                                     otherConflictsInPush.remove(conflictEntry);
                                     needsMergeInPush.remove(conflictEntry);
-                                } 
-                                if (filesToDelete.contains(conflictEntry)){
+                                }
+                                if (filesToDelete.contains(conflictEntry)) {
                                     conflictingFilesInPush.remove(conflictEntry);
                                     mergeConflictsInPush.remove(conflictEntry);
                                     deleteConflictsInPush.remove(conflictEntry);
@@ -822,26 +821,28 @@ public class CommitCommentsFrame extends EscapeDialog
                             }
                             conflicts = !conflictingFilesInPush.isEmpty();
                         }
-            
+
                         if (!this.isCommitAvailable && conflicts) {
 
                             handleConflicts(mergeConflictsInPush, deleteConflictsInPush,
                                     otherConflictsInPush, null);
                             return;
                         }
-                        
-                    updateLists(info, filesToCommitInPush, filesToCommitList);
-                    updateLists(info, filesToAddInPush, filesToCommitList);
-                    updateLists(info, filesToDeleteInPush, filesToCommitList);   
-                    updateLists(info, mergeConflictsInPush, filesToCommitList);
+
+                        updateLists(info, filesToCommitInPush, filesToCommitList);
+                        updateLists(info, filesToAddInPush, filesToCommitList);
+                        updateLists(info, filesToDeleteInPush, filesToCommitList);
+                        updateLists(info, mergeConflictsInPush, filesToCommitList);
 
                     }
-                    
+
                 }
-                
+
                 updateCommitOrPushListModel(filesToCommitList);
-                if (repository.isDVCS()) updateCommitOrPushListModel(filesToPushList);
-               
+                if (repository.isDVCS()) {
+                    updateCommitOrPushListModel(filesToPushList);
+                }
+
                 if (filesToCommitList.isEmpty() && filesToPushList.isEmpty()) {
                     if (commitOrPushTableModel.isEmpty()) {
                         commitOrPushTableModel.addElement(noFilesToCommit);

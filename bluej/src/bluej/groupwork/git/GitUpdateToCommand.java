@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.git;
 
+import bluej.Config;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateListener;
@@ -114,6 +115,8 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         conflicts.add(f);
                     });
                     break;
+                case FAILED:
+                    return new TeamworkCommandError(Config.getString("team.error.needsPull"), Config.getString("team.error.needsPull"));
             }
             //now we need to find out what files where affected by this merge.
             //to do so, we compare the commits affected by this merge.
@@ -121,7 +124,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             listOfDiffsLocal = getDiffs(repo, headBeforeMerge.getName(), forkPoint);
             listOfDiffsRemote = getDiffs(repo, headOfRemoteBeforeMerge.getName(), forkPoint);
             processChanges(repo, conflicts);
-
+            
             if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
                 listener.handleConflicts(this);
             }
