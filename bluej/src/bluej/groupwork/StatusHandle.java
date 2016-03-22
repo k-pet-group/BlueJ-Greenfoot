@@ -84,7 +84,8 @@ public interface StatusHandle
      * systems such as GIT.
      * @return 
      */
-    public default boolean pushNeeded(){
+    public default boolean pushNeeded()
+    {
         return true;
     }
     
@@ -94,7 +95,8 @@ public interface StatusHandle
      * systems such as GIT.
      * @return 
      */
-    public default boolean pullNeeded(){
+    public default boolean pullNeeded()
+    {
         return true;
     }
 }

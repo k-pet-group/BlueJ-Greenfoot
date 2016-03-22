@@ -48,7 +48,7 @@ public class GitFetchCommand extends GitCommand
             
             FetchCommand fetch = repo.fetch();
             disableFingerprintCheck(fetch);
-            FetchResult result = fetch.call();
+            fetch.call();
         } catch (IOException | GitAPIException ex) {
             return new TeamworkCommandError(ex.getMessage(),ex.getLocalizedMessage());
         }
