@@ -905,7 +905,7 @@ public class PkgMgrFrame extends JFrame
             resetTeamActions();
             
             //update TeamSettings menu items.
-            if (pkg.getProject().getTeamSettingsController().getRepository(false).isDVCS()) {
+            if (pkg.getProject().getTeamSettingsController() != null && pkg.getProject().getTeamSettingsController().getRepository(false).isDVCS()) {
                 commitMenuItem.setText(Config.getString("team.menu.commitPush"));
             } else {
                 commitMenuItem.setText(Config.getString("team.menu.commit"));

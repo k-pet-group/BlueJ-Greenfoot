@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.actions;
 
+import bluej.Config;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -65,7 +66,7 @@ public class TeamActionGroup
             label = "team.commitPush";
         }
         commitCommentAction = new CommitCommentAction(label);
-        setTeamMode(teamMode);
+        setTeamMode(teamMode, isDCVS);
     }
     
     public StatusAction getStatusAction()
@@ -98,14 +99,19 @@ public class TeamActionGroup
         return showLogAction;
     }
     
-    public void setTeamMode(boolean enabled)
+    public void setTeamMode(boolean enabled, boolean isDCVS)
     {
         statusAction.setEnabled(enabled);
         updateAction.setEnabled(enabled);
         teamSettingsAction.setEnabled(enabled);
-        commitCommentAction.setEnabled(enabled);
         showLogAction.setEnabled(enabled);
         
+        String label = "team.commit";
+        if (isDCVS){
+            label = "team.commitPush";
+        }
+        commitCommentAction.setName(Config.getString(label));
+        commitCommentAction.setEnabled(enabled);
         // import is allowed if we are not already shared
         importAction.setEnabled(!enabled);
     }

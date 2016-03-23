@@ -212,6 +212,9 @@ public class Project implements DebuggerListener, InspectorManager
     /** The scanner for available imports.  May be null if not requested yet. */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private ImportScanner importScanner;
+    
+    /** check if the project is a dvcs project**/
+    private boolean isDVCS=false;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -286,7 +289,7 @@ public class Project implements DebuggerListener, InspectorManager
         // Check whether this is a shared project
         File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");
         isSharedProject = ccfFile.isFile();
-        boolean isDVCS=false;
+        isDVCS=false;
         if (isSharedProject){
             TeamSettingsController tsc = new TeamSettingsController(this);
             isDVCS = tsc.getRepository(false).isDVCS();
@@ -2039,7 +2042,12 @@ public class Project implements DebuggerListener, InspectorManager
     private void setProjectShared(boolean shared)
     {
         isSharedProject = shared;
-        teamActions.setTeamMode(shared);
+        //check if it is a dcvs.
+        if (isSharedProject){
+            TeamSettingsController tsc = new TeamSettingsController(this);
+            isDVCS = tsc.getRepository(false).isDVCS();
+        }
+        teamActions.setTeamMode(shared, isDVCS);
         
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
         if (frames != null) {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -72,7 +72,7 @@ public abstract class TeamAction extends AbstractAction
             putValue(ACCELERATOR_KEY, Config.getAcceleratorKey(name));
         }
     }
-
+    
     /**
      * Constructor for a team action
      * 
@@ -137,5 +137,17 @@ public abstract class TeamAction extends AbstractAction
     protected void clearStatus()
     {
         pkgMgrFrame.clearStatus();
+    }
+    
+    /**
+     * changes the name of the action.
+     * @param name 
+     */
+    @OnThread(Tag.Swing)
+    public void setName(String name)
+    {
+        if (name != null){
+            putValue("Name", name);
+        }
     }
 }
