@@ -92,6 +92,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/master", "HEAD");
             merge.include(repo.getRepository().resolve("origin/master")); // merge with remote repository.
             MergeResult mergeResult = merge.call();
+            Map<String, int[][]> allConflicts;
             switch (mergeResult.getMergeStatus()) {
                 case FAST_FORWARD:
                     //no conflicts. this was a fast-forward merge. files where only added.
@@ -110,13 +111,21 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                 case CONFLICTING:
                     //update the head to compare in order to process the changes.
                     //update the conflicts list.
-                    Map<String, int[][]> allConflicts = mergeResult.getConflicts();
+                    allConflicts = mergeResult.getConflicts();
                     allConflicts.keySet().stream().map((path) -> new File(gitPath, path)).forEach((f) -> {
                         conflicts.add(f);
                     });
                     break;
                 case FAILED:
-                    return new TeamworkCommandError(Config.getString("team.error.needsPull"), Config.getString("team.error.needsPull"));
+                    //proceed with conflict resolution if jGit managed to identify conflicts.
+                    allConflicts = mergeResult.getConflicts();
+                    if (allConflicts != null) {
+                        allConflicts.keySet().stream().map((path) -> new File(gitPath, path)).forEach((f) -> {
+                            conflicts.add(f);
+                        });
+                    } else {
+                        return new TeamworkCommandError(Config.getString("team.error.needsPull"), Config.getString("team.error.needsPull"));
+                    }
             }
             //now we need to find out what files where affected by this merge.
             //to do so, we compare the commits affected by this merge.
