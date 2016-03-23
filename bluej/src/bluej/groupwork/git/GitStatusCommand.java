@@ -257,6 +257,23 @@ public class GitStatusCommand extends GitCommand
 
     private void updateRemoteStatus(File gitPath, List<DiffEntry> listOfDiffsLocal, List<DiffEntry> listOfDiffsRemote, LinkedList<TeamStatusInfo> returnInfo)
     {
+        //first check local changes that does not appear in the remote list.
+        for (DiffEntry localDiffItem : listOfDiffsLocal) {
+            File file = new File(gitPath, getFileNameFromDiff(localDiffItem));
+            switch (localDiffItem.getChangeType()) {
+                case MODIFY:
+                    updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_NEEDSCOMMIT);
+                    break;
+                case DELETE:
+                    updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_DELETED);
+                    break;
+                case ADD:
+                    updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_NEEDSADD);
+                    break;
+            }
+        }
+
+        //now check for changes between the remote and local.
         for (DiffEntry remoteDiffItem : listOfDiffsRemote) {
             Optional<DiffEntry> localDiffItem = getDiffFromList(listOfDiffsLocal, remoteDiffItem);
             File file = new File(gitPath, getFileNameFromDiff(remoteDiffItem));
@@ -275,7 +292,7 @@ public class GitStatusCommand extends GitCommand
                                 }
                                 break;
                             case DELETE:
-                                
+
                                 updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_CONFLICT_LDRM);
                                 break;
                             case ADD:
@@ -320,25 +337,6 @@ public class GitStatusCommand extends GitCommand
                             tsi.setStatus(TeamStatusInfo.STATUS_NEEDSCHECKOUT);
                         }
                     }
-            }
-        }
-        
-        //there is one case left: local changes that does not appear in the remote list.
-        for (DiffEntry localDiffItem : listOfDiffsLocal){
-            File file = new File(gitPath, getFileNameFromDiff(localDiffItem));
-            TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, file);
-            if (existingStatusInfo == null){
-                switch(localDiffItem.getChangeType()){
-                    case MODIFY:
-                        updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_NEEDSCOMMIT);
-                        break;
-                    case DELETE:
-                        updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_DELETED);
-                        break;
-                    case ADD:
-                        updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_NEEDSADD);
-                        break;
-                }
             }
         }
     }

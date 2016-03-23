@@ -373,16 +373,13 @@ public class CommitCommentsFrame extends EscapeDialog
             commitText.setEnabled(true);
         }
         // add diagram layout files to list of files to be committed
-        Set<File> displayedLayouts = new HashSet<File>();
-        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+        for (Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext();) {
             TeamStatusInfo info = it.next();
             File parentFile = info.getFile().getParentFile();
-            if (! displayedLayouts.contains(parentFile)
-                    && ! packagesToCommmit.contains(parentFile)
-                    && ! filesToCommitList.contains(info) 
+            if (!packagesToCommmit.contains(parentFile)
+                    && !filesToCommitList.contains(info)
                     && !filesToPushList.contains(info)) {
                 commitOrPushTableModel.addElement(info);
-                displayedLayouts.add(info.getFile().getParentFile());
             }
         }
     }
@@ -774,12 +771,14 @@ public class CommitCommentsFrame extends EscapeDialog
                         Set<File> deleteConflictsInPush = new HashSet<>();
                         Set<File> otherConflictsInPush = new HashSet<>();
                         Set<File> needsMergeInPush = new HashSet<>();
+                        Set<File> modifiedLayoutFilesInPush = new HashSet<>();
 
                         getCommitFileSets(info, filesToCommitInPush, filesToAddInPush, filesToDeleteInPush,
                                 mergeConflictsInPush, deleteConflictsInPush, otherConflictsInPush,
-                                needsMergeInPush, modifiedLayoutFiles, true);
+                                needsMergeInPush, modifiedLayoutFilesInPush, true);
 
-                        this.isPushAvailable = pushWithNoChanges || !filesToCommitInPush.isEmpty() || !filesToAddInPush.isEmpty() || !filesToDeleteInPush.isEmpty();
+                        this.isPushAvailable = pushWithNoChanges || !filesToCommitInPush.isEmpty() || !filesToAddInPush.isEmpty() 
+                                               || !filesToDeleteInPush.isEmpty() || !modifiedLayoutFilesInPush.isEmpty();
                         //in the case we are commiting the resolution of a merge, we should check if the same file that is beingmarked as otherConflict 
                         //on the remote branch is being commitd to the local branch. if it is, then this is the user resolution to the conflict and we should 
                         //procceed with the commit. and then with the push as normal.
@@ -829,10 +828,11 @@ public class CommitCommentsFrame extends EscapeDialog
                             return;
                         }
 
-                        updateLists(info, filesToCommitInPush, filesToCommitList);
-                        updateLists(info, filesToAddInPush, filesToCommitList);
-                        updateLists(info, filesToDeleteInPush, filesToCommitList);
-                        updateLists(info, mergeConflictsInPush, filesToCommitList);
+                        updateLists(info, filesToCommitInPush, filesToPushList);
+                        updateLists(info, filesToAddInPush, filesToPushList);
+                        updateLists(info, filesToDeleteInPush, filesToPushList);
+                        updateLists(info, mergeConflictsInPush, filesToPushList);
+                        updateLists(info, modifiedLayoutFilesInPush, filesToPushList);
 
                     }
 
@@ -969,11 +969,11 @@ public class CommitCommentsFrame extends EscapeDialog
                 } else {
                     status = statusInfo.getStatus();
                 }
-                
+
                 if(filter.accept(statusInfo, !remote)) {
-                    if ((!isPkgFile && status != TeamStatusInfo.STATUS_UPTODATE) || (remote && status != TeamStatusInfo.STATUS_UPTODATE) ) {
+                    if (!isPkgFile) {
                         filesToCommit.add(file);
-                    }
+                    } 
                     else if (status == TeamStatusInfo.STATUS_NEEDSADD
                             || status == TeamStatusInfo.STATUS_DELETED
                             || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
@@ -983,35 +983,33 @@ public class CommitCommentsFrame extends EscapeDialog
                             if (otherPkgFile != null) {
                                 removeChangedLayoutFile(otherPkgFile);
                                 filesToCommit.add(otherPkgFile);
-                                }
                             }
+                        }
                         filesToCommit.add(statusInfo.getFile());
-                    }
-                    else {
-                        if (!remote) {
-                            // add file to list of files that may be added to commit
-                            File parentFile = file.getParentFile();
-                            if (!packagesToCommmit.contains(parentFile)) {
-                                modifiedLayoutFiles.add(file);
-                                modifiedLayoutDirs.put(parentFile, file);
-                                // keep track of StatusInfo objects representing changed diagrams
-                                changedLayoutFiles.add(statusInfo);
-                            } else {
-                                // We must commit the file unconditionally
-                                filesToCommit.add(file);
-                            }
-                        } 
                     } 
+                    else {
+                        // add file to list of files that may be added to commit
+                        File parentFile = file.getParentFile();
+                        if (!packagesToCommmit.contains(parentFile)) {
+                            modifiedLayoutFiles.add(file);
+                            modifiedLayoutDirs.put(parentFile, file);
+                            // keep track of StatusInfo objects representing changed diagrams
+                            changedLayoutFiles.add(statusInfo);
+                        } else {
+                            // We must commit the file unconditionally
+                            filesToCommit.add(file);
+                        }
+                    }
 
                     if (status == TeamStatusInfo.STATUS_NEEDSADD) {
                         filesToAdd.add(statusInfo.getFile());
-                        }
+                    } 
                     else if (status == TeamStatusInfo.STATUS_DELETED
                             || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
                         filesToRemove.add(statusInfo.getFile());
-                        }
                     }
-                else  if (!isPkgFile) {
+                } 
+                else if (!isPkgFile) {
                     if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
                         mergeConflicts.add(statusInfo.getFile());
                     }
@@ -1025,11 +1023,13 @@ public class CommitCommentsFrame extends EscapeDialog
                     }
                     if (status == TeamStatusInfo.STATUS_NEEDSMERGE) {
                         needsMerge.add(statusInfo.getFile());
-                        }
                     }
                 }
+            }
 
-            setLayoutChanged (! changedLayoutFiles.isEmpty());
+            if (!remote) {
+                setLayoutChanged(!changedLayoutFiles.isEmpty());
+            }
         }
         
         /**

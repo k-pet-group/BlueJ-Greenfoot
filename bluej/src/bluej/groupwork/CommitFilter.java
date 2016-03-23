@@ -71,8 +71,7 @@ public class CommitFilter
             conflict |= (stat == TeamStatusInfo.STATUS_NEEDSMERGE);
             conflict |= (stat == TeamStatusInfo.STATUS_CONFLICT_LDRM);
             conflict |= (stat == TeamStatusInfo.STATUS_UNRESOLVED);
-            //if the package file is in a push, it should pass the filter.
-            if (!local || conflict) {
+            if (conflict) {
                 return true;
             } 
         }
