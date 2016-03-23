@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.git;
 
+import bluej.Config;
 import bluej.utility.Debug;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -200,9 +201,12 @@ public class GitUtillities
      * @return
      * @throws IOException 
      */
-    public static boolean isAheadOnly(Git repo) throws IOException
+    public static boolean isAheadOnly(Git repo) throws IOException, GitTreeException
     {
         BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        if (bts == null){
+            throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
+        }
         int aheadCount = bts.getAheadCount();
         int behindCount = bts.getBehindCount();
         
@@ -215,9 +219,12 @@ public class GitUtillities
      * @return
      * @throws IOException 
      */
-    public static int getAheadCount(Git repo) throws IOException
+    public static int getAheadCount(Git repo) throws IOException, GitTreeException
     {
         BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        if (bts == null){
+            throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
+        }
         int aheadCount = bts.getAheadCount();
         return aheadCount;
     }
@@ -229,9 +236,12 @@ public class GitUtillities
      * @return
      * @throws IOException
      */
-    public static boolean isBehindOnly(Git repo) throws IOException
+    public static boolean isBehindOnly(Git repo) throws IOException, GitTreeException
     {
         BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        if (bts == null){
+            throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
+        }
         int aheadCount = bts.getAheadCount();
         int behindCount = bts.getBehindCount();
 
@@ -244,9 +254,12 @@ public class GitUtillities
      * @return
      * @throws IOException 
      */
-    public static int getBehindCount(Git repo) throws IOException
+    public static int getBehindCount(Git repo) throws IOException, GitTreeException
     {
         BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
+        if (bts == null){
+            throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
+        }
         int behindCount = bts.getBehindCount();
         return behindCount;
     }

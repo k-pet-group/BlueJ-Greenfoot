@@ -692,6 +692,7 @@ team.error.username.at=Your username has an @ character in it, which is unsuppor
 team.error.username.colon=Your username has an : character in it, which is unsupported by BlueJ.
 team.error.password.at=Your password has an @ character in it, which is unsupported by BlueJ.
 team.error.needsPull=The repository is in a merge state, with uncommitted changes. You need to commit and pull those changes in order to proceeed.
+team.error.noHeadBranch=There was an error getting the local HEAD branch.
 
 # The following appear in brackets after a filename, in the
 # update/commit dialogs.

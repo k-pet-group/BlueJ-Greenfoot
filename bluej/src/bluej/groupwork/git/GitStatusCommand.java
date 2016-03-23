@@ -23,6 +23,7 @@ package bluej.groupwork.git;
 
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import static bluej.groupwork.git.GitUtillities.findForkPoint;
 import static bluej.groupwork.git.GitUtillities.getBehindCount;
@@ -109,14 +110,14 @@ public class GitStatusCommand extends GitCommand
                 }
             });
             
-            Map conflictsMap = s.getConflictingStageState();
+            Map<String, IndexDiff.StageState> conflictsMap = s.getConflictingStageState();
             conflictsMap.keySet().stream().forEach(key -> {
-                File f = new File(gitPath, (String) key);
+                File f = new File(gitPath, key);
                 TeamStatusInfo statusInfo = getTeamStatusInfo(returnInfo, f);
                 if (statusInfo == null) {
                     statusInfo = new TeamStatusInfo(f, "", null, TeamStatusInfo.STATUS_BLANK);
                 }
-                IndexDiff.StageState state = (IndexDiff.StageState) conflictsMap.get(key);
+                IndexDiff.StageState state = conflictsMap.get(key);
                 switch (state) {
                     case DELETED_BY_THEM:
                         if (statusInfo.getStatus() == TeamStatusInfo.STATUS_BLANK){
@@ -176,8 +177,9 @@ public class GitStatusCommand extends GitCommand
                 }
                 listener.statusComplete(new GitStatusHandle(getRepository(), didFilesChange && isAheadOnly(repo), didFilesChange && getBehindCount(repo) > 0));
             }
-        } catch (IOException | GitAPIException | NoWorkTreeException ex) {
+        } catch (IOException | GitAPIException | NoWorkTreeException | GitTreeException ex) {
             Debug.reportError("Git status command exception", ex);
+            return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         }
         
         return new TeamworkCommandResult();
@@ -213,27 +215,6 @@ public class GitStatusCommand extends GitCommand
         }
     }
 
-    /**
-     * get the TeamStatus for the status of the remote entry.
-     *
-     * @param entry the remote entry
-     * @return the TeamStatus integer correspondent to that entry.
-     */
-    private int getRemoteStatusInfo(DiffEntry entry)
-    {
-        switch (entry.getChangeType()) {
-            case ADD:
-            case COPY:
-                return TeamStatusInfo.STATUS_NEEDSADD;
-            case DELETE:
-                return TeamStatusInfo.STATUS_REMOVED;
-            case MODIFY:
-                return TeamStatusInfo.STATUS_NEEDSCOMMIT;
-            case RENAME:
-                return TeamStatusInfo.REMOTE_STATUS_RENAMED;
-        }
-        return TeamStatusInfo.STATUS_WEIRD;
-    }
 
     private Optional<DiffEntry> getDiffFromList(List<DiffEntry> list, DiffEntry entry)
     {
@@ -292,7 +273,6 @@ public class GitStatusCommand extends GitCommand
                                 }
                                 break;
                             case DELETE:
-
                                 updateRemoteStatus(returnInfo, file, TeamStatusInfo.STATUS_CONFLICT_LDRM);
                                 break;
                             case ADD:
