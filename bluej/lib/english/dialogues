@@ -477,6 +477,20 @@ team-cant-connect
 Cannot connect to the server. Check that server
 address is correct in the Team Settings.
 
+team-wrong-protocol
+Cannot connect to the server. The server does not seem
+to accept the informed protocol.
+
+team-malformed-uri
+The connection URI is malformed.
+
+team-denied-notExported
+The access has been denied. The informed user is invalid
+or repository was not exported.
+
+team-noRepository-uri
+Repository not found: the informed URI does not contain a repository
+
 team-project-exists
 The project already exists on the server. Maybe you 
 want to use Checkout, to check out the existing project

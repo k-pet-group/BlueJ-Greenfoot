@@ -29,14 +29,21 @@ import bluej.groupwork.TeamworkCommandUnsupportedSetting;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.UnsupportedSettingException;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig;
@@ -54,6 +61,8 @@ import org.eclipse.jgit.util.FS;
 public class GitProvider implements TeamworkProvider 
 {
 
+    private String gitUrlString;
+    
     @Override
     public String getProviderName() 
     {
@@ -81,21 +90,20 @@ public class GitProvider implements TeamworkProvider
     @Override
     public TeamworkCommandResult checkConnection(TeamSettings settings) 
     {
-
+        
         try {
-            String gitUrl = makeGitUrl(settings);
-
+            gitUrlString = makeGitUrl(settings);
             //perform a lsRemote on the remote git repo.
             LsRemoteCommand lsRemoteCommand = Git.lsRemoteRepository();
             UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(settings.getUserName(), settings.getPassword()); // set a configuration with username and password.
-            lsRemoteCommand.setRemote(gitUrl); //configure remote repository address.
+            lsRemoteCommand.setRemote(gitUrlString); //configure remote repository address.
             lsRemoteCommand.setCredentialsProvider(cp); //associate the repository to the username and password.
             lsRemoteCommand.setTags(false); //disable refs/tags in reference results
             lsRemoteCommand.setHeads(false); //disable refs/heads in reference results
 
             //It seems that ssh host fingerprint check is not working properly. 
             //Disable it in a ssh connection.
-            if (gitUrl.startsWith("ssh")) {
+            if (gitUrlString.startsWith("ssh")) {
                 SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
                     @Override
                     protected void configure(OpenSshConfig.Host host, Session sn) {
@@ -118,10 +126,29 @@ public class GitProvider implements TeamworkProvider
             
             lsRemoteCommand.call(); //executes the lsRemote commnand.
         } catch (GitAPIException ex) {
+            if (ex instanceof TransportException){
+                //there was a problem in the connection. proceed to diagnosis.
+                TeamworkCommandResult diagnosis = connectionDiagnosis();
+                if (!diagnosis.isError()){
+                    //the connection was successfull. the problem is the username and password.
+                    if (ex.getLocalizedMessage().contains("access denied or repository not exported")){
+                        return new TeamworkCommandError(DialogManager.getMessage("team-denied-notExported"), DialogManager.getMessage("team-denied-notExported"));
+                    }
+                    if (ex.getLocalizedMessage().contains("does not appear to be a git repository")){
+                        return new TeamworkCommandError( DialogManager.getMessage("team-noRepository-uri"), DialogManager.getMessage("team-noRepository-uri"));
+                    }
+                    //http, https and git protocols does not need username nor password.
+                    if (settings.getProtocol().contains("http") || settings.getProtocol().contains("git")){
+                        return new TeamworkCommandError(DialogManager.getMessage("team-noRepository-uri"), DialogManager.getMessage("team-noRepository-uri"));
+                    }
+                    return new TeamworkCommandError("Wrong username or password", "Wrong username or password");
+                }
+                return diagnosis;
+            }
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         } catch (UnsupportedSettingException ex) {
-            return new TeamworkCommandUnsupportedSetting(ex.getMessage());
-        }
+            return new TeamworkCommandUnsupportedSetting(ex.getLocalizedMessage());
+        } 
         //if we got here, it means the command was successful.
         return new TeamworkCommandResult();
     }
@@ -151,7 +178,7 @@ public class GitProvider implements TeamworkProvider
         String protocol = settings.getProtocol();
         String server = settings.getServer();
         String prefix = settings.getPrefix();
-
+        
         String gitUrl = protocol + "://";
         
         //There is a bug in jGit where the username is ignored in a ssh connection.
@@ -168,6 +195,58 @@ public class GitProvider implements TeamworkProvider
         gitUrl += prefix;
 
         return gitUrl;
+    }
+    
+    /**
+     * This method creates a connection to the server and then diagnose
+     * the possible causes. This method detects the following connection
+     * problems:
+     * unknown host
+     * wrong protocol
+     * malformed uri.
+     * 
+     * @return 
+     */
+    private TeamworkCommandResult connectionDiagnosis()
+    {
+        try {
+            URI uri = new URI(gitUrlString);
+            int port = uri.getPort();
+            if (port <= 0) {
+                switch (uri.getScheme().toLowerCase()) {
+                    case "http":
+                        port = 80;
+                        break;
+                    case "https":
+                        port = 443;
+                        break;
+                    case "ssh":
+                        port = 22;
+                        break;
+                    case "git":
+                        port = 9418;
+                        break;
+                }
+            }
+            Socket s = new Socket(uri.getHost(), port);
+            s.close();
+
+            //if we managed to reach this far: we can connect to the host, at the desired port.
+            //no problems so far.
+            return new TeamworkCommandResult();
+        } catch (IOException ex) {
+            if (ex instanceof UnknownHostException) {
+                return new TeamworkCommandError(DialogManager.getMessage("team-cant-connect"), DialogManager.getMessage("team-cant-connect"));
+            } else if (ex instanceof ConnectException) {
+                //we found a valid host, however the protocol is invalid.
+                return new TeamworkCommandError(DialogManager.getMessage("team-wrong-protocol"), DialogManager.getMessage("team-wrong-protocol"));
+            }
+            Debug.reportError(ex.getMessage());
+            return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
+        } catch (URISyntaxException ex) {
+            Debug.reportError(ex.getMessage());
+            return new TeamworkCommandError(DialogManager.getMessage("team-malformed-uri"), DialogManager.getMessage("team-malformed-uri"));
+        }
     }
 
     @Override
