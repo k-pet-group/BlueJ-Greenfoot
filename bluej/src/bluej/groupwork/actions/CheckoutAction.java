@@ -228,11 +228,26 @@ public class CheckoutAction extends TeamAction
         @OnThread(Tag.Swing)
         public void cleanup()
         {
+            deleteDirectory(projDir);
             projDir.delete();
             newFrame.doClose(true, false);
             // The frame might not have closed if it was the
             // last frame. In that case we want to enable it.
             newFrame.setEnabled(true);
+        }
+        
+        /**
+         * deletes all files and subdirectories inside a directory
+         * @param dir 
+         */
+        private void deleteDirectory(File dir)
+        {
+            for (File f : dir.listFiles()) {
+                if (f.isDirectory()) {
+                    deleteDirectory(f);
+                }
+                f.delete();
+            }
         }
     }
 }
