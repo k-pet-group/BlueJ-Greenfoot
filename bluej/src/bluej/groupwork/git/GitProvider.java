@@ -128,11 +128,14 @@ public class GitProvider implements TeamworkProvider
         } catch (GitAPIException ex) {
             if (ex instanceof TransportException){
                 //there was a problem in the connection. proceed to diagnosis.
-                TeamworkCommandResult diagnosis = connectionDiagnosis();
+                TeamworkCommandResult diagnosis = connectionDiagnosis(gitUrlString);
                 if (!diagnosis.isError()){
-                    //the connection was successfull. the problem is the username and password.
+                    //we can connect to the server.
                     if (ex.getLocalizedMessage().contains("access denied or repository not exported")){
-                        return new TeamworkCommandError(DialogManager.getMessage("team-denied-notExported"), DialogManager.getMessage("team-denied-notExported"));
+                        return new TeamworkCommandError(DialogManager.getMessage("team-denied-invalidUserOrnotExported"), DialogManager.getMessage("team-denied-invalidUserOrnotExported"));
+                    }
+                    if (ex.getLocalizedMessage().contains("Auth fail")){
+                        return new TeamworkCommandError(DialogManager.getMessage("team-denied-invalidUser"), DialogManager.getMessage("team-denied-invalidUser"));
                     }
                     if (ex.getLocalizedMessage().contains("does not appear to be a git repository")){
                         return new TeamworkCommandError( DialogManager.getMessage("team-noRepository-uri"), DialogManager.getMessage("team-noRepository-uri"));
@@ -141,7 +144,6 @@ public class GitProvider implements TeamworkProvider
                     if (settings.getProtocol().contains("http") || settings.getProtocol().contains("git")){
                         return new TeamworkCommandError(DialogManager.getMessage("team-noRepository-uri"), DialogManager.getMessage("team-noRepository-uri"));
                     }
-                    return new TeamworkCommandError("Wrong username or password", "Wrong username or password");
                 }
                 return diagnosis;
             }
@@ -205,9 +207,10 @@ public class GitProvider implements TeamworkProvider
      * wrong protocol
      * malformed uri.
      * 
+     * @param gitUrlString the string containing the connection uri;
      * @return 
      */
-    private TeamworkCommandResult connectionDiagnosis()
+    public static TeamworkCommandResult connectionDiagnosis(String gitUrlString)
     {
         try {
             URI uri = new URI(gitUrlString);

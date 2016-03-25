@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,11 +25,16 @@ package bluej.groupwork.git;
 import bluej.groupwork.TeamworkCommandAborted;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
+import static bluej.groupwork.git.GitProvider.connectionDiagnosis;
+import bluej.utility.DialogManager;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.errors.NoRemoteRepositoryException;
+import org.eclipse.jgit.errors.TransportException;
 import org.eclipse.jgit.lib.StoredConfig;
 
 /**
@@ -50,9 +55,9 @@ public class GitCloneCommand extends GitCommand
     @Override
     public TeamworkCommandResult getResult() 
     {
-
+        String reposUrl= "";
         try {
-            String reposUrl = getRepository().getReposUrl();
+            reposUrl = getRepository().getReposUrl();
             CloneCommand cloneCommand = Git.cloneRepository();
             disableFingerprintCheck(cloneCommand);
             cloneCommand.setDirectory(clonePath);
@@ -68,6 +73,22 @@ public class GitCloneCommand extends GitCommand
             
             return new TeamworkCommandAborted();
         } catch (GitAPIException | IOException ex) {
+            if (ex.getCause() instanceof NoRemoteRepositoryException){
+                return new TeamworkCommandError( DialogManager.getMessage("team-noRepository-uri"), DialogManager.getMessage("team-noRepository-uri"));
+            }
+            if (ex instanceof InvalidRemoteException) {
+                return new TeamworkCommandError(DialogManager.getMessage("team-cant-connect"), DialogManager.getMessage("team-cant-connect"));
+            }
+            if (ex.getCause() instanceof TransportException){
+                if (ex.getLocalizedMessage().contains("Auth fail")) {
+                    //The problem is the username and password.
+                    return new TeamworkCommandError(DialogManager.getMessage("team-denied-invalidUser"), DialogManager.getMessage("team-denied-invalidUser"));
+                }
+                //problem connecting to the server. we need further diagnosis.
+                TeamworkCommandResult diagnosis = connectionDiagnosis(reposUrl);
+                return diagnosis;
+            }
+
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         }
     }
