@@ -46,6 +46,7 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -334,7 +335,7 @@ public abstract class ClassRole
         List<File> rlist = new ArrayList<File>();
         
         rlist.add(ct.getClassFile());
-        rlist.addAll(ct.getAllSourceFilesJavaLast());
+        rlist.addAll(Utility.mapList(ct.getAllSourceFilesJavaLast(), sf -> sf.file));
         rlist.add(ct.getContextFile());
         rlist.add(ct.getDocumentationFile());
         

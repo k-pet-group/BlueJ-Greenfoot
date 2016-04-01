@@ -37,6 +37,7 @@ import bluej.Boot;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.target.ClassTarget.SourceFileInfo;
 import org.apache.http.entity.mime.MultipartEntity;
 
 import threadchecker.OnThread;
@@ -299,11 +300,11 @@ public class DataCollectorImpl
         {
             // It is important we add Stride file first, then Java, because Java will note it is generated from the Stride
             // file, so server needs to process the Stride file first:
-            for (File file : ct.getAllSourceFilesJavaLast())
+            for (SourceFileInfo fileInfo : ct.getAllSourceFilesJavaLast())
             {
-                String relative = CollectUtility.toPath(proj, file);
+                String relative = CollectUtility.toPath(proj, fileInfo.file);
                 mpe.addPart("project[source_files][][name]", CollectUtility.toBody(relative));
-                switch (ct.getSourceType())
+                switch (fileInfo.sourceType)
                 {
                     case Java:
                         mpe.addPart("project[source_files][][source_type]", CollectUtility.toBody("java"));
@@ -313,13 +314,13 @@ public class DataCollectorImpl
                         break;
                 }
                 // If this is the Java file and there was a Stride file, note the relation:
-                if (file.getName().endsWith(".java") && ct.getSourceType() == SourceType.Stride)
+                if (fileInfo.sourceType == SourceType.Java && ct.getSourceType() == SourceType.Stride)
                 {
                     String relativeStride = CollectUtility.toPath(proj, ct.getSourceFile());
                     mpe.addPart("project[source_files][][generated_from]", CollectUtility.toBody(relativeStride));
                 }
 
-                String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, file);
+                String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, fileInfo.file);
 
                 if (anonymisedContent != null)
                 {

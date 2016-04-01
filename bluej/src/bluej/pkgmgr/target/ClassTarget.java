@@ -882,18 +882,30 @@ public class ClassTarget extends DependentTarget
         return null;
     }
 
+    public static class SourceFileInfo
+    {
+        public final File file;
+        public final SourceType sourceType;
+
+        public SourceFileInfo(File file, SourceType sourceType)
+        {
+            this.file = file;
+            this.sourceType = sourceType;
+        }
+    }
+
     /**
      * If this is a Java class, returns the .java source file only.
      * If this is a Stride class, returns the .stride and .java source files, *in that order*.
      * This is a strict requirement in the call in DataCollectorImpl, do not change the order.
      */
-    public Collection<File> getAllSourceFilesJavaLast()
+    public Collection<SourceFileInfo> getAllSourceFilesJavaLast()
     {
-        List<File> list = new ArrayList<File>();
+        List<SourceFileInfo> list = new ArrayList<>();
         if (sourceAvailable.equals(SourceType.Stride)) {
-            list.add(getFrameSourceFile());
+            list.add(new SourceFileInfo(getFrameSourceFile(), SourceType.Stride));
         }
-        list.add(getJavaSourceFile());
+        list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
         return list;
     }
 
