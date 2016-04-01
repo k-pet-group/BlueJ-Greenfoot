@@ -475,8 +475,10 @@ This event is fired whenever a class is added to the BlueJ project.  This may
 be via the New Class menu item, or via the Import Class menu item, or via
 version control.
 
-The event will always have exactly one associated entry in the
-\tabref{source_histories}, which will be a |"complete"| event.
+The event will always have either one or two associated entry in the
+\tabref{source_histories}, which will be a |"complete"| event.  One, if this
+is Java file.  Two, if this is a Stride file (one for the Stride file, one
+for the generated Java file).
 
 \subsection{\lstinline!"file_delete"!}
 

@@ -313,14 +313,18 @@ public class DataCollectorImpl
                         mpe.addPart("project[source_files][][source_type]", CollectUtility.toBody("stride"));
                         break;
                 }
+                String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, fileInfo.file);
+
                 // If this is the Java file and there was a Stride file, note the relation:
                 if (fileInfo.sourceType == SourceType.Java && ct.getSourceType() == SourceType.Stride)
                 {
                     String relativeStride = CollectUtility.toPath(proj, ct.getSourceFile());
                     mpe.addPart("project[source_files][][generated_from]", CollectUtility.toBody(relativeStride));
+                    // Java file won't have been saved yet, but that's ok, just treat it as
+                    // empty but existing for now:
+                    if (anonymisedContent == null)
+                        anonymisedContent = "";
                 }
-
-                String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, fileInfo.file);
 
                 if (anonymisedContent != null)
                 {
