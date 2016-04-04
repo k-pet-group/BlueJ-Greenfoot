@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -115,5 +115,30 @@ public class TeamSettings
     public void setYourEmail(String yourEmail)
     {
         this.yourEmail = yourEmail;
+    }
+    
+    /**
+     * produces an URI connection string for display purposes.
+     * @param protocol the string containting the protocol
+     * @param server the server address
+     * @param prefix the repository path in the server
+     * @param userName the user name used for login
+     * @return the connection string in URI format.
+     */
+    public static String getURI(String protocol, String server, String prefix, String userName){
+        
+        String gitUrl = protocol + "://";
+
+        if (protocol.contains("ssh")) {
+            gitUrl += userName + "@";
+        }
+
+        gitUrl += server;
+        if (prefix.length() != 0 && !prefix.startsWith("/")) {
+            gitUrl += "/";
+        }
+        gitUrl += prefix;
+
+        return gitUrl;
     }
 }

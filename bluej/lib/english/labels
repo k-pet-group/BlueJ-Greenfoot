@@ -691,6 +691,9 @@ team.conflicts.show=Show conflicts
 team.error.username.at=Your username has an @ character in it, which is unsupported by BlueJ.
 team.error.username.colon=Your username has an : character in it, which is unsupported by BlueJ.
 team.error.password.at=Your password has an @ character in it, which is unsupported by BlueJ.
+team.error.unknownProtocol=The informed protocol is unknown.
+team.error.cannotParseServer=Cannot identify server in the URI. Please check if URI is correct.
+team.error.cannotParsePath=Cannot identify repository path in the URI. Please check if URI is correct.
 team.error.needsPull=The repository is in a merge state, with uncommitted changes. You need to commit and pull those changes in order to proceeed.
 team.error.noHeadBranch=There was an error getting the local HEAD branch.
 
@@ -744,6 +747,7 @@ team.settings.prefix=Repository Path
 team.settings.ext=ext (using SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protocol
+team.settings.uri=Repository URI
 team.settings.rememberSettings=Remember settings for future projects
 team.settings.checkConnection=Check connection
 

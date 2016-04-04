@@ -38,6 +38,8 @@ import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
 import bluej.utility.MiksGridLayout;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * A panel for team settings.
@@ -46,10 +48,11 @@ import java.io.File;
  */
 public class TeamSettingsPanel extends JPanel 
 {
-    private static final int fieldsize = 20;
+    private static final int fieldsize = 30;
     private TeamSettingsController teamSettingsController;
     private TeamSettingsDialog teamSettingsDialog;
     
+    private JPanel locationPanel;
     private JTextField yourNameField;
     private JTextField yourEmailField;
     private JTextField userField;
@@ -61,12 +64,14 @@ public class TeamSettingsPanel extends JPanel
     private JComboBox protocolComboBox;
     private JButton validateButton;
     private JCheckBox useAsDefault;
+    private JTextField uriField;
     
     private JLabel serverTypeLabel;
     private JLabel groupLabel;
     private JLabel prefixLabel;
     private JLabel serverLabel;
     private JLabel protocolLabel;
+    private JLabel uriLabel;
     
     private int selectedServerType = -1;
     private boolean okEnabled = true;
@@ -112,6 +117,7 @@ public class TeamSettingsPanel extends JPanel
         yourEmailField.getDocument().addDocumentListener(changeListener);
         userField.getDocument().addDocumentListener(changeListener);
         serverField.getDocument().addDocumentListener(changeListener);
+        uriField.getDocument().addDocumentListener(changeListener);
         
         //add(new JSeparator());
         add(Box.createVerticalGlue());
@@ -154,7 +160,7 @@ public class TeamSettingsPanel extends JPanel
         prefixField.setEnabled(false);
         serverField.setEnabled(false);
         protocolComboBox.setEnabled(false);
-        
+        uriField.setEnabled(false);
         // useAsDefault.setEnabled(false);
         
         serverTypeLabel.setEnabled(false);
@@ -215,7 +221,7 @@ public class TeamSettingsPanel extends JPanel
     
     private JPanel makeLocationPanel()
     {
-        JPanel locationPanel = new JPanel(new MiksGridLayout(4,2,10,5));
+        locationPanel = new JPanel(new MiksGridLayout(0,2,10,5));
         {
             String docTitle2 = Config.getString("team.settings.location");
             locationPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -230,24 +236,6 @@ public class TeamSettingsPanel extends JPanel
                 serverTypeComboBox.addItem(provider.getProviderName());
             }
             
-            serverTypeComboBox.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    setProviderSettings();
-                    //if Git provider selected, enable your name and your email
-                    //fields.
-                    if (getSelectedProvider().needsEmail() &&  getSelectedProvider().needsName()){
-                        //Git was selected. Enable fields.
-                        yourNameField.setEnabled(true);
-                        yourEmailField.setEnabled(true);
-                    } else {
-                        //Git is not selected. Disable fields.
-                        yourNameField.setEnabled(false);
-                        yourEmailField.setEnabled(false);
-                    }
-                    checkOkEnabled();
-                }
-            });
             
             serverLabel = new JLabel(Config.getString("team.settings.server"));
             serverField = new JTextField(fieldsize);
@@ -259,12 +247,67 @@ public class TeamSettingsPanel extends JPanel
             protocolComboBox = new JComboBox();
             protocolComboBox.setEditable(false);
             
+            uriLabel = new JLabel(Config.getString("team.settings.uri"));
+            uriField = new JTextField(fieldsize);
+            
             prefixLabel.setMaximumSize(prefixLabel.getMinimumSize());
             prefixField.setMaximumSize(prefixField.getMinimumSize());
             serverLabel.setMaximumSize(serverLabel.getMinimumSize());
             serverField.setMaximumSize(serverField.getMinimumSize());
             serverTypeLabel.setMaximumSize(serverTypeLabel.getMinimumSize());
             serverTypeComboBox.setMaximumSize(serverTypeComboBox.getMinimumSize());
+            uriLabel.setMaximumSize(uriLabel.getMinimumSize());
+            uriField.setMaximumSize(uriField.getMinimumSize());
+            
+            
+            serverTypeComboBox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    setProviderSettings(getSelectedProvider().needsEmail());
+                    //if Git provider selected, enable your name and your email
+                    //fields.
+                    if (getSelectedProvider().needsEmail() &&  getSelectedProvider().needsName()){
+                        //Git was selected. Enable fields.
+                        yourNameField.setEnabled(true);
+                        yourEmailField.setEnabled(true);
+                        //for git, we will use a URI field.
+                        if (serverLabel.getParent() == locationPanel){
+                            locationPanel.remove(serverLabel);
+                            locationPanel.remove(serverField);
+                            locationPanel.remove(prefixLabel);
+                            locationPanel.remove(prefixField);
+                            locationPanel.remove(protocolLabel);
+                            locationPanel.remove(protocolComboBox);
+                            locationPanel.add(uriLabel);
+                            locationPanel.add(uriField);
+                            locationPanel.revalidate();
+                            groupLabel.setEnabled(false);
+                            groupField.setEnabled(false);
+
+                        }
+                    } else {
+                        //Git is not selected. Disable fields.
+                        yourNameField.setEnabled(false);
+                        yourEmailField.setEnabled(false);
+                        //for svn, we will use the old layout.
+                        if (serverLabel.getParent() != locationPanel){
+                            locationPanel.remove(uriLabel);
+                            locationPanel.remove(uriField);
+                            locationPanel.add(serverLabel);
+                            locationPanel.add(serverField);
+                            locationPanel.add(prefixLabel);
+                            locationPanel.add(prefixField);
+                            locationPanel.add(protocolLabel);
+                            locationPanel.add(protocolComboBox);
+                            locationPanel.revalidate();
+                            groupLabel.setEnabled(true);
+                            groupField.setEnabled(true);
+                        }
+                    }
+                    checkOkEnabled();
+                    teamSettingsDialog.pack();//adjust window size.
+                }
+            });
             
             locationPanel.add(serverTypeLabel);
             locationPanel.add(serverTypeComboBox);
@@ -327,6 +370,7 @@ public class TeamSettingsPanel extends JPanel
             setUseAsDefault(Boolean.getBoolean(useAsDefault));
         }
         
+        boolean isDCVS=false;
         String providerName = teamSettingsController.getPropString("bluej.teamsettings.vcs");
         if (providerName != null) {
             List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
@@ -336,6 +380,7 @@ public class TeamSettingsPanel extends JPanel
                     serverTypeComboBox.setSelectedIndex(index);
                     //checks if this provider needs your name and your e-mail.
                     if (provider.needsEmail()){
+                        isDCVS = true;
                         if (teamSettingsController.getProject() != null){
                             //settings panel being open within a project. 
                             //fill the data.
@@ -352,7 +397,7 @@ public class TeamSettingsPanel extends JPanel
             }
         }
         
-        setProviderSettings();
+        setProviderSettings(isDCVS);
     }
     
     /**
@@ -360,7 +405,7 @@ public class TeamSettingsPanel extends JPanel
      * The values are remembered on a per-provider basis; this sets the fields to show
      * the remembered values for the selected provider. 
      */
-    private void setProviderSettings()
+    private void setProviderSettings(boolean isDCVS)
     {
         String keyBase = "bluej.teamsettings."
             + getSelectedProvider().getProviderName().toLowerCase() + "."; 
@@ -380,6 +425,10 @@ public class TeamSettingsPanel extends JPanel
         if (protocol != null){
             setProtocol(protocol);
         }
+        //fill the URI field, if necessary.
+        if (isDCVS) {
+            uriField.setText(TeamSettings.getURI(protocol, server, prefix, getUser()));
+        }
     }
     
     /**
@@ -389,10 +438,13 @@ public class TeamSettingsPanel extends JPanel
     private void checkOkEnabled()
     {
         boolean newOkEnabled = (userField.getText().length() != 0);
-        newOkEnabled &= serverField.getText().length() != 0;
+        
         if (yourEmailField.isEnabled() && yourNameField.isEnabled()){
             newOkEnabled &= (yourEmailField.getText().length() != 0) && (yourEmailField.getText().contains("@"));
             newOkEnabled &= yourNameField.getText().length() != 0;
+            newOkEnabled &= uriField.getText().length() != 0;
+        } else {
+            newOkEnabled &= serverField.getText().length() != 0;
         }
         if (newOkEnabled != okEnabled) {
             okEnabled = newOkEnabled;
@@ -467,21 +519,49 @@ public class TeamSettingsPanel extends JPanel
     
     private String getGroup()
     {
+        //DCVS does not have group.
+        if (getSelectedProvider().needsEmail()){
+            return "";
+        }
         return groupField.getText();
     }
     
     private String getPrefix()
     {
+        if (getSelectedProvider().needsEmail()) {
+            try {
+                URI uri = new URI(uriField.getText());
+                return uri.getPath();
+            } catch (URISyntaxException ex) {
+                return null;
+            }
+        }
         return prefixField.getText();
     }
     
     private String getServer()
     {
+        if (getSelectedProvider().needsEmail()) {
+            try {
+                URI uri = new URI(uriField.getText());
+                return uri.getHost();
+            } catch (URISyntaxException ex) {
+                return null;
+            }
+        }
         return serverField.getText();
     }
     
     private String getProtocolKey()
     {
+        if (getSelectedProvider().needsEmail()) {
+            try {
+                URI uri = new URI(uriField.getText());
+                return uri.getScheme();
+            } catch (URISyntaxException ex) {
+                return null;
+            }
+        }
         int protocol = protocolComboBox.getSelectedIndex();
         return getSelectedProvider().getProtocolKey(protocol);
     }

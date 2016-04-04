@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.git;
 
+import bluej.Config;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandError;
@@ -40,6 +41,7 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -178,8 +180,21 @@ public class GitProvider implements TeamworkProvider
             throws UnsupportedSettingException 
     {
         String protocol = settings.getProtocol();
+        //check if the protocol is a valid one.
+        if (protocol == null || !Arrays.asList(settings.getProvider().getProtocols()).contains(protocol)){
+            //the protocol is not valid. 
+            throw new UnsupportedSettingException(Config.getString("team.error.unknownProtocol"));
+        }
+        
         String server = settings.getServer();
+        if (server == null || server.isEmpty()){
+            throw new UnsupportedSettingException(Config.getString("team.error.cannotParseServer"));
+        }
+        
         String prefix = settings.getPrefix();
+        if (prefix == null || prefix.isEmpty()){
+            throw new UnsupportedSettingException(Config.getString("team.error.cannotParsePath"));
+        }
         
         String gitUrl = protocol + "://";
         
