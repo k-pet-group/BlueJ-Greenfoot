@@ -693,6 +693,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             if (shownErrors.stream().allMatch(shown -> !shown.overlaps(e)))
             {
                 shownErrors.add(e);
+                e.setShowingIndicator(true);
+            }
+            else
+            {
+                e.setShowingIndicator(false);
             }
         }
         

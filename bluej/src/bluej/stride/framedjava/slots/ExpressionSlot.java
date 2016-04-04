@@ -295,6 +295,11 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
             if (shownErrors.stream().allMatch(shown -> !shown.overlaps(e)))
             {
                 shownErrors.add(e);
+                e.setShowingIndicator(true);
+            }
+            else
+            {
+                e.setShowingIndicator(false);
             }
         });
         

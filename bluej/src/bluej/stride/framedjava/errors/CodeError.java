@@ -26,6 +26,7 @@ import java.util.List;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
@@ -41,6 +42,8 @@ public abstract class CodeError
     private final BooleanProperty focusedProperty = new SimpleBooleanProperty(false);
     protected final JavaFragment relevantSlot;
     private final BooleanProperty freshProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty showingIndicatorProperty = new SimpleBooleanProperty(false);
+    private final BooleanExpression visible;
     @OnThread(value = Tag.Any, requireSynchronized = true)
     protected String path;
     protected boolean recordedShownIndicator = false;
@@ -51,6 +54,7 @@ public abstract class CodeError
         if (code == null)
             throw new IllegalArgumentException("Slot for error cannot be null");
         relevantSlot = code;
+        visible = freshProperty.not().and(showingIndicatorProperty);
         Platform.runLater(() -> code.addError(this));
     }
 
@@ -141,7 +145,12 @@ public abstract class CodeError
     
     public ObservableBooleanValue visibleProperty()
     {
-        return freshProperty.not();
+        return visible;
+    }
+
+    public void setShowingIndicator(boolean showing)
+    {
+        showingIndicatorProperty.set(showing);
     }
     
     public void bindFresh(ObservableBooleanValue fresh, InteractionManager editor)
