@@ -521,7 +521,7 @@ The event will always have exactly one associated entry in the
 This event will have a |package_id|, which indicates which package the relevant file
 was in.
 
-These three events will only be recorded in versions of BlueJ from 3.2.0 onwards, and
+These three events will only be recorded in versions of BlueJ from 4.0.0 onwards, and
 in Greenfoot.
 
 These three events do not affect the content of a file, but instead correspond to
@@ -559,27 +559,35 @@ that entry in the |compile_events| table, will be linked to by one or more
 |compile_inputs| and zero or more |compile_outputs|, but see the
 \tabref{compile_events} for more details.)
 
-Note that compilation will undergo an overhaul in BlueJ 3.2.0, and has already
+Note that compilation will undergo an overhaul in BlueJ 4.0.0, and has already
 changed in Greenfoot 3.0.0.  In Greenfoot 3.0.0 onwards, compilation is performed
 automatically in a number of different cases.  This is/will be documented in the new
 reason column in the \tabref{compile_events}.
 
-\subsection{\lstinline!"shown_error_message"!}
+\subsection{\lstinline!"shown_error_indicator"!}
 
-Since BlueJ 3.2.0 (and in Greenfoot 3.0.0 onwards), error display has changed.  Errors
+Since BlueJ 4.0.0 (and in Greenfoot 3.0.0 onwards), error display has changed.  Errors
 are no longer shown one at a time in BlueJ in the bottom pane.  Instead, red underlines
 throughout the code (in Java and Stride editors) indicate an error.  So when compilation
 has finished, the user will see one red underline for each error located.  (Where error locations
-overlap, only one is shown, but due to technical difficulties we do not record this in Blackbox;
-the user will see a red underline at the location, but which one is not very important.)  All
-errors are then marked as shown, but only in the sense that the red underline is shown.
+overlap, only one is shown.)
 
-For these software versions, an |"shown_error_message"| master event is generated when the user is
+All Java errors are initially marked as shown, but in the sense that the red underline is shown.
+Stride errors are marked as not shown, but those that do get their red underlines shown will later (possibly near-instantly)
+get a |"shown_error_indicator"| event recorded.  This does not mean that the user has been shown
+the error message: that is recorded by the |"shown_error_message"| event, below.
+
+The |sub_event_type| of |"shown_error_message"| events will be |"CompileOutput"| and the |sub_event_id|
+will contain an |id| from an entry in the \tabref{compile_outputs}.
+
+\subsection{\lstinline!"shown_error_message"!}
+
+For BlueJ 4.0.0 and Greenfoot, a |"shown_error_message"| master event is generated when the user is
 actually shown the text of the error message, by using keyboard or mouse focus to hover in
 the location of the red underline.  Each error (which is stored in the \tabref{compile_outputs}, below)
 will only get an |"shown_error_message"| event generated once, the first time it is shown.  If another
 compilation occurs, an error with the same text at the same location will get a new entry in the
-\tabref{compile_outputs}, and thus be considered a new error.
+\tabref{compile_outputs}, and thus be considered a new error.  This all applies to Java and Stride.
 
 The |sub_event_type| of |"shown_error_message"| events will be |"CompileOutput"| and the |sub_event_id|
 will contain an |id| from an entry in the \tabref{compile_outputs}.
@@ -653,9 +661,10 @@ give start/end character locations within that item.  For Java errors in Stride 
 occur in compilation, the error points to the Java file, fills in the start/end line/column fields
 and fills in the |xpath|, |xml_start| and |xml_end| fields.
 
-Since BlueJ 3.2.0, which shows errors as a red underline, all errors are marked
+Since BlueJ 4.0.0, which shows errors as a red underline, all Java errors are marked
 as shown (unless there is an unexpected problem, such as an invalid location) in
-this table, but see the details on the |"shown_error_message"| event above.
+this table, but see the details on the |"shown_error_indicator"| and
+|"shown_error_message"| events above, especially for Stride.
 
 %schema:quick_fixes
 
