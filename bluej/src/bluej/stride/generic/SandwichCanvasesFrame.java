@@ -321,6 +321,7 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursor)
     {
         List<ExtensionDescription> inners = new ArrayList<>();
+        inners.addAll(super.getAvailableExtensions(canvas, cursor));
 
         if (canvas == firstCanvas)
         {
