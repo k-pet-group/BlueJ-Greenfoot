@@ -924,6 +924,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     void enableCycleBirdseyeView()
     {
+        // Clear the selection when entering bird's eye view:
+        selection.clear();
+        
         if (viewProperty.get() == View.NORMAL && topLevelFrame.canDoBirdseye())
         {
             if (viewChange != null)
