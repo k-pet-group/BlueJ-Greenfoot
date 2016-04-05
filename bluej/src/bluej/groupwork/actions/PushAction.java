@@ -27,11 +27,13 @@ import bluej.groupwork.StatusHandle;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
-import bluej.groupwork.ui.CommitCommentsFrame;
+import bluej.groupwork.ui.CommitAndPushInterface;
+import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.SwingWorker;
 import java.awt.EventQueue;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.HashSet;
@@ -47,12 +49,12 @@ import threadchecker.Tag;
 public class PushAction extends AbstractAction
 {
 
-    private CommitCommentsFrame commitCommentsFrame;
+    private CommitAndPushInterface commitCommentsFrame;
     private Set<File> filesToPush;
     private PushWorker worker;
     private StatusHandle statusHandle;
 
-    public PushAction(CommitCommentsFrame frame)
+    public PushAction(CommitAndPushInterface frame)
     {
         super(Config.getString("team.push"));
         commitCommentsFrame = frame;
@@ -123,7 +125,7 @@ public class PushAction extends AbstractAction
     {
 
         private TeamworkCommand command;
-        private TeamworkCommandResult result;
+        private TeamworkCommandResult result = null;
         private boolean aborted;
 
         @OnThread(Tag.Swing)
@@ -135,7 +137,20 @@ public class PushAction extends AbstractAction
         @Override
         public Object construct()
         {
+            //check if we have the password.
+            if (!commitCommentsFrame.getProject().getTeamSettingsController().hasPasswordString()) {
+                //ask for the password.
+                if (commitCommentsFrame.getProject().getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
+                    //user cancelled.
+                    abort();
+                    commitCommentsFrame.setVisible(true);
+                    return null;
+                }
+                //update command. now with password.
+                statusHandle.getRepository().setPassword(commitCommentsFrame.getProject().getTeamSettingsController().getTeamSettingsDialog().getSettings());
+            } 
             result = command.getResult();
+            
             return result;
         }
 
@@ -160,11 +175,17 @@ public class PushAction extends AbstractAction
                 }
             }
 
-            TeamUtils.handleServerResponse(result, commitCommentsFrame);
+            TeamUtils.handleServerResponse(result, (Window) commitCommentsFrame);
 
             if (!aborted) {
                 setEnabled(true);
-                commitCommentsFrame.setVisible(false);
+                if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+                    //do not close window, just update its contents.
+                    commitCommentsFrame.setVisible(true);
+                } else {
+                    //close window.
+                    commitCommentsFrame.setVisible(false);
+                }
             }
         }
     }

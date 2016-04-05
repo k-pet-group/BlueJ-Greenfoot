@@ -22,7 +22,7 @@
 package bluej.groupwork.actions;
 
 import bluej.Config;
-import bluej.groupwork.ui.CommitCommentsFrame;
+import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
@@ -54,7 +54,7 @@ public class CommitCommentAction extends TeamAction
     {
         if(!pmf.isEmptyFrame()) {
             Project project = pmf.getProject();
-            CommitCommentsFrame dialog = project.getCommitCommentsDialog();
+            CommitAndPushInterface dialog = project.getCommitCommentsDialog();
             
             dialog.reset();
             dialog.setVisible(true);

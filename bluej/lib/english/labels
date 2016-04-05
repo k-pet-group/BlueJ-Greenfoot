@@ -649,7 +649,9 @@ team.menu.commit=Commit to Repository...@I
 team.menu.commitPush=Commit/Push to Repository...@I
 team.commit.title=Commit Files to Repository
 team.commit.dcvs.title=Commit/Push Files to Repository
-team.commit.files=Files to be committed to local repository or pushed into remote repository
+team.commit.files=Files to be committed
+team.commitPush.commit.files=Files ready for commit
+team.commitPush.push.files=Files ready for push
 team.commit.comment=Commit comment
 team.commit.layout=(Diagram Layout)
 team.commit.includelayout=Commit diagram layout
@@ -707,6 +709,7 @@ team.status.needsmerge=merge updates
 team.status.needsupdate=update from repository
 
 team.nocommitfiles=No files to commit
+team.nopushfiles=No files to push
 team.noupdatefiles=No files to update
 
 team.statusinfo.upToDate=Up-to-date
@@ -759,7 +762,7 @@ team.moduleselect.show=Show
 team.checkingout=Checking out project...
 team.checkedout=Checking out project... Done.
 team.checkout.filechooser.title=Choose a checkout location
-team.checkout.DVCS.filechooser.title=Choose a checkout Name and Location 
+team.checkout.DVCS.filechooser.title=Create a project for checkout
 team.checkout.filechooser.button=Checkout
 
 team.import.initialMessage=Initial sharing of project

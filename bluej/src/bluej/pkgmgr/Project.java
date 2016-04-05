@@ -84,6 +84,8 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.actions.TeamActionGroup;
+import bluej.groupwork.ui.CommitAndPushFrame;
+import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.groupwork.ui.CommitCommentsFrame;
 import bluej.groupwork.ui.StatusFrame;
 import bluej.groupwork.ui.TeamSettingsDialog;
@@ -176,7 +178,7 @@ public class Project implements DebuggerListener, InspectorManager
     private List<URL> libraryUrls;
     // the TeamSettingsController for this project
     private TeamSettingsController teamSettingsController = null;
-    private CommitCommentsFrame commitCommentsFrame = null;
+    private CommitAndPushInterface commitCommentsFrame = null;
     private UpdateFilesFrame updateFilesFrame = null;
     private StatusFrame statusFrame = null;
     /** If true, this project is connected with a source repository */
@@ -2016,11 +2018,16 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Get the commit dialog for this project
      */
-    public CommitCommentsFrame getCommitCommentsDialog()
+    public CommitAndPushInterface getCommitCommentsDialog()
     {
         // lazy instantiation of commit comments frame
-        if(commitCommentsFrame == null) {
-            commitCommentsFrame = new CommitCommentsFrame(this);
+        if (commitCommentsFrame == null) {
+            if (this.teamSettingsController.getRepository(false).isDVCS()) {
+                //a dcvs repository uses a different window.
+                commitCommentsFrame = new CommitAndPushFrame(this);
+            } else {
+                commitCommentsFrame = new CommitCommentsFrame(this);
+            }
         }
         return commitCommentsFrame;
     }

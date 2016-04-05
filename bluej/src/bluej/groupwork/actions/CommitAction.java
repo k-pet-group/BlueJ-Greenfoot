@@ -38,10 +38,11 @@ import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
-import bluej.groupwork.ui.CommitCommentsFrame;
+import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.SwingWorker;
+import java.awt.Window;
 
 
 /**
@@ -64,12 +65,12 @@ public class CommitAction extends AbstractAction
     private Set<File> newFiles; // which files are new files
     private Set<File> deletedFiles; // which files are to be removed
     private Set<File> files; // files to commit (includes both of above)
-    private CommitCommentsFrame commitCommentsFrame;
+    private CommitAndPushInterface commitCommentsFrame;
     private StatusHandle statusHandle;
     
     private CommitWorker worker;
     
-    public CommitAction(CommitCommentsFrame frame)
+    public CommitAction(CommitAndPushInterface frame)
     {
         super(Config.getString("team.commitButton"));
         commitCommentsFrame = frame; 
@@ -201,12 +202,16 @@ public class CommitAction extends AbstractAction
                     });
                 }
             }
-
-            TeamUtils.handleServerResponse(result, commitCommentsFrame);
+            
+            TeamUtils.handleServerResponse(result, (Window) commitCommentsFrame);
             
             if (! aborted) {
                 setEnabled(true);
-                commitCommentsFrame.setVisible(false);
+                if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+                    commitCommentsFrame.setVisible(true);
+                } else {
+                    commitCommentsFrame.setVisible(false);
+                }
             }
         }
     }

@@ -81,7 +81,7 @@ import javax.swing.table.TableCellRenderer;
  * @author Bruce Quig
  * @version $Id$
  */
-public class CommitCommentsFrame extends EscapeDialog
+public class CommitCommentsFrame extends EscapeDialog implements CommitAndPushInterface
 {
     private JTable commitOrPushFiles;
     private JPanel topPanel;
