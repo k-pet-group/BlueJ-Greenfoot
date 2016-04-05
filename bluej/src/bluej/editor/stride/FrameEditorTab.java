@@ -2466,7 +2466,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void showUndoDeleteBanner(int totalEffort)
     {
         //Debug.message("Total effort: " + totalEffort);
-        if (totalEffort >= 20 && !undoBannerShowing)
+        if (totalEffort >= 15 && !undoBannerShowing)
         {
             undoBannerShowing = true;
             CircleCountdown countdown = new CircleCountdown(40, Color.BLACK, Duration.seconds(15));
