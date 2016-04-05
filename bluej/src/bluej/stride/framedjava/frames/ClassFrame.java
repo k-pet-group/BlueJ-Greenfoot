@@ -805,7 +805,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         {
             for (Frame f : canvases.get(i).getBlockContents())
             {
-                if (nodeInside(focusOwner, (Parent)f.getNode()))
+                if (nodeInside(focusOwner, (Parent)f.getNode()) || f.getCursorBefore().getNode() == focusOwner || (f.getCursorAfter().getFrameAfter() == null && f.getCursorAfter().getNode() == focusOwner))
                 {
                     startingCanvas = i;
                     startingFrame = f;
