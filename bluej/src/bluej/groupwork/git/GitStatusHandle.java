@@ -83,7 +83,7 @@ public class GitStatusHandle implements StatusHandle
         return pushNeeded;
     }
 
-    @Override
+    //@Override
     public boolean pullNeeded()
     {
         return pullNeeded;
