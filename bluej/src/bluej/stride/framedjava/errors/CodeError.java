@@ -63,8 +63,9 @@ public abstract class CodeError
     /** An expression for whether the red underline is actually drawn: requires the
      *  attached frame to be non-fresh, and for the showingIndicatorProperty to be true
      *  (i.e. for us to not be overlapped by another red underline error which takes precedence.)
+     *  Final, but can't be marked as such because we have to thread hop to initialise
      */
-    private final BooleanExpression visible;
+    private BooleanExpression visible;
     /**
      * The XML xpath for this error, used for data recording.
      */
@@ -77,9 +78,11 @@ public abstract class CodeError
         if (code == null)
             throw new IllegalArgumentException("Slot for error cannot be null");
         relevantSlot = code;
-        visible = freshProperty.not().and(showingIndicatorProperty);
-        // I think the runLater is to allow subclass constructors to finish first:
-        Platform.runLater(() -> code.addError(this));
+        // These parts must be run on the FX thread:
+        Platform.runLater(() -> {
+            visible = freshProperty.not().and(showingIndicatorProperty);
+            code.addError(this);
+        });
     }
 
     /**
