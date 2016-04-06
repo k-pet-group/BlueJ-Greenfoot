@@ -94,6 +94,7 @@ public class UpdateFilesFrame extends EscapeDialog
     private boolean includeLayout = true;
     
     private static String noFilesToUpdate = Config.getString("team.noupdatefiles"); 
+    private static String needUpdate = Config.getString("team.pullNeeded"); 
 
     private boolean pullWithNoChanges = false;
     
@@ -467,6 +468,9 @@ public class UpdateFilesFrame extends EscapeDialog
                         updateListModel.addElement(noFilesToUpdate);
                     }
                     else {
+                        if (pullWithNoChanges){
+                            updateListModel.addElement(needUpdate);
+                        }
                         updateAction.setEnabled(true);
                     }
                 }

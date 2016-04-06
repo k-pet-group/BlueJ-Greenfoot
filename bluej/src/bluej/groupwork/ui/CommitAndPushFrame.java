@@ -110,6 +110,8 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
     private static final String noFilesToCommit = Config.getString("team.nocommitfiles");
 
     private static final String noFilesToPush = Config.getString("team.nopushfiles");
+    
+    private static final String pushNeeded = Config.getString("team.pushNeeded");
 
     public CommitAndPushFrame(Project proj)
     {
@@ -627,7 +629,11 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 }
                 
                 if (pushListModel.isEmpty()){
-                    pushListModel.addElement(noFilesToPush);
+                    if (isPushAvailable){
+                        pushListModel.addElement(pushNeeded);
+                    } else {
+                        pushListModel.addElement(noFilesToPush);
+                    }
                 } 
 
             }
