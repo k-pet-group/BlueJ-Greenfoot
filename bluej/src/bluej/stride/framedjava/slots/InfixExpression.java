@@ -537,7 +537,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
         f.onKeyPressedProperty().set(event -> {
             if (event.isShiftDown() && event.isControlDown() && event.getText().length() > 0 && event.getCode() != KeyCode.CONTROL && event.getCode() != KeyCode.SHIFT)
             {
-                slot.notifyModifiedPress(event.getText().toLowerCase().charAt(0));
+                slot.notifyModifiedPress(event.getCode());
                 event.consume();
                 return;
             }

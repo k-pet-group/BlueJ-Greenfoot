@@ -1443,7 +1443,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     //package-visible:
-    void notifyModifiedPress(char c)
+    void notifyModifiedPress(KeyCode c)
     {
         row.notifyModifiedPress(c);
     }

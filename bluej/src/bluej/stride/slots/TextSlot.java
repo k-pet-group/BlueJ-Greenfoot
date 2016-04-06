@@ -309,7 +309,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             this.onKeyPressedProperty().set(event -> {
                     if (event.isShiftDown() && event.isControlDown() && event.getCharacter().length() > 0 && event.getCode() != KeyCode.CONTROL && event.getCode() != KeyCode.SHIFT)
                     {
-                        row.notifyModifiedPress(event.getText().toLowerCase().charAt(0));
+                        row.notifyModifiedPress(event.getCode());
                         event.consume();
                         return;
                     }

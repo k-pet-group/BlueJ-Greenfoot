@@ -39,6 +39,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -437,9 +438,9 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
             return Collections.emptyList();
     }
 
-    public void notifyModifiedPress(char c)
+    public void notifyModifiedPress(KeyCode c)
     {
-        List<ExtensionDescription> possibles = getExtensions().stream().filter(ext -> ext.validFor(ExtensionSource.MODIFIER) && ext.getShortcutKey() == c).collect(Collectors.toList());
+        List<ExtensionDescription> possibles = getExtensions().stream().filter(ext -> ext.validFor(ExtensionSource.MODIFIER) && ("" + ext.getShortcutKey()).equals(c.getName().toLowerCase())).collect(Collectors.toList());
         if (possibles.size() == 1)
         {
             possibles.get(0).activate();
