@@ -125,13 +125,10 @@ public class TeamSettings
      * @param userName the user name used for login
      * @return the connection string in URI format.
      */
-    public static String getURI(String protocol, String server, String prefix, String userName){
+    public static String getURI(String protocol, String server, String prefix){
         
         String gitUrl = protocol + "://";
 
-        if (protocol.contains("ssh")) {
-            gitUrl += userName + "@";
-        }
 
         gitUrl += server;
         if (prefix.length() != 0 && !prefix.startsWith("/")) {

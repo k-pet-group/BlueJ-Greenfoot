@@ -427,7 +427,7 @@ public class TeamSettingsPanel extends JPanel
         }
         //fill the URI field, if necessary.
         if (isDCVS) {
-            uriField.setText(TeamSettings.getURI(protocol, server, prefix, getUser()));
+            uriField.setText(TeamSettings.getURI(protocol, server, prefix));
         }
     }
     
