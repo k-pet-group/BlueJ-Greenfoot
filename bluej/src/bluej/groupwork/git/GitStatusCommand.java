@@ -139,7 +139,10 @@ public class GitStatusCommand extends GitCommand
                         statusInfo.setStatus(TeamStatusInfo.STATUS_CONFLICT_ADD);
                         break;
                     case BOTH_MODIFIED:
-                        statusInfo.setStatus(TeamStatusInfo.STATUS_NEEDSMERGE);
+                        //if status is needs commit, it means that the conflict was resolved.
+                        if (statusInfo.getStatus() != TeamStatusInfo.STATUS_NEEDSCOMMIT){
+                            statusInfo.setStatus(TeamStatusInfo.STATUS_NEEDSMERGE);
+                        }
                         break;
                 }
 
