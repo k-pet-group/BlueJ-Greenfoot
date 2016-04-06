@@ -89,7 +89,9 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         int status = 0;
         Object val;
         
-        int localStatusColumn = table.getColumnModel().getColumnIndex(Config.getString("team.status.status"));
+        int localStatusColumn = project.getRepository().isDVCS()? 
+                table.getColumnModel().getColumnIndex(Config.getString("team.status.status"))
+                :table.getColumnModel().getColumnIndex(Config.getString("team.status"));
         
         int remoteStatusColumn = getRemoteStatusColumnIndex(table);
         
