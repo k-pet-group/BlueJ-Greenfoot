@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -61,10 +61,15 @@ import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
+/**
+ * A frame to show the details of an inherited method in the inherited canvas
+ */
 public class InheritedMethodFrame extends SingleLineFrame
 {
     private final InteractionManager editor;
+    // The class frame which our inherited canvas is in:
     private final ClassFrame container;
+    // The class which this method is originally declared in (e.g. "java.lang.Object" for "toString")
     private final String originatingClass;
     private final AccessPermission access;
     private final String returnType;
