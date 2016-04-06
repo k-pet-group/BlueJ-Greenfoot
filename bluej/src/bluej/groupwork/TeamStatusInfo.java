@@ -125,14 +125,34 @@ public class TeamStatusInfo
     };
     
     public final static String [] dcvsStatusStrings = {
-        "team.statusinfo.upToDate",
-        "team.statusinfo.dcvs.needsCheckout",
-        "team.statusinfo.dcvs.deleted",
-        "team.statusinfo.dcvs.needsUpdate",
-        "team.statusinfo.dcvs.needsCommit",
+        "",
+        "",
+        "team.statusinfo.dcvs.local.deleted",
+        "",
+        "team.statusinfo.dcvs.local.modified",
         "team.statusinfo.needsMerge",
-        "team.statusinfo.dcvs.needsAdd",    
-        "team.statusinfo.dcvs.removed",
+        "team.statusinfo.dcvs.local.new",    
+        "",
+        "team.statusinfo.unresolved",
+        "team.statusinfo.hasConflicts",
+        "team.statusinfo.weird",
+        "",
+        "team.statusinfo.conflictAdd",
+        "team.statusinfo.conflictLMRD",
+        "team.statusinfo.conflictLDRM",
+        "team.statusinfo.renamed",
+        ""
+    };
+    
+    public final static String[] dcvsRemoteStatusStrings = {
+        "",
+        "team.statusinfo.dcvs.remote.needs.pull",
+        "team.statusinfo.dcvs.remote.deleted",
+        "team.statusinfo.dcvs.remote.needs.pull",
+        "team.statusinfo.dcvs.remote.modified",
+        "team.statusinfo.needsMerge",
+        "team.statusinfo.dcvs.remote.new",
+        "team.statusinfo.dcvs.remote.needs.pull",
         "team.statusinfo.unresolved",
         "team.statusinfo.hasConflicts",
         "team.statusinfo.weird",
@@ -227,12 +247,17 @@ public class TeamStatusInfo
         return Config.getString(statusStrings[status]);
     }
     
-    public static String getDCVSStatusString(int status)
+    public static String getDCVSStatusString(int status, boolean remote)
     {
         if (status == STATUS_BLANK) {
             return "";
         }
-        return Config.getString(dcvsStatusStrings[status]);
+        if (remote){
+            return Config.getString(dcvsRemoteStatusStrings[status]);
+        } else {
+            return Config.getString(dcvsStatusStrings[status]);
+        }
+        
     }
     
 }

@@ -108,20 +108,26 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
     }
     
     /**
-     * get the String value of the statis ID
+     * get the String value of the status ID
      */
     private String getStatusString(JTable jtable, Object value, int statusValue, int row, int col) 
     {
         String colName = jtable.getColumnName(col);
 
-        if(colName.equals(Config.getString("team.status.resource")) || colName.equals(Config.getString("team.status.version"))) {
+        if (colName.equals(Config.getString("team.status.resource")) || colName.equals(Config.getString("team.status.version"))) {
             return value.toString();
         }
-        if (colName.equals(Config.getString("team.status.remoteStatus"))) {
-            return TeamStatusInfo.getDCVSStatusString(statusValue);
+        
+        if (project.getRepository().isDVCS()) {
+            if (colName.equals(Config.getString("team.status.remoteStatus"))) {
+                return TeamStatusInfo.getDCVSStatusString(statusValue,true);
+            }
+            //return local status.
+            return TeamStatusInfo.getDCVSStatusString(statusValue, false);
         } else {
             return TeamStatusInfo.getStatusString(statusValue);
         }
+
     }
     
     /**

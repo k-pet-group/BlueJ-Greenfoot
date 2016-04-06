@@ -728,13 +728,14 @@ team.statusinfo.conflictLMRD=Modified locally and removed from repository (confl
 team.statusinfo.conflictLDRM=Removed locally and modified in repository (conflict)
 team.statusinfo.renamed=File was renamed
 
-team.statusinfo.dcvs.needsCheckout=Added 
-team.statusinfo.dcvs.needsUpdate=Modified locally
-team.statusinfo.dcvs.removed=Removed
-team.statusinfo.dcvs.needsAdd=Added
-team.statusinfo.dcvs.needsCommit=Modified
-team.statusinfo.dcvs.deleted=Removed
-team.statusinfo.dcvs.needsPush=Needs push
+team.statusinfo.dcvs.local.new=New
+team.statusinfo.dcvs.local.modified=Modified
+team.statusinfo.dcvs.local.deleted=Deleted
+team.statusinfo.dcvs.remote.new=Needs push (new)
+team.statusinfo.dcvs.remote.modified=Needs push (modified)
+team.statusinfo.dcvs.remote.deleted=Needs push (deleted)
+team.statusinfo.dcvs.remote.needs.pull=Needs pull
+team.statusinfo.dcvs.remote.needs.push=Needs push
 
 team.settings.title = Team Settings
 team.settings.personal=Personal

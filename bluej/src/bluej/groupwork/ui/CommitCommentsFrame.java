@@ -496,7 +496,7 @@ public class CommitCommentsFrame extends EscapeDialog implements CommitAndPushIn
                                 //operation is the local operation.
                                 result = TeamStatusInfo.getStatusString(item.getStatus());
                             } else if (item.getRemoteStatus() != TeamStatusInfo.STATUS_UPTODATE) {
-                                result = TeamStatusInfo.getDCVSStatusString(item.getRemoteStatus());
+                                result = TeamStatusInfo.getDCVSStatusString(item.getRemoteStatus(),true);
                             } else {
                                 //status is up-to-date.
                                 result = TeamStatusInfo.getStatusString(TeamStatusInfo.STATUS_UPTODATE);
