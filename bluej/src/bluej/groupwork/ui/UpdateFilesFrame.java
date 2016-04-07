@@ -468,7 +468,7 @@ public class UpdateFilesFrame extends EscapeDialog
                         updateListModel.addElement(noFilesToUpdate);
                     }
                     else {
-                        if (pullWithNoChanges){
+                        if (pullWithNoChanges && updateListModel.isEmpty()){
                             updateListModel.addElement(needUpdate);
                         }
                         updateAction.setEnabled(true);
