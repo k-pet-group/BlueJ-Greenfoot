@@ -35,6 +35,7 @@ import bluej.groupwork.actions.CommitAction;
 import bluej.groupwork.actions.PushAction;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 import bluej.utility.DialogManager;
@@ -96,6 +97,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
     private JList commitFiles, pushFiles;
     private DefaultListModel commitListModel, pushListModel;
     private JButton commitButton, pushButton;
+    private JLabel statusbar;
 
     private CommitAction commitAction;
 
@@ -144,9 +146,9 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 Config.putLocation("bluej.commitdisplay", getLocation());
             }
         });
-
+        
         JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane1.setBorder(BlueJTheme.generalBorderWithStatusBar);
+        splitPane1.setBorder(BlueJTheme.generalBorder);
         splitPane1.setResizeWeight(0.5);
 
         topPanel = new JPanel();
@@ -267,7 +269,18 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             bottomPanel.add(pushFileScrollPane, BorderLayout.CENTER);
         }
 
-        splitPane2.setBottomComponent(bottomPanel);
+        JSplitPane splitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane3.setBorder(BlueJTheme.generalBorder);
+        splitPane3.setResizeWeight(0.5);
+        splitPane3.setDividerSize(splitPane3.getDividerSize() / 2);
+        
+
+        splitPane3.setTopComponent(bottomPanel);
+        
+        splitPane2.setBottomComponent(splitPane3);
+        
+        DBox pushAndStatusPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+        pushAndStatusPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
         DBox pushButtonPanel = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
         pushButtonPanel.setBorder(BlueJTheme.generalBorder);
         progressBar = new ActivityIndicator();
@@ -275,8 +288,13 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
         pushButtonPanel.add(progressBar);
         pushButtonPanel.add(pushButton);
         pushButtonPanel.add(closeButton);
-        bottomPanel.add(pushButtonPanel, BorderLayout.SOUTH);
+        
+        statusbar = new JLabel(" ");
+        statusbar.setFont(PrefMgr.getStandardFont());
 
+        pushAndStatusPanel.add(pushButtonPanel);
+        bottomPanel.add(pushAndStatusPanel, BorderLayout.SOUTH);
+        splitPane3.setBottomComponent(statusbar);
         pack();
     }
 
@@ -296,6 +314,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             commitListModel.removeAllElements();
             pushAction.setEnabled(false);
             pushListModel.removeAllElements();
+            statusbar.setText(" ");
 
             repository = project.getTeamSettingsController().getRepository(false);
 
@@ -448,6 +467,13 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
     private void setLayoutChanged(boolean hasChanged)
     {
         includeLayout.setEnabled(hasChanged);
+    }
+    
+    public void displayMessage(String msg)
+    {
+        if (msg != null){
+            statusbar.setText(msg);
+        }
     }
 
     class CommitAndPushWorker extends SwingWorker implements StatusListener

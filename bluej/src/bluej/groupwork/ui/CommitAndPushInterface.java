@@ -62,5 +62,9 @@ public interface CommitAndPushInterface
     
     public Project getProject();
     
-    
+    /**
+     * Displays a message on the commit/push window.
+     * @param msg 
+     */
+    public default void displayMessage(String msg){ }
 }

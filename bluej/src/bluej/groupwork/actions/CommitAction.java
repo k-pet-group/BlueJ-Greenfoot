@@ -124,7 +124,14 @@ public class CommitAction extends AbstractAction
         
         if (project != null) {
             commitCommentsFrame.startProgress();
-            PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusMessage"));
+            if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+                //if DVCS, display message on commit/push window.
+                commitCommentsFrame.displayMessage(Config.getString("team.commit.statusMessage"));
+            } else {
+                //if svn, display the message on the main BlueJ window.
+                PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusMessage"));
+            }
+            
             setEnabled(false);
             
             //doCommit(project);
@@ -197,7 +204,14 @@ public class CommitAction extends AbstractAction
                     DataCollector.teamCommitProject(project, statusHandle.getRepository(), files);
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
-                            PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusDone"));
+                            if (project.getTeamSettingsController().getRepository(false).isDVCS()) {
+                                //if DVCS, display message on commit/push window.
+                                commitCommentsFrame.displayMessage(Config.getString("team.commit.statusDone"));
+                            } else {
+                                //if svn, display the message on the main BlueJ window.
+                                PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusDone"));
+                            }
+                            
                         }
                     });
                 }

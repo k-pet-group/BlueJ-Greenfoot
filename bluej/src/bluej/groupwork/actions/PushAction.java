@@ -107,7 +107,7 @@ public class PushAction extends AbstractAction
 
         if (project != null) {
             commitCommentsFrame.startProgress();
-            PkgMgrFrame.displayMessage(project, Config.getString("team.push.statusMessage"));
+            commitCommentsFrame.displayMessage(Config.getString("team.push.statusMessage"));
             setEnabled(false);
 
             //doCommit(project);
@@ -177,7 +177,7 @@ public class PushAction extends AbstractAction
                 if (!result.isError() && !result.wasAborted()) {
                     DataCollector.teamCommitProject(project, statusHandle.getRepository(), filesToPush);
                     EventQueue.invokeLater(() -> {
-                        PkgMgrFrame.displayMessage(project, Config.getString("team.push.statusDone"));
+                        commitCommentsFrame.displayMessage(Config.getString("team.push.statusDone"));
                     });
                 }
             }
