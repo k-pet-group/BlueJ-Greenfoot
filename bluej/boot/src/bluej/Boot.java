@@ -105,8 +105,7 @@ public class Boot
     // The jar files we expect in the BlueJ lib directory
     // The first lot are the ones to run BlueJ itself
     private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-        "AppleJavaExtensions.jar", "org-netbeans-lib-cvsclient.jar",
-        "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar",
+        "AppleJavaExtensions.jar", "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar",
         "commons-logging-api-1.1.2.jar", "diffutils-1.2.1.jar",
         "svnkit-javahl.jar", "svnkit.jar", "trilead.jar",
         "antlr-runtime-3.4.jar", "sequence-library-1.0.3.jar",

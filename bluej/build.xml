@@ -267,7 +267,7 @@
 
     <target name="ready-to-run-greenfoot" description="prepare to run Greenfoot">
         <!-- We can exclude version control from the build -->
-        <property name="srcexcludes" value="bluej/groupwork/cvsnb/**,bluej/groupwork/svn/**,bluej/groupwork/git/**" />
+        <property name="srcexcludes" value="bluej/groupwork/svn/**,bluej/groupwork/git/**" />
         <antcall target="ready-to-run" />
     </target>
 

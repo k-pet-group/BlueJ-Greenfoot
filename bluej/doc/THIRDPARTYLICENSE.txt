@@ -145,13 +145,6 @@ used by BlueJ. It is distributed under the terms of the Common Public License
 version 1.0, as found in the "CPL-v1.0.txt" file.
 
 
-Netbeans CVS Client Library (Common Development and Distribution License version 1.0)
--------------------------------------------------------------------------------------
-"org-netbeans-lib-cvsclient.jar" was produced from the source code of the Netbeans
-development environment, and is used by BlueJ for CVS support. The original source
-code was distributed under the terms of the Common Development and Distribution License
-version 1.0, as found in the file "CDDL-v1.0.txt", and the binary form is distributed
-with BlueJ under the terms of that license.
 
 
 Sequence Library (3-clause BSD license)
@@ -255,7 +248,6 @@ jna-4.2.0.jar                            Apache License v2.0
 jna-platform-4.2.0.jar                   Apache License v2.0
 jsch-0.1.53.jar                          BSD License
 junit-4.11.jar                           Common Public License v1.0
-org-netbeans-lib-cvsclient.jar           Common Development and Distribution License v1.0
 org.eclipse.jgit-4.1.0.jar               Eclipse Distribution License (EDL) v1.0
 sequence-library-1.0.3.jar               BSD License
 slf4j-api-1.7.2.jar                      MIT

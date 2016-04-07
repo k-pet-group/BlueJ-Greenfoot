@@ -55,14 +55,7 @@ public class TeamSettingsController
 {
     private static ArrayList<TeamworkProvider> teamProviders;
     static {
-        teamProviders = new ArrayList<TeamworkProvider>(3);
-        try {
-            teamProviders.add(loadProvider("bluej.groupwork.cvsnb.CvsProvider"));
-        }
-        catch (Throwable e) {
-            Debug.message("Failed to initialize Cvs: " + e.getClass().getName()
-                    + ": "+ e.getLocalizedMessage());
-        }
+        teamProviders = new ArrayList<TeamworkProvider>(2);
         try {
             teamProviders.add(loadProvider("bluej.groupwork.svn.SubversionProvider"));
         }
@@ -277,10 +270,6 @@ public class TeamSettingsController
 
         try {
             teamProperties.load(new FileInputStream(teamdefs));
-            if (teamProperties.getProperty("bluej.teamsettings.vcs") == null) {
-                // old project from before Subversion support, was using CVS
-                teamProperties.setProperty("bluej.teamsettings.vcs", "cvs");
-            }
             
             initSettings();
         }
