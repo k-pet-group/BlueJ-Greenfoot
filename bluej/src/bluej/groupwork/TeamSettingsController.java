@@ -198,6 +198,20 @@ public class TeamSettingsController
         return true;
     }
     
+    public boolean initRepository(boolean auth)
+    {
+        if (repository == null) {
+            TeamworkProvider provider = settings.getProvider();
+            if (password == null && auth) {
+                if (getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
+                    return false;
+                }
+            }
+            repository = provider.getRepository(projectDir, settings);
+        }
+        return true;
+    }
+    
     /**
      * Get a list of files (and possibly directories) in the project which should be
      * under version control management. This includes files which have been locally
@@ -232,6 +246,21 @@ public class TeamSettingsController
     public FileFilter getFileFilter(boolean includeLayout)
     {
         initRepository();
+        FileFilter repositoryFilter = null;
+        if (repository != null) {
+            repositoryFilter = repository.getMetadataFilter();
+        }
+        return new CodeFileFilter(getIgnoreFiles(), includeLayout, repositoryFilter);
+    }
+    
+    /**
+     * Get a filename filter suitable for filtering out files which we don't want
+     * to be under version control.
+     * @param authenticate true if we should ask user for authentication.
+     */
+    public FileFilter getFileFilter(boolean includeLayout, boolean authenticate)
+    {
+        initRepository(authenticate);
         FileFilter repositoryFilter = null;
         if (repository != null) {
             repositoryFilter = repository.getMetadataFilter();
