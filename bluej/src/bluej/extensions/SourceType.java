@@ -45,4 +45,14 @@ public enum SourceType
         }
         throw new IllegalArgumentException("No Enum specified for this string");
     }
+    
+    public String getExtension()
+    {
+        switch (this)
+        {
+            case Java: return "java";
+            case Stride: return "stride";
+            default: return "";
+        }
+    }
 }

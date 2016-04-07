@@ -3104,4 +3104,13 @@ public final class Package extends Graph
         return "Package:" + getQualifiedName();
     }
 
+    public SourceType getDefaultSourceType()
+    {
+        // Our heuristic is: if the package contains any Stride files, the default is Stride,
+        // otherwise it's Java
+        if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Stride))
+            return SourceType.Stride;
+        else
+            return SourceType.Java;
+    }
 }

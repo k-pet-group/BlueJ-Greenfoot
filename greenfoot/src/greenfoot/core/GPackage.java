@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -180,11 +180,11 @@ public class GPackage
         }
     }
 
-    public GClass newClass(String className, String extension, boolean inRemoteCallback)
+    public GClass newClass(String className, SourceType sourceType, boolean inRemoteCallback)
     {
         GClass newClass = null;
         try {
-            RClass newRClass = pkg.newClass(className, extension);
+            RClass newRClass = pkg.newClass(className, sourceType);
             newClass = new GClass(newRClass, this, inRemoteCallback);
             synchronized (classPool) {
                 classPool.put(newRClass, newClass);

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -319,13 +319,13 @@ public class ClassView extends ClassButton
             GPackage pkg = proj.getDefaultPackage();
             //write the java file as this is required to exist
             File dir = proj.getDir();
-            String extension = language.toString().toLowerCase();
+            String extension = language.getExtension();
             File newFile = new File(dir, className + "." + extension);
             String superClassName = getClassName();
             GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
                     role.getTemplateFileName(false, language), proj.getCharsetName());
             
-            GClass newClass = pkg.newClass(className, extension, false);
+            GClass newClass = pkg.newClass(className, language, false);
             
             //We know what the superclass should be, so we set it.
             newClass.setSuperclassGuess(this.getQualifiedClassName());

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2012,2014,2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2012,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,7 @@ import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.CallableView;
@@ -322,7 +323,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
      * @see greenfoot.remote.RPackage#newClass(java.lang.String)
      */
     @Override
-    public RClass newClass(final String className, String extension)
+    public RClass newClass(final String className, SourceType sourceType)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
     {
         final RClass[] wrapper = new RClass[1];
@@ -334,7 +335,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
                 public void run()
                 {
                     try {
-                        BClass wrapped = getBPackage().newClass(className, extension);
+                        BClass wrapped = getBPackage().newClass(className, sourceType);
                         wrapper[0] = WrapperPool.instance().getWrapper(wrapped);
                         getBPackage().reload();
                     }

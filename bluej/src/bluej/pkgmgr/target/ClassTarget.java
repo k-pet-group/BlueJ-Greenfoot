@@ -1286,7 +1286,7 @@ public class ClassTarget extends DependentTarget
     /**
      * generates a source code skeleton for this class
      */
-    public boolean generateSkeleton(String template)
+    public boolean generateSkeleton(String template, SourceType sourceType)
     {
         // delegate to role object
         if (template == null) {
@@ -1294,11 +1294,11 @@ public class ClassTarget extends DependentTarget
             return false;
         }
         else {
-            boolean success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
+            boolean success = role.generateSkeleton(template, getPackage(), getBaseName(), (sourceType == SourceType.Java ? getJavaSourceFile() : getFrameSourceFile()).getPath());
             if (success) {
                 // skeleton successfully generated
                 setState(S_INVALID);
-                sourceAvailable = SourceType.Java;
+                sourceAvailable = sourceType;
                 return true;
             }
             return false;
@@ -1871,7 +1871,7 @@ public class ClassTarget extends DependentTarget
 
             if (pmf != null) {
                 String testClassName = getIdentifierName() + "Test";
-                pmf.createNewClass(testClassName, "unittest", true);
+                pmf.createNewClass(testClassName, "unittest", SourceType.Java, true);
                 // we want to check that the previous called actually
                 // created a unit test class as a name clash with an existing
                 // class would not. This prevents a non unit test becoming

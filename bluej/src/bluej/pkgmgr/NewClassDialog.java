@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 import bluej.*;
+import bluej.extensions.SourceType;
 import bluej.utility.*;
 
 /**
@@ -41,17 +42,20 @@ import bluej.utility.*;
  */
 class NewClassDialog extends EscapeDialog
 {
-    private JTextField textFld;
-    ButtonGroup templateButtons;
+    private final JTextField textFld;
+    private final JComboBox<SourceType> languageSelectionBox;
+    private final ButtonGroup templateButtons;
+    private final List<TemplateInfo> templates = new ArrayList<>();
 
     private String newClassName = "";
     private boolean ok;   // result: which button?
     private static List<String> windowsRestrictedWords;  //stores restricted windows class filenames
+    private final JButton okButton;
 
     /**
      * Construct a NewClassDialog
      */
-    public NewClassDialog(JFrame parent, boolean isJavaMEpackage)
+    public NewClassDialog(JFrame parent, Package pkg, boolean isJavaMEpackage)
     {
         super(parent, Config.getString("pkgmgr.newClass.title"), true);
         
@@ -68,24 +72,38 @@ class NewClassDialog extends EscapeDialog
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
             mainPanel.setBorder(BlueJTheme.dialogBorder);
 
-            JLabel newclassTag = new JLabel(Config.getString("pkgmgr.newClass.label"));
-            {
-                newclassTag.setAlignmentX(LEFT_ALIGNMENT);
-            }
+            textFld = new JTextField(12);
+            
+            Box nameBox = new Box(BoxLayout.X_AXIS);
+            nameBox.add(new JLabel(Config.getString("pkgmgr.newClass.label")));
+            nameBox.add(textFld);
+            nameBox.setAlignmentX(RIGHT_ALIGNMENT);
 
-            textFld = new JTextField(24);
-            {
-                textFld.setAlignmentX(LEFT_ALIGNMENT);
-            }
+            mainPanel.add(nameBox);
+            mainPanel.add(Box.createVerticalStrut(5));
 
-            mainPanel.add(newclassTag);
-            mainPanel.add(textFld);
+            SourceType[] items = { SourceType.Stride, SourceType.Java };
+            languageSelectionBox = new JComboBox<>(items);
+            languageSelectionBox.setSelectedItem(pkg.getDefaultSourceType());
+            languageSelectionBox.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED)
+                {
+                    updateButtons((SourceType)e.getItem());
+                }
+            });
+            languageSelectionBox.setMaximumSize(languageSelectionBox.getPreferredSize());
+            
+            Box langBox = new Box(BoxLayout.X_AXIS);
+            langBox.add(new JLabel(Config.getString("pkgmgr.newClass.lang")));
+            langBox.add(languageSelectionBox);
+            langBox.setAlignmentX(RIGHT_ALIGNMENT);
+            mainPanel.add(langBox);
             mainPanel.add(Box.createVerticalStrut(5));
 
             JPanel choicePanel = new JPanel();
             {
                 choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
-                choicePanel.setAlignmentX(LEFT_ALIGNMENT);
+                choicePanel.setAlignmentX(RIGHT_ALIGNMENT);
 
                 //create compound border empty border outside of a titled border
                 Border b = BorderFactory.createCompoundBorder(
@@ -94,22 +112,19 @@ class NewClassDialog extends EscapeDialog
 
                 choicePanel.setBorder(b);
 
+                templateButtons = new ButtonGroup();
                 addClassTypeButtons(choicePanel, isJavaMEpackage);
             }
-
-            choicePanel.setMaximumSize(new Dimension(textFld.getMaximumSize().width,
-                                                     choicePanel.getMaximumSize().height));
-            choicePanel.setPreferredSize(new Dimension(textFld.getPreferredSize().width,
-                                                       choicePanel.getPreferredSize().height));
+            choicePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
             mainPanel.add(choicePanel);
             mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
-                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+                buttonPanel.setAlignmentX(RIGHT_ALIGNMENT);
 
-                JButton okButton = BlueJTheme.getOkButton();
+                okButton = BlueJTheme.getOkButton();
                 {
                     okButton.addActionListener(new ActionListener()
                     {
@@ -143,6 +158,34 @@ class NewClassDialog extends EscapeDialog
         pack();
 
         DialogManager.centreDialog(this);
+        updateButtons((SourceType)languageSelectionBox.getSelectedItem());
+    }
+
+    public SourceType getSourceType()
+    {
+        return (SourceType)languageSelectionBox.getSelectedItem();
+    }
+
+    private static class TemplateInfo
+    {
+        private final String name;
+        private final Set<SourceType> sourceTypes = new HashSet<>();
+        private JRadioButton button;
+
+        public TemplateInfo(String name)
+        {
+            this.name = name;
+        }
+        public TemplateInfo(String name, SourceType sourceType)
+        {
+            this.name = name;
+            sourceTypes.add(sourceType);
+        }
+
+        public void setButton(JRadioButton button)
+        {
+            this.button = button;
+        }
     }
 
     /**
@@ -160,11 +203,10 @@ class NewClassDialog extends EscapeDialog
 
         String templateString = Config.getPropString("bluej.classTemplates");
 
-        StringTokenizer t = new StringTokenizer(templateString);
-        List<String> templates = new ArrayList<String>();
+        StringTokenizer tokenizer = new StringTokenizer(templateString);
 
-        while (t.hasMoreTokens()) {
-            templates.add(t.nextToken());
+        while (tokenizer.hasMoreTokens()) {
+            templates.add(new TemplateInfo(tokenizer.nextToken()));
         }
 
         // next, get templates from files in template directory and
@@ -179,9 +221,23 @@ class NewClassDialog extends EscapeDialog
             
             for(int i=0; i < files.length; i++) {
                 if(files[i].endsWith(templateSuffix)) {
-                    String template = files[i].substring(0, files[i].length() - suffixLength);
-                    if(!templates.contains(template))
-                        templates.add(template);
+                    String templateName = files[i].substring(0, files[i].length() - suffixLength);
+                    SourceType sourceType = SourceType.Java;
+                    if (templateName.endsWith("Stride"))
+                    {
+                        templateName = templateName.substring(0, templateName.length() - "Stride".length());
+                        sourceType = SourceType.Stride;
+                    }
+                    String finalTemplateName = templateName;
+                    TemplateInfo template = templates.stream().filter(t -> t.name.equals(finalTemplateName)).findFirst().orElse(null);
+                    if (template != null)
+                    {
+                        template.sourceTypes.add(sourceType);
+                    }
+                    else
+                    {
+                        templates.add(new TemplateInfo(templateName, sourceType));
+                    }
                 }
             }
         }        
@@ -189,28 +245,52 @@ class NewClassDialog extends EscapeDialog
         // In Java ME packages disallow the creation of enum, unittest, and applet
         // classes. In SE packages disallow the creation of midlets.
         if ( isJavaMEpackage ) {
-            templates.remove( "enum"     );
-            templates.remove( "unittest" );  
-            templates.remove( "appletj"  );            
+            templates.removeIf(t -> t.name.equals("enum"));
+            templates.removeIf(t -> t.name.equals("unittest"));
+            templates.removeIf(t -> t.name.equals("appletj"));
          }
-         else {            
-            templates.remove( "midlet" );             
+         else {
+            templates.removeIf(t -> t.name.equals("midlet"));
          }
        
         // Create a radio button for each template found
         JRadioButton button;
-        JRadioButton previousButton = null;
-        templateButtons = new ButtonGroup();
+        boolean first = true;
 
-        for(Iterator<String> i=templates.iterator(); i.hasNext(); ) {
-            String template = i.next();
-            String label = Config.getString("pkgmgr.newClass." + template, template);
-            button = new JRadioButton(label, (previousButton==null));  // enable first
-            button.setActionCommand(template);
+        for (TemplateInfo template : templates)
+        {
+            String label = Config.getString("pkgmgr.newClass." + template.name, template.name);
+            button = new JRadioButton(label, first);  // select first
+            button.setActionCommand(template.name);
+            template.setButton(button);
             templateButtons.add(button);
             panel.add(button);
-            previousButton = button;
+            first = false;
+            button.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED)
+                    updateOKButton();
+            });
         }
+    }
+    
+    private void updateButtons(SourceType sourceType)
+    {
+        for (TemplateInfo template : templates)
+        {
+            template.button.setEnabled(template.sourceTypes.contains(sourceType));
+        }
+        updateOKButton();
+    }
+    
+    private void updateOKButton()
+    {
+        boolean canOK = false;
+        for (JRadioButton button : Utility.iterableStream(templates.stream().map(t -> t.button)))
+        {
+            if (button.isSelected() && button.isEnabled())
+                canOK = true;
+        }
+        okButton.setEnabled(canOK);
     }
 
     /**
@@ -232,7 +312,7 @@ class NewClassDialog extends EscapeDialog
 
     public String getTemplateName()
     {
-        return templateButtons.getSelection().getActionCommand();
+        return templateButtons.getSelection().getActionCommand() + (languageSelectionBox.getSelectedItem() == SourceType.Stride ? "Stride" : "");
     }
 
     /**

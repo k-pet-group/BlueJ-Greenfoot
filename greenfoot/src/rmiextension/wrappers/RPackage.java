@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,8 @@ import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
+
 /**
  * The remote interface for a package.
  * 
@@ -122,7 +124,7 @@ public interface RPackage
      * @throws MissingJavaFileException
      *             if the .java file for the new class does not exist.
      */
-    public abstract RClass newClass(String className, String extension)
+    public abstract RClass newClass(String className, SourceType sourceType)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException;
 
     /**

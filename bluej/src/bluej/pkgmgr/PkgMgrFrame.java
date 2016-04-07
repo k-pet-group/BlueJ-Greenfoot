@@ -82,6 +82,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
 import bluej.compiler.CompileReason;
+import bluej.extensions.SourceType;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -1369,7 +1370,7 @@ public class PkgMgrFrame extends JFrame
      *            the named class already exists
      * @return  true if successful, false is the named class already exists
      */
-    public boolean createNewClass(String name, String template, boolean showErr)
+    public boolean createNewClass(String name, String template, SourceType sourceType, boolean showErr)
     {
         // check whether name is already used
         if (pkg.getTarget(name) != null) {
@@ -1392,7 +1393,7 @@ public class PkgMgrFrame extends JFrame
         ClassTarget target = new ClassTarget(pkg, name, template);
 
         if ( template != null ) { 
-            boolean success = target.generateSkeleton(template);
+            boolean success = target.generateSkeleton(template, sourceType);
             if (! success)
                 return false;
         }
@@ -2066,14 +2067,14 @@ public class PkgMgrFrame extends JFrame
      */
     public void doCreateNewClass()
     {
-        NewClassDialog dlg = new NewClassDialog(this, isJavaMEpackage());
+        NewClassDialog dlg = new NewClassDialog(this, pkg, isJavaMEpackage());
         boolean okay = dlg.display();
 
         if (okay) {
             String name = dlg.getClassName();
             String template = dlg.getTemplateName();
 
-            createNewClass(name, template, true);
+            createNewClass(name, template, dlg.getSourceType(), true);
         }
     }
 

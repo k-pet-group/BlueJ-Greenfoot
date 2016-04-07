@@ -126,17 +126,30 @@ public class BPackage
      * @throws PackageNotFoundException if the package has been deleted by the user.
      * @throws MissingJavaFileException if the .java file for the new class does not exist.
      */
-    public BClass newClass (String className, String extension)
+    public BClass newClass (String className)
+        throws ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
+    {
+        return newClass(className, SourceType.Java);
+    }
+    
+    /**
+     * Creates a new Class with the given name.
+     * The class name must not be a fully qualified name, and the .java file must already exist.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
+     * @throws MissingJavaFileException if the .java file for the new class does not exist.
+     */
+    public BClass newClass (String className, SourceType sourceType)
     throws ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
     {
         Package bluejPkg = packageId.getBluejPackage();
         PkgMgrFrame bluejFrame = packageId.getPackageFrame();
 
-        File classJavaFile = new File (bluejPkg.getPath(), className + "." + extension);
+        File classJavaFile = new File (bluejPkg.getPath(), className + "." + sourceType.getExtension());
         if ( ! classJavaFile.canWrite() ) 
             throw new MissingJavaFileException (classJavaFile.toString());
 
-        bluejFrame.createNewClass(className,null,true);
+        bluejFrame.createNewClass(className,null,sourceType,true);
         return getBClass ( className );
     }
     
