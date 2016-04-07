@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,11 +46,6 @@ public class TeamworkCommandError extends TeamworkCommandResult
     // Map of known error messages. Populated below.
     private static final Map<String, String> messageIdMap = new TreeMap<String, String>();
 
-    // CVS error messages
-    static {
-        messageIdMap.put("cvs server: Up-to-date check failed", "team-uptodate-failed");
-        messageIdMap.put("cvs server: cannot find module", "team-cant-find-module");
-    }    
     
     // SVN error messages
     static {
@@ -61,6 +56,10 @@ public class TeamworkCommandError extends TeamworkCommandResult
         messageIdMap.put("svn: Authentication required for", "team-authentication-problem");
         messageIdMap.put("svn: File already exists:", "team-project-exists");
         
+    }
+    
+    static {
+        messageIdMap.put(": Auth fail", "team-authentication-problem");
     }
         
     /**
@@ -125,7 +124,7 @@ public class TeamworkCommandError extends TeamworkCommandResult
             Set<Entry<String, String>> entries = messageIdMap.entrySet();
             for (Iterator<Entry<String, String>> iterator = entries.iterator(); iterator.hasNext();) {
                 Entry<String, String> entry = (Entry<String, String>) iterator.next();
-                if (trimmedInput.startsWith(entry.getKey())) {
+                if (trimmedInput.startsWith(entry.getKey()) || trimmedInput.endsWith(entry.getKey())) {
                     betterMsg = entry.getValue();
                     break;
                 }
