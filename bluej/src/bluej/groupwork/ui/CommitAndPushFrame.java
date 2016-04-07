@@ -210,10 +210,10 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 setVisible(false);
             });
 
-            DBox commitButtonPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 1.0f);
-            commitButtonPanel.setBorder(BlueJTheme.generalBorder);
-
-            DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 1.0f);
+            
+            DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+            checkBoxPanel.setBorder(BlueJTheme.generalBorder);
+                        
             includeLayout = new JCheckBox(Config.getString("team.commit.includelayout"));
             includeLayout.setEnabled(false);
             includeLayout.addActionListener((ActionEvent e) -> {
@@ -233,8 +233,11 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             });
 
             checkBoxPanel.add(includeLayout);
-            checkBoxPanel.add(commitButtonPanel);
-            commitButtonPanel.add(commitButton, BorderLayout.EAST);
+            
+            JPanel commitArea = new JPanel(new BorderLayout());
+            commitArea.setBorder(BorderFactory.createEmptyBorder(2, 0, 4, 6));
+            commitArea.add(commitButton, BorderLayout.EAST);
+            checkBoxPanel.add(commitArea);
 
             middlePanel.add(checkBoxPanel, BorderLayout.SOUTH);
         }
@@ -246,7 +249,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
         splitPane2.setTopComponent(middlePanel);
 
         splitPane1.setBottomComponent(splitPane2);
-        splitPane1.setDividerSize(splitPane1.getDividerSize() / 2);
+        splitPane1.setDividerSize(0);
 
         getContentPane().add(splitPane1);
 
