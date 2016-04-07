@@ -126,31 +126,38 @@ public class PushAction extends AbstractAction
 
         private TeamworkCommand command;
         private TeamworkCommandResult result = null;
+        private final boolean hasPassword;
         private boolean aborted;
 
         @OnThread(Tag.Swing)
         public PushWorker(Project project)
         {
             command = statusHandle.pushAll(filesToPush);
+
+            //check if we have the password.
+            if (!project.getTeamSettingsController().hasPasswordString()) {
+                //ask for the password.
+                if (project.getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
+                    //user cancelled.
+                    commitCommentsFrame.setVisible(true);
+                    hasPassword = false;
+                    return;
+                }
+                //update command. now with password.
+                statusHandle.getRepository().setPassword(commitCommentsFrame.getProject().getTeamSettingsController().getTeamSettingsDialog().getSettings());
+            }
+            hasPassword = true;
         }
 
         @Override
         public Object construct()
         {
-            //check if we have the password.
-            if (!commitCommentsFrame.getProject().getTeamSettingsController().hasPasswordString()) {
-                //ask for the password.
-                if (commitCommentsFrame.getProject().getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
-                    //user cancelled.
-                    abort();
-                    commitCommentsFrame.setVisible(true);
-                    return null;
-                }
-                //update command. now with password.
-                statusHandle.getRepository().setPassword(commitCommentsFrame.getProject().getTeamSettingsController().getTeamSettingsDialog().getSettings());
-            } 
+            if (!hasPassword)
+            {
+                abort();
+                return null;
+            }
             result = command.getResult();
-            
             return result;
         }
 
