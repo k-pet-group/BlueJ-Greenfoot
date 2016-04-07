@@ -1681,7 +1681,7 @@ public class PkgMgrFrame extends JFrame
     {
         // multi selection file dialog that shows .java and .class files
         File[] classes = FileUtility.getMultipleFiles(this, Config.getString("pkgmgr.addClass.title"), Config
-                .getString("pkgmgr.addClass.buttonLabel"), FileUtility.getJavaSourceFilter());
+                .getString("pkgmgr.addClass.buttonLabel"), FileUtility.getJavaStrideSourceFilter());
 
         if (classes == null)
             return;

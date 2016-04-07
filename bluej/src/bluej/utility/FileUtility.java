@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -58,8 +58,6 @@ public class FileUtility
      * @see FileUtility#getVistaWriteCapabilities(File)
      */
     public enum WriteCapabilities {READ_ONLY, NORMAL_WRITE, VIRTUALIZED_WRITE, UNKNOWN}
-
-    private static final String sourceSuffix = "." + SourceType.Java.toString().toLowerCase();
 
     private static JFileChooser pkgChooser = null;
     private static JFileChooser pkgChooserNonBlueJ = null;
@@ -226,9 +224,9 @@ public class FileUtility
     }
 
 
-    public static FileFilter getJavaSourceFilter()
+    public static FileFilter getJavaStrideSourceFilter()
     {
-        return new JavaSourceFilter();
+        return new JavaStrideSourceFilter();
     }
 
     /**
@@ -334,18 +332,19 @@ public class FileUtility
     }
     
 
-    private static class JavaSourceFilter extends FileFilter
+    private static class JavaStrideSourceFilter extends FileFilter
     {
         /**
-         * This method only accepts files that are Java source files.
-         * Whether a file is a Java source file is determined by the fact that
-         * its filename ends with ".java".
+         * This method only accepts files that are Java or Stride source files.
+         * Whether a file is a Java/Stride source file is determined by the fact that
+         * its filename ends with ".java" or ".stride".
          */
         @Override
         public boolean accept(File pathname)
         {
             if (pathname.isDirectory() ||
-                pathname.getName().endsWith(sourceSuffix))
+                pathname.getName().endsWith("." + SourceType.Java.getExtension()) ||
+                pathname.getName().endsWith("." + SourceType.Stride.getExtension()))
                    return true;
             else
                 return false;
@@ -354,7 +353,7 @@ public class FileUtility
         @Override
         public String getDescription()
         {
-            return "Java Source";
+            return "Java/Stride Source";
         }
     }
 

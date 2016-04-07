@@ -1153,8 +1153,10 @@ public final class Package extends Graph
         String fileName = aFile.getName();
 
         String className;
-        if (fileName.endsWith("." + SourceType.Java.toString().toLowerCase())) // it's a Java source file
-            className = fileName.substring(0, fileName.length() - 5);
+        if (fileName.endsWith("." + SourceType.Java.getExtension())) // it's a Java source file
+            className = fileName.substring(0, fileName.length() - SourceType.Java.getExtension().length() - 1);
+        else if (fileName.endsWith("." + SourceType.Stride.getExtension())) // it's a Stride source file
+            className = fileName.substring(0, fileName.length() - SourceType.Stride.getExtension().length() - 1);
         else
             return ILLEGAL_FORMAT;
 
