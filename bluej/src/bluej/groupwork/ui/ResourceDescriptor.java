@@ -45,8 +45,7 @@ public class ResourceDescriptor
                 status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
             }
             if (annotate) {
-                //the descriptor for a DCVS repository is in RemoteStatus, and in Status otherwise.
-                int infoStatus = project.getTeamSettingsController().getRepository(false).isDVCS()? info.getRemoteStatus():info.getStatus();
+                int infoStatus = info.getStatus();
                 // file has been deleted
                 switch (infoStatus) {
                     case TeamStatusInfo.STATUS_DELETED:
@@ -82,5 +81,41 @@ public class ResourceDescriptor
 
         return status;
     }
-   
+
+    public static String getDCVSResource(Project project, Object value, boolean annotate, boolean remote)
+    {
+        String status = value.toString();
+        if (value instanceof TeamStatusInfo) {
+            TeamStatusInfo info = (TeamStatusInfo) value;
+            boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
+
+            if (isPkgFile) {
+                status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
+            }
+            if (annotate) {
+                int infoStatus = remote ? info.getRemoteStatus() : info.getStatus();
+                // file has been deleted
+                switch (infoStatus) {
+                    case TeamStatusInfo.STATUS_DELETED:
+                    case TeamStatusInfo.STATUS_NEEDSADD:
+                    case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
+                    case TeamStatusInfo.STATUS_REMOVED:
+                    case TeamStatusInfo.STATUS_CONFLICT_LMRD:
+                    case TeamStatusInfo.STATUS_NEEDSCOMMIT:
+                        //substitute for the new labels from teamstatusinfo
+                        status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
+                        break;
+                    case TeamStatusInfo.STATUS_NEEDSMERGE:
+                        if (!isPkgFile) {
+                            status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return status;
+    }
 }

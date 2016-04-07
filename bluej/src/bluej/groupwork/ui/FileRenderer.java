@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,20 +33,36 @@ import javax.swing.JList;
  * 
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: FileRenderer.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class FileRenderer extends DefaultListCellRenderer
 {
     private Project project;
+    private boolean remote;
     
     public FileRenderer(Project proj)
     {
         project = proj;
     }
+    
+    /**
+     * Creates a fileRenderer for remote or local status.
+     * @param proj project
+     * @param remote the status we are taking into account.
+     */
+    public FileRenderer(Project proj, boolean remote)
+    {
+        project = proj;
+        this.remote = remote;
+    }
         
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
     {
-        String status = ResourceDescriptor.getResource(project, value, true);       
+        String status;
+        if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+            status = ResourceDescriptor.getDCVSResource(project, value, true, remote);
+        } else {
+            status = ResourceDescriptor.getResource(project, value, true);
+        }   
         JLabel label = new JLabel(status);
         return label;
     }

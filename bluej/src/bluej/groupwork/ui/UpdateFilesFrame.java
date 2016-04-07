@@ -176,7 +176,11 @@ public class UpdateFilesFrame extends EscapeDialog
             topPanel.add(updateFilesLabel, BorderLayout.NORTH);
 
             updateFiles = new JList(updateListModel);
-            updateFiles.setCellRenderer(new FileRenderer(project));
+            if (project.getRepository().isDVCS()){
+                updateFiles.setCellRenderer(new FileRenderer(project, true));
+            } else {
+                updateFiles.setCellRenderer(new FileRenderer(project));
+            }
             updateFiles.setEnabled(false);
             updateFileScrollPane.setViewportView(updateFiles);
             
@@ -468,7 +472,7 @@ public class UpdateFilesFrame extends EscapeDialog
                         updateListModel.addElement(noFilesToUpdate);
                     }
                     else {
-                        if (pullWithNoChanges && updateListModel.isEmpty()){
+                        if (project.getRepository().isDVCS() && pullWithNoChanges && updateListModel.isEmpty()){
                             updateListModel.addElement(needUpdate);
                         }
                         updateAction.setEnabled(true);

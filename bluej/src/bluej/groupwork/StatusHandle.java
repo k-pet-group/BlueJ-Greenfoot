@@ -97,6 +97,6 @@ public interface StatusHandle
      */
     public default boolean pullNeeded()
     {
-        return true;
+        return false;
     }
 }

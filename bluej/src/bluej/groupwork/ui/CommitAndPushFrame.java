@@ -152,8 +152,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
         topPanel = new JPanel();
 
         JScrollPane commitFileScrollPane = new JScrollPane();
-        JButton closeButton = BlueJTheme.getCancelButton();
-
+        
         {
             topPanel.setLayout(new BorderLayout());
 
@@ -162,7 +161,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             topPanel.add(commitFilesLabel, BorderLayout.NORTH);
             commitFiles = new JList(commitListModel);
-            commitFiles.setCellRenderer(new FileRenderer(project));
+            commitFiles.setCellRenderer(new FileRenderer(project, false));
             commitFiles.setEnabled(false);
             commitFileScrollPane.setViewportView(commitFiles);
 
@@ -171,6 +170,9 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
 
         splitPane1.setTopComponent(topPanel);
         middlePanel = new JPanel();
+        
+        JButton closeButton = BlueJTheme.getCancelButton();
+        closeButton.setText(Config.getString("close"));
 
         {
             middlePanel.setLayout(new BorderLayout());
@@ -258,7 +260,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             pushFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             bottomPanel.add(pushFilesLabel, BorderLayout.NORTH);
             pushFiles = new JList(pushListModel);
-            pushFiles.setCellRenderer(new FileRenderer(project));
+            pushFiles.setCellRenderer(new FileRenderer(project, true));
             pushFiles.setEnabled(false);
             pushFileScrollPane.setViewportView(pushFiles);
 
@@ -460,7 +462,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
         {
             super();
             response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(true, false);
             command = repository.getStatus(this, filter, false);
         }
 
@@ -541,9 +543,9 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                     commitAction.setNewFiles(filesToAdd);
                     commitAction.setDeletedFiles(filesToDelete);
                     //update commitListModel
-                    updateCommitListModel(filesToCommit);
-                    updateCommitListModel(filesToAdd);
-                    updateCommitListModel(filesToDelete);
+                    updateListModel(commitListModel, filesToCommit, info);
+                    updateListModel(commitListModel, filesToAdd, info);
+                    updateListModel(commitListModel, filesToDelete, info);
 
                     //populate files ready to push.
                     Set<File> filesToCommitInPush = new HashSet<>();
@@ -560,10 +562,10 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                             needsMergeInPush, modifiedLayoutFilesInPush, true);
 
                     //update commitListModel
-                    updatePushListModel(filesToCommitInPush);
-                    updatePushListModel(filesToAddInPush);
-                    updatePushListModel(filesToDeleteInPush);
-                    updatePushListModel(modifiedLayoutFilesInPush);
+                    updateListModel(pushListModel, filesToCommitInPush, info);
+                    updateListModel(pushListModel, filesToAddInPush, info);
+                    updateListModel(pushListModel, filesToDeleteInPush, info);
+                    updateListModel(pushListModel, modifiedLayoutFilesInPush, info);
 
                     this.isPushAvailable = pushWithNoChanges || !filesToCommitInPush.isEmpty() || !filesToAddInPush.isEmpty()
                             || !filesToDeleteInPush.isEmpty() || !modifiedLayoutFilesInPush.isEmpty();
@@ -786,22 +788,31 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             }
         }
 
-        private void updateCommitListModel(Set<File> fileSet)
+        /**
+         * Update the list model with a file list.
+         * @param fileSet
+         * @param info 
+         */
+        private void updateListModel(DefaultListModel listModel, Set<File> fileSet, List<TeamStatusInfo> info)
         {
-            for (File f : fileSet) {
-                if (!commitListModel.contains(f)) {
-                    commitListModel.addElement(f);
+            fileSet.stream().map((f) -> getTeamStatusInfoFromFile(f,info)).filter((tsi) -> (!listModel.contains(tsi))).forEach((tsi) -> {
+                if (tsi!= null){
+                    listModel.addElement(tsi);
                 }
-            }
+            });
         }
 
-        private void updatePushListModel(Set<File> fileSet)
+        
+        private TeamStatusInfo getTeamStatusInfoFromFile(File f, List<TeamStatusInfo> info)
         {
-            for (File f : fileSet) {
-                if (!pushListModel.contains(f)) {
-                    pushListModel.addElement(f);
+            if (f != null && !info.isEmpty()){
+                for (TeamStatusInfo item : info) {
+                    if (item.getFile().equals(f)){
+                        return item;
+                    }
                 }
             }
+            return null;
         }
 
     }
