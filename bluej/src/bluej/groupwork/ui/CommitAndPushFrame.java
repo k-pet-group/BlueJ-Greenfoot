@@ -460,7 +460,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
         {
             super();
             response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true, false);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
             command = repository.getStatus(this, filter, false);
         }
 
