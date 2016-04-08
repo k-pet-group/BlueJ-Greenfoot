@@ -161,7 +161,12 @@ public class TeamSettingsPanel extends JPanel
         serverField.setEnabled(false);
         protocolComboBox.setEnabled(false);
         uriField.setEnabled(false);
-        // useAsDefault.setEnabled(false);
+        
+        if (uriField.isVisible() && uriField.getText().isEmpty()){
+            //update uri.
+            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getText(), prefixField.getText()));
+        }
+        
         
         serverTypeLabel.setEnabled(false);
         groupLabel.setEnabled(false);
@@ -263,13 +268,15 @@ public class TeamSettingsPanel extends JPanel
             serverTypeComboBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
-                    setProviderSettings(getSelectedProvider().needsEmail());
+                    setProviderSettings();
                     //if Git provider selected, enable your name and your email
                     //fields.
                     if (getSelectedProvider().needsEmail() &&  getSelectedProvider().needsName()){
                         //Git was selected. Enable fields.
                         yourNameField.setEnabled(true);
                         yourEmailField.setEnabled(true);
+                        useAsDefault.setVisible(false);
+                        useAsDefault.setSelected(true); // on git we always save.
                         //for git, we will use a URI field.
                         if (serverLabel.getParent() == locationPanel){
                             locationPanel.remove(serverLabel);
@@ -286,6 +293,7 @@ public class TeamSettingsPanel extends JPanel
 
                         }
                     } else {
+                        useAsDefault.setVisible(true);
                         //Git is not selected. Disable fields.
                         yourNameField.setEnabled(false);
                         yourEmailField.setEnabled(false);
@@ -370,7 +378,6 @@ public class TeamSettingsPanel extends JPanel
             setUseAsDefault(Boolean.getBoolean(useAsDefault));
         }
         
-        boolean isDCVS=false;
         String providerName = teamSettingsController.getPropString("bluej.teamsettings.vcs");
         if (providerName != null) {
             List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
@@ -380,7 +387,6 @@ public class TeamSettingsPanel extends JPanel
                     serverTypeComboBox.setSelectedIndex(index);
                     //checks if this provider needs your name and your e-mail.
                     if (provider.needsEmail()){
-                        isDCVS = true;
                         if (teamSettingsController.getProject() != null){
                             //settings panel being open within a project. 
                             //fill the data.
@@ -389,6 +395,7 @@ public class TeamSettingsPanel extends JPanel
                             yourEmailField.setEnabled(false);
                             yourNameField.setText(provider.getYourNameFromRepo(respositoryRoot));
                             yourNameField.setEnabled(false);
+                            this.useAsDefault.setSelected(true); // on git we always save.
                         }
                         
                     }
@@ -397,7 +404,7 @@ public class TeamSettingsPanel extends JPanel
             }
         }
         
-        setProviderSettings(isDCVS);
+        setProviderSettings();
     }
     
     /**
@@ -405,7 +412,7 @@ public class TeamSettingsPanel extends JPanel
      * The values are remembered on a per-provider basis; this sets the fields to show
      * the remembered values for the selected provider. 
      */
-    private void setProviderSettings(boolean isDCVS)
+    private void setProviderSettings()
     {
         String keyBase = "bluej.teamsettings."
             + getSelectedProvider().getProviderName().toLowerCase() + "."; 
@@ -421,14 +428,17 @@ public class TeamSettingsPanel extends JPanel
         
         fillProtocolSelections();
         
-        String protocol = teamSettingsController.getPropString(keyBase + "protocol");
+        String protocol = readProtocolString();
         if (protocol != null){
             setProtocol(protocol);
         }
-        //fill the URI field, if necessary.
-        if (isDCVS) {
-            uriField.setText(TeamSettings.getURI(protocol, server, prefix));
-        }
+    }
+    
+    private String readProtocolString()
+    {
+        String keyBase = "bluej.teamsettings."
+            + getSelectedProvider().getProviderName().toLowerCase() + "."; 
+        return teamSettingsController.getPropString(keyBase + "protocol");
     }
     
     /**

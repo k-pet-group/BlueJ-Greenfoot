@@ -524,11 +524,13 @@ public class TeamSettingsController
             }
             if (teamSettingsDialog.getSettings().getProvider().needsEmail()){
                 Config.putPropString(yourEmailKey, yourEmailValue);
+            } else {
+                //save server information if svn, not git.
+                Config.putPropString(serverKey, serverValue);
+                Config.putPropString(prefixKey, prefixValue);
+                Config.putPropString(groupKey, groupValue);
+                Config.putPropString(protocolKey, protocolValue);
             }
-            Config.putPropString(serverKey, serverValue);
-            Config.putPropString(prefixKey, prefixValue);
-            Config.putPropString(groupKey, groupValue);
-            Config.putPropString(protocolKey, protocolValue);
         }
     }
 
