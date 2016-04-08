@@ -176,7 +176,7 @@ public class UpdateFilesFrame extends EscapeDialog
             topPanel.add(updateFilesLabel, BorderLayout.NORTH);
 
             updateFiles = new JList(updateListModel);
-            if (project.getRepository().isDVCS()){
+            if (project.getTeamSettingsController().getRepository(false).isDVCS()){
                 updateFiles.setCellRenderer(new FileRenderer(project, true));
             } else {
                 updateFiles.setCellRenderer(new FileRenderer(project));
