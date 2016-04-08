@@ -242,11 +242,13 @@ public class CheckoutAction extends TeamAction
          */
         private void deleteDirectory(File dir)
         {
-            for (File f : dir.listFiles()) {
-                if (f.isDirectory()) {
-                    deleteDirectory(f);
+            if (dir != null && dir.listFiles() != null) {
+                for (File f : dir.listFiles()) {
+                    if (f.isDirectory()) {
+                        deleteDirectory(f);
+                    }
+                    f.delete();
                 }
-                f.delete();
             }
         }
     }
