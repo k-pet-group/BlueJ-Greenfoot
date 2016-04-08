@@ -210,7 +210,8 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 setVisible(false);
             });
 
-            
+            DBox middleBox = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+            middleBox.setBorder(BlueJTheme.generalBorder);
             DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
             checkBoxPanel.setBorder(BlueJTheme.generalBorder);
                         
@@ -233,13 +234,12 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             });
 
             checkBoxPanel.add(includeLayout);
-            
             JPanel commitArea = new JPanel(new BorderLayout());
-            commitArea.setBorder(BorderFactory.createEmptyBorder(2, 0, 4, 6));
+            commitArea.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 6));
             commitArea.add(commitButton, BorderLayout.EAST);
-            checkBoxPanel.add(commitArea);
-
-            middlePanel.add(checkBoxPanel, BorderLayout.SOUTH);
+            middleBox.add(checkBoxPanel);
+            middleBox.add(commitArea);
+            middlePanel.add(middleBox, BorderLayout.SOUTH);
         }
 
         JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -272,32 +272,24 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             bottomPanel.add(pushFileScrollPane, BorderLayout.CENTER);
         }
 
-        JSplitPane splitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane3.setBorder(BlueJTheme.generalBorder);
-        splitPane3.setResizeWeight(0.5);
-        splitPane3.setDividerSize(splitPane3.getDividerSize() / 2);
-        
-
-        splitPane3.setTopComponent(bottomPanel);
-        
-        splitPane2.setBottomComponent(splitPane3);
-        
-        DBox pushAndStatusPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-        pushAndStatusPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
-        DBox pushButtonPanel = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-        pushButtonPanel.setBorder(BlueJTheme.generalBorder);
-        progressBar = new ActivityIndicator();
-        progressBar.setRunning(false);
-        pushButtonPanel.add(progressBar);
-        pushButtonPanel.add(pushButton);
-        pushButtonPanel.add(closeButton);
         
         statusbar = new JLabel(" ");
         statusbar.setFont(PrefMgr.getStandardFont());
-
-        pushAndStatusPanel.add(pushButtonPanel);
-        bottomPanel.add(pushAndStatusPanel, BorderLayout.SOUTH);
-        splitPane3.setBottomComponent(statusbar);
+        
+        splitPane2.setBottomComponent(bottomPanel);
+        DBox progressAndStatusPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 1.0f);
+        progressAndStatusPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
+        DBox pushButtonPanel = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+        pushButtonPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
+        progressBar = new ActivityIndicator();
+        progressBar.setRunning(false);
+        progressAndStatusPanel.add(progressBar);
+        progressAndStatusPanel.add(statusbar);
+        pushButtonPanel.add(progressAndStatusPanel);
+        pushButtonPanel.add(pushButton);
+        pushButtonPanel.add(closeButton);
+        
+        bottomPanel.add(pushButtonPanel, BorderLayout.SOUTH);
         pack();
     }
 
