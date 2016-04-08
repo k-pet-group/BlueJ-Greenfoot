@@ -156,7 +156,11 @@ public class GitStatusCommand extends GitCommand
             if (includeRemote) {
                 //update information about remote repository.
                 GitFetchCommand fetchCommand = new GitFetchCommand(this.getRepository());
-                fetchCommand.getResult();
+                TeamworkCommandResult fetchResult = fetchCommand.getResult();
+                if (fetchResult.isError()) {
+                    //error updating status.
+                    return fetchResult;
+                }
             }
 
             RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/master", "HEAD");
