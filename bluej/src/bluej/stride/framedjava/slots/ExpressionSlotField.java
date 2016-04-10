@@ -55,13 +55,36 @@ import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
-
+/**
+ * A single text field in an expression slot.  This usually features
+ * one alphanumeric identifier or a blank.  If you have say "getWorld().setX(10+3)"
+ * then the fields will be square bracketed as follows:
+ * [getWorld]([])[].[setX]([10]+[3])[]
+ * 
+ * This component encapsulates the actual GUI item rather than inheriting from it.
+ */
 // Package-visible
 class ExpressionSlotField implements ExpressionSlotComponent
 {
+    /**
+     * The actual GUI component.  Delegates most of its behaviour back to this class.
+     */
     private final DelegableScalableTextField<ExpressionSlotField> field;
+    /**
+     * The immediate parent expression of this field.  Is often not the
+     * same as the top-level expression of the whole slot.  e.g.
+     * setFoo(10+3) -- the field for the 10 has as its parent the brackets,
+     * not the slot as a whole.
+     */
     private final InfixExpression parent;
-    
+
+    /**
+     * Creates an ExpressionSlotField with the given parent and content
+     * @param parent Parent of this field
+     * @param content Initial content of this field
+     * @param stringLiteral Whether we are the field directly inside a string literal.
+     *                      This affects some of the behaviour.
+     */
     public ExpressionSlotField(InfixExpression parent, String content, boolean stringLiteral)
     {
         this.parent = parent;
@@ -99,7 +122,11 @@ class ExpressionSlotField implements ExpressionSlotComponent
                 updateBreaks();
             parent.queueUpdatePromptsInMethodCalls();
         });
-        field.promptTextProperty().addListener((a, b, c) -> {shrinkGrow.run(); if (!stringLiteral) updateBreaks(); });
+        field.promptTextProperty().addListener((a, b, c) -> {
+            shrinkGrow.run();
+            if (!stringLiteral)
+                updateBreaks();
+        });
         
         JavaFXUtil.initializeCustomHelp(parent.getEditor(), field, this::calculateTooltip, true);
         
@@ -116,18 +143,28 @@ class ExpressionSlotField implements ExpressionSlotComponent
             updateBreaks();
     }
 
+    /**
+     * HangingFlowPane, which will always be our parent container, keeps track
+     * of which items it can break before.  This method updates whether you can
+     * break before this field, following the rule that: you can break before any
+     * field that has non-empty text or non-empty prompt text.
+     * 
+     * This method should not be called if we are a string literal, because
+     * an empty string literal field behaves differently to an empty expression field.
+     */
     private void updateBreaks()
     {
         // You can break before any field that has non-empty text or non-empty prompt text:
         HangingFlowPane.setBreakBefore(field, !getText().isEmpty() || !field.getPromptText().isEmpty());
     }
 
-
+    /** Calculates the scene X position of the given location within the field */
     private double calculateSceneX(CaretPos pos)
     {
         return field.calculateSceneX(pos.index);
     }
-    
+
+    /** Calculates the scene X position of the given Y offset with the field */
     private double calculateSceneY(double y)
     {
         return field.localToScene(new Point2D(0, y)).getY();
@@ -142,6 +179,14 @@ class ExpressionSlotField implements ExpressionSlotComponent
                     calculateSceneY(field.getHeight()), this);
     }
 
+    /**
+     * Calculate the position of the end of the text field.  Note that
+     * this may not be the same as calculateOverlayPos applied to
+     * the last position with a field.  For example, if the field is empty
+     * but has prompt text, calculateOverlayPos would return the left-hand
+     * side of the field (being the position for 0, the last position in the field),
+     * whereas this method would return the visible right-hand edge.
+     */
     public TextOverlayPosition calculateOverlayEnd()
     {
         return TextOverlayPosition.fromScene(field.localToScene(field.getBoundsInLocal()).getMaxX(),
@@ -156,7 +201,7 @@ class ExpressionSlotField implements ExpressionSlotComponent
         focusAt(0);
     }
 
-
+    /** Focus the field, and position cursor at the given position */
     private void focusAt(int i)
     {
         field.requestFocus();
@@ -190,19 +235,16 @@ class ExpressionSlotField implements ExpressionSlotComponent
         return new CaretPos(field.getLength(), null);
     }
 
-
     public boolean isEmpty()
     {
         return field.getText().equals("");
     }
-
-
+    
     public void requestFocus()
     {
         field.requestFocus();        
     }
-
-
+    
     @Override
     public PosAndDist getNearest(double sceneX, double sceneY, boolean allowDescend, boolean anchorInItem)
     {
@@ -237,8 +279,7 @@ class ExpressionSlotField implements ExpressionSlotComponent
     {
         return new CaretPos(atEnd ? field.getLength() : 0, null);
     }
-
-
+    
     public String getText()
     {
         return field.getText();
@@ -248,8 +289,7 @@ class ExpressionSlotField implements ExpressionSlotComponent
     {
         field.setText(s);
     }
-
-
+    
     @Override
     public String getCopyText(CaretPos from, CaretPos to)
     {
@@ -263,8 +303,7 @@ class ExpressionSlotField implements ExpressionSlotComponent
     {
         return field.getText();
     }
-
-
+    
     @Override
     public CaretPos getCurrentPos()
     {
@@ -274,14 +313,12 @@ class ExpressionSlotField implements ExpressionSlotComponent
         }
         return null;
     }
-
-
+    
     public void setPromptText(String s)
     {
         field.setPromptText(s);        
     }
-
-
+    
     @Override
     public ObservableList<Region> getComponents()
     {
@@ -315,26 +352,22 @@ class ExpressionSlotField implements ExpressionSlotComponent
             return "{" + field.getText().substring(0, pos.index) + "$" + field.getText().substring(pos.index) + "}";
         }
     }
-
-
+    
     @Override
     public boolean isFocused()
     {
         return field.isFocused();
     }
-
-
+    
     @Override
     public boolean isFieldAndEmpty() {
         return field.getText().isEmpty();
     }
-
-
+    
     public ObjectProperty<EventHandler<? super KeyEvent>> onKeyPressedProperty() {
         return field.onKeyPressedProperty();
     }
-
-
+    
     public DoubleExpression heightProperty()
     {
         return field.heightProperty();
@@ -415,6 +448,7 @@ class ExpressionSlotField implements ExpressionSlotComponent
     @Override
     public boolean isAlmostBlank() { return isEmpty(); }
 
+    @Override
     public void notifyLostFocus(ExpressionSlotField except)
     {
         // We have lost focus -- are we collapsible?

@@ -39,18 +39,30 @@ import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
+/**
+ * A component in an expression slot which is a string literal, i.e.
+ * double quotes around a single text field.
+ */
 // Package-visible
 class StringLiteralExpression implements ExpressionSlotComponent
 {
+    /** The text field with the string literal content */
     private final ExpressionSlotField field;
+    /** A permanent reference to the (unchanging) components: opening quote
+     *  label, text field, closing quote label */
     private final ObservableList<Node> components = FXCollections.observableArrayList();
+    /** The text property: two quote characters around the inner text field content */
     private final StringExpression textProperty;
+    /** The label for the opening quote */
     private final Label openingQuote;
+    /** The label for the closing quote */
     private final Label closingQuote;
 
     public StringLiteralExpression(ExpressionSlotField f, InfixExpression parent)
     {
         field = f;
+        // The quotes use proper open/close quote symbols normally, but
+        // switch to straight quotes in Java preview mode.
         openingQuote = ExpressionSlot.makeBracket("\u201C", true, parent);
         closingQuote = ExpressionSlot.makeBracket("\u201D", false, parent);
         components.add(openingQuote);
@@ -226,7 +238,6 @@ class StringLiteralExpression implements ExpressionSlotComponent
     public void setView(View oldView, View newView, SharedTransition animate)
     {
         field.setView(oldView, newView, animate);
-        // TODO animate size?
         JavaFXUtil.setPseudoclass("bj-java-preview", newView == View.JAVA_PREVIEW, openingQuote, closingQuote);
         openingQuote.setText(newView == View.JAVA_PREVIEW ? "\"" : "\u201C");
         closingQuote.setText(newView == View.JAVA_PREVIEW ? "\"" : "\u201D");

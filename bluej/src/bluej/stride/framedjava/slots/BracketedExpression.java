@@ -45,16 +45,30 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import bluej.utility.javafx.binding.ConcatListBinding;
 
+/**
+ * A bracketed subexpression in an expression slot.  This item will have matching
+ * opening/closing brackets (round, square or curly) around an InfixExpression.
+ * 
+ * Many of its methods simply delegate to the contained InfixExpression.
+ */
 // Package-visible
 class BracketedExpression implements ExpressionSlotComponent
 {
+    /** The parent expression this item lives in */
     private final InfixExpression parent;
+    /** The expression directly contained between the brackets */
     private final InfixExpression content;
+    /** The list of GUI components (derived from the sub-expression) */
     private final ObservableList<Node> components = FXCollections.observableArrayList();
+    /** The opening bracket character */ 
     private final char opening;
+    /** The closing bracket character (must be same bracket type as opening, but cached for convenience */
     private final char closing;
+    /** The text of the whole item (including opening/closing brackets) */
     private final StringExpression textProperty;
+    /** The label which displays the opening bracket */
     private final Label openingLabel;
+    /** The label which displays the closing bracket */
     private final Label closingLabel;
     
     public BracketedExpression(InteractionManager editor, InfixExpression parent, ExpressionSlot slot, char opening, String initialContent)
@@ -277,7 +291,6 @@ class BracketedExpression implements ExpressionSlotComponent
     public void setView(View oldView, View newView, SharedTransition animate)
     {
         content.setView(oldView, newView, animate, Optional.empty());
-        // TODO animate size?
         JavaFXUtil.setPseudoclass("bj-java-preview", newView == View.JAVA_PREVIEW, openingLabel, closingLabel);
     }
 
