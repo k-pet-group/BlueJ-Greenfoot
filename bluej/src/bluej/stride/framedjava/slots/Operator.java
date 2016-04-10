@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,15 +37,32 @@ import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
-
+/**
+ * An operator is a read-only operator label (e.g. +, *, >>, etc) in an
+ * expression slot.
+ */
 // Package visible
 class Operator
 {
+    /** The label showing the operator */
     private final Label l;
-    // The Label can show different to sourceProperty, when we are doing Java preview:
+    /**
+     * The operator in the Stride source.
+     * The Label can show different to sourceProperty, when we are doing Java preview.
+     */
     private final StringProperty sourceProperty = new SimpleStringProperty();
+    /** Keeps track of whether we are in Java preview */
     private final BooleanProperty showingJava = new SimpleBooleanProperty();
+    /**
+     * The text to show for range operator when we are in Java preview mode.
+     * For most ranges, this is a comma (since the range becomes a method call)
+     * to separate the beginning and end.  But in a for-each loop condition,
+     * this can be more complex as it gets turned into part of a Java classic for loop.
+     */
     private final StringProperty rangeJavaPreview = new SimpleStringProperty(", ");
+    /** The precedence category of the operator.  This is determined relative
+     * to other operators around it in the same expression level, not solely
+     * by the operator itself. */
     private Precedence precedence;
 
     public Operator(String op, InfixExpression parent)
@@ -88,6 +105,7 @@ class Operator
         HangingFlowPane.setBreakBefore(l, !sourceProperty.get().equals(","));
     }
 
+    /** Can this operator be unary */
     static boolean canBeUnary(String s)
     {
         if (s == null)
@@ -103,6 +121,7 @@ class Operator
     }
 
     //package visible for testing
+    /** Is this string an operator */
     static boolean isOperator(String s)
     {
         switch (s)
@@ -120,6 +139,7 @@ class Operator
         }
     }
     
+    /** Does the given character form a one-character operator, or begin a multi-character operator */
     static boolean beginsOperator(char c)
     {
         switch (c)
@@ -133,7 +153,13 @@ class Operator
                 return false;
         }
     }
-    
+
+    /**
+     * Gets the precedence for the given operator.
+     * @param op Operator to determine precedence for
+     * @param unary Whether this operator is acting as unary (true) or binary (false)
+     * @return An integer precedence, higher value binds tighter.
+     */
     static int getOperatorPrecedence(String op, boolean unary)
     {
         int prec;
@@ -161,6 +187,14 @@ class Operator
         return prec;
     }
 
+    /**
+     * Given a numeric index of precedence group, returns a corresponding Precedence
+     * category.
+     * @param ourLevel Numeric index of precedence group.  Highest precedence
+     *                 operator in the expression gets 0 (all get 0 if joint between
+     *                 several operators), next highest group gets 1, then 2, etc.
+     * @return
+     */
     static Precedence getPrecForLevel(int ourLevel)
     {
         if (ourLevel == 0)
@@ -187,20 +221,19 @@ class Operator
         return l;
     }
 
+    /** Gets the source text of the operator */
     public String get()
     {
         return sourceProperty.get();
     }
 
+    /** Sets the source text of the operator */
     public void set(String s)
     {
         sourceProperty.set(s);
     }
 
-    public Object getPrecedence() {
-        return precedence;
-    }
-
+    /** Sets the operator precedence and updates visual state accordingly */
     public void setPrecedence(Precedence chosen)
     {
         for (Precedence p : Precedence.values())
@@ -225,7 +258,7 @@ class Operator
         if ("<:".equals(get()))
             return " instanceof ";
         else
-            // Add spaces around operators (except before comma and dor, to prevent code like {1}+{+2} generating the ++
+            // Add spaces around operators (except before comma and dot, to prevent code like {1}+{+2} generating the ++
             // operator by accident.
             if (get().equals(","))
                 return ", ";
@@ -271,14 +304,4 @@ class Operator
         }
     }
 
-    static class OpPrec
-    {
-        int prec;
-        int levels;
-        OpPrec(int prec, int levels)
-        {
-            this.prec = prec;
-            this.levels = levels;
-        }
-    }
 }

@@ -454,7 +454,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
     }
 
     // package-visible and static for testing
-    static Operator.OpPrec calculatePrecedences(List<Operator> ops, List<Boolean> isUnary)
+    static OpPrec calculatePrecedences(List<Operator> ops, List<Boolean> isUnary)
     {   
         int lowestPrec = Integer.MAX_VALUE;
         int lowestIndex = -1;
@@ -498,8 +498,8 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
             List<Operator> rhs = ops.subList(lowestIndex + 1, ops.size());
             List<Boolean> rhsUnary = isUnary.subList(lowestIndex + 1, ops.size());
             
-            Operator.OpPrec lhsPrec = calculatePrecedences(lhs, lhsUnary);
-            Operator.OpPrec rhsPrec = calculatePrecedences(rhs, rhsUnary);
+            OpPrec lhsPrec = calculatePrecedences(lhs, lhsUnary);
+            OpPrec rhsPrec = calculatePrecedences(rhs, rhsUnary);
             
             int ourLevel;
             if (lhsPrec.prec == lowestPrec || rhsPrec.prec == lowestPrec ||
@@ -515,12 +515,12 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
             }
             
             ops.get(lowestIndex).setPrecedence(Operator.getPrecForLevel(ourLevel));
-            return new Operator.OpPrec(lowestPrec, ourLevel);
+            return new OpPrec(lowestPrec, ourLevel);
         }
         else
         {
             // No operators (none, or all are null)
-            return new Operator.OpPrec(-1, 0);
+            return new OpPrec(-1, 0);
         }
     }
 
@@ -3083,6 +3083,17 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
     static class IntCounter
     {
         public int counter = 0;
+    }
+
+    private static class OpPrec
+    {
+        final int prec;
+        final int levels;
+        OpPrec(int prec, int levels)
+        {
+            this.prec = prec;
+            this.levels = levels;
+        }
     }
 }
 

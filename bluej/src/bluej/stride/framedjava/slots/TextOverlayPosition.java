@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,11 +32,14 @@ import javafx.scene.Node;
 /**
  * Represents a text location on the overlay pane.  You can think of it as representing the
  * graphical area of a caret -- it has one X position, but a y-range that matches the height of the
- * text.  This is useful for working out where to draw text selections
+ * text.  This is useful for working out where to draw text selections.
  * 
+ * The constructors are private to avoid confusion about scene vs node coordinates.
+ * Use the explicit nodeToOverlay or fromScene static methods to construct.
  */
 public class TextOverlayPosition
 {
+    /** The ExpressionSlotField in which this location lies.  May be null. */
     private final ExpressionSlotField src;
     // All coordinates are in terms of scene:
     private final double x;
@@ -84,6 +87,10 @@ public class TextOverlayPosition
         return "(" + x + ", " + topY + " -> " + bottomY + ")"; 
     }
 
+    /**
+     * Given a Node and some node-local coordinates, transforms them into scene
+     * coordinates to form the returned TextOverlayPosition.
+     */
     public static TextOverlayPosition nodeToOverlay(Node node, double x, double topY, double baselineY, double bottomY)
     {
         Point2D topLeft = node.localToScene(x, topY);
@@ -92,15 +99,28 @@ public class TextOverlayPosition
         return new TextOverlayPosition(topLeft.getX(), topLeft.getY(), baselineLeft.getY(), bottomLeft.getY());
         
     }
-    
+
+    /**
+     * A Line is a set of TextOverlayPosition items which fall on the same horizontal
+     * line.  So a very short expression slot would have one line of TextOverlayPosition
+     * items, and once it becomes long enough to hit the right-hand edge of the pane
+     * and wraps around, you'll get multiple lines.
+     */
     public static class Line
     {
+        /** The list of all positions in this horizontal line, in ascending X order */
         public final List<TextOverlayPosition> positions = new ArrayList<>();
+        /** The starting X position of the line (in scene) */
         public double startX;
+        /** The ending X position of the line (in scene) */
         public double endX;
+        /** The highest Y position on the line (i.e. lowest numeric value of Y) */
         public double topY;
+        /** The lowest/bottom Y position on the line (i.e. highest numeric value of Y) */
         public double bottomY;
-        
+
+        /** Transforms this line's points by applying the given transformation function
+         *  to the top-left and bottom-right */
         public void transform(Function<Point2D, Point2D> trans)
         {
             Point2D topLeft = trans.apply(new Point2D(startX, topY));
@@ -111,7 +131,17 @@ public class TextOverlayPosition
             topY = topLeft.getY();
             bottomY = bottomRight.getY();
         }
-        
+
+        /**
+         * Tries to add the given TextOverlayPosition to the line.
+         * Returns true if the position fitted on this line,
+         * either because the line was currently empty (in which case
+         * any single position would fit), or because
+         * the topY of this position was less than (i.e. graphically
+         * above the bottom Y of the line as it stood.  This makes
+         * sense if you are adding the components in order as you go
+         * through the flow pane, from top left to bottom right.
+         */
         public boolean add(TextOverlayPosition p)
         {
             if (positions.size() == 0)
@@ -148,7 +178,14 @@ public class TextOverlayPosition
             return positions.get(positions.size() - 1);
         }
     }
-    
+
+    /**
+     * Groups the list of text overlay positions (assumed to be in order from a set
+     * of flow pane components) into a list of lines (@see {@link Line}).
+     * 
+     * The lines will be in increasing Y order (i.e. graphically highest line with lowest
+     * Y first, down to lowest line with highest Y).
+     */
     public static LinkedList<Line> groupIntoLines(List<TextOverlayPosition> positions)
     {
         LinkedList<Line> r = new LinkedList<>();
@@ -167,6 +204,9 @@ public class TextOverlayPosition
         return r;
     }
 
+    /**
+     * Creates a TextOverlayPosition using the given scene coordinates.
+     */
     public static TextOverlayPosition fromScene(double x,
             double topY, double baselineY, double bottomY,
             ExpressionSlotField expressionSlotField)
