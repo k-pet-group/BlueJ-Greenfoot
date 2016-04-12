@@ -233,6 +233,13 @@ class Operator
         sourceProperty.set(s);
     }
 
+    // Needed for testing
+    public Precedence getPrecedence()
+    {
+        return precedence;
+    }
+
+
     /** Sets the operator precedence and updates visual state accordingly */
     public void setPrecedence(Precedence chosen)
     {
