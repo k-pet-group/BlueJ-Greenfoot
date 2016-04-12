@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -63,7 +63,7 @@ public abstract class GitCommand implements TeamworkCommand
     public void disableFingerprintCheck(TransportCommand command)
     {
         //check if the command is not null and conects via ssh.
-        if (command != null && repository.getReposUrl().startsWith("ssh")) {
+        if (command != null && (repository.getReposUrl().startsWith("ssh") || repository.getReposUrl().startsWith("https"))) {
             //disable ssh host fingerprint check.
             SshSessionFactory sshSessionFactory = new JschConfigSessionFactory()
             {
@@ -83,9 +83,14 @@ public abstract class GitCommand implements TeamworkCommand
             };
 
             command.setTransportConfigCallback((Transport t) -> {
-                SshTransport sshTransport = (SshTransport) t;
-                sshTransport.setSshSessionFactory(sshSessionFactory);
+                if (t instanceof SshTransport) {
+                    SshTransport sshTransport = (SshTransport) t;
+                    sshTransport.setSshSessionFactory(sshSessionFactory);
+                }
             });
+            //add credentials to both ssh and https transports.
+            //github uses this information inorder to provide writing access 
+            //to https connections.
             command.setCredentialsProvider(getRepository().getCredentialsProvider());
         }
     }
