@@ -35,7 +35,6 @@ import bluej.groupwork.actions.CommitAction;
 import bluej.groupwork.actions.PushAction;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 import bluej.utility.DialogManager;
@@ -66,8 +65,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -97,14 +97,15 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
     private JList commitFiles, pushFiles;
     private DefaultListModel commitListModel, pushListModel;
     private JButton commitButton, pushButton;
-    private JLabel statusbar;
 
     private CommitAction commitAction;
 
     private PushAction pushAction;
 
     private CommitAndPushWorker commitAndPushWorker;
-
+    
+    private boolean emptyCommitText = true;
+    
     //sometimes, usually after a conflict resolution, we need to push in order
     //to update HEAD.
     private boolean pushWithNoChanges = false;
@@ -146,17 +147,17 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 Config.putLocation("bluej.commitdisplay", getLocation());
             }
         });
-        
-        JSplitPane splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane1.setBorder(BlueJTheme.generalBorder);
-        splitPane1.setResizeWeight(0.5);
 
         topPanel = new JPanel();
+        topPanel.setBorder(BlueJTheme.generalBorder);
+        JPanel windowPanel = new JPanel();
+        windowPanel.setBorder(BlueJTheme.generalBorder);
 
         JScrollPane commitFileScrollPane = new JScrollPane();
         
         {
             topPanel.setLayout(new BorderLayout());
+            windowPanel.setLayout(new BorderLayout());
 
             JLabel commitFilesLabel = new JLabel(Config.getString(
                     "team.commitPush.commit.files"));
@@ -165,14 +166,15 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             commitFiles = new JList(commitListModel);
             commitFiles.setCellRenderer(new FileRenderer(project, false));
             commitFiles.setEnabled(false);
+            
             commitFileScrollPane.setViewportView(commitFiles);
+            commitFiles.setMaximumSize(commitFiles.getMaximumSize());
+            commitFiles.setMinimumSize(commitFiles.getMaximumSize());
 
             topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
         }
-
-        splitPane1.setTopComponent(topPanel);
+        windowPanel.add(topPanel, BorderLayout.NORTH);
         middlePanel = new JPanel();
-        
         JButton closeButton = BlueJTheme.getCancelButton();
         closeButton.setText(Config.getString("close"));
 
@@ -191,7 +193,38 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             Dimension size = commitText.getPreferredSize();
             size.width = commitText.getMinimumSize().width;
             commitText.setMinimumSize(size);
+            
+            //create listeners to enable the commit button if there is a comment.
+            commitText.getDocument().addDocumentListener(new DocumentListener()
+            {
+                @Override
+                public void insertUpdate(DocumentEvent e)
+                {
+                    emptyCommitText = false;
+                    if (commitText.isEnabled()){
+                        commitAction.setEnabled(!emptyCommitText);
+                    }
+                }
 
+                @Override
+                public void removeUpdate(DocumentEvent e)
+                {
+                    emptyCommitText = commitText.getText().isEmpty();
+                    if (commitText.isEnabled()) {
+                        commitAction.setEnabled(!emptyCommitText);
+                    }
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e)
+                {
+                    emptyCommitText = commitText.getText().isEmpty();
+                    if (commitText.isEnabled()) {
+                        commitAction.setEnabled(!emptyCommitText);
+                    }
+                }
+            });
+            
             JScrollPane commitTextScrollPane = new JScrollPane(commitText);
             commitTextScrollPane.setMinimumSize(size);
             middlePanel.add(commitTextScrollPane, BorderLayout.CENTER);
@@ -222,7 +255,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 if (layoutCheck.isSelected()) {
                     addModifiedLayouts();
                     if (!commitButton.isEnabled()) {
-                        commitAction.setEnabled(true);
+                        commitAction.setEnabled(!emptyCommitText);
                     }
                 } // unselected
                 else {
@@ -242,18 +275,9 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             middlePanel.add(middleBox, BorderLayout.SOUTH);
         }
 
-        JSplitPane splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane2.setBorder(BlueJTheme.dialogBorder);
-        splitPane2.setResizeWeight(0.5);
-
-        splitPane2.setTopComponent(middlePanel);
-
-        splitPane1.setBottomComponent(splitPane2);
-        splitPane1.setDividerSize(0);
-
-        getContentPane().add(splitPane1);
-
+        topPanel.add(middlePanel, BorderLayout.SOUTH);
         bottomPanel = new JPanel();
+        bottomPanel.setBorder(BlueJTheme.generalBorder);
 
         JScrollPane pushFileScrollPane = new JScrollPane();
 
@@ -273,30 +297,25 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
         }
 
         
-        statusbar = new JLabel(" ");
-        statusbar.setFont(PrefMgr.getStandardFont());
-        
-        splitPane2.setBottomComponent(bottomPanel);
-        DBox progressAndStatusPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 1.0f);
-        progressAndStatusPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
         DBox pushButtonPanel = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
         pushButtonPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
         progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
-        progressAndStatusPanel.add(progressBar);
-        progressAndStatusPanel.add(statusbar);
-        pushButtonPanel.add(progressAndStatusPanel);
+        pushButtonPanel.add(progressBar);
         pushButtonPanel.add(pushButton);
         pushButtonPanel.add(closeButton);
         
         bottomPanel.add(pushButtonPanel, BorderLayout.SOUTH);
+        
+        windowPanel.add(bottomPanel, BorderLayout.CENTER);
+        
+        getContentPane().add(windowPanel);
         pack();
     }
 
     @Override
     public void setVisible(boolean show)
     {
-        super.setVisible(show);
         if (show) {
             // we want to set comments and commit action to disabled
             // until we know there is something to commit
@@ -309,7 +328,6 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             commitListModel.removeAllElements();
             pushAction.setEnabled(false);
             pushListModel.removeAllElements();
-            statusbar.setText(" ");
 
             repository = project.getTeamSettingsController().getRepository(false);
 
@@ -332,6 +350,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 super.setVisible(false);
             }
         }
+        super.setVisible(show);
     }
 
     public void setComment(String newComment)
@@ -466,9 +485,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
     
     public void displayMessage(String msg)
     {
-        if (msg != null){
-            statusbar.setText(msg);
-        }
+        progressBar.setMessage(msg);
     }
 
     class CommitAndPushWorker extends SwingWorker implements StatusListener
@@ -648,7 +665,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 } else {
                     commitText.setEnabled(true);
                     commitText.requestFocusInWindow();
-                    commitAction.setEnabled(true);
+                    commitAction.setEnabled(!emptyCommitText);
                 }
                 
                 if (pushListModel.isEmpty()){

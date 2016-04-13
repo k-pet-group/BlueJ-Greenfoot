@@ -102,7 +102,7 @@ public class StatusFrame extends EscapeDialog
         // set relative column widths
         statusTable.getColumnModel().getColumn(0).setPreferredWidth(70);
         statusTable.getColumnModel().getColumn(1).setPreferredWidth(40);
-        statusTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+        statusTable.getColumnModel().getColumn(2).setPreferredWidth(60);
         
         //set up custom renderer to colour code status message field
         statusRenderer = new StatusMessageCellRenderer(project);

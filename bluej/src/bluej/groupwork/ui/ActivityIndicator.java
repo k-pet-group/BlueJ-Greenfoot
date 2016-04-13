@@ -21,10 +21,12 @@
  */
 package bluej.groupwork.ui;
 
+import bluej.prefmgr.PrefMgr;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.OverlayLayout;
 
@@ -34,7 +36,7 @@ import threadchecker.Tag;
 public class ActivityIndicator extends JComponent
 {
     private JProgressBar progressBar;
-    
+    private JLabel messageLabel;
     public ActivityIndicator()
     {
         setBorder(null);
@@ -43,6 +45,10 @@ public class ActivityIndicator extends JComponent
         progressBar.setIndeterminate(true);
         progressBar.setVisible(false);
         add(progressBar);
+        messageLabel = new JLabel();
+        messageLabel.setFont(PrefMgr.getStandardFont());
+        messageLabel.setVisible(false);
+        add(messageLabel);
     }
     
     /**
@@ -54,7 +60,23 @@ public class ActivityIndicator extends JComponent
     @OnThread(Tag.Any)
     public void setRunning(boolean running)
     {
-        EventQueue.invokeLater(() -> progressBar.setVisible(running));
+        EventQueue.invokeLater(() -> {
+            messageLabel.setVisible(!running);
+            progressBar.setVisible(running);
+                });
+    }
+    /**
+     * Set message to display when the activity indicator is not in a running state.
+     * @param msg 
+     */
+    @OnThread(Tag.Any)
+    public void setMessage(String msg)
+    {
+        EventQueue.invokeLater(() -> {
+            if (msg != null){
+                messageLabel.setText(msg);
+            }
+        });
     }
     
     public Dimension getPreferredSize()
