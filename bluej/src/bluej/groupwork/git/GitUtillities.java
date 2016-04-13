@@ -201,11 +201,12 @@ public class GitUtillities
      * @return
      * @throws IOException 
      */
-    public static boolean isAheadOnly(Git repo) throws IOException, GitTreeException
+    public static boolean isAheadOnly(Git repo) throws IOException
     {
         BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
         if (bts == null){
-            throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
+            //There is no remote tracking brunch. This happens in new repositories
+            return false;
         }
         int aheadCount = bts.getAheadCount();
         int behindCount = bts.getBehindCount();
@@ -236,11 +237,12 @@ public class GitUtillities
      * @return
      * @throws IOException
      */
-    public static boolean isBehindOnly(Git repo) throws IOException, GitTreeException
+    public static boolean isBehindOnly(Git repo) throws IOException
     {
         BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
         if (bts == null){
-            throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
+            return false;
+            //There is no remote tracking brunch. This happens in new repositories
         }
         int aheadCount = bts.getAheadCount();
         int behindCount = bts.getBehindCount();
@@ -258,7 +260,8 @@ public class GitUtillities
     {
         BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
         if (bts == null){
-            throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
+            return 0;
+            //throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
         }
         int behindCount = bts.getBehindCount();
         return behindCount;
