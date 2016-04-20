@@ -42,6 +42,7 @@ import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 import bluej.utility.Utility;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
@@ -65,7 +66,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import threadchecker.OnThread;
@@ -85,11 +88,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
     private Set<TeamStatusInfo> changedLayoutFiles;
     private Repository repository;
 
-    /**
-     * The packages whose layout should be committed compulsorily
-     */
-    private Set<File> packagesToCommmit = new HashSet<>();
-
+   
     private JPanel topPanel, middlePanel, bottomPanel;
     private ActivityIndicator progressBar;
     private JCheckBox includeLayout;
@@ -147,9 +146,9 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 Config.putLocation("bluej.commitdisplay", getLocation());
             }
         });
-
+        
         topPanel = new JPanel();
-        topPanel.setBorder(BlueJTheme.generalBorder);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
         JPanel windowPanel = new JPanel();
         windowPanel.setBorder(BlueJTheme.generalBorder);
 
@@ -158,18 +157,21 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
         {
             topPanel.setLayout(new BorderLayout());
             windowPanel.setLayout(new BorderLayout());
+            topPanel.setBorder(BorderFactory.createEmptyBorder());
 
             JLabel commitFilesLabel = new JLabel(Config.getString(
                     "team.commitPush.commit.files"));
-            commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+            commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
             topPanel.add(commitFilesLabel, BorderLayout.NORTH);
             commitFiles = new JList(commitListModel);
+            commitFiles.setVisibleRowCount(4);
             commitFiles.setCellRenderer(new FileRenderer(project, false));
             commitFiles.setEnabled(false);
             
             commitFileScrollPane.setViewportView(commitFiles);
             commitFiles.setMaximumSize(commitFiles.getMaximumSize());
             commitFiles.setMinimumSize(commitFiles.getMaximumSize());
+            commitFiles.setBackground(new Color(getBackground().getRGB()));
 
             topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
         }
@@ -180,15 +182,16 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
 
         {
             middlePanel.setLayout(new BorderLayout());
+            middlePanel.setBorder(BorderFactory.createEmptyBorder());
 
             JLabel commentLabel = new JLabel(Config.getString(
                     "team.commit.comment"));
-            commentLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+            commentLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
             middlePanel.add(commentLabel, BorderLayout.NORTH);
 
             commitText = new JTextArea("");
-            commitText.setRows(6);
-            commitText.setColumns(42);
+            commitText.setRows(5);
+            commitText.setColumns(35);
 
             Dimension size = commitText.getPreferredSize();
             size.width = commitText.getMinimumSize().width;
@@ -246,7 +249,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             DBox middleBox = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
             middleBox.setBorder(BlueJTheme.generalBorder);
             DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-            checkBoxPanel.setBorder(BlueJTheme.generalBorder);
+            checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(10,0,10,10));
                         
             includeLayout = new JCheckBox(Config.getString("team.commit.includelayout"));
             includeLayout.setEnabled(false);
@@ -277,21 +280,23 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
 
         topPanel.add(middlePanel, BorderLayout.SOUTH);
         bottomPanel = new JPanel();
-        bottomPanel.setBorder(BlueJTheme.generalBorder);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
         JScrollPane pushFileScrollPane = new JScrollPane();
-
+        
         {
             bottomPanel.setLayout(new BorderLayout());
 
             JLabel pushFilesLabel = new JLabel(Config.getString(
                     "team.commitPush.push.files"));
-            pushFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+            pushFilesLabel.setBorder(BorderFactory.createEmptyBorder(6, 0, 5, 0));
             bottomPanel.add(pushFilesLabel, BorderLayout.NORTH);
             pushFiles = new JList(pushListModel);
             pushFiles.setCellRenderer(new FileRenderer(project, true));
             pushFiles.setEnabled(false);
+            pushFiles.setVisibleRowCount(4);
             pushFileScrollPane.setViewportView(pushFiles);
+            pushFiles.setBackground(new Color(getBackground().getRGB()));
 
             bottomPanel.add(pushFileScrollPane, BorderLayout.CENTER);
         }
@@ -307,7 +312,10 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
         
         bottomPanel.add(pushButtonPanel, BorderLayout.SOUTH);
         
-        windowPanel.add(bottomPanel, BorderLayout.CENTER);
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        separator.setForeground(Color.black);
+        windowPanel.add(separator, BorderLayout.CENTER);
+        windowPanel.add(bottomPanel, BorderLayout.SOUTH);
         
         getContentPane().add(windowPanel);
         pack();
@@ -370,9 +378,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
     {
         // remove modified layouts from list of files shown for commit
         for (TeamStatusInfo info : changedLayoutFiles) {
-            if (!packagesToCommmit.contains(info.getFile().getParentFile())) {
-                commitListModel.removeElement(info);
-            }
+            commitListModel.removeElement(info);
         }
         if (commitListModel.isEmpty()) {
             commitListModel.addElement(noFilesToCommit);
