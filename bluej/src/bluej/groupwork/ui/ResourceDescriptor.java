@@ -101,6 +101,7 @@ public class ResourceDescriptor
                     case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
                     case TeamStatusInfo.STATUS_REMOVED:
                     case TeamStatusInfo.STATUS_CONFLICT_LMRD:
+                    case TeamStatusInfo.STATUS_NEEDSUPDATE:
                     case TeamStatusInfo.STATUS_NEEDSCOMMIT:
                         //substitute for the new labels from teamstatusinfo
                         status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
