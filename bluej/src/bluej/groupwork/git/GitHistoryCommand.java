@@ -78,7 +78,7 @@ public class GitHistoryCommand extends GitCommand
                 Date date = new Date(rev.getCommitTime() * 1000L);
                 String dateString = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").format(date);
 
-                HistoryInfo info = new HistoryInfo(files.toArray(new String[files.size()]), rev.getName(), dateString, rev.getAuthorIdent().getName(), rev.getFullMessage());
+                HistoryInfo info = new HistoryInfo(files.toArray(new String[files.size()]), "", dateString, rev.getAuthorIdent().getName(), rev.getFullMessage());
                 listener.logInfoAvailable(info);
             });
 

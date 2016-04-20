@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -137,16 +137,10 @@ public class HistoryListRenderer extends DBox implements ListCellRenderer
 
         if (isSelected) {
             setBackground(list.getSelectionBackground());
-            setForeground(list.getSelectionForeground());
-            filesArea.setForeground(list.getSelectionForeground());
-            filesArea.setBackground(list.getSelectionBackground());
             setOpaque(true);
         }
         else {
             setBackground(list.getBackground());
-            setForeground(list.getForeground());
-            filesArea.setForeground(list.getForeground());
-            filesArea.setBackground(list.getBackground());
             setOpaque(false);
         }
         

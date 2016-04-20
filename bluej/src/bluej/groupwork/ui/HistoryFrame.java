@@ -121,14 +121,20 @@ public class HistoryFrame extends EscapeDialog
         contentPane.add(historyPane);
         
         // Find a suitable size for the history list
-        List<HistoryInfo> tempList = new ArrayList<HistoryInfo>(5);
-        HistoryInfo tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "1.1", "2006/11/34 12:34:56", "abraham", "this is the expected comment length of comments");
+        List<HistoryInfo> tempList = new ArrayList<>(5);
+        HistoryInfo tempInfo;
+        if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+            tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "", "2006/11/34 12:34:56", "John Smith J. Doe", "this is the expected comment length of comments");
+        } else {
+            tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "1.1", "2006/11/34 12:34:56", "abraham", "this is the expected comment length of comments");
+        }
+        
         for (int i = 0; i < 8; i++) {
             tempList.add(tempInfo);
         }
         listModel.setListData(tempList);
         Dimension size = historyList.getPreferredSize();
-        listModel.setListData(Collections.<HistoryInfo>emptyList());
+        listModel.setListData(Collections.emptyList());
         historyList.setPreferredSize(size);
         
         contentPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
@@ -190,7 +196,14 @@ public class HistoryFrame extends EscapeDialog
         super.setVisible(vis);
         
         if (vis) {
-            Repository repository = project.getTeamSettingsController().getRepository(false);
+            Repository repository;
+            if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+                //don't connect to the remote repository if git.
+                repository = project.getTeamSettingsController().getRepository(false);
+            } else {
+                //we need to connect to the remote repository if svn.
+                repository = project.getRepository();
+            }
             
             if (repository != null) {
                 worker = new HistoryWorker(repository);
