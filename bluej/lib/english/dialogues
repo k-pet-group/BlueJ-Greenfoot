@@ -526,6 +526,13 @@ team-authentication-problem
 The server could not log you in - check your username/password and
 repository in team settings.
 
+team-authorisation-problem
+Operation not authorised by the server. If this server allows 
+public reading access to the project, like github, then your 
+username/password may be wrong. 
+Check your username/password and repository settings 
+in team settings.
+
 team-binary-conflict
 A conflict was detected when trying to update the following file:
     $

@@ -60,6 +60,7 @@ public class TeamworkCommandError extends TeamworkCommandResult
     
     static {
         messageIdMap.put(": Auth fail", "team-authentication-problem");
+        messageIdMap.put(": not authorized", "team-authorisation-problem");
     }
         
     /**
