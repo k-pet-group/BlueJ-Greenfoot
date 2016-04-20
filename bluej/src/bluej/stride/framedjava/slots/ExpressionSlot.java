@@ -1327,7 +1327,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
                 return Response.DISMISS;
             case BACK_SPACE:
                 CaretPos updatedLocation = topLevel.deletePreviousAtPos(suggestionLocation);
-                if (!updatedLocation.init().equals(suggestionLocation.init()))
+                if (updatedLocation == null || !updatedLocation.init().equals(suggestionLocation.init()))
                 {
                     return Response.DISMISS;
                 }
