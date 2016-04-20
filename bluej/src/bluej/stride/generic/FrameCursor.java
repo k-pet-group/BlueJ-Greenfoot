@@ -429,6 +429,7 @@ public class FrameCursor implements RecallableFocus
             {
                 List<Frame> toDelete = editor.getSelection().getSelected();
                 FrameCursor focusAfter = toDelete.get(0).getCursorBefore();
+                editor.beginRecordingState(FrameCursor.this);
                 // Check they are from our canvas:
                 if (toDelete.stream().allMatch(f -> f.getParentCanvas() == getParentCanvas()))
                 {
@@ -446,6 +447,7 @@ public class FrameCursor implements RecallableFocus
                 }
                 editor.getSelection().clear();
                 focusAfter.requestFocus();
+                editor.endRecordingState(focusAfter);
                 editor.updateCatalog(focusAfter);
                 event.consume();
                 return;
