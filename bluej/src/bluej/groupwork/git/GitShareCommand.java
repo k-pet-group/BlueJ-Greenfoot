@@ -59,6 +59,8 @@ public class GitShareCommand extends GitCommand
                 //set remote repository
                 config.setString("remote", "origin", "url", getRepository().getReposUrl());
                 config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                config.setString("branch", "master", "remote", "origin");
+                config.setString("branch", "master", "merge", "refs/heads/master");
                 config.save();
                 repo.close();
             } else {
