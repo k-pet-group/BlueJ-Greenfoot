@@ -182,7 +182,8 @@ public class Project implements DebuggerListener, InspectorManager
     private UpdateFilesFrame updateFilesFrame = null;
     private StatusFrame statusFrame = null;
     /** If true, this project is connected with a source repository */
-    private boolean isSharedProject;
+    private Boolean isSharedProject = null;
+
     // team actions
     private TeamActionGroup teamActions;  
     // Flag signalling whether this is a Java Micro Edition project
@@ -294,7 +295,10 @@ public class Project implements DebuggerListener, InspectorManager
         isDVCS=false;
         if (isSharedProject){
             TeamSettingsController tsc = new TeamSettingsController(this);
-            isDVCS = tsc.getRepository(false).isDVCS();
+            isSharedProject = TeamSettingsController.isValidVCSfound(projectDir);
+            if (isSharedProject){
+                isDVCS = tsc.getRepository(false).isDVCS();
+            }
         }
         
         teamActions = new TeamActionGroup(isSharedProject, isDVCS);
@@ -483,6 +487,12 @@ public class Project implements DebuggerListener, InspectorManager
         if (proj == null) {
             try {
                 proj = new Project(projectDir);
+
+            //if is shared project, check for svn working copy version.
+            if (proj.isTeamProject() && !proj.getTeamSettingsController().getRepository(false).isDVCS() && proj.getTeamSettingsController().getWorkingCopyVersion() != 1.6) {
+                DialogManager.showMessage(parent, "SVNWorkingCopyNot16");
+            }
+
                 projects.put(projectDir, proj);
             }
             catch (IOException ioe) {
@@ -1933,6 +1943,16 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public boolean isTeamProject()
     {
+        if (this.isSharedProject == null){
+            //checks if it is a valid team project
+            File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");
+            if (ccfFile.isFile()){
+                //checks for valid vcs config.
+                return TeamSettingsController.isValidVCSfound(projectDir);
+            } else {
+                return false;
+            }
+        }
         return isSharedProject;
     }
 

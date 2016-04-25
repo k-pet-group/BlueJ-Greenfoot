@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,6 +51,9 @@ public class SvnCheckoutCommand extends SvnCommand
     
     protected TeamworkCommandResult doCommand()
     {
+        //set local working copy's svn version to 1.6. this is a working around
+        //the broken 1.7 local working copy versioning of SVNKit.
+        System.setProperty("svnkit.wc.17", "false");
         SVNClientInterface client = getClient();
         String reposUrl = getRepository().getReposUrl();
         reposUrl += "/" + moduleName;
@@ -58,6 +61,9 @@ public class SvnCheckoutCommand extends SvnCommand
         try {
             client.checkout(reposUrl, checkoutPath.getAbsolutePath(),
                 Revision.HEAD, Revision.HEAD, Depth.infinity, true, true);
+            //set local working copy's svn version back to 1.7. This is just
+            //to put things back the way they used to be.
+            System.setProperty("svnkit.wc.17", "true");
             if (! isCancelled()) {
                 return new TeamworkCommandResult();
             }

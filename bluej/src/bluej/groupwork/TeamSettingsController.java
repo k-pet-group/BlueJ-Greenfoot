@@ -282,7 +282,34 @@ public class TeamSettingsController
             e.printStackTrace();
         }
     }
+    
+    /**
+     * checks if a project has a team.defs if it doesn't, then return false
+     * @param projectDir File object representing the directory where team.defs is located.
+     * @return true if there is a valid vcs. false otherwise.
+     */
+    public static boolean isValidVCSfound(File projectDir)
+    {
+        File teamdefs = new File(projectDir, "team.defs");
+        Properties p = new Properties();
+        String providerName = null;
+        try {
+            p.load(new FileInputStream(teamdefs));
+            providerName = p.getProperty("bluej.teamsettings.vcs");
+        } catch (IOException e){
+        }
 
+        if (providerName != null) {
+            for (int index = 0; index < teamProviders.size(); index++) {
+                TeamworkProvider prov = (TeamworkProvider) teamProviders.get(index);
+                if (prov.getProviderName().equalsIgnoreCase(providerName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     private void initSettings()
     {
         String user = getPropString("bluej.teamsettings.user");
@@ -590,4 +617,15 @@ public class TeamSettingsController
     {
         return project;
     }
+
+    /**
+     * Method to get working copy version.
+     *
+     * @return version number. -1 if not applicable or not subversion.
+     */
+    public double getWorkingCopyVersion()
+    {
+        return settings.getProvider().getWorkingCopyVersion(projectDir);
+    }
+
 }

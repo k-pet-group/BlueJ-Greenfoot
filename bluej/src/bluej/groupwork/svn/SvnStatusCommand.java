@@ -140,6 +140,13 @@ public class SvnStatusCommand extends SvnCommand
                         if (reposStat == StatusKind.deleted) {
                             rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_REMOVED);
                         }
+                        else if (reposStat == StatusKind.none && !file.exists()) {
+                            //Bug in SVNKit
+                            //File status in the repository is normal, 
+                            //but the file status is none and the file
+                            //doesn't exists locally anymore.
+                            rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_DELETED);
+                        }
                         else if (reposStat == StatusKind.modified) {
                             rinfo = new TeamStatusInfo(file, rev,
                                     "" + status[i].getReposLastCmtRevisionNumber(),

@@ -192,7 +192,7 @@ public class SvnRepository
     {
         synchronized (clientLock) {
             try {
-                client.remove(new String[] {dir.getAbsolutePath()}, "", true, true, Collections.emptyMap());
+                client.remove(new String[] {dir.getAbsolutePath()}, "", true, false, Collections.emptyMap());
             }
             catch (ClientException ce) {
                 Debug.message("Exception while doing svn remove on directory: "

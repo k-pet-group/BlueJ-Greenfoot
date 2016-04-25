@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -139,6 +139,11 @@ public class SvnCommitAllCommand extends SvnCommand
             }
             client.commit(commitFiles, commitComment, Depth.empty, false, false, null, Collections.emptyMap());
             
+            //force delete of files that, for some reason where 
+            //not deleted by the commit.
+            deleteFilesLocally(deletedFiles);
+            
+            
             if (! isCancelled()) {
                 return new TeamworkCommandResult();
             }
@@ -151,5 +156,42 @@ public class SvnCommitAllCommand extends SvnCommand
         }
 
         return new TeamworkCommandAborted();
+    }
+    
+    /**
+     * remove files and directories in a file set.
+     * @param filesSet set with the files to be removed.
+     */
+    private void deleteFilesLocally(Set<File> filesSet)
+    {
+        Iterator<File> i = filesSet.iterator();
+        while (i.hasNext()) {
+            File file = i.next();
+            if (file.exists()) {
+                //file/direcotry does exits. delete.
+                if (file.isDirectory()) {
+                    for (File c : file.listFiles()) {
+                        deleteDirectory(c);
+}
+                }
+                file.delete(); //file or directory, must be ready to be delete here.
+            }
+        }
+    }
+    
+    /**
+     * Method to remove files and directories recursively.
+     * @param f file to be deleted.
+     */
+    private void deleteDirectory(File f)
+    {
+        if (f.exists() && f.isDirectory()) {
+            for (File c : f.listFiles()) {
+                deleteDirectory(c); //recursively remove all files in sulbdirectories
+            }
+            f.delete();
+        } else if (f.exists() && f.isFile()){
+            f.delete();
+        }
     }
 }

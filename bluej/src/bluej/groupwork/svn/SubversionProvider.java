@@ -38,6 +38,9 @@ import bluej.groupwork.UnsupportedSettingException;
 import bluej.utility.Debug;
 
 import org.tigris.subversion.javahl.Revision;
+import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.internal.wc2.SvnWcGeneration;
+import org.tmatesoft.svn.core.wc2.SvnOperationFactory;
 
 /**
  * Teamwork provider for Subversion.
@@ -207,4 +210,24 @@ public class SubversionProvider implements TeamworkProvider
         return null;
     }
     
+    @Override
+    public double getWorkingCopyVersion(File projectDir)
+    {
+        double result;
+        SvnWcGeneration wcGen = null;
+        try {
+            wcGen = SvnOperationFactory.detectWcGeneration(projectDir, false);
+        } catch (SVNException ex) {
+            Debug.message(ex.getMessage());
+        }
+        if (wcGen != null && wcGen.compareTo(SvnWcGeneration.V16) == 0) {
+            result = 1.6;
+        } else if (wcGen != null && wcGen.compareTo(SvnWcGeneration.V17) == 0) {
+            result = 1.7;
+        } else {
+            result = -1; // unknown version.
+        }
+        return result;
+    }
+        
 }

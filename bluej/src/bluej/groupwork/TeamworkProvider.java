@@ -88,4 +88,14 @@ public interface TeamworkProvider
      */
     public String getYourNameFromRepo(File projectPath) ;
 
+    /**
+     * Get a repository's working copy version number. This method is intended 
+     * to be used by SVN.
+     * @param projectDir project's directory.
+     * @return working copy version if applicable. -1 if not applicable, or if
+     * version cannot be found.
+     */
+    public default double getWorkingCopyVersion(File projectDir){
+        return -1;
+    }
 }
