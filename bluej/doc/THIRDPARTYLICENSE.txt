@@ -144,9 +144,6 @@ JUnit (Common Public License v1.0)
 used by BlueJ. It is distributed under the terms of the Common Public License
 version 1.0, as found in the "CPL-v1.0.txt" file.
 
-
-
-
 Sequence Library (3-clause BSD license)
 ---------------------------------------
 "sequence-library-1.0.3.jar" is part of a sequence library, available in source form
