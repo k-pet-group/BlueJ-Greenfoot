@@ -102,7 +102,7 @@ int launch(char *commandName) {
     /*
     if (runtime != nil) {
         runtimePath = [[[NSBundle mainBundle] builtInPlugInsPath] stringByAppendingPathComponent:runtime];
-        libjliPath = [[runtimePath stringByAppendingPathComponent:@"Contents/Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
+        libjliPath = [[runtimePath stringByAppendingPathComponent:@"Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
     } else {
     	// Not really sure what to use for runtimePath, this will do for now.
     	runtimePath = @"/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK";
@@ -110,8 +110,8 @@ int launch(char *commandName) {
     }
     */
     
-    runtimePath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"jdk.framework/Versions/A"];
-    libjliPath = [[runtimePath stringByAppendingPathComponent:@"Contents/Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
+    runtimePath = [[mainBundle bundlePath] stringByAppendingPathComponent:@"Contents/JDK"];
+    libjliPath = [[runtimePath stringByAppendingPathComponent:@"Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
 
     void *libJLI = dlopen(libjliPath, RTLD_LAZY);
 
