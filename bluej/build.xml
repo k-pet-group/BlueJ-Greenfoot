@@ -319,7 +319,7 @@
         <!-- ant dir="package" target="windows-dist"/-->
     </target>
 
-    <target name="dist-greenfoot" depends="ready-to-run,check-licences">
+    <target name="dist-greenfoot" depends="ready-to-run-greenfoot,check-licences">
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
 
