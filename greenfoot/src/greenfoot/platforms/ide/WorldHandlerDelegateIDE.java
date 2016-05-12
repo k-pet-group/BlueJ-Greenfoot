@@ -58,6 +58,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -115,32 +116,43 @@ public class WorldHandlerDelegateIDE
      * Make a popup menu suitable for calling methods on, inspecting and
      * removing an object in the world.
      */
-    public JPopupMenu makeActorPopupMenu(final Actor obj)
+    public JPopupMenu makeActorPopupMenu(final List<Actor> actors)
     {
-        JPopupMenu menu = new JPopupMenu();
-
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(),
+        JPopupMenu topLevel = new JPopupMenu();
+        for (Actor obj : actors)
+        {
+            // subMenu only actually used if actors.size() > 1
+            JMenu subMenu = new JMenu(obj.getClass().getSimpleName());
+            subMenu.setFont(PrefMgr.getPopupMenuFont());
+            JPopupMenu menu = actors.size() == 1 ? topLevel : subMenu.getPopupMenu();
+                
+            ObjectWrapper.createMethodMenuItems(menu, obj.getClass(),
                 new WorldInvokeListener(frame, obj, this, inspectorManager, this, project),
                 LocalObject.getLocalObject(obj), "", false);
 
-        // "inspect" menu item
-        JMenuItem m = getInspectMenuItem(obj);
-        menu.add(m);
+            // "inspect" menu item
+            JMenuItem m = getInspectMenuItem(obj);
+            menu.add(m);
 
-        // "remove" menu item
-        m = new JMenuItem(Config.getString("world.handlerDelegate.remove"));
-        m.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
+            // "remove" menu item
+            m = new JMenuItem(Config.getString("world.handlerDelegate.remove"));
+            m.addActionListener(new ActionListener()
             {
-                worldHandler.getWorld().removeObject(obj);
-                removedActor(obj);
-                worldHandler.repaint();
-            }
-        });
-        m.setFont(PrefMgr.getStandoutMenuFont());
-        m.setForeground(envOpColour);
-        menu.add(m);
-        return menu;
+                public void actionPerformed(ActionEvent e)
+                {
+                    worldHandler.getWorld().removeObject(obj);
+                    removedActor(obj);
+                    worldHandler.repaint();
+                }
+            });
+            m.setFont(PrefMgr.getStandoutMenuFont());
+            m.setForeground(envOpColour);
+            menu.add(m);
+            
+            if (actors.size() > 1)
+                topLevel.add(subMenu);
+        }
+        return topLevel;
     }
 
     /**
@@ -211,13 +223,20 @@ public class WorldHandlerDelegateIDE
     {
         if (e.isPopupTrigger()) {
             JPopupMenu menu;
-            Actor obj = worldHandler.getObject(e.getX(), e.getY());
+            List<Actor> actors = worldHandler.getObjects(e.getX(), e.getY());
             // if null then the user clicked on the world
-            if (obj == null) {
+            if (actors.isEmpty()) {
                 menu = makeWorldPopupMenu(worldHandler.getWorld());
             }
             else {
-                menu = makeActorPopupMenu(obj);
+                // If there's too many, just use the top-most one:
+                if (actors.size() > 20)
+                {
+                    Actor top = actors.get(0);
+                    actors.clear();
+                    actors.add(top);
+                }
+                menu = makeActorPopupMenu(actors);
             }
             
             if (menu != null) {

@@ -51,8 +51,12 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
@@ -346,6 +350,35 @@ public class WorldHandler
     public Actor getObject(int x, int y)
     {
         return getObject(this.world, x, y);
+    }
+
+    /**
+     * Like getObject but returns all actors at that position,
+     * sorted by paint order (painted first means earlier in the list)
+     * @param x The x-coordinate
+     * @param y The y-coordinate
+     */
+    public List<Actor> getObjects(int x, int y)
+    {
+        if (world == null)
+            return Collections.emptyList();
+
+        int timeout = READ_LOCK_TIMEOUT;
+        try {
+            if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
+
+                List<Actor> objectsThere = new ArrayList<>(WorldVisitor.getObjectsAtPixel(world, x, y));
+                
+                Collections.sort(objectsThere, Comparator.comparingInt(ActorVisitor::getLastPaintSeqNum).reversed());
+
+                lock.readLock().unlock();
+
+                return objectsThere;
+            }
+        }
+        catch (InterruptedException ie) {}
+
+        return Collections.emptyList();
     }
     
     /**
