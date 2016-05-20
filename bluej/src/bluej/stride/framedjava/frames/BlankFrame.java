@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -87,10 +87,11 @@ public class BlankFrame extends SingleLineFrame implements CodeFrame<BlankElemen
         }
         
         if (parentCanvas.getParent().getChildKind(parentCanvas) == CanvasParent.CanvasKind.FIELDS) {
-            addStyleClass("instance-blank-frame");
+            addStyleClass(isInInterface(parentCanvas) ? "interface-blank-frame" : "class-blank-frame");
         }
-        else {
-            removeStyleClass("instance-blank-frame");
+        else
+        {
+            removeStyleClass(isInInterface(parentCanvas) ? "interface-blank-frame" : "class-blank-frame");
         }
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,8 @@ import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.operations.FrameOperation;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A break statement (no parameters). Further, the break statement takes on the colour of whatever it is breaking from, to indicate that it has some scope-level significance.
@@ -98,7 +100,7 @@ public class BreakFrame extends SingleLineFrame
         super.updateAppearance(c);
         if (!normalView || !isFrameEnabled())
         {
-            setOverlay(false, null, null);
+            JavaFXUtil.runNowOrLater(() -> setOverlay(false, null, null));
             return;
         }
         
@@ -112,12 +114,13 @@ public class BreakFrame extends SingleLineFrame
             if (cf.asBreakEncloser() != null)
             {
                 JavaFXUtil.setPseudoclass(cf.asBreakEncloser().getPseudoClass(), true, getNode());
-                setOverlay(true, c, cf.asBreakEncloser().getPseudoClass());
+                final FrameCanvas cFinal = c;
+                JavaFXUtil.runNowOrLater(() -> setOverlay(true, cFinal, cf.asBreakEncloser().getPseudoClass()));
                 return;
             }
             c = c.getParent().getFrame().getParentCanvas();
         }
-        setOverlay(false, null, null);
+        JavaFXUtil.runNowOrLater(() -> setOverlay(false, null, null));
     }
 
     public static FrameFactory<BreakFrame> getFactory()
@@ -168,6 +171,7 @@ public class BreakFrame extends SingleLineFrame
         yOffset.set(getRegion().getHeight() * 3.0 / 8.0);
     }
 
+    @OnThread(Tag.FXPlatform)
     private void setOverlay(boolean on, FrameCanvas outer, String pseudo)
     {
         if (on && overlay == null)
@@ -182,8 +186,10 @@ public class BreakFrame extends SingleLineFrame
             xOffset = new SimpleDoubleProperty(0.0);
             yOffset = new SimpleDoubleProperty(0.0);
 
-            getEditor().getCodeOverlayPane().addOverlay(overlay, getNode(), xOffset, yOffset);
-            adjustOverlayBounds();
+            JavaFXUtil.onceInScene(getNode(), () -> {
+                getEditor().getCodeOverlayPane().addOverlay(overlay, getNode(), xOffset, yOffset);
+                adjustOverlayBounds();
+            });
             JavaFXUtil.addChangeListener(getNode().localToSceneTransformProperty(), t -> adjustOverlayBounds());
             JavaFXUtil.addChangeListener(getNode().boundsInLocalProperty(), b -> adjustOverlayBounds());
         }
@@ -197,6 +203,7 @@ public class BreakFrame extends SingleLineFrame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animation)
     {
         super.setView(oldView, newView, animation);
@@ -213,6 +220,6 @@ public class BreakFrame extends SingleLineFrame
     @Override
     protected void cleanupFrame()
     {
-        setOverlay(false, null, null);
+        JavaFXUtil.runNowOrLater(() -> setOverlay(false, null, null));
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -67,14 +67,14 @@ public class RunAppletDialog extends EscapeDialog
     private JTextField widthField;
     private JButton addButton;
     private JButton deleteButton;
-    private JFrame parent;
+    private Frame parent;
     private JRadioButton generateWebPage;
     private JRadioButton runAppletViewer;
     private JRadioButton runWebBrowser;
 
     private boolean ok; // result: which button?
 
-    public RunAppletDialog(JFrame parent, String appletClassName)
+    public RunAppletDialog(Frame parent, String appletClassName)
     {
         super(parent, Config.getString("pkgmgr.runApplet.title"), true);
         this.parent = parent;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,8 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
+
+import java.awt.Frame;
 
 
 /**
@@ -73,7 +75,7 @@ public interface InspectorManager
      * @return The Viewer value
      */
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-            String name, Package pkg, InvokerRecord ir, JFrame parent);
+            String name, Package pkg, InvokerRecord ir, Frame parent);
     
     /**
      * Return a ClassInspector for a class. The inspector is visible.
@@ -92,7 +94,7 @@ public interface InspectorManager
      * @return The Viewer value
      */
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-            Package pkg, JFrame parent);
+            Package pkg, Frame parent);
 
     /**
      * Return an ObjectInspector for an object. The inspector is visible.
@@ -109,7 +111,7 @@ public interface InspectorManager
      */
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-        JFrame parent);
+        Frame parent);
     
     /**
      * Whether we are in testing mode. If true, the inspectors should show testing stuff.

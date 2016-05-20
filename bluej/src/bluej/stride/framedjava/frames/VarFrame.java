@@ -82,18 +82,17 @@ import bluej.utility.javafx.SharedTransition;
 public class VarFrame extends SingleLineFrame
   implements CodeFrame<VarElement>, DebuggableFrame
 {
-    //TODO make them private after refactoring
-    public static final String STATIC_NAME = "static";
-    public static final String FINAL_NAME = "final";
-    public static final String TOGGLE_STATIC_VAR = "toggleStaticVar";
-    public static final String TOGGLE_FINAL_VAR = "toggleFinalVar";
+    private static final String STATIC_NAME = "static";
+    private static final String FINAL_NAME = "final";
+    private static final String TOGGLE_STATIC_VAR = "toggleStaticVar";
+    private static final String TOGGLE_FINAL_VAR = "toggleFinalVar";
 
     private final BooleanProperty accessModifier = new SimpleBooleanProperty(false);
     private final ChoiceSlot<AccessPermission> access; // present only when it is a class field
     private final SlotLabel staticLabel = new SlotLabel(STATIC_NAME + " ");
     private final BooleanProperty staticModifier = new SimpleBooleanProperty(false);
     private final SlotLabel finalLabel = new SlotLabel(FINAL_NAME + " ");
-    public final BooleanProperty finalModifier = new SimpleBooleanProperty(false);
+    private final BooleanProperty finalModifier = new SimpleBooleanProperty(false);
     private final TypeTextSlot slotType;
     private final VariableNameDefTextSlot slotName;
     private final BooleanProperty showingValue = new SimpleBooleanProperty(false);
@@ -311,16 +310,20 @@ public class VarFrame extends SingleLineFrame
         }
         
         if (isField(parentCanvas)) {
-            // TODO maybe we have to change this to:
-            // fields in classes have different behavior from ones in interfaces.
-            accessModifier.set(true);
-            addStyleClass("instance-var-frame");
+            if (isInInterface(parentCanvas)) {
+                addStyleClass("interface-var-frame");
+            }
+            else {
+                // No need for accessModifier in interfaces.
+                accessModifier.set(true);
+                addStyleClass("class-var-frame");
+            }
             headerCaptionLabel.setText("");
         }
         else {
             staticModifier.set(false);
             accessModifier.set(false);
-            removeStyleClass("instance-var-frame");
+            removeStyleClass(isInInterface(parentCanvas) ? "interface-var-frame" : "class-var-frame");
             // We must use transparency, not adding/removing, to maintain the same indentation in each frame
             headerCaptionLabel.setText("var ");
             JavaFXUtil.setPseudoclass("bj-transparent", isAfterVarFrame(parentCanvas), headerCaptionLabel.getNode());
@@ -346,7 +349,7 @@ public class VarFrame extends SingleLineFrame
         }
         return parentCanvas.getParent().getChildKind(parentCanvas) == CanvasParent.CanvasKind.FIELDS;
     }
-    
+
     @Override
     public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
     {

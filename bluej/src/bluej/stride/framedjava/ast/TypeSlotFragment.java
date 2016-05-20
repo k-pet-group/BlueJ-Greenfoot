@@ -22,6 +22,7 @@
 package bluej.stride.framedjava.ast;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -104,7 +105,7 @@ public class TypeSlotFragment extends TextSlotFragment
                 }
             }
             // Otherwise, give error and suggest corrections 
-            final UnknownTypeError error = new UnknownTypeError(this, content, slot, editor, types.stream(), editor.getOtherPopularImports().stream());
+            final UnknownTypeError error = new UnknownTypeError(this, content, slot, editor, types.stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream));
             error.recordPath(rootPathMap.locationFor(this));
             f.complete(Arrays.asList(error));
         });

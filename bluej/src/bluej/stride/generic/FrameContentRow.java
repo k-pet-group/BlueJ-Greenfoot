@@ -57,6 +57,8 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import bluej.utility.javafx.binding.ConcatListBinding;
 import bluej.utility.javafx.binding.ConcatMapListBinding;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A frame content item with a stack pane containing an overlay and a flow pane.
@@ -438,6 +440,7 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
             return Collections.emptyList();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void notifyModifiedPress(KeyCode c)
     {
         List<ExtensionDescription> possibles = getExtensions().stream().filter(ext -> ext.validFor(ExtensionSource.MODIFIER) && ("" + ext.getShortcutKey()).equals(c.getName().toLowerCase())).collect(Collectors.toList());

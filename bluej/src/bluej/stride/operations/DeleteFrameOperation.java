@@ -30,6 +30,9 @@ import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.value.ObservableValue;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 
@@ -47,12 +50,14 @@ public class DeleteFrameOperation extends FrameOperation
         return Arrays.asList(l("Delete", MenuItemOrder.DELETE));
     }
 
+    @OnThread(Tag.FXPlatform)
     @Override
     public void enablePreview()
     {
         editor.getSelection().setDeletePreview(true);
     }
 
+    @OnThread(Tag.FXPlatform)
     @Override
     public void disablePreview()
     {
@@ -60,6 +65,7 @@ public class DeleteFrameOperation extends FrameOperation
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
         editor.recordEdits(StrideEditReason.FLUSH);
@@ -69,6 +75,7 @@ public class DeleteFrameOperation extends FrameOperation
         editor.recordEdits(StrideEditReason.DELETE_FRAMES_MENU);
     }
 
+    @OnThread(Tag.FXPlatform)
     public static void deleteFrames(List<Frame> frames, InteractionManager editor)
     {
         if (!frames.isEmpty())

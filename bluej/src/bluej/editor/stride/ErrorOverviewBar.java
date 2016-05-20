@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,7 @@ import javafx.scene.shape.Rectangle;
 
 import bluej.Config;
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 
@@ -106,10 +107,10 @@ public class ErrorOverviewBar extends VBox
         /**
          * Callback to give focus to this error (e.g. when the error rectangle is clicked)
          */
-        private final FXRunnable giveFocus;
+        private final FXPlatformRunnable giveFocus;
         private final ObservableBooleanValue visible;
         private final ObservableBooleanValue focused;
-        ErrorInfo(String message, Node node, ObservableBooleanValue visible, ObservableBooleanValue focused, FXRunnable giveFocus)
+        ErrorInfo(String message, Node node, ObservableBooleanValue visible, ObservableBooleanValue focused, FXPlatformRunnable giveFocus)
         {
             this.message = message;
             this.node = node;
@@ -204,7 +205,7 @@ public class ErrorOverviewBar extends VBox
     {
         private final ObservableBooleanValue showing;
 
-        public Error(String message, ObservableBooleanValue showing, FXRunnable onClick)
+        public Error(String message, ObservableBooleanValue showing, FXPlatformRunnable onClick)
         {
             JavaFXUtil.addStyleClass(this, "error-overview-error");
             setOnMouseClicked(e -> {onClick.run(); e.consume();});

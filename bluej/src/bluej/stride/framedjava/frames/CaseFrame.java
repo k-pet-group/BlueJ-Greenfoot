@@ -50,6 +50,8 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Container-block representing a case condition.
@@ -225,6 +227,7 @@ public class CaseFrame extends SingleCanvasFrame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
         super.setView(oldView, newView, animateProgress);

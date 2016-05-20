@@ -92,8 +92,8 @@ class FrameMenuManager extends TabMenuManager
         this.javaPreviewShowing = new SimpleBooleanProperty(editor.getView() == View.JAVA_PREVIEW);
         // I don't think this will cause a loop with notifyView because it converges (second listener sets property to current value):
         JavaFXUtil.addChangeListener(javaPreviewShowing, b -> {
-            if (b) editor.enableJavaPreview();
-            else editor.disableJavaPreview();
+            if (b) JavaFXUtil.runNowOrLater(editor::enableJavaPreview);
+            else JavaFXUtil.runNowOrLater(editor::disableJavaPreview);
         });
 
         defaultEditItems = Arrays.asList(

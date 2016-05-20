@@ -39,6 +39,8 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import bluej.stride.framedjava.slots.TextOverlayPosition;
 import bluej.stride.slots.EditableSlot;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * There are several points in the interface where we need to show
@@ -117,11 +119,11 @@ public class ErrorUnderlineCanvas
         /** The position of the end of the link, in characters */
         private final int end;
         /** The action to take if the user clicks the link */
-        private final FXRunnable onClick;
+        private final FXPlatformRunnable onClick;
         /** Whether the link is currently showing or not */
         private boolean showing = true;
         private HyperlinkInfo(UnderlineInfo positionInfo, int start, int end,
-                FXRunnable onClick)
+                FXPlatformRunnable onClick)
         {
             this.positionInfo = positionInfo;
             this.start = start;
@@ -153,9 +155,9 @@ public class ErrorUnderlineCanvas
          * The action to execute when the user moves the mouse in (pass true) to
          * hover over a link, and when the user moves the mouse out (pass false) again.
          */
-        private final FXConsumer<Boolean> onHover;
+        private final FXPlatformConsumer<Boolean> onHover;
         private ErrorInfo(EditableSlot slot, int start, int end,
-                boolean javaPos, FXConsumer<Boolean> onHover)
+                boolean javaPos, FXPlatformConsumer<Boolean> onHover)
         {
             this.positionInfo = slot;
             this.start = start;
@@ -215,7 +217,7 @@ public class ErrorUnderlineCanvas
         public void changed(ObservableValue<? extends Boolean> a, Boolean b, Boolean c)
         {
             errors.add(error);
-            redraw();
+            JavaFXUtil.runNowOrLater(() -> redraw());
             cancel();
         }
 
@@ -248,13 +250,13 @@ public class ErrorUnderlineCanvas
      * any hover-begin from ever being executed.  If you run this after the hover has
      * begun, it does nothing, but is harmless.
      */
-    private FXRunnable cancelBeginHover;
+    private FXPlatformRunnable cancelBeginHover;
     /**
      * Once the hover has begun, this gets set to the action which will stop the hover
      * (by passing false to it).  So when the user moves the mouse away, we run
      * this to stop the hover.
      */
-    private FXConsumer<Boolean> currentHover;
+    private FXPlatformConsumer<Boolean> currentHover;
 
     /**
      * Creates an ErrorUnderlineCanvas.
@@ -297,6 +299,7 @@ public class ErrorUnderlineCanvas
     /**
      * Clears the canvas, then redraws all errors, all currently-showing hyperlinks, and any extra redraw actions.
      */
+    @OnThread(Tag.FXPlatform)
     public void redraw()
     {
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -353,6 +356,7 @@ public class ErrorUnderlineCanvas
      * 
      * Redraws afterwards.
      */
+    @OnThread(Tag.FXPlatform)
     public void clearErrorMarkers(EditableSlot origin)
     {
         for (int i = 0; i < errors.size();)
@@ -382,7 +386,8 @@ public class ErrorUnderlineCanvas
      *                If false, error will only be added once it turns true (but then
      *                will remain visible forever after, even if it changes back to false)
      */
-    public void addErrorMarker(EditableSlot origin, int start, int end, boolean javaPos, FXConsumer<Boolean> onHover, ObservableBooleanValue visible)
+    @OnThread(Tag.FXPlatform)
+    public void addErrorMarker(EditableSlot origin, int start, int end, boolean javaPos, FXPlatformConsumer<Boolean> onHover, ObservableBooleanValue visible)
     {
         ErrorInfo err = new ErrorInfo(origin, start, end, javaPos, onHover);
         if (visible.get() == false)
@@ -400,6 +405,7 @@ public class ErrorUnderlineCanvas
     /**
      * Removes all hyperlinks (but does not touch errors), and redraws.
      */
+    @OnThread(Tag.FXPlatform)
     public void clearUnderlines()
     {
         hyperlinks.clear();
@@ -414,7 +420,8 @@ public class ErrorUnderlineCanvas
      * @param endPosition End of hyperlink
      * @param onClick Action to run if the hyperlink is clicked.
      */
-    public void addUnderline(UnderlineInfo info, int startPosition, int endPosition, FXRunnable onClick)
+    @OnThread(Tag.FXPlatform)
+    public void addUnderline(UnderlineInfo info, int startPosition, int endPosition, FXPlatformRunnable onClick)
     {
         hyperlinks.add(new HyperlinkInfo(info, startPosition, endPosition, onClick));
         redraw();
@@ -424,7 +431,7 @@ public class ErrorUnderlineCanvas
      * Checks if there is a link at the given X position (assuming a one-line canvas)
      * If there is, returns the action the link would trigger.  If not, returns null.
      */
-    public FXRunnable linkFromX(double sceneX)
+    public FXPlatformRunnable linkFromX(double sceneX)
     {
         for (HyperlinkInfo link : hyperlinks)
         {
@@ -444,9 +451,9 @@ public class ErrorUnderlineCanvas
      * @param pos position closest to mouse cursor
      * @return The action to perform if clicked
      */
-    public FXRunnable hoverAtPos(int pos)
+    public FXPlatformRunnable hoverAtPos(int pos)
     {
-        FXRunnable r = null;
+        FXPlatformRunnable r = null;
         for (HyperlinkInfo link : hyperlinks)
         {
             link.showing = false;
@@ -472,7 +479,8 @@ public class ErrorUnderlineCanvas
     {
         extraRedraw.add(redraw);        
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private synchronized void hoverAt(double sceneX, double sceneY)
     {
         for (ErrorInfo error : errors)

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,7 +53,7 @@ public class HelpDialog implements ActionListener
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
      * This new version is guarantee to have a valid extension manager.
      */
-    HelpDialog(List<ExtensionWrapper> i_extensionsList, JFrame parent)
+    HelpDialog(List<ExtensionWrapper> i_extensionsList, Frame parent)
     {
         extensionsList = i_extensionsList;
     

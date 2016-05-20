@@ -23,6 +23,8 @@ package bluej.stride.generic;
 
 
 import bluej.stride.operations.FrameOperation;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,6 +81,7 @@ public abstract class ExtensionsDictionary
 //
 //        public String getCategoryName() { return category.toString(); }
 
+        @OnThread(Tag.FXPlatform)
         public void activate(Frame frame) { operation.activate(frame); }
 
         public boolean validOnSelection() { return validOnSelection; }

@@ -23,6 +23,7 @@ package bluej.pkgmgr;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -52,7 +53,6 @@ import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.Timer;
 
 import bluej.BlueJEvent;
@@ -76,7 +76,6 @@ import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.editor.Editor;
-import bluej.editor.SwingTabbedEditor;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
@@ -193,10 +192,8 @@ public class Project implements DebuggerListener, InspectorManager
     
     /** Project character set for source files etc */
     private Charset characterSet;
-    
-    private final List<SwingTabbedEditor> swingTabbedEditors = new ArrayList<>();
+
     @OnThread(Tag.FX) private final List<FXTabbedEditor> fXTabbedEditors = new ArrayList<>();
-    private final List<Rectangle> swingCachedEditorSizes = new ArrayList<>();
     @OnThread(Tag.FX) private final List<Rectangle> fxCachedEditorSizes = new ArrayList<>();
     
     /** 1 second timer before starting auto-compile */
@@ -278,7 +275,6 @@ public class Project implements DebuggerListener, InspectorManager
         // Prevent JavaFX exiting when all JavaFX windows are closed (would prevent re-opening editor):
         Platform.setImplicitExit(false);
         Platform.runLater(() -> createNewFXTabbedEditor());
-        createNewSwingTabbedEditor();
 
         // Must do this after the editors have been created:
         getPackage("").refreshPackage();
@@ -832,7 +828,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @return The Viewer value
      */
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-        String name, Package pkg, InvokerRecord ir, JFrame parent) 
+        String name, Package pkg, InvokerRecord ir, Frame parent)
     {
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
 
@@ -945,7 +941,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @return The Viewer value
      */
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-        Package pkg, JFrame parent) 
+        Package pkg, Frame parent)
     {
         ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
 
@@ -984,7 +980,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-        JFrame parent) 
+        Frame parent)
     {
         final ResultInspector inspector = new ResultInspector(obj, this, name, pkg, ir, info);
         inspectors.put(obj, inspector);
@@ -1461,7 +1457,7 @@ public class Project implements DebuggerListener, InspectorManager
         packages.values().forEach(Package::reInitBreakpoints);
         PkgMgrFrame frame = PkgMgrFrame.getMostRecent();
         if (frame != null) {
-            Utility.bringToFront(frame);
+            frame.bringToFront();
         }        
     }
 
@@ -2170,14 +2166,6 @@ public class Project implements DebuggerListener, InspectorManager
         return fXTabbedEditors.get(0);
     }
 
-    /**
-     * Gets the SwingTabbedEditor which should be used for adding new tabs
-     */
-    public SwingTabbedEditor getDefaultSwingTabbedEditor()
-    {
-        return swingTabbedEditors.get(0);
-    }
-
     public boolean isClosing()
     {
         return closing;
@@ -2255,42 +2243,6 @@ public class Project implements DebuggerListener, InspectorManager
         return importScanner;
     }
 
-    public SwingTabbedEditor createNewSwingTabbedEditor()
-    {
-        SwingTabbedEditor newEditor = new SwingTabbedEditor(this, recallPosition(swingTabbedEditors.size()));
-        swingTabbedEditors.add(newEditor);
-        updateSwingTabbedEditorDestinations();
-        return newEditor;
-    }
-
-    public List<SwingTabbedEditor> getAllSwingTabbedEditors()
-    {
-        return Collections.unmodifiableList(swingTabbedEditors);
-    }
-
-    public void removeSwingTabbedEditor(SwingTabbedEditor swingTabbedEditor)
-    {
-        // Update size cache.  Just update the one being removed, by putting
-        // at the position where the next open editor will take from:
-        // Make it long enough to contain such an element:
-        while (swingCachedEditorSizes.size() < swingTabbedEditors.size())
-            swingCachedEditorSizes.add(0, null);
-        swingCachedEditorSizes.set(swingTabbedEditors.size() - 1, new Rectangle(swingTabbedEditor.getX(), swingTabbedEditor.getY(), swingTabbedEditor.getWidth(), swingTabbedEditor.getHeight()));
-
-        // Only remove if we have other windows left, otherwise retain the last window standing:
-        if (swingTabbedEditors.size() > 1)
-        {
-            swingTabbedEditors.remove(swingTabbedEditor);
-        }
-        updateSwingTabbedEditorDestinations();
-    }
-
-
-    public void updateSwingTabbedEditorDestinations()
-    {
-        swingTabbedEditors.forEach(SwingTabbedEditor::updateMoveDestinations);
-    }
-
     /**
      * Warning: this method executes on Swing thread, and expects to be able
      * to wait for the FX thread.
@@ -2332,16 +2284,6 @@ public class Project implements DebuggerListener, InspectorManager
 
     public void saveEditorLocations(Properties props)
     {
-        for (int i = 0; i < swingTabbedEditors.size(); i++)
-        {
-            saveEditorLocation(props, swingTabbedEditors.get(i), "editor.swing." + i);
-        }
-        // Also put out the cached sizes after the end of the editors:
-        for (int i = swingTabbedEditors.size(); i < swingCachedEditorSizes.size(); i++)
-        {
-            saveEditorLocation(props, swingCachedEditorSizes.get(i), "editor.swing." + i);
-        }
-
         Semaphore s = new Semaphore(0);
         ArrayList<FXTabbedEditor> fxEditors = new ArrayList<>();
         ArrayList<Rectangle> fxCachedSizes = new ArrayList<>();
@@ -2366,7 +2308,7 @@ public class Project implements DebuggerListener, InspectorManager
         }
     }
 
-    private void saveEditorLocation(Properties props, TabbedEditorWindow editor, String prefix)
+    private void saveEditorLocation(Properties props, FXTabbedEditor editor, String prefix)
     {
         props.put(prefix + ".x", String.valueOf(editor.getX()));
         props.put(prefix + ".y", String.valueOf(editor.getY()));
@@ -2387,7 +2329,6 @@ public class Project implements DebuggerListener, InspectorManager
 
     public void setAllEditorStatus(String status)
     {
-        swingTabbedEditors.forEach(ste -> ste.setTitleStatus(status));
         Platform.runLater(() -> fXTabbedEditors.forEach(fte -> fte.setTitleStatus(status)));
     }
 
@@ -2412,11 +2353,6 @@ public class Project implements DebuggerListener, InspectorManager
         else {
             return null;
         }
-    }
-    
-    private Rectangle recallPosition(int index)
-    {
-        return recallPosition("editor.swing", swingCachedEditorSizes, index);
     }
     
     @OnThread(Tag.FX)

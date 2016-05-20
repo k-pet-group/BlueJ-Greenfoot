@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.stride.generic;
 
 import java.util.IdentityHashMap;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -32,6 +33,8 @@ import bluej.editor.stride.CodeOverlayPane;
 import bluej.stride.generic.InteractionManager.ShortcutKey;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class SuggestedFollowUpDisplay
 {
@@ -61,7 +64,8 @@ public class SuggestedFollowUpDisplay
         
         CodeOverlayPane.setDropShadow(content);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void showBefore(final Node n)
     {
         // Remove any previous display for this editor:
@@ -76,13 +80,14 @@ public class SuggestedFollowUpDisplay
         content.toBack();
         displays.put(editor, this);
     }
-    
+
     public void hide()
     {
-        editor.getCodeOverlayPane().removeOverlay(content);
+        JavaFXUtil.runNowOrLater(() -> editor.getCodeOverlayPane().removeOverlay(content));
         displays.remove(editor);
     }
 
+    @OnThread(Tag.FXPlatform)
     public static void shortcutTyped(InteractionManager editor, ShortcutKey key)
     {
         SuggestedFollowUpDisplay display = displays.get(editor);

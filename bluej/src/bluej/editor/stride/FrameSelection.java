@@ -33,10 +33,13 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot.MenuItems;
 import bluej.stride.slots.EditableSlot.SortedMenuItem;
 import bluej.stride.slots.EditableSlot.TopLevelMenu;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.MultiListener;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,14 +71,17 @@ import javafx.scene.shape.FillRule;
  * a contiguous group of frames in a single canvas, and is represented graphically
  * by a rectangle around the frames.
  */
+@OnThread(Tag.FXPlatform)
 public class FrameSelection
 {
+    @OnThread(Tag.FXPlatform)
     private final ObservableList<Frame> selection = FXCollections.observableList(new ArrayList<>());
     private final Canvas selectionHighlight = new Canvas();
     private final InteractionManager editor;
     private boolean deletePreview;
     private boolean pullUpPreview;
 
+    @OnThread(Tag.FX)
     public FrameSelection(InteractionManager editor)
     {
         this.editor = editor;
@@ -87,14 +93,14 @@ public class FrameSelection
         // and the position of each frame within the list, by using a MultiListener:
 
         Function<Frame, MultiListener.RemoveAndUpdate> removeAndUpdate = f -> {
-            FXRunnable removeA = JavaFXUtil.addChangeListener(f.getNode().localToSceneTransformProperty(), x -> redraw());
-            FXRunnable removeB = JavaFXUtil.addChangeListener(f.getNode().boundsInLocalProperty(), x -> redraw());
+            FXRunnable removeA = JavaFXUtil.addChangeListener(f.getNode().localToSceneTransformProperty(), x -> JavaFXUtil.runNowOrLater(() -> redraw()));
+            FXRunnable removeB = JavaFXUtil.addChangeListener(f.getNode().boundsInLocalProperty(), x -> JavaFXUtil.runNowOrLater(() -> redraw()));
             return JavaFXUtil.sequence(removeA, removeB)::run;
         };
 
         MultiListener<Frame> positionListener = new MultiListener<Frame>(removeAndUpdate);
 
-        selection.addListener((ListChangeListener<Frame>) arg -> {
+        addChangeListener(() -> {
             redraw();
             positionListener.listenOnlyTo(selection.stream());
         });
@@ -103,6 +109,7 @@ public class FrameSelection
     /**
      * Recalculates position of selection rectangle (or removes it if selection has become empty)
      */
+    @OnThread(Tag.FXPlatform)
     private void redraw()
     {
         editor.getCodeOverlayPane().removeOverlay(selectionHighlight);
@@ -178,15 +185,19 @@ public class FrameSelection
 
     }
 
+    @OnThread(Tag.FXPlatform)
     public void clear()
     {
         selection.clear();
     }
+
+    @OnThread(Tag.FXPlatform)
     public boolean contains(Frame f)
     {
         return selection.contains(f);
     }
 
+    @OnThread(Tag.FXPlatform)
     public List<Frame> getSelected()
     {
         return Collections.unmodifiableList(selection);
@@ -196,6 +207,7 @@ public class FrameSelection
      * The user has moved the frame cursor down while holding shift
      * Either add or remove from selection
      */
+    @OnThread(Tag.FXPlatform)
     public void toggleSelectDown(Frame f)
     {
         if (f == null)
@@ -219,6 +231,7 @@ public class FrameSelection
      * The user has moved the frame cursor up while holding shift
      * Either add or remove from selection
      */
+    @OnThread(Tag.FXPlatform)
     public void toggleSelectUp(Frame f)
     {
         if (f == null)
@@ -240,6 +253,7 @@ public class FrameSelection
     /**
      * Gets the context menu items which are valid across the whole selection
      */
+    @OnThread(Tag.FXPlatform)
     public MenuItems getMenuItems(boolean contextMenu)
     {
         if (selection.size() == 0) {
@@ -310,6 +324,7 @@ public class FrameSelection
         return new MenuItems(FXCollections.observableArrayList(r)) {
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void onShowing()
             {
                 opsAtRightLevel.forEach(op -> {
@@ -321,6 +336,7 @@ public class FrameSelection
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void onHidden()
             {
                 opsAtRightLevel.forEach(op -> {
@@ -342,7 +358,8 @@ public class FrameSelection
         }
         return MenuItems.makeContextMenu(Collections.singletonMap(TopLevelMenu.EDIT, ops));
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void setDeletePreview(boolean deletePreview)
     {
         //JavaFXUtil.selectStyleClass(deletePreview ? 1 : 0, selectionHighlight, "selection-highlight-normal", "selection-highlight-delete");
@@ -351,6 +368,7 @@ public class FrameSelection
         redraw();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void setPullUpPreview(boolean pullUpPreview)
     {
         this.deletePreview = false;
@@ -358,22 +376,26 @@ public class FrameSelection
         redraw();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void set(List<Frame> frames)
     {
         selection.clear();
         selection.setAll(frames);
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isEmpty()
     {
         return selection.isEmpty();
     }
 
-    public void addChangeListener(ListChangeListener<Frame> listener)
+    @OnThread(Tag.FX)
+    public void addChangeListener(FXPlatformRunnable listener)
     {
-        selection.addListener(listener);
+        JavaFXUtil.runNowOrLater(() -> selection.addListener((ListChangeListener<Frame>)c -> listener.run()));
     }
 
+    @OnThread(Tag.FXPlatform)
     public FrameCursor getCursorAfter()
     {
         if (selection.size() == 0)
@@ -382,6 +404,7 @@ public class FrameSelection
             return (selection.get(selection.size() - 1).getCursorAfter());
     }
 
+    @OnThread(Tag.FXPlatform)
     public FrameCursor getCursorBefore()
     {
         if (selection.size() == 0)
@@ -390,6 +413,7 @@ public class FrameSelection
             return (selection.get(0).getCursorBefore());
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean executeKey(FrameCursor cursor, final char key)
     {
         // If there is only on selected frame and it accept the key typed as an extension

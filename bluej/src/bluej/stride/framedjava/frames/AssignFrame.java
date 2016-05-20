@@ -44,6 +44,8 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A set statement for assignment, e.g. "set x = 1"

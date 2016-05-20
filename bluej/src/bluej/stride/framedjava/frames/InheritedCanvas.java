@@ -75,7 +75,7 @@ class InheritedCanvas
             {
                 return new FrameTypeCheck() {
                     @Override
-                    public boolean canInsert(GreenfootFrameCategory category)
+                    public boolean canInsert(StrideCategory category)
                     {
                         // Can never insert manually into inherited canvas:
                         return false;

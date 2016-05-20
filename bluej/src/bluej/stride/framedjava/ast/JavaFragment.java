@@ -170,7 +170,7 @@ public abstract class JavaFragment
      */
     public abstract Stream<SyntaxCodeError> findEarlyErrors();
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public abstract void addError(CodeError codeError);
 
     public class PosInSourceDoc

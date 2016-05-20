@@ -51,6 +51,8 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Container-block representing a while loop.
@@ -72,6 +74,7 @@ public class WhileFrame extends SingleCanvasFrame
         //Parameters
         paramCondition = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "while-") {
             @Override
+            @OnThread(Tag.FXPlatform)
             public boolean backspaceAtStart()
             {
                 if (isAlmostBlank()) {

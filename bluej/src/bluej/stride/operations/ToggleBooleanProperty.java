@@ -24,6 +24,9 @@ package bluej.stride.operations;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.EditableSlot;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.input.KeyCode;
@@ -73,12 +76,14 @@ public class ToggleBooleanProperty extends FrameOperation
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void onMenuShowing(CustomMenuItem item)
     {
         super.onMenuShowing(item);
         updateName();
     }
 
+    @OnThread(Tag.FXPlatform)
     private void updateName()
     {
         label.set(targetedAllTrue(editor.getSelection().getSelected()) ? "Remove " + name : "Make " + name);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,14 +21,18 @@
  */
 package bluej.stride.generic;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import bluej.parser.AssistContent.Access;
+import bluej.stride.framedjava.elements.CodeElement;
 import javafx.scene.control.Label;
 import javafx.scene.text.Font;
+import nu.xom.Attribute;
+import nu.xom.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.parser.AssistContent;
@@ -254,6 +258,115 @@ public final class AssistContentThreadSafe
                 ", superTypes=" + superTypes +
                 ", packageName='" + packageName + '\'' +
                 '}';
+    }
+
+    /**
+     * Serialise the content of this item to XML.  Only valid and tested
+     * for imported types at the moment.
+     */
+    public Element toXML()
+    {
+        Element el = new Element("acts");
+        if (name != null) el.addAttribute(new Attribute("name", name));
+        if (type != null) el.addAttribute(new Attribute("type", type));
+        if (access != null) el.addAttribute(new Attribute("access", access.toString()));
+        if (declaringClass != null) el.addAttribute(new Attribute("declaringClass", declaringClass));
+        if (kind != null) el.addAttribute(new Attribute("kind", kind.toString()));
+        if (typeKind != null) el.addAttribute(new Attribute("typeKind", typeKind.toString()));
+        if (packageName != null) el.addAttribute(new Attribute("packageName", packageName));
+        if (params != null)
+        {
+            throw new IllegalStateException();
+            // We don't actually need to serialised params yet, just types:
+            /*
+            Element paramsEl = new Element("params");
+            for (ParamInfo paramInfo : params)
+                paramsEl.appendChild(paramInfo.toXML());
+            el.appendChild(paramsEl);
+            */
+        }
+        if (superTypes != null)
+        {
+            Element superTypesEl = new Element("superTypes");
+            for (String superType : superTypes)
+            {
+                Element superEl = new Element("superType");
+                superEl.addAttribute(new Attribute("superType", superType));
+                superTypesEl.appendChild(superEl);
+            }
+            el.appendChild(superTypesEl);
+        }
+        if (javadoc != null)
+        {
+            Element javadocEl = new Element("javadoc");
+            CodeElement.preserveWhitespace(javadocEl);
+            javadocEl.appendChild(javadoc);
+            el.appendChild(javadocEl);
+        }
+
+        return el;
+    }
+
+    /**
+     * Opposite of toXML; load this item from XML.
+     */
+    public AssistContentThreadSafe(Element el)
+    {
+        if (!el.getLocalName().equals("acts")) throw new IllegalArgumentException();
+        name = el.getAttributeValue("name");
+        type = el.getAttributeValue("type");
+        access = loadEnum(Access.values(), el.getAttributeValue("access"));
+        declaringClass = el.getAttributeValue("declaringClass");
+        kind = loadEnum(CompletionKind.values(), el.getAttributeValue("kind"));
+        typeKind = loadEnum(Kind.values(), el.getAttributeValue("typeKind"));
+        packageName = el.getAttributeValue("packageName");
+        ArrayList<ParamInfo> paramsList = null;
+        ArrayList<String> superTypesList = null;
+        String javadocStr = null;
+        for (int i = 0; i < el.getChildElements().size(); i++)
+        {
+            Element subEl = el.getChildElements().get(i);
+            switch (subEl.getLocalName())
+            {
+                // We don't actually need to serialised params yet, just types:
+                /*
+                case "params":
+                    paramsList = new ArrayList<>();
+                    for (int j = 0; j < subEl.getChildElements().size(); j++)
+                    {
+                        Element paramEl = subEl.getChildElements().get(j);
+                        paramsList.add(new ParamInfo(paramEl));
+                    }
+                    break;
+                */
+                case "superTypes":
+                    superTypesList = new ArrayList<>();
+                    for (int j = 0; j < subEl.getChildElements().size(); j++)
+                    {
+                        Element superTypeEl = subEl.getChildElements().get(j);
+                        superTypesList.add(superTypeEl.getAttributeValue("superType"));
+                    }
+                    break;
+                case "javadoc":
+                    javadocStr = subEl.getChild(0).getValue();
+                    break;
+            }
+        }
+        params = paramsList;
+        superTypes = superTypesList;
+        javadoc = javadocStr;
+    }
+
+    /**
+     * Helper method for loading enums from a String
+     */
+    private static <E extends Enum<E>> E loadEnum(E[] values, String src)
+    {
+        for (E e : values)
+            if (e.toString().equals(src))
+                return e;
+
+        return null;
     }
 }
 

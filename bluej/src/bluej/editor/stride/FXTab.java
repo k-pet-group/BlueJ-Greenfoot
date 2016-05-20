@@ -42,9 +42,15 @@ import threadchecker.Tag;
 @OnThread(Tag.FX)
 abstract class FXTab extends Tab
 {
+    private final boolean showCatalogue;
+
+    public FXTab(boolean showCatalogue)
+    {
+        this.showCatalogue = showCatalogue;
+    }
+
     /**
-     * Initialises any FX items which need to be done on the FX thread
-     * @param scene The scene in which this tab will be placed.
+     * Initialises any FX items which need to be done on the FX thread.
      */
     abstract void initialiseFX();
 
@@ -89,4 +95,13 @@ abstract class FXTab extends Tab
      * Called when the tab has been selected, and the window has been focused.
      */
     public abstract void notifySelected();
+
+    /**
+     * Specifies whether the tab should show the frame catalogue.
+     * Will not change over a tab's lifetime.
+     */
+    public final boolean shouldShowCatalogue()
+    {
+        return showCatalogue;
+    }
 }

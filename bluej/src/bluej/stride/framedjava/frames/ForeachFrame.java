@@ -55,6 +55,8 @@ import bluej.stride.slots.VariableNameDefTextSlot;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.utility.Utility;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class ForeachFrame extends SingleCanvasFrame
   implements CodeFrame<ForeachElement>, DebuggableParentFrame
@@ -74,6 +76,7 @@ public class ForeachFrame extends SingleCanvasFrame
         type.addValueListener(SlotTraversalChars.IDENTIFIER);
         type.addValueListener(new SlotTraversalChars() {
             @Override
+            @OnThread(Tag.FXPlatform)
             public void backSpacePressedAtStart(HeaderItem slot) {
                 if (type.isAlmostBlank()) {
                     new PullUpContentsOperation(editor).activate(getFrame());
@@ -212,6 +215,7 @@ public class ForeachFrame extends SingleCanvasFrame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
         super.setView(oldView, newView, animateProgress);

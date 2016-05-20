@@ -45,9 +45,18 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ErrorType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.IntersectionType;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.NullType;
+import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
+import javax.lang.model.type.TypeVisitor;
+import javax.lang.model.type.UnionType;
+import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
@@ -64,6 +73,7 @@ import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.NewClassTree;
+import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.JavacTask;
@@ -71,6 +81,7 @@ import com.sun.source.util.SimpleTreeVisitor;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.Trees;
+import com.sun.tools.javac.tree.JCTree;
 
 /**
  * A visitor class that visits the whole AST and does checks against the
@@ -144,8 +155,8 @@ class TCScanner extends TreePathScanner<Void, Void>
                 "javafx.scene.image",
                 "javafx.scene.layout"
                 ).forEach(pkg -> packageAnns.put(pkg, new LocatedTag(Tag.FX, false, true, "<JavaFX: " + pkg + ">")));
-        
-        classAnns.put("javafx.event.EventHandler", new LocatedTag(Tag.FX, false, true, "<JavaFX EventHandler>"));
+
+        classAnns.put("javafx.event.EventHandler", new LocatedTag(Tag.FXPlatform, false, true, "<JavaFX EventHandler>"));
         
         Arrays.asList(
                 "java.awt.event",
@@ -412,7 +423,7 @@ class TCScanner extends TreePathScanner<Void, Void>
                     }
                 }
             }
-            if (superClassTag != null && superClassTag.applyToAllSubclassMethods()
+            if (superClassTag != null && (superClassTag.applyToAllSubclassMethods() /*&& types.asElement(st).getKind() != ElementKind.INTERFACE*/)
                     && (subTag == null || subTagWasPackage)
                     // Special case for Thread subclass constructors:
                     && !(st.toString().equals("java.lang.Thread") && methodName.equals(elements.getName("<init>")))
@@ -504,7 +515,7 @@ class TCScanner extends TreePathScanner<Void, Void>
                                 // Don't complain about Runnable.run if it's being given directly to a runLater-style method.
                             //}
                             else
-                                trees.printMessage(Kind.ERROR, "\nOverridden method " + methodName + " can be called via parent " + st.toString() + ", tagged " + superTag + "\n  without thread tag: " + subTag, errorLocation, cu);
+                                issueError("\nOverridden method " + methodName + " can be called via parent " + st.toString() + ", tagged " + superTag + "\n  without thread tag: " + subTag, errorLocation);
                         }
                     }
                 }
@@ -517,7 +528,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         if ((subTag == null || !subTag.ignoreParent()) && !"<init>".equals(methodName == null ? null : methodName.toString()) && appliedTags.values().stream().distinct().collect(Collectors.toList()).size() > 1
                 && (subTag == null || !appliedTags.values().stream().allMatch(t -> subTagFinal.tag.canOverride(t.tag))))
         {
-            trees.printMessage(Kind.ERROR, "\nMethod " + methodName + " overrides parent methods with conflicting thread tags:\n" + appliedTags.entrySet().stream().map(t -> "  " + t.getKey() + ": " + t.getValue()).collect(Collectors.joining("\n")), errorLocation, cu);
+            issueError("\nMethod " + methodName + " overrides parent methods with conflicting thread tags:\n" + appliedTags.entrySet().stream().map(t -> "  " + t.getKey() + ": " + t.getValue()).collect(Collectors.joining("\n")), errorLocation);
         }
         
         // As long as there was no error, appliedTags has zero or one entries:
@@ -727,6 +738,7 @@ class TCScanner extends TreePathScanner<Void, Void>
                 LocatedTag packagePriorTag = packageAnns.get(pkg.getQualifiedName().toString());
                 
                 LocatedTag superInherit = checkSingle(invokeTargetSuperTypes.stream()
+                        //.filter(ty -> types.asElement(ty).getKind() != ElementKind.INTERFACE)
                         .map(ty -> {
                             LocatedTag t = getRemoteTag(types.asElement(ty), () -> ty.toString(), errorLocation);
                             if (t == null)
@@ -766,7 +778,8 @@ class TCScanner extends TreePathScanner<Void, Void>
         if (invokedOnTag != null)
         {
             // The method has a tag, so we need to check if we match it
-            
+            if (inDebugClass())
+                System.err.println("Finding tag for: " + lhs + "." + methodSelect + "(...)");
             Optional<LocatedTag> ann = getCurrentTag(superTypes, errorLocation);
             
             boolean sameInstance = lhs == null;
@@ -774,12 +787,14 @@ class TCScanner extends TreePathScanner<Void, Void>
             if ((ann.isPresent() == false && invokedOnTag.tag != Tag.Any) || (ann.isPresent() && !ann.get().tag.canCall(invokedOnTag.tag, sameInstance)))
             {
                 if (!inSynthetic())
-                    trees.printMessage(Kind.ERROR, "\n    Method " + invokeTargetType.toString() + "." + name + " being called requires " + invokedOnTag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified") + " lambda: " + lambdaScopeStack.size() + " " + lambdaScopeStack.stream().map(x -> "" + x).collect(Collectors.joining(", ")), errorLocation, cu);
+                {
+                    issueError("\n    Method " + invokeTargetType.toString() + "." + name + " being called requires " + invokedOnTag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified") + " lambda: " + lambdaScopeStack.size() + " " + lambdaScopeStack.stream().map(x -> "" + x).collect(Collectors.joining(", ")), errorLocation);
+                }
             }
             
-            if (ann.isPresent() && ann.get().tag == Tag.FX && Arrays.asList("SwingUtilities.invokeAndWait", "EventQueue.invokeAndWait").contains(methodSelect))
+            if (ann.isPresent() && (ann.get().tag == Tag.FX || ann.get().tag == Tag.FX) && Arrays.asList("SwingUtilities.invokeAndWait", "EventQueue.invokeAndWait").contains(methodSelect))
             {
-                trees.printMessage(Kind.ERROR, "\n    Swing invokeAndWait method is being called, but from tag " + ann.get() + " (you need FX_UsesSwing)", errorLocation, cu);
+                issueError("\n    Swing invokeAndWait method is being called, but from tag " + ann.get() + " (you cannot make FX wait for Swing)", errorLocation);
             }
         }
         /*
@@ -793,14 +808,20 @@ class TCScanner extends TreePathScanner<Void, Void>
         else
             */
         {
-            final List<TypeMirror> candidateArgsFinal = candidateArgs == null ? null : candidateArgs.stream().map(types::capture).collect(Collectors.toList());
+            final List<TypeMirror> candidateArgsFinal = invokeArgTypes;
             return new WrapDescent(
                 () -> { callingMethodStack.addLast(candidateArgsFinal); },
                 () -> { callingMethodStack.removeLast(); }
             );
         }
     }
-    
+
+    private void issueError(String errorMsg, Tree errorLocation)
+    {
+        String link = cu.getSourceFile().getName() + ":" + cu.getLineMap().getLineNumber(((JCTree)errorLocation).getStartPosition()) + ": error: [line added as IntelliJ location link]";
+        trees.printMessage(Kind.ERROR, "\n" + link + errorMsg, errorLocation, cu);
+    }
+
     private boolean inSynthetic()
     {
         return methodScopeStack.stream().anyMatch(p -> p.item.getName().toString().contains("$"));
@@ -865,11 +886,17 @@ class TCScanner extends TreePathScanner<Void, Void>
                 //cu.getPackageAnnotations().stream().map(t -> getSourceTag(t, cu.getPackageName().toString() + " package")).filter(t -> t != null).findFirst().orElse(null);
         
         LocatedTag lambdaAnn = null;
+        if (inDebugClass())
+            System.err.println("  >>Lambda stack size: " + lambdaScopeStack.size());
         for (int i = lambdaScopeStack.size() - 1; i >= 0; i--)
         {
             lambdaAnn = lambdaScopeStack.get(i);
             if (lambdaAnn != null)
+            {
+                if (inDebugClass())
+                    System.err.println("  >>Found lambda ann " + lambdaAnn);
                 break;
+            }
         }
         
         Optional<LocatedTag> ann = Optional.empty();
@@ -919,9 +946,9 @@ class TCScanner extends TreePathScanner<Void, Void>
     {
         Tag calledFrom = calledFrom_.map(lt -> lt.tag).orElse(Tag.Any); 
         if (Arrays.asList("Platform.runLater").contains(call))
-            return new LocatedTag(calledFrom == Tag.Swing_WaitsForFX ? Tag.FX : Tag.FX_WaitsForSwing, true, true, "<runLater>");
+            return new LocatedTag(Tag.FXPlatform, true, true, "<runLater>");
         else if (Arrays.asList("SwingUtilities.invokeAndWait", "SwingUtilities.invokeLater", "EventQueue.invokeLater", "EventQueue.invokeAndWait").contains(call))
-            return new LocatedTag(calledFrom == Tag.FX_WaitsForSwing ? Tag.Swing : Tag.Swing_WaitsForFX, true, true, "<invokeLater>");
+            return new LocatedTag(Tag.Swing, true, true, "<invokeLater>");
         else if (Arrays.asList("background.execute").contains(call))
             return new LocatedTag(Tag.Worker, true, true, "<Executor.execute>");
         //else if (typeName.startsWith("java.") && call.endsWith("forEach")) // Bit hacky
@@ -1079,7 +1106,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         List<LocatedTag> tags = tagStream.filter(t -> t != null).distinct().collect(Collectors.toList());
         if (tags.size() > 1)
         {
-            trees.printMessage(Kind.ERROR, "\n    Multiple conflicting thread tags: " + tags.stream().map(Object::toString).collect(Collectors.joining(", ")), tree, cu);
+            issueError("\n    Multiple conflicting thread tags: " + tags.stream().map(Object::toString).collect(Collectors.joining(", ")), tree);
         }
         return tags.isEmpty() ? null : tags.get(0);
     }
@@ -1089,9 +1116,9 @@ class TCScanner extends TreePathScanner<Void, Void>
     {
         Tree parent = getCurrentPath().getParentPath().getLeaf();
         TypeMirror lambdaClassType = calculatedExpectedLambdaType(parent, node);
-        if (false && typeScopeStack.stream().anyMatch(pa -> pa.item.getSimpleName().toString().contains("MethodWithBodyElement")))
+        if (inDebugClass())
         {
-            System.err.println("Lambda type: " + getCurrentPath().toString() + " (i.e. " + node.toString() + ") is " + lambdaClassType + " parent was: " + parent.getClass() + " " + parent + " last stack 0: " + (callingMethodStack.isEmpty() ? "empty" : (callingMethodStack.getLast() == null ? "missing" : callingMethodStack.getLast().get(0))));
+            System.err.println("Lambda type " + getCurrentPath().toString() + " (i.e. " + node.toString() + ") is " + lambdaClassType + " parent was " + parent.getClass() + " " + parent + " last stack 0: " + (callingMethodStack.isEmpty() ? "empty" : (callingMethodStack.getLast() == null ? "missing" : callingMethodStack.getLast().get(0))));
         }
         if (lambdaClassType == null)
         {
@@ -1100,6 +1127,8 @@ class TCScanner extends TreePathScanner<Void, Void>
         Optional<LocatedTag> lambdaAnn = lambdaClassToAnn(parent, lambdaClassType, node, true);
         if (lambdaAnn == null)
         {
+            if (inDebugClass())
+                System.err.println("   Lambda annotation error");
             return super.visitLambdaExpression(node, p);
         }
         lambdaScopeStack.add(lambdaAnn.orElse(null));
@@ -1107,7 +1136,12 @@ class TCScanner extends TreePathScanner<Void, Void>
         lambdaScopeStack.removeLast();
         return r;
     }
-    
+
+    private boolean inDebugClass()
+    {
+        return false; //typeScopeStack.stream().anyMatch(pa -> pa.item.getSimpleName().toString().contains("ErrorUnderlineCanvas"));
+    }
+
     // Null if error,
     // non-null empty if just not found
     private Optional<LocatedTag> lambdaClassToAnn(Tree parent, TypeMirror lambdaClassType, Tree errorLocation, boolean issueError)
@@ -1128,26 +1162,151 @@ class TCScanner extends TreePathScanner<Void, Void>
             return null;
         }
         LocatedTag lambdaAnn = null;
+        // First check if the method the lambda is being passed to is special,
+        // e.g. SwingUtilities.invokeLater, as that overrides any annotations on
+        // the lambda's type.
         if (parent instanceof MethodInvocationTree)
         {
             String call = ((MethodInvocationTree)parent).getMethodSelect().toString();
             lambdaAnn = fromSpecial(lambdaClassType.toString(), call, getCurrentTag(Collections.emptyList(), errorLocation));
         }
-        if (lambdaAnn == null)
-        {
-            lambdaAnn = getRemoteTag(lambdaClassMembers.get(0), () -> "", errorLocation);
-            if (lambdaAnn == null)
-            {
-                // Try its class for an annotation:
-                lambdaAnn = getRemoteTag(lambdaClassMembers.get(0).getEnclosingElement(), () -> "", errorLocation);
-            }
-        }
+        if (lambdaAnn != null)
+            return Optional.of(lambdaAnn);
+        
+        if (inDebugClass())
+            System.err.println("  >>Getting remote tag for " + lambdaClassMembers.get(0));
+        
+        // Check for tags put on the method in the lambda's class:
+        lambdaAnn = getRemoteTag(lambdaClassMembers.get(0), () -> "", errorLocation);
+        if (inDebugClass())
+            System.err.println("  >> Tag on method: " + lambdaAnn);
+        if (lambdaAnn != null)
+            return Optional.of(lambdaAnn);
+        // Next try its class for an annotation, first directly:
+        lambdaAnn = getRemoteTag(lambdaClassElement, () -> "", errorLocation);
+        if (inDebugClass())
+            System.err.println("  >> Tag directly on class: " + lambdaAnn);
+        if (lambdaAnn != null)
+            return Optional.of(lambdaAnn);
+        // And then check in our special list:
+        String qualClassName = elements.getPackageOf(lambdaClassElement).getQualifiedName().toString() + "." + lambdaClassElement.getSimpleName();
+        lambdaAnn = classAnns.get(qualClassName);
+        if (inDebugClass())
+            System.err.println("  >> Tag in classAnns: " + lambdaAnn + " based on " + qualClassName);
+        if (lambdaAnn != null)
+            return Optional.of(lambdaAnn);
+        // Otherwise try the package, first directly:
+        lambdaAnn = getRemoteTag(elements.getPackageOf(lambdaClassElement), () -> "", errorLocation);
+        if (inDebugClass())
+            System.err.println("  >> Tag directly on package: " + lambdaAnn);
+        if (lambdaAnn != null)
+            return Optional.of(lambdaAnn);
+        // And finally our special list:
+        lambdaAnn = packageAnns.get(elements.getPackageOf(lambdaClassElement).getQualifiedName().toString());
+        if (inDebugClass())
+            System.err.println("  >> Tag in packageAnns: " + lambdaAnn);
+
         return Optional.ofNullable(lambdaAnn);
     }
 
     private TypeMirror calculatedExpectedLambdaType(Tree parent, Tree lambdaArg)
     {
         return parent.accept(new SimpleTreeVisitor<TypeMirror, Void>() {
+
+            @Override
+            public TypeMirror visitReturn(ReturnTree node, Void p)
+            {
+                if (!lambdaScopeStack.isEmpty())
+                    return null; // Lambda returning a lambda; too complex for us to work out
+                // Return value; look at the return type of the inner most item:
+                return trees.getTypeMirror(methodScopeStack.getLast().path).accept(new TypeVisitor<TypeMirror, Void>()
+                {
+                    @Override
+                    public TypeMirror visitExecutable(ExecutableType t, Void p2)
+                    {
+                        return t.getReturnType();
+                    }
+
+                    @Override
+                    public TypeMirror visit(TypeMirror t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visit(TypeMirror t)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitArray(ArrayType t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitDeclared(DeclaredType t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitError(ErrorType t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitIntersection(IntersectionType t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitNoType(NoType t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitNull(NullType t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitPrimitive(PrimitiveType t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitTypeVariable(TypeVariable t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitUnion(UnionType t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitUnknown(TypeMirror t, Void aVoid)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public TypeMirror visitWildcard(WildcardType t, Void aVoid)
+                    {
+                        return null;
+                    }
+                }, p);
+            }
+
             @Override
             public TypeMirror visitVariable(VariableTree node, Void p)
             {
@@ -1159,7 +1318,7 @@ class TCScanner extends TreePathScanner<Void, Void>
             public TypeMirror visitMethodInvocation(MethodInvocationTree node,
                     Void p)
             {
-                
+
                 if (!callingMethodStack.isEmpty() && callingMethodStack.getLast() != null)
                 {
                     for (int i = 0; i < node.getArguments().size(); i++)
@@ -1190,16 +1349,6 @@ class TCScanner extends TreePathScanner<Void, Void>
             }
             
         }, null);
-    }
-
-    @Override
-    public Void visitMemberReference(MemberReferenceTree node, Void arg1)
-    {
-        WrapDescent wrap = checkInvocation(node.getName(), node.getQualifierExpression(), trees.getTypeMirror(trees.getPath(cu, node.getQualifierExpression())), null, null, arg1, node);
-        if (wrap.before != null) wrap.before.run();
-        Void r = super.visitMemberReference(node, arg1);
-        if (wrap.after != null) wrap.after.run();
-        return r;
     }
 
     @Override
@@ -1305,12 +1454,12 @@ class TCScanner extends TreePathScanner<Void, Void>
             
             if (ann.isPresent() && !ann.get().tag.canCall(tag.tag, true))
             {
-                trees.printMessage(Kind.ERROR, "\n    Field " + node.getName() + " being used requires " + tag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified"), node, cu);
+                issueError("\n    Field " + node.getName() + " being used requires " + tag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified"), node);
             }
             
             if (tag.requireSynchronized() && methodScopeStack.size() > 0 && methodScopeStack.getLast().item != null && !methodScopeStack.getLast().item.getModifiers().getFlags().contains(Modifier.SYNCHRONIZED))
             {
-                trees.printMessage(Kind.ERROR, "\n    Field " + node.getName() + " being used requires synchronized but method is not synchronized", node, cu);
+                issueError("\n    Field " + node.getName() + " being used requires synchronized but method is not synchronized", node);
             }
         }
         

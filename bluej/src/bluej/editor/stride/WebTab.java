@@ -57,6 +57,7 @@ public class WebTab extends FXTab
      */
     public WebTab(String url)
     {
+        super(false);
         browser = new WebView();
         browser.getEngine().load(url);
         setGraphic(getWebIcon());

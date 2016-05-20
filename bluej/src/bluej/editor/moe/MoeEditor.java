@@ -61,10 +61,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -85,7 +85,14 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import bluej.compiler.CompileReason;
+import bluej.editor.stride.FXTabbedEditor;
+import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
+import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -95,7 +102,6 @@ import bluej.Config;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
-import bluej.editor.SwingTabbedEditor;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions.editor.Editor;
@@ -189,8 +195,10 @@ public final class MoeEditor extends JPanel
     private final String interfaceString = Config.getString("editor.interfaceLabel");
     // The code to ask for the default editor to be added to, for the case
     // where we have been hidden but want to reshow ourselves again:
-    private final Supplier<SwingTabbedEditor> defaultSwingTabbedEditor;
-    private SwingTabbedEditor swingTabbedEditor;
+    private final FXSupplier<FXTabbedEditor> defaultFXTabbedEditor;
+    @OnThread(Tag.Any) // Should really be Tag.FX
+    private FXTabbedEditor fxTabbedEditor;
+    private @OnThread(Tag.FX) MoeFXTab fxTab;
     //private StringProperty titleProperty;
     //private final AtomicBoolean panelOpen = new AtomicBoolean();
     public MoeUndoManager undoManager;
@@ -211,6 +219,7 @@ public final class MoeEditor extends JPanel
     private JPanel statusArea;              // the status area
     private StatusLabel saveState;          // the status label
     private JComboBox<String> interfaceToggle;
+    @OnThread(Tag.FXPlatform)
     private GoToLineDialog goToLineDialog;
     
     // find functionality
@@ -268,15 +277,21 @@ public final class MoeEditor extends JPanel
      * A callback to call (on the Swing thread) when this editor is opened.
      */
     private final Runnable callbackOnOpen;
+    @OnThread(Tag.FX)
+    private final List<Menu> fxMenus = new ArrayList<>();
 
     /**
      * Constructor. Title may be null.
      */
-    public MoeEditor(MoeEditorParameters parameters, Supplier<SwingTabbedEditor> getDefaultEditor)
+    public MoeEditor(MoeEditorParameters parameters, FXSupplier<FXTabbedEditor> getDefaultEditor)
     {
         super(new BorderLayout(6,6));
-        this.defaultSwingTabbedEditor = getDefaultEditor;
-        this.swingTabbedEditor = getDefaultEditor.get();
+        this.defaultFXTabbedEditor = getDefaultEditor;
+        final String fxWindowTitle = parameters.getTitle();
+        Platform.runLater(() -> {
+            this.fxTabbedEditor = getDefaultEditor.get();
+            this.fxTab = new MoeFXTab(this, fxWindowTitle);
+        });
         watcher = parameters.getWatcher();
         resources = parameters.getResources();
         javadocResolver = parameters.getJavadocResolver();
@@ -710,20 +725,26 @@ public final class MoeEditor extends JPanel
     @Override
     public void setVisible(boolean vis)
     {
-        if (swingTabbedEditor == null)
-            swingTabbedEditor = defaultSwingTabbedEditor.get();
-
         if (vis) {
             sourcePane.setFont(PrefMgr.getStandardEditorFont());
             checkBracketStatus();
         }
-        swingTabbedEditor.setEditorVisible(vis, this);
-        if (vis)
-        {
-            swingTabbedEditor.bringToFront();
-            if (callbackOnOpen != null)
-                callbackOnOpen.run();
-        }
+        Platform.runLater(() -> {
+            if (fxTabbedEditor == null)
+                fxTabbedEditor = defaultFXTabbedEditor.get();
+
+            if (vis)
+                fxTabbedEditor.addTab(fxTab, vis, true);
+            fxTabbedEditor.setWindowVisible(vis, fxTab);
+            if (vis)
+            {
+                fxTabbedEditor.bringToFront(fxTab);
+                SwingUtilities.invokeLater(() -> {
+                    if (callbackOnOpen != null)
+                        callbackOnOpen.run();
+                });
+            }
+        });
     }
 
     /**
@@ -2183,16 +2204,15 @@ public final class MoeEditor extends JPanel
      */
     public void goToLine()
     {
-        if (goToLineDialog == null) {
-            goToLineDialog = new GoToLineDialog(null);
-        }
-
-        DialogManager.centreDialog(goToLineDialog);
-        goToLineDialog.showDialog(numberOfLines());
-        int newPosition = goToLineDialog.getLineNumber();
-        if (newPosition > 0) {
-            setSelection(newPosition, 1, 0);
-        }
+        final int numberOfLines = numberOfLines();
+        Platform.runLater(() -> {
+            if (goToLineDialog == null) {
+                goToLineDialog = new GoToLineDialog(fxTabbedEditor.getWindow());
+            }
+            goToLineDialog.setRangeMax(numberOfLines);
+            Optional<Integer> o = goToLineDialog.showAndWait();
+            SwingUtilities.invokeLater(() -> o.ifPresent(n -> setSelection(n , 1, 0)));
+        });
     }
 
     // --------------------------------------------------------------------
@@ -2428,8 +2448,7 @@ public final class MoeEditor extends JPanel
      */
     private void displayMenubar(boolean sourceView)
     {
-        JMenuBar menuBar = swingTabbedEditor.getJMenuBar(this); 
-        Component[] menus = menuBar.getComponents();
+        Component[] menus = menubar.getComponents();
         for (Component menu : menus) {
             if (menu instanceof JMenu) {
                 JMenu jmenu = (JMenu) menu; 
@@ -2490,10 +2509,9 @@ public final class MoeEditor extends JPanel
      */
     private JMenuItem findMenuItem(String itemName)
     {
-        JMenuBar menuBar = swingTabbedEditor.getJMenuBar(this); 
         JMenu jmenu;
         JMenuItem menuItem;
-        Component[] menubarComponent = menuBar.getComponents();
+        Component[] menubarComponent = menubar.getComponents();
         for (Component menu : menubarComponent) {
             if (menu instanceof JMenu) {
                 jmenu = (JMenu) menu; 
@@ -2581,7 +2599,7 @@ public final class MoeEditor extends JPanel
                 return action;
             }
         });
-        SwingTabbedEditor.disableCtrlTabTraversal(htmlPane);
+        FXTabbedEditor.disableCtrlTabTraversal(htmlPane);
     }
 
     /**
@@ -3014,7 +3032,7 @@ public final class MoeEditor extends JPanel
     {
         if (madeChangeOnCurrentLine)
         {
-            if (swingTabbedEditor != null && watcher != null) {
+            if (fxTabbedEditor != null && watcher != null) {
                 watcher.scheduleCompilation(true, CompileReason.MODIFIED);
             }
             madeChangeOnCurrentLine = false;
@@ -3145,7 +3163,10 @@ public final class MoeEditor extends JPanel
                 title = "Moe:  " + filename;
             }
         }
-        swingTabbedEditor.setTitle(this, title);
+        String finalTitle = title;
+        Platform.runLater(() -> {
+            fxTab.setWindowTitle(finalTitle);
+        });
     }
     
     // --------------------------------------------------------------------
@@ -3262,7 +3283,7 @@ public final class MoeEditor extends JPanel
         moeCaret = new MoeCaret(this);
         sourcePane.setCaret(moeCaret);
         sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
-        SwingTabbedEditor.disableCtrlTabTraversal(sourcePane);
+        FXTabbedEditor.disableCtrlTabTraversal(sourcePane);
         
         // *** Disabled due to Java bug - see http://davmac.wordpress.com/2014/05/13/javas-nimbus-look-and-feel-and-custom-keymaps/ ***
         // The Nimbus look-and-feel doesn't normally respect the background colour setting;
@@ -3311,13 +3332,11 @@ public final class MoeEditor extends JPanel
 
         menubar = createMenuBar();
         menubar.setName("menubar");
-        // Bit awkward, but we hack the move menu into the top, along with a separator:
-        JMenu moveMenu = new JMenu();
-        moveMenu.setName("move.tab");
-        // Add in reverse order:
-        menubar.getMenu(0).add(new JSeparator(), 0);
-        menubar.getMenu(0).add(moveMenu, 0);
-        swingTabbedEditor.setJMenuBar(this, menubar, moveMenu);
+        FXSupplier<MenuBar> genMenubar = JavaFXUtil.swingMenuBarToFX(menubar, this);
+        Platform.runLater(() -> {
+            fxMenus.clear();
+            genMenubar.get().getMenus().forEach(fxMenus::add);
+        });
 
         // create toolbar
 
@@ -4063,7 +4082,7 @@ public final class MoeEditor extends JPanel
     @Override
     public boolean isOpen()
     {
-        return swingTabbedEditor != null && swingTabbedEditor.isVisible();
+        return fxTabbedEditor != null && fxTabbedEditor.isWindowVisibleSwing();
     }
     
     public String getTitle()
@@ -4116,38 +4135,51 @@ public final class MoeEditor extends JPanel
      * @param partOfMove True if this is part of a move to another window (and thus we shouldn't record
      *                   open or close)
      */
-    public void setParent(SwingTabbedEditor swingTabbedEditor, boolean partOfMove)
+    @OnThread(Tag.FX)
+    public void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
-        if (watcher != null) {
-            if (!partOfMove && swingTabbedEditor != null) {
-                watcher.recordOpen();
-            }
-            else if (!partOfMove && swingTabbedEditor == null) {
-                watcher.recordClose();
-            }
+        SwingUtilities.invokeLater(() -> {
+            if (watcher != null)
+            {
+                if (!partOfMove && parent != null)
+                {
+                    watcher.recordOpen();
+                } else if (!partOfMove && parent == null)
+                {
+                    watcher.recordClose();
+                }
 
-            // If we are closing, force a compilation in case there are pending changes:
-            if (swingTabbedEditor == null) {
-                watcher.scheduleCompilation(false, CompileReason.MODIFIED);
+                // If we are closing, force a compilation in case there are pending changes:
+                if (parent == null)
+                {
+                    watcher.scheduleCompilation(false, CompileReason.MODIFIED);
+                }
             }
-        }
+        });
         
-        this.swingTabbedEditor = swingTabbedEditor;
-        if (this.swingTabbedEditor != null) {
-            this.swingTabbedEditor.setJMenuBar(this, menubar, (JMenu)menubar.getMenu(0).getItem(0));
-        }
+        this.fxTabbedEditor = parent;
     }
 
     // package visible
     void updateHeaderHasErrors(boolean hasErrors)
     {
-        if (swingTabbedEditor != null)
-            swingTabbedEditor.setErrorStatus(this, hasErrors);
+        Platform.runLater(() -> {
+            fxTab.setErrorStatus(hasErrors);
+        });
     }
 
-    public boolean hasErrors()
+    @OnThread(Tag.FX)
+    public List<Menu> getFXMenu()
     {
-        return errorManager.hasErrorHighlights();
+        return fxMenus;
+    }
+
+    @OnThread(Tag.Any)
+    public void requestEditorFocus()
+    {
+        SwingUtilities.invokeLater(() ->
+            sourcePane.requestFocusInWindow()
+        );
     }
 
     private static class ErrorDisplay extends JFrame
@@ -4437,4 +4469,5 @@ public final class MoeEditor extends JPanel
         }
 
     }
+
 }

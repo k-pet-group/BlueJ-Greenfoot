@@ -56,10 +56,13 @@ import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A frame to show the details of an inherited method in the inherited canvas
@@ -230,7 +233,7 @@ public class InheritedMethodFrame extends SingleLineFrame
                 });
                 label.setOnMouseClicked(e -> {
                     // check for click on underlined region
-                    Utility.ifNotNull(getHeaderRow().getOverlay().linkFromX(e.getSceneX()), FXRunnable::runLater);
+                    Utility.ifNotNull(getHeaderRow().getOverlay().linkFromX(e.getSceneX()), FXPlatformRunnable::runLater);
                 });
             } 
         }
@@ -251,12 +254,14 @@ public class InheritedMethodFrame extends SingleLineFrame
         }
 
         @Override
+        @OnThread(Tag.FXPlatform)
         public void addUnderline(EditableSlot.Underline u)
         {
             getHeaderRow().getOverlay().addUnderline(this, 0, labels.get(methodNameIndex).getText().length(), u.getOnClick());
         }
 
         @Override
+        @OnThread(Tag.FXPlatform)
         public void removeAllUnderlines()
         {
             getHeaderRow().getOverlay().clearUnderlines();

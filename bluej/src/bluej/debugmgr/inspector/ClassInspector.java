@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.debugmgr.inspector;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -60,7 +61,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 11416 2014-05-08 16:26:15Z nccb $
+ * @version $Id: ClassInspector.java 15828 2016-05-20 21:44:00Z nccb $
  */
 public class ClassInspector extends Inspector
 {
@@ -88,7 +89,7 @@ public class ClassInspector extends Inspector
      * Note: 'pkg' may be null if getEnabled is false.
      *  
      */
-    public ClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir, final JFrame parent)
+    public ClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir, final Frame parent)
     {
         super(inspectorManager, pkg, ir, new Color(249,230,207));
 

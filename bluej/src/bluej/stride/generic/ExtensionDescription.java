@@ -23,7 +23,10 @@ package bluej.stride.generic;
 
 import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.utility.Debug;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,11 +45,11 @@ public class ExtensionDescription
     private final boolean showInCatalogue;
     private final List<ExtensionSource> validSources;
 
-    private FXRunnable action;
+    private FXPlatformRunnable action;
     private ToggleBooleanProperty operation;
     private Frame frame;
 
-    public ExtensionDescription(char shortcut, String description, FXRunnable action, boolean showInCatalogue, ExtensionSource firstSrc, ExtensionSource... restSrc)
+    public ExtensionDescription(char shortcut, String description, FXPlatformRunnable action, boolean showInCatalogue, ExtensionSource firstSrc, ExtensionSource... restSrc)
     {
         this(shortcut, description, showInCatalogue, firstSrc, restSrc);
         this.action = action;
@@ -79,6 +82,7 @@ public class ExtensionDescription
         return description;
     }
 
+    @OnThread(Tag.FXPlatform)
     public void activate()
     {
         if (action != null) {
@@ -92,6 +96,7 @@ public class ExtensionDescription
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public void activate(List<Frame> frames)
     {
         if(operation != null) {

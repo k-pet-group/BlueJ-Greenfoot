@@ -65,6 +65,8 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A choice slot has three overlaid elements (not counting the error underline) that make up
@@ -180,8 +182,8 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         curDisplay.minWidthProperty().set(Region.USE_PREF_SIZE);
         futureDisplay.setMinWidth(Region.USE_PREF_SIZE);
         dummyField.setMinWidth(Region.USE_PREF_SIZE);
-        pane.heightProperty().addListener((a, b, c) -> refreshError());
-        pane.widthProperty().addListener((a, b, c) -> refreshError());
+        pane.heightProperty().addListener((a, b, c) -> JavaFXUtil.runNowOrLater(() -> refreshError()));
+        pane.widthProperty().addListener((a, b, c) -> JavaFXUtil.runNowOrLater(() -> refreshError()));
 
         effectivelyFocusedProperty = dummyField.focusedProperty().or(dropdown.isNotNull());
 
@@ -192,6 +194,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     /**
      * Shows the suggestions dropdown, and highlights the given item (null means no highlight)
      */
+    @OnThread(Tag.FXPlatform)
     public void showSuggestions(T curHighlight)
     {
         dropdown.set(new SuggestionList(editor, Utility.mapList(choices, t -> new SuggestionDetails(t.toString())), null, SuggestionList.SuggestionShown.RARE, i -> { i = i < 0 ? 0 : i; futureDisplay.setText(choices.get(i).toString()); }, new SuggestionListListener() {
@@ -326,12 +329,12 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         selection = value;
         curDisplay.setText(value == null ? "" : value.toString());
         futureDisplay.setText(curDisplay.getText());
-        refreshError();
+        JavaFXUtil.runNowOrLater(() -> refreshError());
         JavaFXUtil.setPseudoclass("bj-transparent", isValid.apply(selection) && !dummyField.isFocused(), pane);
         editor.modifiedFrame(parentFrame);
     }
 
-
+    @OnThread(Tag.FXPlatform)
     private void refreshError()
     {
         if (!isValid.apply(selection))
@@ -373,6 +376,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         }
 
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void cut()
         {
             copy();
@@ -435,7 +439,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             else
             {
                 curDisplay.setText(newVal);
-                dropdown.get().updateVisual(newVal, false);
+                JavaFXUtil.runNowOrLater(() -> dropdown.get().updateVisual(newVal, false));
             }
         }
     }

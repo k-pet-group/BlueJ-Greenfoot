@@ -22,19 +22,24 @@
 package bluej.editor.stride;
 
 import bluej.BlueJTheme;
+
+import java.awt.AWTKeyStroke;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.editor.stride.FrameCatalogue.Hint;
-import bluej.pkgmgr.TabbedEditorWindow;
 import bluej.stride.generic.ExtensionDescription;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -76,9 +81,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 
 import bluej.Main;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 //import org.scenicview.ScenicView;
 import threadchecker.OnThread;
@@ -93,6 +100,9 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
+
 
 /**
  * FXTabbedEditor is the editor window that contains all the editors in JavaFX tabs (currently,
@@ -102,7 +112,7 @@ import bluej.utility.javafx.JavaFXUtil;
  *
  * It is also responsible for changing the menus on the window when the tab changes.
  */
-public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
+public @OnThread(Tag.FX) class FXTabbedEditor
 {
     /** Are we currently showing the frame catalogue/cheat sheet? */
     private final SimpleBooleanProperty showingCatalogue = new SimpleBooleanProperty(true);
@@ -134,8 +144,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     private MenuBar menuBar;
     /** The tab that is being hovered over to switch tabs (while dragging frames): */
     private Tab hoverTab;
-    /** The scheduled task to switch to another tab after enough time has passed while hovering */
-    private ScheduledFuture<?> hoverTabTask;
+    /** The cancellation action for the scheduled task to switch to another tab after enough time has passed while hovering */
+    private FXPlatformRunnable hoverTabTask;
     /** The picture being shown of the currently dragged frames */
     private ImageView dragIcon = null;
     /** Cached so it can be read from any thread.  Written to once on Swing thread in initialise,
@@ -146,7 +156,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     private final AtomicInteger locationY = new AtomicInteger(0);
     private final AtomicInteger locationWidth = new AtomicInteger(700);
     private final AtomicInteger locationHeight = new AtomicInteger(700);
+    @OnThread(Tag.Any)
+    private final AtomicBoolean stageShowingSwing = new AtomicBoolean(false);
     private StringProperty titleStatus = new SimpleStringProperty("");
+    private BorderPane collapsibleCatalogueScrollPane;
+
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
     // initialise is called.
@@ -155,6 +169,22 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     {
         this.project = project;
         this.startSize = startSize;
+    }
+
+    @OnThread(Tag.Swing)
+    public static void disableCtrlTabTraversal(JComponent component)
+    {
+        KeyStroke ctrlTab = KeyStroke.getKeyStroke("ctrl TAB");
+        KeyStroke ctrlShiftTab = KeyStroke.getKeyStroke("ctrl shift TAB");
+        // Remove ctrl-tab from normal focus traversal
+        Set<AWTKeyStroke> forwardKeys = new HashSet<AWTKeyStroke>(component.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+        forwardKeys.remove(ctrlTab);
+        component.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forwardKeys);
+
+        // Remove ctrl-shift-tab from normal focus traversal
+        Set<AWTKeyStroke> backwardKeys = new HashSet<AWTKeyStroke>(component.getFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS));
+        backwardKeys.remove(ctrlShiftTab);
+        component.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardKeys);
     }
 
     /**
@@ -167,6 +197,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         //add the greenfoot icon to the Stride editor.
         stage.getIcons().add(BlueJTheme.getApplicationFxIcon("greenfoot", true));
 
+        JavaFXUtil.addChangeListener(stage.showingProperty(), stageShowingSwing::set);
         initialiseFX();
     }
 
@@ -219,7 +250,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         BorderPane.setAlignment(title, Pos.BOTTOM_RIGHT);
         catalogueBackground.setBottom(title);
         StackPane catalogueScrollPaneStacked = new StackPane(catalogueBackground, catalogueScrollPane);
-        BorderPane collapsibleCatalogueScrollPane = new BorderPane();
+        collapsibleCatalogueScrollPane = new BorderPane();
         collapsibleCatalogueScrollPane.setCenter(catalogueScrollPaneStacked);
         catalogueScrollPaneStacked.setMinWidth(0.0);
         CollapseControl collapseControl = new CollapseControl(catalogueScrollPaneStacked, showing -> {
@@ -244,11 +275,22 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
             if (selTab != null && stage.isFocused())
                 ((FXTab)selTab).notifySelected();
 
+            if (selTab != null && ((FXTab)selTab).shouldShowCatalogue())
+            {
+                collapsibleCatalogueScrollPane.setVisible(true);
+                collapsibleCatalogueScrollPane.setManaged(true);
+            }
+            else
+            {
+                collapsibleCatalogueScrollPane.setVisible(false);
+                collapsibleCatalogueScrollPane.setManaged(false);
+            }
+            
             if (isWindowVisible())
             {
                 if (!(selTab instanceof FrameEditorTab))
                 {
-                    scheduleUpdateCatalogue(null, null, CodeCompletionState.NOT_POSSIBLE, false, Frame.View.NORMAL, Collections.emptyList(), Collections.emptyList());
+                    Platform.runLater(() -> scheduleUpdateCatalogue(null, null, CodeCompletionState.NOT_POSSIBLE, false, Frame.View.NORMAL, Collections.emptyList(), Collections.emptyList()));
                 }
             }
         });
@@ -272,6 +314,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
             if (focused)
                 ((FXTab)tabPane.getSelectionModel().getSelectedItem()).notifySelected();
+        });
+
+        JavaFXUtil.addChangeListener(tabPane.focusedProperty(), focused -> {
+            // Very specific work around for Moe editor inside JavaFX SwingNode on Linux:
+            if (focused && Config.isLinux())
+            {
+                FXTab tab = (FXTab)tabPane.getSelectionModel().getSelectedItem();
+                if (tab instanceof MoeFXTab)
+                    tab.focusWhenShown();
+            }
         });
         
         // Add shortcuts for Ctrl-1, Ctrl-2 etc and Ctrl-Tab and Ctrl-Shift-Tab to move between tabs
@@ -362,6 +414,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         panel.setParent(this, partOfMove);
         // This is ok to call multiple times:
         panel.initialiseFX();
+        Debug.time("initialisedFX");
         if (!tabPane.getTabs().contains(panel)) {
             tabPane.getTabs().add(panel);
             if (toFront)
@@ -448,7 +501,9 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
                     stage.setWidth(startSize.getWidth());
                     stage.setHeight(startSize.getHeight());
                 }
+                Debug.time("Showing");
                 stage.show();
+                Debug.time("Shown");
                 //ScenicView.show(stage.getScene());
             }
             if (!tabPane.getTabs().contains(tab))
@@ -466,6 +521,15 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     public boolean isWindowVisible()
     {
         return stage.isShowing();
+    }
+
+    /**
+     * Version of isWindowVisible to be called on the Swing thread.
+     */
+    @OnThread(Tag.Swing)
+    public boolean isWindowVisibleSwing()
+    {
+        return stageShowingSwing.get();
     }
 
     /**
@@ -605,6 +669,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
      * @param sceneY Scene Y position of mouse
      * @param copying Whether the copy-drag key is being held (true) or not (false)
      */
+    @OnThread(Tag.FXPlatform)
     public void draggedTo(double sceneX, double sceneY, boolean copying)
     {
         if (!dragSourceFrames.isEmpty()) {
@@ -636,6 +701,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
      * @param sceneY The mouse scene Y position
      * @param copying Whether the copy-drag key is being held down
      */
+    @OnThread(Tag.FXPlatform)
     private void checkHoverDuringDrag(double sceneX, double sceneY, boolean copying)
     {
         // Check if a tab is underneath:
@@ -648,14 +714,14 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
                 {
                     hoverTab = t;
                     if (hoverTabTask != null)
-                        hoverTabTask.cancel(false);
+                        hoverTabTask.run();
                     
-                    hoverTabTask = Utility.getBackground().schedule(() -> Platform.runLater(() -> {
+                    hoverTabTask = JavaFXUtil.runAfter(Duration.millis(500), () -> {
                         ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).draggedToAnotherTab();
                         tabPane.getSelectionModel().select(t);
                         ((FrameEditorTab)t).draggedTo(sceneX, sceneY, copying);
                         //TODO tell the new tab about the drag and make it take over somehow
-                    }), 500, TimeUnit.MILLISECONDS);
+                    });
                 }
             }
         }
@@ -665,10 +731,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
      * Notify us that a frame drag has ended
      * @param copying Whether the copy-drag key was held down as the drag finished
      */
+    @OnThread(Tag.FXPlatform)
     public void frameDragEnd(boolean copying)
     {
         if (hoverTabTask != null)
-            hoverTabTask.cancel(false);
+            hoverTabTask.run();
         hoverTab = null;
         
         if (!dragSourceFrames.isEmpty())
@@ -698,6 +765,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
      * @param viewMode The current view mode (if a frame editor tab is showing)
      * @param hints The list of hints that should be displayed
      */
+    @OnThread(Tag.FXPlatform)
     public void scheduleUpdateCatalogue(FrameEditorTab editor, FrameCursor c, CodeCompletionState codeCompletion, boolean selection, Frame.View viewMode, List<ExtensionDescription> altExtensions, List<Hint> hints)
     {
         cataloguePane.scheduleUpdateCatalogue(editor, viewMode == Frame.View.NORMAL ? c : null, codeCompletion, selection, viewMode, altExtensions, hints);
@@ -757,6 +825,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
         this.titleStatus.set(status);
     }
 
+    public Window getWindow()
+    {
+        return stage;
+    }
+
     public static enum CodeCompletionState
     {
         NOT_POSSIBLE, SHOWING, POSSIBLE;
@@ -770,7 +843,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor implements TabbedEditorWindow
     {
         private final Duration EXPAND_COLLAPSE_DURATION = Duration.millis(200);
         private final Scale scale;
-        private FXRunnable cancelHover;
+        private FXPlatformRunnable cancelHover;
         public CollapseControl(Region collapse, FXConsumer<Boolean> listener)
         {
             JavaFXUtil.addStyleClass(this, "catalogue-collapse");

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,9 +29,8 @@ import threadchecker.Tag;
  * Equivalent to Runnable, but clearer (including to plugin) that it runs on FX thread
  */
 @FunctionalInterface
-public interface FXRunnable
+public interface FXRunnable extends FXPlatformRunnable
 {
-    @OnThread(Tag.FX)
     public void run();
     
     public static void runLater(FXRunnable r)

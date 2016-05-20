@@ -30,6 +30,9 @@ import javafx.scene.control.CustomMenuItem;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.RecallableFocus;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCombination;
 
@@ -49,32 +52,41 @@ public abstract class FrameOperation extends AbstractOperation
         this.shortcut = shortcut;
     }
 
+    @OnThread(Tag.FXPlatform)
     protected void enablePreview() { }
 
+    @OnThread(Tag.FXPlatform)
     protected void disablePreview() { }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void onMenuShowing(CustomMenuItem item) { }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void onMenuHidden(CustomMenuItem item) { }
 
-    public void activate(Frame frame)
+    @OnThread(Tag.FXPlatform)
+    public final void activate(Frame frame)
     {
         // TODO "editor.getSelection().getSelected()" fired a NPE, make next line activate(frame, null);
         activate(Collections.singletonList(frame));
     }
 
-    public void activate(Frame frame, RecallableFocus focus)
+    @OnThread(Tag.FXPlatform)
+    public final void activate(Frame frame, RecallableFocus focus)
     {
         activate(Collections.singletonList(frame), focus);
     }
 
-    public void activate(List<Frame> frames) {
+    @OnThread(Tag.FXPlatform)
+    public final void activate(List<Frame> frames)
+    {
         Frame first = editor.getSelection().getSelected().isEmpty() ? null : editor.getSelection().getSelected().get(0);
         RecallableFocus focus = first == null ? null : first.getCursorBefore();
         activate(frames, focus);
     }
 
-    public void activate(List<Frame> frames, RecallableFocus focus)
+    @OnThread(Tag.FXPlatform)
+    public final void activate(List<Frame> frames, RecallableFocus focus)
     {
         editor.beginRecordingState(focus);
         // Delete (with hover preview)
@@ -88,6 +100,7 @@ public abstract class FrameOperation extends AbstractOperation
      *
      * @param frames targeted frames that will receive the operation
      */
+    @OnThread(Tag.FXPlatform)
     protected abstract void execute(List<Frame> frames);
 
     public boolean onlyOnContextMenu()

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -92,7 +92,8 @@ public class DragAndDropHelper
         this.frame = frame;
         target = frame.getObjectBench();
         glassPane = new DragGlassPane();
-        frame.setGlassPane(glassPane);
+        //TODOPMF
+        //frame.setGlassPane(glassPane);
         dragImage = noPlusDragImage;
         this.object = object;
         this.invokerRecord = invokerRecord;

@@ -162,7 +162,7 @@ public class BPackage
     public Frame getFrame() 
     throws ProjectNotOpenException, PackageNotFoundException
     {
-        return packageId.getPackageFrame();
+        return packageId.getPackageFrame().getWindow();
     }
     
     /**
@@ -440,5 +440,11 @@ public class BPackage
         Package bjPkg = packageId.getBluejPackage();
         Project bjProject = bjPkg.getProject();
         bjProject.scheduleCompilation(immediate, CompileReason.EXTENSION, bjPkg);
+    }
+
+    //package-visible
+    PkgMgrFrame getPkgMgrFrame() throws ProjectNotOpenException, PackageNotFoundException
+    {
+        return packageId.getPackageFrame();
     }
 }

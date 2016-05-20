@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.function.Function;
 
 import java.util.stream.Stream;
 
@@ -34,6 +34,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import bluej.debugger.gentype.ConstructorReflective;
+import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
@@ -49,6 +50,7 @@ import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.JavaSource;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
+import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.frames.InterfaceFrame;
@@ -64,30 +66,65 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     private final NameDefSlotFragment interfaceName;   
     private final List<TypeSlotFragment> extendsTypes;
     private JavadocUnit documentation;
-    
+
+    /** The package name (will not be null, but package name within may be blank */
+    private final PackageFragment packageName;
     private final List<ImportElement> imports;
-    private final List<CodeElement> members;
-    private InterfaceFrame frame;
-    private JavaFragment openingCurly;
-    
+    /** The list of fields in this class */
+    private final List<CodeElement> fields;
+    /** The list of methods in this class */
+    private final List<CodeElement> methods;
     private final EntityResolver projectResolver;
-    private MoeSyntaxDocument sourceDocument;
+    private InterfaceFrame frame;
+    /** The curly brackets and interface keyword in the generated code (saved for mapping positions) */
+    private final FrameFragment openingCurly = new FrameFragment(this.frame, this, "{");
+    private final FrameFragment closingCurly = new FrameFragment(this.frame, this, "}");
+    private JavaFragment interfaceKeyword;
+    /**
+     * The generated Java code for this interface, used for doing code completion without
+     * needing to always regenerate the document.
+     */
+    private DocAndPositions sourceDocument;
     // Keep track of which slot was active when we generated the document,
     // as if affects results:
     private ExpressionSlot<?> sourceDocumentCompleting;
-    
-    public InterfaceElement(InterfaceFrame frame, EntityResolver projectResolver, NameDefSlotFragment interfaceName, List<TypeSlotFragment> extendsTypes, List<CodeElement> members, 
-            JavadocUnit documentation, List<ImportElement> imports, boolean enabled)
+    /**
+     * A map of documents for given contents.  This guards against race hazards, so
+     * that we use the correct document for the given content, even when we are hopping
+     * across threads and potentially generating several documents in a short space
+     * of time, concurrent with looking up information in them.
+     *
+     * This cache does not have a size limit, but that shouldn't matter as it is per-instance
+     * so the only potential differences in source code are down to which slot is being completed,
+     * giving a limit on the number of documents we could generate for a given source version
+     * (each InterfaceElement is immutable).
+     */
+    private final HashMap<String, DocAndPositions> documentCache = new HashMap<>();
+    public InterfaceElement(InterfaceFrame frame, EntityResolver projectResolver, NameDefSlotFragment interfaceName,
+                List<TypeSlotFragment> extendsTypes, List<CodeElement> fields, List<CodeElement> methods,
+                JavadocUnit documentation, PackageFragment packageName, List<ImportElement> imports, boolean enabled)
     {
         this.frame = frame;
         this.interfaceName = interfaceName;
-        this.extendsTypes = new ArrayList<>(extendsTypes);
+        //TODO
+        this.extendsTypes = extendsTypes == null ? new ArrayList<>() : new ArrayList<>(extendsTypes);
         this.documentation = documentation != null ? documentation : new JavadocUnit("");
-        this.imports = new ArrayList<>(imports);
-        this.members = new ArrayList<CodeElement>(members);
-        for (CodeElement member : members) {
-            member.setParent(this);
+
+        if (packageName != null) {
+            this.packageName = packageName;
         }
+        else {
+            this.packageName = new PackageFragment("");
+        }
+
+        this.imports = new ArrayList<>(imports);
+
+        this.fields = new ArrayList<>(fields);
+        this.fields.forEach(field -> field.setParent(this));
+
+        this.methods = new ArrayList<>(methods);
+        this.methods.forEach(method -> method.setParent(this));
+
         this.enable = enabled;
         this.projectResolver = projectResolver;
     }
@@ -96,8 +133,6 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     {
         this.projectResolver = projectResolver;
         interfaceName = new NameDefSlotFragment(el.getAttributeValue("name"));
-        imports = Utility.mapList(TopLevelCodeElement.fillChildrenElements(this, el, "imports"), e -> (ImportElement)e);
-        members = TopLevelCodeElement.fillChildrenElements(this, el, "methods");
         Element javadocEL = el.getFirstChildElement("javadoc");
         if (javadocEL != null) {
             documentation = new JavadocUnit(javadocEL);
@@ -105,8 +140,16 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         if (documentation == null) {
             documentation = new JavadocUnit("");
         }
-        extendsTypes = Utility.mapList(TopLevelCodeElement.xmlToStringList(el, "extends", "extendstype", "type"), (Function<String, TypeSlotFragment>)TypeSlotFragment::new); 
-                
+        extendsTypes = Utility.mapList(TopLevelCodeElement.xmlToStringList(el, "extends", "extendstype", "type"), TypeSlotFragment::new);
+
+        // We allow package to be null
+        Attribute packageAttribute = el.getAttribute("package");
+        packageName = new PackageFragment(packageAttribute == null ? "" : packageAttribute.getValue());
+
+        imports = Utility.mapList(TopLevelCodeElement.fillChildrenElements(this, el, "imports"), e -> (ImportElement)e);
+        fields = TopLevelCodeElement.fillChildrenElements(this, el, "fields");
+        methods = TopLevelCodeElement.fillChildrenElements(this, el, "methods");
+
         enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
@@ -135,53 +178,71 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         if (documentation != null) {
             interfaceEl.appendChild(documentation.toXML());
         }
-        
-        Element importsEl = new Element("imports");
-        imports.forEach(imp -> importsEl.appendChild(imp.toXML()));
-        interfaceEl.appendChild(importsEl);
-        
-        members.forEach(e -> interfaceEl.appendChild(e.toXML()));
+        interfaceEl.addAttributeCode("package", packageName);
+
+        appendCollection(interfaceEl, imports, "imports");
+        appendCollection(interfaceEl, fields, "fields");
+        appendCollection(interfaceEl, methods, "methods");
+
+        interfaceEl.addAttribute(TopLevelCodeElement.getStrideVersionAttribute());
         return interfaceEl;
+    }
+
+    private void appendCollection(Element topEl, List<? extends CodeElement> collection, String name)
+    {
+        Element collectionEl = new Element(name);
+        collection.forEach(element -> collectionEl.appendChild(element.toXML()));
+        topEl.appendChild(collectionEl);
     }
 
     @Override
     public JavaSource toJavaSource()
     {
-        JavaSource java;
-        openingCurly = f(frame, "{");
-        if (extendsTypes.isEmpty()) {
-            java = new JavaSource(null, f(frame, "public interface "), interfaceName, openingCurly);
+        return getDAP(null).java;
+    }
+
+    private JavaSource generateJavaSource()
+    {
+        List<JavaFragment> header = new ArrayList<>();
+        header.add(new FrameFragment(frame, this, "public "));
+        interfaceKeyword = new FrameFragment(frame, this, "interface ");
+        Collections.addAll(header, interfaceKeyword, interfaceName);
+
+        if (!extendsTypes.isEmpty()) {
+            Collections.addAll(header, space(), f(frame, "extends"), space());
+            header.addAll(extendsTypes.stream().collect(Utility.intersperse(() -> f(frame, ", "))));
         }
-        else {
-            ArrayList<JavaFragment> line = new ArrayList<>();
-            line.addAll(Arrays.asList(f(frame, "public interface "), interfaceName, f(frame, " extends ")));
-            line.addAll(extendsTypes.stream().collect(Utility.intersperse(() -> f(frame, ", "))));
-            line.add(openingCurly);
-            java = new JavaSource(null, line);
-        }
-        
+
+        JavaSource java = new JavaSource(null, header);
         java.prependJavadoc(documentation.getJavaCode());
-        
-        // TODO What if the import is a specific class which isn't found?
-        // TODO pop up imports dialog in this case?
-        imports.forEach(imp -> java.prependLine(Arrays.asList((JavaFragment)f(frame, "import " + imp + ";")), null));
+
+        java.prependLine(Arrays.asList((JavaFragment) f(frame, "")), null);
+        // TODO What if the import is a specific class which isn't found? pop up imports dialog in this case?
+        Utility.backwards(CodeElement.toJavaCodes(imports)).forEach(imp -> java.prepend(imp));
+
+        if (!packageName.getContent().equals(""))
+            java.prependLine(Arrays.asList(f(frame, "package "), packageName, f(frame, ";")), null);
         java.prependLine(Arrays.asList((JavaFragment)f(frame, "// WARNING: This file is auto-generated and any changes to it will be overwritten")), null);
-        
-        members.forEach(c -> {
-            if (c.isEnable()) {
-                java.addIndented(c.toJavaSource());
-            }
+
+        openingCurly.setFrame(frame);
+        java.appendLine(Arrays.asList(openingCurly), null);
+        fields.stream().filter(f -> f.isEnable()).forEach(f -> java.addIndented(f.toJavaSource()));
+        methods.stream().filter(m -> m.isEnable()).forEach(m -> {
+            java.appendLine(Arrays.asList((JavaFragment) f(frame, "")), null);
+            java.addIndented(m.toJavaSource());
         });
-        
-        java.appendLine(Arrays.asList((JavaFragment)f(frame, "}")), null);
+
+        closingCurly.setFrame(frame);
+        java.appendLine(Arrays.asList(closingCurly), null);
         return java;
     }
 
     @Override
     public InterfaceFrame createFrame(InteractionManager editor)
     {
-        frame = new InterfaceFrame(editor, interfaceName, extendsTypes, projectResolver, documentation, enable);
-        members.forEach(member -> frame.getCanvas().insertBlockAfter(member.createFrame(editor), null));
+        frame = new InterfaceFrame(editor, interfaceName, packageName, imports, extendsTypes, projectResolver, documentation, enable);
+        fields.forEach(member -> frame.getfieldsCanvas().insertBlockAfter(member.createFrame(editor), null));
+        methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));
         return frame;
     }
     
@@ -203,10 +264,28 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         return interfaceName.getContent();
     }
 
+    public List<TypeSlotFragment> getExtendsType()
+    {
+        return extendsTypes;
+    }
+
+    public List<? extends CodeElement> getMethods()
+    {
+        return methods;
+    }
+
+    public List<? extends CodeElement> getFields()
+    {
+        return fields;
+    }
+
     @Override
     public List<CodeElement> childrenUpTo(CodeElement c)
     {
-        return members.subList(0, members.indexOf(c));
+        List<CodeElement> joined = new ArrayList<>();
+        joined.addAll(fields);
+        joined.addAll(methods);
+        return joined.subList(0, joined.indexOf(c));
     }
     
     @Override
@@ -240,19 +319,31 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     }
     
     @OnThread(Tag.Swing)
-    private MoeSyntaxDocument getSourceDocument(ExpressionSlot<?> completing)
+    private MoeSyntaxDocument getSourceDocument(ExpressionSlot completing)
+    {
+        return getDAP(completing).getDocument(projectResolver);
+    }
+
+    @OnThread(Tag.Any)
+    private synchronized DocAndPositions getDAP(ExpressionSlot completing)
     {
         if (sourceDocument == null || sourceDocumentCompleting != completing)
         {
-            sourceDocument = new MoeSyntaxDocument(projectResolver);
+            IdentityHashMap<JavaFragment, Integer> positions = new IdentityHashMap<>();
             sourceDocumentCompleting = completing;
-            try {
-                String src = toJavaSource().toMemoryJavaCodeString(null /* TODO */, completing);
-                sourceDocument.insertString(0, src, null);
-                sourceDocument.enableParser(true);
+            JavaSource java = generateJavaSource();
+            String src = java.toMemoryJavaCodeString(positions, completing);
+            if (documentCache.containsKey(src))
+            {
+                // No need to generate and parse it again, just use existing one, but
+                // add in our positions in case they used different fragments:
+                sourceDocument = documentCache.get(src);
+                sourceDocument.fragmentPositions.putAll(positions);
             }
-            catch (BadLocationException e) {
-                Debug.reportError(e);
+            else
+            {
+                sourceDocument = new DocAndPositions(src, java, positions);
+                documentCache.put(src, sourceDocument);
             }
         }
         return sourceDocument;
@@ -261,7 +352,8 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     @Override
     public Stream<CodeElement> streamContained()
     {
-        return streamContained(members);
+        Stream<CodeElement> result = streamContained(fields);
+        return Stream.concat(result, streamContained(methods));
     }
     
     @Override
@@ -288,6 +380,40 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     {
         // No constructors in an interface:
         return Collections.emptyList();
+    }
+
+    private static class DocAndPositions
+    {
+        public final JavaSource java;
+        public final IdentityHashMap<JavaFragment, Integer> fragmentPositions;
+        private String src;
+        private MoeSyntaxDocument document;
+
+        public DocAndPositions(String src, JavaSource java, IdentityHashMap<JavaFragment, Integer> fragmentPositions)
+        {
+            this.src = src;
+            this.java = java;
+            this.fragmentPositions = fragmentPositions;
+        }
+
+        @OnThread(Tag.Swing)
+        public MoeSyntaxDocument getDocument(EntityResolver projectResolver)
+        {
+            if (document == null)
+            {
+                document = new MoeSyntaxDocument(projectResolver);
+                try
+                {
+                    document.insertString(0, src, null);
+                }
+                catch (BadLocationException e)
+                {
+                    Debug.reportError(e);
+                }
+                document.enableParser(true);
+            }
+            return document;
+        }
     }
 
     @Override

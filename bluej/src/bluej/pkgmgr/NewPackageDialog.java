@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,7 @@ import javax.swing.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewPackageDialog.java 7055 2010-01-27 13:58:55Z plcs $
+ * @version $Id: NewPackageDialog.java 15828 2016-05-20 21:44:00Z nccb $
  */
 class NewPackageDialog extends EscapeDialog
 {
@@ -44,68 +44,68 @@ class NewPackageDialog extends EscapeDialog
 
     private JTextField textFld;
 
-    private boolean ok;		// result: which button?
+    private boolean ok; // result: which button?
 
-	public NewPackageDialog(JFrame parent)
-	{
-		super(parent, Config.getString("pkgmgr.newPackage.title"), true);
+    public NewPackageDialog(Frame parent)
+    {
+        super(parent, Config.getString("pkgmgr.newPackage.title"), true);
 
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent E)
-			{
-				ok = false;
-				setVisible(false);
-			}
-		});
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent E)
+            {
+                ok = false;
+                setVisible(false);
+            }
+        });
 
-		JPanel mainPanel = new JPanel();
-		{
-			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-			mainPanel.setBorder(BlueJTheme.dialogBorder);
+        JPanel mainPanel = new JPanel();
+        {
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.setBorder(BlueJTheme.dialogBorder);
 
-			JLabel newclassTag = new JLabel(Config.getString("pkgmgr.newPackage.label"));
-			{
-				newclassTag.setAlignmentX(LEFT_ALIGNMENT);
-			}
+            JLabel newclassTag = new JLabel(Config.getString("pkgmgr.newPackage.label"));
+            {
+                newclassTag.setAlignmentX(LEFT_ALIGNMENT);
+            }
 
-			textFld = new JTextField(24);
-			{
-				textFld.setAlignmentX(LEFT_ALIGNMENT);
-			}
+            textFld = new JTextField(24);
+            {
+                textFld.setAlignmentX(LEFT_ALIGNMENT);
+            }
 
-			mainPanel.add(newclassTag);
-			mainPanel.add(textFld);
-			mainPanel.add(Box.createVerticalStrut(5));
+            mainPanel.add(newclassTag);
+            mainPanel.add(textFld);
+            mainPanel.add(Box.createVerticalStrut(5));
 
-			mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
+            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
-			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-			{
-				buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            {
+                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-				JButton okButton = BlueJTheme.getOkButton();
-				okButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) { doOK(); }        		
-				});
+                JButton okButton = BlueJTheme.getOkButton();
+                okButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) { doOK(); }
+                });
 
-				JButton cancelButton = BlueJTheme.getCancelButton();
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) { doCancel(); }        		
-				});
+                JButton cancelButton = BlueJTheme.getCancelButton();
+                cancelButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) { doCancel(); }
+                });
 
                                 DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
 
-				getRootPane().setDefaultButton(okButton);
-			}
+                getRootPane().setDefaultButton(okButton);
+            }
 
-			mainPanel.add(buttonPanel);
-		}
+            mainPanel.add(buttonPanel);
+        }
 
-		getContentPane().add(mainPanel);
-		pack();
+        getContentPane().add(mainPanel);
+        pack();
 
-		DialogManager.centreDialog(this);
-	}
+        DialogManager.centreDialog(this);
+    }
 
     /**
      * Show this dialog and return true if "OK" was pressed, false if

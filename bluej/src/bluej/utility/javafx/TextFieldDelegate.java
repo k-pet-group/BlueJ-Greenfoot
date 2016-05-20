@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,9 @@
  */
 package bluej.utility.javafx;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 public interface TextFieldDelegate<IDENTIFIER>
 {
 
@@ -29,7 +32,8 @@ public interface TextFieldDelegate<IDENTIFIER>
     // This will be called speculatively by deletePrevious and deleteNext, in case
     // there is a selection.  It should return false if there is no selection (but not give an exception)
     boolean deleteSelection();
-    
+
+    @OnThread(Tag.FXPlatform)
     boolean deletePrevious(IDENTIFIER id, int caretPosition, boolean atStart);
     boolean deleteNext(IDENTIFIER id, int caretPosition, boolean atEnd);
 
@@ -76,6 +80,7 @@ public interface TextFieldDelegate<IDENTIFIER>
     void selectTo(double sceneX, double sceneY);
 
     // Called when escape is pressed
+    @OnThread(Tag.FXPlatform)
     void escape();
     
     // Called when selection is complete (mouse is released)

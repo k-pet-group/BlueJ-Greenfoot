@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,7 @@ import javax.swing.*;
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportFailedDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ImportFailedDialog.java 15828 2016-05-20 21:44:00Z nccb $
  */
 public class ImportFailedDialog extends EscapeDialog
     implements ActionListener
@@ -47,7 +47,7 @@ public class ImportFailedDialog extends EscapeDialog
     private static final String helpLine2 = Config.getString("pkgmgr.importfailed.helpLine2");
     private static final String helpLine3 = Config.getString("pkgmgr.importfailed.helpLine3");
 
-    public ImportFailedDialog(JFrame parent, Object[] objects)
+    public ImportFailedDialog(Frame parent, Object[] objects)
     {
         super(parent, dialogTitle, true);
 

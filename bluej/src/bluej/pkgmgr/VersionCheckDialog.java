@@ -79,7 +79,7 @@ final public class VersionCheckDialog extends EscapeDialog
      */
     public VersionCheckDialog(PkgMgrFrame parent)
     {
-        super(parent, dialogTitle, true);
+        super(parent.getWindow(), dialogTitle, true);
         makeDialog();
         setVisible(true);
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,7 @@
  */
 package bluej.stride.generic;
 
-import bluej.stride.framedjava.frames.GreenfootFrameCategory;
+import bluej.stride.framedjava.frames.StrideCategory;
 
 /**
  * A utility predicate-like class for checking which frames are accepted in a given canvas.
@@ -36,7 +36,7 @@ public interface FrameTypeCheck
     /**
      * Checks if the given category can be inserted as new.
      */
-    public boolean canInsert(GreenfootFrameCategory category);
+    public boolean canInsert(StrideCategory category);
 
     /**
      * Checks if the given frame class can be moved here.

@@ -110,7 +110,7 @@ public abstract class TeamAction extends AbstractAction
      */
     protected void handleServerResponse(TeamworkCommandResult result)
     {
-        TeamUtils.handleServerResponse(result, pkgMgrFrame);
+        TeamUtils.handleServerResponse(result, pkgMgrFrame.getWindow());
     }
 
     /**

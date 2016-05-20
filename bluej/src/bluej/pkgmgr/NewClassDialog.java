@@ -55,7 +55,7 @@ class NewClassDialog extends EscapeDialog
     /**
      * Construct a NewClassDialog
      */
-    public NewClassDialog(JFrame parent, Package pkg, boolean isJavaMEpackage)
+    public NewClassDialog(Frame parent, Package pkg, boolean isJavaMEpackage)
     {
         super(parent, Config.getString("pkgmgr.newClass.title"), true);
         
@@ -125,29 +125,12 @@ class NewClassDialog extends EscapeDialog
                 buttonPanel.setAlignmentX(RIGHT_ALIGNMENT);
 
                 okButton = BlueJTheme.getOkButton();
-                {
-                    okButton.addActionListener(new ActionListener()
-                    {
-                        public void actionPerformed(ActionEvent evt)
-                        {
-                            doOK();
-                        }
-                    });
-                }
+                okButton.addActionListener(evt -> doOK());
 
                 JButton cancelButton = BlueJTheme.getCancelButton();
-                {
-                    cancelButton.addActionListener(new ActionListener()
-                    {
-                        public void actionPerformed(ActionEvent evt)
-                        {
-                            doCancel();
-                        }
-                    });
-                }
+                cancelButton.addActionListener(evt -> doCancel());
 
                 DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
-                
                 getRootPane().setDefaultButton(okButton);
             }
 
@@ -330,15 +313,14 @@ class NewClassDialog extends EscapeDialog
         else 
         {
             if (isWindowsRestrictedWord(newClassName)) {
-                DialogManager.showError((JFrame)this.getParent(), "windows-reserved-class-name");
+                DialogManager.showError(this.getParent(), "windows-reserved-class-name");
             }
             else {
-                DialogManager.showError((JFrame)this.getParent(), "invalid-class-name");            
+                DialogManager.showError(this.getParent(), "invalid-class-name");
             }
             textFld.selectAll();
             textFld.requestFocus();
         }
-
     }
 
     /**

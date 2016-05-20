@@ -118,7 +118,7 @@ public class ReadmeTarget extends EditableTarget
             editor = EditorManager.getEditorManager().openText(
                                                  getSourceFile().getPath(),
                                                  getPackage().getProject().getProjectCharset(),
-                                                 Package.readmeName, getPackage().getProject()::getDefaultSwingTabbedEditor);
+                                                 Package.readmeName, getPackage().getProject()::getDefaultFXTabbedEditor);
         }
         return editor;
     }

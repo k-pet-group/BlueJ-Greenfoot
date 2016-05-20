@@ -61,6 +61,8 @@ import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.slots.HeaderItem;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A canvas: an area that contain several frames in a vertical array.
@@ -918,7 +920,8 @@ public class FrameCanvas implements FrameContentItem
         else
             canvas.setStyle("");
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void previewCurly(boolean on, boolean affectOpen, boolean affectClose, double sceneX, DoubleExpression openingYAdjust, SharedTransition animate)
     {
         if (on)
@@ -969,7 +972,8 @@ public class FrameCanvas implements FrameContentItem
             });
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void previewCurly(boolean on, double sceneX, DoubleExpression openingYAdjust, SharedTransition animate)
     {
         previewCurly(on, true, true, sceneX, openingYAdjust, animate);
@@ -1109,7 +1113,7 @@ public class FrameCanvas implements FrameContentItem
         for (CodeFrame f : getBlocksSubtype(CodeFrame.class))
         {
             String xml = f.getCode().toXML().toXML();
-            existingLookup.merge(xml, new ArrayList<Frame>(Arrays.asList((Frame) f)), (a, b) -> {
+            existingLookup.merge(xml, new ArrayList<>(Arrays.asList((Frame) f)), (a, b) -> {
                 a.addAll(b);
                 return a;
             });

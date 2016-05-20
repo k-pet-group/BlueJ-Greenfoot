@@ -90,7 +90,7 @@ public class CheckoutAction extends TeamAction
             File projectDir;
             if (!tsc.getRepository(true).isDVCS()) {
                 //if not DVCS, we need to select module.
-                ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame, tsc.getRepository(true));
+                ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame.getWindow(), tsc.getRepository(true));
                 moduleDialog.setLocationRelativeTo(oldFrame);
                 moduleDialog.setVisible(true);
 
@@ -137,9 +137,6 @@ public class CheckoutAction extends TeamAction
                 newFrame = oldFrame;
             } else {
                 newFrame = PkgMgrFrame.createFrame();
-                if (Config.isJava15()) {
-                    newFrame.setLocationByPlatform(true);
-                }
                 newFrame.setVisible(true);
                 newFrame.setEnabled(false);
             }
@@ -203,7 +200,7 @@ public class CheckoutAction extends TeamAction
             if (! failed) {
                 if (! Project.isProject(projDir.toString())) {
                     // Try and convert it to a project
-                    if (! Import.convertNonBlueJ(newFrame, projDir)) {
+                    if (! Import.convertNonBlueJ(newFrame.getWindow(), projDir)) {
                         cleanup();
                         return;
                     }
@@ -217,7 +214,7 @@ public class CheckoutAction extends TeamAction
                 newFrame.setEnabled(true);
             }
             else {
-                TeamUtils.handleServerResponse(response, newFrame);
+                TeamUtils.handleServerResponse(response, newFrame.getWindow());
                 cleanup();
             }
         }

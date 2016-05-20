@@ -79,6 +79,8 @@ import bluej.utility.javafx.BetterVBox;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The base frame from which specific frames are derived.
@@ -216,21 +218,25 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      *                    "if-", the frame will get the style classes "frame" and "if-frame".
      *                    May not be null.
      */
+    @OnThread(Tag.FX)
     public Frame(final InteractionManager editor, String caption, String stylePrefix)
     {
         frameContents = new BetterVBox(200.0) {
+            @OnThread(Tag.FX)
             @Override
             public double getBottomMarginFor(Node n)
             {
                 return Frame.this.getBottomMarginFor(n);
             }
 
+            @OnThread(Tag.FX)
             @Override
             public double getLeftMarginFor(Node n)
             {
                 return Frame.this.getLeftMarginFor(n);
             }
 
+            @OnThread(Tag.FX)
             @Override
             public double getRightMarginFor(Node n)
             {
@@ -240,7 +246,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         //Debug.time("&&&&&& Constructing frame");
         if (stylePrefix == null)
             throw new NullPointerException();
-        frameContents.getStyleClass().addAll("frame", stylePrefix + "frame");
+        JavaFXUtil.addStyleClass(frameContents, "frame", stylePrefix + "frame");
         
         // When we are enabled/disabled, update our child slot states and trigger a compilation.
         frameEnabledProperty.addListener((a, b, enabled) -> {
@@ -326,6 +332,15 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
         
         //Debug.time("&&&&&& Constructed frame");
+    }
+
+    /**
+     * Initialise things which must be done on the actual FX thread, not just a loader thread.
+     * Will be overridden by subclasses.
+     */
+    @OnThread(Tag.FXPlatform)
+    protected void initialiseFX()
+    {
     }
 
     /**
@@ -598,8 +613,10 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         if (!enabled)
         {
             // Get rid of all errors straight away:
-            flagErrorsAsOld();
-            removeOldErrors();
+            JavaFXUtil.runNowOrLater(() -> {
+                flagErrorsAsOld();
+                removeOldErrors();
+            });
         }
         
         // When our status changes, copy that status to all children:
@@ -646,6 +663,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     /**
      * Flags all errors as old: frame errors and slot errors, to unlimited depth
      */
+    @OnThread(Tag.FXPlatform)
     public final void flagErrorsAsOld()
     {
         allFrameErrors.forEach(CodeError::flagAsOld);
@@ -657,6 +675,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     /**
      * Removes all errors flagged as old: frame errors and slot errors, to unlimited depth
      */
+    @OnThread(Tag.FXPlatform)
     public final void removeOldErrors()
     {
         allFrameErrors.removeIf(CodeError::isFlaggedAsOld);
@@ -745,16 +764,19 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         }, false, ExtensionSource.BEFORE, ExtensionSource.AFTER));
     }
 
+    @OnThread(Tag.FXPlatform)
     public final boolean notifyKeyAfter(char c, RecallableFocus rc)
     {
         return notifyKey(c, rc, getAvailableExtensions(null, null), ExtensionSource.AFTER);
     }
 
+    @OnThread(Tag.FXPlatform)
     public final boolean notifyKeyBefore(char c, RecallableFocus rc)
     {
         return notifyKey(c, rc, getAvailableExtensions(null, null), ExtensionSource.BEFORE);
     }
 
+    @OnThread(Tag.FXPlatform)
     private final boolean notifyKey(char c, RecallableFocus rc, List<ExtensionDescription> extensions, ExtensionSource src)
     {
         List<ExtensionDescription> candidates = extensions.stream()
@@ -786,6 +808,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     /**
      * Notifies about a left-click.  Returns true if we have consumed the click, false otherwise.
      */
+    @OnThread(Tag.FXPlatform)
     public final boolean leftClicked(double sceneX, double sceneY, boolean shiftDown)
     {
         //Select block once it's clicked
@@ -1139,6 +1162,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * @param view
      * @param animation A class to hook into to synchronise animations
      */
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animation)
     {
         setViewNoOverride(oldView, newView, animation);
@@ -1234,6 +1258,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * Adds the given frame error to this frame.  Does not necessarily show it (depends
      * on which other errors are present on this frame)
      */
+    @OnThread(Tag.FXPlatform)
     public void addError(CodeError err)
     {
         allFrameErrors.add(err);
@@ -1465,5 +1490,13 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         effort += getAllFrames().filter(f -> f != this).mapToInt(Frame::calculateEffort).sum();
         // We omit how much effort it was to add extensions, etc: this only needs to be a rough calculation.
         return effort;
+    }
+
+    /**
+     * Perform an action once this frame is actually added to a scene.
+     */
+    protected final void onceInScene(FXRunnable action)
+    {
+        JavaFXUtil.onceNotNull(getNode().sceneProperty(), s -> action.run());
     }
 }

@@ -24,10 +24,12 @@ package bluej.stride.generic;
 import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
-import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.slots.SuggestionList;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
@@ -47,10 +49,9 @@ import bluej.editor.stride.WindowOverlayPane;
 import bluej.parser.AssistContent;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.frames.GreenfootFrameCategory;
+import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.slots.EditableSlot;
-import bluej.utility.javafx.FXConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -62,40 +63,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public interface InteractionManager
 {
     /**
      * Gets completions at that point in the file
      */
-    void withCompletions(JavaFragment.PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, FXConsumer<List<AssistContentThreadSafe>> handler);
+    void withCompletions(JavaFragment.PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
     /**
      * Gets fields for the class.  posInfile is a bit of a workaround to make sure
      * we are in a method in the class.
      */
-    void withAccessibleMembers(JavaFragment.PosInSourceDoc pos, Set<AssistContent.CompletionKind> kinds, boolean includeOverridden, FXConsumer<List<AssistContentThreadSafe>> handler);
+    void withAccessibleMembers(JavaFragment.PosInSourceDoc pos, Set<AssistContent.CompletionKind> kinds, boolean includeOverridden, FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
-    void withSuperConstructors(FXConsumer<List<AssistContentThreadSafe>> handler);
+    void withSuperConstructors(FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
     /**
      * Gets a list of available types
      */
-    @OnThread(Tag.Any) void withTypes(FXConsumer<List<AssistContentThreadSafe>> handler);
+    @OnThread(Tag.Any) void withTypes(FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
     /**
      * Gets a list of available types that have the given type as a super type (direct or indirect)
      */
-    @OnThread(Tag.Any) void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXConsumer<List<AssistContentThreadSafe>> handler);
+    @OnThread(Tag.Any) void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
     /**
      * Gets a list of classes that are commonly imported in Java programs,
      * e.g. classes from java.util, java.io, and so on.
      *
      * This list will not feature any class that is already imported in the program.
+     * @param common
      */
-    Collection<AssistContentThreadSafe> getOtherPopularImports();
+    Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions();
 
     /**
      * Adds the given import to the import list (if not already present).  Should either be fully qualified
@@ -113,7 +114,7 @@ public interface InteractionManager
     // Used by constructors to set their name to the class name
     ObservableStringValue nameProperty();
 
-    FrameDictionary<GreenfootFrameCategory> getDictionary();
+    FrameDictionary<StrideCategory> getDictionary();
 /*
     // The openAction will always be called, even if it's with an empty list
     void checkVar(String name, CodeElement el, int startPosition, int endPosition, UnderlineContainer slot,
@@ -127,12 +128,13 @@ public interface InteractionManager
                      List<String> paramTypes, int startPosition, int endPosition,
                      UnderlineContainer slot, FXConsumer<List<StringSlotFragment.LinkedIdentifier>> openAction);
 */
-    public void searchLink(PossibleLink link, FXConsumer<Optional<LinkedIdentifier>> callback);
+    public void searchLink(PossibleLink link, FXPlatformConsumer<Optional<LinkedIdentifier>> callback);
 
     Pane getDragTargetCursorPane();
 
     void ensureImportsVisible();
 
+    @OnThread(Tag.FXPlatform)
     void updateCatalog(FrameCursor f);
 
     void updateErrorOverviewBar();
@@ -183,6 +185,7 @@ public interface InteractionManager
      * Focuses the nearest frame cursor to the given point, because a click event
      * was processed at that point.
      */
+    @OnThread(Tag.FXPlatform)
     public void clickNearestCursor(double sceneX, double sceneY, boolean shiftDown);
     
     /**
@@ -210,9 +213,9 @@ public interface InteractionManager
     public void recordEdits(StrideEditReason reason);
     
     /**
-     * Generates the Java code, parses it 
+     * Once loading is complete, generates the Java code, parses it, then runs the given action if not-null
      */
-    public void regenerateAndReparse(ExpressionSlot<?> completing);
+    public void afterRegenerateAndReparse(FXRunnable action);
     
     /**
      * Starts recording of the Frame state for Undo / Redo operations
@@ -254,6 +257,7 @@ public interface InteractionManager
 
     public void showUndoDeleteBanner(int totalEffort);
 
+    @OnThread(Tag.Any)
     public static enum Kind
     {
         CLASS_NON_FINAL, CLASS_FINAL, INTERFACE, ENUM, PRIMITIVE;

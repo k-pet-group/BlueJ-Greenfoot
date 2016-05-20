@@ -44,7 +44,7 @@ import bluej.utility.EscapeDialog;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 15494 2016-02-18 15:49:41Z nccb $
+ * @version $Id: ProjectPrintDialog.java 15828 2016-05-20 21:44:00Z nccb $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends EscapeDialog
@@ -77,7 +77,7 @@ public class ProjectPrintDialog extends EscapeDialog
      */
     public ProjectPrintDialog(PkgMgrFrame parent)
     {
-        super(parent, Config.getString("pkgmgr.printDialog.title"), true);
+        super(parent.getWindow(), Config.getString("pkgmgr.printDialog.title"), true);
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent E)

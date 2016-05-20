@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public interface CanvasParent extends CursorFinder
 {
@@ -79,6 +81,7 @@ public interface CanvasParent extends CursorFinder
     }
 
     // package-visible
+    @OnThread(Tag.FXPlatform)
     static boolean processInnerExtensionKey(CanvasParent p, FrameCanvas canvas, FrameCursor cursor, char c, RecallableFocus rc, boolean atTop)
     {
         List<ExtensionDescription> candidates = p.getAvailableExtensions(canvas, cursor).stream()

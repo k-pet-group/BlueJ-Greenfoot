@@ -22,6 +22,8 @@
 package bluej.utility;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -41,6 +43,12 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
+import bluej.Config;
+import nu.xom.Attribute;
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.ParsingException;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
@@ -125,10 +133,10 @@ public class ImportScanner
                 // To safely get an AssistContentThreadSafe, we must create one from the Swing thread.
                 // So we need to hop across to the Swing thread.  Because we are an arbitrary background
                 // worker thread, it is safe to use invokeAndWait; we'll wait for the Swing thread to
-                // become available if we have to, without risk of deadlock, and we won't block the Swing thread: 
-                CompletableFuture<AssistContentThreadSafe> f = new CompletableFuture<>();
+                // become available if we have to, without risk of deadlock, and we won't block the Swing thread:
                 try
                 {
+                    CompletableFuture<AssistContentThreadSafe> f = new CompletableFuture<>();
                     SwingUtilities.invokeAndWait(() -> f.complete(new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver))));
                     return f.get();
                 }
@@ -208,7 +216,11 @@ public class ImportScanner
             {
                 // Start calculating:
                 root = new CompletableFuture<>();
-                Utility.runBackground(() -> root.complete(findAllTypes()));
+                Utility.runBackground(() -> {
+                    RootPackageInfo rootPkg = findAllTypes();
+                    loadCachedImports(rootPkg);
+                    root.complete(rootPkg);
+                });
                 return root;
             }
         }
@@ -369,5 +381,113 @@ public class ImportScanner
     {
         // This will make sure the future has started:
         getRoot();
+    }
+
+    /**
+     * Saves all java.** type information to a cache
+     */
+    public void saveCachedImports()
+    {
+        if (getRoot().isDone())
+        {
+            Element cache = new Element("packages");
+            cache.addAttribute(new Attribute("javaHome", getJavaHome()));
+            cache.addAttribute(new Attribute("version", getVersion()));
+            try
+            {
+                PackageInfo javaPkg = getRoot().get().subPackages.get("java");
+                cache.appendChild(toXML(javaPkg, "java"));
+                FileOutputStream os = new FileOutputStream(getImportCachePath());
+                Utility.serialiseCodeTo(cache, os);
+                os.close();
+            }
+            catch (InterruptedException | ExecutionException | IOException e)
+            {
+                Debug.reportError(e);
+            }
+
+        }
+    }
+
+    /** Version of the currently running software */
+    private static String getVersion()
+    {
+        return Config.isGreenfoot() ? Boot.GREENFOOT_VERSION : Boot.BLUEJ_VERSION;
+    }
+
+    /** Java home directory */
+    private static String getJavaHome()
+    {
+        return Boot.getInstance().getJavaHome().getAbsolutePath();
+    }
+
+    /** Import cache path to save to/load from */
+    private static File getImportCachePath()
+    {
+        return new File(Config.getUserConfigDir(), "import-cache.xml");
+    }
+
+    /**
+     * Loads cached (java.**) imports into the given root package, if possible.
+     */
+    public void loadCachedImports(PackageInfo rootPkg)
+    {
+        try {
+            Document xml = new Builder().build(getImportCachePath());
+            Element packagesEl = xml.getRootElement();
+            if (!packagesEl.getLocalName().equals("packages"))
+                return;
+            // If they've changed JDK or BlueJ/Greenfoot version, ignore the cache
+            // (and thus generate fresh data later on):
+            if (!getJavaHome().equals(packagesEl.getAttributeValue("javaHome")) || !getVersion().equals(packagesEl.getAttributeValue("version")))
+                return;
+            for (int i = 0; i < packagesEl.getChildElements().size(); i++)
+            {
+                fromXML(packagesEl.getChildElements().get(i), rootPkg);
+            }
+        }
+        catch (ParsingException | IOException e) {
+            Debug.reportError(e);
+        }
+    }
+
+    /**
+     * Loads the given XML package item and puts it into the given parent package.
+     */
+    private void fromXML(Element pkgEl, PackageInfo addToParent)
+    {
+        String name = pkgEl.getAttributeValue("name");
+        if (name == null)
+            return;
+        PackageInfo loadPkg = new PackageInfo();
+
+        for (int i = 0; i < pkgEl.getChildElements().size(); i++)
+        {
+            Element el = pkgEl.getChildElements().get(i);
+            if (el.getLocalName().equals("package"))
+            {
+                fromXML(el, loadPkg);
+            }
+            else
+            {
+                AssistContentThreadSafe acts = new AssistContentThreadSafe(el);
+                loadPkg.types.put(acts.getName(), acts);
+            }
+        }
+
+        // Only store if successful:
+        addToParent.subPackages.put(name, loadPkg);
+    }
+
+    /**
+     * Save the given PackageInfo item (with package name) to XML
+     */
+    private static Element toXML(PackageInfo pkg, String name)
+    {
+        Element el = new Element("package");
+        el.addAttribute(new Attribute("name", name));
+        pkg.types.values().forEach(acts -> {if (acts != null) el.appendChild(acts.toXML());});
+        pkg.subPackages.forEach((subName, subPkg) -> el.appendChild(toXML(subPkg, subName)));
+        return el;
     }
 }

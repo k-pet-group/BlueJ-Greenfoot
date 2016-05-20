@@ -67,6 +67,8 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
@@ -148,6 +150,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             superThisParams = new SuperThisParamsExpressionSlot(getEditor(), this, this, callRow, superThis, "constructor-param-") {
 
                 @Override
+                @OnThread(Tag.FXPlatform)
                 public boolean backspaceAtStart() {
                     if (isAlmostBlank()) {
                         FrameCursor fc = getCanvas().getFirstCursor();
@@ -204,9 +207,9 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         if (callRow == null) {
             List<ExtensionDescription> extensions = new ArrayList(super.getAvailableExtensions(canvas, cursorInCanvas));
 
-            extensions.addAll(Arrays.asList(new ExtensionDescription(GreenfootFrameDictionary.SUPER_EXTENSION_CHAR, "Add super(..) call", () -> {
+            extensions.addAll(Arrays.asList(new ExtensionDescription(StrideDictionary.SUPER_EXTENSION_CHAR, "Add super(..) call", () -> {
                 addSuperThis(new SuperThisFragment(SuperThis.SUPER), null);
-            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER), new ExtensionDescription(GreenfootFrameDictionary.THIS_EXTENSION_CHAR, "Add this(..) call", () -> {
+            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER), new ExtensionDescription(StrideDictionary.THIS_EXTENSION_CHAR, "Add this(..) call", () -> {
                 addSuperThis(new SuperThisFragment(SuperThis.THIS), null);
             }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER)));
 
@@ -321,6 +324,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animate)
     {
         super.setView(oldView, newView, animate);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,8 @@ import java.util.UUID;
 import java.io.IOException;
 
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.collect.DataCollector;
@@ -116,13 +118,9 @@ public class Main
         }
         
         // process command line arguments, start BlueJ!
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run()
-            {
-                DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), ExtensionsManager.getInstance().getLoadedExtensions(null));
-                processArgs(args);
-            }
+        EventQueue.invokeLater(() -> {
+            DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), ExtensionsManager.getInstance().getLoadedExtensions(null));
+            processArgs(args);
         });
         
         // Send usage data back to bluej.org
@@ -194,6 +192,26 @@ public class Main
             }
             else {
                 openEmptyFrame();
+            }
+        }
+        else
+        {
+            // Follow open-class arg if there is one:
+            String targetName = Config.getPropString("bluej.class.open", null);
+            if (targetName != null && !targetName.equals(""))
+            {
+                boolean foundTarget = false;
+                for (Project proj : Project.getProjects())
+                {
+                    Target tgt = proj.getTarget(targetName);
+                    if (tgt != null && tgt instanceof ClassTarget)
+                    {
+                        ((ClassTarget)tgt).open();
+                        foundTarget = true;
+                    }
+                }
+                if (!foundTarget)
+                    Debug.message("Did not find target class in opened project: \"" + targetName + "\"");
             }
         }
 

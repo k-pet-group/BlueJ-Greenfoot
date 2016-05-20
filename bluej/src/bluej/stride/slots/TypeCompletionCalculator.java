@@ -37,6 +37,7 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 
 public class TypeCompletionCalculator implements CompletionCalculator
 {
@@ -70,7 +71,7 @@ public class TypeCompletionCalculator implements CompletionCalculator
 
     @Override
     public void withCalculatedSuggestionList(PosInSourceDoc pos,
-                                             CodeElement codeEl, SuggestionListListener listener, FXConsumer<SuggestionList> handler) {
+                                             CodeElement codeEl, SuggestionListListener listener, FXPlatformConsumer<SuggestionList> handler) {
         
         editor.withTypes(superType, true, kinds, acs -> {
             this.acs = new ArrayList<>(acs);

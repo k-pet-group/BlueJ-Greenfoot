@@ -54,6 +54,8 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Container-block representing a switch-case statement.
@@ -83,6 +85,7 @@ public class SwitchFrame extends MultiCanvasFrame
         //Parameters
         expression = new FilledExpressionSlot(editor, this, this, getHeaderRow(), SWITCH_STYLE_PREFIX){
             @Override
+            @OnThread(Tag.FXPlatform)
             public boolean backspaceAtStart()
             {
                 if (isAlmostBlank()) {
@@ -360,9 +363,9 @@ public class SwitchFrame extends MultiCanvasFrame
         {
             return new FrameTypeCheck() {
                 @Override
-                public boolean canInsert(GreenfootFrameCategory category)
+                public boolean canInsert(StrideCategory category)
                 {
-                    return category == GreenfootFrameCategory.CASE;
+                    return category == StrideCategory.CASE;
                 }
 
                 @Override
@@ -374,7 +377,7 @@ public class SwitchFrame extends MultiCanvasFrame
         }
         else if (canvas == defaultCanvas)
         {
-            return GreenfootFrameDictionary.checkStatement();
+            return StrideDictionary.checkStatement();
         }
         else
         {
@@ -388,7 +391,7 @@ public class SwitchFrame extends MultiCanvasFrame
         List<ExtensionDescription> result = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
 
         if (defaultCanvas == null) {
-            result.add(new ExtensionDescription(GreenfootFrameDictionary.DEFAULT_EXTENSION_CHAR,
+            result.add(new ExtensionDescription(StrideDictionary.DEFAULT_EXTENSION_CHAR,
                     "Add default", SwitchFrame.this::addDefault, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.INSIDE_LATER, ExtensionSource.AFTER));
         }
 

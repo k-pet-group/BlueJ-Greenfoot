@@ -53,6 +53,8 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas.UnderlineInfo;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.binding.ConcatListBinding;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * EditableSlot is used to access functionality common to all slots.  EditableSlot extends HeaderItem,
@@ -82,6 +84,7 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
      * Note that this method may currently be called on a slot which did not have focus -- it is more like
      * "notifyHasNoFocus" than "youHadFocusButJustLostIt"
      */
+    @OnThread(Tag.FXPlatform)
     public void lostFocus();
 
     /**
@@ -241,8 +244,11 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
         protected final ObservableList<SortedMenuItem> items;
         
         public MenuItems(ObservableList<SortedMenuItem> items) { this.items = items; }
-        
+
+        @OnThread(Tag.FXPlatform)
         public void onShowing() {}
+
+        @OnThread(Tag.FXPlatform)
         public void onHidden() {}
         
         public static MenuItems concat(MenuItems... src)
@@ -321,12 +327,14 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
      * Adds the given error to the slot
      * @param error The error to add
      */
+    @OnThread(Tag.FXPlatform)
     public void addError(CodeError error);
 
     /**
      * Removes any errors that were present during previous calls to flagErrorsAsOld,
      * and have not since been added with addError
      */
+    @OnThread(Tag.FXPlatform)
     public void removeOldErrors();
 
     /**
@@ -338,12 +346,14 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
      * This avoids an annoying blinking out/in of errors that happens if we just did removeAll/add;
      * this way, an error that is still present, never gets removed
      */
+    @OnThread(Tag.FXPlatform)
     public void flagErrorsAsOld();
 
     /**
      * Gets any errors currently on the slot
      * @return A stream of errors
      */
+    @OnThread(Tag.FXPlatform)
     public Stream<CodeError> getCurrentErrors();
 
     /**

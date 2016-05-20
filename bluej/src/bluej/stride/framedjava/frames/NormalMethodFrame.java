@@ -38,6 +38,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 
+import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -237,7 +238,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         @Override
         public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl,
-                                                 SuggestionListListener listener, FXConsumer<SuggestionList> handler) {
+                                                 SuggestionListListener listener, FXPlatformConsumer<SuggestionList> handler) {
             
             ClassFrame classFrame = (ClassFrame)ASTUtility.getTopLevelElement(codeEl).getFrame();
             

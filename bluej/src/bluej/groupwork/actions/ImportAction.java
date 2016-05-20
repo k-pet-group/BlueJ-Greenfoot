@@ -139,17 +139,14 @@ public class ImportAction extends TeamAction
 
                 stopProgressBar();
 
-                EventQueue.invokeLater(new Runnable() {
-                    public void run()
-                    {
-                        handleServerResponse(result);
-                        if(! result.isError()) {
-                            setStatus(Config.getString("team.shared"));
-                            DataCollector.teamShareProject(project, repository);
-                        }
-                        else {
-                            clearStatus();
-                        }
+                EventQueue.invokeLater(() -> {
+                    handleServerResponse(result);
+                    if(! result.isError()) {
+                        setStatus(Config.getString("team.shared"));
+                        DataCollector.teamShareProject(project, repository);
+                    }
+                    else {
+                        clearStatus();
                     }
                 });
             }

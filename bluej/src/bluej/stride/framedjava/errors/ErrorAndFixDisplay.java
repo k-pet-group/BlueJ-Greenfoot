@@ -37,6 +37,7 @@ import bluej.editor.stride.CodeOverlayPane;
 import bluej.editor.stride.CodeOverlayPane.WidthLimit;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
@@ -53,10 +54,11 @@ public class ErrorAndFixDisplay
     private final VBox vbox = new VBox();
     private final List<FixDisplay> fixes = new ArrayList<>();
     private int highlighted = -1; // Offset into error.getFixSuggestions()
-    private FXRunnable cancelShow;
+    private FXPlatformRunnable cancelShow;
     
     public static interface ErrorFixListener
     {
+        @OnThread(Tag.FXPlatform)
         public void fixedError(CodeError err);
     }
     
@@ -105,7 +107,8 @@ public class ErrorAndFixDisplay
     {
         return error;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void showAbove(final Region n, Duration delay)
     {
         if (cancelShow != null)
@@ -130,16 +133,19 @@ public class ErrorAndFixDisplay
         SwingUtilities.invokeLater(() -> watcher.recordShowErrorMessage(error.getIdentifier(), fixDisplayText));
     }
 
+    @OnThread(Tag.FXPlatform)
     public void showAbove(final Region n)
     {
         showAbove(n, SHOW_DELAY);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void showBelow(final Region n)
     {
         showBelow(n, SHOW_DELAY);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void showBelow(final Region n, Duration delay)
     {
         if (cancelShow != null)
@@ -156,7 +162,8 @@ public class ErrorAndFixDisplay
             recordShow();
         });
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void hide()
     {
         if (cancelShow != null)
@@ -239,6 +246,7 @@ public class ErrorAndFixDisplay
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public void executeSelected()
     {
         if (highlighted != -1)

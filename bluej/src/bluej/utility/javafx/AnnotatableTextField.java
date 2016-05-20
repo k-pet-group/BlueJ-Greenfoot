@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,6 +51,8 @@ import bluej.stride.slots.CompletionCalculator;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas.UnderlineInfo;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -88,7 +90,7 @@ public class AnnotatableTextField
         });
         field.setOnMouseClicked(e -> {
             // check for click on underlined region
-            Utility.ifNotNull(errorMarker.linkFromX(e.getSceneX()), FXRunnable::runLater);
+            Utility.ifNotNull(errorMarker.linkFromX(e.getSceneX()), FXPlatformRunnable::runLater);
         });
         
         errorMarker.addExtraRedraw(g -> {
@@ -101,8 +103,8 @@ public class AnnotatableTextField
                 g.setStroke(p);
             }
         });
-        JavaFXUtil.addChangeListener(fakeCaretShowing, c -> errorMarker.redraw());
-        JavaFXUtil.addChangeListener(field.caretPositionProperty(), p -> { if (fakeCaretShowing.get()) errorMarker.redraw(); });
+        JavaFXUtil.addChangeListener(fakeCaretShowing, c -> JavaFXUtil.runNowOrLater(() -> errorMarker.redraw()));
+        JavaFXUtil.addChangeListener(field.caretPositionProperty(), p -> { if (fakeCaretShowing.get()) JavaFXUtil.runNowOrLater(() -> errorMarker.redraw()); });
     }
     
     public AnnotatableTextField(ErrorUnderlineCanvas overlay)
@@ -215,9 +217,9 @@ public class AnnotatableTextField
         return field.fontProperty();
     }
     
-    public double measureString(String str)
+    public double measureString(String str, boolean includeInsets)
     {
-        return JavaFXUtil.measureString(field, str);
+        return JavaFXUtil.measureString(field, str, includeInsets, includeInsets);
     }
 
     public final IndexRange getSelection()
@@ -280,7 +282,7 @@ public class AnnotatableTextField
             borderLeft = field.getBorder().getInsets().getLeft();
         // It seems that beforeIndex can report beyond the length of the text, so take the min of them:
         int index = Math.min(beforeIndex, field.getText().length());
-        return paddingLeft + borderLeft + measureString(field.getText().substring(0, index));
+        return paddingLeft + borderLeft + measureString(field.getText().substring(0, index), false) + 1 /* fudge factor*/;
     }
 
     protected double getBaseline()
@@ -297,13 +299,15 @@ public class AnnotatableTextField
         return field.tooltipProperty();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void clearUnderlines()
     {
         errorMarker.clearUnderlines();
         field.setCursor(null);
     }
-    
-    public void drawUnderline(UnderlineInfo s, int startPosition, int endPosition, FXRunnable onClick)
+
+    @OnThread(Tag.FXPlatform)
+    public void drawUnderline(UnderlineInfo s, int startPosition, int endPosition, FXPlatformRunnable onClick)
     {
         errorMarker.addUnderline(s, startPosition, endPosition, onClick);
     }
@@ -318,7 +322,8 @@ public class AnnotatableTextField
         JavaFXUtil.setPseudoclass(pseudoClass, on, field);
     }
 
-    public void drawErrorMarker(EditableSlot s, int startPos, int endPos, boolean javaPos, FXConsumer<Boolean> onHover, ObservableBooleanValue visible)
+    @OnThread(Tag.FXPlatform)
+    public void drawErrorMarker(EditableSlot s, int startPos, int endPos, boolean javaPos, FXPlatformConsumer<Boolean> onHover, ObservableBooleanValue visible)
     {
         // If we are trying to highlight an empty slot, highlight whole width
         if ((startPos == 0 && endPos == 0) || getLength() == 0)
@@ -326,7 +331,8 @@ public class AnnotatableTextField
         else
             errorMarker.addErrorMarker(s, startPos, endPos, javaPos, onHover, visible);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void clearErrorMarkers(EditableSlot s)
     {
         errorMarker.clearErrorMarkers(s);
@@ -351,7 +357,8 @@ public class AnnotatableTextField
     {
         field.paste();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void backspace()
     {
         field.deletePreviousChar();

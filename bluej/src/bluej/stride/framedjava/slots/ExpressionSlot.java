@@ -91,9 +91,12 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The ExpressionSlot class is used where a single expression is wanted as a slot.  For example,
@@ -125,9 +128,11 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     private final FrameContentRow row;
 
     // All errors associated with the slot
+    @OnThread(Tag.FXPlatform)
     private final List<CodeError> allErrors = new ArrayList<>();
     // Shown errors associated with the slot.  If two errors overlap, they will both appear
     // in allErrors, but only one will be shown and appear in shownErrors.
+    @OnThread(Tag.FXPlatform)
     private final List<CodeError> shownErrors = new ArrayList<>();
     // The display showing errors and quick fixes (null if not showing)
     private ErrorAndFixDisplay errorAndFixDisplay;
@@ -263,24 +268,29 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
             gc.restore();
         });
         
-        JavaFXUtil.addChangeListener(fakeCaretShowing, b -> overlay.redraw());
+        JavaFXUtil.addChangeListener(fakeCaretShowing, b -> JavaFXUtil.runNowOrLater(() -> overlay.redraw()));
     }
     
     
     
  // Errors:
 
+    @OnThread(Tag.FXPlatform)
+    @Override
     public void flagErrorsAsOld()
     {
         allErrors.forEach(CodeError::flagAsOld);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
+    @Override
     public void removeOldErrors()
     {
         allErrors.removeIf(CodeError::isFlaggedAsOld);
         recalculateShownErrors();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void recalculateShownErrors()
     {
         shownErrors.clear();
@@ -308,9 +318,10 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         
         CaretPos curPos = topLevel.getCurrentPos();
         if (curPos != null)
-            showErrorAtCaret(curPos);
+            JavaFXUtil.runNowOrLater(() -> showErrorAtCaret(curPos));
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void showErrorHover(CodeError error)
     {
         if (errorAndFixDisplay != null)
@@ -347,6 +358,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private void showErrorAtCaret(CaretPos curPos)
     {
         if (curPos == null) {
@@ -383,7 +395,8 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
             errorAndFixDisplay.showBelow(topLevel.getNodeForPos(curPos));
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void addError(CodeError err)
     {
         allErrors.add(err);
@@ -392,13 +405,15 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void fixedError(CodeError err)
     {
         allErrors.remove(err);
         recalculateShownErrors();
     }
-    
-    public void drawErrorMarker(int startPos, int endPos, boolean javaPos, FXConsumer<Boolean> onHover, ObservableBooleanValue visible)
+
+    @OnThread(Tag.FXPlatform)
+    public void drawErrorMarker(int startPos, int endPos, boolean javaPos, FXPlatformConsumer<Boolean> onHover, ObservableBooleanValue visible)
     {
         // If we are trying to highlight an empty slot, highlight whole width
         if ((startPos == 0 && endPos == 0) || getText().length() == 0)
@@ -424,8 +439,8 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         }
         return slotElement;
     }
-    
 
+    @OnThread(Tag.FXPlatform)
     public void clearErrorMarkers()
     {
         overlay.clearErrorMarkers(this);
@@ -507,6 +522,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Stream<CodeError> getCurrentErrors()
     {
         return shownErrors.stream();
@@ -529,6 +545,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void addUnderline(Underline u)
     {
         underlines.add(u);
@@ -536,12 +553,14 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void removeAllUnderlines()
     {
         underlines.clear();
         drawUnderlines();
     }
 
+    @OnThread(Tag.FXPlatform)
     private void drawUnderlines()
     {
         overlay.clearUnderlines();
@@ -556,13 +575,15 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         
         if (errorAndFixDisplay != null)
         {
-            errorAndFixDisplay.hide();
-            errorAndFixDisplay = null;
+            final ErrorAndFixDisplay errorAndFixDisplayToHide = this.errorAndFixDisplay;
+            JavaFXUtil.runNowOrLater(() -> errorAndFixDisplayToHide.hide());
+            this.errorAndFixDisplay = null;
         }
-
-        shownErrors.clear();
-        clearErrorMarkers();
-        overlay.clearUnderlines();
+        JavaFXUtil.runNowOrLater(() -> {
+            shownErrors.clear();
+            clearErrorMarkers();
+            overlay.clearUnderlines();
+        });
     }
 
     public void replace(int startPosInSlot, int endPosInSlot, boolean javaPos, String s)
@@ -616,7 +637,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     {
         beenModified = true;
         editor.modifiedFrame(parentFrame);
-        editor.regenerateAndReparse(null);
+        editor.afterRegenerateAndReparse(null);
     }
     
     private double overlayToSceneX(double overlayX)
@@ -644,19 +665,21 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     // package-visible
     void clearSelection(boolean invalidateErrors)
     {
-        if (invalidateErrors)
-        {
-            clearErrorMarkers();
-        }
         selectionDrawPositions = null;
-        overlay.redraw();
+        JavaFXUtil.runNowOrLater(() -> {
+            if (invalidateErrors)
+            {
+                clearErrorMarkers();
+            }
+            overlay.redraw();
+        });
     }
     
     // package-visible
     void drawSelection(List<TextOverlayPosition> positions)
     {
         selectionDrawPositions = positions;
-        overlay.redraw();
+        JavaFXUtil.runNowOrLater(overlay::redraw);
     }
     
     public void bindTargetType(StringExpression targetTypeBinding)
@@ -713,6 +736,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     // package-visible
+    @OnThread(Tag.FXPlatform)
     void showSuggestionDisplay(ExpressionSlotField field, int caretPosition, boolean stringLiteral)
     {
         if (suggestionDisplay != null) {
@@ -722,7 +746,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         suggestionField = field;
         suggestionNode = field.getComponents().get(0);
         
-        FXConsumer<SuggestionList> withSuggList = suggList -> {
+        FXPlatformConsumer<SuggestionList> withSuggList = suggList -> {
             suggestionDisplay = suggList;
             updateSuggestions(true);
             suggestionDisplay.highlightFirstEligible();
@@ -743,11 +767,12 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         else {
             currentlyCompleting = true;
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
-            editor.regenerateAndReparse(this);
-            final int stringPos = topLevel.caretPosToStringPos(topLevel.getCurrentPos(), true);
-            PosInSourceDoc posInFile = getSlotElement().getPosInSourceDoc(stringPos);
-            completionCalculator.withCalculatedSuggestionList(posInFile, this, parentCodeFrame.getCode(), ExpressionSlot.this, (targetType == null /* || not at start getStartOfCurWord() != 0 */) ? null : targetType.get(), withSuggList);
-            editor.recordCodeCompletionStarted(getSlotElement(), stringPos, field.getText().substring(0, caretPosition));
+            editor.afterRegenerateAndReparse(() -> {
+                final int stringPos = topLevel.caretPosToStringPos(topLevel.getCurrentPos(), true);
+                PosInSourceDoc posInFile = getSlotElement().getPosInSourceDoc(stringPos);
+                completionCalculator.withCalculatedSuggestionList(posInFile, this, parentCodeFrame.getCode(), ExpressionSlot.this, (targetType == null /* || not at start getStartOfCurWord() != 0 */) ? null : targetType.get(), withSuggList);
+                editor.recordCodeCompletionStarted(getSlotElement(), stringPos, field.getText().substring(0, caretPosition));
+            });
         }
         
     }
@@ -755,39 +780,44 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     // package-visible
     void withParamNamesForConstructor(FXConsumer<List<List<String>>> handler)
     {
-        editor.regenerateAndReparse(this);
-        completionCalculator.withConstructorParamNames(paramsToConstructor.getValue(SuperThis.EMPTY), handler);
+        editor.afterRegenerateAndReparse(() -> {
+            completionCalculator.withConstructorParamNames(paramsToConstructor.getValue(SuperThis.EMPTY), handler);
+        });
     }
     
     // package-visible
     void withParamNamesForPos(CaretPos pos, String methodName, FXConsumer<List<List<String>>> handler)
     {
-        editor.regenerateAndReparse(this);
-        PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
-        completionCalculator.withParamNames(posJava, this, methodName, parentCodeFrame.getCode(), handler);
+        editor.afterRegenerateAndReparse(() -> {
+            PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
+            completionCalculator.withParamNames(posJava, this, methodName, parentCodeFrame.getCode(), handler);
+        });
     }
 
     // package-visible
     void withParamHintsForPos(CaretPos pos, String methodName, FXConsumer<List<List<String>>> handler)
     {
-        editor.regenerateAndReparse(this);
-        PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
-        completionCalculator.withParamHints(posJava, this, methodName, parentCodeFrame.getCode(), handler);
+        editor.afterRegenerateAndReparse(() -> {
+            PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
+            completionCalculator.withParamHints(posJava, this, methodName, parentCodeFrame.getCode(), handler);
+        });
     }
 
     // package-visible
     void withParamHintsForConstructor(int totalParams, FXConsumer<List<List<String>>> handler)
     {
-        editor.regenerateAndReparse(this);
-        completionCalculator.withConstructorParamHints(paramsToConstructor.getValue(SuperThis.EMPTY), totalParams, handler);
+        editor.afterRegenerateAndReparse(() -> {
+            completionCalculator.withConstructorParamHints(paramsToConstructor.getValue(SuperThis.EMPTY), totalParams, handler);
+        });
     }
 
     // package-visible
     void withMethodHint(CaretPos pos, String methodName, FXConsumer<List<String>> handler)
     {
-        editor.regenerateAndReparse(this);
-        PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
-        completionCalculator.withMethodHints(posJava, this, methodName, parentCodeFrame.getCode(), handler);
+        editor.afterRegenerateAndReparse(() -> {
+            PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
+            completionCalculator.withMethodHints(posJava, this, methodName, parentCodeFrame.getCode(), handler);
+        });
     }
     
     private Pane makeFileCompletionPreview(FileCompletion fc)
@@ -816,6 +846,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
             return new CaretPos(p.index, replaceLastWithZero(p.subPos));
     }
 
+    @OnThread(Tag.FXPlatform)
     private void updateSuggestions(boolean initialState)
     {
         if (suggestionDisplay != null)
@@ -961,6 +992,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
     
     // Package-visible
+    @OnThread(Tag.FXPlatform)
     void enter()
     {
         if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes())
@@ -992,7 +1024,8 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
             }
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void caretMoved()
     {
         CaretPos pos = topLevel.getCurrentPos();
@@ -1002,6 +1035,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
             mostRecentPos = pos;
     }
 
+    @OnThread(Tag.FXPlatform)
     public void escape()
     {
         // We want the error to hide until the user moves out and in, but not re-show if
@@ -1077,6 +1111,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     /**
      * Returns true if the method has transferred focus out of the slot
      */
+    @OnThread(Tag.FXPlatform)
     public boolean backspaceAtStart()
     {
         return row.backspaceAtStart(this);
@@ -1227,6 +1262,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         };
         setToOriginal.accept(originalItems);
         itemMap.put(TopLevelMenu.EDIT, new MenuItems(originalItems) {
+            @OnThread(Tag.FXPlatform)
             public void onShowing()
             {
                 InfixExpression exp = getTopLevel().getAllExpressions().filter(InfixExpression::isFocused).findFirst().orElse(null);
@@ -1273,6 +1309,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
                         items.clear();
                 }
 
+                @OnThread(Tag.FXPlatform)
                 public void onShowing()
                 {
                     items.setAll(scanningItem);
@@ -1313,6 +1350,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }   
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public Response suggestionListKeyPressed(KeyEvent event, int highlighted)
     {
         switch (event.getCode())
@@ -1329,6 +1367,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
                 CaretPos updatedLocation = topLevel.deletePreviousAtPos(suggestionLocation);
                 if (updatedLocation == null || !updatedLocation.init().equals(suggestionLocation.init()))
                 {
+                    Platform.runLater(() -> topLevel.positionCaret(updatedLocation));
                     return Response.DISMISS;
                 }
                 else
@@ -1365,6 +1404,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Response suggestionListKeyTyped(KeyEvent event, int highlighted)
     {
         CaretPos updatedLocation = null;
@@ -1443,6 +1483,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     //package-visible:
+    @OnThread(Tag.FXPlatform)
     void notifyModifiedPress(KeyCode c)
     {
         row.notifyModifiedPress(c);

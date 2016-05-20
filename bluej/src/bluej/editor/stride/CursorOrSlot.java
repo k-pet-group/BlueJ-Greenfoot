@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2015 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -30,6 +30,8 @@ import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.RecallableFocus;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A sum type that holds either an EditableSlot or a FrameCursor.
@@ -86,6 +88,7 @@ class CursorOrSlot
     /**
      * Gets the menu items for this slot/cursor (for window menu when focused, or right-click menu)
      */
+    @OnThread(Tag.FXPlatform)
     public Map<EditableSlot.TopLevelMenu, EditableSlot.MenuItems> getMenuItems(boolean contextMenu)
     {
         return slot != null ? slot.getMenuItems(contextMenu) : Collections.singletonMap(EditableSlot.TopLevelMenu.EDIT, cursor.getMenuItems(false));

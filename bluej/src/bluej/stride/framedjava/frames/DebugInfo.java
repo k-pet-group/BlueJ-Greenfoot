@@ -99,7 +99,7 @@ public class DebugInfo
     
     public class Display extends AnchorPane implements HighlightedBreakpoint
     {
-        private final ArrayList<VBox> varDisplay = new ArrayList<VBox>();
+        private final ArrayList<VBox> varDisplay = new ArrayList<>();
         private int curDisplay = -1;
         private Label curCounter;
         

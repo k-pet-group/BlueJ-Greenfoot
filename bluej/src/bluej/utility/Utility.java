@@ -1254,7 +1254,7 @@ public class Utility
         return r.stream();
     }
 
-    public static <T> Future<T> swingFuture(SwingSupplier<T> func)
+    public static <T> CompletableFuture<T> swingFuture(SwingSupplier<T> func)
     {
         CompletableFuture<T> f = new CompletableFuture<>();
         SwingUtilities.invokeLater(() -> f.complete(func.get()));
@@ -1367,13 +1367,13 @@ public class Utility
     @OnThread(Tag.Any)
     public static void runBackground(BackgroundRunnable r)
     {
-        background.execute(() -> r.run());
-    }
-
-    @OnThread(Tag.Any)
-    public static ScheduledExecutorService getBackground()
-    {
-        return background;
+        long queue = System.currentTimeMillis();
+        background.execute(() -> {
+            long started = System.currentTimeMillis();
+            r.run();
+            long ended = System.currentTimeMillis();
+            Debug.time("Queue->start: " + (started - queue) + " start->end:" + (ended - started) + " " + r);
+        });
     }
 
     public static <T> Stream<T> streamOptional(Optional<T> optional)

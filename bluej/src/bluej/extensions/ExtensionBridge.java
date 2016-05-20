@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -156,5 +156,10 @@ public final class ExtensionBridge
     public static Project getProject(BProject bProject) throws ProjectNotOpenException
     {
         return bProject.getProject();
+    }
+
+    public static PkgMgrFrame getPkgMgrFrame(BPackage pkg) throws ProjectNotOpenException, PackageNotFoundException
+    {
+        return pkg.getPkgMgrFrame();
     }
 }

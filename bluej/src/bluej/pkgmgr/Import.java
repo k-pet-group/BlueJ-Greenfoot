@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class Import
      * @param path       The path of the directory containing the project-to-be
      * @return  true if the conversion was successfully completed
      */
-    public static boolean convertNonBlueJ(JFrame parentWin, File path)
+    public static boolean convertNonBlueJ(Frame parentWin, File path)
     {
         // find all sub directories with Java files in them
         // then find all the Java files in those directories

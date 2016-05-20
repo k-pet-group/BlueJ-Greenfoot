@@ -77,8 +77,11 @@ import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.utility.javafx.AnnotatableTextField;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A slot which handles single-field text input, for example variable name definition.
@@ -115,9 +118,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     private ErrorAndFixDisplay errorAndFixDisplay;
 
     // The list of all errors currently associated with the slot
+    @OnThread(Tag.FXPlatform)
     private final List<CodeError> allErrors = new ArrayList<>();
     // The list of all errors actually showing for the slot.  (If two errors overlap,
     // // only one of them is shown, so allErrors may have more than shownErrors)
+    @OnThread(Tag.FXPlatform)
     private final List<CodeError> shownErrors = new ArrayList<>();
     // The underlines currently being shown (for indicating link sources)
     private final List<Underline> underlines = new ArrayList<>();
@@ -398,7 +403,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             
             
             //When focus leaves, if this is still blank, keep white. If has been filled in, blend in transparent with background.
-            this.focusedProperty().addListener( (observable, oldValue, newValue) -> {
+            JavaFXUtil.addFocusListener(getFocusableNode(), newValue -> {
                     if (newValue)
                     {
                         valueOnGain = getText();
@@ -493,19 +498,20 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 protected double computeValue()
                 {
                     String effectiveText = textProperty().get().length() > 0 ? textProperty().get() : promptTextProperty().get();
-                    return Math.max(10, 5 + measureString(effectiveText));
+                    return Math.max(10, 5 + measureString(effectiveText, true));
                 }
             });
             prefWidthProperty().bind(minWidthProperty());
             
             caretPositionProperty().addListener( (observable, oldValue, newVal) -> {
                     if (isFocused())
-                        showErrorAtCaret(newVal.intValue());
+                        JavaFXUtil.runNowOrLater(() -> showErrorAtCaret(newVal.intValue()));
                     // TODO cancel code completion if we've moved away from it
             });
             
-            // runLater, to allow parent's constructor to execute:
-            Platform.runLater(() -> setContextMenu(MenuItems.makeContextMenu(getMenuItems(true))));
+            // Need to allow parent's constructor to execute, and
+            // need to be in the scene:
+            JavaFXUtil.onceInScene(getNode(), () -> setContextMenu(MenuItems.makeContextMenu(getMenuItems(true))));
         }
 
         public final int getCaretPosition()
@@ -522,7 +528,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         {
             return getText().substring(getStartOfCurWord(), getCaretPosition());
         }
-        
+
+        @OnThread(Tag.FXPlatform)
         private void updateSuggestions(boolean initialState)
         {
             String prefix = getCurWord();
@@ -537,7 +544,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 return; // Completion not possible in this slot
 
             suggestionXOffset.set(calculateCaretPosition(getStartOfCurWord()));
-            FXConsumer<SuggestionList> handler = s ->
+            FXPlatformConsumer<SuggestionList> handler = s ->
             {
                 suggestionDisplayProperty.set(s);
                 updateSuggestions(true);
@@ -546,10 +553,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 field.setFakeCaretShowing(true);
             };
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
-            editor.regenerateAndReparse(null);
-            final int stringPos = field.getCaretPosition();
-            completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, handler);
-            editor.recordCodeCompletionStarted(getSlotElement(), stringPos, getCurWord());
+            editor.afterRegenerateAndReparse(() -> {
+                final int stringPos = field.getCaretPosition();
+                completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, handler);
+                editor.recordCodeCompletionStarted(getSlotElement(), stringPos, getCurWord());
+            });
         }
 
 
@@ -652,6 +660,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     @Override
     public void addError(CodeError err)
     {
@@ -666,18 +675,21 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void flagErrorsAsOld()
     {
         allErrors.forEach(CodeError::flagAsOld);
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void removeOldErrors()
     {
         allErrors.removeIf(CodeError::isFlaggedAsOld);
         recalculateShownErrors();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void recalculateShownErrors()
     {
         shownErrors.clear();
@@ -708,6 +720,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             showErrorAtCaret(field.getCaretPosition());
     }
 
+    @OnThread(Tag.FXPlatform)
     private void showErrorHover(CodeError error)
     {
         if (errorAndFixDisplay != null)
@@ -737,7 +750,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             errorAndFixDisplay.showBelow(field.getNode(), Duration.ZERO);
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void showErrorAtCaret(int caretPosition)
     {   
         // Note: we do want <= and <= here, so that the explanation shows
@@ -789,11 +803,12 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         {
             if (errorAndFixDisplay != null)
             {
-                errorAndFixDisplay.hide();
-                errorAndFixDisplay = null;
+                final ErrorAndFixDisplay errorAndFixDisplayToHide = this.errorAndFixDisplay;
+                JavaFXUtil.runNowOrLater(() -> errorAndFixDisplayToHide.hide());
+                this.errorAndFixDisplay = null;
             }
         }
-        field.clearErrorMarkers(this);
+        JavaFXUtil.runNowOrLater(() -> field.clearErrorMarkers(this));
     }
 
     public void replace(int startPosInSlot, int endPosInSlot, String replacement)
@@ -805,6 +820,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void fixedError(CodeError err)
     {
         allErrors.remove(err);
@@ -858,23 +874,27 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         return field.getNode();
     }
 
+    @OnThread(Tag.FXPlatform)
     public Stream<CodeError> getCurrentErrors()
     {
         return shownErrors.stream();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void addUnderline(Underline u)
     {
         underlines.add(u);
         drawUnderlines();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void removeAllUnderlines()
     {
         underlines.clear();
         drawUnderlines();
     }
 
+    @OnThread(Tag.FXPlatform)
     private void drawUnderlines()
     {
         field.clearUnderlines();
@@ -916,6 +936,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
      * 
      * Allows us to perform actions like pop-up prompts or renaming the compilation unit. 
      */
+    @OnThread(Tag.FXPlatform)
     public abstract void valueChangedLostFocus(String oldValue, String newValue);
 
     @Override
@@ -961,6 +982,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 new MenuItems(menuItems) {
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void onShowing() {
                 if (hoverErrorCurrentlyShown != null ){
                     errorAndFixDisplay.hide();

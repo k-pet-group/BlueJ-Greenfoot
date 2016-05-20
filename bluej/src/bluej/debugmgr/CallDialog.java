@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -270,7 +271,7 @@ public abstract class CallDialog extends EscapeDialog
         }
     }
     
-    public CallDialog(JFrame parentFrame, ObjectBenchInterface objectBench, String title)
+    public CallDialog(Frame parentFrame, ObjectBenchInterface objectBench, String title)
     {
         super(parentFrame, title, false);
         bench = objectBench;

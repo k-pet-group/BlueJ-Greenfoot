@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr;
 
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -55,8 +56,8 @@ public class ImportMismatchDialog extends EscapeDialog
 
     private boolean result = false;
 
-    public ImportMismatchDialog(JFrame parent, List<File> files,
-                                 List<String> packageNamesOriginal, List<String> packageNamesChanged)
+    public ImportMismatchDialog(Frame parent, List<File> files,
+                                List<String> packageNamesOriginal, List<String> packageNamesChanged)
     {
         super(parent, dialogTitle, true);
 
@@ -124,14 +125,14 @@ public class ImportMismatchDialog extends EscapeDialog
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
                 JButton continueButton = BlueJTheme.getContinueButton();
-				continueButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) { doContinue(); }        		
-				});
+                continueButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) { doContinue(); }
+                });
 
                 JButton cancelButton = BlueJTheme.getCancelButton();
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) { doCancel(); }        		
-				});
+                cancelButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) { doCancel(); }
+                });
 
                 DialogManager.addOKCancelButtons(buttonPanel, continueButton, cancelButton);
 
@@ -152,15 +153,15 @@ public class ImportMismatchDialog extends EscapeDialog
         return result;
     }
 
-	private void doContinue()
-	{
-		result = true;
-		dispose();
-	}
-	
-	private void doCancel()
-	{
-		result = false;
-		dispose();
-	}
+    private void doContinue()
+    {
+        result = true;
+        dispose();
+    }
+
+    private void doCancel()
+    {
+        result = false;
+        dispose();
+    }
 }

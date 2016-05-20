@@ -1017,7 +1017,7 @@ public class ClassTarget extends DependentTarget
             if (sourceAvailable == SourceType.Java) {
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
-                        getBaseName(), project::getDefaultSwingTabbedEditor, this, isCompiled(), resolver,
+                        getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), resolver,
                         project.getJavadocResolver(), this::recordEditorOpen);
             }
             else if (sourceAvailable == SourceType.Stride) {
@@ -1118,7 +1118,7 @@ public class ClassTarget extends DependentTarget
                 
                     // Once this state is reached, we're running on the Swing event queue.
                     case 1:
-                        getPackage().getProject().getClassInspectorInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
+                        getPackage().getProject().getClassInspectorInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()).getWindow());
                 }
             }
         }.start();
@@ -1262,7 +1262,7 @@ public class ClassTarget extends DependentTarget
         }
         
     }
-    
+
     @Override
     public void scheduleCompilation(boolean immediate, CompileReason reason)
     {

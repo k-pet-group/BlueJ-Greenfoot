@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,7 +43,7 @@ class AboutBlue extends EscapeDialog
     private static final String BLUEJ_URL = "http://www.bluej.org";
     private static final Color linkColor = new Color(0, 76, 134);
 
-    public AboutBlue(JFrame parent, String version)
+    public AboutBlue(Frame parent, String version)
     {
         super(parent, Config.getString("menu.help.about"), true);
 

@@ -70,6 +70,8 @@ import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.stride.slots.TypeTextSlot;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Container-block representing a method.
@@ -134,10 +136,10 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
             //
             // We use the convention that a positive offset (> 0) means don't display,
             // and 0 through negative numbers is the offset at which to display            
-            
+
             final DoubleBinding offset = new DoubleBinding() {
-                
-@Override
+
+                @Override
                 protected double computeValue()
                 {
                     if (!getHeaderItems().findFirst().isPresent())
@@ -403,7 +405,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
         ArrayList<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
-        extensions.add(new ExtensionDescription(GreenfootFrameDictionary.THROWS_EXTENSION_CHAR,
+        extensions.add(new ExtensionDescription(StrideDictionary.THROWS_EXTENSION_CHAR,
                 "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER));
         return extensions;
     }
@@ -414,6 +416,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animate)
     {
         super.setView(oldView, newView, animate);

@@ -26,10 +26,11 @@ import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 
 public interface CompletionCalculator
 {
-    public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl, SuggestionListListener clickListener, FXConsumer<SuggestionList> handler);
+    public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl, SuggestionListListener clickListener, FXPlatformConsumer<SuggestionList> handler);
     
     public boolean execute(TextField field, int highlighted, int startOfCurWord);
 }

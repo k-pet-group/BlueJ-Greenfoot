@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -750,7 +750,7 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
     protected void inspectObject()
     {
         InvokerRecord ir = new ObjectInspectInvokerRecord(getName());
-        pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
+        pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf.getWindow());  // shows the inspector
     }
 
     protected void removeObject()
@@ -803,7 +803,7 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
                 // a void result returns a name of null
                 if (result != null && ! result.isNullObject()) {
                     pkg.getProject().getResultInspectorInstance(result, name, pkg,
-                            ir, expressionInformation, pmf);
+                            ir, expressionInformation, pmf.getWindow());
                 }
             }
             

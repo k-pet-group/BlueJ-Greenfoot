@@ -45,7 +45,7 @@ import javafx.util.Duration;
  */
 public class SharedTransition
 {
-    private final List<FXRunnable> onStopped = new ArrayList<>();
+    private final List<FXPlatformRunnable> onStopped = new ArrayList<>();
     private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
     private final DoubleExpression opposite = progress.negate().add(1.0);
     private Timeline timeline;
@@ -71,7 +71,7 @@ public class SharedTransition
      * Adds a listener to be execute if the transition finishes naturally,
      * or is stopped via the stop() method.
      */
-    public void addOnStopped(FXRunnable stopped)
+    public void addOnStopped(FXPlatformRunnable stopped)
     {
         onStopped.add(stopped);
     }
@@ -90,7 +90,7 @@ public class SharedTransition
             if (!runStopped)
             {
                 runStopped = true;
-                onStopped.forEach(FXRunnable::run);
+                onStopped.forEach(FXPlatformRunnable::run);
             }
         }, new KeyValue(progress, 1.0, Interpolator.EASE_BOTH)));
         timeline.play();
@@ -107,7 +107,7 @@ public class SharedTransition
         if (!runStopped)
         {
             runStopped = true;
-            onStopped.forEach(FXRunnable::run);
+            onStopped.forEach(FXPlatformRunnable::run);
         }
     }
 }

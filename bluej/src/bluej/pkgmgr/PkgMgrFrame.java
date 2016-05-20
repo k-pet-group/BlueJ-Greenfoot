@@ -80,9 +80,23 @@ import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
+import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.embed.swing.JFXPanel;
+import javafx.embed.swing.SwingNode;
+import javafx.scene.Scene;
+import javafx.scene.control.MenuBar;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -175,7 +189,7 @@ import bluej.views.MethodView;
 /**
  * The main user interface frame which allows editing of packages
  */
-public class PkgMgrFrame extends JFrame
+public class PkgMgrFrame extends JPanel
     implements BlueJEventListener, MouseListener, PackageEditorListener
 {
     static final int DEFAULT_WIDTH = 560;
@@ -186,6 +200,7 @@ public class PkgMgrFrame extends JFrame
     private static boolean javaMEtoolsShown = wantToSeeJavaMEtools();
     
     /** Frame most recently having focus */
+    @OnThread(Tag.Any)
     private static PkgMgrFrame recentFrame = null;
 
     // instance fields:
@@ -295,6 +310,13 @@ public class PkgMgrFrame extends JFrame
 
     private final NoProjectMessagePanel noProjectMessagePanel = new NoProjectMessagePanel();
 
+    @OnThread(Tag.FX)
+    private SwingNode swingNode;
+    @OnThread(Tag.FX)
+    private Property<Stage> stageProperty;
+    @OnThread(Tag.FX)
+    private Property<BorderPane> paneProperty;
+
     /**
      * Create a new PkgMgrFrame which does not show a package.
      * 
@@ -302,6 +324,10 @@ public class PkgMgrFrame extends JFrame
      */
     private PkgMgrFrame()
     {
+        Platform.runLater(() -> {
+            stageProperty = new SimpleObjectProperty<>(null);
+            paneProperty = new SimpleObjectProperty<>(null);
+        });
         this.pkg = null;
         this.editor = null;
         objbench = new ObjectBench(this);
@@ -314,6 +340,18 @@ public class PkgMgrFrame extends JFrame
             makeFrame();
             updateWindow();
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
+
+            new JFXPanel();
+            Platform.runLater(() -> {
+                Stage stage = new Stage();
+                swingNode = new SwingNode();
+                swingNode.setContent(PkgMgrFrame.this);
+                BorderPane root = new BorderPane(swingNode);
+                stage.setScene(new Scene(root));
+                stage.show();
+                stageProperty.setValue(stage);
+                paneProperty.setValue(root);
+            });
         }
     }
 
@@ -327,24 +365,16 @@ public class PkgMgrFrame extends JFrame
         PkgMgrFrame frame = new PkgMgrFrame();
         frames.add(frame);
         BlueJEvent.addListener(frame);
-        
-        frame.addWindowFocusListener(new WindowFocusListener() {
-            
-            @Override
-            public void windowLostFocus(WindowEvent e)
-            {
-                // Nothing to do...
-            }
-            
-            @Override
-            public void windowGainedFocus(WindowEvent e)
-            {
-                Window w = e.getWindow();
-                if (w instanceof PkgMgrFrame) {
-                    // This *should* always be the case
-                    recentFrame = (PkgMgrFrame) w;
-                }
-            }
+
+        Platform.runLater(() -> {
+            JavaFXUtil.onceNotNull(frame.stageProperty, stage ->
+                JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
+                    if (focused.booleanValue())
+                    {
+                        recentFrame = frame;
+                    }
+                })
+            );
         });
         
         return frame;
@@ -393,7 +423,7 @@ public class PkgMgrFrame extends JFrame
 
         // frame should be garbage collected but we will speed it
         // on its way
-        frame.dispose();
+        //frame.dispose();
     }
 
     /**
@@ -509,12 +539,6 @@ public class PkgMgrFrame extends JFrame
         // Assume that the most recent is the first one. Not really the best
         // thing to do...
         PkgMgrFrame mostRecent = allFrames[0];
-
-        for (PkgMgrFrame allFrame : allFrames) {
-            if (allFrame.getFocusOwner() != null) {
-                mostRecent = allFrame;
-            }
-        }
 
         return mostRecent;
     }
@@ -885,8 +909,7 @@ public class PkgMgrFrame extends JFrame
             
             updateShowUsesInPackage();
             updateShowExtendsInPackage();
-            
-            pack();
+
             editor.revalidate();
             editor.requestFocus();
             
@@ -1027,10 +1050,16 @@ public class PkgMgrFrame extends JFrame
     {
         if(!visible) {
             super.setVisible(false);
+            Platform.runLater(() -> {
+                JavaFXUtil.onceNotNull(stageProperty, Stage::hide);
+            });
         }
         else if (!Config.isGreenfoot()) {
             super.setVisible(true);
-            setState(Frame.NORMAL);
+            //setState(Frame.NORMAL);
+            Platform.runLater(() -> {
+                JavaFXUtil.onceNotNull(stageProperty, Stage::show);
+            });
         }
     }
     
@@ -1083,6 +1112,11 @@ public class PkgMgrFrame extends JFrame
 
             setTitle(title);
         }
+    }
+
+    private void setTitle(String title)
+    {
+        Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> stage.setTitle(title)));
     }
 
     /**
@@ -1324,14 +1358,20 @@ public class PkgMgrFrame extends JFrame
             }
             else {
                 PkgMgrFrame pmf = createFrame( unNamedPkg );
-                DialogManager.tileWindow(pmf, this);
+                DialogManager.tileWindow(pmf.getWindow(), getWindow());
                 pmf.setVisible(true);
             }    
             return true;
         }
         return false;
     }
-    
+
+    public Frame getWindow()
+    {
+        Window windowAncestor = SwingUtilities.getWindowAncestor(this);
+        return (Frame) windowAncestor;
+    }
+
     /**
      * Import a project from a directory into the current package. 
      * @param dir               The directory to import
@@ -1346,7 +1386,7 @@ public class PkgMgrFrame extends JFrame
 
         // if we have any files which failed the copy, we show them now
         if (fails != null && showFailureDialog) {
-            JDialog importFailedDlg = new ImportFailedDialog(this, fails);
+            JDialog importFailedDlg = new ImportFailedDialog(getWindow(), fails);
             importFailedDlg.setVisible(true);
         }
 
@@ -1493,7 +1533,7 @@ public class PkgMgrFrame extends JFrame
                 else {
                     pmf = createFrame(initialPkg);
 
-                    DialogManager.tileWindow(pmf, this);
+                    DialogManager.tileWindow(pmf.getWindow(), getWindow());
                 }
             }
 
@@ -1533,7 +1573,7 @@ public class PkgMgrFrame extends JFrame
             }
             
             // Try and convert it to a project
-            if (! Import.convertNonBlueJ(this, absDirName))
+            if (! Import.convertNonBlueJ(this.getWindow(), absDirName))
                 return;
             
             // then construct it as a project
@@ -1563,7 +1603,7 @@ public class PkgMgrFrame extends JFrame
         }
         else {
             // Convert to a BlueJ project
-            if (Import.convertNonBlueJ(this, oPath)) {
+            if (Import.convertNonBlueJ(this.getWindow(), oPath)) {
                 return openProject(oPath.getPath());
             }
             else {
@@ -1627,6 +1667,7 @@ public class PkgMgrFrame extends JFrame
             // The unnamed package also contains project properties
             p = getProject().getProjectProperties();
             getProject().saveEditorLocations(p);
+            getProject().getImportScanner().saveCachedImports();
         }
         else {
             p = new Properties();
@@ -1783,7 +1824,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void aboutBlueJ()
     {
-        AboutBlue about = new AboutBlue(this, bluej.Boot.BLUEJ_VERSION);
+        AboutBlue about = new AboutBlue(getWindow(), bluej.Boot.BLUEJ_VERSION);
         about.setVisible(true);
     }
 
@@ -1939,7 +1980,7 @@ public class PkgMgrFrame extends JFrame
                         return;
 
                     getProject().getResultInspectorInstance(result, name, getPackage(), ir,
-                            expressionInformation, PkgMgrFrame.this);
+                            expressionInformation, PkgMgrFrame.this.getWindow());
                 }
 
                 @Override
@@ -1988,7 +2029,7 @@ public class PkgMgrFrame extends JFrame
 
         if ((pmf = findFrame(p)) == null) {
             pmf = createFrame(p);
-            DialogManager.tileWindow(pmf, this);
+            DialogManager.tileWindow(pmf.getWindow(), this.getWindow());
         }
         pmf.setVisible(true);
     }
@@ -2070,7 +2111,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void doCreateNewClass()
     {
-        NewClassDialog dlg = new NewClassDialog(this, pkg, isJavaMEpackage());
+        NewClassDialog dlg = new NewClassDialog(this.getWindow(), pkg, isJavaMEpackage());
         boolean okay = dlg.display();
 
         if (okay) {
@@ -2088,7 +2129,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void doCreateNewPackage()
     {
-        NewPackageDialog dlg = new NewPackageDialog(this);
+        NewPackageDialog dlg = new NewPackageDialog(this.getWindow());
         boolean okay = dlg.display();
         
         if (!okay)
@@ -2588,7 +2629,6 @@ public class PkgMgrFrame extends JFrame
             removeTextEvaluatorPane();
             editor.requestFocus();
         }
-        pack();
         showingTextEvaluator = show;
     }
 
@@ -2722,27 +2762,22 @@ public class PkgMgrFrame extends JFrame
         setFont(pkgMgrFont);
         Image icon = BlueJTheme.getIconImage();
         if (icon != null) {
-            setIconImage(icon);
+            //TODOPMF
+            //setIconImage(icon);
         }
         testItems = new ArrayList<>();
         teamItems = new ArrayList<>();
 
         setupMenus();
-        
-        // To get a gradient fill for the frame, we need to override the content pane's
-        // paintComponent method to use a gradient fill (no other way to do it)
-        // Hence this code, that sets the content pane to be a standard JPanel with
-        // the same layout as before, but with paintComponent performing a gradient fill:
-        if (!Config.isRaspberryPi()){
-            setContentPane(new GradientFillPanel(getContentPane().getLayout()));
-        }else{
-            setContentPane(new JPanel(getContentPane().getLayout()));
-        }
-        // To let that gradient fill show through, all the other panes that sit
-        // on top of the frame must have setOpaque(false) called, hence all the calls
-        // of that type throughout the code below
 
-        Container contentPane = getContentPane();
+        // We used to have a gradient fill panel but that is now gone.  At the time,
+        // to let that gradient fill show through, all the other panes that sit
+        // on top of the frame must have setOpaque(false) called, hence all the calls
+        // of that type throughout the code below.  I haven't yet removed the calls, but
+        // they are no longer necessary.
+
+        Container contentPane = this;
+        contentPane.setLayout(new BorderLayout());
         ((JPanel) contentPane).setBorder(BlueJTheme.generalBorderWithStatusBar);
 
         // create the main panel holding the diagram and toolbar on the left
@@ -2957,16 +2992,11 @@ public class PkgMgrFrame extends JFrame
             addTextEvaluatorPane();
         }
 
-        pack();
-
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent E)
-            {
-                PkgMgrFrame pmf = (PkgMgrFrame) E.getWindow();
-                pmf.doClose(false, true);
-            }
-        });
+        Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> {
+            stage.setOnCloseRequest(e -> {
+                SwingUtilities.invokeLater(() -> PkgMgrFrame.this.doClose(false, true));
+            });
+        }));
 
         // grey out certain functions if package not open.
         if (isEmptyFrame()) {
@@ -3218,7 +3248,12 @@ public class PkgMgrFrame extends JFrame
         addUserHelpItems(menu);
         updateRecentProjects();
 
-        setJMenuBar(menubar);
+        FXSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);
+        Platform.runLater(() -> JavaFXUtil.onceNotNull(paneProperty, pane -> {
+            MenuBar fxMenuBar = fxMenuBarSupplier.get();
+            fxMenuBar.setUseSystemMenuBar(true);
+            pane.setTop(fxMenuBar);
+        }));
     }
 
     /**
@@ -3436,6 +3471,17 @@ public class PkgMgrFrame extends JFrame
                 visiblePanes.get(destination).requestFocusInWindow();
             }
         }
+    }
+
+    @OnThread(Tag.FX)
+    public Stage getFXWindow()
+    {
+        return stageProperty.getValue();
+    }
+
+    void bringToFront()
+    {
+        Platform.runLater(() -> Utility.bringToFrontFX(getFXWindow()));
     }
 
     class URLDisplayer

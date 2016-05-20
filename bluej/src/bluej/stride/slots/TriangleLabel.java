@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -48,8 +48,11 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class for rotatable triangle to be used with hideable canvases.
@@ -103,15 +106,18 @@ public class TriangleLabel extends HBox implements HeaderItem
             {
                 if (nowExpanded)
                 {
-                    animate(true);
+                    JavaFXUtil.runNowOrLater(() -> animate(true));
                 }
                 else
                 {
-                    animate(false);
-                    editor.getSelection().clear();
+                    JavaFXUtil.runNowOrLater(() -> {
+                        animate(false);
+                        editor.getSelection().clear();
+                    });
                 }
             }
 
+            @OnThread(Tag.FXPlatform)
             private void animate(boolean expandAnim)
             {
                 if (transition != null)

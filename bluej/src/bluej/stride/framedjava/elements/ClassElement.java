@@ -40,6 +40,7 @@ import javax.swing.text.BadLocationException;
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
+import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.errors.CodeError;
@@ -88,6 +89,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     private final TypeSlotFragment extendsName;
     /** The list of types we implement (empty if none) */
     private final List<TypeSlotFragment> implementsList;
+    /** The package name (will not be null, but package name within may be blank */
+    private final PackageFragment packageName;
     /** The list of imports in this class */
     private final List<ImportElement> imports;
     /** The list of fields in this class */
@@ -135,7 +138,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
      */
     public ClassElement(ClassFrame frame, EntityResolver projectResolver, boolean abstractModifier, NameDefSlotFragment className, 
             TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, List<CodeElement> fields, List<CodeElement> constructors, List<CodeElement> methods,
-            JavadocUnit documentation, List<ImportElement> imports, boolean enabled)
+            JavadocUnit documentation, PackageFragment packageName, List<ImportElement> imports, boolean enabled)
     {
         this.frame = frame;
         this.openingCurly = new FrameFragment(this.frame, this, "{");
@@ -144,17 +147,21 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         this.className = className;
         this.extendsName = extendsName;
         this.documentation = documentation;
+        if (packageName != null)
+            this.packageName = packageName;
+        else
+            this.packageName = new PackageFragment("");
         this.imports = new LinkedList<>(imports);
         
         this.implementsList = new ArrayList<>(implementsList);
         
-        this.fields = new ArrayList<CodeElement>(fields);
+        this.fields = new ArrayList<>(fields);
         this.fields.forEach(field -> field.setParent(this));
         
-        this.constructors = new ArrayList<CodeElement>(constructors);
+        this.constructors = new ArrayList<>(constructors);
         this.constructors.forEach(constructor -> constructor.setParent(this));
         
-        this.methods = new ArrayList<CodeElement>(methods);
+        this.methods = new ArrayList<>(methods);
         this.methods.forEach(method -> method.setParent(this));
 
         this.enable = enabled;
@@ -177,7 +184,12 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         className = new NameDefSlotFragment(el.getAttributeValue("name"));
         final String extendsAttribute = el.getAttributeValue("extends");
         extendsName = (extendsAttribute != null) ? new TypeSlotFragment(extendsAttribute) : null;
-        
+
+        // We allow package to be missing because it wasn't present in first version
+        // of Stride (in Greenfoot 3.0.0).  In this case, we presume nameless package
+        Attribute packageAttribute = el.getAttribute("package");
+        packageName = new PackageFragment(packageAttribute == null ? "" : packageAttribute.getValue());
+
         Element javadocEL = el.getFirstChildElement("javadoc");
         if (javadocEL != null) {
             documentation = new JavadocUnit(javadocEL);
@@ -228,6 +240,9 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         java.prependLine(Arrays.asList((JavaFragment) f(frame, "")), null);
         Utility.backwards(CodeElement.toJavaCodes(imports)).forEach(imp -> java.prepend(imp));
 
+        if (!packageName.getContent().equals(""))
+            java.prependLine(Arrays.asList(f(frame, "package "), packageName, f(frame, ";")), null);
+
         openingCurly.setFrame(frame);
         java.appendLine(Arrays.asList(openingCurly), null);
         fields.stream().filter(f -> f.isEnable()).forEach(f -> java.addIndented(f.toJavaSource()));
@@ -261,6 +276,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         if (documentation != null) {
             classEl.appendChild(documentation.toXML());
         }
+
+        classEl.addAttributeCode("package", packageName);
         
         appendCollection(classEl, imports, "imports");
         classEl.appendChild(TopLevelCodeElement.stringListToXML(implementsList, "implements", "implementstype", "type"));
@@ -284,7 +301,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     @Override
     public ClassFrame createFrame(InteractionManager editor)
     {
-        frame = new ClassFrame(editor, abstractModifier, className, imports, extendsName, implementsList, projectResolver, documentation, isEnable());
+        frame = new ClassFrame(editor, abstractModifier, className, packageName, imports, extendsName, implementsList, projectResolver, documentation, isEnable());
         fields.forEach(member -> frame.getfieldsCanvas().insertBlockAfter(member.createFrame(editor), null));
         constructors.forEach(member -> frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null));
         methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));

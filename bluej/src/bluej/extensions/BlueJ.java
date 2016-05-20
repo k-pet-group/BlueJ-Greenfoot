@@ -265,7 +265,7 @@ public final class BlueJ
         if (!myWrapper.isValid())
             throw new ExtensionUnloadedException();
 
-        return PkgMgrFrame.getMostRecent();
+        return PkgMgrFrame.getMostRecent().getWindow();
     }
 
 

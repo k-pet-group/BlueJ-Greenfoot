@@ -18,6 +18,10 @@
     -fx-background-color: suggestion-background;
 }
 
+.suggestion-cell {
+    -fx-padding: 0;
+}
+
 .suggestion-prefix, .suggestion-matching, .suggestion-next, .suggestion-suffix {
     -fx-label-padding: 0 -2 0 0;
 }
@@ -51,7 +55,7 @@
 }
 
 /* Make the similar suggestions grey, to de-emphasise */
-.suggestion-similar > .label {
+.suggestion:bj-suggestion-similar .label {
     -fx-text-fill: hsb(0, 0%, 50%);
 }
 

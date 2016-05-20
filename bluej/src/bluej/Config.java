@@ -50,6 +50,7 @@ import java.util.Properties;
 import java.util.Scanner;
 
 import javafx.scene.Scene;
+import javafx.scene.control.DialogPane;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
@@ -852,6 +853,17 @@ public final class Config
     {
         // add the defaults (English)
         Properties labels = loadDefs(DEFAULT_LANGUAGE + File.separator + "labels", System.getProperties());
+
+        // Load frame labels
+        String frameLabels = DEFAULT_LANGUAGE + File.separator + "frame-labels";
+        File frameLabelFile = new File(bluejLibDir, frameLabels);
+        try{
+            labels.load(new FileInputStream(frameLabelFile));
+        }
+        catch(Exception e){
+            Debug.reportError("Unable to load greenfoot labels file: " + frameLabelFile);
+        }
+
         // if greenfoot, add specific additional labels
         if(isGreenfoot())
         {
@@ -864,16 +876,6 @@ public final class Config
             catch(IOException e){
                 Debug.reportError("Unable to load greenfoot labels file: " + greenfootLabelFile);
             }
-
-            // Load frame labels
-            String frameLabels = DEFAULT_LANGUAGE + File.separator + "frame-labels";
-            File frameLabelFile = new File(bluejLibDir, frameLabels);
-            try{
-                labels.load(new FileInputStream(frameLabelFile));
-            }
-            catch(Exception e){
-                Debug.reportError("Unable to load greenfoot labels file: " + frameLabelFile);
-            }
         }
         // add localised labels if necessary...
         if(!DEFAULT_LANGUAGE.equals(language)) {
@@ -885,6 +887,17 @@ public final class Config
             catch(Exception e){
                 Debug.reportError("Unable to load definitions file: " + languageFile);
             }
+
+            // Load frame labels
+            String languageFrameLabels = language + File.separator + "frame-labels";
+            File languageFrameLabelFile = new File(bluejLibDir, languageFrameLabels);
+            try{
+                labels.load(new FileInputStream(languageFrameLabelFile));
+            }
+            catch(Exception e){
+                Debug.reportError("Unable to load frame labels file: " + languageFrameLabelFile);
+            }
+
             if(isGreenfoot()) {
                 File greenfootLabels = new File(bluejLibDir, language + File.separator + "greenfoot/greenfoot-labels");
                 try{
@@ -892,16 +905,6 @@ public final class Config
                 }
                 catch(Exception e){
                     Debug.reportError("Unable to load greenfoot labels file: " + greenfootLabels);
-                }
-
-                // Load frame labels
-                String frameLabels = language + File.separator + "frame-labels";
-                File frameLabelFile = new File(bluejLibDir, frameLabels);
-                try{
-                    labels.load(new FileInputStream(frameLabelFile));
-                }
-                catch(Exception e){
-                    Debug.reportError("Unable to load frame labels file: " + frameLabelFile);
                 }
             }
         }
@@ -1857,6 +1860,19 @@ public final class Config
                 Debug.reportError(e);
             }
             //scene.getStylesheets().add("file:///Users/mik/Development/frames/bluej/lib/stylesheets/" + stem + ".css");
+        }
+    }
+    
+    @OnThread(Tag.FX)
+    public static void addDialogStylesheets(DialogPane dialogPane)
+    {
+        try
+        {
+            dialogPane.getStylesheets().add(new File (bluejLibDir + "/stylesheets", "dialogs.css").toURI().toURL().toString());
+        }
+        catch (MalformedURLException e)
+        {
+            Debug.reportError(e);
         }
     }
 

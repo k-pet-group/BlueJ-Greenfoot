@@ -44,6 +44,8 @@ import bluej.stride.generic.SuggestedFollowUpDisplay;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class TypeTextSlot extends TextSlot<TypeSlotFragment>
 {
@@ -84,6 +86,7 @@ public class TypeTextSlot extends TextSlot<TypeSlotFragment>
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void valueChangedLostFocus(String oldValue, String newValue)
     {
         // When return type, perform action to add/remove values from return items

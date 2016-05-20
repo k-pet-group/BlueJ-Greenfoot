@@ -8,12 +8,15 @@
     class-comment-text: hsb(103, 50%, 50%);
 
     interface-frame: hsb(198, 14%, 96%);
+    interface-frame-java: hsb(198, 10%, 96%);
+    interface-comment-focus: hsb(198, 50%, 85%);
     interface-comment-text: hsb(198, 80%, 43%);
 
     triangle-label: hsb(103, 70%, 30%);
 
-    instance-var-frame: derive(class-frame, +25%);
-    
+    class-var-frame: derive(class-frame, +25%);
+    interface-var-frame: derive(interface-frame, +25%);
+
     if-frame: hsb(240, 2%, 90%);
     if-frame-java: hsb(240, 1%, 95%);
     if-border: derive(if-frame, -25%);
@@ -177,7 +180,7 @@
 }
 
 .class-frame-canvas:bj-non-empty, .class-fields-frame-canvas:bj-non-empty,
-.interface-frame-canvas:bj-non-empty {
+.interface-frame-canvas:bj-non-empty, .interface-fields-frame-canvas:bj-non-empty {
     -bj-border-color: transparent !important;
 }
 
@@ -185,10 +188,10 @@
      -fx-font-weight: bold;
 }
 .class-extends-row, .interface-extends-row {
-     -fx-padding: 0 0 0 20; 
+     -fx-padding: 0 0 0 20;
 }
 
-.class-header-box {
+.class-header-box, .interface-header-box {
   -fx-padding: 12 6 0 6;
 }
 
@@ -206,11 +209,19 @@
 
 .class-frame .inherited-method-frame, .class-frame .import-frame, .class-frame .import-field {
     -fx-border-width: 1;
-    -fx-border-color: instance-var-frame;
-    -fx-background-color: instance-var-frame;
+    -fx-border-color: class-var-frame;
+    -fx-background-color: class-var-frame;
 }
-.class-frame .inherited-method-frame:bj-java-preview, .class-frame .import-frame:bj-java-preview, .class-frame .import-field:bj-java-preview {
-     -fx-border-color: white;
+
+.interface-frame .inherited-method-frame, .interface-frame .import-frame, .interface-frame .import-field {
+    -fx-border-width: 1;
+    -fx-border-color: interface-var-frame;
+    -fx-background-color: interface-var-frame;
+}
+
+.class-frame .inherited-method-frame:bj-java-preview, .class-frame .import-frame:bj-java-preview, .class-frame .import-field:bj-java-preview,
+.interface-frame .inherited-method-frame:bj-java-preview, .interface-frame .import-frame:bj-java-preview, .interface-frame .import-field:bj-java-preview {
+    -fx-border-color: white;
     -fx-background-color: white;
 }
 
@@ -222,7 +233,9 @@
 }
 
 .class-fields-frame-canvas:bj-empty, .class-frame-canvas:bj-empty,
-.class-inherited-frame-canvas:bj-empty, .class-import-frame-canvas:bj-empty {
+.class-inherited-frame-canvas:bj-empty, .class-import-frame-canvas:bj-empty,
+.interface-fields-frame-canvas:bj-empty, .interface-frame-canvas:bj-empty,
+.interface-inherited-frame-canvas:bj-empty, .interface-import-frame-canvas:bj-empty {
     -bj-min-height: 1em;
 }
 
@@ -234,7 +247,7 @@
   -fx-padding: 0;
 }
 
-.class-frame-canvas {
+.class-frame-canvas, .interface-frame-canvas {
   -bj-frame-margin-top: 5;
   -bj-frame-margin-bottom: 5;
 }
@@ -284,8 +297,14 @@
 }
 
 /* This one has the longer rule: */
-.instance-comment-frame.comment-frame .comment-documentation-text, .instance-comment-frame.comment-frame .preview-slashstar {
+.class-comment-frame.comment-frame .comment-documentation-text, .class-comment-frame.comment-frame .preview-slashstar {
     -fx-text-fill: class-comment-text;
+    -fx-prompt-text-fill: transparent;
+}
+
+/* This one has the longer rule: */
+.interface-comment-frame.comment-frame .comment-documentation-text, .interface-comment-frame.comment-frame .preview-slashstar {
+    -fx-text-fill: /* TODO */ class-comment-text;
     -fx-prompt-text-fill: transparent;
 }
 
@@ -408,13 +427,13 @@
     -bj-right-margin: 0.5em;
     -bj-top-margin: 0;
 }
-.class-fields-frame-canvas {
+.class-fields-frame-canvas, .interface-fields-frame-canvas {
     -bj-left-margin: 1.38em;
     -bj-bottom-margin: 5;
     -bj-right-margin: 0.5em;
     -bj-top-margin: 5;
 }
- .class-import-frame-canvas {
+ .class-import-frame-canvas, .interface-import-frame-canvas {
     -bj-left-margin: 3em;
     -bj-bottom-margin: 0.5em;
     -bj-right-margin: 0.5em;
@@ -430,7 +449,7 @@
     -bj-top-margin: 0.25em;
     -bj-right-margin: 0.5em;
 }
-.class-inherited-frame-canvas {
+.class-inherited-frame-canvas, .interface-inherited-frame-canvas {
     -bj-left-margin: 3em;
     -bj-bottom-margin: 0.5em;
     -bj-top-margin: 0.25em;
@@ -596,26 +615,45 @@
     -fx-text-fill: class-comment-text;
     -fx-prompt-text-fill: class-comment-text;
 }
-.class-frame:bj-java-preview .class-documentation-text {
-    -fx-prompt-text-fill: transparent;
-}
 
-.interface-documentation-text {
+.interface-documentation-text, .interface-frame:bj-java-preview .interface-documentation-text-wrapper .preview-slashstar {
     -fx-text-fill: interface-comment-text;
     -fx-prompt-text-fill: interface-comment-text;
 }
 
+.class-frame:bj-java-preview .class-documentation-text, .interface-frame:bj-java-preview .interface-documentation-text {
+    -fx-prompt-text-fill: transparent;
+}
+
 .class-documentation-text:focused  .scroll-pane .content,
-.class-documentation-text:bj-blank:hover .scroll-pane .content {
+.class-documentation-text:bj-blank:hover .scroll-pane .content
+{
     -fx-background-color: class-comment-focus;
 }
 
+.interface-documentation-text:focused  .scroll-pane .content,
+.interface-documentation-text:bj-blank:hover .scroll-pane .content
+{
+    -fx-background-color: interface-comment-focus;
+}
+
 .class-frame,
-.class-frame-editor-tab:selected, .class-frame-editor-tab-content {
+.class-frame-editor-tab:selected, .class-frame-editor-tab-content
+{
     -fx-background-color: class-frame !important;
 }
+
+.interface-frame,
+.interface-frame-editor-tab:selected, .interface-frame-editor-tab-content {
+    -fx-background-color: interface-frame !important;
+}
+
 .class-frame-canvas:bj-non-empty {
     -bj-background-color: class-frame !important;
+}
+
+.interface-frame-canvas:bj-non-empty {
+    -bj-background-color: interface-frame !important;
 }
 
 .frame-editor-tab-content {
@@ -628,17 +666,33 @@
 .class-frame:bj-java-preview {
     -fx-background-color: class-frame-java !important;
 }
+
+.interface-frame:bj-java-preview {
+    -fx-background-color: interface-frame-java !important;
+}
+
 .class-frame-canvas:bj-java-preview:bj-non-empty {
     -bj-background-color: class-frame-java !important;
 }
 
+.interface-frame-canvas:bj-java-preview:bj-non-empty {
+    -bj-background-color: interface-frame-java !important;
+}
+
 .class-fields-frame-canvas, .class-frame-canvas:bj-empty,
 .class-inherited-frame-canvas, .class-import-frame-canvas {
-    -bj-background-color: instance-var-frame !important;
+    -bj-background-color: class-var-frame !important;
+}
+
+.interface-fields-frame-canvas, .interface-frame-canvas:bj-empty,
+.interface-inherited-frame-canvas, .interface-import-frame-canvas {
+    -bj-background-color: interface-var-frame !important;
 }
 
 .class-fields-frame-canvas:bj-java-preview, .class-frame-canvas:bj-empty:bj-java-preview,
-.class-inherited-frame-canvas:bj-java-preview, .class-import-frame-canvas:bj-java-preview {
+.class-inherited-frame-canvas:bj-java-preview, .class-import-frame-canvas:bj-java-preview,
+.interface-fields-frame-canvas:bj-java-preview, .interface-frame-canvas:bj-empty:bj-java-preview,
+.interface-inherited-frame-canvas:bj-java-preview, .interface-import-frame-canvas:bj-java-preview {
     -bj-background-color: white !important;
 }
 
@@ -664,18 +718,31 @@
     -fx-border-color: derive(frame, -10%);
 }
 
-.instance-var-frame, .instance-blank-frame, .instance-comment-frame {
+.class-var-frame, .class-blank-frame, .class-comment-frame {
     -fx-border-width: 0;
     -fx-border-color: transparent;
-    -fx-background-color: instance-var-frame !important;
+    -fx-background-color: class-var-frame !important;
 }
 
-.instance-var-frame:hover, .instance-blank-frame:hover, .instance-comment-frame:hover {
+.interface-var-frame, .interface-blank-frame, .interface-comment-frame {
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-background-color: interface-var-frame !important;
+}
+
+.class-var-frame:hover, .class-blank-frame:hover, .class-comment-frame:hover {
     -fx-border-width: 1;
-    -fx-border-color: derive(instance-var-frame, -10%);
+    -fx-border-color: derive(class-var-frame, -10%);
 }
 
-.instance-var-frame:bj-java-preview, .instance-blank-frame:bj-java-preview, .instance-comment-frame:bj-java-preview {
+.interface-var-frame:hover, .interface-blank-frame:hover, .interface-comment-frame:hover {
+    -fx-border-width: 1;
+    -fx-border-color: derive(interface-var-frame, -10%);
+}
+
+.class-var-frame:bj-java-preview, .interface-var-frame:bj-java-preview,
+.class-blank-frame:bj-java-preview, .interface-blank-frame:bj-java-preview,
+.class-comment-frame:bj-java-preview, .interface-comment-frame:bj-java-preview {
     -fx-background-color: white !important;
 }
 
@@ -805,11 +872,11 @@
    -bj-fill-color: triangle-label;
    -fx-padding: 0 0 0 3;
 }
-.class-section-label {
+.class-section-label, .interface-section-label {
    -fx-text-fill: triangle-label;
    -fx-padding: 0 0 0 2;
 }
-.class-inherited-label {
+.class-inherited-label, .interface-inherited-label {
    -fx-text-fill: triangle-label;
    -fx-padding: 5 0 1 0;
 }
@@ -828,7 +895,7 @@
    -fx-background-radius: 0 !important;
    -fx-background-insets: 0 !important;
 }
-.class-documentation-text {
+.class-documentation-text, .interface-documentation-text {
    -fx-padding: 5 -2 2 -2;
 }
 

@@ -24,6 +24,7 @@ package bluej.stride.generic;
 import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.frames.CodeFrame;
+import bluej.stride.framedjava.frames.InterfaceFrame;
 import bluej.stride.operations.AbstractOperation.Combine;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
@@ -88,6 +89,15 @@ public abstract class SingleLineFrame extends Frame
             return prevCursor;
         }
         return nextCursor;
+    }
+
+    protected boolean isInInterface(FrameCanvas parentCanvas)
+    {
+        if (parentCanvas == null) {
+            bluej.utility.Debug.printCallStack("parentCanvas shouldn't be null");
+            return false;
+        }
+        return parentCanvas.getParent() instanceof InterfaceFrame;
     }
 
     @Override

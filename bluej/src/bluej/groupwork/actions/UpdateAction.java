@@ -168,9 +168,7 @@ public class UpdateAction extends AbstractAction
          */
         public void fileAdded(final File f)
         {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run()
-                {
+            SwingUtilities.invokeLater(() -> {
                     project.prepareCreateDir(f.getParentFile());
                     
                     String fileName = f.getName();
@@ -221,7 +219,6 @@ public class UpdateAction extends AbstractAction
                         }
                         ct.reload();
                     }
-                }
             });
         }
         
@@ -230,9 +227,7 @@ public class UpdateAction extends AbstractAction
          */
         public void fileRemoved(final File f)
         {
-            SwingUtilities.invokeLater(new Runnable() {
-               public void run()
-                {
+            SwingUtilities.invokeLater(() -> {
                    String fileName = f.getName();
                    if (! fileName.endsWith(".java") &&
                            ! fileName.endsWith(".class") &&
@@ -273,7 +268,6 @@ public class UpdateAction extends AbstractAction
                            ct.remove();
                        }
                    }
-                } 
             });
         }
         
@@ -282,9 +276,7 @@ public class UpdateAction extends AbstractAction
          */
         public void fileUpdated(final File f)
         {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run()
-                {
+            SwingUtilities.invokeLater(() -> {
                     String fileName = f.getName();
                     if (! fileName.endsWith(".java") &&
                             ! fileName.endsWith(".class") &&
@@ -334,7 +326,6 @@ public class UpdateAction extends AbstractAction
                         ClassTarget ct = (ClassTarget) t;
                         ct.reload();
                     }
-                }
             });
         }
         
@@ -343,13 +334,10 @@ public class UpdateAction extends AbstractAction
          */
         public void dirRemoved(final File f)
         {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run()
-                {
+            SwingUtilities.invokeLater(() -> {
                     String path = makeRelativePath(project.getProjectDir(), f);
                     String pkgName = path.replace(File.separatorChar, '.');
                     removedPackages.add(pkgName);
-                }
             });
         }
         
@@ -368,9 +356,7 @@ public class UpdateAction extends AbstractAction
             }
 
             try {
-                EventQueue.invokeAndWait(new Runnable() {
-                    public void run()
-                    {
+                EventQueue.invokeAndWait(() -> {
                         /** A list of files to replace with repository version */
                         Set<File> filesToOverride = new HashSet<File>();
 
@@ -450,7 +436,6 @@ public class UpdateAction extends AbstractAction
                                     blueJconflicts, nonBlueJConflicts);
                             conflictsDialog.setVisible(true);
                         }
-                    }
                 });
             }
             catch (InvocationTargetException ite) {

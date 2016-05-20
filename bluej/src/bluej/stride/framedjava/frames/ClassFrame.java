@@ -34,12 +34,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.Config;
+import bluej.stride.framedjava.ast.PackageFragment;
+import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
@@ -53,6 +57,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.paint.Color;
@@ -66,6 +71,7 @@ import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.generic.FrameContentItem;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.slots.Focus;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -127,6 +133,13 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     private final FrameCanvas importCanvas;
     
     private final Implements implementsSlot;
+
+    // can both be null in Greenfoot, where we don't show the package
+    private final FrameContentRow packageRow;
+    private final TextSlot<PackageFragment> packageSlot;
+    private final BooleanProperty showingPackageSlot;
+    // We have to keep a reference to negated version, to prevent it getting GCed:
+    private final BooleanExpression notShowingPackageSlot;
     
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private ClassElement element;
@@ -157,7 +170,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     private final ObservableList<String> boundImports = FXCollections.observableArrayList();
     
     
-    public ClassFrame(InteractionManager editor, boolean abstractModifierParam, NameDefSlotFragment className, List<ImportElement> imports,
+    public ClassFrame(InteractionManager editor, boolean abstractModifierParam, NameDefSlotFragment className, PackageFragment packageName, List<ImportElement> imports,
             TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, EntityResolver projectResolver, JavadocUnit documentation, boolean enabled)
     {
         super(editor, "class", "class-");
@@ -312,7 +325,80 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         JavaFXUtil.addChangeListener(importTriangleLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
         importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
         //alterImports(editor.getImports());
-        
+
+        // Since we don't support packages in Greenfoot, we don't bother showing the package declaration:
+        if (Config.isGreenfoot())
+        {
+            this.packageRow = null;
+            this.packageSlot = null;
+            this.showingPackageSlot = null;
+            this.notShowingPackageSlot = null;
+        }
+        else
+        {
+            this.packageRow = new FrameContentRow(this);
+
+            // Spacer to catch the mouse click
+            SlotLabel spacer = new SlotLabel(" ");
+            spacer.setOpacity(0.0);
+            spacer.setCursor(Cursor.TEXT);
+
+            this.packageSlot = new TextSlot<PackageFragment>(editor, this, this, this.packageRow, null, "package-slot-", Collections.emptyList())
+            {
+                @Override
+                protected PackageFragment createFragment(String content)
+                {
+                    return new PackageFragment(content, this);
+                }
+
+                @Override
+                public void valueChangedLostFocus(String oldValue, String newValue)
+                {
+                    // Nothing to do
+                }
+
+                @Override
+                public List<? extends PossibleLink> findLinks()
+                {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public int getStartOfCurWord()
+                {
+                    // Start of word is always start of slot; don't let the dots in package/class names break the word:
+                    return 0;
+                }
+            };
+            this.packageSlot.setPromptText("package name");
+            boolean packageNameNotEmpty = packageName != null && !packageName.isEmpty();
+            if (packageNameNotEmpty) {
+                this.packageSlot.setText(packageName);
+            }
+            this.showingPackageSlot = new SimpleBooleanProperty(packageNameNotEmpty);
+            this.notShowingPackageSlot = showingPackageSlot.not();
+            JavaFXUtil.addChangeListener(showingPackageSlot, showing -> {
+                if (!showing) {
+                    packageSlot.setText("");
+                    packageSlot.cleanup();
+                }
+                editor.modifiedFrame(this);
+            });
+
+            spacer.setOnMouseClicked(e -> {
+                showingPackageSlot.set(true);
+                packageSlot.requestFocus();
+                e.consume();
+            });
+
+            this.packageRow.bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+                    FXCollections.observableArrayList(new SlotLabel("package ")),
+                    JavaFXUtil.listBool(notShowingPackageSlot, spacer),
+                    JavaFXUtil.listBool(showingPackageSlot, this.packageSlot)
+            ));
+
+            packageSlot.addFocusListener(this);
+        }
         
 
 
@@ -333,6 +419,13 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         
         
         frameEnabledProperty.set(enabled);
+    }
+
+    public void checkForEmptySlot()
+    {
+        if ( packageSlot != null && packageSlot.isEmpty() ) {
+            showingPackageSlot.set(packageSlot.isFocused());
+        }
     }
     
     @Override
@@ -396,7 +489,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         element = new ClassElement(this, projectResolver, abstractModifier.get(), paramClassName.getSlotElement(),
                     showingExtends.get() && !extendsSlot.getText().equals("") ? extendsSlot.getSlotElement() : null,
                     implementsSlot.getTypes(), fields, constructors, methods,
-                    new JavadocUnit(getDocumentation()), imports, frameEnabledProperty.get());
+                    new JavadocUnit(getDocumentation()), packageSlot == null ? null : packageSlot.getSlotElement(), imports, frameEnabledProperty.get());
     }
 
     private List<CodeElement> getMembers(FrameCanvas frameCanvas)
@@ -485,13 +578,13 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         ExtensionDescription implementsExtension = null;
         ExtensionDescription extendsExtension = null;
         if (fieldsCanvas.equals(canvas) || canvas == null) {
-            abstractExtension = new ExtensionDescription(GreenfootFrameDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
+            abstractExtension = new ExtensionDescription(StrideDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
                     () -> abstractModifier.set(!abstractModifier.get()), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
-            implementsExtension = new ExtensionDescription(GreenfootFrameDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
+            implementsExtension = new ExtensionDescription(StrideDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
                 implementsSlot.addTypeSlotAtEnd("", true);
             }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
             if (!showingExtends.get()) {
-                extendsExtension = new ExtensionDescription(GreenfootFrameDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
+                extendsExtension = new ExtensionDescription(StrideDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
                     showAndFocusExtends();
                 }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
             }
@@ -529,7 +622,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             @Override
             public FrameTypeCheck check(FrameCanvas canvasBase)
             {
-                return GreenfootFrameDictionary.checkImport();
+                return StrideDictionary.checkImport();
             }
             
             @Override
@@ -558,8 +651,8 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         List<ImportElement> importsRev = new ArrayList<>(imports);
         Collections.reverse(importsRev);
         importsRev.forEach(item -> importCanvas.insertBlockBefore(item.createFrame(editor), importCanvas.getFirstCursor()));
-        
-        importCanvas.shrinkUsing(new ReadOnlyDoubleWrapper(0.0));
+
+        JavaFXUtil.onceInScene(importCanvas.getNode(), () -> importCanvas.shrinkUsing(new ReadOnlyDoubleWrapper(0.0)));
         
         new DeepListBinding<String>(boundImports) {
             private final ChangeListener<String> listener = (a, b, c) -> update();
@@ -758,7 +851,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         return true;
     }
 
-    public void withInheritedItems(Set<CompletionKind> kinds, FXConsumer<Map<String, List<AssistContentThreadSafe>>> handler)
+    public void withInheritedItems(Set<CompletionKind> kinds, FXPlatformConsumer<Map<String, List<AssistContentThreadSafe>>> handler)
     {
         // Get all available items
         editor.withAccessibleMembers(getCode().getPosInsideClass(), kinds, true, allMembers ->
@@ -1028,6 +1121,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
         setViewNoOverride(oldView, newView, animateProgress);
@@ -1122,11 +1216,11 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     public FrameTypeCheck check(FrameCanvas canvas)
     {
         if (canvas == fieldsCanvas)
-            return GreenfootFrameDictionary.checkField();
+            return StrideDictionary.checkField();
         else if (canvas == methodsCanvas)
-            return GreenfootFrameDictionary.checkClassMethod();
+            return StrideDictionary.checkClassMethod();
         else if (canvas == constructorsCanvas)
-            return GreenfootFrameDictionary.checkConstructor();
+            return StrideDictionary.checkConstructor();
         else
             throw new IllegalStateException("Asking about canvas unknown to ClassFrame");
     }
@@ -1148,8 +1242,14 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     protected void modifyChildren(List<FrameContentItem> updatedChildren)
     {
         super.modifyChildren(updatedChildren);
-        updatedChildren.add(0, importRow);
-        updatedChildren.add(1, importCanvas);
+        int n = 0;
+        if (packageSlot != null)
+        {
+            updatedChildren.add(n, packageRow);
+            n += 1;
+        }
+        updatedChildren.add(n, importRow);
+        updatedChildren.add(n+1, importCanvas);
         updatedChildren.add(endSpacer);
     }
 

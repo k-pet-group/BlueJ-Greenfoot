@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,9 @@
  */
 package bluej.stride.slots;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 public interface SlotValueListener
 {
     /**
@@ -33,7 +36,9 @@ public interface SlotValueListener
      */
     boolean valueChanged(HeaderItem slot, String oldValue, String newValue, FocusParent<HeaderItem> parent);
 
+    @OnThread(Tag.FXPlatform)
     default void backSpacePressedAtStart(HeaderItem slot) {};
 
+    @OnThread(Tag.FXPlatform)
     default void deletePressedAtEnd(HeaderItem slot) {};
 }

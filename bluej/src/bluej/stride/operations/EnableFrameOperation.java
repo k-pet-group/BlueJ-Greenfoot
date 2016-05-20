@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import javafx.scene.control.CustomMenuItem;
 
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class EnableFrameOperation extends FrameOperation
 {
@@ -39,18 +41,21 @@ public class EnableFrameOperation extends FrameOperation
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void enablePreview()
     {
         editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_ENABLED));
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void disablePreview()
     {
         editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_NONE));
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
         frames.forEach(frame -> frame.setFrameEnabled(true));
@@ -63,6 +68,7 @@ public class EnableFrameOperation extends FrameOperation
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void onMenuShowing(CustomMenuItem item)
     {
         // We grey out enable if not all frames can be enabled:

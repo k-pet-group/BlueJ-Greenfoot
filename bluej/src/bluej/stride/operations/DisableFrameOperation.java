@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,9 @@ import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.value.ObservableValue;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.scene.input.KeyCharacterCombination;
 
 public class DisableFrameOperation extends FrameOperation
@@ -40,18 +43,21 @@ public class DisableFrameOperation extends FrameOperation
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void enablePreview()
     {
         editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_DISABLED));
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void disablePreview()
     {
         editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_NONE));
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
         frames.forEach(frame -> frame.setFrameEnabled(false));

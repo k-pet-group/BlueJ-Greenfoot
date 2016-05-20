@@ -2,15 +2,16 @@ package threadchecker;
 
 public enum Tag
 {
-    // FX is the FX thread, Swing is the EDT
+    // FXPlatform is the FX thread, Swing is the EDT
+    // FX means either FX thread or a loader thread for FX
     // Unique means it always runs in a thread which will be different from all others
     //  (including, and especially, FX and Swing).
     // Things like Thread.run or SwingWorker.construct are tagged as Unique
+    // Worker is similar to Unique, except that Unique tags can only call
+    // methods on its own thread (one Unique thread can't cal another Unique thread)
+    // but Worker threads can do cross-calling.
     // Any means that the method is safe to call from any thread (including FX, Swing, and others)
-    // FX means the FX thread, but calls to SwingUtilities.invokeLater
-    // are banned.  This is used when we know the Swing thread is blocked.
-    // Whereas FX_UsesSwing can make invokeLater calls.
-    FX, FX_WaitsForSwing, Swing, Swing_WaitsForFX, Unique, Simulation, Worker, Any;
+    FX, FXPlatform, Swing, Unique, Simulation, Worker, Any;
 
     /**
      * Checks if this tag on a method is allowed when overriding the given (potentially null) parent method tag.
@@ -22,10 +23,8 @@ public enum Tag
     {
         if (parent == null)
             return this == Any;
-        else if (parent == FX_WaitsForSwing && this == FX)
-            return true; // FX can override FX_UsesSwing, but not vice versa
-        else if (parent == Swing_WaitsForFX && this == Swing)
-            return true; // Swing can override Swing_WaitsForFX, but not vice versa
+        else if (parent == FXPlatform && this == FX)
+            return true; // FX can override FXPlatform, but not vice versa
         else
             return this == parent;
     }
@@ -42,10 +41,8 @@ public enum Tag
             return true;
         else if (dest == Tag.Unique)
             return sameInstance && this == Tag.Unique; // Can't call a unique thread directly unless same instance)
-        else if (dest == Tag.FX && this == Tag.FX_WaitsForSwing)
-            return true; // FX_UsesSwing can call FX, but not vice versa
-        else if (dest == Tag.Swing && this == Tag.Swing_WaitsForFX)
-            return true; // Swing_WaitsForFX can call Swing, but not vice versa
+        else if (dest == Tag.FX && this == Tag.FXPlatform)
+            return true; // FXPlatform can call FX, but not vice versa
         else
             return this == dest;
         

@@ -1,0 +1,6 @@
+.input-dialog-content {
+    -fx-spacing: 10;
+}
+.input-dialog-error {
+    -fx-text-fill: red;
+}

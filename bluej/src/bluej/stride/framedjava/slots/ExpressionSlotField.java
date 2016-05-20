@@ -137,8 +137,8 @@ class ExpressionSlotField implements ExpressionSlotComponent
         }
         
         // Also run it to determine initial size, but must run later after parent has
-        // initialised:
-        Platform.runLater(shrinkGrow);
+        // initialised and we are in the scene:
+        JavaFXUtil.onceInScene(field, shrinkGrow::run);
         if (!stringLiteral)
             updateBreaks();
     }

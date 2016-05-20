@@ -32,6 +32,8 @@ import javafx.scene.Node;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public abstract class MultiCanvasFrame extends Frame implements CanvasParent
 {
@@ -141,6 +143,7 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animate)
     {
         super.setView(oldView, newView, animate);

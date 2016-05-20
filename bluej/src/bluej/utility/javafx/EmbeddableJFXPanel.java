@@ -168,11 +168,11 @@ public abstract class EmbeddableJFXPanel extends JFXPanel
     {
         if (vis)
         {
-            EventQueue.invokeLater(new Runnable() { public void run() { showInWindow(null, runAfterwards, null); } });
+            EventQueue.invokeLater(() -> showInWindow(null, runAfterwards, null));
         }
         else
         {
-            EventQueue.invokeLater(new Runnable() { public void run() { window.setVisible(false); new Thread(runAfterwards).start(); } });
+            EventQueue.invokeLater(() -> {window.setVisible(false); new Thread(runAfterwards).start(); });
         }
     }
     

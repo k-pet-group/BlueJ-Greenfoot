@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,8 +25,10 @@ import java.nio.charset.Charset;
 import java.util.function.Supplier;
 
 import bluej.editor.moe.MoeEditorManager;
+import bluej.editor.stride.FXTabbedEditor;
 import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.JavadocResolver;
+import bluej.utility.javafx.FXSupplier;
 
 /**
  * Interface between the editor manager and the rest of BlueJ.
@@ -72,7 +74,7 @@ public abstract class EditorManager
         String docFilename,
         Charset charset,
         String windowTitle,
-        Supplier<SwingTabbedEditor> swingTabbedEditor,
+        FXSupplier<FXTabbedEditor> fxTabbedEditor,
         EditorWatcher watcher, 
         boolean compiled,
         EntityResolver projectResolver,
@@ -93,7 +95,7 @@ public abstract class EditorManager
      * @returns                 the new editor, or null if there was a problem
      */
     public abstract Editor openText(String filename, Charset charset, String windowTitle,
-                                    Supplier<SwingTabbedEditor> swingTabbedEditor);
+                                    FXSupplier<FXTabbedEditor> fxTabbedEditor);
 
     /**
      * Indicate to the manager that all resources used by this editor

@@ -1,6 +1,6 @@
 /*
- This file is part of the Greenfoot program.
- Copyright (C) 2015  Michael Kolling and John Rosenberg
+ This file is part of the BlueJ program.
+ Copyright (C) 2015,2016 Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -55,7 +55,8 @@ public abstract class TabMenuManager
 
         // We may not have a parent yet, so use runLater:
         Platform.runLater(() -> {
-            updateMoveMenus();
+            if (tab.getParent() != null)
+                updateMoveMenus();
 
             tab.setContextMenu(new ContextMenu(
                     contextMoveMenu

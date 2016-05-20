@@ -51,6 +51,7 @@ import java.util.stream.Stream;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
+import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
@@ -329,7 +330,7 @@ public class FrameEditor implements Editor
                 return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()), javaResult);
             }
             
-            panel.regenerateAndReparse(null);
+            panel.regenerateAndReparse();
             TopLevelCodeElement source = panel.getSource();
             
             if (source == null)
@@ -1037,7 +1038,7 @@ public class FrameEditor implements Editor
         reInitBreakpoints();
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private void findLateErrors()
     {
         panel.removeOldErrors();
@@ -1111,13 +1112,16 @@ public class FrameEditor implements Editor
         if (suggests != null && suggests.isPlain())
         {    
             // Special case to support completing static methods from Greenfoot class
-            
-            // TODO in future, only do this if we are importing Greenfoot classes.
-            JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
-            CodeSuggestions greenfootClass = new CodeSuggestions(new GenTypeClass(greenfootClassRef), null, null, true, false);
-            AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null);
-            Arrays.stream(greenfootStatic).filter(ac -> ac.getKind() == CompletionKind.METHOD).forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
-       
+
+            if (Config.isGreenfoot())
+            {
+                // TODO in future, only do this if we are importing Greenfoot classes.
+                JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
+                CodeSuggestions greenfootClass = new CodeSuggestions(new GenTypeClass(greenfootClassRef), null, null, true, false);
+                AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null);
+                Arrays.stream(greenfootStatic).filter(ac -> ac.getKind() == CompletionKind.METHOD).forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
+            }
+
             for (LocalParamInfo v : ASTUtility.findLocalsAndParamsInScopeAt(codeEl, false, false))
             {
                 AssistContent c = LocalCompletion.getCompletion(v.getType(), v.getName(), v.isParam());
@@ -1160,7 +1164,7 @@ public class FrameEditor implements Editor
             if (panel == null) {
                 createPanel(false, false);
             }
-            after.accept(panel.insertAppendMethod(method));
+            panel.insertAppendMethod(method, after);
         });
     }
 
@@ -1171,7 +1175,7 @@ public class FrameEditor implements Editor
             if (panel == null) {
                 createPanel(false, false);
             }
-            after.accept(panel.insertMethodCallInConstructor(className, methodName));
+            panel.insertMethodCallInConstructor(className, methodName, after);
         });
     }
     

@@ -21,6 +21,8 @@
  */
 package bluej.utility.javafx;
 
+import java.awt.AWTKeyStroke;
+import java.awt.event.ActionListener;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -85,7 +87,9 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
@@ -94,14 +98,17 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import bluej.editor.stride.FXTabbedEditor;
@@ -114,6 +121,14 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 import javax.imageio.ImageIO;
+import javax.swing.Action;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 /**
  * JavaFXUtil is a collection of static utility methods for JavaFX-related code
@@ -485,8 +500,11 @@ public class JavaFXUtil
         source.addListener(new ChangeListener<Boolean>()
         {
             // The task to cancel the previous copy:
-            private FXRunnable cancel = null;
+            private FXPlatformRunnable cancel = null;
             @Override
+            // Assume we are on FX thread (could be dangerous)
+            // Tag lets us circumvent thread checker:
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
             {
                 if (cancel != null)
@@ -499,6 +517,41 @@ public class JavaFXUtil
         });
 
         return delayed;
+    }
+
+    @OnThread(Tag.FX)
+    public static void ifOnPlatform(FXPlatformRunnable action)
+    {
+        if (Platform.isFxApplicationThread())
+        {
+            // Circumvent thread checker:
+            ((Runnable)action::run).run();
+        }
+    }
+
+    public static void addFocusListener(Stage focusTarget, FXPlatformConsumer<Boolean> listener)
+    {
+        // We know focused property can only be altered on FX thread:
+        focusTarget.focusedProperty().addListener((obs, oldVal, newVal) ->
+                // Circumvent thread checker:
+                ((FXConsumer<Boolean>)listener::accept).accept(newVal));
+    }
+
+    public static void addFocusListener(Node focusTarget, FXPlatformConsumer<Boolean> listener)
+    {
+        // We know focused property can only be altered on FX thread:
+        focusTarget.focusedProperty().addListener((obs, oldVal, newVal) ->
+                // Circumvent thread checker:
+                ((FXConsumer<Boolean>)listener::accept).accept(newVal));
+    }
+
+    public static void runNowOrLater(FXPlatformRunnable action)
+    {
+        if (Platform.isFxApplicationThread())
+            // Circumvent thread checker (nasty!)
+            ((Runnable)action::run).run();
+        else
+            Platform.runLater(action::run);
     }
 
     /**
@@ -547,7 +600,7 @@ public class JavaFXUtil
      * @param showContextMenu The function to call to show the menu.  The parameters are X and Y
      *                        screen (*NOT* scene) coordinates.  Returns true if the menu was shown.
      */
-    public static void listenForContextMenu(Node node, BiFunction<Double, Double, Boolean> showContextMenu)
+    public static void listenForContextMenu(Node node, FXPlatformBiFunction<Double, Double, Boolean> showContextMenu)
     {
         EventHandler<MouseEvent> popupHandler = e -> {
             if (e.isPopupTrigger())
@@ -581,7 +634,7 @@ public class JavaFXUtil
      * @param run The action to run for the menu item.  May be null for none.
      * @param shortcut The shortcut to use.  May be null for none.
      */
-    public static MenuItem makeMenuItem(String text, FXRunnable run, KeyCombination shortcut)
+    public static MenuItem makeMenuItem(String text, FXPlatformRunnable run, KeyCombination shortcut)
     {
         MenuItem item = new MenuItem(text);
         if (run != null)
@@ -598,7 +651,7 @@ public class JavaFXUtil
      * @param run The action to run for the menu item.  May be null for none.
      * @param shortcut The shortcut to use.  May be null for none.
      */
-    public static MenuItem makeMenuItem(StringExpression text, FXRunnable run, KeyCombination shortcut)
+    public static MenuItem makeMenuItem(StringExpression text, FXPlatformRunnable run, KeyCombination shortcut)
     {
         MenuItem item = new MenuItem();
         item.textProperty().bind(text);
@@ -687,9 +740,10 @@ public class JavaFXUtil
         target.addEventFilter(MouseEvent.ANY, new EventHandler<MouseEvent>()
             {
                 // The action to cancel showing the toolip:
-                FXRunnable cancel;
+                FXPlatformRunnable cancel;
 
                 @Override
+                @OnThread(Tag.FXPlatform)
                 public void handle(MouseEvent event)
                 {
                     if (event.getEventType() == MouseEvent.MOUSE_ENTERED)
@@ -715,8 +769,8 @@ public class JavaFXUtil
     /**
      * A helper class for showing a tooltip/help on mouse-over or pressing F1.
      */
-    @OnThread(Tag.FX)
-    private static class TooltipListener implements EventHandler<InputEvent>, ChangeListener<Boolean>
+    @OnThread(Tag.FXPlatform)
+    private static class TooltipListener implements EventHandler<InputEvent>, FXPlatformConsumer<Boolean>
     {
         /** The label displaying the tooltip. Null when not showing. */
         private Label l;
@@ -732,18 +786,18 @@ public class JavaFXUtil
          */
         private final FXConsumer<FXConsumer<String>> requestTooltip;
         /** An action to cancel a pending show-on-hover */
-        private FXRunnable cancelHoverShow = null;
+        private FXPlatformRunnable cancelHoverShow = null;
         /** Whether the tooltip is currently showing */
         private boolean showing = false;
         /** Whether the tooltip is showing because of mouse hover (only valid when showing == true) */
         private boolean mouseShown = false;
 
         /**
-         * @param l The label to use as a tooltip 
          * @param editor Reference to the editor
          * @param parent The node for which to show the tooltip
          * @param requestTooltip The callback (see comments above).
          */
+        @OnThread(Tag.FX)
         private TooltipListener(InteractionManager editor, Node parent, FXConsumer<FXConsumer<String>> requestTooltip)
         {
             this.editor = editor;
@@ -752,6 +806,7 @@ public class JavaFXUtil
         }
 
         @Override
+        @OnThread(Tag.FXPlatform)
         public void handle(InputEvent original)
         {
             if (original instanceof KeyEvent)
@@ -809,6 +864,7 @@ public class JavaFXUtil
             }
         }
 
+        @OnThread(Tag.FXPlatform)
         private void show()
         {
             if (showing)
@@ -832,8 +888,8 @@ public class JavaFXUtil
 
         /** Called when focused value of parent changes */
         @Override
-        public void changed(ObservableValue<? extends Boolean> observable,
-                Boolean oldValue, Boolean newVal)
+        @OnThread(Tag.FXPlatform)
+        public void accept(Boolean newVal)
         {
 
             if (newVal.booleanValue() == false && showing && !mouseShown)
@@ -842,6 +898,7 @@ public class JavaFXUtil
             }            
         }
 
+        @OnThread(Tag.FXPlatform)
         private void hide()
         {
             if (showing)
@@ -868,14 +925,25 @@ public class JavaFXUtil
     {
         TooltipListener listener = new TooltipListener(editor, parent, requestTooltip);
         parent.addEventHandler(KeyEvent.KEY_PRESSED, listener);
-        parent.focusedProperty().addListener(listener);
+        addFocusListener(parent, listener);
         if (onHoverToo)
         {
             parent.addEventHandler(MouseEvent.MOUSE_ENTERED, listener);
             parent.addEventHandler(MouseEvent.MOUSE_EXITED, listener);
         }
     }
-    
+
+    /**
+     * Runs the given action (on the FX Platform thread) once the given node
+     * gets added to the scene.
+     */
+    public static void onceInScene(Node node, FXPlatformRunnable action)
+    {
+        // Fairly sure scene property can only change on FX thread, but no
+        // harm using runNowOrLater:
+        onceNotNull(node.sceneProperty(), s -> runNowOrLater(action));
+    }
+
     /** 
      * Waits for the observable value to become non-null, then calls the given function on the value once.
      *
@@ -959,26 +1027,15 @@ public class JavaFXUtil
      * When the given future completes, calls the given callback on the FX thread
      * with the value.
      * 
-     * This function is asynchronous; it does not block, but rather uses a background thread.
+     * This function is asynchronous; it does not block.
      * 
      * @param future The future to wait for completion on
      * @param andThen The callback to pass the completed value to, on the FX thread.
      * @param <T> The type inside the future.
      */
-    public static <T> void bindFuture(Future<T> future, FXConsumer<T> andThen)
+    public static <T> void bindFuture(CompletableFuture<T> future, FXPlatformConsumer<T> andThen)
     {
-        Utility.runBackground(() -> {
-            try
-            {
-                T x = future.get();
-                Platform.runLater(() -> andThen.accept(x));
-            }
-            catch (ExecutionException | InterruptedException e)
-            {
-                Debug.reportError(e);
-            }
-            
-        });
+        future.thenAccept(x -> Platform.runLater(() -> andThen.accept(x)));
     }    
     
     /**
@@ -1098,7 +1155,8 @@ public class JavaFXUtil
      * @return An action which, if run, cancels the execution of the task.  If the task
      *         has already run, running this returned item has no effect.
      */
-    public static FXRunnable runAfter(Duration delay, FXRunnable task)
+    @OnThread(Tag.FXPlatform)
+    public static FXPlatformRunnable runAfter(Duration delay, FXPlatformRunnable task)
     {
         if (delay.lessThanOrEqualTo(Duration.ZERO))
         {
@@ -1189,5 +1247,290 @@ public class JavaFXUtil
                 to.pseudoClassStateChanged(c.getElementRemoved(), false);
         });
         from.forEach(c -> to.pseudoClassStateChanged(c, true));
+    }
+
+    /**
+     * Converts a Swing menu bar into a JavaFX menu bar.  For use when you convert
+     * a Swing window into a SwingNode inside a JavaFX menu, but the Swing window
+     * had a menu bar.  All the Swing actions are executed back on the Swing thread,
+     * using the given eventSource in the ActionEvent
+     *
+     * @param swingMenu The swing menu to convert.
+     * @param eventSource The source to be used in ActionEvent items which are passed to actionPerformed
+     * @return An action to run on the FX thread which will create the FX menu
+     */
+    @OnThread(Tag.Swing)
+    public static FXSupplier<MenuBar> swingMenuBarToFX(JMenuBar swingMenu, Object eventSource)
+    {
+        List<FXSupplier<Menu>> menus = new ArrayList<>();
+
+        for (int i = 0; i < swingMenu.getMenuCount(); i++)
+        {
+            JMenu menu = swingMenu.getMenu(i);
+            menus.add(swingMenuToFX(menu, eventSource));
+        }
+        return () -> {
+            MenuBar menuBar = new MenuBar();
+            for (FXSupplier<Menu> menuFXSupplier : menus)
+            {
+                menuBar.getMenus().add(menuFXSupplier.get());
+            }
+            return menuBar;
+        };
+    }
+
+    /**
+     * Helper method for swingMenuBarToFX, see docs for that method
+     */
+    @OnThread(Tag.Swing)
+    private static FXSupplier<Menu> swingMenuToFX(JMenu swingMenu, Object source)
+    {
+        List<FXSupplier<? extends MenuItem>> items = new ArrayList<>();
+        List<FXRunnable> onShow = new ArrayList<>();
+        String text = swingMenu.getText();
+        for (int i = 0; i < swingMenu.getItemCount(); i++)
+        {
+            JMenuItem item = swingMenu.getItem(i);
+            if (item == null)
+                // Separator:
+                items.add(createMenuSeparator());
+            else if (item instanceof JMenu)
+                items.add(swingMenuToFX((JMenu)item, source));
+            else
+            {
+                FXSupplier<MenuItemAndShow> menuItemAndShowFXSupplier = swingMenuItemToFX(item, source);
+                FXSupplier<MenuItem> menuItemFXSupplier = () -> {
+                    MenuItemAndShow itemAndShow = menuItemAndShowFXSupplier.get();
+                    if (itemAndShow.onShow != null)
+                        onShow.add(itemAndShow.onShow);
+                    return itemAndShow.menuItem;
+                };
+                items.add(menuItemFXSupplier);
+            }
+        }
+        return () -> {
+            Menu menu = new Menu(text);
+            for (FXSupplier<? extends MenuItem> menuItemFXSupplier : items)
+            {
+                menu.getItems().add(menuItemFXSupplier.get());
+            }
+            // Note: it is the supplier
+            // which adds all the updates to the onShow list:
+            menu.setOnShowing(e -> {
+                onShow.forEach(FXRunnable::run);
+            });
+            return menu;
+        };
+    }
+
+    @OnThread(Tag.Any)
+    private static FXSupplier<? extends MenuItem> createMenuSeparator()
+    {
+        return () -> new SeparatorMenuItem();
+    }
+
+    private static class MenuItemAndShow
+    {
+        private final MenuItem menuItem;
+        /**
+         * Action to run when the menu containing this item is shown:
+         */
+        private final FXRunnable onShow;
+
+        public MenuItemAndShow(MenuItem menuItem, FXRunnable onShow)
+        {
+            this.menuItem = menuItem;
+            this.onShow = onShow;
+        }
+
+        public MenuItemAndShow(MenuItem menuItem)
+        {
+            this(menuItem, null);
+        }
+    }
+
+    /**
+     * Helper method for swingMenuBarToFX, see docs for that method
+     */
+    @OnThread(Tag.Swing)
+    private static FXSupplier<MenuItemAndShow> swingMenuItemToFX(JMenuItem swingItem, Object source)
+    {
+        String menuText = swingItem.getText();
+        Action action = swingItem.getAction();
+        ActionListener[] actionListeners = swingItem.getActionListeners();
+        AWTKeyStroke shortcut = swingItem.getAccelerator();
+        if (swingItem instanceof JCheckBoxMenuItem)
+        {
+            JCheckBoxMenuItem checkBoxMenuItem = (JCheckBoxMenuItem) swingItem;
+            boolean selected = checkBoxMenuItem.isSelected();
+            return () -> {
+                CheckMenuItem item = new CheckMenuItem(menuText);
+                item.setSelected(selected);
+                // Clicking the icon crosses back to the Swing thread to attempt state change:
+                item.setOnAction(e -> {
+                    SwingUtilities.invokeLater(() -> checkBoxMenuItem.setSelected(!checkBoxMenuItem.isSelected()));
+                });
+                item.setAccelerator(swingKeyStrokeToFX(shortcut));
+                // We must also check the state (on Swing thread) before showing, because it may
+                // have been altered by other actions, e.g. the Show Terminal menu item is affected
+                // by the user closing the terminal window, not just by triggering the menu item
+                FXRunnable getStatus = () -> {
+                    SwingUtilities.invokeLater(() -> {
+                        boolean curSelected = checkBoxMenuItem.isSelected();
+                        Platform.runLater(() -> item.setSelected(curSelected));
+                    });
+                };
+                SwingUtilities.invokeLater(() -> {
+                    swingItem.addPropertyChangeListener("enabled", e2 -> {
+                        boolean enabled = swingItem.isEnabled();
+                        Platform.runLater(() -> item.setDisable(!enabled));
+                    });
+                });
+                return new MenuItemAndShow(item, getStatus);
+            };
+        }
+        else if (swingItem instanceof JRadioButtonMenuItem)
+        {
+            // We don't have any radio button menu items in our code currently
+            throw new UnsupportedOperationException();
+        }
+        else
+        {
+            return () -> {
+                MenuItem item = new MenuItem(menuText);
+                item.setOnAction(e -> {
+                    SwingUtilities.invokeLater(() -> {
+                        if (action != null)
+                            action.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText));
+                        else
+                            // If no action, just call action listeners ourselves:
+                            Arrays.stream(actionListeners).forEach(a -> a.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText)));
+                    });
+                });
+                item.setAccelerator(swingKeyStrokeToFX(shortcut));
+                SwingUtilities.invokeLater(() -> {
+                    swingItem.addPropertyChangeListener("enabled", e2 -> {
+                        boolean enabled = swingItem.isEnabled();
+                        Platform.runLater(() -> item.setDisable(!enabled));
+                    });
+                });
+                return new MenuItemAndShow(item);
+            };
+        }
+    }
+
+    /**
+     * Converts an AWT key stroke combination to a JavaFX one.
+     */
+    private static KeyCombination swingKeyStrokeToFX(AWTKeyStroke shortcut)
+    {
+        if (shortcut == null)
+            return null;
+
+        int modifiers = shortcut.getModifiers();
+        List<Modifier> fxModifiers = new ArrayList<>();
+        if ((modifiers & java.awt.event.InputEvent.SHIFT_DOWN_MASK) != 0)
+            fxModifiers.add(KeyCombination.SHIFT_DOWN);
+        if ((modifiers & java.awt.event.InputEvent.CTRL_DOWN_MASK) != 0)
+            fxModifiers.add(KeyCombination.CONTROL_DOWN);
+        if ((modifiers & java.awt.event.InputEvent.META_DOWN_MASK) != 0)
+            fxModifiers.add(KeyCombination.META_DOWN);
+        // We don't support other modifiers on menu items: e.g. Alt as a
+        // menu item shortcut is not supported because it doesn't work on some OSes
+        KeyCode code = awtKeyCodeToFX(shortcut.getKeyCode());
+        if (code != null)
+            return new KeyCodeCombination(code, fxModifiers.toArray(new KeyCombination.Modifier[0]));
+        else
+            return null;
+    }
+
+    /**
+     * Converts an integer AWT key code to a JavaFX enum.
+     */
+    private static KeyCode awtKeyCodeToFX(int code)
+    {
+        // There may be a better way of doing this:
+        switch (code)
+        {
+            case java.awt.event.KeyEvent.VK_A: return KeyCode.A;
+            case java.awt.event.KeyEvent.VK_B: return KeyCode.B;
+            case java.awt.event.KeyEvent.VK_C: return KeyCode.C;
+            case java.awt.event.KeyEvent.VK_D: return KeyCode.D;
+            case java.awt.event.KeyEvent.VK_E: return KeyCode.E;
+            case java.awt.event.KeyEvent.VK_F: return KeyCode.F;
+            case java.awt.event.KeyEvent.VK_G: return KeyCode.G;
+            case java.awt.event.KeyEvent.VK_H: return KeyCode.H;
+            case java.awt.event.KeyEvent.VK_I: return KeyCode.I;
+            case java.awt.event.KeyEvent.VK_J: return KeyCode.J;
+            case java.awt.event.KeyEvent.VK_K: return KeyCode.K;
+            case java.awt.event.KeyEvent.VK_L: return KeyCode.L;
+            case java.awt.event.KeyEvent.VK_M: return KeyCode.M;
+            case java.awt.event.KeyEvent.VK_N: return KeyCode.N;
+            case java.awt.event.KeyEvent.VK_O: return KeyCode.O;
+            case java.awt.event.KeyEvent.VK_P: return KeyCode.P;
+            case java.awt.event.KeyEvent.VK_Q: return KeyCode.Q;
+            case java.awt.event.KeyEvent.VK_R: return KeyCode.R;
+            case java.awt.event.KeyEvent.VK_S: return KeyCode.S;
+            case java.awt.event.KeyEvent.VK_T: return KeyCode.T;
+            case java.awt.event.KeyEvent.VK_U: return KeyCode.U;
+            case java.awt.event.KeyEvent.VK_V: return KeyCode.V;
+            case java.awt.event.KeyEvent.VK_W: return KeyCode.W;
+            case java.awt.event.KeyEvent.VK_X: return KeyCode.X;
+            case java.awt.event.KeyEvent.VK_Y: return KeyCode.Y;
+            case java.awt.event.KeyEvent.VK_Z: return KeyCode.Z;
+            case java.awt.event.KeyEvent.VK_0: return KeyCode.DIGIT0;
+            case java.awt.event.KeyEvent.VK_1: return KeyCode.DIGIT1;
+            case java.awt.event.KeyEvent.VK_2: return KeyCode.DIGIT2;
+            case java.awt.event.KeyEvent.VK_3: return KeyCode.DIGIT3;
+            case java.awt.event.KeyEvent.VK_4: return KeyCode.DIGIT4;
+            case java.awt.event.KeyEvent.VK_5: return KeyCode.DIGIT5;
+            case java.awt.event.KeyEvent.VK_6: return KeyCode.DIGIT6;
+            case java.awt.event.KeyEvent.VK_7: return KeyCode.DIGIT7;
+            case java.awt.event.KeyEvent.VK_8: return KeyCode.DIGIT8;
+            case java.awt.event.KeyEvent.VK_9: return KeyCode.DIGIT9;
+            case java.awt.event.KeyEvent.VK_COMMA: return KeyCode.COMMA;
+            case java.awt.event.KeyEvent.VK_PERIOD: return KeyCode.PERIOD;
+            case java.awt.event.KeyEvent.VK_BACK_QUOTE: return KeyCode.BACK_QUOTE;
+            case java.awt.event.KeyEvent.VK_BACK_SLASH: return KeyCode.BACK_SLASH;
+            case java.awt.event.KeyEvent.VK_SLASH: return KeyCode.SLASH;
+            case java.awt.event.KeyEvent.VK_TAB: return KeyCode.TAB;
+            case java.awt.event.KeyEvent.VK_BACK_SPACE: return KeyCode.BACK_SPACE;
+            case java.awt.event.KeyEvent.VK_F1: return KeyCode.F1;
+            case java.awt.event.KeyEvent.VK_F2: return KeyCode.F2;
+            case java.awt.event.KeyEvent.VK_F3: return KeyCode.F3;
+            case java.awt.event.KeyEvent.VK_F4: return KeyCode.F4;
+            case java.awt.event.KeyEvent.VK_F5: return KeyCode.F5;
+            case java.awt.event.KeyEvent.VK_F6: return KeyCode.F6;
+            case java.awt.event.KeyEvent.VK_F7: return KeyCode.F7;
+            case java.awt.event.KeyEvent.VK_F8: return KeyCode.F8;
+            case java.awt.event.KeyEvent.VK_F9: return KeyCode.F9;
+            case java.awt.event.KeyEvent.VK_F10: return KeyCode.F10;
+            case java.awt.event.KeyEvent.VK_F11: return KeyCode.F11;
+            case java.awt.event.KeyEvent.VK_F12: return KeyCode.F12;
+            case java.awt.event.KeyEvent.VK_F13: return KeyCode.F13;
+            case java.awt.event.KeyEvent.VK_F14: return KeyCode.F14;
+            case java.awt.event.KeyEvent.VK_F15: return KeyCode.F15;
+            case java.awt.event.KeyEvent.VK_F16: return KeyCode.F16;
+            case java.awt.event.KeyEvent.VK_F17: return KeyCode.F17;
+            case java.awt.event.KeyEvent.VK_F18: return KeyCode.F18;
+            case java.awt.event.KeyEvent.VK_F19: return KeyCode.F19;
+            case java.awt.event.KeyEvent.VK_F20: return KeyCode.F20;
+            case java.awt.event.KeyEvent.VK_F21: return KeyCode.F21;
+            case java.awt.event.KeyEvent.VK_F22: return KeyCode.F22;
+            case java.awt.event.KeyEvent.VK_F23: return KeyCode.F23;
+            case java.awt.event.KeyEvent.VK_F24: return KeyCode.F24;
+            case java.awt.event.KeyEvent.VK_SEMICOLON: return KeyCode.SEMICOLON;
+            case java.awt.event.KeyEvent.VK_COLON: return KeyCode.COLON;
+            case java.awt.event.KeyEvent.VK_NUMBER_SIGN: return KeyCode.NUMBER_SIGN;
+            case java.awt.event.KeyEvent.VK_ENTER: return KeyCode.ENTER;
+            case java.awt.event.KeyEvent.VK_INSERT: return KeyCode.INSERT;
+            case java.awt.event.KeyEvent.VK_HOME: return KeyCode.HOME;
+            case java.awt.event.KeyEvent.VK_DELETE: return KeyCode.DELETE;
+            case java.awt.event.KeyEvent.VK_END: return KeyCode.END;
+            case java.awt.event.KeyEvent.VK_PAGE_UP: return KeyCode.PAGE_UP;
+            case java.awt.event.KeyEvent.VK_PAGE_DOWN: return KeyCode.PAGE_DOWN;
+
+        }
+        return null;
     }
 }

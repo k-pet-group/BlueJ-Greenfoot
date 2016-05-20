@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.debugmgr;
 
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Map;
@@ -81,8 +82,8 @@ public class MethodDialog extends CallDialog
      * @param typeMap      The mapping of type parameter names to runtime types
      *                     (a Map of String -> GenType).
      */
-    public MethodDialog(JFrame parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
-            String instanceName, MethodView method, Map<String,GenTypeParameter> typeMap)
+    public MethodDialog(Frame parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
+                        String instanceName, MethodView method, Map<String,GenTypeParameter> typeMap)
     {
         super(parentFrame, ob, "");
 

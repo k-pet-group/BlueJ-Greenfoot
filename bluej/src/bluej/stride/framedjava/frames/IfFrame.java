@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,6 +44,8 @@ import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Container-block representing an if statement.
@@ -65,6 +67,7 @@ public class IfFrame extends SandwichCanvasesFrame
         //Condition
         ifCondition = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "if-", FilledExpressionSlot.CONDITION_HINTS){
             @Override
+            @OnThread(Tag.FXPlatform)
             public boolean backspaceAtStart()
             {
                 if (isAlmostBlank()) {
@@ -123,6 +126,7 @@ public class IfFrame extends SandwichCanvasesFrame
         FrameContentRow row = new FrameContentRow(this, "else-if-");
         ExpressionSlot<FilledExpressionSlotFragment> elseIfCondition = new FilledExpressionSlot(editor, this, this, row, "if-", FilledExpressionSlot.CONDITION_HINTS){
             @Override
+            @OnThread(Tag.FXPlatform)
             public boolean backspaceAtStart()
             {
                 if (isAlmostBlank()) {

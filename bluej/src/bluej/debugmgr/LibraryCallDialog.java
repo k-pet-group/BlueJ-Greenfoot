@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,7 +43,7 @@ import bluej.views.*;
  * @author  Michael Kolling
  */
 public class LibraryCallDialog extends EscapeDialog
-	implements ActionListener, ListSelectionListener
+    implements ActionListener, ListSelectionListener
 {
     private static final String[] clickHere = {
         "    ",
@@ -70,7 +70,7 @@ public class LibraryCallDialog extends EscapeDialog
 
     public LibraryCallDialog(PkgMgrFrame pmf)
     {
-        super(pmf, Config.getString("callLibraryDialog.title"), false);
+        super(pmf.getWindow(), Config.getString("callLibraryDialog.title"), false);
         pkg = pmf.getPackage();
         currentViews = new ArrayList<CallableView>();
         viewToCall = null;
@@ -84,13 +84,13 @@ public class LibraryCallDialog extends EscapeDialog
      */
     public void setVisible(boolean show)
     {
-    	super.setVisible(show);
-    	if (show) {
+        super.setVisible(show);
+        if (show) {
             okButton.setEnabled(false);
             classField.setModel(new DefaultComboBoxModel(history.getHistory().toArray()));
             classSelected();
             classField.requestFocus();
-    	}
+        }
     }
 
     /**

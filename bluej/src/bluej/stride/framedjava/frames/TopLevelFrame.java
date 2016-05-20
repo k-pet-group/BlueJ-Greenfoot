@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -67,7 +67,9 @@ public interface TopLevelFrame<T extends CodeElement & TopLevelCodeElement> exte
     
     // Imports that mirror Frame methods, to get around the fact that we are an interface:    
     public Node getNode();
+    @OnThread(Tag.FXPlatform)
     public void flagErrorsAsOld();
+    @OnThread(Tag.FXPlatform)
     public void removeOldErrors();
     public Stream<HeaderItem> getHeaderItems();
     default public Stream<EditableSlot> getEditableSlots()

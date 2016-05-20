@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import bluej.collect.StrideEditReason;
+import bluej.stride.framedjava.frames.StrideCategory;
+import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -72,8 +74,6 @@ import bluej.editor.stride.FrameEditorTab;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.CodeFrame;
-import bluej.stride.framedjava.frames.GreenfootFrameCategory;
-import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
 import bluej.stride.generic.FrameDictionary.Entry;
 import bluej.stride.operations.PasteFrameOperation;
 import bluej.stride.slots.EditableSlot;
@@ -81,6 +81,8 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Between-block horizontal cursor placeholder/button
@@ -97,6 +99,7 @@ public class FrameCursor implements RecallableFocus
     
     private final Button node = new Button();
 
+    @OnThread(Tag.FXPlatform)
     public boolean keyTyped(final FrameEditorTab editor, final FrameCanvas parentCanvas, char key, boolean viaRedirect)
     {
         if (!editor.isEditable() || !canInsert())
@@ -761,6 +764,7 @@ public class FrameCursor implements RecallableFocus
         return this.editor;
     }
 
+    @OnThread(Tag.FXPlatform)
     private boolean showContextMenu(double screenX, double screenY)
     {
         if (JavaFXUtil.hasPseudoclass(node, "bj-java-preview"))
@@ -776,7 +780,8 @@ public class FrameCursor implements RecallableFocus
         }
         return false;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public EditableSlot.MenuItems getMenuItems(boolean contextMenu)
     {
         boolean selection = !editor.getSelection().isEmpty();
@@ -799,8 +804,8 @@ public class FrameCursor implements RecallableFocus
     private List<MenuItem> getAcceptedFramesMenuItems()
     {
         List<MenuItem> items = new ArrayList<MenuItem>();
-        List<Entry<GreenfootFrameCategory>> entries = GreenfootFrameDictionary.getDictionary().getAllBlocks();
-        for (Entry<GreenfootFrameCategory> entry : entries) {
+        List<Entry<StrideCategory>> entries = StrideDictionary.getDictionary().getAllBlocks();
+        for (Entry<StrideCategory> entry : entries) {
             if ( check().canInsert(entry.getCategory()) ) {
                  items.add(createMenuItem(entry, this));
             }
@@ -808,7 +813,7 @@ public class FrameCursor implements RecallableFocus
         return items;
     }
 
-    private MenuItem createMenuItem(Entry<GreenfootFrameCategory> entry, FrameCursor cursor)
+    private MenuItem createMenuItem(Entry<StrideCategory> entry, FrameCursor cursor)
     {
         Label d = new Label();
         d.textProperty().bind(new SimpleStringProperty(entry.getShortcuts() + "\t  " + entry.getName()));

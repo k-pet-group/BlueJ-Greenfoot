@@ -33,10 +33,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 
-import bluej.stride.framedjava.frames.GreenfootFrameDictionary;
+import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A statement block with a canvas underneath for embedding additional blocks - used for if statements, loops, etc.
@@ -287,6 +289,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
         super.setView(oldView, newView, animateProgress);
@@ -321,7 +324,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
     {
         if (child == this.canvas)
         {
-            return GreenfootFrameDictionary.checkStatement();
+            return StrideDictionary.checkStatement();
         }
         else
         {

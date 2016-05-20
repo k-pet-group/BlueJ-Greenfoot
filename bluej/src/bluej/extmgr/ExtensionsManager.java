@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,11 @@
  */
 package bluej.extmgr;
 
+import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.io.File;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -219,7 +221,7 @@ public class ExtensionsManager
      * here to be sure that the help dialog is called when extension manager is
      * valid.
      */
-    public void showHelp(JFrame parentFrame)
+    public void showHelp(Frame parentFrame)
     {
         List<ExtensionWrapper> extensionsList = new ArrayList<ExtensionWrapper>();
         synchronized (extensions) {

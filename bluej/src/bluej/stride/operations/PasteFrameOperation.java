@@ -28,6 +28,9 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.beans.value.ObservableValue;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -44,6 +47,7 @@ public class PasteFrameOperation extends FrameOperation
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
         List<CodeElement> elements = GreenfootFrameUtil.getClipboardElements();

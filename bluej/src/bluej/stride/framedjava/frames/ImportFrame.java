@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import bluej.parser.AssistContent.Access;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.control.TextField;
+import javafx.util.Pair;
 
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.links.PossibleLink;
@@ -56,7 +57,10 @@ import bluej.stride.slots.SuggestionList.SuggestionListListener;
 
 import bluej.editor.stride.FrameCatalogue;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A statement for import packages/classes
@@ -77,27 +81,28 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
      */
     private ImportFrame(InteractionManager editor)
     {
-        super(editor, "import", IMPORT_STYLE_PREFIX);
+        super(editor, "import ", IMPORT_STYLE_PREFIX);
         
         CompletionCalculator calc = new CompletionCalculator() {
-            private List<String> imports;
+            private List<Pair<SuggestionList.SuggestionShown, String>> imports;
             
             @Override
             public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl,
                                                      SuggestionListListener clickListener,
-                                                     FXConsumer<SuggestionList> handler)
+                                                     FXPlatformConsumer<SuggestionList> handler)
             {
-                imports = new ArrayList<>(new TreeSet<>(editor.getOtherPopularImports().stream().filter(ac ->
-                        // Only if visible:
-                        ac.getPackage() == null || ac.getPackage().equals("") || ac.getAccessPermission() == Access.PUBLIC
-                ).flatMap(
-                    ac -> (ac.getPackage() == null || ac.getPackage().equals("")) ?
-                        Stream.of(ac.getName()) :
-                        Stream.of(ac.getPackage() + "." + (ac.getDeclaringClass() == null ? "" : ac.getDeclaringClass() + ".") + ac.getName(), ac.getPackage() + ".*")
-                ).collect(Collectors.toList()
-                )));
-                SuggestionList suggestionDisplay = new SuggestionList(editor, Utility.mapList(imports, SuggestionDetails::new), null, SuggestionList.SuggestionShown.RARE, null, clickListener);
-                handler.accept(suggestionDisplay);
+                imports = editor.getImportSuggestions().entrySet().stream().flatMap(e ->
+                    e.getValue().stream().filter(ac ->
+                            // Only if visible:
+                            ac.getPackage() == null || ac.getPackage().equals("") || ac.getAccessPermission() == Access.PUBLIC
+                        ).flatMap(
+                                ac -> (ac.getPackage() == null || ac.getPackage().equals("")) ?
+                                        Stream.of(ac.getName()) :
+                                        Stream.of(ac.getPackage() + "." + (ac.getDeclaringClass() == null ? "" : ac.getDeclaringClass() + ".") + ac.getName(), ac.getPackage() + ".*")
+                        ).sorted().distinct().map(v -> new Pair<SuggestionList.SuggestionShown, String>(e.getKey(), v))
+                ).collect(Collectors.toList());
+                SuggestionList suggestionDisplay = new SuggestionList(editor, Utility.mapList(imports, imp -> new SuggestionList.SuggestionDetails(imp.getValue(), null, null, imp.getKey())), null, SuggestionList.SuggestionShown.COMMON, null, clickListener);
+                JavaFXUtil.runNowOrLater(() -> handler.accept(suggestionDisplay));
             }
             
             @Override
@@ -105,7 +110,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
             {
                 if (highlighted >= 0)
                 {
-                    field.setText(imports.get(highlighted));
+                    field.setText(imports.get(highlighted).getValue());
                     return true;
                 }
                 return false;
@@ -127,6 +132,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void addError(CodeError err)
             {
                 editor.ensureImportsVisible();

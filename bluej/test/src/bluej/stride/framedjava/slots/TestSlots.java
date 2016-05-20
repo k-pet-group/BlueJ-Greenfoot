@@ -290,6 +290,14 @@ public class TestSlots
         
         // Adding quote later:
         testMultiInsert("abc{\"}def", "{abc$def}", "{abc}_\"$\"_{def}");
+
+        // Adding string adjacent to String:
+        // First, before:
+        testInsertExisting("$\"b\"", "\"a", "{}_\"a$\"_{}_\"b\"_{}");
+        testInsertExisting("$\"b\"", "\"a\"", "{}_\"a\"_{$}_\"b\"_{}");
+        // Also, after:
+        testInsertExisting("\"a\"$", "\"b", "{}_\"a\"_{}_\"b$\"_{}");
+
     }
     
     @Test

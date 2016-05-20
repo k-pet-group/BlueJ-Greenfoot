@@ -25,9 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import bluej.editor.stride.FrameEditorTab;
 import bluej.stride.generic.FrameState;
-import bluej.utility.Debug;
 import bluej.utility.javafx.FXRunnable;
 
 /**
@@ -45,7 +43,7 @@ public class UndoRedoManager
     private final LinkedList<FrameState> statesStack = new LinkedList<FrameState>();
     private final List<FXRunnable> listeners = new ArrayList<>();
     // TODO Add it to the defs file
-    private final int MAX_CAPACITY = 30;
+    private static final int MAX_CAPACITY = 30;
 
     public UndoRedoManager(FrameState initialState)
     {

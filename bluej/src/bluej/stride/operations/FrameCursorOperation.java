@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,16 +40,12 @@ public abstract class FrameCursorOperation extends AbstractOperation
     {
         CustomMenuItem item = initializeCustomItem();
         // Delete (with hover preview)
-        item.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e)
-            {
-                editor.beginRecordingState(frameCursor);
-                execute(frameCursor);
-                editor.endRecordingState(frameCursor);
-                editor.getSelection().clear();
-                e.consume();
-            }
+        item.setOnAction(e -> {
+            editor.beginRecordingState(frameCursor);
+            execute(frameCursor);
+            editor.endRecordingState(frameCursor);
+            editor.getSelection().clear();
+            e.consume();
         });
 
         return item;

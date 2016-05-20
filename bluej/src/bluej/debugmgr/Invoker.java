@@ -22,6 +22,7 @@
 package bluej.debugmgr;
 
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -105,7 +106,7 @@ public class Invoker
     private static Map<ConstructorView, ConstructorDialog> constructors =
         new HashMap<ConstructorView, ConstructorDialog>();
 
-    private JFrame pmf;
+    private Frame pmf;
     private Package pkg; //For data collection purposes
     private boolean codepad; //Used to decide whether to do data collection (don't record if for codepad)
     private File pkgPath;
@@ -275,7 +276,7 @@ public class Invoker
      */
     private void initialize(final PkgMgrFrame pmf)
     {
-        this.pmf = pmf;
+        this.pmf = pmf.getWindow();
         this.pkg = pmf.getPackage();
         final Package pkg = pmf.getPackage();
         this.pkgPath = pkg.getPath();

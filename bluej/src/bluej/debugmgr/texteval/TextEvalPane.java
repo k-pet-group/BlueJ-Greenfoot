@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -501,7 +501,7 @@ public class TextEvalPane extends JEditorPane
         final TextEvalPane.ObjectInfo oi = objInfo;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                frame.getProject().getInspectorInstance(oi.obj, null, frame.getPackage(), oi.ir, frame);
+                frame.getProject().getInspectorInstance(oi.obj, null, frame.getPackage(), oi.ir, frame.getWindow());
             }
         });
     }

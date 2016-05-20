@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,9 @@ package bluej.editor.stride;
 
 
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.DoubleExpression;
 import javafx.scene.Node;
@@ -71,6 +74,7 @@ public class CodeOverlayPane
         LIMIT_WIDTH_AND_SLIDE_LEFT
     }
 
+    @OnThread(Tag.FXPlatform)
     public void addOverlay(final Node overlay, final Node relativeTo, final DoubleExpression xOffset, final DoubleExpression yOffset)
     {
         addOverlay(overlay, relativeTo, xOffset, yOffset, WidthLimit.NO_WIDTH_LIMIT);
@@ -82,6 +86,7 @@ public class CodeOverlayPane
      * remains at the top left of relativeTo (second parameter), plus xOffset (or 0 if null) and
      * yOffset (or 0 if null)
      */
+    @OnThread(Tag.FXPlatform)
     public void addOverlay(final Node overlay, final Node relativeTo, final DoubleExpression xOffset, final DoubleExpression yOffset, WidthLimit widthLimit)
     {       
         final DoubleBinding xPosition = new DoubleBinding() {
@@ -139,6 +144,7 @@ public class CodeOverlayPane
         return pane.sceneToLocal(0, sceneY).getY();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void removeOverlay(Node node)
     {
         pane.getChildren().remove(node);        

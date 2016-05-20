@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -93,6 +93,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void valueChangedLostFocus(String oldVal, String newVal)
     {
         if (!oldVal.equals(newVal) && !oldVal.isEmpty() && !newVal.isEmpty() && !shouldRename.get())
@@ -174,6 +175,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
         });
     }
 
+    @OnThread(Tag.FXPlatform)
     private void showUsesOverlay(List<PlainVarReference> refs)
     {
         hideUsesOverlay();
@@ -216,7 +218,8 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
         
         overlay.addOverlay(hideAllUsesButton, getNode(), new ReadOnlyDoubleWrapper(- ourSceneBounds.getMinX() + LEFT - hide.getWidth()/2.0), null);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void hideUsesOverlay()
     {
         if (allUsesCanvas != null)

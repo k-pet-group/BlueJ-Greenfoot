@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTextField
 {
@@ -69,6 +71,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public boolean deletePreviousChar()
     {
         if (delegate.deleteSelection() || delegate.deletePrevious(delegateId, getCaretPosition(), getCaretPosition() == 0))

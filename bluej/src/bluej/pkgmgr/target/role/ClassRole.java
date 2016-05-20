@@ -158,6 +158,8 @@ public abstract class ClassRole
         else {
             translations.put("PKGLINE", "package " + pkg.getQualifiedName() + ";" + Config.nl + Config.nl);
         }
+        // For Stride, we just put the package name:
+        translations.put("PKGNAME", pkg.getQualifiedName());
 
         try {
             // Check for existing file. Normally this won't happen (the check for duplicate

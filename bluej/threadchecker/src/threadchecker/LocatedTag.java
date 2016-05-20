@@ -18,11 +18,6 @@ class LocatedTag
     
     private final static HashMap<String, LocatedTag> foundTags = new HashMap<>();
 
-    public LocatedTag(Tag tag, boolean ignoreParent, boolean applyToAllSubclassMethods, Supplier<String> info)
-    {
-        this(tag, ignoreParent, false, applyToAllSubclassMethods, info);
-    }
-    
     public LocatedTag(Tag tag, boolean ignoreParent, boolean requireSynchronized, boolean applyToAllSubclassMethods, Supplier<String> info)
     {
         this(tag, ignoreParent, requireSynchronized, applyToAllSubclassMethods, info.get());

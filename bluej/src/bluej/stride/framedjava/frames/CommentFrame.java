@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,8 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -152,11 +154,11 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         if (Arrays.asList(CanvasParent.CanvasKind.FIELDS, CanvasParent.CanvasKind.CONSTRUCTORS, CanvasParent.CanvasKind.METHODS)
                 .contains(parentCanvas.getParent().getChildKind(parentCanvas)))
         {
-            addStyleClass("instance-comment-frame");
+            addStyleClass(isInInterface(parentCanvas) ? "interface-comment-frame" : "class-comment-frame");
         }
         else
         {
-            removeStyleClass("instance-comment-frame");
+            removeStyleClass(isInInterface(parentCanvas) ? "interface-comment-frame" : "class-comment-frame");
         }
     }
 
@@ -227,6 +229,7 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animation)
     {
         super.setView(oldView, newView, animation);

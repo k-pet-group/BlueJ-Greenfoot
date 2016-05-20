@@ -24,6 +24,8 @@ package bluej.stride.generic;
 import javafx.scene.Node;
 
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public abstract class DocumentedSingleLineFrame extends SingleLineFrame
 {
@@ -58,6 +60,7 @@ public abstract class DocumentedSingleLineFrame extends SingleLineFrame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animate)
     {
         super.setView(oldView, newView, animate);

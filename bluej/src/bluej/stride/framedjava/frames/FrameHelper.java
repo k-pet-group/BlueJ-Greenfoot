@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,15 +32,18 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameCursor;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class FrameHelper
 {
-
+    @OnThread(Tag.FXPlatform)
     public static void flagErrorsAsOld(FrameCanvas canvas)
     {
         canvas.getBlockContents().forEach(f -> f.flagErrorsAsOld());
     }
 
+    @OnThread(Tag.FXPlatform)
     public static void removeOldErrors(FrameCanvas canvas)
     {
         canvas.getBlockContents().forEach(f -> f.removeOldErrors());

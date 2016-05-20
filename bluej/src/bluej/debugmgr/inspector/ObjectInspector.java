@@ -26,6 +26,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -126,7 +127,7 @@ public class ObjectInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    public ObjectInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, final JFrame parent)
+    public ObjectInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, final Frame parent)
     {
         super(inspectorManager, pkg, ir, new Color(244, 158, 158));
 

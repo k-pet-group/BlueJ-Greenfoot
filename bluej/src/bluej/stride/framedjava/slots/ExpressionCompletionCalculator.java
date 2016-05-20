@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,7 @@ import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 
 public class ExpressionCompletionCalculator
 {
@@ -55,7 +56,7 @@ public class ExpressionCompletionCalculator
         this.editor = editor;
     }
 
-    public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, SuggestionListListener clickListener, String targetType, FXConsumer<SuggestionList> handler)
+    public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, SuggestionListListener clickListener, String targetType, FXPlatformConsumer<SuggestionList> handler)
     {
         editor.withCompletions(pos, completing, codeEl, assists -> {
             completions = assists.stream()

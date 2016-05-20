@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,9 @@
 package bluej.stride.slots;
 
 import bluej.utility.javafx.FXRunnable;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.application.Platform;
 
 public class SlotTraversalChars implements SlotValueListener
@@ -76,8 +79,10 @@ public class SlotTraversalChars implements SlotValueListener
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void backSpacePressedAtStart(HeaderItem slot) { }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void deletePressedAtEnd(HeaderItem slot) { }
 }

@@ -29,6 +29,9 @@ import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.value.ObservableValue;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -42,6 +45,7 @@ public class CutFrameOperation extends FrameOperation
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
         if (frames.size() > 0)

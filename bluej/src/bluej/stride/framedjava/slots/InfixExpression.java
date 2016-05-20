@@ -69,12 +69,15 @@ import bluej.stride.slots.EditableSlot;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.MultiListener;
 import bluej.utility.javafx.SharedTransition;
 import bluej.utility.javafx.TextFieldDelegate;
 import bluej.utility.javafx.binding.DeepListBinding;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class is the major part of the display and logic for expressions.  Here's how the architecture works:
@@ -583,7 +586,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
             // check for click on underlined region
             CaretPos relNearest = getNearest(e.getSceneX(), e.getSceneY(), false, Optional.empty()).getPos();
             CaretPos absNearest = absolutePos(relNearest);
-            Utility.ifNotNull(slot.getOverlay().hoverAtPos(slot.getTopLevel().caretPosToStringPos(absNearest, false)), FXRunnable::runLater);
+            Utility.ifNotNull(slot.getOverlay().hoverAtPos(slot.getTopLevel().caretPosToStringPos(absNearest, false)), FXPlatformRunnable::runLater);
         });
         
         return f;
@@ -1224,12 +1227,14 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
      * The atStart parameter is a bit redundant (check if posInField == 0), but mirrors that of
      * deleteNext.
      */
+    @OnThread(Tag.FXPlatform)
     public boolean deletePrevious(ExpressionSlotField f, int posInField, boolean atStart)
     {
         positionCaret(deletePrevious_(f, posInField, atStart));
         return true;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public CaretPos deletePreviousAtPos(CaretPos p)
     {
         ExpressionSlotComponent c = fields.get(p.index);
@@ -1249,6 +1254,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
     }
 
     // package-visible for testing, implementation of deletePrevious
+    @OnThread(Tag.FXPlatform)
     CaretPos deletePrevious_(ExpressionSlotField f, int posInField, boolean atStart)
     {
         int index = findField(f);
@@ -1668,7 +1674,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
                 f.setText(f.getText().substring(0, posInField));
                 operators.add(pos.index, null);
                 fields.add(pos.index + 1, new StringLiteralExpression(makeNewField("", true), this));
-                if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null)
+                if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null || fields.get(pos.index + 2) instanceof StringLiteralExpression)
                 {
                     // Used to be operator directly after this field (or we are at end), must add another field to pad
                     // RHS (not allowed to have operator after compound with no field inbetween)
@@ -2366,6 +2372,7 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
         return insertAtPos(p, after);
     }
 
+    @OnThread(Tag.FXPlatform)
     CaretPos testingBackspace(CaretPos p)
     {
         ExpressionSlotComponent f = fields.get(p.index);
@@ -2737,11 +2744,12 @@ class InfixExpression implements TextFieldDelegate<ExpressionSlotField>
     {
         if (slot != null) // Can be null during testing
         {
-            slot.caretMoved();
+            JavaFXUtil.ifOnPlatform(() -> slot.caretMoved());
         }
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void escape()
     {
         slot.escape();        

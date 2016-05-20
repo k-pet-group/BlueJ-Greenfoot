@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.debugmgr;
 
 import java.awt.BorderLayout;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -76,8 +77,8 @@ public class ConstructorDialog extends CallDialog
      * @param typeMap      The mapping of type parameter names to runtime types
      *                     (a Map of String -> GenType).
      */
-    public ConstructorDialog(JFrame parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
-            String initialName, ConstructorView constructor)
+    public ConstructorDialog(Frame parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
+                             String initialName, ConstructorView constructor)
     {
         super(parentFrame, ob, "");
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -211,7 +212,7 @@ public class AppletClassRole extends StdClassRole
         Package pkg = ct.getPackage();
 
         if(dialog == null) {
-            dialog = new RunAppletDialog(parent, name);
+            dialog = new RunAppletDialog(parent.getWindow(), name);
             // add params that originated from pkg properties
             if(appletParams != null)
                 dialog.setAppletParameters(appletParams);
@@ -226,7 +227,7 @@ public class AppletClassRole extends StdClassRole
             int execOption = dialog.getAppletExecutionOption();
             if(execOption == RunAppletDialog.GENERATE_PAGE_ONLY) {
                 // generate HTML page for Applet using selected path and file name
-                File generatedFile = chooseWebPage(parent);
+                File generatedFile = chooseWebPage(parent.getWindow());
                 if(generatedFile != null) {
                     createWebPage(generatedFile, name, pkg.getPath().getPath(), libs);
                 }
@@ -297,7 +298,7 @@ public class AppletClassRole extends StdClassRole
      * @return the full file name for the web page or null
      *         if cancel selected in file chooser
      */
-    private File chooseWebPage(JFrame frame)
+    private File chooseWebPage(Window frame)
     {
         String fullFileName = FileUtility.getFileName(frame,
                                 Config.getString("pkgmgr.chooseWebPage.title"),

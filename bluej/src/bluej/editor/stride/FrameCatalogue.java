@@ -30,8 +30,10 @@ import java.util.List;
 import java.util.Set;
 
 import bluej.collect.StrideEditReason;
+import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.binding.ConcatListBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -59,7 +61,6 @@ import bluej.editor.stride.FXTabbedEditor.CodeCompletionState;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.CodeFrame;
-import bluej.stride.framedjava.frames.GreenfootFrameCategory;
 import bluej.stride.generic.CanvasParent;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.Frame;
@@ -71,6 +72,8 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXBiConsumer;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The pop-out catalogue displayed on the right-hand side with frames and shortcuts
@@ -109,7 +112,7 @@ public class FrameCatalogue extends VBox
      * The current callback to cancel the next update of the frame catalogue.
      * See the scheduleUpdateCatalogue() method
      */
-    private FXRunnable cancelUpdateCatalogue;
+    private FXPlatformRunnable cancelUpdateCatalogue;
     /**
      * Keep track of which frame cursor is focused, if any.
      */
@@ -181,7 +184,7 @@ public class FrameCatalogue extends VBox
         // by scheduling recompilation:
         editor.ignoreEdits(() -> {
 
-            FrameDictionary<GreenfootFrameCategory> dictionary = editor.getDictionary();
+            FrameDictionary<StrideCategory> dictionary = editor.getDictionary();
             BorderPane p = new BorderPane();
             p.setMinWidth(CATALOGUE_FRAME_WIDTH);
             p.setPrefWidth(CATALOGUE_FRAME_WIDTH);
@@ -190,12 +193,12 @@ public class FrameCatalogue extends VBox
             Scene temp = new Scene(p);
             Config.addEditorStylesheets(temp);
 
-            Comparator<Entry<GreenfootFrameCategory>> comparator = Comparator.<Entry<GreenfootFrameCategory>, GreenfootFrameCategory>comparing(Entry::getCategory).thenComparing(e -> getDisplayShortcut(e.getShortcuts()));
+            Comparator<Entry<StrideCategory>> comparator = Comparator.<Entry<StrideCategory>, StrideCategory>comparing(Entry::getCategory).thenComparing(e -> getDisplayShortcut(e.getShortcuts()));
 
             final SnapshotParameters params = new SnapshotParameters();
             params.setFill(Color.TRANSPARENT);
 
-            for (Entry<GreenfootFrameCategory> e : Utility.iterableStream(dictionary.getAllBlocks().stream().sorted(comparator)))
+            for (Entry<StrideCategory> e : Utility.iterableStream(dictionary.getAllBlocks().stream().sorted(comparator)))
             {
                 Frame f = e.getFactory().createBlock(editor);
                 p.setCenter(f.getNode());
@@ -430,6 +433,7 @@ public class FrameCatalogue extends VBox
 
     // Pass null if there is no currently focused cursor
     // package-visible
+    @OnThread(Tag.FXPlatform)
     void scheduleUpdateCatalogue(FrameEditorTab editor, FrameCursor c, CodeCompletionState codeCompletion, boolean selection, Frame.View viewMode, List<ExtensionDescription> altExtensions, List<Hint> hints)
     {
         currentCursor = c;

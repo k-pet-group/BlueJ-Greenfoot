@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,7 +38,7 @@ import bluej.utility.Utility;
 
 /**
  * Paints a ClassTarget
- * 
+ *
  * @author fisker
  */
 public class ClassTargetPainter
@@ -46,7 +46,7 @@ public class ClassTargetPainter
     /**
      * The constants in this enumeration are used to define which method of the
      * {@link ExtensionClassTargetPainter} shall be called.
-     * 
+     *
      * @author Simon Gerlach
      */
     public enum Layer {
@@ -59,6 +59,7 @@ public class ClassTargetPainter
     private static final Color textcolor = Color.BLACK;
     private static final Color borderColor = Color.BLACK;
     private static final Color stripeColor = new Color(158,139,116);
+    private static final Color errorStripeColor = new Color(180,50,20);
     private static final Image brokenImage = Config.getFixedImageAsIcon("broken-symbol.png").getImage();
     private static final Font targetFont = PrefMgr.getTargetFont();
 
@@ -68,7 +69,7 @@ public class ClassTargetPainter
 
     /**
      * Construct the ClassTargetPainter
-     *  
+     *
      */
     public ClassTargetPainter()
     { }
@@ -76,10 +77,10 @@ public class ClassTargetPainter
     public void paint(Graphics2D g, ClassTarget classTarget, boolean hasFocus)
     {
         g.translate(classTarget.getX(), classTarget.getY());
-        
+
         int width = classTarget.getWidth();
         int height = classTarget.getHeight();
-        
+
         // draw the stationary class
         if (!Config.isRaspberryPi()) drawShadow(g, width, height);
         drawSkeleton(g, classTarget, width, height);
@@ -95,7 +96,7 @@ public class ClassTargetPainter
         g.translate(classTarget.getGhostX(), classTarget.getGhostY());
         int width = classTarget.getGhostWidth();
         int height = classTarget.getGhostHeight();
-        
+
         if (!Config.isRaspberryPi()) g.setComposite(alphaComposite);
         drawSkeleton(g, classTarget, width, height);
         drawUMLStyle(g, classTarget, hasFocus, width, height);
@@ -106,7 +107,7 @@ public class ClassTargetPainter
 
     /**
      * Draw the Coloured rectangle and the borders.
-     *  
+     *
      */
     private void drawSkeleton(Graphics2D g, ClassTarget classTarget, int width, int height)
     {
@@ -148,7 +149,7 @@ public class ClassTargetPainter
         // draw line beneath the stereotype and indentifiername. The UML-style
         g.setColor(borderColor);
         g.drawLine(0, currentTextPosY, width, currentTextPosY);
-        
+
         // Ask extensions to draw their background of the class target
         int extensionGraphicsX = 1;
         int extensionGraphicsY = currentTextPosY + 1;
@@ -186,7 +187,8 @@ public class ClassTargetPainter
         String stereotype = classTarget.getRole().getStereotypeLabel();
         if (classTarget.getState() != ClassTarget.S_NORMAL) {
             int divider = (stereotype == null) ? 19 : 33;
-            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3, stripeColor);
+            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3,
+                    classTarget.hasKnownError() ? errorStripeColor : stripeColor);
         }
 
         // if sourcecode is missing. Write "(no source)" in the diagram

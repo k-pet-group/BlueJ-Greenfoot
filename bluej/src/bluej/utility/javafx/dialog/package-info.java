@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,20 +19,8 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.pkgmgr;
-
+@OnThread(Tag.FXPlatform)
+package bluej.utility.javafx.dialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-/**
- * A shared interface for SwingTabbedEditor and FXTabbedEditor to share the common
- * methods for saving/restoring editor window positions.
- */
-@OnThread(Tag.Swing)
-public interface TabbedEditorWindow
-{
-    public int getX();
-    public int getY();
-    public int getWidth();
-    public int getHeight();
-}

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,9 +32,10 @@ import java.util.function.Supplier;
 import bluej.Config;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
-import bluej.editor.SwingTabbedEditor;
+import bluej.editor.stride.FXTabbedEditor;
 import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.JavadocResolver;
+import bluej.utility.javafx.FXSupplier;
 
 /**
  * Implementation of EditorManager for the Moe editor.
@@ -88,14 +89,14 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
                 String docFilename,
                 Charset charset,
                 String windowTitle,
-                Supplier<SwingTabbedEditor> swingTabbedEditor,
+                FXSupplier<FXTabbedEditor> fxTabbedEditor,
                 EditorWatcher watcher, 
                 boolean compiled,
                 EntityResolver projectResolver,
                 JavadocResolver javadocResolver,
                 Runnable callbackOnOpen)
     {
-        return openEditor (filename, docFilename, charset, true, windowTitle, swingTabbedEditor, watcher, compiled,
+        return openEditor (filename, docFilename, charset, true, windowTitle, fxTabbedEditor, watcher, compiled,
                            projectResolver, javadocResolver, callbackOnOpen);
     }
 
@@ -114,9 +115,9 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
      * @returns                 the new editor, or null if there was a problem
      */
     @Override
-    public Editor openText(String filename, Charset charset, String windowTitle, Supplier<SwingTabbedEditor> swingTabbedEditor)
+    public Editor openText(String filename, Charset charset, String windowTitle, FXSupplier<FXTabbedEditor> fxTabbedEditor)
     {
-        return openEditor(filename, null, charset, false, windowTitle, swingTabbedEditor, null, false, null, null, null);
+        return openEditor(filename, null, charset, false, windowTitle, fxTabbedEditor, null, false, null, null, null);
     }
 
     @Override
@@ -189,7 +190,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
     private Editor openEditor(String filename, String docFilename,
             Charset charset,
             boolean isCode, String windowTitle,
-            Supplier<SwingTabbedEditor> swingTabbedEditor,
+            FXSupplier<FXTabbedEditor> fxTabbedEditor,
             EditorWatcher watcher, boolean compiled, 
             EntityResolver projectResolver,
             JavadocResolver javadocResolver,
@@ -203,7 +204,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
         mep.setShowToolbar(showToolBar);
         mep.setShowLineNum(showLineNum);
         mep.setCallbackOnOpen(callbackOnOpen);
-        editor = new MoeEditor(mep, swingTabbedEditor);
+        editor = new MoeEditor(mep, fxTabbedEditor);
         editors.add(editor);
         if (editor.showFile(filename, charset, compiled, docFilename))
         {
