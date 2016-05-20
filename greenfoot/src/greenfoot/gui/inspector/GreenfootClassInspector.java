@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,8 @@ import bluej.debugmgr.inspector.InspectorManager;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 
+import java.awt.Frame;
+
 /**
  * Inspector that updates the values in the inspector with a fixed timer
  * interval.
@@ -44,7 +46,7 @@ public class GreenfootClassInspector extends ClassInspector
      * Construct a new class inspector.
      */
     public GreenfootClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir,
-            JFrame parent)
+            Frame parent)
     {
         super(clss, inspectorManager, pkg, ir, parent);
         new InspectorUpdater(this);

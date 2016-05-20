@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.BPackage;
+import bluej.extensions.ExtensionBridge;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
@@ -51,7 +52,7 @@ public class ConstructorInvoker
     public ConstructorInvoker(BPackage bPackage, String className)
         throws ProjectNotOpenException, PackageNotFoundException
     {
-        pkgFrame = (PkgMgrFrame) bPackage.getFrame();
+        pkgFrame = ExtensionBridge.getPkgMgrFrame(bPackage);
         this.className = className;
     }
    

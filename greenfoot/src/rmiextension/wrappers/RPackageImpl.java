@@ -38,6 +38,7 @@ import bluej.extensions.BClass;
 import bluej.extensions.BObject;
 import bluej.extensions.BPackage;
 import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.ExtensionBridge;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -550,7 +551,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
 
         //Make sure that we first close "greenfoot" package becuase we don't want that to auto open the next time.
         try {
-            PkgMgrFrame pkgMgrFrame = (PkgMgrFrame) getBPackage().getFrame();
+            PkgMgrFrame pkgMgrFrame = ExtensionBridge.getPkgMgrFrame(getBPackage());
             pkgMgrFrame.doClose(false, true);
         }
         catch (ProjectNotOpenException e) {

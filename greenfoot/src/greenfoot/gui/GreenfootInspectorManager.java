@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011, 2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2011,2012,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import greenfoot.gui.inspector.GreenfootClassInspector;
 import greenfoot.gui.inspector.GreenfootObjectInspector;
 import greenfoot.gui.inspector.GreenfootResultInspector;
 
+import java.awt.Frame;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class GreenfootInspectorManager implements InspectorManager
 
     @Override
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-            String name, Package pkg, InvokerRecord ir, JFrame parent)
+            String name, Package pkg, InvokerRecord ir, Frame parent)
     {
         ObjectInspector inspector = (ObjectInspector) objectInspectors.get(obj);
         
@@ -91,7 +92,7 @@ public class GreenfootInspectorManager implements InspectorManager
 
     @Override
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-            Package pkg, JFrame parent)
+            Package pkg, Frame parent)
     {
         ClassInspector inspector = (ClassInspector) classInspectors.get(clss.getName());
 
@@ -113,7 +114,7 @@ public class GreenfootInspectorManager implements InspectorManager
     @Override
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
             String name, Package pkg, InvokerRecord ir,
-            ExpressionInformation info, JFrame parent)
+            ExpressionInformation info, Frame parent)
     {
         ResultInspector inspector = (ResultInspector) objectInspectors.get(obj);
         
