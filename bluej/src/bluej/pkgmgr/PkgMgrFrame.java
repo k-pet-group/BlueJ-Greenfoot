@@ -952,9 +952,6 @@ public class PkgMgrFrame extends JPanel
         DataCollector.packageOpened(pkg);
 
         extMgr.packageOpened(pkg);
-        
-        //update
-        pack();
     }
 
     /**
