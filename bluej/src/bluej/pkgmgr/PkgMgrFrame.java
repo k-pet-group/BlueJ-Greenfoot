@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -2126,18 +2127,12 @@ public class PkgMgrFrame extends JPanel
      */
     public void doCreateNewPackage()
     {
-        NewPackageDialog dlg = new NewPackageDialog(this.getWindow());
-        boolean okay = dlg.display();
-        
-        if (!okay)
-            return;
-        
-        String name = dlg.getPackageName();
+        Platform.runLater(() -> {
+            NewPackageDialog dlg = new NewPackageDialog(stageProperty.getValue());
+            Optional<String> pkgName = dlg.showAndWait();
 
-        if (name.length() == 0)
-            return;
-
-        createNewPackage(name, true);
+            pkgName.ifPresent(name -> SwingUtilities.invokeLater(() -> createNewPackage(name, true)));
+        });
     }
     
     /**

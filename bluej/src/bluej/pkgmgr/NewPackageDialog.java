@@ -21,133 +21,58 @@
  */
 package bluej.pkgmgr;
 
+import javafx.stage.Window;
+
 import bluej.*;
 import bluej.Config;
 import bluej.utility.EscapeDialog;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
+import bluej.utility.javafx.dialog.InputDialog;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 
 /**
  * Dialog for creating a new Package
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewPackageDialog.java 15828 2016-05-20 21:44:00Z nccb $
  */
-class NewPackageDialog extends EscapeDialog
+@OnThread(Tag.FXPlatform)
+class NewPackageDialog extends InputDialog<String>
 {
-    private String newPackageName = "";
-
-    private JTextField textFld;
-
-    private boolean ok; // result: which button?
-
-    public NewPackageDialog(Frame parent)
+    public NewPackageDialog(Window parent)
     {
-        super(parent, Config.getString("pkgmgr.newPackage.title"), true);
-
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent E)
-            {
-                ok = false;
-                setVisible(false);
-            }
-        });
-
-        JPanel mainPanel = new JPanel();
+        super(Config.getString("pkgmgr.newPackage.title"), Config.getString("pkgmgr.newPackage.label"), "new-package-dialog");
+        initOwner(parent);
+    }
+    
+    public String convert(String fieldText)
+    {
+        return fieldText; // Validation is done in convert
+    }
+    
+    public boolean validate(String oldInput, String newInput)
+    {
+        if (newInput.equals(""))
         {
-            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(BlueJTheme.dialogBorder);
-
-            JLabel newclassTag = new JLabel(Config.getString("pkgmgr.newPackage.label"));
-            {
-                newclassTag.setAlignmentX(LEFT_ALIGNMENT);
-            }
-
-            textFld = new JTextField(24);
-            {
-                textFld.setAlignmentX(LEFT_ALIGNMENT);
-            }
-
-            mainPanel.add(newclassTag);
-            mainPanel.add(textFld);
-            mainPanel.add(Box.createVerticalStrut(5));
-
-            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
-
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            {
-                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                JButton okButton = BlueJTheme.getOkButton();
-                okButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) { doOK(); }
-                });
-
-                JButton cancelButton = BlueJTheme.getCancelButton();
-                cancelButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) { doCancel(); }
-                });
-
-                                DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
-
-                getRootPane().setDefaultButton(okButton);
-            }
-
-            mainPanel.add(buttonPanel);
+            setErrorText("");
+            setOKEnabled(false);
+            return true;
         }
-
-        getContentPane().add(mainPanel);
-        pack();
-
-        DialogManager.centreDialog(this);
-    }
-
-    /**
-     * Show this dialog and return true if "OK" was pressed, false if
-     * cancelled.
-     */
-    public boolean display()
-    {
-        ok = false;
-        textFld.requestFocus();
-        setVisible(true);
-        return ok;
-    }
-
-    public String getPackageName()
-    {
-        return newPackageName;
-    }
-
-    /**
-     * Close action when OK is pressed.
-     */
-    public void doOK()
-    {
-        newPackageName = textFld.getText().trim();
-
-        if (JavaNames.isQualifiedIdentifier(newPackageName)) {
-            ok = true;
-            setVisible(false);
+        
+        if (JavaNames.isQualifiedIdentifier(newInput))
+        {
+            setOKEnabled(true);
+            setErrorText("");
+            return true;
         }
-        else {
-            DialogManager.showError((JFrame)this.getParent(), "invalid-package-name");
-            textFld.selectAll();
-            textFld.requestFocus();
+        else
+        {
+            setErrorText(Config.getString("invalid-package-name"));
+            setOKEnabled(false);
+            return true; // Let it be invalid, but show error
         }
-    }
-
-    /**
-     * Close action when Cancel is pressed.
-     */
-    public void doCancel()
-    {
-        ok = false;
-        setVisible(false);
     }
 }
