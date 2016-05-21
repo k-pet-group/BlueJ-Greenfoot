@@ -40,3 +40,14 @@
     -fx-padding: 1em;
     -fx-spacing: 1em;
 }
+
+/* Export dialog */
+.export-dialog-content {
+    -fx-padding: 1em;
+    -fx-spacing: 1em;
+}
+.export-dialog-userlibs {
+    -fx-padding: 0 3em 0 3em;
+    -fx-hgap: 1em;
+    -fx-vgap: 1em;
+}

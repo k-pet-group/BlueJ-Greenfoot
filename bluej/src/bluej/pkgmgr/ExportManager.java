@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,17 +34,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 
+import javafx.application.Platform;
+import javafx.stage.Window;
+
 import bluej.Config;
 import bluej.extensions.SourceType;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Component to manage storing projects to jar file format.
@@ -60,7 +67,8 @@ final class ExportManager
     private static final String packageFilePrefix = "bluej.pk";
     private static final String packageFileBackup = "bluej.pkh";
 
-    private PkgMgrFrame frame;
+    private final PkgMgrFrame frame;
+    @OnThread(Tag.FXPlatform)
     private ExportDialog dialog;
 
     public ExportManager(PkgMgrFrame frame)
@@ -74,24 +82,31 @@ final class ExportManager
      */
     public void export()
     {
-        if (dialog == null)
-            dialog = new ExportDialog(frame);
-        else
-            dialog.updateDialog(frame);
-        boolean okay = dialog.display();
+        ExportDialog.ProjectInfo projectInfo = new ExportDialog.ProjectInfo(frame.getProject());
+        Platform.runLater(() -> {
+            Window parent = frame.getFXWindow();
+            if (dialog == null)
+                dialog = new ExportDialog(parent, projectInfo);
+            else
+                dialog.updateDialog(projectInfo);
+            Optional<ExportDialog.ExportInfo> result = dialog.showAndWait();
 
-        if(!okay)
-            return;
+            if (!result.isPresent())
+                return;
+            ExportDialog.ExportInfo info = result.get();
 
-        String fileName = FileUtility.getFileName(frame, specifyJar, createJarText, 
-                                                 null, false);
-        if(fileName == null)
-            return;
+            SwingUtilities.invokeLater(() -> {
+                String fileName = FileUtility.getFileName(frame, specifyJar, createJarText,
+                    null, false);
+                if (fileName == null)
+                    return;
 
-        String sourceDir = frame.getProject().getProjectDir().getPath();
+                String sourceDir = frame.getProject().getProjectDir().getPath();
 
-        createJar(fileName, sourceDir, dialog.getMainClass(), dialog.getSelectedLibs(),
-                  dialog.includeSource(), dialog.includePkgFiles());
+                createJar(fileName, sourceDir, info.mainClassName, info.selectedFiles,
+                    info.includeSource, info.includePkgFiles);
+            });
+        });
     }
 
     /**

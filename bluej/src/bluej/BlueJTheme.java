@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,6 +64,7 @@ public class BlueJTheme extends DefaultMetalTheme
     private static String okayLabel;
     private static String cancelLabel;
     private static String closeLabel;
+    @OnThread(Tag.Any)
     private static String continueLabel;
 
     // a dimension for ok and cancel buttons that is as large as
@@ -217,8 +218,8 @@ public class BlueJTheme extends DefaultMetalTheme
         return closeLabel;
     }
 
-
-    public static String getContinueLabel()
+    @OnThread(Tag.Any)
+    public static synchronized String getContinueLabel()
     {
         if (continueLabel == null) {
             continueLabel = Config.getString("continue");

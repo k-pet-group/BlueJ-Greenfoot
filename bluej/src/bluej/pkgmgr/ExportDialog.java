@@ -21,38 +21,37 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.WindowConstants;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Window;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
+import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Dialog for exporting the project to a jar file. Here, the jar
@@ -60,7 +59,8 @@ import bluej.utility.EscapeDialog;
  *
  * @author  Michael Kolling
  */
-class ExportDialog extends EscapeDialog
+@OnThread(Tag.FXPlatform)
+class ExportDialog extends Dialog<ExportDialog.ExportInfo>
 {
     // Internationalisation
     private static final String dialogTitle = Config.getString("pkgmgr.export.title");
@@ -71,297 +71,202 @@ class ExportDialog extends EscapeDialog
     private static final String sourceLabel = Config.getString("pkgmgr.export.sourceLabel");
     private static final String pkgFilesLabel = Config.getString("pkgmgr.export.pkgFilesLabel");
     private static final String noClassText = Config.getString("pkgmgr.export.noClassText");
+    
+    private final ComboBox<String> classSelect;
+    private final CheckBox sourceBox;
+    private final CheckBox pkgFilesBox;
+    private final List<UserLibInfo> userLibs = new ArrayList<>();
 
-    private String mainClassName = "";
-
-    private JComboBox classSelect;
-    private JCheckBox sourceBox;
-    private JCheckBox pkgFilesBox;
-    private UserLibInfo[] userLibs;
-
-    private boolean ok;     // result: which button?
-    private JPanel userLibPanel;
-
-    public ExportDialog(PkgMgrFrame parent)
+    private GridPane userLibPanel;
+    
+    @OnThread(Tag.Any)
+    public static class ExportInfo
     {
-        super(parent.getWindow(), dialogTitle, true);
-        makeDialog(parent.getProject());
-    }
+        public final String mainClassName;
+        public final List<File> selectedFiles;
+        public final boolean includeSource;
+        public final boolean includePkgFiles;
 
-    public void updateDialog(PkgMgrFrame parent)
-    {
-        Project project = parent.getProject();
-        fillClassPopup(project);
-        fillUserLibPanel(project, getSelectedLibs());
-        String sel = mainClassName;
-        if (sel.equals(""))
-            sel = noClassText;
-        classSelect.setSelectedItem(sel);
-    }
-
-    /**
-     * Show this dialog and return true if "OK" was pressed, false if
-     * cancelled.
-     */
-    public boolean display()
-    {
-        ok = false;
-        setVisible(true);  // returns after OK or Cancel, which set 'ok'
-        return ok;
-    }
-
-    /**
-     * Return the name of the main class in the project.
-     */
-    public String getMainClass()
-    {
-        return mainClassName;
-    }
-
-    /**
-     * Return userlibs selected in the dialogue.
-     * @return  A list of File objects.
-     */
-    public List<File> getSelectedLibs()
-    {
-        List<File> selected = new ArrayList<File>();
-
-        if(userLibs != null) {
-            for(int i = 0; i < userLibs.length; i++) {
-                if(userLibs[i].isSelected())
-                    selected.add(userLibs[i].getFile());
-            }
-        }
-
-        return selected;
-    }
-
-    /**
-     * Return true if user wants to include the source.
-     */
-    public boolean includeSource()
-    {
-        return sourceBox.isSelected();
-    }
-
-    /**
-     * Return true if the user wants to include the BlueJ project info files
-     * (.pkg files)
-     */
-    public boolean includePkgFiles()
-    {
-        return pkgFilesBox.isSelected();
-    }
-
-    /**
-     * Close action when OK is pressed.
-     */
-    private void doOK()
-    {
-        mainClassName = (String)classSelect.getSelectedItem();
-        if(mainClassName.equals(noClassText))
-            mainClassName = "";
-        ok = true;
-        setVisible(false);
-    }
-
-    /**
-     * Close action when Cancel is pressed.
-     */
-    private void doCancel()
-    {
-        ok = false;
-        setVisible(false);
-    }
-
-    /**
-     * Create the dialog interface.
-     */
-    private void makeDialog(Project project)
-    {
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-        JPanel mainPanel = new JPanel();
+        private ExportInfo(String mainClassName, List<File> selectedFiles, boolean includeSource, boolean includePkgFiles)
         {
-            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(BlueJTheme.dialogBorder);
-
-            JLabel helpText1 = new JLabel(helpLine1);
-            mainPanel.add(helpText1);
-
-            JLabel helpText2 = new JLabel(helpLine2);
-            mainPanel.add(helpText2);
-
-            Font smallFont = helpText1.getFont().deriveFont(Font.ITALIC, 11.0f);
-            helpText1.setFont(smallFont);
-            helpText2.setFont(smallFont);
-
-            mainPanel.add(Box.createVerticalStrut(5));
-
-            mainPanel.add(new JSeparator());
-            mainPanel.add(Box.createVerticalStrut(5));
-
-            JPanel inputPanel = new JPanel();
-            {
-                inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-                inputPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                JPanel mainClassPanel = new JPanel();
-                {
-                    JLabel classLabel = new JLabel(classLabelText);
-                    mainClassPanel.add(classLabel);
-
-                    createClassPopup();
-                    fillClassPopup(project);
-                    mainClassPanel.add(classSelect);
-
-                }
-                mainClassPanel.setAlignmentX(LEFT_ALIGNMENT);
-                inputPanel.add(mainClassPanel);
-                inputPanel.add(Box.createVerticalStrut(5));
-
-                {
-                    createUserLibPanel();
-                    fillUserLibPanel(project, null);
-                    userLibPanel.setAlignmentX(LEFT_ALIGNMENT);
-                    inputPanel.add(userLibPanel);
-                    inputPanel.add(Box.createVerticalStrut(5));
-                }
-
-                sourceBox = new JCheckBox(sourceLabel, true);
-                sourceBox.setAlignmentX(LEFT_ALIGNMENT);
-                inputPanel.add(sourceBox);
-                inputPanel.add(Box.createVerticalStrut(5));
-                pkgFilesBox = new JCheckBox(pkgFilesLabel, true);
-                inputPanel.add(pkgFilesBox);
-            }
-
-            mainPanel.add(inputPanel);
-            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
-
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            {
-                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                JButton continueButton = BlueJTheme.getContinueButton();
-                continueButton.addActionListener(event -> doOK());
-
-                JButton cancelButton = BlueJTheme.getCancelButton();
-                cancelButton.addActionListener(event -> doCancel());
-
-                DialogManager.addOKCancelButtons(buttonPanel, continueButton, cancelButton);
-                getRootPane().setDefaultButton(continueButton);
-            }
-
-            mainPanel.add(buttonPanel);
+            this.includePkgFiles = includePkgFiles;
+            this.mainClassName = mainClassName;
+            this.selectedFiles = selectedFiles;
+            this.includeSource = includeSource;
         }
-
-        getContentPane().add(mainPanel);
-        pack();
-
-        DialogManager.centreDialog(this);
     }
 
-    private void createClassPopup()
+    /**
+     * We must fetch this information on the swing thread,
+     * ahead of using it on the FX thread to update the dialog.
+     */
+    public static class ProjectInfo
     {
-        classSelect = new JComboBox();
-        classSelect.setFont(PrefMgr.getPopupMenuFont());
+        public final List<String> classNames;
+        public final List<File> jarFiles;
+        
+        @OnThread(Tag.Swing)
+        public ProjectInfo(Project project)
+        {
+            classNames = project.getPackageNames().stream().sorted().flatMap(pkgName ->
+                project.getPackage(pkgName).getAllClassnames().stream().sorted()
+                    .map(className -> pkgName.isEmpty() ? className : pkgName + "." + className))
+                .collect(Collectors.toList());
+
+            // get user specified libs
+            List<URL> libList = PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent();
+
+            // also get any libs in userlib directory
+            libList.addAll(Project.getUserlibContent());
+
+            jarFiles = Utility.mapList(libList, url -> {
+                try {
+                    return new File(new URI(url.toString()));
+                }
+                catch (URISyntaxException use) {
+                    // Should never happen. If there is a problem with the conversion we want to know about it.
+                    Debug.reportError("ExportDialog.createUserLibPanel(Project) invalid url=" + url.getPath());
+                }
+                return null;
+            });
+        }
+    }
+
+    public ExportDialog(Window parent, ProjectInfo projectInfo)
+    {
+        setTitle(dialogTitle);
+        initOwner(parent);
+        initModality(Modality.APPLICATION_MODAL);
+        Config.addDialogStylesheets(getDialogPane());
+        setResultConverter(this::calculateResult);
+        VBox mainPanel = new VBox();
+        JavaFXUtil.addStyleClass(mainPanel, "export-dialog-content");
+        {
+            Label helpText = new Label(helpLine1 + " " + helpLine2);
+            helpText.setWrapText(true);
+            helpText.setMaxWidth(400.0);
+            mainPanel.getChildren().add(helpText);
+
+            mainPanel.getChildren().add(new Separator());
+
+            {
+                HBox mainClassPanel = new HBox();
+                mainClassPanel.setAlignment(Pos.CENTER);
+                Label classLabel = new Label(classLabelText);
+                mainClassPanel.getChildren().add(classLabel);
+
+                classSelect = new ComboBox<>();
+                fillClassPopup(projectInfo.classNames);
+                classSelect.getSelectionModel().select(noClassText);
+                mainClassPanel.getChildren().add(classSelect);
+                mainPanel.getChildren().add(mainClassPanel);
+            }
+            
+            {
+                userLibPanel = new GridPane();
+                JavaFXUtil.addStyleClass(userLibPanel, "export-dialog-userlibs");
+                userLibPanel.setAlignment(Pos.CENTER);
+                fillUserLibPanel(projectInfo, Collections.emptyList());
+                mainPanel.getChildren().add(new Label(libsLabel));
+                mainPanel.getChildren().add(userLibPanel);
+            }
+
+            sourceBox = new CheckBox(sourceLabel);
+            sourceBox.setSelected(true);
+            mainPanel.getChildren().add(sourceBox);
+            pkgFilesBox = new CheckBox(pkgFilesLabel);
+            pkgFilesBox.setSelected(true);
+            mainPanel.getChildren().add(pkgFilesBox);
+
+            getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
+            ((Button)getDialogPane().lookupButton(ButtonType.OK)).setText(BlueJTheme.getContinueLabel());
+        }
+
+        getDialogPane().setContent(mainPanel);
+    }
+
+    private ExportInfo calculateResult(ButtonType buttonType)
+    {
+        if (buttonType == ButtonType.OK)
+        {
+            String mainClassName = classSelect.getSelectionModel().getSelectedItem();
+            if (mainClassName.equals(noClassText))
+                mainClassName = "";
+            List<File> selected = getSelectedLibs();
+            return new ExportInfo(mainClassName, selected, sourceBox.isSelected(), pkgFilesBox.isSelected());
+        }
+        else
+            return null;
+    }
+
+    private List<File> getSelectedLibs()
+    {
+        return userLibs.stream().filter(UserLibInfo::isSelected).map(UserLibInfo::getFile).collect(Collectors.toList());
+    }
+
+    public void updateDialog(ProjectInfo projectInfo)
+    {
+        String prevSelected = classSelect.getSelectionModel().getSelectedItem();
+        fillClassPopup(projectInfo.classNames);
+        if (classSelect.getItems().contains(prevSelected))
+            classSelect.getSelectionModel().select(prevSelected);
+        else
+            classSelect.getSelectionModel().select(noClassText);
+        fillUserLibPanel(projectInfo, getSelectedLibs());
     }
 
     /**
      * Fill the class name popup selector with all classes of the project
      */
-    private void fillClassPopup(Project project)
+    private void fillClassPopup(List<String> classNames)
     {
-        classSelect.removeAllItems();
-        classSelect.addItem(noClassText);
-
-        List<String> packageNames = project.getPackageNames();
-        Collections.sort(packageNames);
-
-        for (Iterator<String> packages = packageNames.iterator(); packages.hasNext(); ) {
-            String pkgName = packages.next();
-            // SHould be a getPackage, Damiano
-            List<String> classNames = project.getPackage(pkgName).getAllClassnames();
-            Collections.sort(classNames);
-            if(pkgName.length() > 0) 
-                for (Iterator<String> classes = classNames.iterator(); classes.hasNext();)
-                    classSelect.addItem(pkgName + "." + classes.next());
-            else
-                for (Iterator<String> classes = classNames.iterator(); classes.hasNext();)
-                    classSelect.addItem(classes.next());
-        }
+        classSelect.getItems().clear();
+        classSelect.getItems().add(noClassText);
+        classSelect.getItems().addAll(classNames);
     }
 
     /**
      * Return a prepared panel listing the user libraries with check boxes.
      * @param project the project the libraries belong to.
      */
-    private void fillUserLibPanel(Project project, List<File> startChecked)
+    private void fillUserLibPanel(ProjectInfo projectInfo, List<File> startChecked)
     {
-        userLibPanel.removeAll();
+        userLibPanel.getChildren().clear();
 
         // collect info about jar files from the project classloader.
-        List<UserLibInfo> userlibList = new ArrayList<UserLibInfo>();
-
-        // get user specified libs
-        List<URL> libList = PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent(); 
-
-        // also get any libs in userlib directory
-        libList.addAll(Project.getUserlibContent());
-
-        libList.forEach(url -> {
-            try {
-                File file = new File(new URI(url.toString()));
-                // Skip directories
-                if ( file != null && !file.isDirectory() ) {
-                    boolean shouldBeChecked = startChecked != null && startChecked.contains(file);
-                    userlibList.add (new UserLibInfo(file, shouldBeChecked));
-                }
-            }
-            catch (URISyntaxException use) {
-                // Should never happen. If there is a problem with the conversion we want to know about it.
-                Debug.reportError("ExportDialog.createUserLibPanel(Project) invalid url=" + url.getPath());
-            }
-        });
-
+        List<UserLibInfo> userlibList = Utility.mapList(projectInfo.jarFiles, file -> new UserLibInfo(file, startChecked.contains(file)));
+        
         if ( userlibList.size() < 1 ) { 
             userLibPanel.setVisible(false);
         }
         else {
             userLibPanel.setVisible(true);
-            userLibs = userlibList.toArray(new UserLibInfo[userlibList.size()]);
+            userLibs.clear();
+            userLibs.addAll(userlibList);
 
-            for(int i = 0; i < userLibs.length; i++) {
-                userLibPanel.add(userLibs[i].getCheckBox());
+            for(int i = 0; i < userLibs.size(); i++) {
+                userLibPanel.add(userLibs.get(i).getCheckBox(), i % 2, i / 2);
             }
         }
     }
 
-    private void createUserLibPanel()
+    @OnThread(Tag.FXPlatform)
+    private static class UserLibInfo
     {
-        userLibPanel = new JPanel(new GridLayout(0,2));
-
-        userLibPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(libsLabel),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
-    }
-
-    class UserLibInfo {
-        private File sourceFile;
-        private JCheckBox checkBox;
+        private final File sourceFile;
+        private final CheckBox checkBox;
 
         public UserLibInfo(File source, boolean selected)
         {
             sourceFile = source;
-            this.checkBox = new JCheckBox(sourceFile.getName(), selected);
+            this.checkBox = new CheckBox(sourceFile.getName());
+            this.checkBox.setSelected(selected);
         }
 
         /**
          * Return a checkBox with this lib's name as a label.
-         * @param shouldBeChecked 
          */
-        public JCheckBox getCheckBox()
+        public CheckBox getCheckBox()
         {
             return checkBox;
         }
