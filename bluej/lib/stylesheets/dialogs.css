@@ -34,3 +34,9 @@
 .about-info-link {
     -fx-padding: 1em 0 0 0;
 }
+
+/* Version check dialog */
+.version-check-dialog-content {
+    -fx-padding: 1em;
+    -fx-spacing: 1em;
+}

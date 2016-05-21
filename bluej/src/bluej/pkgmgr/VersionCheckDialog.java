@@ -41,6 +41,19 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Window;
+
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJTheme;
@@ -55,20 +68,17 @@ import bluej.utility.EscapeDialog;
  *
  * @author  Michael Kolling
  */
-
-final public class VersionCheckDialog extends EscapeDialog
-     implements ActionListener
+@OnThread(Tag.FXPlatform)
+final public class VersionCheckDialog extends Dialog<Void>
 {
     // Internationalisation
-    private static final String close = Config.getString("close");
     private static final String dialogTitle = Config.getString("pkgmgr.versionDlg.title");
     private static final String helpLine1 = Config.getString("pkgmgr.versionDlg.helpLine1");
     private static final String helpLine2 = Config.getString("pkgmgr.versionDlg.helpLine2");
 
     private static final String versionURL = Config.getPropString("bluej.url.versionCheck");
 
-    private JTextArea textArea;
-    private JButton closeButton;
+    private TextArea textArea;
 
     private String newVersion = null;
     private Thread versionThread = null;
@@ -77,32 +87,26 @@ final public class VersionCheckDialog extends EscapeDialog
     /**
      * Create a new version check dialogue and make it visible.
      */
-    public VersionCheckDialog(PkgMgrFrame parent)
+    public VersionCheckDialog(Window parent)
     {
-        super(parent.getWindow(), dialogTitle, true);
+        setTitle(dialogTitle);
+        initOwner(parent);
+        initModality(Modality.APPLICATION_MODAL);
+        setDialogPane(new DialogPane() {
+            @Override
+            protected @OnThread(Tag.FX) Node createButtonBar()
+            {
+                // Center-align the close button:
+                ButtonBar buttonBar = (ButtonBar)super.createButtonBar();
+                buttonBar.setButtonOrder("_C_");
+                return buttonBar;
+            }
+        });
+        Config.addDialogStylesheets(getDialogPane());
+        getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         makeDialog();
-        setVisible(true);
     }
-
-    /**
-     * A button was pressed. Check which one and do the right thing.
-     */
-    public void actionPerformed(ActionEvent evt)
-    {
-        String cmd = evt.getActionCommand();
-        if(close.equals(cmd))
-            doClose();
-    }
-
-    /**
-     * Action when Close is pressed.
-     */
-    private void doClose()
-    {
-        isClosed = true;
-        setVisible(false);
-    }
-
+    
     /**
      * Perform a version check. 
      */
@@ -113,59 +117,29 @@ final public class VersionCheckDialog extends EscapeDialog
         //versionThread.setPriority(Thread.MIN_PRIORITY);
         versionThread.start();
     }
-
-
-
+    
     /**
      * Create the dialog interface.
      */
     private void makeDialog()
     {
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-        JPanel mainPanel = new JPanel();
+        VBox mainPanel = new VBox();
         {
-            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(BlueJTheme.dialogBorder);
-
-            JLabel helpText1 = new JLabel(helpLine1);
-            mainPanel.add(helpText1);
-
-            JLabel helpText2 = new JLabel(helpLine2);
-            mainPanel.add(helpText2);
-
-            Font smallFont = helpText1.getFont().deriveFont(10);
-            helpText1.setFont(smallFont);
-            helpText2.setFont(smallFont);
-
-            mainPanel.add(Box.createVerticalStrut(5));
-
-            textArea = new JTextArea(14, 46);
+            JavaFXUtil.addStyleClass(mainPanel, "version-check-dialog-content");
+            Label helpLabel = new Label(helpLine1 + " " + helpLine2);
+            helpLabel.setWrapText(true);
+            helpLabel.setMaxWidth(400.0);
+            mainPanel.getChildren().add(helpLabel);
+            
+            textArea = new TextArea();
             textArea.setEditable(false);
-            JScrollPane scrollPane = new JScrollPane(textArea);
+            textArea.setWrapText(true);
+            textArea.setMaxWidth(400.0);
 
-            mainPanel.add(scrollPane);
-            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
-
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            {
-                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                closeButton = new JButton(close);
-                closeButton.addActionListener(this);
-
-                buttonPanel.add(closeButton);
-                getRootPane().setDefaultButton(closeButton);
-                closeButton.requestFocus();
-            }
-
-            mainPanel.add(buttonPanel);
+            mainPanel.getChildren().add(textArea);
         }
 
-        getContentPane().add(mainPanel);
-        pack();
-
-        DialogManager.centreDialog(this);
+        getDialogPane().setContent(mainPanel);
 
         doVersionCheck();
     }
@@ -173,7 +147,7 @@ final public class VersionCheckDialog extends EscapeDialog
     @OnThread(Tag.Any)
     private void setTextLater(String txt)
     {
-        SwingUtilities.invokeLater(() -> textArea.setText(txt));
+        Platform.runLater(() -> textArea.setText(txt));
     }
 
     /**
@@ -181,6 +155,11 @@ final public class VersionCheckDialog extends EscapeDialog
      */
     private class VersionChecker extends Thread
     {
+        @OnThread(Tag.Any)
+        public VersionChecker()
+        {
+        }
+        
         /**
          * Do a version check. That is: open a URL connection to the remote 
          * version file and read it. Display version info as appropriate.
@@ -258,9 +237,9 @@ final public class VersionCheckDialog extends EscapeDialog
                 catch(IOException exc) {
                     Debug.reportError("IO error when reading from version file");
                 }
-                SwingUtilities.invokeLater(() -> {
+                Platform.runLater(() -> {
                     textArea.setText(text.toString());
-                    textArea.setCaretPosition(0);
+                    textArea.positionCaret(0);
                 });
             }
         }
