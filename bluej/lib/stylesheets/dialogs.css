@@ -1,6 +1,36 @@
+/* InputDialog helper class */
 .input-dialog-content {
     -fx-spacing: 10;
 }
 .input-dialog-error {
     -fx-text-fill: red;
+}
+
+/* About BlueJ/Greenfoot dialog */
+.about-dialog-content {
+    -fx-padding: 1em;
+    -fx-background-color: white;
+}
+.about-team {
+    -fx-padding: 0 1em 0 1em;
+}
+.about-team-header {
+    -fx-font-style: italic;
+}
+.about-team-names {
+    -fx-padding: 1em 0 0 1em;
+}
+.about-more-info {
+    -fx-padding: 1em 0 0 0;
+}
+.about-debuglog {
+    -fx-padding: 1em 0 0 0;
+    -fx-spacing: 2em;
+}
+.about-version {
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 1em 0;
+}
+.about-info-link {
+    -fx-padding: 1em 0 0 0;
 }

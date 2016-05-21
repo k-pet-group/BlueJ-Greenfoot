@@ -57,6 +57,7 @@
         <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
         <pathelement location="${bluej_home}/lib/junit-4.11.jar"/>
         <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
+        <pathelement location="${bluej_home}/lib/svnkit.jar"/>
         <pathelement location="${bluej_home}/lib/svnkit-javahl.jar"/>
         <pathelement location="${bluej_home}/lib/trilead.jar"/>
         <pathelement location="${bluej_home}/lib/antlr-runtime-3.4.jar"/>

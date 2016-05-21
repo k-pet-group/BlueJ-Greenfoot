@@ -198,6 +198,18 @@ public class JavaFXUtil
     }
 
     /**
+     * Like addStyleClass but also returns the node.  Useful as part of a builder
+     * pattern, when you want to add a style-class for a new node, but you don't
+     * otherwise need to store it in a variable before passing it to a method, e.g
+     * pane.setTop(JavaFXUtil.withStyleClass(new Label("Information:"), "label-info"));
+     */
+    public static <T extends Styleable> T withStyleClass(T node, String... styleClasses)
+    {
+        addStyleClass(node, styleClasses);
+        return node;
+    }
+
+    /**
      * Removes the given CSS style-class to the node.
      * 
      * JavaFX doesn't care if you add the same class many times to a node, and if you're not

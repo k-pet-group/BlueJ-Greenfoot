@@ -868,6 +868,7 @@ about.javahome=Java Home:
 about.logfile=Debug log file:
 about.moreInformation=For more information, see
 about.theTeam=The BlueJ team:
+about.openFolder=Open Folder
 
 # Work Indicator
 workIndicator.resetMachine=Reset Java Virtual Machine@^R

@@ -21,141 +21,135 @@
  */
 package bluej.pkgmgr;
 
-import bluej.*;
-import bluej.Config;
-import bluej.utility.EscapeDialog;
-import bluej.utility.MultiLineLabel;
-import bluej.utility.DialogManager;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Window;
 
+import bluej.Config;
+import bluej.utility.Debug;
 import bluej.utility.Utility;
-import java.net.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The BlueJ about box.
  *
  * @author  Michael Kolling
  */
-class AboutBlue extends EscapeDialog
+@OnThread(Tag.FXPlatform)
+class AboutBlue extends Dialog<Void>
 {
-    private static final String BLUEJ_URL = "http://www.bluej.org";
-    private static final Color linkColor = new Color(0, 76, 134);
-
-    public AboutBlue(Frame parent, String version)
+    private static final String BLUEJ_URL = "http://www.bluej.org/";
+    
+    public AboutBlue(Window parent, String version)
     {
-        super(parent, Config.getString("menu.help.about"), true);
+        initOwner(parent);
+        initModality(Modality.APPLICATION_MODAL);
+        setTitle(Config.getString("menu.help.about"));
+        setDialogPane(new DialogPane() {
+            @Override
+            @OnThread(Tag.FX)
+            protected Node createButtonBar()
+            {
+                // Center-align the close button:
+                ButtonBar buttonBar = (ButtonBar)super.createButtonBar();
+                buttonBar.setButtonOrder("_C_");
+                return buttonBar;
+            }
+        });
+        Config.addDialogStylesheets(getDialogPane());
+        getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
         // Create About box text
-        JPanel aboutPanel = new JPanel();
-        aboutPanel.setBorder(BlueJTheme.dialogBorder);
-        aboutPanel.setLayout(new BorderLayout(12,0));
-        aboutPanel.setBackground(Color.white);
+        BorderPane aboutPanel = new BorderPane();
+        getDialogPane().setContent(aboutPanel);
+        JavaFXUtil.addStyleClass(aboutPanel, "about-dialog-content");
 
         // insert logo
-        Icon icon = Config.getFixedImageAsIcon("about-logo.jpg");
-        JLabel logoLabel = new JLabel(icon);
-        aboutPanel.add(logoLabel, BorderLayout.WEST);
+        Image image = Config.getFixedImageAsFXImage("about-logo.jpg");
+        aboutPanel.setLeft(JavaFXUtil.withStyleClass(new ImageView(image), "about-dialog-image"));
 
         // Create Text Panel
-        MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT, 6);
-        text.setBackground(Color.white);
-        text.addText(Config.getString("about.theTeam") + "\n ", false, true);
-        text.addText("  Amjad Altadmri\n");
-        text.addText("  Neil Brown\n");
-        text.addText("  Fabio Hedayioglu\n");
-        text.addText("  Michael K\u00F6lling\n");
-        text.addText("  Davin McCall\n");
-        text.addText("  Ian Utting\n");
+        String teamText = "";
+        teamText += "Amjad Altadmri\n";
+        teamText += "Neil Brown\n";
+        teamText += "Fabio Hedayioglu\n";
+        teamText += "Michael K\u00F6lling\n";
+        teamText += "Davin McCall\n";
+        teamText += "Ian Utting\n";
 
-        aboutPanel.add(text, BorderLayout.CENTER);
-
-        JPanel bottom = new JPanel();
-        bottom.setLayout(new BoxLayout(bottom, BoxLayout.PAGE_AXIS));
-        bottom.setBackground(Color.white);
+        Label teamLabel = new Label(teamText);
+        teamLabel.setAlignment(Pos.TOP_LEFT);
+        aboutPanel.setCenter(JavaFXUtil.withStyleClass(new VBox(
+            JavaFXUtil.withStyleClass(new Label(Config.getString("about.theTeam")), "about-team-header"),
+            JavaFXUtil.withStyleClass(teamLabel, "about-team-names")), "about-team"));
+        
+        VBox bottom = JavaFXUtil.withStyleClass(new VBox(), "about-more-info");
 
         // footer text
-        MultiLineLabel bottomtext = new MultiLineLabel(LEFT_ALIGNMENT);
-        bottomtext.setBackground(Color.white);
-        bottomtext.addText(" ");
-        bottomtext.addText(Config.getString("about.bluej.version") + " "+ version +
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(new Label(Config.getString("about.bluej.version") + " "+ version +
                 "  (" + Config.getString("about.java.version") + " " + System.getProperty("java.version") +
-                ")", true, false);
-        bottomtext.addText(" ");
-        bottomtext.addText(Config.getString("about.vm") + " " +
+                ")"), "about-version"));
+        bottom.getChildren().add(new Label(Config.getString("about.vm") + " " +
                 System.getProperty("java.vm.name") + " " +
                 System.getProperty("java.vm.version") +
-                " (" + System.getProperty("java.vm.vendor") + ")");
-        bottomtext.addText(Config.getString("about.runningOn") + " " + System.getProperty("os.name") +
+                " (" + System.getProperty("java.vm.vendor") + ")"));
+        bottom.getChildren().add(new Label(Config.getString("about.runningOn") + " " + System.getProperty("os.name") +
                 " " + System.getProperty("os.version") +
-                " (" + System.getProperty("os.arch") + ")");
-        bottomtext.addText(Config.getString("about.javahome") + " " + System.getProperty("java.home"));
-        bottomtext.addText(" ");
-        bottomtext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName));
-        bottomtext.addText(" ");
-        
-        bottom.add(bottomtext);
+                " (" + System.getProperty("os.arch") + ")"));
+        bottom.getChildren().add(new Label(Config.getString("about.javahome") + " " + System.getProperty("java.home")));
 
+        Button debugLogShow = new Button(Config.getString("about.openFolder"));
+        debugLogShow.setOnAction(e -> {
+            try
+            {
+                Desktop.getDesktop().open(Config.getUserConfigDir());
+            }
+            catch (IOException ex)
+            {
+                Debug.reportError(ex);
+            }
+        });
+        HBox debugLog = new HBox(new Label(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName)), debugLogShow);
+        JavaFXUtil.addStyleClass(debugLog, "about-debuglog");
+        debugLog.setAlignment(Pos.BASELINE_LEFT);
+        bottom.getChildren().add(debugLog);
+        
         try {
             final URL bluejURL = new URL(BLUEJ_URL);
-            JLabel urlField = new JLabel(BLUEJ_URL);
-            urlField.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            urlField.setForeground(linkColor);
-            urlField.addMouseListener(new MouseAdapter()  {
-                public void mouseClicked(MouseEvent e) {
-                    Utility.openWebBrowser(bluejURL.toExternalForm());
-                }
-            });
-
-            JPanel urlPanel = new JPanel();
-            urlPanel.setBackground(Color.white);
-            urlPanel.setAlignmentX(0.0F);
-            urlPanel.add(new JLabel(Config.getString("about.moreInformation")));
-            urlPanel.add(urlField);
-
-            bottom.add(urlPanel);
+            Hyperlink link = new Hyperlink(bluejURL.toString());
+            link.setOnMouseClicked(e -> Utility.openWebBrowser(bluejURL.toExternalForm()));
+            
+            HBox hbox = new HBox(new Label(Config.getString("about.moreInformation")), link);
+            hbox.setAlignment(Pos.CENTER);
+            JavaFXUtil.addStyleClass(hbox, "about-info-link");
+            bottom.getChildren().add(hbox);
         }
         catch (MalformedURLException exc) {
             // should not happen - URL is constant
         }
 
-        aboutPanel.add(bottom, BorderLayout.SOUTH);
-
-
-        // Create Button Panel
-        JPanel buttonPanel = new JPanel();
-        //buttonPanel.setBackground(Color.white);
-        buttonPanel.setLayout(new FlowLayout());
-        JButton ok = BlueJTheme.getOkButton();
-        buttonPanel.add(ok);
-
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(aboutPanel, BorderLayout.CENTER);
-        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-
-        // Close Action when OK is pressed
-        ok.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent event)
-                {
-                    setVisible(false);
-                    dispose();
-                }
-        });
-
-        // Close Action when close button is pressed
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent event)
-                {
-                    Window win = (Window)event.getSource();
-                    win.setVisible(false);
-                    win.dispose();
-                }
-        });
-
+        aboutPanel.setBottom(bottom);
+        
         setResizable(false);
-        pack();
-        DialogManager.centreDialog(this);
     }
 }
 

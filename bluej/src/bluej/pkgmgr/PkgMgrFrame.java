@@ -1822,8 +1822,10 @@ public class PkgMgrFrame extends JPanel
      */
     public void aboutBlueJ()
     {
-        AboutBlue about = new AboutBlue(getWindow(), bluej.Boot.BLUEJ_VERSION);
-        about.setVisible(true);
+        Platform.runLater(() -> {
+            AboutBlue about = new AboutBlue(stageProperty.getValue(), bluej.Boot.BLUEJ_VERSION);
+            about.showAndWait();
+        });
     }
 
     /**

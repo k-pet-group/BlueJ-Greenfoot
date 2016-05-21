@@ -685,6 +685,8 @@ public final class Config
      */
     public static boolean usingMacScreenMenubar()
     {
+        if (!Config.isGreenfoot())
+            return false; // JavaFX doesn't do screen menubar properly.
         return usingMacOSScreenMenubar;
     }
 
