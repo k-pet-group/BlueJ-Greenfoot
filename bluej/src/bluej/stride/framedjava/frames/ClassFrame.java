@@ -120,18 +120,18 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     private final FrameContentRow importRow;
     private final BooleanBinding showInheritedToggle;
     private BooleanProperty abstractModifier = new SimpleBooleanProperty(false);
-    
+
     private TextSlot<NameDefSlotFragment> paramClassName;
     private final InteractionManager editor;
 
     private final SimpleBooleanProperty headerHasKeyboardFocus = new SimpleBooleanProperty(false);
-    
+
     private final SimpleBooleanProperty showingExtends;
     private final TextSlot<TypeSlotFragment> extendsSlot;
 
     private final ObservableList<InheritedCanvas> extendsInheritedCanvases = FXCollections.observableArrayList(); // May be empty
     private final FrameCanvas importCanvas;
-    
+
     private final Implements implementsSlot;
 
     // can both be null in Greenfoot, where we don't show the package
@@ -140,7 +140,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     private final BooleanProperty showingPackageSlot;
     // We have to keep a reference to negated version, to prevent it getting GCed:
     private final BooleanExpression notShowingPackageSlot;
-    
+
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private ClassElement element;
     private final EntityResolver projectResolver;
@@ -166,10 +166,10 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         JavaFXUtil.addStyleClass(l, "class-section-label");
         return l;
     }
-    
+
     private final ObservableList<String> boundImports = FXCollections.observableArrayList();
-    
-    
+
+
     public ClassFrame(InteractionManager editor, boolean abstractModifierParam, NameDefSlotFragment className, PackageFragment packageName, List<ImportElement> imports,
             TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, EntityResolver projectResolver, JavadocUnit documentation, boolean enabled)
     {
@@ -245,18 +245,14 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             }
         };
 
-        setDocumentation(documentation.toString());
-      
         //Parameters
         paramClassName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), "class-name-");
         paramClassName.addValueListener(SlotTraversalChars.IDENTIFIER);
         paramClassName.setPromptText("class name");
         paramClassName.setText(className);
 
-
+        setDocumentation(documentation.toString());
         documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramClassName.textProperty()).concat(" class here..."));
-
-        this.fieldsCanvas = new FrameCanvas(editor, this, "class-fields-");
 
         showingExtends = new SimpleBooleanProperty(extendsName != null);
         SlotLabel extendsLabel = new SlotLabel("extends");
@@ -285,7 +281,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "class-");
             s.setPromptText("interface type");
             return s;
-        }, () -> fieldsCanvas.getFirstCursor().requestFocus(), editor);
+        }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);
         implementsList.forEach(t -> implementsSlot.addTypeSlotAtEnd(t.getContent(), false));
 
         JavaFXUtil.addChangeListener(keyMouseHeader, keyMouse -> {
@@ -399,25 +395,21 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
 
             packageSlot.addFocusListener(this);
         }
-        
 
 
+        this.fieldsCanvas = new FrameCanvas(editor, this, "class-fields-");
         fieldsLabelRow = new FrameContentRow(this, fieldsLabel);
         addCanvas(fieldsLabelRow, fieldsCanvas);
-        
-        
-        this.constructorsCanvas = new FrameCanvas(editor, this, "class-");
 
+        this.constructorsCanvas = new FrameCanvas(editor, this, "class-");
         constructorsLabelRow = new FrameContentRow(this, constructorsLabel);
         addCanvas(constructorsLabelRow, constructorsCanvas);
 
-
         this.methodsCanvas = new FrameCanvas(editor, this, "class-");
-
         methodsLabelRow = new FrameContentRow(this, methodsLabel);
         addCanvas(methodsLabelRow, methodsCanvas);
-        
-        
+
+
         frameEnabledProperty.set(enabled);
     }
 
@@ -427,7 +419,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             showingPackageSlot.set(packageSlot.isFocused());
         }
     }
-    
+
     @Override
     public void focusOnBody(BodyFocus on)
     {
@@ -465,18 +457,18 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         c.requestFocus();
         editor.scrollTo(c.getNode(), -100);
     }
-    
+
     // Can't drag class blocks:
     @Override
     public boolean canDrag()
-    {    
+    {
         return false;
     }
 
     @Override
     public void bindMinHeight(DoubleBinding prop)
     {
-        getRegion().minHeightProperty().bind(prop);        
+        getRegion().minHeightProperty().bind(prop);
     }
 
     @Override
@@ -589,7 +581,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
                 }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
             }
         }
-        
+
         return Utility.nonNulls(Arrays.asList(abstractExtension, extendsExtension, implementsExtension));
     }
 /*
@@ -608,11 +600,11 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             updateInheritedItems();
         }
     }
-    
+
     private FrameCanvas createImportsCanvas(final List<ImportElement> imports)
     {
         FrameCanvas importCanvas = new FrameCanvas(editor, new CanvasParent() {
-            
+
             @Override
             public FrameCursor findCursor(double sceneX, double sceneY, FrameCursor prevCursor, FrameCursor nextCursor, List<Frame> exclude, boolean isDrag, boolean canDescend)
             {
@@ -624,13 +616,13 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             {
                 return StrideDictionary.checkImport();
             }
-            
+
             @Override
             public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursor)
             {
                 return Collections.emptyList();
             }
-            
+
             @Override
             public Frame getFrame()
             {
@@ -644,21 +636,21 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             }
 
         }, "class-import-");
-        
+
         importCanvas.setAnimateLeftMarginScale(true);
-        
+
         // Add available import frames:
         List<ImportElement> importsRev = new ArrayList<>(imports);
         Collections.reverse(importsRev);
         importsRev.forEach(item -> importCanvas.insertBlockBefore(item.createFrame(editor), importCanvas.getFirstCursor()));
 
         JavaFXUtil.onceInScene(importCanvas.getNode(), () -> importCanvas.shrinkUsing(new ReadOnlyDoubleWrapper(0.0)));
-        
+
         new DeepListBinding<String>(boundImports) {
             private final ChangeListener<String> listener = (a, b, c) -> update();
             private final MultiListener<ObservableStringValue> stringListener
                 = new MultiListener<>(v -> { v.addListener(listener); return () -> v.removeListener(listener); });
-            
+
             @Override
             protected Stream<ObservableList<?>> getListenTargets()
             {
@@ -670,24 +662,24 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             {
                 return importCanvas.getBlockContents().stream().map(f -> (ImportFrame)f).map(ImportFrame::getImport);
             }
-            
+
             @Override
             protected void update()
             {
                 stringListener.listenOnlyTo(importCanvas.getBlockContents().stream().map(f -> (ImportFrame)f).map(ImportFrame::importProperty));
                 super.update();
             }
-            
+
         }.startListening();
-        
+
         return importCanvas;
     }
-    
+
     public ObservableList<String> getImports()
     {
         return boundImports;
     }
-    
+
     public void addImport(String importSrc)
     {
         importCanvas.insertBlockAfter(new ImportFrame(editor, importSrc), importCanvas.getLastCursor());
@@ -879,7 +871,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             handler.accept(methodsByClass);
         });
     }
-    
+
     @Override
     public BirdseyeManager prepareBirdsEyeView(SharedTransition animate)
     {
@@ -1080,12 +1072,12 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     {
         return fieldsCanvas;
     }
-    
+
     public FrameCanvas getConstructorsCanvas()
     {
         return constructorsCanvas;
     }
-    
+
     public FrameCanvas getMethodsCanvas()
     {
         return methodsCanvas;
@@ -1119,7 +1111,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         // All slots, and all cursors:
         return getFocusablesInclContained();
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
@@ -1176,7 +1168,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             animateLabels.forEach(l -> l.growVertically(animateProgress));
         }
     }
-    
+
     public void compiled()
     {
         updateInheritedItems();
@@ -1224,7 +1216,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         else
             throw new IllegalStateException("Asking about canvas unknown to ClassFrame");
     }
-    
+
     @Override
     public CanvasKind getChildKind(FrameCanvas c)
     {
@@ -1264,7 +1256,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         methodsCanvas.restore(target.getMethods(), editor);
         fieldsCanvas.restore(target.getFields(), editor);
         constructorsCanvas.restore(target.getConstructors(), editor);
-        
+
     }
 
     private void restoreExtends(ClassElement target)
