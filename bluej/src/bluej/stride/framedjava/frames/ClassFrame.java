@@ -505,36 +505,34 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     public List<FrameOperation> getContextOperations()
     {
         ArrayList<FrameOperation> ops = new ArrayList<>();
-        ops.add(new CustomFrameOperation(getEditor(), "addRemoveAbstract", Arrays.asList("Toggle abstract"), MenuItemOrder.TOGGLE_ABSTRACT, this, () ->  abstractModifier.set(!abstractModifier.get())));
+        ops.add(new CustomFrameOperation(getEditor(), "addRemoveAbstract", Arrays.asList("Toggle abstract"),
+                MenuItemOrder.TOGGLE_ABSTRACT, this, () ->  abstractModifier.set(!abstractModifier.get())));
 
         if (extendsSlot.isEmpty())
         {
-            ops.add(new CustomFrameOperation(getEditor(), "addExtends", Arrays.asList("Add 'extends'"), MenuItemOrder.TOGGLE_EXTENDS, this, () -> {
-
-                showAndFocusExtends();
-            }));
+            ops.add(new CustomFrameOperation(getEditor(), "addExtends", Arrays.asList("Add 'extends'"),
+                    MenuItemOrder.TOGGLE_EXTENDS, this, () -> showAndFocusExtends()));
         }
         else
         {
-            CustomFrameOperation op = new CustomFrameOperation(getEditor(), "removeExtends", Arrays.asList("Remove 'extends " + extendsSlot.getText() + "'"), MenuItemOrder.TOGGLE_EXTENDS, this, () -> {
-                extendsSlot.setText("");
-            });
+            CustomFrameOperation op = new CustomFrameOperation(getEditor(), "removeExtends",
+                    Arrays.asList("Remove 'extends " + extendsSlot.getText() + "'"), MenuItemOrder.TOGGLE_EXTENDS,
+                    this, () -> extendsSlot.setText(""));
             op.setWideCustomItem(true);
             ops.add(op);
         }
 
-        ops.add(new CustomFrameOperation(getEditor(), "addImplements", Arrays.asList("Add 'implements'"), MenuItemOrder.TOGGLE_IMPLEMENTS, this, () -> {
-            implementsSlot.addTypeSlotAtEnd("", true);
-        }));
+        ops.add(new CustomFrameOperation(getEditor(), "addImplements", Arrays.asList("Add 'implements'"),
+                MenuItemOrder.TOGGLE_IMPLEMENTS, this, () -> implementsSlot.addTypeSlotAtEnd("", true)));
 
         final List<TypeSlotFragment> types = implementsSlot.getTypes();
         for (int i = 0; i < types.size(); i++)
         {
             final int index = i;
             TypeSlotFragment type = types.get(i);
-            CustomFrameOperation removeOp = new CustomFrameOperation(getEditor(), "removeImplements", Arrays.asList("Remove 'implements " + type.getContent() + "'"), MenuItemOrder.TOGGLE_IMPLEMENTS, this, () -> {
-                implementsSlot.removeIndex(index);
-            });
+            CustomFrameOperation removeOp = new CustomFrameOperation(getEditor(), "removeImplements",
+                    Arrays.asList("Remove 'implements " + type.getContent() + "'"), MenuItemOrder.TOGGLE_IMPLEMENTS,
+                    this, () -> implementsSlot.removeIndex(index));
             removeOp.setWideCustomItem(true);
             ops.add(removeOp);
         }
