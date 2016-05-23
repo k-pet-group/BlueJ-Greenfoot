@@ -71,7 +71,7 @@ public class ReturnElement extends CodeElement implements JavaSingleLineDebugHan
     {
         LocatableElement retEl = new LocatableElement(this, ELEMENT);
         if (val != null) {
-            retEl.addAttributeExpression("value", val);
+            retEl.addAttributeStructured("value", val);
         }
         addEnableAttribute(retEl);
         return retEl;

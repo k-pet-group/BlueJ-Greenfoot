@@ -290,6 +290,7 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
         parentFrame.focusUp(this, cursorToEnd);
     }
 
+    @OnThread(Tag.FXPlatform)
     @Override
     public boolean backspaceAtStart(HeaderItem src)
     {

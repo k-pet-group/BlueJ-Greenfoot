@@ -28,8 +28,6 @@ import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,14 +39,12 @@ import javafx.scene.Node;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Font;
 
-import bluej.stride.framedjava.slots.InfixExpression.CaretPosMap;
-import bluej.stride.framedjava.slots.InfixExpression.IntCounter;
+import bluej.stride.framedjava.slots.InfixStructured.CaretPosMap;
+import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.slots.EditableSlot.MenuItems;
-import bluej.utility.Debug;
 import bluej.utility.javafx.DelegableScalableTextField;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.HangingFlowPane;
@@ -64,28 +60,28 @@ import bluej.utility.javafx.SharedTransition;
  * This component encapsulates the actual GUI item rather than inheriting from it.
  */
 // Package-visible
-class ExpressionSlotField implements ExpressionSlotComponent
+class StructuredSlotField implements StructuredSlotComponent
 {
     /**
      * The actual GUI component.  Delegates most of its behaviour back to this class.
      */
-    private final DelegableScalableTextField<ExpressionSlotField> field;
+    private final DelegableScalableTextField<StructuredSlotField> field;
     /**
      * The immediate parent expression of this field.  Is often not the
      * same as the top-level expression of the whole slot.  e.g.
      * setFoo(10+3) -- the field for the 10 has as its parent the brackets,
      * not the slot as a whole.
      */
-    private final InfixExpression parent;
+    private final InfixStructured parent;
 
     /**
-     * Creates an ExpressionSlotField with the given parent and content
+     * Creates an StructuredSlotField with the given parent and content
      * @param parent Parent of this field
      * @param content Initial content of this field
      * @param stringLiteral Whether we are the field directly inside a string literal.
      *                      This affects some of the behaviour.
      */
-    public ExpressionSlotField(InfixExpression parent, String content, boolean stringLiteral)
+    public StructuredSlotField(InfixStructured parent, String content, boolean stringLiteral)
     {
         this.parent = parent;
         field = new DelegableScalableTextField<>(parent, this, content);
@@ -94,7 +90,7 @@ class ExpressionSlotField implements ExpressionSlotComponent
             JavaFXUtil.addStyleClass(field, "expression-string-literal");
         
          Runnable shrinkGrow = () -> {
-             boolean suggesting = parent.suggestingFor(ExpressionSlotField.this);
+             boolean suggesting = parent.suggestingFor(StructuredSlotField.this);
             if (field.isFocused() == false && !suggesting)
             {
                 notifyLostFocus(null);
@@ -402,7 +398,7 @@ class ExpressionSlotField implements ExpressionSlotComponent
 
 
     @Override
-    public Stream<InfixExpression> getAllExpressions()
+    public Stream<InfixStructured> getAllExpressions()
     {
         return Stream.empty();
     }
@@ -449,10 +445,10 @@ class ExpressionSlotField implements ExpressionSlotComponent
     public boolean isAlmostBlank() { return isEmpty(); }
 
     @Override
-    public void notifyLostFocus(ExpressionSlotField except)
+    public void notifyLostFocus(StructuredSlotField except)
     {
         // We have lost focus -- are we collapsible?
-        boolean collapsible = parent.isCollapsible(ExpressionSlotField.this);
+        boolean collapsible = parent.isCollapsible(StructuredSlotField.this);
         boolean empty = field.getText().isEmpty() && field.getPromptText().isEmpty();
         // TODO allow collapsing if we are only white space
         if (empty && collapsible)

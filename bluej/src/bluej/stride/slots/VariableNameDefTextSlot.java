@@ -46,7 +46,7 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.FrameHelper;
 import bluej.stride.framedjava.slots.ExpressionSlot;
-import bluej.stride.framedjava.slots.ExpressionSlot.PlainVarReference;
+import bluej.stride.framedjava.slots.StructuredSlot.PlainVarReference;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.SuggestedFollowUpDisplay;
 import bluej.utility.Utility;

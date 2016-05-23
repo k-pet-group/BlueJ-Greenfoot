@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -99,7 +98,7 @@ public class SwitchElement extends ContainerCodeElement implements JavaSingleLin
     public LocatableElement toXML()
     {
         LocatableElement switchEl = new LocatableElement(this, ELEMENT);
-        switchEl.addAttributeExpression("expression", expression);
+        switchEl.addAttributeStructured("expression", expression);
         addEnableAttribute(switchEl);
 
         Element casesEl = new Element("cases");

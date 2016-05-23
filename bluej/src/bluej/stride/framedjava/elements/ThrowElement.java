@@ -24,7 +24,6 @@ package bluej.stride.framedjava.elements;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -59,7 +58,7 @@ public class ThrowElement extends CodeElement implements JavaSingleLineDebugHand
     public LocatableElement toXML()
     {
         LocatableElement throwEl = new LocatableElement(this, ELEMENT);
-        throwEl.addAttributeExpression("value", val);
+        throwEl.addAttributeStructured("value", val);
         addEnableAttribute(throwEl);
         return throwEl;
     }

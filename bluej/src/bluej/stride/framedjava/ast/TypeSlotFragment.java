@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
@@ -37,24 +38,29 @@ import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.errors.UnknownTypeError;
 import bluej.stride.framedjava.errors.UnneededSemiColonError;
 import bluej.stride.framedjava.slots.ExpressionSlot;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.TextSlot;
-import bluej.stride.slots.TypeTextSlot;
 
-public class TypeSlotFragment extends TextSlotFragment
+public class TypeSlotFragment extends StructuredSlotFragment
 {
-    private TypeTextSlot slot;
+    private TypeSlot slot;
     
-    public TypeSlotFragment(String content, TypeTextSlot slot)
+    public TypeSlotFragment(String content, String javaCode, TypeSlot slot)
     {
-        super(content);
+        super(content, javaCode);
         this.slot = slot;
     }
     
-    public TypeSlotFragment(String content)
+    public TypeSlotFragment(String content, String javaCode)
     {
-        this(content, null);
+        this(content, javaCode, null);
+    }
+
+    @Override
+    public Map<String, CodeElement> getVars()
+    {
+        return Collections.emptyMap();
     }
 
     @Override
@@ -114,15 +120,14 @@ public class TypeSlotFragment extends TextSlotFragment
     
 
     @Override
-    public TextSlot<TypeSlotFragment> getSlot()
+    public TypeSlot getSlot()
     {
         return slot;
     }
 
-    @Override
-    public void registerSlot(TextSlot slot)
+    public void registerSlot(TypeSlot slot)
     {
         if (this.slot == null)
-            this.slot = (TypeTextSlot)slot;
+            this.slot = slot;
     }
 }

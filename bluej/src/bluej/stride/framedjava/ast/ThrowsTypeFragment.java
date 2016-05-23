@@ -37,13 +37,13 @@ public class ThrowsTypeFragment
     
     public ThrowsTypeFragment(Element el)
     {
-        throwType = new TypeSlotFragment(el.getAttributeValue("type"));
+        throwType = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
     }
     
     public Element toXML()
     {
         LocatableElement typeEl = new LocatableElement(null, ELEMENT);
-        typeEl.addAttributeCode("type", throwType);
+        typeEl.addAttributeStructured("type", throwType);
         return typeEl;
     }
     

@@ -59,16 +59,16 @@ public interface TopLevelCodeElement
     // to try to make sure we don't pass the wrong element when a top-level element is intended
     
     // Helper methods:
-    public static LinkedList<String> xmlToStringList(Element el, String container, String itemName, String itemAttribute)
+    public static ArrayList<TypeSlotFragment> xmlToTypeList(Element el, String container, String itemName, String itemAttribute)
     {
-        LinkedList<String> members = new LinkedList<>();
+        ArrayList<TypeSlotFragment> members = new ArrayList<>();
         Element collectionChildElement = el.getFirstChildElement(container);
         if (collectionChildElement != null ) {
             Elements children = collectionChildElement.getChildElements();
             for (int i = 0; i < children.size(); i++) {
                 final Element child = children.get(i);
                 if (child.getLocalName().equals(itemName)) {
-                    members.add(child.getAttributeValue(itemAttribute));
+                    members.add(new TypeSlotFragment(child.getAttributeValue(itemAttribute), child.getAttributeValue(itemAttribute + "-java")));
                 }
                 else {
                     bluej.utility.Debug.reportError("Wrong element format: expected '" + itemName + "', found '" + child.getLocalName() + "'.");
@@ -79,13 +79,13 @@ public interface TopLevelCodeElement
     }
 
     // Makes an XML element named container, with an element per string (of type itemName) with content put in the given itemAttribute
-    public static Element stringListToXML(List<TypeSlotFragment> items, String container, String itemName, String itemAttribute)
+    public static Element typeListToXML(List<TypeSlotFragment> items, String container, String itemName, String itemAttribute)
     {
         Element el = new Element(container);
         for (TypeSlotFragment s : items)
         {
             LocatableElement child = new LocatableElement(null, itemName);
-            child.addAttributeCode(itemAttribute, s);
+            child.addAttributeStructured(itemAttribute, s);
             el.appendChild(child);
         }
         return el;

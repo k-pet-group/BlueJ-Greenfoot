@@ -76,7 +76,7 @@ public class CatchElement extends ContainerCodeElement implements JavaSingleLine
     public LocatableElement toXML()
     {
         LocatableElement catchEl = new LocatableElement(this, ELEMENT);
-        catchEl.addAttributeCode("type", exceptionTypeFragment);
+        catchEl.addAttributeStructured("type", exceptionTypeFragment);
         catchEl.addAttributeCode("name", exceptionNameFragment);
         addEnableAttribute(catchEl);
         for (CodeElement c : contents) {
@@ -87,7 +87,7 @@ public class CatchElement extends ContainerCodeElement implements JavaSingleLine
 
     public CatchElement(Element el)
     {
-        exceptionTypeFragment = new TypeSlotFragment(el.getAttributeValue("type"));
+        exceptionTypeFragment = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         exceptionNameFragment = new NameDefSlotFragment(el.getAttributeValue("name"));
         contents = new ArrayList<>();
         for (int i = 0; i < el.getChildElements().size(); i++) {

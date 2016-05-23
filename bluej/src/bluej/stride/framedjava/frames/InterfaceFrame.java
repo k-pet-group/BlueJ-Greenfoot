@@ -39,6 +39,7 @@ import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.InterfaceElement;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.CanvasParent;
 import bluej.stride.generic.DocumentedMultiCanvasFrame;
 import bluej.stride.generic.ExtensionDescription;
@@ -62,7 +63,6 @@ import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.TriangleLabel;
 import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.MultiListener;
@@ -214,8 +214,8 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
         documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramInterfaceName.textProperty()).concat(" interface here..."));
 
         extendsList = new ExtendsList(this, () -> {
-            TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, InteractionManager.Kind.INTERFACE), "interface-");
-            s.setPromptText("interface type");
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, InteractionManager.Kind.INTERFACE), "interface-");
+            s.setSimplePromptText("interface type");
             return s;
         }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);
         extendsTypes.forEach(t -> this.extendsList.addTypeSlotAtEnd(t.getContent(), false));

@@ -33,19 +33,19 @@ import javafx.scene.Node;
 import javafx.scene.layout.Region;
 
 /**
- * An expression slot has a hierarchy of InfixExpression items, starting with
- * one at the top-level.  Each InfixExpression has a list of contained
- * ExpressionSlotComponent items, with optional Operator items between each.
- * There are three types of ExpressionSlotComponent:
- *  - BracketedExpression, which has brackets (round or square) around an
- *     InfixExpression item (recurse back to the beginning of this comment...)
- *  - StringLiteralExpression, which has inside it an ExpressionSlotField
- *  - ExpressionSlotField, which is a single text field with text content.
+ * An expression slot has a hierarchy of InfixStructured items, starting with
+ * one at the top-level.  Each InfixStructured has a list of contained
+ * StructuredSlotComponent items, with optional Operator items between each.
+ * There are three types of StructuredSlotComponent:
+ *  - BracketedStructured, which has brackets (round or square) around an
+ *     InfixStructured item (recurse back to the beginning of this comment...)
+ *  - StringLiteralExpression, which has inside it an StructuredSlotField
+ *  - StructuredSlotField, which is a single text field with text content.
  *  
  *  This interface has all the operations which are common to all its subclasses.
  */
 // Package-visible
-interface ExpressionSlotComponent
+interface StructuredSlotComponent
 {
     /**
      * Place the focus at the first valid position in this component
@@ -68,7 +68,7 @@ interface ExpressionSlotComponent
     Node focusAtPos(CaretPos caretPos);
 
     /**
-     * Returns true if this component, either directly (if it's an ExpressionSlotField)
+     * Returns true if this component, either directly (if it's an StructuredSlotField)
      * or indirectly via one of its children (in the other cases) currently
      * has GUI focus.
      */
@@ -111,8 +111,8 @@ interface ExpressionSlotComponent
      */
     CaretPos getCurrentPos();
     
-    // See InfixExpression.mapCaretPosStringPos for more info
-    List<InfixExpression.CaretPosMap> mapCaretPosStringPos(InfixExpression.IntCounter cur, boolean javaString);
+    // See InfixStructured.mapCaretPosStringPos for more info
+    List<InfixStructured.CaretPosMap> mapCaretPosStringPos(InfixStructured.IntCounter cur, boolean javaString);
 
     /**
      * Gets the graphical node associated with a particular caret position
@@ -149,15 +149,15 @@ interface ExpressionSlotComponent
     ObservableList<? extends Node> getComponents();
 
     /**
-     * See InfixExpression.getAllStartEndPositionsBetween for an explanation
+     * See InfixStructured.getAllStartEndPositionsBetween for an explanation
      */
     Stream<TextOverlayPosition> getAllStartEndPositionsBetween(CaretPos start, CaretPos end);
 
     /**
-     * Gets all the InfixExpression contained in this component, at any
+     * Gets all the InfixStructured contained in this component, at any
      * level of the hierarchy.
      */
-    Stream<InfixExpression> getAllExpressions();
+    Stream<InfixStructured> getAllExpressions();
 
     /**
      * The current text value of the component.  Broadly, this is both the text
@@ -183,7 +183,7 @@ interface ExpressionSlotComponent
      * Notifies all the components that they do not have the focus,
      * except the given field (if non-null), which does have the focus.
      */
-    void notifyLostFocus(ExpressionSlotField except);
+    void notifyLostFocus(StructuredSlotField except);
 
     /**
      * Sets whether the component (and all subcomponents) are currently editable.

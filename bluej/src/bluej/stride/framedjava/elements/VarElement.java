@@ -83,7 +83,7 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
         Attribute finalAttribute = el.getAttribute("final");
         finalModifier = (finalAttribute == null) ? false : Boolean.valueOf(finalAttribute.getValue());
         
-        varType = new TypeSlotFragment(el.getAttributeValue("type"));
+        varType = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         varName = new NameDefSlotFragment(el.getAttributeValue("name"));
         
         Attribute valueAttribute = el.getAttribute("value");
@@ -95,7 +95,7 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
     public VarElement(String access, String type, String name, String value)
     {
         varAccess = (access == null) ? null : new AccessPermissionFragment(AccessPermission.fromString(access));
-        varType = new TypeSlotFragment(type);
+        varType = new TypeSlotFragment(type, type);
         varName = new NameDefSlotFragment(name);
         varValue = (value == null) ? null : new FilledExpressionSlotFragment(value, value);
     }
@@ -135,10 +135,10 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
         if (finalModifier) {
             varEl.addAttribute(new Attribute("final", "true"));
         }
-        varEl.addAttributeCode("type", varType);
+        varEl.addAttributeStructured("type", varType);
         varEl.addAttributeCode("name", varName);
         if (varValue != null) {
-            varEl.addAttributeExpression("value", varValue);
+            varEl.addAttributeStructured("value", varValue);
         }
         addEnableAttribute(varEl);
         return varEl;

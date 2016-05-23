@@ -23,8 +23,6 @@ package bluej.stride.framedjava.slots;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javafx.beans.binding.StringExpression;
@@ -35,8 +33,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
-import bluej.stride.framedjava.slots.InfixExpression.CaretPosMap;
-import bluej.stride.framedjava.slots.InfixExpression.IntCounter;
+import bluej.stride.framedjava.slots.InfixStructured.CaretPosMap;
+import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.Frame.View;
 import bluej.utility.javafx.FXConsumer;
@@ -47,17 +45,17 @@ import bluej.utility.javafx.binding.ConcatListBinding;
 
 /**
  * A bracketed subexpression in an expression slot.  This item will have matching
- * opening/closing brackets (round, square or curly) around an InfixExpression.
+ * opening/closing brackets (round, square or curly) around an InfixStructured.
  * 
- * Many of its methods simply delegate to the contained InfixExpression.
+ * Many of its methods simply delegate to the contained InfixStructured.
  */
 // Package-visible
-class BracketedExpression implements ExpressionSlotComponent
+class BracketedStructured implements StructuredSlotComponent
 {
     /** The parent expression this item lives in */
-    private final InfixExpression parent;
+    private final InfixStructured parent;
     /** The expression directly contained between the brackets */
-    private final InfixExpression content;
+    private final InfixStructured content;
     /** The list of GUI components (derived from the sub-expression) */
     private final ObservableList<Node> components = FXCollections.observableArrayList();
     /** The opening bracket character */ 
@@ -71,7 +69,7 @@ class BracketedExpression implements ExpressionSlotComponent
     /** The label which displays the closing bracket */
     private final Label closingLabel;
     
-    public BracketedExpression(InteractionManager editor, InfixExpression parent, ExpressionSlot slot, char opening, String initialContent)
+    public BracketedStructured(InteractionManager editor, InfixStructured parent, StructuredSlot slot, char opening, String initialContent)
     {
         this.parent = parent;
         this.opening = opening;
@@ -80,11 +78,12 @@ class BracketedExpression implements ExpressionSlotComponent
         case '(': closing = ')'; break;
         case '[': closing = ']'; break;
         case '{': closing = '}'; break;
+        case '<': closing = '>'; break;
         default: throw new IllegalArgumentException("Unrecognised bracket: " + opening);
         }
-        content = new InfixExpression(editor, slot, initialContent, this, closing);
-        openingLabel = ExpressionSlot.makeBracket("" + opening, true, content);
-        closingLabel = ExpressionSlot.makeBracket("" + closing, false, content);
+        content = parent.newInfix(editor, slot, initialContent, this, closing);
+        openingLabel = StructuredSlot.makeBracket("" + opening, true, content);
+        closingLabel = StructuredSlot.makeBracket("" + closing, false, content);
         HangingFlowPane.setBreakBefore(closingLabel, false);
         ConcatListBinding.bind(components, FXCollections.observableArrayList(FXCollections.observableArrayList(openingLabel), content.getComponents(), FXCollections.observableArrayList(closingLabel)));
         
@@ -199,7 +198,7 @@ class BracketedExpression implements ExpressionSlotComponent
     }
 
     // Package-visible
-    InfixExpression getContent()
+    InfixStructured getContent()
     {
         return content;
     }
@@ -214,7 +213,7 @@ class BracketedExpression implements ExpressionSlotComponent
         return "" + opening + content.testingGetState(pos) + closing;
     }
 
-    InfixExpression testingContent()
+    InfixStructured testingContent()
     {
         return content;
     }
@@ -270,7 +269,7 @@ class BracketedExpression implements ExpressionSlotComponent
     }
 
     @Override
-    public Stream<InfixExpression> getAllExpressions()
+    public Stream<InfixStructured> getAllExpressions()
     {
         return content.getAllExpressions();
     }
@@ -301,7 +300,7 @@ class BracketedExpression implements ExpressionSlotComponent
     }
 
     @Override
-    public void notifyLostFocus(ExpressionSlotField except)
+    public void notifyLostFocus(StructuredSlotField except)
     {
         content.notifyLostFocus(except);
     }

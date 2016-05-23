@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -73,7 +72,7 @@ public class WhileElement extends ContainerCodeElement implements JavaSingleLine
     public LocatableElement toXML()
     {
         LocatableElement whileEl = new LocatableElement(this, ELEMENT);
-        whileEl.addAttributeExpression("condition", condition);
+        whileEl.addAttributeStructured("condition", condition);
         addEnableAttribute(whileEl);
         for (CodeElement c : contents)
         {

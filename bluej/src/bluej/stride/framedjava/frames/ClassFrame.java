@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 import bluej.Config;
 import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
@@ -106,7 +107,6 @@ import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.TriangleLabel;
 import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
@@ -127,7 +127,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     private final SimpleBooleanProperty headerHasKeyboardFocus = new SimpleBooleanProperty(false);
 
     private final SimpleBooleanProperty showingExtends;
-    private final TextSlot<TypeSlotFragment> extendsSlot;
+    private final TypeSlot extendsSlot;
 
     private final ObservableList<InheritedCanvas> extendsInheritedCanvases = FXCollections.observableArrayList(); // May be empty
     private final FrameCanvas importCanvas;
@@ -159,6 +159,7 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
     private final FrameContentItem endSpacer;
     private final TriangleLabel importTriangleLabel;
     private Map<String, List<AssistContentThreadSafe>> curMembersByClass = Collections.emptyMap();
+    private final ObservableBooleanValue keyMouseHeader;
 
     private static SlotLabel makeLabel(String content)
     {
@@ -257,29 +258,22 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
         showingExtends = new SimpleBooleanProperty(extendsName != null);
         SlotLabel extendsLabel = new SlotLabel("extends");
         JavaFXUtil.addStyleClass(extendsLabel, "class-extends-caption");
-        extendsSlot = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.CLASS_NON_FINAL), "class-extends-");
-        extendsSlot.addValueListener(new SlotTraversalChars()
-        {
-            @Override
-            public void backSpacePressedAtStart(HeaderItem slot)
-            {
-                extendsSlot.setText("");
-            }
-        });
-        extendsSlot.addValueListener(SlotTraversalChars.IDENTIFIER);
-        extendsSlot.setPromptText("parent class");
+        extendsSlot = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.CLASS_NON_FINAL), "class-extends-");
+        extendsSlot.addClosingChar(' ');
+        extendsSlot.setSimplePromptText("parent class");
         if (extendsName != null) {
             extendsSlot.setText(extendsName);
         }
         // We must make the showing immediate when you get keyboard focus, as otherwise there
         // are problems with focusing the extends slot and then it disappears.
         // We no longer show on mouse hover:
-        ObservableBooleanValue keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.ZERO, Duration.millis(100));
-        showingExtends.bind(extendsSlot.textProperty().isNotEmpty().or(keyMouseHeader));
+        keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.ZERO, Duration.millis(100));
+        JavaFXUtil.addChangeListener(keyMouseHeader, h -> showingExtends.set(extendsSlot.isEmpty() || keyMouseHeader.get()));
+        extendsSlot.onTextPropertyChange(s -> showingExtends.set(extendsSlot.isEmpty() || keyMouseHeader.get()));
 
         implementsSlot = new Implements(this, () -> {
-            TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "class-");
-            s.setPromptText("interface type");
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "class-");
+            s.setSimplePromptText("interface type");
             return s;
         }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);
         implementsList.forEach(t -> implementsSlot.addTypeSlotAtEnd(t.getContent(), false));
@@ -290,6 +284,8 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
             else
                 implementsSlot.clearIfSingleEmpty();
         });
+        
+        
 
         headerHasKeyboardFocus.bind(BooleanBinding.booleanExpression(paramClassName.effectivelyFocusedProperty()).or(BooleanBinding.booleanExpression(extendsSlot.effectivelyFocusedProperty())).or(implementsSlot.focusedProperty()));
 
@@ -1282,5 +1278,18 @@ public class ClassFrame extends DocumentedMultiCanvasFrame
                 return true;
             }
         };
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public boolean backspaceAtStart(FrameContentItem srcRow, HeaderItem src)
+    {
+        if (src == extendsSlot)
+        {
+            extendsSlot.setText("");
+            paramClassName.requestFocus(Focus.RIGHT);
+            return false;
+        }
+        return super.backspaceAtStart(srcRow, src);
     }
 }

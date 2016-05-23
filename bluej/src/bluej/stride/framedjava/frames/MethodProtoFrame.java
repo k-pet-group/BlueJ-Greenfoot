@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
@@ -55,14 +56,13 @@ import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.Throws;
 import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.utility.javafx.JavaFXUtil;
 
 public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeFrame<MethodProtoElement>
 {
     private final SlotLabel abstractLabel = new SlotLabel("abstract");
     private final BooleanProperty parentIsClass = new SimpleBooleanProperty(false);
-    private final TypeTextSlot returnType;
+    private final TypeSlot returnType;
     private final MethodNameDefTextSlot methodName;
     private final FormalParameters paramsPane;
     private final Throws throwsPane;
@@ -76,16 +76,16 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         methodName.setPromptText("name");
         methodName.addValueListener(SlotTraversalChars.METHOD_NAME);
         
-        returnType = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor), "method-return-type-");
-        returnType.setPromptText("type");
-        returnType.addValueListener(SlotTraversalChars.IDENTIFIER);
+        returnType = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor), "method-return-type-");
+        returnType.setSimplePromptText("type");
+        returnType.addClosingChar(' ');
 
         paramsPane = new FormalParameters(editor, this, this, getHeaderRow(), "method-param-");
         setDocumentationPromptText("Describe your method here...");
         
         throwsPane = new Throws(this, () -> {
-            TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "method-");
-            s.setPromptText("thrown type");
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "method-");
+            s.setSimplePromptText("thrown type");
             return s;
         }, () -> getCursorAfter().requestFocus(), editor);
 

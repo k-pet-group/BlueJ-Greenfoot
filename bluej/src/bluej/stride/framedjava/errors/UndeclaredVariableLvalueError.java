@@ -86,7 +86,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
         public void execute()
         {
             // TODO does access have to be null here?
-            assignFrame.getParentCanvas().replaceBlock(assignFrame, new VarFrame(assignFrame.getEditor(), null, false, false, new TypeSlotFragment(""), 
+            assignFrame.getParentCanvas().replaceBlock(assignFrame, new VarFrame(assignFrame.getEditor(), null, false, false, new TypeSlotFragment("", ""), 
                         new NameDefSlotFragment(assignFrame.getLHS().getText()), new FilledExpressionSlotFragment(assignFrame.getRHS().getSlotElement()), true));
         }
     }
@@ -112,7 +112,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
             
             FrameCursor cursorAfter = (firstNonField.isPresent()) ? cursorAfter = classFrame.getfieldsCanvas().getCursorBefore(firstNonField.get()) : classFrame.getfieldsCanvas().getLastCursor();
             classFrame.getfieldsCanvas().insertBlockBefore(new VarFrame(assignFrame.getEditor(), null, false, false, 
-                    new TypeSlotFragment(""), new NameDefSlotFragment(assignFrame.getLHS().getText()), null, true), cursorAfter);
+                    new TypeSlotFragment("", ""), new NameDefSlotFragment(assignFrame.getLHS().getText()), null, true), cursorAfter);
         }
     }
 

@@ -28,9 +28,9 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.errors.Correction.CorrectionInfo;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.TypeTextSlot;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -40,7 +40,7 @@ public class UnknownTypeError extends DirectSlotError
     private final InteractionManager editor;
     private List<FixSuggestion> corrections;
     
-    public UnknownTypeError(TypeSlotFragment slotFragment, String typeName, TypeTextSlot slot, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
+    public UnknownTypeError(TypeSlotFragment slotFragment, String typeName, TypeSlot slot, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
     {
         super(slotFragment);
         this.typeName = typeName;

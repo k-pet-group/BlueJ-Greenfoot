@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
@@ -32,13 +33,13 @@ import bluej.utility.javafx.FXRunnable;
 
 public class ExtendsList extends TypeList
 {
-    public ExtendsList(Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
+    public ExtendsList(Frame parentFrame, Supplier<TypeSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
     {
         super(" extends ", parentFrame, slotGenerator, focusOnNext, editor);
     }
 
     public List<TypeSlotFragment> getTypes()
     {
-        return Utility.mapList(typeSlots, TypeTextSlot::getSlotElement);
+        return Utility.mapList(typeSlots, TypeSlot::getSlotElement);
     }
 }

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import bluej.stride.framedjava.elements.MethodWithBodyElement;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameCursor;
@@ -67,7 +68,6 @@ import bluej.stride.slots.ChoiceSlot;
 import bluej.stride.slots.FormalParameters;
 import bluej.stride.slots.Throws;
 import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
@@ -100,8 +100,8 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         access.setValue(AccessPermission.PUBLIC);
         
         throwsPane = new Throws(this, () -> {
-            TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "method-");
-            s.setPromptText("thrown type");
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "method-");
+            s.setSimplePromptText("thrown type");
             return s;
         }, () -> getCanvas().getFirstCursor().requestFocus(), editor);
         

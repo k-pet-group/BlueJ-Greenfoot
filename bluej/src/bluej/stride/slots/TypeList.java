@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXRunnable;
 import javafx.application.Platform;
@@ -57,13 +58,13 @@ public class TypeList implements SlotValueListener
     /**
      * The list of type slots currently in this type list
      */
-    protected final ObservableList<TypeTextSlot> typeSlots = FXCollections.observableArrayList();
+    protected final ObservableList<TypeSlot> typeSlots = FXCollections.observableArrayList();
 
     /**
      * A piece of code to generate a new type slot when we need one.  Supplied
      * by our creator (easier to pass lambda than have to subclass TypeList every time).
      */
-    private final Supplier<TypeTextSlot> slotGenerator;
+    private final Supplier<TypeSlot> slotGenerator;
     /**
      * The frame which we are contained in.
      */
@@ -95,7 +96,7 @@ public class TypeList implements SlotValueListener
      *                    item before, which is slightly odd.  But type lists are rarely used.)
      * @param editor A reference to the editor, used to notify about recompiles.
      */
-    protected TypeList(String label, Frame parentFrame, Supplier<TypeTextSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
+    protected TypeList(String label, Frame parentFrame, Supplier<TypeSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
     {
         this.parentFrame = parentFrame;
         this.slotGenerator = slotGenerator;
@@ -131,7 +132,7 @@ public class TypeList implements SlotValueListener
 
         final ChangeListener<Boolean> focusListener = (a, b, newVal) -> updateFocusedProperty();
 
-        typeSlots.addListener((ListChangeListener<? super TypeTextSlot>) change -> {
+        typeSlots.addListener((ListChangeListener<? super TypeSlot>) change -> {
             while (change.next())
             {
                 if (change.wasAdded())
@@ -162,13 +163,14 @@ public class TypeList implements SlotValueListener
      * Add a new type slot before the given index (0 <= index <= typeSlots.size())
      * @return The new type slot, which will just have been added to the typeSlots list.
      */
-    private TypeTextSlot addTypeSlot(int index)
+    private TypeSlot addTypeSlot(int index)
     {
-        final TypeTextSlot slot = slotGenerator.get();
+        final TypeSlot slot = slotGenerator.get();
         
+        /*TODOTYPESLOT
         slot.addValueListener(this);
         slot.addFocusListener(parentFrame);
-        slot.addValueListener(SlotTraversalChars.IDENTIFIER);
+        slot.addValueListener(SlotTraversalChars.IDENTIFIER);*/
         
         typeSlots.add(index, slot);
         return slot;
@@ -181,7 +183,7 @@ public class TypeList implements SlotValueListener
         // If the user has entered a comma, split the type slot at that point
         // and add a new slot with the second half of the content:
         if (newValue.contains(",")) {
-            TypeTextSlot newSlot = addTypeSlot(typeSlots.indexOf(slot) + 1);
+            TypeSlot newSlot = addTypeSlot(typeSlots.indexOf(slot) + 1);
             String right = newValue.substring(newValue.indexOf(",") + 1);
             // Hacky way to chop the string after listeners have run:
             Platform.runLater(() -> ((TypeTextSlot)slot).setText(newValue.substring(0, newValue.indexOf(","))));
@@ -197,10 +199,10 @@ public class TypeList implements SlotValueListener
     {
         int index = typeSlots.indexOf(slot);
         // Delete our slot:
-        String remainder = delete((TypeTextSlot)slot);
+        String remainder = delete((TypeSlot)slot);
         if (index - 1 >= 0 && index - 1 < typeSlots.size())
         {
-            TypeTextSlot prev = typeSlots.get(index - 1);
+            TypeSlot prev = typeSlots.get(index - 1);
             prev.setText(prev.getText() + remainder);
             // Iffy way to keep caret in right place:
             prev.requestFocus();
@@ -225,12 +227,12 @@ public class TypeList implements SlotValueListener
         }
         // If we are, delete us!
         else {
-            delete((TypeTextSlot) slot);
+            delete((TypeSlot) slot);
             focusOnNext.run();
         }
     }
 
-    private String delete(TypeTextSlot slot)
+    private String delete(TypeSlot slot)
     {
         // Remove the formal:
         slot.cleanup();
@@ -241,7 +243,7 @@ public class TypeList implements SlotValueListener
 
     public void addTypeSlotAtEnd(String content, boolean requestFocus)
     {
-        TypeTextSlot slot = addTypeSlot(typeSlots.size());
+        TypeSlot slot = addTypeSlot(typeSlots.size());
         slot.setText(content);
         if (requestFocus)
             slot.requestFocus(Focus.LEFT);
@@ -256,7 +258,7 @@ public class TypeList implements SlotValueListener
         types.forEach(t -> addTypeSlotAtEnd(t, false));
     }
     
-    public Stream<TypeTextSlot> getTypeSlots()
+    public Stream<TypeSlot> getTypeSlots()
     {
         return typeSlots.stream();
     }

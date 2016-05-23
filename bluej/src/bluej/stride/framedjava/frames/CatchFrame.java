@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,7 @@ import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.CatchElement;
 import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameFactory;
@@ -45,10 +46,12 @@ import bluej.stride.generic.SingleCanvasFrame;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.TextSlot;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.stride.slots.VariableNameDefTextSlot;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.TypeCompletionCalculator;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.JavaFXUtil;
+
 import javafx.beans.value.ChangeListener;
 
 /**
@@ -58,7 +61,7 @@ import javafx.beans.value.ChangeListener;
 public class CatchFrame extends SingleCanvasFrame
   implements CodeFrame<CatchElement>, DebuggableParentFrame
 {
-    private final TextSlot<TypeSlotFragment> exceptionType;
+    private final TypeSlot exceptionType;
     private final TextSlot<NameDefSlotFragment> exceptionName;
     private CatchElement element;
     
@@ -69,13 +72,18 @@ public class CatchFrame extends SingleCanvasFrame
     {
         super(editor, "catch", "catch-");
         //Parameters
-        exceptionType = initialiseTextSlot("Type", new TypeSlotFragment(""), new TypeTextSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "catch-"));
+        exceptionType = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "catch-");
+        exceptionType.setText(new TypeSlotFragment("", ""));
+        exceptionType.addFocusListener(this);
+        exceptionType.setSimplePromptText("exceptionType");
         exceptionName = initialiseTextSlot("Name", new NameDefSlotFragment(""), new VariableNameDefTextSlot(editor, this, this, getHeaderRow(), "catch-"));
         setHeaderRow(new SlotLabel("("), exceptionType, exceptionName, new SlotLabel(")"));
 
-        ChangeListener<? super String> changeListener = (a, b, newVal) -> updateSidebarCurried("catch ").accept(exceptionType.getText() + " " + exceptionName.getText());
-        exceptionType.textProperty().addListener(changeListener);
-        exceptionName.textProperty().addListener(changeListener);
+        exceptionType.addClosingChar(' ');
+        
+        FXConsumer<String> changeListener = newVal -> updateSidebarCurried("catch ").accept(exceptionType.getText() + " " + exceptionName.getText());
+        exceptionType.onTextPropertyChange(changeListener);
+        JavaFXUtil.addChangeListener(exceptionName.textProperty(), changeListener);
     }
     
     public CatchFrame(InteractionManager editor, TypeSlotFragment exceptionTypeFragment, NameDefSlotFragment exceptionNameFragment, boolean enabled)

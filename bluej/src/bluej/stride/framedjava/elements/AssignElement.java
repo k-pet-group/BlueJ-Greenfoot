@@ -24,7 +24,6 @@ package bluej.stride.framedjava.elements;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -62,8 +61,8 @@ public class AssignElement extends CodeElement implements JavaSingleLineDebugHan
     public LocatableElement toXML()
     {
         LocatableElement assignEl = new LocatableElement(this, ELEMENT);
-        assignEl.addAttributeExpression("dest", lhs);
-        assignEl.addAttributeExpression("src", rhs);
+        assignEl.addAttributeStructured("dest", lhs);
+        assignEl.addAttributeStructured("src", rhs);
         addEnableAttribute(assignEl);
         return assignEl;
     }

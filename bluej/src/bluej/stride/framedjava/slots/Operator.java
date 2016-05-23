@@ -65,7 +65,7 @@ class Operator
      * by the operator itself. */
     private Precedence precedence;
 
-    public Operator(String op, InfixExpression parent)
+    public Operator(String op, InfixStructured parent)
     {
         sourceProperty.set(op);
         l = new Label();
@@ -114,40 +114,6 @@ class Operator
         switch (s)
         {
             case "+": case "-": case "~": case "!": case "new ":
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    //package visible for testing
-    /** Is this string an operator */
-    static boolean isOperator(String s)
-    {
-        switch (s)
-        {
-            case "+": case "-": case "*": case "/":
-            case "==": case "!=": case ">": case ">=":
-            case "<=": case "<": case "%": case "&":
-            case "&&": case "|": case "||": case "^":
-            case "~": case "!": case ".": case "..": case "<:": case ",":
-            case "<<": case ">>": case ">>>":
-            case "->": case "::":
-                return true;
-            default:
-                return false;
-        }
-    }
-    
-    /** Does the given character form a one-character operator, or begin a multi-character operator */
-    static boolean beginsOperator(char c)
-    {
-        switch (c)
-        {
-            case '+': case '-': case '*': case '/':
-            case '=': case '!': case '>': case '<':
-            case '%': case '&': case '|': case '^':
-            case '~': case '.': case ',': case ':':
                 return true;
             default:
                 return false;
@@ -249,7 +215,7 @@ class Operator
         this.precedence = chosen;
     }
 
-    public Stream<TextOverlayPosition> getStartEndPositions(InfixExpression parent)
+    public Stream<TextOverlayPosition> getStartEndPositions(InfixStructured parent)
     {
         return Stream.of(TextOverlayPosition.nodeToOverlay(l, 0.0, 0.0, l.getBaselineOffset(), l.getHeight()),
                          TextOverlayPosition.nodeToOverlay(l, l.getWidth(), 0.0, l.getBaselineOffset(), l.getHeight()));

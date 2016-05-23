@@ -236,7 +236,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
                         FrameCanvas p = ((ClassFrame) parent).getMethodsCanvas();
                         FrameCursor c = p.getLastCursor();
                         NormalMethodElement el = new NormalMethodElement(null, new AccessPermissionFragment(this, access),
-                                false, false, new TypeSlotFragment(""), new NameDefSlotFragment(""), generateParams(), throwsPane.getTypes(),
+                                false, false, new TypeSlotFragment("", ""), new NameDefSlotFragment(""), generateParams(), throwsPane.getTypes(),
                                 getContents(), new JavadocUnit(getDocumentation()), frameEnabledProperty.get());
                         c.insertBlockAfter(el.createFrame(getEditor()));
                         getParentCanvas().removeBlock(this);

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameCursor;
 import javafx.application.Platform;
@@ -68,7 +69,6 @@ import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.SlotValueListener;
 import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.stride.slots.VariableNameDefTextSlot;
 
 import bluej.utility.javafx.FXRunnable;
@@ -93,7 +93,7 @@ public class VarFrame extends SingleLineFrame
     private final BooleanProperty staticModifier = new SimpleBooleanProperty(false);
     private final SlotLabel finalLabel = new SlotLabel(FINAL_NAME + " ");
     private final BooleanProperty finalModifier = new SimpleBooleanProperty(false);
-    private final TypeTextSlot slotType;
+    private final TypeSlot slotType;
     private final VariableNameDefTextSlot slotName;
     private final BooleanProperty showingValue = new SimpleBooleanProperty(false);
     private final SlotLabel equalLabel = new SlotLabel(AssignFrame.ASSIGN_SYMBOL);
@@ -149,22 +149,15 @@ public class VarFrame extends SingleLineFrame
         
         slotName.setPromptText("name");
         
-        slotType = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor), "var-type-");
-        slotType.addValueListener(SlotTraversalChars.IDENTIFIER);
-        slotType.setPromptText("type");
-        slotType.addValueListener(new SlotTraversalChars() {
-            @Override
-            public void backSpacePressedAtStart(HeaderItem slot)
-            {
-                getHeaderRow().backspaceAtStart(slot);
-            }
-        });
+        slotType = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor), "var-type-");
+        slotType.setSimplePromptText("type");
+        slotType.addClosingChar(' ');
 
         access = new AccessPermissionSlot(editor, this, getHeaderRow(), "var-access-");
         access.setValue(AccessPermission.PRIVATE);
 
         slotValue = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "var-value-");
-        slotValue.bindTargetType(slotType.textProperty());
+        // TODOTYPESLOT slotValue.bindTargetType(slotType.textProperty());
         slotValue.setSimplePromptText("value");
         slotValue.onLostFocus(this::checkForEmptySlot);
         Platform.runLater(() -> {if (isFresh()) onNonFresh(this::checkForEmptySlot);});

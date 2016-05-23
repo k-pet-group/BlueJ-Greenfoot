@@ -183,7 +183,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         
         className = new NameDefSlotFragment(el.getAttributeValue("name"));
         final String extendsAttribute = el.getAttributeValue("extends");
-        extendsName = (extendsAttribute != null) ? new TypeSlotFragment(extendsAttribute) : null;
+        extendsName = (extendsAttribute != null) ? new TypeSlotFragment(extendsAttribute, el.getAttributeValue("extends-java")) : null;
 
         // We allow package to be missing because it wasn't present in first version
         // of Stride (in Greenfoot 3.0.0).  In this case, we presume nameless package
@@ -197,7 +197,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         if (documentation == null) {
             documentation = new JavadocUnit("");
         }
-        implementsList = Utility.mapList(TopLevelCodeElement.xmlToStringList(el, "implements", "implementstype", "type"), TypeSlotFragment::new);
+        implementsList = TopLevelCodeElement.xmlToTypeList(el, "implements", "implementstype", "type");
         imports = Utility.mapList(TopLevelCodeElement.fillChildrenElements(this, el, "imports"), e -> (ImportElement)e);
         fields = TopLevelCodeElement.fillChildrenElements(this, el, "fields");
         constructors = TopLevelCodeElement.fillChildrenElements(this, el, "constructors");
@@ -269,7 +269,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         }
         classEl.addAttributeCode("name", className);
         if (extendsName != null) {
-            classEl.addAttributeCode("extends", extendsName);
+            classEl.addAttributeStructured("extends", extendsName);
         }
         addEnableAttribute(classEl);
         
@@ -280,7 +280,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         classEl.addAttributeCode("package", packageName);
         
         appendCollection(classEl, imports, "imports");
-        classEl.appendChild(TopLevelCodeElement.stringListToXML(implementsList, "implements", "implementstype", "type"));
+        classEl.appendChild(TopLevelCodeElement.typeListToXML(implementsList, "implements", "implementstype", "type"));
         
         appendCollection(classEl, fields, "fields");
         appendCollection(classEl, constructors, "constructors");

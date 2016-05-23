@@ -28,6 +28,7 @@ package bluej.stride.framedjava.frames;
 
 import java.util.List;
 
+import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.generic.FrameContentItem;
 import javafx.application.Platform;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -74,8 +75,8 @@ public class AssignFrame extends SingleLineFrame
         slotLHS.setSimplePromptText("variable");
         setHeaderRow(slotLHS, new SlotLabel(ASSIGN_SYMBOL), slotRHS, previewSemi);
         
-        slotLHS.bindClosingChar(slotRHS, '=');
-        slotLHS.bindClosingChar(slotRHS, ' ');
+        slotLHS.addClosingChar('=');
+        slotLHS.addClosingChar(' ');
     }
     
     // For replacement of a method call frame:
@@ -137,17 +138,18 @@ public class AssignFrame extends SingleLineFrame
         return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);        
     }
 
-    public ExpressionSlot getLHS()
+    public ExpressionSlot<? extends ExpressionSlotFragment> getLHS()
     {
         return slotLHS;
     }
     
-    public ExpressionSlot getRHS()
+    public ExpressionSlot<? extends ExpressionSlotFragment> getRHS()
     {
         return slotRHS;
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean backspaceAtStart(FrameContentItem row, HeaderItem src)
     {
         if (src == slotRHS)

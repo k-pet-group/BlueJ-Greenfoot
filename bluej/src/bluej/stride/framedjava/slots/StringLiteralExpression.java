@@ -32,8 +32,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
-import bluej.stride.framedjava.slots.InfixExpression.CaretPosMap;
-import bluej.stride.framedjava.slots.InfixExpression.IntCounter;
+import bluej.stride.framedjava.slots.InfixStructured.CaretPosMap;
+import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.Frame.View;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
@@ -44,10 +44,10 @@ import bluej.utility.javafx.SharedTransition;
  * double quotes around a single text field.
  */
 // Package-visible
-class StringLiteralExpression implements ExpressionSlotComponent
+class StringLiteralExpression implements StructuredSlotComponent
 {
     /** The text field with the string literal content */
-    private final ExpressionSlotField field;
+    private final StructuredSlotField field;
     /** A permanent reference to the (unchanging) components: opening quote
      *  label, text field, closing quote label */
     private final ObservableList<Node> components = FXCollections.observableArrayList();
@@ -58,13 +58,13 @@ class StringLiteralExpression implements ExpressionSlotComponent
     /** The label for the closing quote */
     private final Label closingQuote;
 
-    public StringLiteralExpression(ExpressionSlotField f, InfixExpression parent)
+    public StringLiteralExpression(StructuredSlotField f, InfixStructured parent)
     {
         field = f;
         // The quotes use proper open/close quote symbols normally, but
         // switch to straight quotes in Java preview mode.
-        openingQuote = ExpressionSlot.makeBracket("\u201C", true, parent);
-        closingQuote = ExpressionSlot.makeBracket("\u201D", false, parent);
+        openingQuote = StructuredSlot.makeBracket("\u201C", true, parent);
+        closingQuote = StructuredSlot.makeBracket("\u201D", false, parent);
         components.add(openingQuote);
         components.addAll(field.getComponents());
         components.add(closingQuote);
@@ -185,7 +185,7 @@ class StringLiteralExpression implements ExpressionSlotComponent
     }
 
     //Package-visible
-    ExpressionSlotField getField()
+    StructuredSlotField getField()
     {
         return field;
     }
@@ -223,7 +223,7 @@ class StringLiteralExpression implements ExpressionSlotComponent
     }
 
     @Override
-    public Stream<InfixExpression> getAllExpressions()
+    public Stream<InfixStructured> getAllExpressions()
     {
         return Stream.empty();
     }
@@ -250,7 +250,7 @@ class StringLiteralExpression implements ExpressionSlotComponent
     }
 
     @Override
-    public void notifyLostFocus(ExpressionSlotField except)
+    public void notifyLostFocus(StructuredSlotField except)
     {
         if (field != except)
             field.notifyLostFocus(except);

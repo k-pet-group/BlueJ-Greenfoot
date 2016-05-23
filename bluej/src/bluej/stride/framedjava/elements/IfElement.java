@@ -36,7 +36,6 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SandwichCanvasesFrame;
 import bluej.stride.generic.Frame;
 
-import nu.xom.Attribute;
 import nu.xom.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -113,13 +112,13 @@ public class IfElement extends SandwichCanvasesElement
     @Override
     protected void addMainAttributes(LocatableElement element)
     {
-        element.addAttributeExpression(CONDITION_LABEL, condition);
+        element.addAttributeStructured(CONDITION_LABEL, condition);
     }
 
     @Override
     protected void addIntermediateAttributes(LocatableElement element, int index)
     {
-        element.addAttributeExpression(CONDITION_LABEL, elseIfConditions.get(index));
+        element.addAttributeStructured(CONDITION_LABEL, elseIfConditions.get(index));
     }
 
     @OnThread(Tag.FX)

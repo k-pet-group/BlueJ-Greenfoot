@@ -76,7 +76,7 @@ public class NormalMethodElement extends MethodWithBodyElement
         Attribute finalAttribute = el.getAttribute("final");
         finalModifier = (finalAttribute == null) ? false : Boolean.valueOf(finalAttribute.getValue());
         
-        returnType = new TypeSlotFragment(el.getAttributeValue("type"));
+        returnType = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         name = new NameDefSlotFragment(el.getAttributeValue("name"));
     }
     
@@ -85,7 +85,7 @@ public class NormalMethodElement extends MethodWithBodyElement
     {
         super(access, params, contents, documentation);
         
-        this.returnType = new TypeSlotFragment(returnType);
+        this.returnType = new TypeSlotFragment(returnType, returnType);
         this.name = new NameDefSlotFragment(name);
     }
     
@@ -124,7 +124,7 @@ public class NormalMethodElement extends MethodWithBodyElement
             methodEl.addAttribute(new Attribute("final", "true"));
         }
         
-        methodEl.addAttributeCode("type", returnType);
+        methodEl.addAttributeStructured("type", returnType);
         methodEl.addAttributeCode("name", name);
         
         addEnableAttribute(methodEl);

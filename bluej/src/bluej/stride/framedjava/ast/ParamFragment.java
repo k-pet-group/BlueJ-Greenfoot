@@ -44,14 +44,14 @@ public class ParamFragment
     
     public ParamFragment(Element el)
     {
-        paramType = new TypeSlotFragment(el.getAttributeValue("type"));
+        paramType = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         paramName = new NameDefSlotFragment(el.getAttributeValue("name"));
     }
     
     public Element toXML()
     {
         LocatableElement paramEl = new LocatableElement(null, ELEMENT);
-        paramEl.addAttributeCode("type", paramType);
+        paramEl.addAttributeStructured("type", paramType);
         paramEl.addAttributeCode("name", paramName);
         return paramEl;
     }

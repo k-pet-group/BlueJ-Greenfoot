@@ -146,7 +146,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         if (params != null ) {
             for (int i = 0; i < params.size(); i++) {
                 Entry<String, String> entry = params.get(i);
-                this.params.add(new ParamFragment(new TypeSlotFragment(entry.getKey()), new NameDefSlotFragment(entry.getValue())));
+                this.params.add(new ParamFragment(new TypeSlotFragment(entry.getKey(), entry.getKey()), new NameDefSlotFragment(entry.getValue())));
             }
         }
     }

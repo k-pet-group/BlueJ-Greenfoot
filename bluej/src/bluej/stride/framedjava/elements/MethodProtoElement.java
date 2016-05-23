@@ -68,7 +68,7 @@ public class MethodProtoElement extends DocumentContainerCodeElement
 
     public MethodProtoElement(Element el)
     {
-        returnType = new TypeSlotFragment(el.getAttributeValue("type"));
+        returnType = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         name = new NameDefSlotFragment(el.getAttributeValue("name"));
         params = new ArrayList<ParamFragment>();
         throwsTypes = new ArrayList<>();
@@ -131,7 +131,7 @@ public class MethodProtoElement extends DocumentContainerCodeElement
     public LocatableElement toXML()
     {
         LocatableElement methodEl = new LocatableElement(this, ELEMENT);
-        methodEl.addAttributeCode("type", returnType);
+        methodEl.addAttributeStructured("type", returnType);
         methodEl.addAttributeCode("name", name);
         addEnableAttribute(methodEl);
         methodEl.appendChild(documentation.toXML());

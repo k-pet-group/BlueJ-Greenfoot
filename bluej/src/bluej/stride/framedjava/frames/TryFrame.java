@@ -33,6 +33,7 @@ import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.SandwichCanvasesElement;
 import bluej.stride.framedjava.elements.TryElement;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameFactory;
@@ -45,7 +46,6 @@ import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.SlotValueListener;
 import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.stride.slots.VariableNameDefTextSlot;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -57,7 +57,7 @@ import bluej.utility.Utility;
 public class TryFrame extends SandwichCanvasesFrame
 {
     private static final String TRY_STYLE_PREFIX = "try-";
-    private final List<TypeTextSlot> catchTypes = new ArrayList<>();
+    private final List<TypeSlot> catchTypes = new ArrayList<>();
     private final List<VariableNameDefTextSlot> catchVars = new ArrayList<>();
 
     /**
@@ -108,9 +108,10 @@ public class TryFrame extends SandwichCanvasesFrame
     {
         FrameContentRow row = new FrameContentRow(this, "catch-");
 
-        TypeTextSlot type = new TypeTextSlot(editor, this, this, row, new TypeCompletionCalculator(editor, Throwable.class), "catch-type-");
-        type.setPromptText("type");
-        type.addValueListener(SlotTraversalChars.IDENTIFIER);
+        TypeSlot type = new TypeSlot(editor, this, this, row, new TypeCompletionCalculator(editor, Throwable.class), "catch-type-");
+        type.setSimplePromptText("type");
+        type.addClosingChar(' ');
+        /*TODOTYPESLOT
         type.addValueListener(new SlotValueListener() {
             @Override
             public boolean valueChanged(HeaderItem slot, String oldValue, String newValue, FocusParent<HeaderItem> parent) {
@@ -129,7 +130,7 @@ public class TryFrame extends SandwichCanvasesFrame
                     row.focusLeft(slot);
                 }
             }
-        });
+        });*/
 
         VariableNameDefTextSlot var = new VariableNameDefTextSlot(editor, this, this, row, "catch-var-");
         var.setPromptText("name");
@@ -205,7 +206,7 @@ public class TryFrame extends SandwichCanvasesFrame
     protected SandwichCanvasesElement regenerateCodeElement(List<CodeElement> firstCanvasContents,
              List<List<CodeElement>> intermediateCanvasesContents, List<CodeElement> tailCanvasContents, boolean enabled)
     {
-        return new TryElement(this, firstCanvasContents, Utility.mapList(catchTypes, TypeTextSlot::getSlotElement),
+        return new TryElement(this, firstCanvasContents, Utility.mapList(catchTypes, TypeSlot::getSlotElement),
                 Utility.mapList(catchVars, VariableNameDefTextSlot::getSlotElement), intermediateCanvasesContents,
                 tailCanvasContents, enabled);
     }

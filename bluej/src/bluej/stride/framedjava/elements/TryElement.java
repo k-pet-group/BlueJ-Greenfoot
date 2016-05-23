@@ -82,7 +82,7 @@ public class TryElement extends SandwichCanvasesElement
     @Override
     protected void loadIntermediateAttributes(final Element element)
     {
-        catchTypes.add(new TypeSlotFragment(element.getAttributeValue(EXCEPTION_TYPE_LABEL)));
+        catchTypes.add(new TypeSlotFragment(element.getAttributeValue(EXCEPTION_TYPE_LABEL), element.getAttributeValue(EXCEPTION_TYPE_LABEL + "-java")));
         catchNames.add(new NameDefSlotFragment(element.getAttributeValue(EXCEPTION_NAME_LABEL)));
     }
 
@@ -100,7 +100,7 @@ public class TryElement extends SandwichCanvasesElement
     @Override
     protected void addIntermediateAttributes(LocatableElement element, int index)
     {
-        element.addAttributeCode(EXCEPTION_TYPE_LABEL, catchTypes.get(index));
+        element.addAttributeStructured(EXCEPTION_TYPE_LABEL, catchTypes.get(index));
         element.addAttributeCode(EXCEPTION_NAME_LABEL, catchNames.get(index));
     }
 

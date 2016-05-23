@@ -47,14 +47,13 @@ import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-public class TypeTextSlot extends TextSlot<TypeSlotFragment>
+abstract class TypeTextSlot extends TextSlot//<TypeSlotFragment>
 {
-    private boolean isReturnType;
-
-    // We don't differentiate start and part, as that just gets too fiddly during editing:
-    private SlotValueListener validCharactersListener = (slot, oldValue, newValue, parent) ->
-        // Valid identifier, or the characters for generics, or dot for compound names:
-        newValue.chars().allMatch(c -> Character.isJavaIdentifierPart(c) || c == '.' || c == '<' || c == '>' || c == ',' || c == '[' || c == ']');
+    public TypeTextSlot(InteractionManager editor, Frame frameParent, CodeFrame codeFrameParent, FrameContentRow row, CompletionCalculator completionCalculator, String stylePrefix, List list)
+    {
+        super(editor, frameParent, codeFrameParent, row, completionCalculator, stylePrefix, list);
+    }
+    /*TODOTYPESLOT
 
     private static final List<FrameCatalogue.Hint> HINTS = Arrays.asList(
         new FrameCatalogue.Hint("int", "An integer (whole number)"),
@@ -63,73 +62,6 @@ public class TypeTextSlot extends TextSlot<TypeSlotFragment>
         new FrameCatalogue.Hint("Actor", "A Greenfoot actor")
     );
 
-    public <T extends Frame & CodeFrame<? extends CodeElement>>
-    TypeTextSlot(InteractionManager editor, T frameParent, FrameContentRow row,
-            CompletionCalculator completionCalculator, String stylePrefix)
-    {
-        super(editor, frameParent, frameParent, row, completionCalculator, stylePrefix, HINTS);
-        addValueListener(validCharactersListener);
-    }
-    
-    public TypeTextSlot(InteractionManager editor, Frame frameParent,
-            CodeFrame<? extends CodeElement> codeFrameParent, FrameContentRow row,
-            CompletionCalculator completionCalculator, String stylePrefix)
-    {
-        super(editor, frameParent, codeFrameParent, row, completionCalculator, stylePrefix, HINTS);
-        addValueListener(validCharactersListener);
-    }
-
-    @Override
-    public TypeSlotFragment createFragment(String content)
-    {
-        return new TypeSlotFragment(content, this);
-    }
-
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public void valueChangedLostFocus(String oldValue, String newValue)
-    {
-        // When return type, perform action to add/remove values from return items
-        // Prompt for removal, don't prompt for add
-        if (isReturnType)
-        {
-            if ((oldValue.equals("void") || oldValue.equals("")) && !(newValue.equals("void") || newValue.equals("")))
-            {
-                // Added a return type; need to go through and add empty slots for all returns that don't have them:
-                for (Frame f : Utility.iterableStream(getParentFrame().getAllFrames()))
-                {
-                    if (f instanceof ReturnFrame)
-                    {
-                        ReturnFrame rf = (ReturnFrame) f;
-                        rf.showValue();
-                    }
-                }
-            }
-            else if (!oldValue.equals("void") && newValue.equals("void"))
-            {
-                // Removed a return type; prompt about removing return values from all returns
-                List<FXRunnable> removeActions = getParentFrame().getAllFrames()
-                       .filter(f -> f instanceof ReturnFrame)
-                       .map(f -> (ReturnFrame)f)
-                       .map(rf -> rf.getRemoveFilledValueAction())
-                       .filter(a -> a != null)
-                       .collect(Collectors.toList());
-                
-                if (!removeActions.isEmpty())
-                {
-                    SuggestedFollowUpDisplay disp = new SuggestedFollowUpDisplay(editor, "Return type changed to void.  Would you like to remove return values from all return frames in this method?", () -> removeActions.forEach(FXRunnable::run));
-                    disp.showBefore(getNode());
-                }
-            }
-        }
-    }
-    
-
-    public void markReturnType()
-    {
-        isReturnType = true;
-    }
-    
     @Override
     protected Map<TopLevelMenu, MenuItems> getExtraContextMenuItems()
     {
@@ -168,4 +100,5 @@ public class TypeTextSlot extends TextSlot<TypeSlotFragment>
     {
         return Collections.singletonList(new PossibleTypeLink(getText(), 0, getText().length(), this));
     }
+    */
 }

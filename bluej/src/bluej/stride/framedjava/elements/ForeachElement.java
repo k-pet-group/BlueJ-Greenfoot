@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -83,9 +82,9 @@ public class ForeachElement extends ContainerCodeElement
     public LocatableElement toXML()
     {
         LocatableElement loopEl = new LocatableElement(this, ELEMENT);
-        loopEl.addAttributeCode("type", type);
+        loopEl.addAttributeStructured("type", type);
         loopEl.addAttributeCode("var", var);
-        loopEl.addAttributeExpression("collection", collection);
+        loopEl.addAttributeStructured("collection", collection);
         addEnableAttribute(loopEl);
         for (CodeElement c : contents)
         {
@@ -96,7 +95,7 @@ public class ForeachElement extends ContainerCodeElement
     
     public ForeachElement(Element el)
     {
-        type = new TypeSlotFragment(el.getAttributeValue("type"));
+        type = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         var = new NameDefSlotFragment(el.getAttributeValue("var"));
         collection = new FilledExpressionSlotFragment(el.getAttributeValue("collection"), el.getAttributeValue("collection-java"));
         contents = new ArrayList<CodeElement>();

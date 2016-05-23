@@ -140,7 +140,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         if (documentation == null) {
             documentation = new JavadocUnit("");
         }
-        extendsTypes = Utility.mapList(TopLevelCodeElement.xmlToStringList(el, "extends", "extendstype", "type"), TypeSlotFragment::new);
+        extendsTypes = TopLevelCodeElement.xmlToTypeList(el, "extends", "extendstype", "type");
 
         // We allow package to be null
         Attribute packageAttribute = el.getAttribute("package");
@@ -169,7 +169,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         if (!extendsTypes.isEmpty())
         {
             interfaceEl.appendChild(
-                TopLevelCodeElement.stringListToXML(
+                TopLevelCodeElement.typeListToXML(
                     extendsTypes,
                     "extends", "extendstype", "type"));
         }

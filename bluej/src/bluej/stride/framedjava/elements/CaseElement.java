@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -72,7 +71,7 @@ public class CaseElement extends ContainerCodeElement implements JavaSingleLineD
     public LocatableElement toXML()
     {
         LocatableElement caseEl = new LocatableElement(this, ELEMENT);
-        caseEl.addAttributeExpression("expression", expression);
+        caseEl.addAttributeStructured("expression", expression);
         addEnableAttribute(caseEl);
         for (CodeElement c : contents) {
             caseEl.appendChild(c.toXML());

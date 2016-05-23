@@ -26,7 +26,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import bluej.stride.generic.FrameContentItem;
 import bluej.stride.generic.FrameCursor;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
@@ -50,7 +52,6 @@ import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.stride.slots.VariableNameDefTextSlot;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.utility.Utility;
@@ -61,7 +62,7 @@ import threadchecker.Tag;
 public class ForeachFrame extends SingleCanvasFrame
   implements CodeFrame<ForeachElement>, DebuggableParentFrame
 {
-    private final TypeTextSlot type;
+    private final TypeSlot type;
     private final VariableNameDefTextSlot var;
     private final EachExpressionSlot collection;
     private ForeachElement element;
@@ -71,18 +72,9 @@ public class ForeachFrame extends SingleCanvasFrame
     {
         super(editor, "for each", "foreach-");
         
-        type = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor), "foreach-type-");
-        type.setPromptText("item type");
-        type.addValueListener(SlotTraversalChars.IDENTIFIER);
-        type.addValueListener(new SlotTraversalChars() {
-            @Override
-            @OnThread(Tag.FXPlatform)
-            public void backSpacePressedAtStart(HeaderItem slot) {
-                if (type.isAlmostBlank()) {
-                    new PullUpContentsOperation(editor).activate(getFrame());
-                }
-            }
-        });
+        type = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor), "foreach-type-");
+        type.setSimplePromptText("item type");
+        type.addClosingChar(' ');
 
         var = new VariableNameDefTextSlot(editor, this, getHeaderRow(), "foreach-var-");
         var.setPromptText("item name");
@@ -94,7 +86,7 @@ public class ForeachFrame extends SingleCanvasFrame
         setHeaderRow(new SlotLabel("("), type, var, inLabel, collection, new SlotLabel(")"));
 
         FXConsumer<String> updateTriple = s -> updateSidebarCurried("for each ").accept(type.getText() + " " + var.getText() + " : " + collection.getText());
-        JavaFXUtil.addChangeListener(type.textProperty(), updateTriple);
+        type.onTextPropertyChange(updateTriple);
         JavaFXUtil.addChangeListener(var.textProperty(), updateTriple);
         collection.onTextPropertyChange(updateTriple);
     }
@@ -223,4 +215,17 @@ public class ForeachFrame extends SingleCanvasFrame
         headerCaptionLabel.setText(caption);
         inLabel.setText(newView == View.JAVA_PREVIEW ? (collection.isConstantRange() ? " = " : " : ") : " in ");
     }
+    
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public boolean backspaceAtStart(FrameContentItem srcRow, HeaderItem src)
+    {
+        if (src == type && type.isAlmostBlank())
+        {
+            new PullUpContentsOperation(getEditor()).activate(getFrame());
+            return true;
+        }
+        return super.backspaceAtStart(srcRow, src);
+    }
+
 }

@@ -25,8 +25,10 @@ import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.ast.StructuredSlotFragment;
 import bluej.stride.framedjava.ast.SuperThisFragment;
 import bluej.stride.framedjava.ast.TextSlotFragment;
+import bluej.stride.framedjava.slots.StructuredSlot;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -58,7 +60,7 @@ public class LocatableElement extends Element
         this.origin = origin;
     }
 
-    public void addAttributeExpression(String name, ExpressionSlotFragment code)
+    public void addAttributeStructured(String name, StructuredSlotFragment code)
     {
         attrNames.put(name, code);
         addAttribute(new Attribute(name, code.getContent()));

@@ -122,7 +122,7 @@ public class ConstructorElement extends MethodWithBodyElement
         if (delegate != null) {
             delegateEl = new LocatableElement(null, "delegate");
             delegateEl.addAttributeSuperThis("target", delegate);
-            delegateEl.addAttributeExpression("params", delegateParams);
+            delegateEl.addAttributeStructured("params", delegateParams);
             methodEl.appendChild(delegateEl);
         }
         

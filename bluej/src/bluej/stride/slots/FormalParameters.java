@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,7 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.EmptyError;
 import bluej.stride.framedjava.frames.CodeFrame;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
@@ -103,8 +104,9 @@ public class FormalParameters
             // Once it turns false, it can never go back to true:
             freshProperty.set(freshProperty.get() && params.stream().anyMatch(p -> p.isFocused()));
         };
-        final TypeTextSlot typeSlot = new TypeTextSlot(editor, parentFrame, codeParentFrame, row, new TypeCompletionCalculator(editor), stylePrefix)
+        final TypeSlot typeSlot = new TypeSlot(editor, parentFrame, codeParentFrame, row, new TypeCompletionCalculator(editor), stylePrefix)
         {
+            /*TODOTYPESLOT
             @Override
             protected BooleanExpression getFreshExtra(CodeError err)
             {
@@ -112,7 +114,7 @@ public class FormalParameters
                     return freshProperty;
                 else
                     return super.getFreshExtra(err);
-            }
+            }*/
 
             @Override
             public void lostFocus()
@@ -145,7 +147,9 @@ public class FormalParameters
                     Platform.runLater(checkStillFocused);
             }
         };
-        TextSlot<TypeSlotFragment> paramType = initialiseTextSlot("paramType", type, true, typeSlot);
+        TypeSlot paramType = typeSlot; //TODOTYPESLOT may be more to add back
+        paramType.setText(type);
+        paramType.setSimplePromptText("paramType");
         TextSlot<NameDefSlotFragment> paramName = initialiseTextSlot("paramName", name, false, nameSlot);
         
         return new FormalParameter(paramType, paramName);
@@ -209,12 +213,12 @@ public class FormalParameters
 
     private FormalParameter addNewBefore(FormalParameter before)
     {
-        return insertBefore(before, createFormal(new TypeSlotFragment(""), new NameDefSlotFragment("")));
+        return insertBefore(before, createFormal(new TypeSlotFragment("", ""), new NameDefSlotFragment("")));
     }
     
     private FormalParameter addNewAfter(FormalParameter after)
     {
-        return insertAfter(after, createFormal(new TypeSlotFragment(""), new NameDefSlotFragment("")));
+        return insertAfter(after, createFormal(new TypeSlotFragment("", ""), new NameDefSlotFragment("")));
     }
 
     private FormalParameter insertBefore(FormalParameter before, FormalParameter slot)
@@ -516,10 +520,10 @@ public class FormalParameters
 
     private class FormalParameter
     {
-        private final TextSlot<TypeSlotFragment> type;
+        private final TypeSlot type;
         private final TextSlot<NameDefSlotFragment> name;
 
-        protected FormalParameter(TextSlot<TypeSlotFragment> type, TextSlot<NameDefSlotFragment> name)
+        protected FormalParameter(TypeSlot type, TextSlot<NameDefSlotFragment> name)
         {
             this.type = type;
             this.name = name;
@@ -542,7 +546,7 @@ public class FormalParameters
             name.cleanup();
         }
 
-        public TextSlot<TypeSlotFragment> getType()
+        public TypeSlot getType()
         {
             return type;
         }
@@ -619,7 +623,7 @@ public class FormalParameters
 
     public <T> void setParams(List<T> src, Function<T, String> getType, Function<T, String> getName)
     {
-        params.setAll(Utility.mapList(src, x -> createFormal(new TypeSlotFragment(getType.apply(x)), new NameDefSlotFragment(getName.apply(x)))));
+        params.setAll(Utility.mapList(src, x -> createFormal(new TypeSlotFragment(getType.apply(x), getType.apply(x)), new NameDefSlotFragment(getName.apply(x)))));
     }
     
     public Stream<String> getVars()

@@ -29,7 +29,7 @@ import bluej.utility.Utility;
  * A CaretPos is a singly-linked immutable list of integers, representing a caret position
  * in an expression.  The positions are relative to a particular component.  The last
  * integer in the list applies to a field, and any preceding integers refer to a field
- * position in an InfixExpression.
+ * position in an InfixStructured.
  *
  */
 // package-visible

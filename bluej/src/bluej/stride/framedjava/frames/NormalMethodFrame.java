@@ -28,11 +28,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextField;
@@ -83,7 +85,6 @@ import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.TypeTextSlot;
 import bluej.stride.slots.WrappableSlotLabel;
 
 import bluej.utility.javafx.FXConsumer;
@@ -120,7 +121,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     };
     @OnThread(Tag.Swing)
     private String curOverrideSource = null;
-    private final TypeTextSlot returnType;
+    private final TypeSlot returnType;
     private final TextSlot<NameDefSlotFragment> methodName;
     private NormalMethodElement element;
     
@@ -139,13 +140,13 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             }
         });
         
-        returnType = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor), "method-return-type-");
-        returnType.addValueListener(SlotTraversalChars.IDENTIFIER);
+        returnType = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor), "method-return-type-");
+        returnType.addClosingChar(' ');
         returnType.markReturnType();
         
         paramsPane = new FormalParameters(editor, this, this, getHeaderRow(), "method-param-");
         
-        returnType.setPromptText("type");
+        returnType.setSimplePromptText("type");
         methodName.setPromptText("name");
 
         staticLabel = new SlotLabel("static ");
@@ -342,7 +343,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     // Used by ReturnFrame
     public StringExpression returnTypeProperty()
     {
-        return returnType.textProperty();
+        return new SimpleStringProperty(); //TODOTYPESLOT returnType.textProperty();
     }
 
     @OnThread(Tag.FX)

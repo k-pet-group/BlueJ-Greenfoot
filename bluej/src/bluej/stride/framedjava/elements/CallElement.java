@@ -26,9 +26,7 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
-import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.ast.JavaSingleLineDebugHandler;
 import bluej.stride.framedjava.ast.JavaSource;
@@ -72,7 +70,7 @@ public class CallElement extends CodeElement implements JavaSingleLineDebugHandl
     public LocatableElement toXML()
     {
         LocatableElement callEl = new LocatableElement(this, ELEMENT);
-        callEl.addAttributeExpression("expression", call);
+        callEl.addAttributeStructured("expression", call);
         addEnableAttribute(callEl);
        return callEl;
     }

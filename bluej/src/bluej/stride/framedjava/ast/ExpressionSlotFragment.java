@@ -45,11 +45,10 @@ import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 
-public abstract class ExpressionSlotFragment extends StringSlotFragment
+public abstract class ExpressionSlotFragment extends StructuredSlotFragment
 {
     private ExpressionSlot slot;
-    private String javaCode;
-    
+
     // Each plain is a non-compound ident
     private final List<LocatableToken> plains = new ArrayList<>();
     private List<LocatableToken> curCompound = null;
@@ -61,15 +60,10 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
     // Constructor when generated from slot
     public ExpressionSlotFragment(String content, String javaCode, ExpressionSlot slot)
     {
-        super(content);
-        this.javaCode = javaCode;
+        super(content, javaCode);
         this.slot = slot;
         
-        // Temporary, while migrating from old XML:
-        if (javaCode == null)
-            this.javaCode = content;
-        
-        Parser.parseAsExpression(new JavaParser(new StringReader(wrapForParse(this.javaCode)), false)
+        Parser.parseAsExpression(new JavaParser(new StringReader(wrapForParse(this.getJavaCode())), false)
         {
             @Override
             protected void gotIdentifier(LocatableToken token)
@@ -159,21 +153,15 @@ public abstract class ExpressionSlotFragment extends StringSlotFragment
     // Copy constructor
     public ExpressionSlotFragment(ExpressionSlotFragment f)
     {
-        this(f.content, f.javaCode);
-    }
-    
-    // Used by XML serialisation:
-    public String getJavaCode()
-    {
-        return javaCode;
+        this(f.content, f.getJavaCode());
     }
 
     @Override
     public String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator)
     {
         // If we are code completing, use the exact text:
-        if (!dest.substitute() || slot == completing || (javaCode != null && Parser.parseableAsExpression(wrapForParse(javaCode))))
-            return javaCode;
+        if (!dest.substitute() || slot == completing || (getJavaCode() != null && Parser.parseableAsExpression(wrapForParse(getJavaCode()))))
+            return getJavaCode();
         
         return "true";
     }

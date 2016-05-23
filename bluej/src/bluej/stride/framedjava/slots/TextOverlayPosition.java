@@ -39,8 +39,8 @@ import javafx.scene.Node;
  */
 public class TextOverlayPosition
 {
-    /** The ExpressionSlotField in which this location lies.  May be null. */
-    private final ExpressionSlotField src;
+    /** The StructuredSlotField in which this location lies.  May be null. */
+    private final StructuredSlotField src;
     // All coordinates are in terms of scene:
     private final double x;
     private final double topY;
@@ -48,7 +48,7 @@ public class TextOverlayPosition
     private final double bottomY;
     
     // src can be null
-    private TextOverlayPosition(ExpressionSlotField src, double x, double topY, double baselineY, double bottomY)
+    private TextOverlayPosition(StructuredSlotField src, double x, double topY, double baselineY, double bottomY)
     {
         this.src = src;
         this.x = x;
@@ -209,12 +209,12 @@ public class TextOverlayPosition
      */
     public static TextOverlayPosition fromScene(double x,
             double topY, double baselineY, double bottomY,
-            ExpressionSlotField expressionSlotField)
+            StructuredSlotField expressionSlotField)
     {
         return new TextOverlayPosition(expressionSlotField, x, topY, baselineY, bottomY);
     }
 
-    public ExpressionSlotField getSource()
+    public StructuredSlotField getSource()
     {
         return src;
     }

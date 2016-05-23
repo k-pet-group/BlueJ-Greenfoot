@@ -1047,6 +1047,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * @param src The item in which backspace was pressed
      * @return True if we deleted ourselves in response, otherwise false
      */
+    @OnThread(Tag.FXPlatform)
     public boolean backspaceAtStart(FrameContentItem srcRow, HeaderItem src)
     {
         if (contents.size() > 0 && (src == contents.get(0) || srcRow == contents.get(0)))

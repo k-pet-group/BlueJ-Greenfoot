@@ -188,7 +188,7 @@ public class InheritedMethodFrame extends SingleLineFrame
             operations.add(new CustomFrameOperation(editor, "OVERRIDE", Arrays.asList("Override"), MenuItemOrder.OVERRIDE, this, () ->
             {
                 NormalMethodFrame methodFrame = new NormalMethodFrame(editor, new AccessPermissionFragment(access), false, false, returnType, methodName, "", true);
-                params.forEach(p -> methodFrame.paramsPane.addFormal(new TypeSlotFragment(p.getUnqualifiedType()), new NameDefSlotFragment((p.getFormalName() == null ? "" : p.getFormalName()))));
+                params.forEach(p -> methodFrame.paramsPane.addFormal(new TypeSlotFragment(p.getUnqualifiedType(), p.getUnqualifiedType()), new NameDefSlotFragment((p.getFormalName() == null ? "" : p.getFormalName()))));
                 container.getLastInternalCursor().insertBlockAfter(methodFrame);
                 methodFrame.getFirstInternalCursor().requestFocus();
                 methodFrame.markFresh();
