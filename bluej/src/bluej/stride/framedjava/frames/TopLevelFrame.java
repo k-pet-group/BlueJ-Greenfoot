@@ -54,7 +54,7 @@ public interface TopLevelFrame<T extends CodeElement & TopLevelCodeElement> exte
     public ObservableList<String> getImports();
     public void addImport(String importSrc);
     public void addDefaultConstructor();
-    public List<NormalMethodFrame> getMethods();
+    public List<? extends Frame> getMethods();
     public List<ConstructorFrame> getConstructors();
     public void insertAtEnd(Frame frame);
     public ObservableStringValue nameProperty();

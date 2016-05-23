@@ -1922,7 +1922,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         // TODO maybe we have to insert it into the element not the frames.
         withTopLevelFrame(topLevelFrame -> {
-            for (NormalMethodFrame normalMethodFrame : topLevelFrame.getMethods()) {
+            for (NormalMethodFrame normalMethodFrame : (List<NormalMethodFrame>) topLevelFrame.getMethods()) {
                 // Check if it already exists
                 if (normalMethodFrame.getName().equals(method.getName())) {
                     insertMethodContentsIntoMethodFrame(method, normalMethodFrame);
@@ -2437,7 +2437,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void focusMethod(String methodName)
     {
         if (getTopLevelFrame() != null) {
-            for (NormalMethodFrame normalMethodFrame : getTopLevelFrame().getMethods()) {
+            for (NormalMethodFrame normalMethodFrame : (List<NormalMethodFrame>) getTopLevelFrame().getMethods()) {
                 // TODO include the params no etc to increase accuracy
                 if (normalMethodFrame.getName().equals(methodName)) {
                     normalMethodFrame.focusName();

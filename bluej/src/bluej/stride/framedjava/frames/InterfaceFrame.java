@@ -86,7 +86,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 public class InterfaceFrame extends DocumentedMultiCanvasFrame
-  implements TopLevelFrame<InterfaceElement>
+        implements TopLevelFrame<InterfaceElement>
 {
     private final FrameContentRow importRow;
     private final FrameCanvas importCanvas;
@@ -124,7 +124,7 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
         JavaFXUtil.addStyleClass(l, "interface-section-label");
         return l;
     }
-    
+
     public InterfaceFrame(InteractionManager editor, NameDefSlotFragment interfaceName, PackageFragment packageName,
               List<ImportElement> imports, List<TypeSlotFragment> extendsTypes, EntityResolver projectResolver,
               JavadocUnit documentation, boolean enabled)
@@ -545,11 +545,9 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
     }
 
     @Override
-    public List<NormalMethodFrame> getMethods()
+    public List<MethodProtoFrame> getMethods()
     {
-        // TODO
-        return Collections.emptyList();
-        //return methodsCanvas.getBlocksSubtype(MethodProtoFrame.class);
+        return methodsCanvas.getBlocksSubtype(MethodProtoFrame.class);
     }
 
     @Override
