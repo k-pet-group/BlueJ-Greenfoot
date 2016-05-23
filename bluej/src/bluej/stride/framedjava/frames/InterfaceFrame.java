@@ -50,15 +50,19 @@ import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.RecallableFocus;
+import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.ClassNameDefTextSlot;
 import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.ExtendsList;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.TriangleLabel;
+import bluej.stride.slots.TypeCompletionCalculator;
+import bluej.stride.slots.TypeTextSlot;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.MultiListener;
@@ -94,8 +98,8 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
 
     private TextSlot<NameDefSlotFragment> paramInterfaceName;
     private final InteractionManager editor;
-    
-               //private final ExtendsList extendsList;
+
+    private final ExtendsList extendsList;
 
     // can both be null in Greenfoot, where we don't show the package
     private final FrameContentRow packageRow;
@@ -199,7 +203,6 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
             }
         };
 
-        setDocumentation(documentation.toString());
 
         //Parameters
         paramInterfaceName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), "interface-name-");
@@ -207,26 +210,20 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
         paramInterfaceName.setPromptText("interface name");
         paramInterfaceName.setText(interfaceName);
 
-/*
+        setDocumentation(documentation.toString());
+        documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramInterfaceName.textProperty()).concat(" interface here..."));
+
         extendsList = new ExtendsList(this, () -> {
-            TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "interface-extends-");
+            TypeTextSlot s = new TypeTextSlot(editor, this, getHeaderRow(), new TypeCompletionCalculator(editor, InteractionManager.Kind.INTERFACE), "interface-");
             s.setPromptText("interface type");
             return s;
         }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);
         extendsTypes.forEach(t -> this.extendsList.addTypeSlotAtEnd(t.getContent(), false));
 
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+                FXCollections.observableArrayList(headerCaptionLabel),
                 FXCollections.observableArrayList(paramInterfaceName),
                 extendsList.getHeaderItems()
-        ));
-*/
-        documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramInterfaceName.textProperty()).concat(" interface here..."));
-
-        this.fieldsCanvas = new FrameCanvas(editor, this, "interface-fields-");
-
-        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
-                FXCollections.observableArrayList(headerCaptionLabel),
-                FXCollections.observableArrayList(paramInterfaceName)
         ));
 
         importCanvas = createImportsCanvas(imports);// TODO delete this and uncomment it in saved() if it cause NPE in future
@@ -309,7 +306,7 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
             packageSlot.addFocusListener(this);
         }
 
-
+        this.fieldsCanvas = new FrameCanvas(editor, this, "interface-fields-");
         fieldsLabelRow = new FrameContentRow(this, fieldsLabel);
         addCanvas(fieldsLabelRow, fieldsCanvas);
 
@@ -402,8 +399,23 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
     public List<FrameOperation> getContextOperations()
     {
         ArrayList<FrameOperation> ops = new ArrayList<>();
+
+        ops.add(new CustomFrameOperation(getEditor(), "addExtends", Arrays.asList("Add 'extends'"),
+                EditableSlot.MenuItemOrder.TOGGLE_EXTENDS, this, () -> extendsList.addTypeSlotAtEnd("", true)));
+
+        final List<TypeSlotFragment> types = extendsList.getTypes();
+        for (int i = 0; i < types.size(); i++)
+        {
+            final int index = i;
+            TypeSlotFragment type = types.get(i);
+            CustomFrameOperation removeOp = new CustomFrameOperation(getEditor(), "removeExtends",
+                    Arrays.asList("Remove 'extends " + type.getContent() + "'"), EditableSlot.MenuItemOrder.TOGGLE_EXTENDS,
+                    this, () -> extendsList.removeIndex(index));
+            removeOp.setWideCustomItem(true);
+            ops.add(removeOp);
+        }
+
         return ops;
-//        return Collections.emptyList();
     }
 
     @Override
@@ -416,17 +428,14 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
     @Override
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
-        return new ArrayList<>();
-/*
-        // We deliberately don't include superclass extensions; we can't be disabled
+        // We deliberately don't include super.getAvailableExtensions; we can't be disabled
         ExtensionDescription extendsExtension = null;
         if (fieldsCanvas.equals(canvas) || canvas == null) {
             extendsExtension = new ExtensionDescription(StrideDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration",
-                () -> extendsList.addTypeSlotAtEnd("", true), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
+                    () -> extendsList.addTypeSlotAtEnd("", true), true, ExtensionDescription.ExtensionSource.INSIDE_FIRST,
+                    ExtensionDescription.ExtensionSource.MODIFIER);
         }
-
         return Utility.nonNulls(Arrays.asList(extendsExtension));
-*/
     }
 
     @Override
@@ -674,15 +683,24 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
     public void restore(InterfaceElement target)
     {
         paramInterfaceName.setText(target.getName());
-//        restoreExtends(target);
+        extendsList.setTypes(target.getExtends());
         importCanvas.restore(target.getImports(), editor);
         fieldsCanvas.restore(target.getFields(), editor);
         methodsCanvas.restore(target.getMethods(), editor);
     }
 
-    private void restoreExtends(InterfaceElement target)
+    @Override
+    protected FrameContentRow makeHeader(String stylePrefix)
     {
-       // target.getExtendsType().forEach(ext -> extendsList.addTypeSlotAtEnd(ext.getContent(), true));
+        return new FrameContentRow(this, stylePrefix) {
+            @Override
+            public boolean focusRightEndFromNext()
+            {
+                extendsList.ensureAtLeastOneSlot();
+                Utility.findLast(extendsList.getTypeSlots()).get().requestFocus(Focus.RIGHT);
+                return true;
+            }
+        };
     }
 
 

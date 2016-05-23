@@ -264,9 +264,9 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         return interfaceName.getContent();
     }
 
-    public List<TypeSlotFragment> getExtendsType()
+    public List<String> getExtends()
     {
-        return extendsTypes;
+        return Utility.mapList(extendsTypes, TypeSlotFragment::getContent);
     }
 
     public List<? extends CodeElement> getMethods()
