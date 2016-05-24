@@ -43,6 +43,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -1286,6 +1287,14 @@ public final class MoeActions
         };
 
         categoryIndex = new int[] { 0, 44, 60, 65, 67, 70, 83 };
+
+        // Workaround a bug: double execution of action when triggered by a shortcut. This was caused
+        // by placing the Swing editor in JavaFX Pane. The workaround is to disable EditActions when
+        // initialized; they are enabled later.
+        Arrays.asList(actionTable).forEach(action -> {
+            if (MoeEditor.isEditAction((String) action.getValue(Action.NAME)))
+                action.setEnabled(false);
+        });
     }
 
     // --------------------------------------------------------------------

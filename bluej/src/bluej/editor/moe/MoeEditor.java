@@ -423,7 +423,7 @@ public final class MoeEditor extends JPanel
      * @return boolean reflects if it is enabled ie false=disabled
      * @param text  String with button text name
      */
-    private static boolean isEditAction(String text)
+    protected static boolean isEditAction(String text)
     {       
         ArrayList<String> actions = getEditActions();
         return actions.contains(text);
