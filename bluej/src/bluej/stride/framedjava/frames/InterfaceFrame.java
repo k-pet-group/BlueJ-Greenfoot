@@ -218,7 +218,15 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
             s.setSimplePromptText("interface type");
             return s;
         }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);
+
         extendsTypes.forEach(t -> this.extendsList.addTypeSlotAtEnd(t.getContent(), false));
+        extendsList.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal)
+                extendsList.ensureAtLeastOneSlot();
+            else
+                extendsList.clearIfSingleEmpty();
+        });
+
 
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
