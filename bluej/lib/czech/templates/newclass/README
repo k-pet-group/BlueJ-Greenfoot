@@ -33,7 +33,6 @@ abstract   - označuje šablonu abstraktní třídy
 appletj    - označuje šablonu apletu
 enum       - označuje šablonu výčtového typu
 interface  - označuje šablonu rozhraní
-midlet     - označuje šablonu midletu - většinou aplikace pro mobilní telefony
 unittest   - označuje šablonu testovací třídy
 
 Bude-li název začínat jakkoliv jinak, bude soubor považován

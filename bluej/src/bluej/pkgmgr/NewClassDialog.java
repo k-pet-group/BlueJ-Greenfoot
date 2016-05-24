@@ -55,7 +55,7 @@ class NewClassDialog extends EscapeDialog
     /**
      * Construct a NewClassDialog
      */
-    public NewClassDialog(Frame parent, Package pkg, boolean isJavaMEpackage)
+    public NewClassDialog(Frame parent, Package pkg)
     {
         super(parent, Config.getString("pkgmgr.newClass.title"), true);
         
@@ -113,7 +113,7 @@ class NewClassDialog extends EscapeDialog
                 choicePanel.setBorder(b);
 
                 templateButtons = new ButtonGroup();
-                addClassTypeButtons(choicePanel, isJavaMEpackage);
+                addClassTypeButtons(choicePanel);
             }
             choicePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
@@ -175,7 +175,7 @@ class NewClassDialog extends EscapeDialog
      * Add the class type buttons (defining the class template to be used
      * to the panel. The templates are defined in the "defs" file.
      */
-    private void addClassTypeButtons(JPanel panel, boolean isJavaMEpackage)
+    private void addClassTypeButtons(JPanel panel)
     {
         String templateSuffix = ".tmpl";
         int suffixLength = templateSuffix.length();
@@ -223,18 +223,7 @@ class NewClassDialog extends EscapeDialog
                     }
                 }
             }
-        }        
-       
-        // In Java ME packages disallow the creation of enum, unittest, and applet
-        // classes. In SE packages disallow the creation of midlets.
-        if ( isJavaMEpackage ) {
-            templates.removeIf(t -> t.name.equals("enum"));
-            templates.removeIf(t -> t.name.equals("unittest"));
-            templates.removeIf(t -> t.name.equals("appletj"));
-         }
-         else {
-            templates.removeIf(t -> t.name.equals("midlet"));
-         }
+        }
        
         // Create a radio button for each template found
         JRadioButton button;

@@ -311,7 +311,7 @@ bluej.macos.screenmenubar=true
 ## double-backslashes (see example).
 #######################################################################
 
-bluej.classTemplates = midlet stdclass abstract interface appletj unittest enum
+bluej.classTemplates = stdclass abstract interface appletj unittest enum
 #bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
@@ -448,7 +448,6 @@ bluej.editor.codecompletion=true
 
 bluej.testing.showtools=false
 bluej.teamwork.showtools=false
-bluej.javame.showtools=false
 
 #######################################################################
 ### Colours. All are specified as RGB values.
@@ -487,50 +486,6 @@ colour.highlight2=110,190,255
 # Whether to show the "unchecked" warnings generated when using generic
 # classes in a non-typesafe manner (java 1.5+ only)
 bluej.compiler.unchecked=true
-
-#####################################################################
-## Compiler options to compile classes in Java ME projects. 
-## 
-## Here you can add compile options for the Java compiler (by 
-## default javac; see bluej.compiler setting above) to compile
-## classes in Java Micro Edition projects. 
-##
-## Do not change the options below, -target and -source, unless you
-## really know what you are doing. You can add options by attaching
-## them to the end of the string below. For example, to add the
-## -verbose option, change the string to be:
-##     bluej.javame.compiler.options=-source 1.4 -target 1.4 -verbose
-## 
-## The -bootclasspath option will ALWAYS be added internally in BlueJ
-## when compiling Java ME projects. This option specifies the
-## MIDP and CLDC jar files needed to compile Java ME projects.
-##
-#####################################################################
-
-bluej.javame.compiler.options=-source 1.4 -target 1.4
-
-#####################################################################
-## The Wireless Toolkit directory. 
-#####################################################################
-
-bluej.javame.toolkit.dir=C:\\WTK2.5.1
-
-#####################################################################
-## Java Micro Edition libraries, core and optional, in 
-## blank-separated lists. For example:
-##     bluej.javame.optlibraries=jsr238.jar jsr239.jar mmapi.jar
-#####################################################################
-
-bluej.javame.corelibraries=midpapi20.jar cldcapi11.jar
-#bluej.javame.optlibraries=
-
-#####################################################################
-## Options for the preverify command used in the deployment of MIDlets,
-## as well as for the command that launches the emulator.
-#####################################################################
-
-#bluej.javame.preverify.options=-verbose
-#bluej.javame.emulator.options=-Xverbose:all
 
 #####################################################################
 ## Options for starting the internal virtual machine.

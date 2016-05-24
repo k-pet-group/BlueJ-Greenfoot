@@ -101,7 +101,6 @@ prefmgr.misc.linkToLibNoteLine2=Per lavorare offline, deselezionare questa opzio
 prefmgr.misc.tools.title=Strumenti opzionali
 prefmgr.misc.showTesting=Mostra gli strumenti di unit test 
 prefmgr.misc.showTeam=Mostra i controlli del team di lavoro
-prefmgr.misc.showJavaME=Mostra i controlli di Java ME
 prefmgr.misc.vm.title=Preferenze della Virtual Machine
 prefmgr.misc.optimiseVM=Usa l'ottimizzazione (l'esecuzione \u00e8 pi\u00f9 veloce, ma pu\u00f2 dare qualche problema nel debug)
 prefmgr.misc.addLibTitle=Scegli la  directory o il file jar/zip
@@ -436,7 +435,7 @@ pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
 pkgmgr.newClass.unittest=Test Unitari
 pkgmgr.newClass.enum=Enum
-pkgmgr.newClass.midlet=MIDlet
+
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Crea un nuovo package
@@ -590,8 +589,8 @@ pkgmgr.appletInBrowser=Eseguo l'applet nel browser web
 pkgmgr.exported.jar=Esportazione verso file jar completata.
 pkgmgr.error.open=Il progetto non esiste (non pi\u00f9)
 pkgmgr.checkingVersion=Connessione al server in corso...
-pkgmgr.midlet.deploying=Distribuzione di MIDlet suite...
-pkgmgr.midlet.deployed=Distribuzione di MIDlet suite... Fatto.
+
+
 
 # accessibility messages
 pkgmgr.accessibility.compileDone=Compilazione riuscita.
@@ -615,7 +614,7 @@ menu.package.export=_Crea file Jar
 menu.package.pageSetup=Imposta pagina...@^P
 menu.package.print=Stampa...@P
 menu.package.quit=_Esci@Q
-menu.package.deploy.MIDlet=Deploy...
+
 
 menu.edit=_Modifica
 menu.edit.newClass=Nuova classe@N
@@ -752,25 +751,25 @@ team.checkconn.checking=Verifico connessione...
 team.checkconn.ok=Connessione \u00e8 ok
 team.checkconn.bad=Impossibile connettersi al server
 
-midlet.deployment.title=Java ME Deploy
-midlet.deployment.runWTK=Carica midlet in Sun Java Wireless Toolkit
-midlet.deployment.generateFiles=Genera solo il file JAR e JAD
-midlet.deployment.filechooser.title=Seleziona icona
-midlet.deployment.filechooser.description=png, gif, o immagine jpeg
-midlet.deployment.suite.title=MIDlet
-midlet.deployment.suite.name=Nome
-midlet.deployment.suite.version=Versione
-midlet.deployment.suite.vendor=Autore
-midlet.deployment.suite.description=Descrizione
-midlet.deployment.midlets.title=MIDlet
-midlet.deployment.midlets.name=Nome
-midlet.deployment.midlets.icon=Icona
-midlet.deployment.midlets.classname=Classe
-midlet.deployment.midlets.changeicon=Cambia icona
-midlet.deployment.midlets.exclude=Escludi
-midlet.deployment.midlets.include=Includi
-midlet.deployment.midlets.moveup=Muovi sopra
-midlet.deployment.midlets.movedown=Muovi sotto
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 menu.help=_Aiuto
 menu.help.about=_Informazioni su BlueJ
@@ -794,7 +793,7 @@ tooltip.test.cancel=Cancella ed elimina la registrazione di un metodo di test.
 tooltip.commit=Pubblica i cambiamenti locali nel registro
 tooltip.update=Aggiorna i file locali che sono stati modificati nel registro
 tooltip.status=Mostra lo stato deifile del progetto di tutto il team di lavoro
-tooltip.deployMIDlet=Deploy MIDlet contenuta nel progetto
+
 
 graph.tooltip.classBroken=Questa classe non pu\u00f2 essere analizzata attualmente
 

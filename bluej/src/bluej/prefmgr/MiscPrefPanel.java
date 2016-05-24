@@ -318,7 +318,6 @@ public class MiscPrefPanel extends JPanel
 
             PkgMgrFrame.updateTestingStatus();
             PkgMgrFrame.updateTeamStatus();
-            PkgMgrFrame.updateJavaMEstatus(); 
             
             DataCollector.setExperimentIdentifier(experimentIdentifierField.getText());
             DataCollector.setParticipantIdentifier(participantIdentifierField.getText());

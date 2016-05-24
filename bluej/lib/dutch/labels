@@ -93,7 +93,6 @@ prefmgr.misc.testing.title=Instellingen voor unit tests
 prefmgr.misc.tools.title=Bijkomende instellingen
 prefmgr.misc.showTesting=Gereedschappen voor unit tests laten zien
 prefmgr.misc.showTeam=Toon teamwerk-knoppen
-prefmgr.misc.showJavaME=Toon Java ME-knoppen
 prefmgr.misc.vm.title=Instellingen van de virtuele machine
 prefmgr.misc.optimiseVM=Gebruik optimaliseren (sneller uitvoeren, maar veroorzaakt soms problemen in combinatie met debugger)
 prefmgr.misc.addLibTitle=Kies map of jar/zip file

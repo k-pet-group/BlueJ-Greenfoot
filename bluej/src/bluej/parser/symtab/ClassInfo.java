@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,7 +49,6 @@ public final class ClassInfo
 {
     private static final String[] appletClasses = { "java.applet.Applet", "javax.swing.JApplet" };
     private static final String[] unitTestClasses = { "junit.framework.TestCase" };
-    private static final String[] midletClasses = { "javax.microedition.midlet.MIDlet" }; 
 
     private boolean foundPublicClass = false;
 
@@ -73,7 +72,6 @@ public final class ClassInfo
     private boolean isApplet = false;
     private boolean isUnitTest = false;
     private boolean isEnum = false;
-    private boolean isMIDlet = false;
     
     private boolean hadParseError = false;
 
@@ -149,12 +147,6 @@ public final class ClassInfo
         for (int i = 0; i < unitTestClasses.length; i++) {
             if(name.equals(unitTestClasses[i])) {
                 isUnitTest = true;
-            }
-        }
-        
-        for (int i = 0; i < midletClasses.length; i++) {
-            if(name.equals(midletClasses[i])) {
-                isMIDlet = true;
             }
         }
     }
@@ -524,11 +516,6 @@ public final class ClassInfo
     public boolean isApplet()
     {
         return this.isApplet;
-    }
-
-    public boolean isMIDlet()
-    {
-        return this.isMIDlet;
     }
     
     public boolean isUnitTest()

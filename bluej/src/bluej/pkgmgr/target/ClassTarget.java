@@ -96,7 +96,6 @@ import bluej.pkgmgr.target.role.AppletClassRole;
 import bluej.pkgmgr.target.role.ClassRole;
 import bluej.pkgmgr.target.role.EnumClassRole;
 import bluej.pkgmgr.target.role.InterfaceClassRole;
-import bluej.pkgmgr.target.role.MIDletClassRole;
 import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.utility.Debug;
@@ -234,9 +233,6 @@ public class ClassTarget extends DependentTarget
             else if (template.startsWith("enum")) {
                 role = new EnumClassRole();
             }
-            else if (template.startsWith("midlet")) {
-                role = new MIDletClassRole();
-            }            
         }
         setGhostPosition(0, 0);
         setGhostSize(0, 0);
@@ -518,7 +514,6 @@ public class ClassTarget extends DependentTarget
             ClassLoader clLoader = cl.getClassLoader();
             Class<?> junitClass = null;
             Class<?> appletClass = null;
-            Class<?> midletClass = null;
 
             // It shouldn't ever be the case that the class is on the bootstrap
             // class path (and was loaded by the bootstrap class loader), unless
@@ -534,12 +529,6 @@ public class ClassTarget extends DependentTarget
 
                 try {
                     appletClass = clLoader.loadClass("java.applet.Applet");
-                }
-                catch (ClassNotFoundException cnfe) {}
-                catch (LinkageError le) {}
-                
-                try {
-                    midletClass = clLoader.loadClass("javax.microedition.midlet.MIDlet");
                 }
                 catch (ClassNotFoundException cnfe) {}
                 catch (LinkageError le) {}
@@ -571,9 +560,6 @@ public class ClassTarget extends DependentTarget
             else if (isAbstract) {
                 setRole(new AbstractClassRole());
             }
-            else if ( ( midletClass != null )  &&  ( midletClass.isAssignableFrom(cl) ) ) {
-                setRole(new MIDletClassRole());
-            }
             else if (isJunit4TestClass(cl)) {
                 setRole(new UnitTestClassRole(true));
             }
@@ -589,9 +575,6 @@ public class ClassTarget extends DependentTarget
                 if (classInfo.isApplet()) {
                     setRole(new AppletClassRole());
                 }
-                else if (classInfo.isMIDlet()) {
-                    setRole(new MIDletClassRole());
-                }          
                 else if (classInfo.isUnitTest()) {
                     setRole(new UnitTestClassRole(false));
                 }
@@ -643,9 +626,6 @@ public class ClassTarget extends DependentTarget
 
         if (AppletClassRole.APPLET_ROLE_NAME.equals(type)) {
             setRole(new AppletClassRole());
-        }
-        else if (MIDletClassRole.MIDLET_ROLE_NAME.equals(type)) {
-            setRole(new MIDletClassRole());
         }
         else if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type)) {
             setRole(new UnitTestClassRole(false));

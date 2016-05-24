@@ -78,7 +78,6 @@ import javax.swing.*;
 public final class BlueJ
 {
     public static final int SE_PROJECT = 0;
-    public static final int ME_PROJECT = 1;
     
     private final ExtensionWrapper myWrapper;
     private final ExtensionPrefManager prefManager;
@@ -168,7 +167,7 @@ public final class BlueJ
      * Creates a new BlueJ project.
      *
      * @param  directory    where you want the project be placed, it must be writable.
-     * @param  projectType  the type of project, such as ME or SE.
+     * @param  projectType  the type of project, currently only SE is available.
      * @return              the newly created BProject if successful, null otherwise.
      */
     public BProject newProject(File directory, int projectType )
@@ -180,7 +179,7 @@ public final class BlueJ
         if (!pathString.endsWith(File.separator))
             pathString += File.separator;
             
-        if (!Project.createNewProject(pathString, projectType == ME_PROJECT))
+        if (!Project.createNewProject(pathString))
             return null;
             
         return openProject(directory);

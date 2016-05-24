@@ -96,7 +96,6 @@ prefmgr.misc.linkToLibNoteLine2=De otro modo la generaci\u00f3n de la documentac
 prefmgr.misc.tools.title=Ajustes de herramienta opcionales
 prefmgr.misc.showTesting=Mostrar herramientas de pruebas de unidad
 prefmgr.misc.showTeam=Mostrar los controles de trabajo en equipo
-prefmgr.misc.showJavaME=Mostrar los controles de Java ME
 prefmgr.misc.vm.title=Ajustes del compilador y del runtime
 prefmgr.misc.optimiseVM=Usar optimizaci\u00f3n (ejecuci\u00f3n m\u00e1s r\u00e1pida, pero puede  causar problemas con la depuraci\u00f3n)
 prefmgr.misc.addLibTitle=Seleccionar directorio archivo jar/zip
@@ -428,7 +427,7 @@ pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
 pkgmgr.newClass.unittest=Prueba de Unidad
 pkgmgr.newClass.enum=Enum
-pkgmgr.newClass.midlet=MIDlet
+
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Crear Nuevo Paquete
@@ -582,8 +581,8 @@ pkgmgr.appletInBrowser=Ejecutando Applet en navegador web
 pkgmgr.exported.jar=Exportar a archivo jar completado.
 pkgmgr.error.open=El proyecto no existe (nunca m\u00e1s)
 pkgmgr.checkingVersion=Realizando conexi\u00f3n al servidor de versiones...
-pkgmgr.midlet.deploying=Implementaci\u00f3n de suite MIDlet...
-pkgmgr.midlet.deployed=Implementaci\u00f3n de suite MIDlet... Listo.
+
+
 
 # accessibility messages
 pkgmgr.accessibility.compileDone=Compilaci\u00f3n existosa.
@@ -607,7 +606,7 @@ menu.package.export=_Crear Archivo Jar...
 menu.package.pageSetup=Configurar P\u00e1gina...@^P
 menu.package.print=Imprimir...@P
 menu.package.quit=_Salir@Q
-menu.package.deploy.MIDlet=Implementar...
+
 
 menu.edit=_Edici\u00f3n
 menu.edit.newClass=Nueva Clase...@N
@@ -744,25 +743,25 @@ team.checkconn.checking=Comprobando la conexi\u00f3n...
 team.checkconn.ok=La conexi\u00f3n est\u00e1 bien.
 team.checkconn.bad=No se pudo establecer conexi\u00f3n con el servidor.
 
-midlet.deployment.title=Desarrollo Java ME
-midlet.deployment.runWTK=Ejecutar suite midlet en el Sun Java Wireless Toolkit
-midlet.deployment.generateFiles=Generar los archivos JAR y JAD \u00fanicamente
-midlet.deployment.filechooser.title=Seleccione icono
-midlet.deployment.filechooser.description=im\u00e1genes png, gif, o jpeg
-midlet.deployment.suite.title=Suite MIDlet 
-midlet.deployment.suite.name=Nombre
-midlet.deployment.suite.version=Versi\u00f3n
-midlet.deployment.suite.vendor=Vendedor
-midlet.deployment.suite.description=Descripci\u00f3n
-midlet.deployment.midlets.title=MIDlets
-midlet.deployment.midlets.name=Nombre
-midlet.deployment.midlets.icon=Icono
-midlet.deployment.midlets.classname=Clase
-midlet.deployment.midlets.changeicon=Cambiar icono
-midlet.deployment.midlets.exclude=Excluir
-midlet.deployment.midlets.include=Incluir
-midlet.deployment.midlets.moveup=Mover hacia Arriba
-midlet.deployment.midlets.movedown=Mover hacia Abajo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 menu.help=_Ayuda
 menu.help.about=_Acerca de BlueJ...
@@ -786,7 +785,7 @@ tooltip.test.cancel=Cancelar y descartar la grabaci\u00f3n de un m\u00e9todo de 
 tooltip.commit=Enviar los cambios en el medio local de regreso al repositorio
 tooltip.update=Actualizar los archivos locales que hayan sido modificados en el repositorio
 tooltip.status=Mostrar el estatus de todos los archivos del equipo de trabajo en el proyecto
-tooltip.deployMIDlet=Distribuir suite MIDlet contenida en el proyecto
+
 
 graph.tooltip.classBroken=Esta clase no puede ser analizada en este momento
 

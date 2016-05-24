@@ -291,7 +291,7 @@ menu.help.website=WWW str\u00e1nky BlueJ
 menu.help=_N\u00e1pov\u011bda
 menu.mepackage.new=_Nov\u00fd projekt Java ME
 menu.package.close=Zav\u0159\u00edt@Z
-menu.package.deploy.MIDlet=Um\u00edst\u011bn\u00ed MIDletu...
+
 menu.package.export=Vytvo\u0159it soubor _JAR...
 menu.package.import=_Import...
 menu.package.new=Nov\u00fd _projekt...
@@ -324,25 +324,25 @@ menu.view.showTestDisplay=Uk\u00e1zat v\u00fdsledky test\u016f
 menu.view.showTextEval=Zobrazit P\u0159\u00edkazov\u00fd panel@P
 menu.view.showUses=Zobrazit "Pou\u017e\u00edv\u00e1"@U
 menu.view=_Zobrazit
-midlet.deployment.filechooser.description=Obr\u00e1zky PNG, GIF nebo JPG
-midlet.deployment.filechooser.title=V\u00fdb\u011br
-midlet.deployment.generateFiles=Vytvo\u0159it pouze soubory JAR a JAD
-midlet.deployment.midlets.classname=T\u0159\u00edda
-midlet.deployment.midlets.exclude=Vyjmout
-midlet.deployment.midlets.changeicon=Zm\u011bnit ikonu
-midlet.deployment.midlets.icon=Ikona
-midlet.deployment.midlets.include=Zahrnout
-midlet.deployment.midlets.movedown=Posun dol\u016f
-midlet.deployment.midlets.moveup=Posun vzh\u016fru
-midlet.deployment.midlets.name=N\u00e1zev
-midlet.deployment.midlets.title=MIDlety
-midlet.deployment.runWTK=Spustit sadu MIDlet\u016f v programu Java Wireless Toolkit
-midlet.deployment.suite.description=Popis
-midlet.deployment.suite.name=N\u00e1zev
-midlet.deployment.suite.title=Sada MIDlet\u016f
-midlet.deployment.suite.vendor=Prodejce
-midlet.deployment.suite.version=Verze
-midlet.deployment.title=Um\u00edst\u011bn\u00ed Java ME
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 okay=OK
 pkgmgr.addClass.buttonLabel=P\u0159idat
 pkgmgr.addClass.title=Vyberte Java t\u0159\u00eddu pro p\u0159id\u00e1n\u00ed
@@ -414,8 +414,8 @@ pkgmgr.methodCall.titleCall=BlueJ\:  Vol\u00e1n\u00ed metody
 pkgmgr.methodCall.titleCreate=BlueJ\:  Vytvo\u0159it instanci
 pkgmgr.methodCall.typeParameterPrompt=Parametr\:
 pkgmgr.methodCall.typeParametersPrompt=Parametry\:
-pkgmgr.midlet.deployed=Um\u00edst\u011bn\u00ed sady MIDlet\u016f... Hotovo
-pkgmgr.midlet.deploying=Um\u00edst\u011bn\u00ed sady MIDlet\u016f...
+
+
 pkgmgr.newClass.abstract=Abstraktn\u00ed t\u0159\u00edda
 pkgmgr.newClass.applet=Aplet
 pkgmgr.newClass.appletj=Aplet
@@ -425,7 +425,7 @@ pkgmgr.newClass.enum=V\u00fd\u010dtov\u00fd typ
 pkgmgr.newClass.interface=Rozhran\u00ed
 pkgmgr.newClass.label=Jm\u00e9no t\u0159\u00eddy\:
 pkgmgr.newClass.mainclass=Hlavn\u00ed t\u0159\u00edda aplikace
-pkgmgr.newClass.midlet=MIDlet
+
 pkgmgr.newClass.msg=Zadejte jm\u00e9no t\u0159\u00eddy
 pkgmgr.newClass.stdclass=Standardn\u00ed t\u0159\u00edda
 pkgmgr.newClass.title=BlueJ\:  Vytvo\u0159it novou t\u0159\u00eddu
@@ -518,7 +518,6 @@ prefmgr.misc.linkToLibNoteLine1=Je-li toto URL pou\u017eito, mus\u00ed b\u00fdt 
 prefmgr.misc.linkToLibNoteLine2=nebude dokumentace projektu vygenerov\u00e1na spr\u00e1vn\u011b. Nen\u00ed-li zadan\u00e1 dokumentace API dostupn\u00e1, vypn\u011bte tuto volbu\!
 prefmgr.misc.optimiseVM=Pou\u017e\u00edvat optimalizaci (mohou nastat probl\u00e9my s lad\u011bn\u00edm)
 prefmgr.misc.prefpaneltitle=R\u016fzn\u00e9
-prefmgr.misc.showJavaME=Zobraz ovl\u00e1d\u00e1n\u00ed Java ME
 prefmgr.misc.showTeam=Zobrazit n\u00e1stroje pro t\u00fdmovou pr\u00e1ci
 prefmgr.misc.showTesting=Zobrazit n\u00e1stroje pro testov\u00e1n\u00ed
 prefmgr.misc.showUnchecked=Zobrazit varov\u00e1n\u00ed p\u0159eklada\u010de p\u0159i pou\u017eit\u00ed parametrick\u00fdch typ\u016f/metod bez typov\u00fdch parametr\u016f
@@ -641,7 +640,7 @@ testdisplay.showsource=Zobrazit zdrojov\u00fd k\u00f3d
 testdisplay.title=BlueJ\:  V\u00fdsledky test\u016f
 tooltip.commit=Za\u0161li lok\u00e1ln\u00ed zm\u011bny zp\u011bt do \u00falo\u017ei\u0161t\u011b
 tooltip.compile=P\u0159elo\u017eit v\u0161echny nep\u0159elo\u017een\u00e9 t\u0159\u00eddy v tomto bal\u00ed\u010dku.
-tooltip.deployMIDlet=Um\u00edsti suitu MIDlet\u016f obsa\u017een\u00fdch v projektu
+
 tooltip.newClass=Vytvo\u0159it novou t\u0159\u00eddu v tomto bal\u00ed\u010dku.
 tooltip.newExtends=Vytvo\u0159it vztah "Implementuje/D\u011bd\u00ed".
 tooltip.newUses=Vytvo\u0159it vztah "Pou\u017e\u00edv\u00e1".

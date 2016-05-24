@@ -40,9 +40,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
@@ -68,7 +65,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -95,8 +91,6 @@ import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -131,7 +125,6 @@ import bluej.pkgmgr.actions.CheckVersionAction;
 import bluej.pkgmgr.actions.CloseProjectAction;
 import bluej.pkgmgr.actions.CompileAction;
 import bluej.pkgmgr.actions.CompileSelectedAction;
-import bluej.pkgmgr.actions.DeployMIDletAction;
 import bluej.pkgmgr.actions.EndTestRecordAction;
 import bluej.pkgmgr.actions.ExportProjectAction;
 import bluej.pkgmgr.actions.GenerateDocsAction;
@@ -139,7 +132,6 @@ import bluej.pkgmgr.actions.HelpAboutAction;
 import bluej.pkgmgr.actions.ImportProjectAction;
 import bluej.pkgmgr.actions.NewClassAction;
 import bluej.pkgmgr.actions.NewInheritsAction;
-import bluej.pkgmgr.actions.NewMEprojectAction;
 import bluej.pkgmgr.actions.NewPackageAction;
 import bluej.pkgmgr.actions.NewProjectAction;
 import bluej.pkgmgr.actions.NewUsesAction;
@@ -180,7 +172,6 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.views.CallableView;
@@ -198,7 +189,6 @@ public class PkgMgrFrame extends JPanel
     private static final Font pkgMgrFont = PrefMgr.getStandardFont();
     private static boolean testToolsShown = wantToSeeTestingTools();
     private static boolean teamToolsShown = wantToSeeTeamTools();
-    private static boolean javaMEtoolsShown = wantToSeeJavaMEtools();
     
     /** Frame most recently having focus */
     @OnThread(Tag.Any)
@@ -214,7 +204,6 @@ public class PkgMgrFrame extends JPanel
     private static final ExtensionsManager extMgr = ExtensionsManager.getInstance();
     private JPanel buttonPanel;
     private JPanel testPanel;
-    private JPanel javaMEPanel;
     private JPanel teamPanel;
     private JCheckBoxMenuItem showUsesMenuItem;
     private JCheckBoxMenuItem showExtendsMenuItem;
@@ -250,8 +239,6 @@ public class PkgMgrFrame extends JPanel
     private AbstractButton commitButton;
     private AbstractButton teamStatusButton;
     private List<JComponent> teamItems;
-    private JMenuItem javaMEnewProjMenuItem;
-    private JMenuItem javaMEdeployMenuItem;
     private TeamActionGroup teamActions;
     private JMenuItem showTestResultsItem;
     private List<JComponent> itemsToDisable;
@@ -284,7 +271,6 @@ public class PkgMgrFrame extends JPanel
     private final PkgMgrAction showTerminalAction = new ShowTerminalAction();
     private final PkgMgrAction showTextEvalAction = new ShowTextEvalAction();
     private final Action runTestsAction = new RunTestsAction();
-    private final Action deployMIDletAction = new DeployMIDletAction();
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
     /*
@@ -576,13 +562,7 @@ public class PkgMgrFrame extends JPanel
     {
         if (testToolsShown != wantToSeeTestingTools()) {
             frames.stream().forEach((pmf) -> {
-                //Testing tools are always hidden in Java ME packages.  
-                if ( pmf.isJavaMEpackage( ) ) {
-                    pmf.showTestingTools( false );
-                }
-                else {
-                    pmf.showTestingTools(!testToolsShown);               
-                }
+                pmf.showTestingTools(!testToolsShown);
             });
             testToolsShown = !testToolsShown;
         }
@@ -616,28 +596,6 @@ public class PkgMgrFrame extends JPanel
     private static boolean wantToSeeTeamTools()
     {
         return PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS);
-    }
-
-     /**
-     * Check whether the status of the 'Show Java ME tools' preference has
-     * changed, and if it has, show or hide them as requested.
-     */
-    public static void updateJavaMEstatus()
-    {
-        if ( javaMEtoolsShown != wantToSeeJavaMEtools() )  {
-            for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
-                i.next().showJavaMEtools( !javaMEtoolsShown );
-            }
-            javaMEtoolsShown = !javaMEtoolsShown;
-        }
-    }
-    
-    /**
-     * Tell whether Java ME tools should be shown.
-     */
-    private static boolean wantToSeeJavaMEtools()
-    {
-        return PrefMgr.getFlag( PrefMgr.SHOW_JAVAME_TOOLS );
     }
 
     /**
@@ -936,16 +894,7 @@ public class PkgMgrFrame extends JPanel
                 commitMenuItem.setText(Config.getString("team.menu.commit"));
             }
            
-            // In Java-ME packages, we display Java-ME controls in the
-            // test panel. We are just using the real estate of the test panel.
-            // The rest of the testing tools (menus, etc) are always hidden.
-            if (getProject().isJavaMEProject()) {
-                showJavaMEcontrols(true);
-                showTestingTools(false);
-            }
-            else {
-                showTestingTools(wantToSeeTestingTools());
-            }
+            showTestingTools(wantToSeeTestingTools());
             
             pkg.getProject().scheduleCompilation(true, CompileReason.LOADED, pkg);
         }
@@ -954,24 +903,6 @@ public class PkgMgrFrame extends JPanel
 
         extMgr.packageOpened(pkg);
     }
-
-    /**
-     * Show or hide the Java ME controls.
-     */
-    private void showJavaMEcontrols(boolean show )
-    {           
-        javaMEdeployMenuItem.setVisible(show);
-        javaMEPanel.setVisible(show);              
-    }
-
-    /**
-     * Deploy the MIDlet suite contained in this project.
-     */
-    public void doDeployMIDlet()
-    { 
-        MIDletDeployer deployer = new MIDletDeployer( this );
-        deployer.deploy( );
-    } 
 
     /**
      * Set the team controls to use the team actions for the project.
@@ -1018,7 +949,6 @@ public class PkgMgrFrame extends JPanel
             getObjectBench().removeAllObjects(getProject().getUniqueId());
             clearTextEval();
             updateTextEvalBackground(true);
-            showJavaMEcontrols(false);
             
             editor.graphClosed();
         }
@@ -1341,12 +1271,11 @@ public class PkgMgrFrame extends JPanel
     /**
      * Create a new project and display it in a frame.
      * @param dirName           The directory to create the project in
-     * @param isJavaMEproject   Whether to create a Java Micro Edition project
      * @return     true if successful, false otherwise
      */
-    public boolean newProject(String dirName, boolean isJavaMEproject )
+    public boolean newProject(String dirName)
     {
-        if (Project.createNewProject(dirName, isJavaMEproject)) {
+        if (Project.createNewProject(dirName)) {
             Project proj = Project.openProject(dirName, this);
             
             Package unNamedPkg = proj.getPackage("");
@@ -1462,14 +1391,11 @@ public class PkgMgrFrame extends JPanel
 
     /**
      * Allow the user to select a directory into which we create a project.
-     * @param isJavaMEproject   Whether this is a Java Micro Edition project or not.
      * @return true if the project was successfully created. False otherwise.
      */
-    public boolean doNewProject( boolean isJavaMEproject )
+    public boolean doNewProject()
     {
         String title = Config.getString( "pkgmgr.newPkg.title" );
-        if ( isJavaMEproject )
-            title = Config.getString( "pkgmgr.newMEpkg.title" );
                     
         File newnameFile = FileUtility.getDirName( this, title,
                  Config.getString( "pkgmgr.newPkg.buttonLabel" ), false, true );
@@ -1490,7 +1416,7 @@ public class PkgMgrFrame extends JPanel
             // directory exists but is empty - fall through:
         }
         
-        if (! newProject(newnameFile.getAbsolutePath(), isJavaMEproject)) {
+        if (! newProject(newnameFile.getAbsolutePath())) {
             DialogManager.showErrorWithText(null, "cannot-create-directory", newnameFile.getPath());
             return false;
         }
@@ -2111,7 +2037,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void doCreateNewClass()
     {
-        NewClassDialog dlg = new NewClassDialog(this.getWindow(), pkg, isJavaMEpackage());
+        NewClassDialog dlg = new NewClassDialog(this.getWindow(), pkg);
         boolean okay = dlg.display();
 
         if (okay) {
@@ -2571,19 +2497,6 @@ public class PkgMgrFrame extends JPanel
             component.setVisible(show);
         });
     }
-    
-    /**
-     * Show or hide the Java ME tools, which for now is just the
-     * 'New ME Project...' menu item in the Project menu.
-     * Java ME tools show or not in all packages--not only in
-     * Java ME packages--depending on whether the checkbox in 
-     * the Preferences panel is ticked or not.
-     * @param show True to show; false to hide
-     */
-    public void showJavaMEtools( boolean show )
-    {
-        javaMEnewProjMenuItem.setVisible( show );
-    }
 
     /**
      * Notify the frame that the "shared" status of the project has changed,
@@ -2884,32 +2797,6 @@ public class PkgMgrFrame extends JPanel
             }
             teamItems.add(teamPanel);
 
-            javaMEPanel = new JPanel();
-            if (!Config.isRaspberryPi()) javaMEPanel.setOpaque(false);
-            {
-                javaMEPanel.setLayout(new BoxLayout(javaMEPanel, BoxLayout.Y_AXIS));
-
-                javaMEPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 14, 5));
-
-                JLabel label = new JLabel( "Java ME" );
-                label.setFont( new Font ("SansSerif", Font.BOLD, 12 ) );
-                label.setHorizontalAlignment( JLabel.CENTER );
-                label.setForeground( label.getBackground( ).darker( ).darker( ) ); 
-                Dimension pref = label.getMinimumSize();
-                pref.width = Integer.MAX_VALUE;
-                label.setMaximumSize(pref);
-                label.setAlignmentX(0.5f);
-                javaMEPanel.add( label );
-                javaMEPanel.add( Box.createVerticalStrut( 4 ) );   
-                
-                AbstractButton button = createButton( deployMIDletAction, false, false, 4, 4 );
-                button.setAlignmentX(0.5f);
-                javaMEPanel.add( button );
-                javaMEPanel.add( Box.createVerticalStrut( 4 ) );   
-                if(!Config.isMacOSLeopard()) javaMEPanel.add(Box.createVerticalStrut(3));
-                teamPanel.setAlignmentX(0.5f);
-            }
-            
             machineIcon = new MachineIcon();
             machineIcon.setAlignmentX(0.5f);
             itemsToDisable.add(machineIcon);
@@ -2918,7 +2805,6 @@ public class PkgMgrFrame extends JPanel
             toolPanel.add(buttonPanel);
             toolPanel.add(Box.createVerticalGlue());
             toolPanel.add(teamPanel);
-            toolPanel.add(javaMEPanel);
             toolPanel.add(testPanel);
             toolPanel.add(machineIcon);
         }
@@ -2973,13 +2859,6 @@ public class PkgMgrFrame extends JPanel
         if (! teamToolsShown) {
             showTeamTools(false);
         }
-
-        // hide Java ME tools if not wanted
-        if (! javaMEtoolsShown) {
-            showJavaMEtools(false);
-        }
-        
-        javaMEPanel.setVisible(false);
         
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
@@ -3090,7 +2969,6 @@ public class PkgMgrFrame extends JPanel
         menubar.add(menu);
         {
             createMenuItem(NewProjectAction.getInstance(), menu);
-            javaMEnewProjMenuItem = createMenuItem( NewMEprojectAction.getInstance(), menu );            
             createMenuItem(OpenProjectAction.getInstance(), menu);
             recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
             menu.add(recentProjectsMenu);
@@ -3102,8 +2980,6 @@ public class PkgMgrFrame extends JPanel
 
             createMenuItem(importProjectAction, menu);
             createMenuItem(exportProjectAction, menu);
-            javaMEdeployMenuItem = createMenuItem( deployMIDletAction, menu ); 
-            javaMEdeployMenuItem.setVisible( false ); //visible only in Java ME packages
             menu.addSeparator();
 
             createMenuItem(pageSetupAction, menu);
@@ -3396,16 +3272,6 @@ public class PkgMgrFrame extends JPanel
             action.setEnabled(enable);
         });
     }
-
-    /**
-     * Return true if this frame is editing a Java Micro Edition package.
-     * @return True is this is a Java ME package
-     */
-    public boolean isJavaMEpackage( )
-    {
-        if (pkg == null) return false;
-        return pkg.getProject().isJavaMEProject();
-    }        
     
     /**
      * Adds shortcuts for Ctrl-TAB and Ctrl-Shift-TAB to the given pane, which move to the

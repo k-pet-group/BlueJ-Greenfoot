@@ -62,7 +62,6 @@ public class PrefMgr
     public static final String LINK_LIB = "doctool.linkToStandardLib";
     public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
     public static final String SHOW_TEAM_TOOLS = "bluej.teamwork.showtools";
-    public static final String SHOW_JAVAME_TOOLS = "bluej.javame.showtools";   
     public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
     public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.scopeHilightingStrength";
@@ -408,7 +407,6 @@ public class PrefMgr
         flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
         flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
         flags.put(SHOW_TEAM_TOOLS, Config.getPropString(SHOW_TEAM_TOOLS, "false"));
-        flags.put(SHOW_JAVAME_TOOLS, Config.getPropString(SHOW_JAVAME_TOOLS, "false"));        
         flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
         flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
         flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));

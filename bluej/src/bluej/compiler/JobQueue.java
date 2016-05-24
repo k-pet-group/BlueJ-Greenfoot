@@ -83,10 +83,6 @@ public class JobQueue
             boolean suppressUnchecked, Charset fileCharset, CompileReason reason)
     {
         List<String> options = new ArrayList<String>();
-        if (bpClassLoader.loadsForJavaMEproject()) {
-            String optionString = Config.getPropString(Compiler.JAVAME_COMPILER_OPTIONS, "");
-            options.addAll(Utility.dequoteCommandLine(optionString));
-        }
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
         

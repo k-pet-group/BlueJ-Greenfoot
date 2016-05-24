@@ -90,7 +90,6 @@ prefmgr.misc.linkToLibNoteLine2=sinon la g\u00E9n\u00E9ration \u00E9chouera.  Po
 prefmgr.misc.tools.title=Configurations optionnelles outil
 prefmgr.misc.showTesting=Montrer les outils de test
 prefmgr.misc.showTeam=Voir contr\u00F4les Travail Equipe
-prefmgr.misc.showJavaME=Voir contr\u00F4les Java ME
 prefmgr.misc.vm.title=Configuration de la machine virtuelle
 prefmgr.misc.optimiseVM=Mode optimis\u00E9 (ex\u00E9cution plus rapide mais peut cr\u00E9er des probl\u00E8mes avec le d\u00E9bogueur)
 prefmgr.misc.addLibTitle=S\u00E9lectionner un r\u00E9pertoire ou un fichier jar/zip
@@ -391,7 +390,7 @@ pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=JApplet
 pkgmgr.newClass.unittest=Test
 pkgmgr.newClass.enum=Enum
-pkgmgr.newClass.midlet=MIDlet
+
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ \: Cr\u00E9er un nouveau paquetage
@@ -545,8 +544,8 @@ pkgmgr.appletInBrowser=Ex\u00E9cution de l'applet dans le navigateur Web
 pkgmgr.exported.jar=Exportation vers le fichier jar termin\u00E9e
 pkgmgr.error.open=Le projet n'existe plus
 pkgmgr.checkingVersion=Connexion au server de version ...
-pkgmgr.midlet.deploying=D\u00e9ploiement de la suite MIDlet...
-pkgmgr.midlet.deployed=D\u00e9ploiement de la suite MIDlet... Termin\u00e9.
+
+
 
 properties.heading.bluej=Propri\u00E9t\u00E9s de BlueJ.  Les d\u00E9finitions de ce fichier remplacent celles de "bluej.defs"
 properties.heading.moe=Moe Propri\u00E9t\u00E9s de l'\u00E9diteur.  Les d\u00E9finitions de ce fichier remplacent celles de "moe.defs"
@@ -567,7 +566,7 @@ menu.package.export=Exporter...
 menu.package.pageSetup=Mise en page...
 menu.package.print=Imprimer...
 menu.package.quit=Quitter
-menu.package.deploy.MIDlet=D\u00e9ployer...
+
 
 menu.edit=\u00C9dition
 menu.edit.newClass=Nouvelle classe...
@@ -704,25 +703,25 @@ team.checkconn.checking=Test de connexion en cours...
 team.checkconn.ok=Connexion ok
 team.checkconn.bad=Connexion au serveur impossible
 
-midlet.deployment.title=Java ME D\u00e9ploiement
-midlet.deployment.runWTK=Ex\u00e9cuter la suite midlet dans la boite \u00e0 outils Java SUN
-midlet.deployment.generateFiles=G\u00e9n\u00e9rer seulement les fichiers JAR et JAD
-midlet.deployment.filechooser.title=S\u00e9l\u00e9ctionner l'ic\u00f4ne
-midlet.deployment.filechooser.description=png, gif, ou images jpeg
-midlet.deployment.suite.title=Suite MIDlet
-midlet.deployment.suite.name=Nom
-midlet.deployment.suite.version=Version
-midlet.deployment.suite.vendor=Auteur
-midlet.deployment.suite.description=Description
-midlet.deployment.midlets.title=MIDlets
-midlet.deployment.midlets.name=Nom
-midlet.deployment.midlets.icon=Ic\u00f4ne
-midlet.deployment.midlets.classname=Classe
-midlet.deployment.midlets.changeicon=Changer l'ic\u00f4ne
-midlet.deployment.midlets.exclude=Exclure
-midlet.deployment.midlets.include=Inclure
-midlet.deployment.midlets.moveup=D\u00e9placer vers le haut
-midlet.deployment.midlets.movedown=D\u00e9placer vers le bas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 menu.help=Aide
 menu.help.about=\u00C0 propos de BlueJ
@@ -746,7 +745,7 @@ tooltip.test.cancel=Annuler l'enregistrement de la m\u00E9thode de test
 tooltip.commit=Commit changements locaux vers le d\u00E9p\u00F4t
 tooltip.update=Mise \u00E0 jour fichiers locaux modifi\u00E9s au d\u00E9p\u00F4t
 tooltip.status=Voir \u00E9tat de tous les fichiers Travail Equipe du projet
-tooltip.deployMIDlet=Deployer la suite MIDlet contenue dans le projet
+
 
 graph.tooltip.classBroken=Cette classe ne peut actuellement pas \u00eatre pars\u00e9e
 

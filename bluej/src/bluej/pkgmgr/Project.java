@@ -129,7 +129,6 @@ public class Project implements DebuggerListener, InspectorManager
     /** Property specifying location of JDK source */
     private static final String JDK_SOURCE_PATH_PROPERTY = "bluej.jdk.source";
     private static final String PROJECT_CHARSET_PROP = "project.charset";
-    private static final String PROJECT_IS_JAVA_ME_PROP = "package.isJavaMEproject";
     /**
      * Collection of all open projects. The canonical name of the project
      * directory (as a File object) is used as the key.
@@ -184,9 +183,7 @@ public class Project implements DebuggerListener, InspectorManager
     private Boolean isSharedProject = null;
 
     // team actions
-    private TeamActionGroup teamActions;  
-    // Flag signalling whether this is a Java Micro Edition project
-    private boolean isJavaMEproject = false;    
+    private TeamActionGroup teamActions;
     /** Where to find JDK and other library sources (for extracting javadoc) */
     private List<DocPathEntry> sourcePath;
     
@@ -553,15 +550,12 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Create a new project in the directory specified by projectPath.
      * This name must be a directory that does not already exist.
-     * For Java ME projects, create directory res/icons in the project folder,
-     * and copy the default icon file for midlets from lib/images into res/icons.
      *
      * @param   projectPath     a string representing the path in which
      *                          to make the new project
-     * @param   isJavaMEproj    whether or not the project is a Java Micro Edition project
      * @return                  a boolean indicating success or failure
      */
-    public static boolean createNewProject(String projectPath, boolean isJavaMEproj ) 
+    public static boolean createNewProject(String projectPath)
     {
         if (projectPath != null) {
             // check whether name is already in use
@@ -573,22 +567,7 @@ public class Project implements DebuggerListener, InspectorManager
 
             if (dir.exists() || dir.mkdir()) {
                 File newreadmeFile = new File(dir, Package.readmeName);
-                
-                if ( isJavaMEproj ) {
-                    File iconsDirectory = new File( dir, MIDletDeployer.ICONS_DIR );   
-                    if ( iconsDirectory.mkdirs( ) ) {                        
-                        File defaultMidletIconFile = new File( iconsDirectory, 
-                                                               MIDletDeployer.DEFAULT_MIDLET_ICON );
-                        File iconDefaultSource     = new File( Config.getBlueJLibDir( ), 
-                                                               MIDletDeployer.DEFAULT_LIB_ME_ICON );
-                        try {
-                            FileUtility.copyFile( iconDefaultSource, defaultMidletIconFile );
-                        }
-                        catch (IOException ioe) {
-                            Debug.reportError( "Could not copy default icon file into Project directory.");
-                        }
-                    } 
-                }
+
                 PackageFile pkgFile = PackageFileFactory.getPackageFile(dir);
                 try {
                     if (pkgFile.create()) {
@@ -604,9 +583,6 @@ public class Project implements DebuggerListener, InspectorManager
                             props.put("mainWindow.y", "40");
                         }
                         props.put(PROJECT_CHARSET_PROP, "UTF-8");
-                        if (isJavaMEproj) {
-                            props.put(PROJECT_IS_JAVA_ME_PROP, "true");
-                        }
                         try {
                             pkgFile.save(props);
                             FileUtility.copyFile(Config.getTemplateFile(
@@ -743,14 +719,6 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * Check whether the project is a Java Micro Edition project.
-     */
-    public boolean isJavaMEProject()
-    {
-        return isJavaMEproject;
-    }
-    
-    /**
      * Get the character set that should be used for reading and writing source files
      * in this project. 
      */
@@ -766,9 +734,6 @@ public class Project implements DebuggerListener, InspectorManager
     {
         Properties p = new Properties();
         p.put(PROJECT_CHARSET_PROP, characterSet.name());
-        if (isJavaMEproject) {
-            p.put(PROJECT_IS_JAVA_ME_PROP, "true");
-        }
         return p;
     }
 
@@ -793,9 +758,6 @@ public class Project implements DebuggerListener, InspectorManager
             characterSet = Charset.defaultCharset();
             props.put(PROJECT_CHARSET_PROP, characterSet.name());
         }
-        
-        String isJavaMe = props.getProperty(PROJECT_IS_JAVA_ME_PROP, "false");
-        isJavaMEproject = isJavaMe.equals("true");
     }
     
     /**
@@ -1611,43 +1573,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         inTestMode = mode;
     }
-    
-    /**
-     * Return a list of URL of the Java ME libraries specified in the 
-     * configuration files. The libraries are physically located in the 'lib'  
-     * subdirectory of the Wireless Toolkit directory. 
-     * @param type   "optional" or "core", the type of libraries to process
-     * @return a non null but possibly empty list of URL.
-     */
-    protected List<URL> getJavaMELibraries( String type ) 
-    {
-        List<URL> risul = new ArrayList<URL>( );
-        String toolkitDir = Config.getPropString( "bluej.javame.toolkit.dir", null );
-        
-        String libs = null;   //string of java me libraries to parse
-        if ( type.equals( "core" ) ) {
-            libs = Config.getPropString( "bluej.javame.corelibraries", null );
-        }
-        else if ( type.equals( "optional" ) ) {
-            libs = Config.getPropString( "bluej.javame.optlibraries", null );
-        }
-        
-        if ( toolkitDir != null  &&  libs != null ) {            
-            String libDir = toolkitDir + File.separator + "lib" + File.separator;
-            StringTokenizer st = new StringTokenizer( libs );
-            while ( st.hasMoreTokens( ) ) {
-                try {
-                    File file = new File( libDir + st.nextToken( ) );
-                    risul.add( file.toURI( ).toURL( ) );
-                }
-                catch( MalformedURLException mue ) { 
-                    Debug.reportError( st.nextToken( ) + " is a Java ME malformed file." );
-                }
-            }
-        }  
-        return risul;
-    }
-      
+
     /**
      * Returns a list of URL having in it all libraries that are in the +libs directory
      * of this project.
@@ -1691,9 +1617,6 @@ public class Project implements DebuggerListener, InspectorManager
             return currentClassLoader;
        
         List<URL> pathList = new ArrayList<URL>();
-        
-        List<URL> coreLibs = new ArrayList<URL>(); //Java ME core libraries
-        List<URL> optLibs  = new ArrayList<URL>(); //java ME optional libraries
 
         try {
             Collections.addAll(pathList, Boot.getInstance().getRuntimeUserClassPath());
@@ -1702,14 +1625,6 @@ public class Project implements DebuggerListener, InspectorManager
             
             // The current project dir must be added to the project class path too.
             pathList.add(getProjectDir().toURI().toURL());
-            
-            //Add Java ME jars if this is a Java ME project. 
-            if ( isJavaMEproject ) { 
-                coreLibs = getJavaMELibraries( "core"     ) ;
-                optLibs  = getJavaMELibraries( "optional" ) ;                
-                pathList.addAll( coreLibs );  
-                pathList.addAll( optLibs );         
-            }
         }
         catch ( Exception exc ) {
             // Should never happen
@@ -1723,10 +1638,7 @@ public class Project implements DebuggerListener, InspectorManager
         // ones have been added to the URL list anyway). So we use the boot loader
         // as parent.
         currentClassLoader = new BPClassLoader( newUrls,
-                     Boot.getInstance().getBootClassLoader(), isJavaMEproject );
-        
-        currentClassLoader.setJavaMEcoreLibs(coreLibs);
-        currentClassLoader.setJavaMEoptLibs (optLibs);
+                     Boot.getInstance().getBootClassLoader());
         
         return currentClassLoader;
     }

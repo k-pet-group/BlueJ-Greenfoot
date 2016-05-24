@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * project in a new window.
  * 
  * @author Davin McCall
- * @version $Id: NewProjectAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: NewProjectAction.java 15854 2016-05-24 19:13:08Z nccb $
  */
 
 final public class NewProjectAction extends PkgMgrAction {
@@ -57,6 +57,6 @@ final public class NewProjectAction extends PkgMgrAction {
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.doNewProject( false ); //pass false because we are not creating an ME project
+        pmf.doNewProject(); //pass false because we are not creating an ME project
     }                        
 }

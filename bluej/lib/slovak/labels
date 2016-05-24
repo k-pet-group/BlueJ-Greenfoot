@@ -98,7 +98,6 @@ prefmgr.misc.linkToLibNoteLine2=nebude dokument\u00e1cia projektu vygenerovan\u0
 prefmgr.misc.tools.title=Volite\u013en\u00e9 nastavenia n\u00e1strojov
 prefmgr.misc.showTesting=Zobrazi\u0165 n\u00e1stroje testovania
 prefmgr.misc.showTeam=Zobrazi\u0165 n\u00e1stroje t\u00edmovej pr\u00e1ce
-prefmgr.misc.showJavaME=Zobrazi\u0165 n\u00e1stroje Java ME
 prefmgr.misc.vm.title=Nastavenia parametrov VM
 prefmgr.misc.optimiseVM=Pou\u017e\u00edva\u0165 optimaliz\u00e1ciu (m\u00f4\u017eu nasta\u0165 probl\u00e9my s\u00a0laden\u00edm)
 prefmgr.misc.addLibTitle=Vyberte prie\u010dinok alebo s\u00fabor jar/zip
@@ -432,7 +431,7 @@ pkgmgr.newClass.applet=Aplet
 pkgmgr.newClass.appletj=Aplet
 pkgmgr.newClass.unittest=Test jednotky
 pkgmgr.newClass.enum=Vymenovac\u00ed typ
-pkgmgr.newClass.midlet=MIDlet
+
 pkgmgr.newClass.emptyclass=Pr\u00e1zdna trieda
 
 # "new package" dialog
@@ -587,8 +586,8 @@ pkgmgr.appletInBrowser=Sp\u00fa\u0161\u0165anie apletu pomocou webov\u00e9ho pre
 pkgmgr.exported.jar=Export do jar s\u00faboru dokon\u010den\u00fd.
 pkgmgr.error.open=Projekt nejestvuje.
 pkgmgr.checkingVersion=Zis\u0165ujem dostupnos\u0165 novej verzie\u2026
-pkgmgr.midlet.deploying=Zverej\u0148ujem MIDlet\u2026
-pkgmgr.midlet.deployed=Zverej\u0148ujem MIDlet\u2026 Hotov\u00e9.
+
+
 
 # accessibility messages
 pkgmgr.accessibility.compileDone=Preklad bol \u00faspe\u0161n\u00fd.
@@ -612,7 +611,7 @@ menu.package.export=Vytvori\u0165 s\u00fabor _JAR\u2026
 menu.package.pageSetup=Nastavenia _str\u00e1nky\u2026@^P
 menu.package.print=_Tla\u010di\u0165\u2026@P
 menu.package.quit=_Koniec@Q
-menu.package.deploy.MIDlet=Zv_erejni\u0165\u2026
+
 
 menu.edit=\u00dapr_avy
 menu.edit.newClass=Nov\u00e1 _trieda\u2026@N
@@ -748,25 +747,25 @@ team.checkconn.checking=Overujem pripojenie\u2026
 team.checkconn.ok=Pripojenie je v\u00a0poriadku.
 team.checkconn.bad=Pripojenie k\u00a0serveru nebolo mo\u017en\u00e9 nadviaza\u0165.
 
-midlet.deployment.title=Zverejnenie Java ME
-midlet.deployment.runWTK=Spusti\u0165 midlet pomocou Sun Java Wireless Toolkit
-midlet.deployment.generateFiles=Generova\u0165 iba s\u00fabory JAR a\u00a0JAD
-midlet.deployment.filechooser.title=Zvo\u013ete ikonu
-midlet.deployment.filechooser.description=obr\u00e1zky png, gif, alebo jpeg
-midlet.deployment.suite.title=S\u00faprava MIDletov
-midlet.deployment.suite.name=N\u00e1zov
-midlet.deployment.suite.version=Verzia
-midlet.deployment.suite.vendor=Predajca
-midlet.deployment.suite.description=Opis
-midlet.deployment.midlets.title=MIDlety
-midlet.deployment.midlets.name=N\u00e1zov
-midlet.deployment.midlets.icon=Ikona
-midlet.deployment.midlets.classname=Trieda
-midlet.deployment.midlets.changeicon=Zmeni\u0165 ikonu
-midlet.deployment.midlets.exclude=Vyl\u00fa\u010di\u0165
-midlet.deployment.midlets.include=Zahrn\u00fa\u0165
-midlet.deployment.midlets.moveup=Posun\u00fa\u0165 hore
-midlet.deployment.midlets.movedown=Posun\u00fa\u0165 dole
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 menu.help=_Pomocn\u00edk
 menu.help.about=_O\u00a0BlueJi
@@ -790,7 +789,7 @@ tooltip.test.cancel=Zru\u0161i\u0165 zaznamen\u00e1vanie testu
 tooltip.commit=Ulo\u017e lok\u00e1lne zmeny sp\u00e4\u0165 do \u00falo\u017eiska
 tooltip.update=Aktualizuj lok\u00e1lne s\u00fabory modifikovan\u00e9 v\u00a0\u00falo\u017eisku
 tooltip.status=Zobraz stav v\u0161etk\u00fdch zdie\u013ean\u00fdch s\u00faborov v\u00a0projekte
-tooltip.deployMIDlet=Zverejni\u0165 MIDlet obsiahnut\u00fd v\u00a0projekte
+
 
 graph.tooltip.classBroken=T\u00e1to trieda nemohla by\u0165 korektne spracovan\u00e1
 

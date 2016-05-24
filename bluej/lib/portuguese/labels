@@ -96,7 +96,6 @@ prefmgr.misc.linkToLibNoteLine2=Caso contr\u00E1rio, a opera\u00E7\u00E3o de ger
 prefmgr.misc.tools.title=Configura\u00E7\u00F5es opcionais de ferramentas
 prefmgr.misc.showTesting=Exibir ferramentas para testes unit\u00E1rios
 prefmgr.misc.showTeam=Mostrar controles do teamwork
-prefmgr.misc.showJavaME=Mostrar controles do Java ME
 prefmgr.misc.vm.title=Configura\u00E7\u00F5es da m\u00E1quina virtual
 prefmgr.misc.optimiseVM=Usar otimiza\u00E7\u00E3o (execu\u00E7\u00E3o mais r\u00E1pida, mas pode causar problemas com a depura\u00E7\u00E3o)
 prefmgr.misc.addLibTitle=Selecione o diret\u00F3rio ou o arquivo jar/zip
@@ -429,7 +428,7 @@ pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
 pkgmgr.newClass.unittest=Classe de testes
 pkgmgr.newClass.enum=Enumera\u00E7\u00E3o
-pkgmgr.newClass.midlet=MIDlet
+
 
 #dialogo de novo pacote
 pkgmgr.newPackage.title=BlueJ\:  Criar Novo Pacote
@@ -579,8 +578,8 @@ pkgmgr.appletInBrowser=Executando Applet no browser
 pkgmgr.exported.jar=Exporta\u00E7\u00E3o para arquivo jar completada.
 pkgmgr.error.open=O projeto n\u00E3o existe mais
 pkgmgr.checkingVersion=Estabelecendo conex\u00E3o com o servidor de vers\u00F5es...
-pkgmgr.midlet.deploying=Deploying MIDlet...
-pkgmgr.midlet.deployed=Deploying MIDlet... Pronto.
+
+
 
 # accessibility messages
 pkgmgr.accessibility.compileDone=Compila\u00E7\u00E3o completada com sucesso.
@@ -604,7 +603,7 @@ menu.package.export=_Criar arquivo jar
 menu.package.pageSetup=Configurar P\u00E1gina...@^P
 menu.package.print=Imprimir...@P
 menu.package.quit=_Sair@S
-menu.package.deploy.MIDlet=Deploy...
+
 
 menu.edit=_Editar
 menu.edit.newClass=Nova Classe...@N
@@ -741,25 +740,25 @@ team.checkconn.checking=Checando conex\u00E3o...
 team.checkconn.ok=conex\u00E3o est\u00E1 ok.
 team.checkconn.bad=Servidor n\u00E3o pode ser contactado.
 
-midlet.deployment.title=Deploy Java ME
-midlet.deployment.runWTK=Executar midlet em Sun Java Wireless Toolkit
-midlet.deployment.generateFiles=Gerar apenas os arquivos JAR e JAD
-midlet.deployment.filechooser.title=Selecione o \u00EDcone
-midlet.deployment.filechooser.description=imagens png, gif, ou jpeg
-midlet.deployment.suite.title=MIDlet Suite
-midlet.deployment.suite.name=Nome
-midlet.deployment.suite.version=Vers\u00E3o
-midlet.deployment.suite.vendor=Vendedor
-midlet.deployment.suite.description=Descri\u00E7\u00E3o
-midlet.deployment.midlets.title=MIDlets
-midlet.deployment.midlets.name=Nome
-midlet.deployment.midlets.icon=\u00CDcone
-midlet.deployment.midlets.classname=Classe
-midlet.deployment.midlets.changeicon=Mudar \u00EDcone
-midlet.deployment.midlets.exclude=Excluir
-midlet.deployment.midlets.include=Incuir
-midlet.deployment.midlets.moveup=Mover para cima
-midlet.deployment.midlets.movedown=Mover para baixo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 menu.help=_Ajuda
@@ -783,7 +782,7 @@ tooltip.test.cancel=Cancelar e descartar a grava\u00E7\u00E3o de um m\u00E9todo 
 tooltip.commit=Upload mudan\u00E7as locais de volta ao repost\u00F3rio
 tooltip.update=Atualizar arquivos locais que tenham sido modificados no reposit\u00F3rio
 tooltip.status=Mostrar o status de todos os arquivos de trabalho em grupo do projeto
-tooltip.deployMIDlet=Deploy MIDlet suite contendo o projeto
+
 
 graph.tooltip.classBroken=Esta classe n\u00e3o pode ser analizada no momento
 

@@ -82,15 +82,11 @@ class Job
             }
 
             compiler.setClasspath(bpClassLoader.getClassPathAsFiles());
-            if (bpClassLoader.loadsForJavaMEproject()) {
-                compiler.setBootClassPath(bpClassLoader.getJavaMElibsAsFiles());
-            }
-            else {
-                compiler.setBootClassPath(null);
-                String majorVersion = System.getProperty("java.specification.version"); 
-                userCompileOptions.add(0, "-source");
-                userCompileOptions.add(1, majorVersion);
-            }
+
+            compiler.setBootClassPath(null);
+            String majorVersion = System.getProperty("java.specification.version");
+            userCompileOptions.add(0, "-source");
+            userCompileOptions.add(1, majorVersion);
 
             File[] actualSourceFiles = new File[sources.length];
             for (int i = 0; i < sources.length; i++)
