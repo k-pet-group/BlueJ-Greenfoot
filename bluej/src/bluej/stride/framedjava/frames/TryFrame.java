@@ -108,7 +108,7 @@ public class TryFrame extends SandwichCanvasesFrame
     {
         FrameContentRow row = new FrameContentRow(this, "catch-");
 
-        TypeSlot type = new TypeSlot(editor, this, this, row, new TypeCompletionCalculator(editor, Throwable.class), "catch-type-");
+        TypeSlot type = new TypeSlot(editor, this, this, row, TypeSlot.Role.THROWS_CATCH, "catch-type-");
         type.setSimplePromptText("type");
         type.addClosingChar(' ');
         /*TODOTYPESLOT

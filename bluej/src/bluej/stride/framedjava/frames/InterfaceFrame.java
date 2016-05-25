@@ -53,6 +53,7 @@ import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.TextSlot;
+import bluej.stride.slots.TriangleLabel;
 import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
@@ -173,7 +174,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame implements 
         documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramInterfaceName.textProperty()).concat(" interface here..."));
 
         extendsList = new ExtendsList(this, () -> {
-            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, InteractionManager.Kind.INTERFACE), "interface-");
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.INTERFACE, "interface-");
             s.setSimplePromptText("interface type");
             return s;
         }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);

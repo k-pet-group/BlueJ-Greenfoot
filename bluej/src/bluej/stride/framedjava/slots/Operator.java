@@ -105,21 +105,6 @@ class Operator
         HangingFlowPane.setBreakBefore(l, !sourceProperty.get().equals(","));
     }
 
-    /** Can this operator be unary */
-    static boolean canBeUnary(String s)
-    {
-        if (s == null)
-            return false;
-        
-        switch (s)
-        {
-            case "+": case "-": case "~": case "!": case "new ":
-                return true;
-            default:
-                return false;
-        }
-    }
-
     /**
      * Gets the precedence for the given operator.
      * @param op Operator to determine precedence for

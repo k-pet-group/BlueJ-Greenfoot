@@ -72,7 +72,7 @@ public class CatchFrame extends SingleCanvasFrame
     {
         super(editor, "catch", "catch-");
         //Parameters
-        exceptionType = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "catch-");
+        exceptionType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.THROWS_CATCH, "catch-");
         exceptionType.setText(new TypeSlotFragment("", ""));
         exceptionType.addFocusListener(this);
         exceptionType.setSimplePromptText("exceptionType");

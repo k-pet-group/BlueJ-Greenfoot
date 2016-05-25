@@ -72,7 +72,7 @@ public class ForeachFrame extends SingleCanvasFrame
     {
         super(editor, "for each", "foreach-");
         
-        type = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor), "foreach-type-");
+        type = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.DECLARATION, "foreach-type-");
         type.setSimplePromptText("item type");
         type.addClosingChar(' ');
 

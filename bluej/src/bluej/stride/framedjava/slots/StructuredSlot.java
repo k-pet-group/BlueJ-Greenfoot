@@ -79,6 +79,7 @@ import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.InteractionManager.FileCompletion;
 import bluej.stride.slots.ChoiceSlot;
+import bluej.stride.slots.CompletionCalculator;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.FocusParent;
@@ -119,13 +120,13 @@ import threadchecker.Tag;
  *
  * This class is abstract, as a few details must be specified by some slim, more specific subclasses
  */
-public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragment> implements EditableSlot, ErrorFixListener, SuggestionListListener
+public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragment, INFIX extends InfixStructured<?, INFIX>, COMPLETION_CALCULATOR extends StructuredCompletionCalculator> implements EditableSlot, ErrorFixListener, SuggestionListListener
 {
     // The overlay on which to draw errors, underlines, etc
     private final ErrorUnderlineCanvas overlay;
     // Same item, but stored twice due to types:
     private final Frame parentFrame;
-    private final CodeFrame<?> parentCodeFrame;
+    protected final CodeFrame<?> parentCodeFrame;
     // The row containing us:
     private final FrameContentRow row;
 
@@ -144,15 +145,15 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     private SLOT_FRAGMENT slotElement;
 
     // The top level infix expression which makes up the whole expression slot:
-    private final InfixStructured topLevel;
+    protected final INFIX topLevel;
     // The editor in which we lie:
-    private final InteractionManager editor;
+    protected final InteractionManager editor;
 
     // Any underlines being shown (as link sources in the slot)
     private final List<Underline> underlines = new ArrayList<>();
 
     // The calculator which will be used to calculate completions.  Should not be null.
-    private final ExpressionCompletionCalculator completionCalculator;
+    protected final COMPLETION_CALCULATOR completionCalculator;
     // The suggestion list showing the auto complete (null if none)
     private SuggestionList suggestionDisplay;
     // The node (i.e. text field) which the suggestion list is shown above/below
@@ -207,10 +208,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     private String valueOnGain;
     // Whether the slot is editable  (slots are made uneditable when their enclosing frame gets disabled)
     private boolean editable = true;
-    // If we are an expression slot for the parameters to the super/this call in a constructor,
-    // this points to the choice slot preceding us, which we use to decide hints in our slot.
-    // If we are not parameters to super/this, paramsToConstructor will be null.
-    private ChoiceSlot<SuperThis> paramsToConstructor;
     // Keep track of whether we are focused.  We are focused if any of the fields anywhere
     // within the slot is focused, which is awkward to query repeatedly, so we also keep
     // track here at the very top level:
@@ -219,13 +216,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     private final BooleanBinding effectivelyFocusedProperty;
 
     public StructuredSlot(InteractionManager editor,
-                          Frame parentFrame, CodeFrame<?> parentCodeFrame, FrameContentRow row, String stylePrefix, List<FrameCatalogue.Hint> hints)
+                          Frame parentFrame, CodeFrame<?> parentCodeFrame, FrameContentRow row, String stylePrefix, COMPLETION_CALCULATOR completionCalculator, List<FrameCatalogue.Hint> hints)
     {
         this.editor = editor;
         this.parentFrame = parentFrame;
         this.parentCodeFrame = parentCodeFrame;
         this.row = row;
-        this.completionCalculator = new ExpressionCompletionCalculator(editor);
+        this.completionCalculator = completionCalculator;
         this.hints = hints;
         topLevel = newInfix(editor, stylePrefix);
 
@@ -778,49 +775,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         
     }
 
-    // package-visible
-    void withParamNamesForConstructor(FXConsumer<List<List<String>>> handler)
-    {
-        editor.afterRegenerateAndReparse(() -> {
-            completionCalculator.withConstructorParamNames(paramsToConstructor.getValue(SuperThis.EMPTY), handler);
-        });
-    }
-    
-    // package-visible
-    void withParamNamesForPos(CaretPos pos, String methodName, FXConsumer<List<List<String>>> handler)
-    {
-        editor.afterRegenerateAndReparse(() -> {
-            PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
-            completionCalculator.withParamNames(posJava, this.asExpressionSlot(), methodName, parentCodeFrame.getCode(), handler);
-        });
-    }
-
-    // package-visible
-    void withParamHintsForPos(CaretPos pos, String methodName, FXConsumer<List<List<String>>> handler)
-    {
-        editor.afterRegenerateAndReparse(() -> {
-            PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
-            completionCalculator.withParamHints(posJava, this.asExpressionSlot(), methodName, parentCodeFrame.getCode(), handler);
-        });
-    }
-
-    // package-visible
-    void withParamHintsForConstructor(int totalParams, FXConsumer<List<List<String>>> handler)
-    {
-        editor.afterRegenerateAndReparse(() -> {
-            completionCalculator.withConstructorParamHints(paramsToConstructor.getValue(SuperThis.EMPTY), totalParams, handler);
-        });
-    }
-
-    // package-visible
-    void withMethodHint(CaretPos pos, String methodName, FXConsumer<List<String>> handler)
-    {
-        editor.afterRegenerateAndReparse(() -> {
-            PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
-            completionCalculator.withMethodHints(posJava, this.asExpressionSlot(), methodName, parentCodeFrame.getCode(), handler);
-        });
-    }
-    
     private Pane makeFileCompletionPreview(FileCompletion fc)
     {
         Pane javadocDisplay = new BorderPane(fc.getPreview(300, 250));
@@ -879,8 +833,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         }
         else
         {
-            name = completionCalculator.getName(selected);
-            params = completionCalculator.getParams(selected);
+            return; //TODOTYPESLOT
+            //name = completionCalculator.getName(selected);
+            //params = completionCalculator.getParams(selected);
         }
         topLevel.insertSuggestion(suggestionLocation, name, params);
         modified();
@@ -1014,18 +969,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             return topLevel.getJavaCode();
     }
 
-    @Override
-    public void saved()
-    {
-        if (getParentFrame().isFrameEnabled())
-        {
-            if (paramsToConstructor != null)
-            {
-                topLevel.treatAsConstructorParams_updatePrompts();
-            }
-        }
-    }
-
     @OnThread(Tag.FXPlatform)
     public void caretMoved()
     {
@@ -1138,10 +1081,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         return suggestionDisplay != null && suggestionDisplay.isShowing() && !suggestionDisplay.isInMiddleOfHiding();
     }
 
-    public List<? extends PossibleLink> findLinks()
-    {
-        return topLevel.findLinks(Optional.empty(), getSlotElement().getVars(), offset -> getSlotElement().getPosInSourceDoc(offset), 0);
-    }
+    public abstract List<? extends PossibleLink> findLinks();
     
     @Override
     public void lostFocus()
@@ -1268,7 +1208,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             @OnThread(Tag.FXPlatform)
             public void onShowing()
             {
-                InfixStructured exp = getTopLevel().getAllExpressions().filter(InfixStructured::isFocused).findFirst().orElse(null);
+                Stream<InfixStructured<?, ?>> allExpressions = getTopLevel().getAllExpressions();
+                InfixStructured exp = allExpressions.filter(i -> i.isFocused()).findFirst().orElse(null);
                 if (exp == null)
                 {
                     setToOriginal.accept(items);
@@ -1350,8 +1291,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         }
         
         return itemMap;
-    }   
-    
+    }
     @Override
     @OnThread(Tag.FXPlatform)
     public Response suggestionListKeyPressed(KeyEvent event, int highlighted)
@@ -1498,6 +1438,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         row.focusRight(this);
     }
 
+    public abstract boolean canCollapse();
 
     public static class SplitInfo
     {
@@ -1512,7 +1453,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         return topLevel.trySplitOn("=");
     }
 
-    public List<FrameCatalogue.Hint> getHints()
+    public final List<FrameCatalogue.Hint> getHints()
     {
         return hints;
     }
@@ -1534,17 +1475,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     {
         this.editable = editable;
         topLevel.setEditable(editable);
-    }
-
-    public void setParamsToConstructor(ChoiceSlot<SuperThis> paramsToConstructor)
-    {
-        this.paramsToConstructor = paramsToConstructor;
-    }
-
-    // package-visible
-    boolean isConstructorParams()
-    {
-        return paramsToConstructor != null;
     }
 
     @Override
@@ -1575,5 +1505,5 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         }
     }
     
-    protected abstract InfixStructured newInfix(InteractionManager editor, String stylePrefix);
+    protected abstract INFIX newInfix(InteractionManager editor, String stylePrefix);
 }

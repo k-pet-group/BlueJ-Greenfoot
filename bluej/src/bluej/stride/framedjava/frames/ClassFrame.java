@@ -152,7 +152,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame implements TopL
         showingExtends = new SimpleBooleanProperty(extendsName != null);
         SlotLabel extendsLabel = new SlotLabel("extends");
         JavaFXUtil.addStyleClass(extendsLabel, "class-extends-caption");
-        extendsSlot = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.CLASS_NON_FINAL), "class-extends-");
+        extendsSlot = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.EXTENDS, "class-extends-");
         extendsSlot.addClosingChar(' ');
         extendsSlot.setSimplePromptText("parent class");
         if (extendsName != null) {
@@ -166,7 +166,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame implements TopL
         extendsSlot.onTextPropertyChange(s -> showingExtends.set(extendsSlot.isEmpty() || keyMouseHeader.get()));
 
         implementsSlot = new Implements(this, () -> {
-            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Kind.INTERFACE), "class-");
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.INTERFACE, "class-");
             s.setSimplePromptText("interface type");
             return s;
         }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);

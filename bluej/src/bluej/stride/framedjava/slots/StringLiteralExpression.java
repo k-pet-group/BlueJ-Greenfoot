@@ -223,7 +223,7 @@ class StringLiteralExpression implements StructuredSlotComponent
     }
 
     @Override
-    public Stream<InfixStructured> getAllExpressions()
+    public Stream<InfixStructured<?, ?>> getAllExpressions()
     {
         return Stream.empty();
     }

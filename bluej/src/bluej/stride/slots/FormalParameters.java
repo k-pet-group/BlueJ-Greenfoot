@@ -104,7 +104,7 @@ public class FormalParameters
             // Once it turns false, it can never go back to true:
             freshProperty.set(freshProperty.get() && params.stream().anyMatch(p -> p.isFocused()));
         };
-        final TypeSlot typeSlot = new TypeSlot(editor, parentFrame, codeParentFrame, row, new TypeCompletionCalculator(editor), stylePrefix)
+        final TypeSlot typeSlot = new TypeSlot(editor, parentFrame, codeParentFrame, row, TypeSlot.Role.DECLARATION, stylePrefix)
         {
             /*TODOTYPESLOT
             @Override

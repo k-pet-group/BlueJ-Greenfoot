@@ -157,7 +157,7 @@ interface StructuredSlotComponent
      * Gets all the InfixStructured contained in this component, at any
      * level of the hierarchy.
      */
-    Stream<InfixStructured> getAllExpressions();
+    Stream<InfixStructured<?, ?>> getAllExpressions();
 
     /**
      * The current text value of the component.  Broadly, this is both the text

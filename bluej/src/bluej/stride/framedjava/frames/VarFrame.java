@@ -149,7 +149,7 @@ public class VarFrame extends SingleLineFrame
         
         slotName.setPromptText("name");
         
-        slotType = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor), "var-type-");
+        slotType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.DECLARATION, "var-type-");
         slotType.setSimplePromptText("type");
         slotType.addClosingChar(' ');
 

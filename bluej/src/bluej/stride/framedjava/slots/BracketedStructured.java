@@ -50,12 +50,12 @@ import bluej.utility.javafx.binding.ConcatListBinding;
  * Many of its methods simply delegate to the contained InfixStructured.
  */
 // Package-visible
-class BracketedStructured implements StructuredSlotComponent
+class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT extends StructuredSlot<?, INFIX, ?>> implements StructuredSlotComponent
 {
     /** The parent expression this item lives in */
-    private final InfixStructured parent;
+    private final INFIX parent;
     /** The expression directly contained between the brackets */
-    private final InfixStructured content;
+    private final INFIX content;
     /** The list of GUI components (derived from the sub-expression) */
     private final ObservableList<Node> components = FXCollections.observableArrayList();
     /** The opening bracket character */ 
@@ -69,7 +69,7 @@ class BracketedStructured implements StructuredSlotComponent
     /** The label which displays the closing bracket */
     private final Label closingLabel;
     
-    public BracketedStructured(InteractionManager editor, InfixStructured parent, StructuredSlot slot, char opening, String initialContent)
+    public BracketedStructured(InteractionManager editor, INFIX parent, SLOT slot, char opening, String initialContent)
     {
         this.parent = parent;
         this.opening = opening;
@@ -235,11 +235,6 @@ class BracketedStructured implements StructuredSlotComponent
         content.insertSuggestion(p, name, params);
     }
 
-    public void withTooltipAtPos(int paramPos, FXConsumer<String> handler)
-    {
-        parent.withTooltipForParam(this, paramPos, handler); 
-    }
-
     //package-visible
     CaretPos absolutePos(CaretPos p)
     {
@@ -269,7 +264,7 @@ class BracketedStructured implements StructuredSlotComponent
     }
 
     @Override
-    public Stream<InfixStructured> getAllExpressions()
+    public Stream<InfixStructured<?, ?>> getAllExpressions()
     {
         return content.getAllExpressions();
     }
@@ -339,5 +334,11 @@ class BracketedStructured implements StructuredSlotComponent
     public int calculateEffort()
     {
         return content.calculateEffort();
+    }
+
+    //package-visible
+    INFIX getParent()
+    {
+        return parent;
     }
 }

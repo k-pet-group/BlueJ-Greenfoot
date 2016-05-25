@@ -100,7 +100,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         access.setValue(AccessPermission.PUBLIC);
         
         throwsPane = new Throws(this, () -> {
-            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "method-");
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.THROWS_CATCH, "method-");
             s.setSimplePromptText("thrown type");
             return s;
         }, () -> getCanvas().getFirstCursor().requestFocus(), editor);

@@ -45,7 +45,7 @@ import bluej.utility.javafx.binding.DeepListBinding;
  * A class which manages a list of comma-separated type slots, e.g. an implements
  * list or a throws declaration.
  * 
- * This class holds a list of TypeTextSlot, and handles the use of backspace, delete,
+ * This class holds a list of TypeSlot, and handles the use of backspace, delete,
  * and typing commas to shrink/extend the list.
  */
 public class TypeList implements SlotValueListener
@@ -89,7 +89,7 @@ public class TypeList implements SlotValueListener
      * 
      * @param label The label to display before the list, e.g. "implements".  Must not be null.
      * @param parentFrame The frame this type list is contained in
-     * @param slotGenerator A piece of code to generate a new TypeTextSlot for this list when needed
+     * @param slotGenerator A piece of code to generate a new TypeSlot for this list when needed
      * @param focusOnNext An action to focus on the item after this list, for when the user
      *                    blanks the type list.  (Note that at the moment, this means when the user
      *                    blanks the list using backspace, we focus the item after rather than the
@@ -186,7 +186,8 @@ public class TypeList implements SlotValueListener
             TypeSlot newSlot = addTypeSlot(typeSlots.indexOf(slot) + 1);
             String right = newValue.substring(newValue.indexOf(",") + 1);
             // Hacky way to chop the string after listeners have run:
-            Platform.runLater(() -> ((TypeTextSlot)slot).setText(newValue.substring(0, newValue.indexOf(","))));
+            //TODOTYPESLOT
+            Platform.runLater(() -> ((TypeSlot)slot).setText(newValue.substring(0, newValue.indexOf(","))));
             newSlot.setText(right);
             newSlot.requestFocus(Focus.LEFT);
             return false;

@@ -76,7 +76,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         methodName.setPromptText("name");
         methodName.addValueListener(SlotTraversalChars.METHOD_NAME);
         
-        returnType = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor), "method-return-type-");
+        returnType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.RETURN, "method-return-type-");
         returnType.setSimplePromptText("type");
         returnType.addClosingChar(' ');
 
@@ -84,7 +84,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         setDocumentationPromptText("Describe your method here...");
         
         throwsPane = new Throws(this, () -> {
-            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, Throwable.class), "method-");
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.THROWS_CATCH, "method-");
             s.setSimplePromptText("thrown type");
             return s;
         }, () -> getCursorAfter().requestFocus(), editor);

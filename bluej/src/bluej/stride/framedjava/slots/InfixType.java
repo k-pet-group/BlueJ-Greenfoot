@@ -1,18 +1,19 @@
 package bluej.stride.framedjava.slots;
 
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.javafx.FXConsumer;
 
 /**
  * Created by neil on 22/05/2016.
  */
-public class InfixType extends InfixStructured
+public class InfixType extends InfixStructured<TypeSlot, InfixType>
 {
-    private InfixType(InteractionManager editor, StructuredSlot slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
+    private InfixType(InteractionManager editor, TypeSlot slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
     {
         super(editor, slot, initialContent, wrapper, closingChars);
     }
 
-    InfixType(InteractionManager editor, StructuredSlot slot, String stylePrefix)
+    InfixType(InteractionManager editor, TypeSlot slot, String stylePrefix)
     {
         super(editor, slot, stylePrefix);
     }
@@ -44,6 +45,13 @@ public class InfixType extends InfixStructured
     }
 
     @Override
+    boolean canBeUnary(String s)
+    {
+        //No unary operators in types:
+        return false;
+    }
+
+    @Override
     protected boolean isOpeningBracket(char c)
     {
         return c == '<' || c == '[';
@@ -64,8 +72,14 @@ public class InfixType extends InfixStructured
     }
 
     @Override
-    InfixStructured newInfix(InteractionManager editor, StructuredSlot slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
+    InfixType newInfix(InteractionManager editor, TypeSlot slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
     {
         return new InfixType(editor, slot, initialContent, wrapper, closingChars);
+    }
+
+    @Override
+    public void withTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)
+    {
+        //TODOTYPESLOT
     }
 }

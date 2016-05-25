@@ -254,26 +254,26 @@ import threadchecker.Tag;
  */
 
 //package-visible
-abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
+abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX extends InfixStructured<SLOT, INFIX>> implements TextFieldDelegate<StructuredSlotField>
 {
     // Regex matching JLS "Digits"; underscores can appear within
     private final static String DIGITS_REGEX = "\\d([0-9_]*\\d)?";
     private final static String HEX_DIGITS_REGEX = "[0-9A-Fa-f]([0-9A-Fa-f_]*[0-9A-Fa-f])?";
     
     // fields is always 1 longer than operators. Always an StructuredSlotField in first and last position (which may be same, when size 1).
-    private final ObservableList<StructuredSlotComponent> fields = FXCollections.observableArrayList();
+    protected final ObservableList<StructuredSlotComponent> fields = FXCollections.observableArrayList();
     // Operator 0 is between field 0 and field 1.  Operator N trails field N.
     // Can be null when the operator is effectively a bracket.
-    private final ObservableList<Operator> operators = FXCollections.observableArrayList();
+    protected final ObservableList<Operator> operators = FXCollections.observableArrayList();
     
     //private final FlowPane components = new FlowPane();    
     //private final HBox components = new HBox();
     private final ObservableList<Node> components = FXCollections.observableArrayList();
-    private final BracketedStructured parent; // null if top-level
+    protected final BracketedStructured<INFIX, SLOT> parent; // null if top-level
     private final Set<Character> closingChars = new HashSet<>(); // Empty if we are top-level
     
     private final InteractionManager editor;
-    private final StructuredSlot<?> slot; // Can be null when testing, but otherwise non-null
+    protected final SLOT slot; // Can be null when testing, but otherwise non-null
     
     private final StringProperty textProperty = new SimpleStringProperty();
     private final BooleanProperty previewingJavaRange = new SimpleBooleanProperty(false);
@@ -283,16 +283,12 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
      * The caret position for the start of the selection (null if and only if no selection)
      */
     private CaretPos anchorPos;
-    /**
-     * Keeps track of whether we have queued a task to update the prompts:
-     */
-    private boolean queuedUpdatePrompts;
 
     /**
      * Create top-level InfixStructured, just inside the StructuredSlot
      */
     // package-visible
-    InfixStructured(InteractionManager editor, StructuredSlot slot, String stylePrefix)
+    InfixStructured(InteractionManager editor, SLOT slot, String stylePrefix)
     {
         // TODO make use of stylePrefix
         this(editor, slot, "", null);
@@ -306,7 +302,7 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
      *    to add rich content, pass "" for this parameter and insert the rich content afterwards.
      */
     //package-visible
-    InfixStructured(InteractionManager editor, StructuredSlot slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
+    InfixStructured(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
     {
         this.editor = editor;
         this.parent = wrapper;
@@ -534,7 +530,7 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
     {
         StructuredSlotField f = new StructuredSlotField(this, content, stringLiteral);
         if (editor != null) // Can be null during testing
-            editor.setupFocusableSlotComponent(slot, f.getNodeForPos(null), true, slot::getExtensions, slot.getHints());
+            editor.setupFocusableSlotComponent(slot, f.getNodeForPos(null), true, () -> slot.getExtensions(), slot.getHints());
         f.onKeyPressedProperty().set(event -> {
             if (event.isShiftDown() && event.isControlDown() && event.getText().length() > 0 && event.getCode() != KeyCode.CONTROL && event.getCode() != KeyCode.SHIFT)
             {
@@ -1553,7 +1549,7 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
         return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().insertAtPos(p.subPos, after));
     }
 
-    private CaretPos insertChar(CaretPos pos, char c, boolean user)
+    protected CaretPos insertChar(CaretPos pos, char c, boolean user)
     {
         final StructuredSlotComponent slot = fields.get(pos.index);
         // Bit hacky to use instanceof, but it's easier to have logic here than in subclasses:
@@ -2301,11 +2297,11 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
         boolean opAfter = index == operators.size() || operators.get(index) != null;
         
         //boolean unaryBefore = index != 0 && canBeUnary(operators.get(index - 1));
-        boolean unaryAfter = index < operators.size() && Operator.canBeUnary(Utility.orNull(operators.get(index), Operator::get));
+        boolean unaryAfter = index < operators.size() && canBeUnary(Utility.orNull(operators.get(index), Operator::get));
         
         if (fields.size() == 1 && parent == null)
         {
-            if (slot != null && slot.isConstructorParams())
+            if (slot != null && slot.canCollapse())
                 return true; // Can collapse in this case
             else
                 return false; // Only field at top level, not constructor params
@@ -2459,94 +2455,10 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
         }
     }
 
-    public void withTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)
-    {
-        int slotIndex = fields.indexOf(expressionSlotField);
 
-        // It can also have a tooltip if it is a method name, which means
-        // it has a bracketedexpression immediately afterwards.
-        if (!expressionSlotField.getText().equals("") &&
-                slotIndex + 1 < fields.size() && fields.get(slotIndex + 1) instanceof BracketedStructured)
-        {
-            CaretPos relPos = new CaretPos(slotIndex, new CaretPos(0, null));
-            slot.withMethodHint(absolutePos(relPos), fields.get(slotIndex).getCopyText(null, null),
-                methodHints -> {
-                    if (methodHints.size() == 1)
-                    {
-                        handler.accept(methodHints.get(0));
-                    } else
-                    {
-                        // More than one set of hints (method is overloaded), play simple and give no tip:
-                        handler.accept("");
-                    }
-                });
-        }
-        // It can have a tooltip if is a parameter, which means it is
-        // inside a bracketedexpression, with a non-blank before it
-        else if (parent != null || slot.isConstructorParams())
-        {
-            int paramIndex = 0;
-            int totalParams = 1;
-
-            for (int i = 0; i < operators.size(); i++)
-            {
-                if (operators.get(i) != null && operators.get(i).getCopyText().equals(","))
-                {
-                    totalParams += 1;
-                    if (i < slotIndex)
-                        paramIndex += 1;
-                }
-            }
-            if (parent != null)
-                parent.withTooltipAtPos(paramIndex, handler);
-            else
-            {
-                final int finalParamIndex = paramIndex;
-                // We are the top-level and we are constuctor params
-                slot.withParamHintsForConstructor(totalParams, conHints -> {
-                    // Only show if there's one overload of that arity:
-                    if (conHints.size() == 1 && finalParamIndex < conHints.get(0).size())
-                    {
-                        handler.accept(conHints.get(0).get(finalParamIndex));
-                    }
-                });
-            }
-
-        }
-        else
-        {
-            handler.accept("");
-        }
-    }
-
-    public void withTooltipForParam(BracketedStructured bracketedExpression, int paramPos, FXConsumer<String> handler)
-    {
-        int expIndex = fields.indexOf(bracketedExpression);
-        if (fields.get(expIndex - 1).getCopyText(null, null).equals(""))
-        {
-            // No text before bracket; not parameter so no valid tooltip:
-            handler.accept("");
-        }
-        else
-        {
-            CaretPos relPos = new CaretPos(expIndex - 1, new CaretPos(0, null));
-            slot.withParamHintsForPos(absolutePos(relPos), fields.get(expIndex - 1).getCopyText(null, null),
-                    paramHints -> {
-                if (paramHints.size() == 1)
-                {
-                    if (paramPos < paramHints.get(0).size())
-                    {
-                        handler.accept(paramHints.get(0).get(paramPos));
-                        return;
-                    }
-                }
-                // More than one set of hints (method is overloaded), play simple and give no tip:
-                handler.accept("");
-            });
-        }
-    }
-
-    private CaretPos absolutePos(CaretPos p)
+    public abstract void withTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler);
+        
+    protected CaretPos absolutePos(CaretPos p)
     {
         if (parent == null)
             return p;
@@ -2563,148 +2475,6 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
     InteractionManager getEditor()
     {
         return editor;
-    }
-
-    /**
-     * Queues a call to update prompts in method calls.  Will not
-     * queue more than one such call at any time.
-     */
-    void queueUpdatePromptsInMethodCalls()
-    {
-        if (!queuedUpdatePrompts)
-        {
-            queuedUpdatePrompts = true;
-            Platform.runLater(this::updatePromptsInMethodCalls);
-        }
-    }
-
-
-    //package-visible
-    private void updatePromptsInMethodCalls()
-    {
-        queuedUpdatePrompts = false;
-
-        // We look for method calls, which means we need to look for brackets preceded by non-empty fields:
-        // We look from the first field onwards, because e.g. getWorl().addObject() should update
-        // the addObject call if "getWorl" gets editing to "getWorld".
-        // However, we only check at the current level; a method can't affect the prompts
-        // for further calls inside its parameters.
-        // TODO: updating later calls doesn't seem to work right, for some reason?
-        for (int i = 0; i < fields.size(); i++)
-        {
-            if (i < fields.size() - 1 && 
-                    fields.get(i) instanceof StructuredSlotField &&
-                    !fields.get(i).isFieldAndEmpty() &&
-                    fields.get(i + 1) instanceof BracketedStructured)
-            {
-                // Text, non-empty, followed by brackets.  Must be a method call:
-                BracketedStructured bracketedParams = (BracketedStructured) fields.get(i + 1);
-                CaretPos absPos = absolutePos(new CaretPos(i, new CaretPos(0, null)));
-                bracketedParams.getContent().treatAsParams_updatePrompts(fields.get(i).getCopyText(null, null), absPos);
-            }
-        }
-        
-    }
-
-    // package-visible
-    // Called to notify us that we are a set of parameters, and we should update our prompts for those parameters
-    void treatAsParams_updatePrompts(String methodName, CaretPos absPosOfMethodName)
-    {
-        List<StructuredSlotField> params = getSimpleParameters();
-        
-        if (params.stream().allMatch(p -> p == null))
-            return; // Nothing needs prompts
-
-        if (slot == null) // Can happen during testing
-            return;
-
-        slot.withParamNamesForPos(absPosOfMethodName, methodName,
-            poss -> setPromptsFromParamNames(poss, methodName));
-    }
-
-    // package-visible
-    // Called to notify us that we are a set of parameters, and we should update our prompts for those parameters
-    void treatAsConstructorParams_updatePrompts()
-    {
-        List<StructuredSlotField> params = getSimpleParameters();
-
-        if (params.stream().allMatch(p -> p == null))
-            return; // Nothing needs prompts
-        
-        slot.withParamNamesForConstructor(
-            poss -> setPromptsFromParamNames(poss, "<con>"));
-    }
-
-    /**
-     * A callback called when we have fetched information on parameter names, and want
-     * to use it to update the prompts for method parameters.
-     *
-     * @param possibilities  This is the list of possible parameters.  If there is a single
-     *                       method of that name, possibilities will be a singleton list, with
-     *                       the content being parameter names, e.g.
-     *                       Arrays.asList(Arrays.asList("x", "y")) for setLocation(int x, int y)
-     *                       If possibilities is empty, there are no methods found.
-     *                       If possibilities is not size 1, there are multiple overloads for that name.
-     */
-    private void setPromptsFromParamNames(List<List<String>> possibilities, String debugName)
-    {
-        List<StructuredSlotField> curParams = getSimpleParameters();
-        int curArity;
-        // There is a special case if we have a single empty parameter; this looks
-        // like arity 1, but actually because it's empty, it's arity 0:
-        if (curParams.size() == 1 && curParams.get(0).isEmpty())
-            curArity = 0;
-        else
-            curArity = curParams.size();
-        // Arity is fixed if any params are non-empty (i.e. null or !isEmpty())
-        boolean arityFlexible = curParams.stream().allMatch(f -> f != null && f.isEmpty());
-        
-        List<List<String>> matchedPoss = possibilities.stream()
-            .filter(ps -> arityFlexible || ps.size() == curArity)
-            .sorted(Comparator.comparing(List::size)) // Put shortest ones first
-            .collect(Collectors.toList());
-        
-        if (matchedPoss.size() != 1)
-        {
-            // No possibilities, remove all commas if empty:
-            if (arityFlexible && !isEmpty())
-            {
-                blank();
-            }
-            curParams.stream().filter(f -> f != null).forEach(f -> f.setPromptText(""));
-        }
-        else
-        {
-            // Exactly one option; give prompts:
-            List<String> match = matchedPoss.get(0);
-            
-            if (arityFlexible && match.size() != curArity)
-            {
-                // No fixed arity; we know field must be near-blank, so just
-                // replace it with the right number of commas (may be zero):
-                boolean wasFocused = isFocused();
-                blank();
-                for (int i = 0; i < match.size() - 1; i++)
-                {
-                    // We add at end to avoid the overtyping logic:
-                    insertChar(getEndPos(), ',', false);
-                }
-                curParams = getSimpleParameters();
-                if (wasFocused)
-                    getFirstField().requestFocus();
-            }
-            
-            for (int i = 0; i < match.size(); i++)
-            {
-                String prompt = match.get(i);
-                if (prompt == null || Parser.isDummyName(prompt))
-                    prompt = "";
-                // Due to the delay in calculating prompts, we may be trying to set a parameter
-                // at an outdated index, so protect against that:
-                if (i < curParams.size() && curParams.get(i) != null)
-                    curParams.get(i).setPromptText(prompt);
-            }
-        }
     }
 
     // List is as long as there are parameters, but returns null if the parameter is non-simple,
@@ -2762,7 +2532,7 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
         this.closingChars.add(closingChar);
     }
 
-    public Stream<InfixStructured> getAllExpressions()
+    public Stream<InfixStructured<?, ?>> getAllExpressions()
     {
         return Stream.concat(Stream.of(this), fields.stream().flatMap(StructuredSlotComponent::getAllExpressions));
     }
@@ -2944,7 +2714,7 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
     }
 
     //package-visible
-    StructuredSlot<?> getSlot()
+    StructuredSlot<?, ?, ?> getSlot()
     {
         return slot;
     }
@@ -3090,7 +2860,9 @@ abstract class InfixStructured implements TextFieldDelegate<StructuredSlotField>
 
     abstract boolean beginsOperator(char c);
     
-    abstract InfixStructured newInfix(InteractionManager editor, StructuredSlot slot, String initialContent, BracketedStructured wrapper, Character... closingChars);
+    abstract boolean canBeUnary(String s);
+    
+    abstract INFIX newInfix(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured<?, SLOT> wrapper, Character... closingChars);
 
     /**
      * A simple class to allow a mutable integer to be passed around while building a CaretPosMap

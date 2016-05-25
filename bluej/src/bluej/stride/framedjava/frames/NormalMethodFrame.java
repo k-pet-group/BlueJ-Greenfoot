@@ -140,7 +140,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             }
         });
         
-        returnType = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor), "method-return-type-");
+        returnType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.RETURN, "method-return-type-");
         returnType.addClosingChar(' ');
         returnType.markReturnType();
         

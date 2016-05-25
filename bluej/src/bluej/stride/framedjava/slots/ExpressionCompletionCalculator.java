@@ -45,7 +45,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 
-public class ExpressionCompletionCalculator
+public class ExpressionCompletionCalculator implements StructuredCompletionCalculator
 {
     private final InteractionManager editor;
     private List<AssistContentThreadSafe> completions = Collections.emptyList();
@@ -56,6 +56,7 @@ public class ExpressionCompletionCalculator
         this.editor = editor;
     }
 
+    @Override
     public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, SuggestionListListener clickListener, String targetType, FXPlatformConsumer<SuggestionList> handler)
     {
         editor.withCompletions(pos, completing, codeEl, assists -> {

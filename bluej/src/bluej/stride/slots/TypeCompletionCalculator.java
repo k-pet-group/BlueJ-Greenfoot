@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import bluej.stride.framedjava.slots.ExpressionSlot;
+import bluej.stride.framedjava.slots.StructuredCompletionCalculator;
 import bluej.utility.Utility;
 import javafx.scene.control.TextField;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
@@ -39,7 +41,7 @@ import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 
-public class TypeCompletionCalculator implements CompletionCalculator
+public class TypeCompletionCalculator implements StructuredCompletionCalculator
 {
     private final InteractionManager editor;
     private final Class<?> superType; // null means any
@@ -70,8 +72,8 @@ public class TypeCompletionCalculator implements CompletionCalculator
     }
 
     @Override
-    public void withCalculatedSuggestionList(PosInSourceDoc pos,
-                                             CodeElement codeEl, SuggestionListListener listener, FXPlatformConsumer<SuggestionList> handler) {
+    public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing,
+                                             CodeElement codeEl, SuggestionListListener listener,  String targetType, FXPlatformConsumer<SuggestionList> handler) {
         
         editor.withTypes(superType, true, kinds, acs -> {
             this.acs = new ArrayList<>(acs);
@@ -82,6 +84,7 @@ public class TypeCompletionCalculator implements CompletionCalculator
         });
     }
 
+    /* TODOTYPESLOT
     @Override
     public boolean execute(TextField field, int selected, int startOfCurWord)
     {
@@ -93,5 +96,5 @@ public class TypeCompletionCalculator implements CompletionCalculator
         
         return true;
     }
-
+    */
 }
