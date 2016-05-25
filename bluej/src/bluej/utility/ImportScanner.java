@@ -216,11 +216,16 @@ public class ImportScanner
             {
                 // Start calculating:
                 root = new CompletableFuture<>();
-                Utility.runBackground(() -> {
+                // We don't use runBackground because we don't want to end up
+                // behind other callers of getRoot in the queue (this can
+                // cause a deadlock because there are no background threads
+                // available, as they are all blocked waiting for this
+                // future to complete):
+                new Thread(() -> {
                     RootPackageInfo rootPkg = findAllTypes();
                     loadCachedImports(rootPkg);
                     root.complete(rootPkg);
-                });
+                }).start();
                 return root;
             }
         }

@@ -515,6 +515,8 @@ public class Project implements DebuggerListener, InspectorManager
         ExtensionsManager.getInstance().projectOpening(proj);
         DataCollector.projectOpened(proj, ExtensionsManager.getInstance().getLoadedExtensions(proj));
 
+        proj.getImportScanner().startScanning();
+        
         return proj;
     }
 
