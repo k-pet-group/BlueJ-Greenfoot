@@ -240,7 +240,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     @Override
     public InterfaceFrame createFrame(InteractionManager editor)
     {
-        frame = new InterfaceFrame(editor, interfaceName, packageName, imports, extendsTypes, projectResolver, documentation, enable);
+        frame = new InterfaceFrame(editor, projectResolver, packageName, imports, documentation, interfaceName, extendsTypes, enable);
         fields.forEach(member -> frame.getfieldsCanvas().insertBlockAfter(member.createFrame(editor), null));
         methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));
         return frame;

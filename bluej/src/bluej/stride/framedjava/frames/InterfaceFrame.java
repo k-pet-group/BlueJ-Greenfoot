@@ -21,36 +21,28 @@
  */
 package bluej.stride.framedjava.frames;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import bluej.Config;
+import bluej.editor.stride.BirdseyeManager;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.PackageFragment;
+import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.errors.CodeError;
-import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.InterfaceElement;
 import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.CanvasParent;
-import bluej.stride.generic.DocumentedMultiCanvasFrame;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameContentItem;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.RecallableFocus;
+import bluej.stride.generic.TopLevelDocumentMultiCanvasFrame;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.ClassNameDefTextSlot;
@@ -61,184 +53,42 @@ import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.TextSlot;
-import bluej.stride.slots.TriangleLabel;
 import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.MultiListener;
 import bluej.utility.javafx.SharedTransition;
-import bluej.utility.javafx.binding.DeepListBinding;
 
-import javafx.beans.binding.BooleanExpression;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
-import bluej.editor.stride.BirdseyeManager;
-import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-public class InterfaceFrame extends DocumentedMultiCanvasFrame
-        implements TopLevelFrame<InterfaceElement>
+public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame implements TopLevelFrame<InterfaceElement>
 {
-    private final FrameContentRow importRow;
-    private final FrameCanvas importCanvas;
-    private final ObservableList<String> boundImports = FXCollections.observableArrayList();
-
-    private TextSlot<NameDefSlotFragment> paramInterfaceName;
-    private final InteractionManager editor;
-
-    private final ExtendsList extendsList;
-
-    // can both be null in Greenfoot, where we don't show the package
-    private final FrameContentRow packageRow;
-    private final TextSlot<PackageFragment> packageSlot;
-    private final BooleanProperty showingPackageSlot;
-    // We have to keep a reference to negated version, to prevent it getting GCed:
-    private final BooleanExpression notShowingPackageSlot;
-
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private InterfaceElement element;
-    private final EntityResolver projectResolver;
 
-    private final FrameCanvas fieldsCanvas;
-    private final FrameCanvas methodsCanvas;
-    private final SlotLabel importsLabel = makeLabel("Imports");
-    private final SlotLabel fieldsLabel = makeLabel("Fields");
-    private final SlotLabel methodsLabel = makeLabel("Methods");
-    private final FrameContentRow fieldsLabelRow;
-    private final FrameContentRow methodsLabelRow;
-    private final FrameContentItem endSpacer;
-    private final TriangleLabel importTriangleLabel;
+    private TextSlot<NameDefSlotFragment> paramInterfaceName;
+    private final ExtendsList extendsList;
 
-    private static SlotLabel makeLabel(String content)
+    public InterfaceFrame(InteractionManager editor, EntityResolver projectResolver, PackageFragment packageName,
+                          List<ImportElement> imports, JavadocUnit documentation, NameDefSlotFragment interfaceName,
+                          List<TypeSlotFragment> extendsTypes, boolean enabled)
     {
-        SlotLabel l = new SlotLabel(content);
-        JavaFXUtil.addStyleClass(l, "interface-section-label");
-        return l;
-    }
-
-    public InterfaceFrame(InteractionManager editor, NameDefSlotFragment interfaceName, PackageFragment packageName,
-              List<ImportElement> imports, List<TypeSlotFragment> extendsTypes, EntityResolver projectResolver,
-              JavadocUnit documentation, boolean enabled)
-    {
-        super(editor, "interface", "interface-");
-        this.editor = editor;
-        this.projectResolver = projectResolver;
-
-        // Spacer to make the class have a bit of space after last canvas;
-        endSpacer = new FrameContentItem()
-        {
-            private Rectangle r = new Rectangle(1, 200, Color.TRANSPARENT);
-
-            @Override
-            public Stream<HeaderItem> getHeaderItemsDeep()
-            {
-                return Stream.empty();
-            }
-
-            @Override
-            public Stream<HeaderItem> getHeaderItemsDirect()
-            {
-                return Stream.empty();
-            }
-
-            @Override
-            public Bounds getSceneBounds()
-            {
-                return r.localToScene(r.getBoundsInLocal());
-            }
-
-            @Override
-            public Optional<FrameCanvas> getCanvas()
-            {
-                return Optional.empty();
-            }
-
-            @Override
-            public boolean focusLeftEndFromPrev()
-            {
-                return false;
-            }
-
-            @Override
-            public boolean focusRightEndFromNext()
-            {
-                return false;
-            }
-
-            @Override
-            public boolean focusTopEndFromPrev()
-            {
-                return false;
-            }
-
-            @Override
-            public boolean focusBottomEndFromNext()
-            {
-                return false;
-            }
-
-            @Override
-            public void setView(View oldView, View newView, SharedTransition animation)
-            {
-
-            }
-
-            @Override
-            public Node getNode()
-            {
-                return r;
-            }
-        };
-
-
-        //Parameters
-        paramInterfaceName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), "interface-name-");
-        paramInterfaceName.addValueListener(SlotTraversalChars.IDENTIFIER);
-        paramInterfaceName.setPromptText("interface name");
-        paramInterfaceName.setText(interfaceName);
-
-        setDocumentation(documentation.toString());
-        documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramInterfaceName.textProperty()).concat(" interface here..."));
-
-        extendsList = new ExtendsList(this, () -> {
-            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, InteractionManager.Kind.INTERFACE), "interface-");
-            s.setSimplePromptText("interface type");
-            return s;
-        }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);
-
-        extendsTypes.forEach(t -> this.extendsList.addTypeSlotAtEnd(t.getContent(), false));
-        extendsList.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal)
-                extendsList.ensureAtLeastOneSlot();
-            else
-                extendsList.clearIfSingleEmpty();
-        });
-
-
-        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
-                FXCollections.observableArrayList(headerCaptionLabel),
-                FXCollections.observableArrayList(paramInterfaceName),
-                extendsList.getHeaderItems()
-        ));
-
-        importCanvas = createImportsCanvas(imports);// TODO delete this and uncomment it in saved() if it cause NPE in future
-        importCanvas.getShowingProperty().set(false);
-        importTriangleLabel = new TriangleLabel(editor, t -> importCanvas.growUsing(t.getProgress()), t -> importCanvas.shrinkUsing(t.getOppositeProgress()), importCanvas.getShowingProperty());
-        JavaFXUtil.addChangeListener(importTriangleLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
-        importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
+        super(editor, projectResolver, "interface", "interface-", imports, documentation, enabled);
 
         // Since we don't support packages in Greenfoot, we don't bother showing the package declaration:
         if (Config.isGreenfoot())
@@ -314,22 +164,33 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
             packageSlot.addFocusListener(this);
         }
 
-        this.fieldsCanvas = new FrameCanvas(editor, this, "interface-fields-");
-        fieldsLabelRow = new FrameContentRow(this, fieldsLabel);
-        addCanvas(fieldsLabelRow, fieldsCanvas);
+        //Parameters
+        paramInterfaceName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), "interface-name-");
+        paramInterfaceName.addValueListener(SlotTraversalChars.IDENTIFIER);
+        paramInterfaceName.setPromptText("interface name");
+        paramInterfaceName.setText(interfaceName);
 
-        this.methodsCanvas = new FrameCanvas(editor, this, "interface-");
-        methodsLabelRow = new FrameContentRow(this, methodsLabel);
-        addCanvas(methodsLabelRow, methodsCanvas);
+        documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramInterfaceName.textProperty()).concat(" interface here..."));
 
-        frameEnabledProperty.set(enabled);
-    }
+        extendsList = new ExtendsList(this, () -> {
+            TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), new TypeCompletionCalculator(editor, InteractionManager.Kind.INTERFACE), "interface-");
+            s.setSimplePromptText("interface type");
+            return s;
+        }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);
 
-    public void checkForEmptySlot()
-    {
-        if ( packageSlot != null && packageSlot.isEmpty() ) {
-            showingPackageSlot.set(packageSlot.isFocused());
-        }
+        extendsTypes.forEach(t -> this.extendsList.addTypeSlotAtEnd(t.getContent(), false));
+        extendsList.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal)
+                extendsList.ensureAtLeastOneSlot();
+            else
+                extendsList.clearIfSingleEmpty();
+        });
+
+        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+                FXCollections.observableArrayList(headerCaptionLabel),
+                FXCollections.observableArrayList(paramInterfaceName),
+                extendsList.getHeaderItems()
+        ));
     }
 
     @Override
@@ -361,13 +222,6 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
         editor.scrollTo(c.getNode(), -100);
     }
 
-    // Can't drag Interface blocks:
-    @Override
-    public boolean canDrag()
-    {
-        return false;
-    }
-
     @Override
     public void bindMinHeight(DoubleBinding prop)
     {
@@ -384,16 +238,6 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
                 null, //extendsList.getTypes(),
                 fields, methods, new JavadocUnit(getDocumentation()), packageSlot == null ? null : packageSlot.getSlotElement(),
                 imports, frameEnabledProperty.get());
-    }
-
-    private List<CodeElement> getMembers(FrameCanvas frameCanvas)
-    {
-        List<CodeElement> members = new ArrayList<>();
-        for (CodeFrame<?> c : frameCanvas.getBlocksSubtype(CodeFrame.class)) {
-            c.regenerateCode();
-            members.add(c.getCode());
-        }
-        return members;
     }
 
     @Override
@@ -427,13 +271,6 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
     }
 
     @Override
-    protected List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-//        return null;
-        return new ArrayList<>();
-    }
-
-    @Override
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {
         // We deliberately don't include super.getAvailableExtensions; we can't be disabled
@@ -455,98 +292,6 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
 //        }
     }
 
-    private FrameCanvas createImportsCanvas(final List<ImportElement> imports)
-    {
-        FrameCanvas importCanvas = new FrameCanvas(editor, new CanvasParent() {
-
-            @Override
-            public FrameCursor findCursor(double sceneX, double sceneY, FrameCursor prevCursor, FrameCursor nextCursor, List<Frame> exclude, boolean isDrag, boolean canDescend)
-            {
-                return InterfaceFrame.this.importCanvas.findClosestCursor(sceneX, sceneY, exclude, isDrag, canDescend);
-            }
-
-            @Override
-            public FrameTypeCheck check(FrameCanvas canvasBase)
-            {
-                return StrideDictionary.checkImport();
-            }
-
-            @Override
-            public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursor)
-            {
-                return Collections.emptyList();
-            }
-
-            @Override
-            public Frame getFrame()
-            {
-                return InterfaceFrame.this;
-            }
-
-            @Override
-            public InteractionManager getEditor()
-            {
-                return editor;
-            }
-
-        }, "interface-import-");
-
-        importCanvas.setAnimateLeftMarginScale(true);
-
-        // Add available import frames:
-        List<ImportElement> importsRev = new ArrayList<>(imports);
-        Collections.reverse(importsRev);
-        importsRev.forEach(item -> importCanvas.insertBlockBefore(item.createFrame(editor), importCanvas.getFirstCursor()));
-
-        JavaFXUtil.onceInScene(importCanvas.getNode(), () -> importCanvas.shrinkUsing(new ReadOnlyDoubleWrapper(0.0)));
-
-        new DeepListBinding<String>(boundImports) {
-            private final ChangeListener<String> listener = (a, b, c) -> update();
-            private final MultiListener<ObservableStringValue> stringListener
-                    = new MultiListener<>(v -> { v.addListener(listener); return () -> v.removeListener(listener); });
-
-            @Override
-            protected Stream<ObservableList<?>> getListenTargets()
-            {
-                return Stream.of(importCanvas.getBlockContents());
-            }
-
-            @Override
-            protected Stream<String> calculateValues()
-            {
-                return importCanvas.getBlockContents().stream().map(f -> (ImportFrame)f).map(ImportFrame::getImport);
-            }
-
-            @Override
-            protected void update()
-            {
-                stringListener.listenOnlyTo(importCanvas.getBlockContents().stream().map(f -> (ImportFrame)f).map(ImportFrame::importProperty));
-                super.update();
-            }
-
-        }.startListening();
-
-        return importCanvas;
-    }
-
-
-    @Override
-    public ObservableList<String> getImports()
-    {
-        return boundImports;
-    }
-
-    @Override
-    public void addImport(String importSrc)
-    {
-        importCanvas.insertBlockAfter(new ImportFrame(editor, importSrc), importCanvas.getLastCursor());
-    }
-
-    public void addDefaultConstructor()
-    {
-        throw new IllegalAccessError();
-    }
-
     @Override
     public BirdseyeManager prepareBirdsEyeView(SharedTransition animate)
     {
@@ -562,9 +307,9 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
     }
 
     @Override
-    public List<MethodProtoFrame> getMethods()
+    public void addDefaultConstructor()
     {
-        return methodsCanvas.getBlocksSubtype(MethodProtoFrame.class);
+        throw new IllegalAccessError();
     }
 
     @Override
@@ -574,19 +319,15 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
     }
 
     @Override
+    public List<MethodProtoFrame> getMethods()
+    {
+        return methodsCanvas.getBlocksSubtype(MethodProtoFrame.class);
+    }
+
+    @Override
     public void insertAtEnd(Frame frame)
     {
         getLastCanvas().getLastCursor().insertBlockAfter(frame);
-    }
-
-    public FrameCanvas getfieldsCanvas()
-    {
-        return fieldsCanvas;
-    }
-
-    public FrameCanvas getMethodsCanvas()
-    {
-        return methodsCanvas;
     }
 
     @Override
@@ -594,24 +335,6 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
     {
         return paramInterfaceName.textProperty();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     @Override
     public Stream<RecallableFocus> getFocusables()
@@ -670,21 +393,6 @@ public class InterfaceFrame extends DocumentedMultiCanvasFrame
             return CanvasKind.METHODS;
         else
             return CanvasKind.STATEMENTS; // Not true, but it's our default for now
-    }
-
-    @Override
-    protected void modifyChildren(List<FrameContentItem> updatedChildren)
-    {
-        super.modifyChildren(updatedChildren);
-        int n = 0;
-        if (packageSlot != null)
-        {
-            updatedChildren.add(n, packageRow);
-            n += 1;
-        }
-        updatedChildren.add(n, importRow);
-        updatedChildren.add(n+1, importCanvas);
-        updatedChildren.add(endSpacer);
     }
 
     @Override
