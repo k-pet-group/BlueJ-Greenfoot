@@ -21,6 +21,55 @@
  */
 package bluej.stride.framedjava.frames;
 
+import bluej.Config;
+import bluej.editor.stride.BirdseyeManager;
+import bluej.parser.AssistContent.CompletionKind;
+import bluej.parser.AssistContent.ParamInfo;
+import bluej.parser.entity.EntityResolver;
+import bluej.stride.framedjava.ast.PackageFragment;
+import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.slots.TypeSlot;
+import bluej.stride.framedjava.ast.AccessPermission;
+import bluej.stride.framedjava.elements.NormalMethodElement;
+import bluej.stride.framedjava.ast.JavadocUnit;
+import bluej.stride.framedjava.ast.NameDefSlotFragment;
+import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.elements.ClassElement;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.ImportElement;
+import bluej.stride.framedjava.errors.CodeError;
+import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
+import bluej.stride.generic.FrameCursor;
+import bluej.stride.generic.InteractionManager;
+import bluej.stride.generic.InteractionManager.Kind;
+import bluej.stride.generic.RecallableFocus;
+import bluej.stride.generic.FrameContentItem;
+import bluej.stride.generic.FrameContentRow;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import bluej.stride.generic.FrameTypeCheck;
+import bluej.stride.generic.TopLevelDocumentMultiCanvasFrame;
+import bluej.stride.operations.CustomFrameOperation;
+import bluej.stride.operations.FrameOperation;
+import bluej.stride.slots.EditableSlot.MenuItemOrder;
+import bluej.stride.slots.Focus;
+import bluej.stride.slots.ClassNameDefTextSlot;
+import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.HeaderItem;
+import bluej.stride.slots.Implements;
+import bluej.stride.slots.SlotLabel;
+import bluej.stride.slots.SlotTraversalChars;
+import bluej.stride.slots.TextSlot;
+import bluej.stride.slots.TriangleLabel;
+import bluej.stride.slots.TypeCompletionCalculator;
+import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SharedTransition;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,14 +83,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import bluej.Config;
-import bluej.stride.framedjava.ast.PackageFragment;
-import bluej.stride.framedjava.ast.links.PossibleLink;
-import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameTypeCheck;
-import bluej.stride.generic.TopLevelDocumentMultiCanvasFrame;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -62,48 +103,8 @@ import javafx.scene.Parent;
 import javafx.util.Duration;
 import javax.swing.SwingUtilities;
 
-import bluej.editor.stride.BirdseyeManager;
-import bluej.stride.framedjava.ast.AccessPermission;
-import bluej.stride.framedjava.elements.NormalMethodElement;
-import bluej.stride.generic.FrameContentItem;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.slots.Focus;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.parser.AssistContent.CompletionKind;
-import bluej.parser.AssistContent.ParamInfo;
-import bluej.parser.entity.EntityResolver;
-import bluej.stride.framedjava.ast.JavadocUnit;
-import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.framedjava.elements.ClassElement;
-import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.elements.ImportElement;
-import bluej.stride.framedjava.errors.CodeError;
-import bluej.stride.generic.AssistContentThreadSafe;
-import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.InteractionManager.Kind;
-import bluej.stride.generic.RecallableFocus;
-import bluej.stride.operations.CustomFrameOperation;
-import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.ClassNameDefTextSlot;
-import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.HeaderItem;
-import bluej.stride.slots.Implements;
-import bluej.stride.slots.SlotLabel;
-import bluej.stride.slots.SlotTraversalChars;
-import bluej.stride.slots.TextSlot;
-import bluej.stride.slots.TriangleLabel;
-import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.JavaFXUtil;
 
 public class ClassFrame extends TopLevelDocumentMultiCanvasFrame implements TopLevelFrame<ClassElement>
 {
@@ -131,8 +132,9 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame implements TopL
     private final SlotLabel constructorsLabel;
     private final FrameContentRow constructorsLabelRow;
 
-    public ClassFrame(InteractionManager editor, boolean abstractModifierParam, NameDefSlotFragment className, PackageFragment packageName, List<ImportElement> imports,
-            TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, EntityResolver projectResolver, JavadocUnit documentation, boolean enabled)
+    public ClassFrame(InteractionManager editor, EntityResolver projectResolver, PackageFragment packageName, List<ImportElement> imports,
+                      JavadocUnit documentation, boolean abstractModifierParam, NameDefSlotFragment className, TypeSlotFragment extendsName,
+                      List<TypeSlotFragment> implementsList, boolean enabled)
     {
         super(editor, projectResolver, "class", "class-", imports, documentation, enabled);
 

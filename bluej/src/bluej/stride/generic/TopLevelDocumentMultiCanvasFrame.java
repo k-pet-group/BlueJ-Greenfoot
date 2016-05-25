@@ -58,7 +58,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- *
+ * A top level class to represent common features in Class and Interface frames
+ * @author Amjad
  */
 public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCanvasFrame
 {

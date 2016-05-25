@@ -301,7 +301,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     @Override
     public ClassFrame createFrame(InteractionManager editor)
     {
-        frame = new ClassFrame(editor, abstractModifier, className, packageName, imports, extendsName, implementsList, projectResolver, documentation, isEnable());
+        frame = new ClassFrame(editor, projectResolver, packageName, imports, documentation, abstractModifier, className, extendsName, implementsList, isEnable());
         fields.forEach(member -> frame.getfieldsCanvas().insertBlockAfter(member.createFrame(editor), null));
         constructors.forEach(member -> frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null));
         methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));
