@@ -384,10 +384,10 @@
             <fileset dir="${win_bundled_jdk_path}" />
         </copy>
 
-        <!-- Fix the path to the JDK in bluej.defs -->
+        <!-- Fix the path to the JDK in greenfoot.defs -->
         <replaceregexp byline="true">
-            <regexp pattern="#bluej\.windows\.vm=.*"/>
-            <substitution expression="bluej.windows.vm=jdk"/>
+            <regexp pattern="#greenfoot\.windows\.vm=.*"/>
+            <substitution expression="greenfoot.windows.vm=jdk"/>
             <fileset dir="winsetup/standalone/greenfoot/lib" includes="greenfoot.defs"/>
         </replaceregexp>
 
