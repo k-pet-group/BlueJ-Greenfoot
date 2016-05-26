@@ -28,11 +28,11 @@ import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.ImportElement;
-import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.InterfaceElement;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.FrameContentRow;
@@ -93,33 +93,9 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         ));
     }
 
-    @Override
-    public void focusOnBody(BodyFocus on)
+    protected Frame findASpecialMethod()
     {
-        FrameCursor c;
-        if (on == BodyFocus.TOP)
-        {
-            c = fieldsCanvas.getFirstCursor();
-        }
-        else if (on == BodyFocus.BOTTOM)
-        {
-            c = methodsCanvas.getLastCursor();
-        }
-        else
-        {
-            // If we have any errors, focus on them
-            Optional<CodeError> error = getCurrentErrors().findFirst();
-            if (error.isPresent())
-            {
-                error.get().jumpTo(editor);
-                return;
-            }
-
-            // Go to top of methods:
-            c = methodsCanvas.getFirstCursor();
-        }
-        c.requestFocus();
-        editor.scrollTo(c.getNode(), -100);
+        return null;
     }
 
     @Override

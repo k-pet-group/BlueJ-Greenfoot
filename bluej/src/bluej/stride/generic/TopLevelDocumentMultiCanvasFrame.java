@@ -30,6 +30,7 @@ import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
+import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.ImportFrame;
 import bluej.stride.framedjava.frames.StrideDictionary;
@@ -457,13 +458,6 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     }
 
     @Override
-    public Stream<RecallableFocus> getFocusables()
-    {
-        // All slots, and all cursors:
-        return getFocusablesInclContained();
-    }
-
-    @Override
     public FrameCanvas getImportCanvas()
     {
         return importCanvas;
@@ -486,4 +480,51 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     {
         paramName.requestFocus(Focus.LEFT);
     }
+
+    @Override
+    public Stream<RecallableFocus> getFocusables()
+    {
+        // All slots, and all cursors:
+        return getFocusablesInclContained();
+    }
+
+    @Override
+    public void focusOnBody(BodyFocus on)
+    {
+        FrameCursor c;
+        if (on == BodyFocus.TOP)
+        {
+            c = fieldsCanvas.getFirstCursor();
+        }
+        else if (on == BodyFocus.BOTTOM)
+        {
+            c = methodsCanvas.getLastCursor();
+        }
+        else
+        {
+            // If we have any errors, focus on them
+            Optional<CodeError> error = getCurrentErrors().findFirst();
+            if (error.isPresent())
+            {
+                error.get().jumpTo(editor);
+                return;
+            }
+
+            // Look for a special method:
+            Frame specialMethod = findASpecialMethod();
+            if (specialMethod != null)
+            {
+                c = specialMethod.getFirstInternalCursor();
+            }
+            else
+            {
+                // Go to top of methods:
+                c = methodsCanvas.getFirstCursor();
+            }
+        }
+        c.requestFocus();
+        editor.scrollTo(c.getNode(), -100);
+    }
+
+    abstract protected Frame findASpecialMethod();
 }

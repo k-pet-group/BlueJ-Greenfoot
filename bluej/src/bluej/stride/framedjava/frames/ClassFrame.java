@@ -183,42 +183,10 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
     }
 
-    @Override
-    public void focusOnBody(BodyFocus on)
+    protected Frame findASpecialMethod()
     {
-        FrameCursor c;
-        if (on == BodyFocus.TOP)
-        {
-            c = fieldsCanvas.getFirstCursor();
-        }
-        else if (on == BodyFocus.BOTTOM)
-        {
-            c = methodsCanvas.getLastCursor();
-        }
-        else
-        {
-            // If we have any errors, focus on them
-            Optional<CodeError> error = getCurrentErrors().findFirst();
-            if (error.isPresent())
-            {
-                error.get().jumpTo(editor);
-                return;
-            }
-
-            // Look for an act method:
-            NormalMethodFrame act = getMethods().stream().filter(f -> f.getName().equals("act") && f.getParamsPane().isEmpty()).findFirst().orElse(null);
-            if (act != null)
-            {
-                c = act.getFirstInternalCursor();
-            }
-            else
-            {
-                // Go to top of methods:
-                c = methodsCanvas.getFirstCursor();
-            }
-        }
-        c.requestFocus();
-        editor.scrollTo(c.getNode(), -100);
+        // Look for an act method:
+        return getMethods().stream().filter(f -> f.getName().equals("act") && f.getParamsPane().isEmpty()).findFirst().orElse(null);
     }
 
     @Override
