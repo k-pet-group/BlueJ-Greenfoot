@@ -366,7 +366,7 @@
         </exec>
     </target>
 
-    <target name="windows-standalone" depends="dist,windows-launcher-usb">
+    <target name="windows-standalone" depends="dist,windows-launcher,windows-launcher-usb">
         <mkdir dir="winsetup/standalone"/>
         <delete dir="winsetup/standalone/bluej" failonerror="false"/>
         <delete dir="winsetup/standalone/greenfoot" failonerror="false"/>
