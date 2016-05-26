@@ -391,7 +391,7 @@
             <fileset dir="winsetup/standalone/greenfoot/lib" includes="greenfoot.defs"/>
         </replaceregexp>
 
-        <!-- Adjust the home directory -->
+        <!-- Adjust the home directory (this is meant to be bluej.userHome, not greenfoot.userHome) -->
         <replaceregexp byline="true">
             <regexp pattern="#bluej\.userHome=.*"/>
             <substitution expression="bluej.userHome=userhome"/>
