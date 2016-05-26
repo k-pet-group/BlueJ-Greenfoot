@@ -281,7 +281,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame implements TopL
         constructorsLabel = makeLabel("Constructors");
         this.constructorsCanvas = new FrameCanvas(editor, this, "class-");
         constructorsLabelRow = new FrameContentRow(this, constructorsLabel);
-        addCanvas(constructorsLabelRow, constructorsCanvas);
+        addCanvas(constructorsLabelRow, constructorsCanvas, 1);
     }
 
     @Override
