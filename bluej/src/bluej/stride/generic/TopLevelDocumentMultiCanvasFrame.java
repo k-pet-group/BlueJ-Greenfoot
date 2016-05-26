@@ -21,17 +21,26 @@
  */
 package bluej.stride.generic;
 
+import bluej.Config;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavadocUnit;
+import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.PackageFragment;
+import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ImportElement;
+import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.ImportFrame;
 import bluej.stride.framedjava.frames.StrideDictionary;
+import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.stride.operations.FrameOperation;
+import bluej.stride.slots.ClassNameDefTextSlot;
+import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
+import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.TriangleLabel;
 import bluej.utility.javafx.JavaFXUtil;
@@ -40,16 +49,22 @@ import bluej.utility.javafx.SharedTransition;
 import bluej.utility.javafx.binding.DeepListBinding;
 
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,11 +76,14 @@ import java.util.stream.Stream;
  * A top level class to represent common features in Class and Interface frames
  * @author Amjad
  */
-public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCanvasFrame
+public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeElement & TopLevelCodeElement> extends DocumentedMultiCanvasFrame implements TopLevelFrame<ELEMENT>
 {
     protected final InteractionManager editor;
     protected final EntityResolver projectResolver;
     private final String stylePrefix;
+
+    @OnThread(value = Tag.Any,requireSynchronized = true)
+    protected ELEMENT element;
 
     // can both be null in Greenfoot, where we don't show the package
     protected FrameContentRow packageRow; // final - after moving initialization to this class
@@ -80,6 +98,8 @@ public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCa
     protected final SlotLabel importsLabel;
     protected final TriangleLabel importTriangleLabel;
 
+    protected TextSlot<NameDefSlotFragment> paramName;
+
     protected final FrameCanvas fieldsCanvas;
     protected final FrameCanvas methodsCanvas;
     protected final SlotLabel fieldsLabel;
@@ -90,7 +110,8 @@ public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCa
     protected final FrameContentItem endSpacer;
 
     public TopLevelDocumentMultiCanvasFrame(InteractionManager editor, EntityResolver projectResolver, String caption,
-                            String stylePrefix, List<ImportElement> imports, JavadocUnit documentation, boolean enabled)
+                                        String stylePrefix, PackageFragment packageName, List<ImportElement> imports,
+                                        JavadocUnit documentation, NameDefSlotFragment topLevelFrameName, boolean enabled)
     {
         //Frame frameParent
         super(editor, caption, stylePrefix);
@@ -163,11 +184,85 @@ public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCa
             }
         };
 
+
+        // Since we don't support packages in Greenfoot, we don't bother showing the package declaration:
+        if (Config.isGreenfoot())
+        {
+            this.packageRow = null;
+            this.packageSlot = null;
+            this.showingPackageSlot = null;
+            this.notShowingPackageSlot = null;
+        }
+        else
+        {
+            this.packageRow = new FrameContentRow(this);
+
+            // Spacer to catch the mouse click
+            SlotLabel spacer = new SlotLabel(" ");
+            spacer.setOpacity(0.0);
+            spacer.setCursor(Cursor.TEXT);
+
+            this.packageSlot = new TextSlot<PackageFragment>(editor, this, this, this.packageRow, null, "package-slot-", Collections.emptyList())
+            {
+                @Override
+                protected PackageFragment createFragment(String content)
+                {
+                    return new PackageFragment(content, this);
+                }
+
+                @Override
+                public void valueChangedLostFocus(String oldValue, String newValue)
+                {
+                    // Nothing to do
+                }
+
+                @Override
+                public List<? extends PossibleLink> findLinks()
+                {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public int getStartOfCurWord()
+                {
+                    // Start of word is always start of slot; don't let the dots in package/class names break the word:
+                    return 0;
+                }
+            };
+            this.packageSlot.setPromptText("package name");
+            boolean packageNameNotEmpty = packageName != null && !packageName.isEmpty();
+            if (packageNameNotEmpty) {
+                this.packageSlot.setText(packageName);
+            }
+            this.showingPackageSlot = new SimpleBooleanProperty(packageNameNotEmpty);
+            this.notShowingPackageSlot = showingPackageSlot.not();
+            JavaFXUtil.addChangeListener(showingPackageSlot, showing -> {
+                if (!showing) {
+                    packageSlot.setText("");
+                    packageSlot.cleanup();
+                }
+                editor.modifiedFrame(this);
+            });
+
+            spacer.setOnMouseClicked(e -> {
+                showingPackageSlot.set(true);
+                packageSlot.requestFocus();
+                e.consume();
+            });
+
+            this.packageRow.bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+                    FXCollections.observableArrayList(new SlotLabel("package ")),
+                    JavaFXUtil.listBool(notShowingPackageSlot, spacer),
+                    JavaFXUtil.listBool(showingPackageSlot, this.packageSlot)
+            ));
+
+            packageSlot.addFocusListener(this);
+        }
+
+
         importsLabel = makeLabel("Imports");
         fieldsLabel = makeLabel("Fields");
         methodsLabel = makeLabel("Methods");
-
-        setDocumentation(documentation.toString());
 
         importCanvas = createImportsCanvas(imports);// TODO delete this and uncomment it in saved() if it cause NPE in future
         //importCanvas.addToLeftMargin(10.0);
@@ -176,6 +271,15 @@ public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCa
         JavaFXUtil.addChangeListener(importTriangleLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
         importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
         //alterImports(editor.getImports());
+
+        //Parameters
+        paramName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), stylePrefix + "name-");
+        paramName.addValueListener(SlotTraversalChars.IDENTIFIER);
+        paramName.setPromptText(caption + " name");
+        paramName.setText(topLevelFrameName);
+
+        setDocumentation(documentation.toString());
+        documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramName.textProperty()).concat(" " + caption + " here..."));
 
         this.fieldsCanvas = new FrameCanvas(editor, this, stylePrefix + "fields-");
         fieldsLabelRow = new FrameContentRow(this, fieldsLabel);
@@ -332,5 +436,54 @@ public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCa
         updatedChildren.add(n, importRow);
         updatedChildren.add(n+1, importCanvas);
         updatedChildren.add(endSpacer);
+    }
+
+    @Override
+    public void bindMinHeight(DoubleBinding prop)
+    {
+        getRegion().minHeightProperty().bind(prop);
+    }
+
+    @Override
+    public void insertAtEnd(Frame frame)
+    {
+        getLastCanvas().getLastCursor().insertBlockAfter(frame);
+    }
+
+    @Override
+    public ObservableStringValue nameProperty()
+    {
+        return paramName.textProperty();
+    }
+
+    @Override
+    public Stream<RecallableFocus> getFocusables()
+    {
+        // All slots, and all cursors:
+        return getFocusablesInclContained();
+    }
+
+    @Override
+    public FrameCanvas getImportCanvas()
+    {
+        return importCanvas;
+    }
+
+    @Override
+    public void ensureImportCanvasShowing()
+    {
+        importCanvas.getShowingProperty().set(true);
+    }
+
+    @Override
+    public EditableSlot getErrorShowRedirect()
+    {
+        return paramName;
+    }
+
+    @Override
+    public void focusName()
+    {
+        paramName.requestFocus(Focus.LEFT);
     }
 }

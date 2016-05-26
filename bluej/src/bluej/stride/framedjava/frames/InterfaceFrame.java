@@ -21,42 +21,32 @@
  */
 package bluej.stride.framedjava.frames;
 
-import bluej.Config;
 import bluej.editor.stride.BirdseyeManager;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.InterfaceElement;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.RecallableFocus;
 import bluej.stride.generic.TopLevelDocumentMultiCanvasFrame;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.ClassNameDefTextSlot;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.ExtendsList;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
-import bluej.stride.slots.SlotTraversalChars;
-import bluej.stride.slots.TextSlot;
-import bluej.stride.slots.TriangleLabel;
-import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.utility.Utility;
-import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
 import java.util.ArrayList;
@@ -66,112 +56,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Cursor;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame implements TopLevelFrame<InterfaceElement>
+public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceElement>
 {
-    @OnThread(value = Tag.Any,requireSynchronized = true)
-    private InterfaceElement element;
-
-    private TextSlot<NameDefSlotFragment> paramInterfaceName;
     private final ExtendsList extendsList;
 
     public InterfaceFrame(InteractionManager editor, EntityResolver projectResolver, PackageFragment packageName,
                           List<ImportElement> imports, JavadocUnit documentation, NameDefSlotFragment interfaceName,
                           List<TypeSlotFragment> extendsTypes, boolean enabled)
     {
-        super(editor, projectResolver, "interface", "interface-", imports, documentation, enabled);
-
-        // Since we don't support packages in Greenfoot, we don't bother showing the package declaration:
-        if (Config.isGreenfoot())
-        {
-            this.packageRow = null;
-            this.packageSlot = null;
-            this.showingPackageSlot = null;
-            this.notShowingPackageSlot = null;
-        }
-        else
-        {
-            this.packageRow = new FrameContentRow(this);
-
-            // Spacer to catch the mouse click
-            SlotLabel spacer = new SlotLabel(" ");
-            spacer.setOpacity(0.0);
-            spacer.setCursor(Cursor.TEXT);
-
-            this.packageSlot = new TextSlot<PackageFragment>(editor, this, this, this.packageRow, null, "package-slot-", Collections.emptyList())
-            {
-                @Override
-                protected PackageFragment createFragment(String content)
-                {
-                    return new PackageFragment(content, this);
-                }
-
-                @Override
-                public void valueChangedLostFocus(String oldValue, String newValue)
-                {
-                    // Nothing to do
-                }
-
-                @Override
-                public List<? extends PossibleLink> findLinks()
-                {
-                    return Collections.emptyList();
-                }
-
-                @Override
-                public int getStartOfCurWord()
-                {
-                    // Start of word is always start of slot; don't let the dots in package/class names break the word:
-                    return 0;
-                }
-            };
-            this.packageSlot.setPromptText("package name");
-            boolean packageNameNotEmpty = packageName != null && !packageName.isEmpty();
-            if (packageNameNotEmpty) {
-                this.packageSlot.setText(packageName);
-            }
-            this.showingPackageSlot = new SimpleBooleanProperty(packageNameNotEmpty);
-            this.notShowingPackageSlot = showingPackageSlot.not();
-            JavaFXUtil.addChangeListener(showingPackageSlot, showing -> {
-                if (!showing) {
-                    packageSlot.setText("");
-                    packageSlot.cleanup();
-                }
-                editor.modifiedFrame(this);
-            });
-
-            spacer.setOnMouseClicked(e -> {
-                showingPackageSlot.set(true);
-                packageSlot.requestFocus();
-                e.consume();
-            });
-
-            this.packageRow.bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
-                    FXCollections.observableArrayList(new SlotLabel("package ")),
-                    JavaFXUtil.listBool(notShowingPackageSlot, spacer),
-                    JavaFXUtil.listBool(showingPackageSlot, this.packageSlot)
-            ));
-
-            packageSlot.addFocusListener(this);
-        }
-
-        //Parameters
-        paramInterfaceName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), "interface-name-");
-        paramInterfaceName.addValueListener(SlotTraversalChars.IDENTIFIER);
-        paramInterfaceName.setPromptText("interface name");
-        paramInterfaceName.setText(interfaceName);
-
-        documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramInterfaceName.textProperty()).concat(" interface here..."));
+        super(editor, projectResolver, "interface", "interface-", packageName, imports, documentation, interfaceName, enabled);
 
         extendsList = new ExtendsList(this, () -> {
             TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.INTERFACE, "interface-");
@@ -189,7 +88,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame implements 
 
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
-                FXCollections.observableArrayList(paramInterfaceName),
+                FXCollections.observableArrayList(paramName),
                 extendsList.getHeaderItems()
         ));
     }
@@ -224,18 +123,12 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame implements 
     }
 
     @Override
-    public void bindMinHeight(DoubleBinding prop)
-    {
-        getRegion().minHeightProperty().bind(prop);
-    }
-
-    @Override
     public synchronized void regenerateCode()
     {
         List<CodeElement> fields = getMembers(fieldsCanvas);
         List<CodeElement> methods = getMembers(methodsCanvas);
         List<ImportElement> imports = Utility.mapList(getMembers(importCanvas), e -> (ImportElement)e);
-        element = new InterfaceElement(this, projectResolver, paramInterfaceName.getSlotElement(),
+        element = new InterfaceElement(this, projectResolver, paramName.getSlotElement(),
                 null, //extendsList.getTypes(),
                 fields, methods, new JavadocUnit(getDocumentation()), packageSlot == null ? null : packageSlot.getSlotElement(),
                 imports, frameEnabledProperty.get());
@@ -326,52 +219,10 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame implements 
     }
 
     @Override
-    public void insertAtEnd(Frame frame)
-    {
-        getLastCanvas().getLastCursor().insertBlockAfter(frame);
-    }
-
-    @Override
-    public ObservableStringValue nameProperty()
-    {
-        return paramInterfaceName.textProperty();
-    }
-
-    @Override
-    public Stream<RecallableFocus> getFocusables()
-    {
-        // All slots, and all cursors:
-        return getFocusablesInclContained();
-    }
-
-    @Override
-    public FrameCanvas getImportCanvas() {
-        return importCanvas;
-    }
-
-    @Override
-    public void ensureImportCanvasShowing()
-    {
-        importCanvas.getShowingProperty().set(true);
-    }
-
-    @Override
     public Stream<FrameCanvas> getPersistentCanvases()
     {
         return getCanvases();
 //        return getCanvases().filter(canvas -> !extendsInheritedCanvases.contains(canvas));
-    }
-
-    @Override
-    public EditableSlot getErrorShowRedirect()
-    {
-        return paramInterfaceName;
-    }
-
-    @Override
-    public void focusName()
-    {
-        paramInterfaceName.requestFocus(Focus.LEFT);
     }
 
     @Override
@@ -399,7 +250,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame implements 
     @Override
     public void restore(InterfaceElement target)
     {
-        paramInterfaceName.setText(target.getName());
+        paramName.setText(target.getName());
         extendsList.setTypes(target.getExtends());
         importCanvas.restore(target.getImports(), editor);
         fieldsCanvas.restore(target.getFields(), editor);
