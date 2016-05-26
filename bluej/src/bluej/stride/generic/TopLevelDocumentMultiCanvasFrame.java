@@ -98,30 +98,6 @@ public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCa
         this.projectResolver = projectResolver;
         this.stylePrefix = stylePrefix;
 
-        importsLabel = makeLabel("Imports");
-        fieldsLabel = makeLabel("Fields");
-        methodsLabel = makeLabel("Methods");
-
-        setDocumentation(documentation.toString());
-
-        importCanvas = createImportsCanvas(imports);// TODO delete this and uncomment it in saved() if it cause NPE in future
-        //importCanvas.addToLeftMargin(10.0);
-        importCanvas.getShowingProperty().set(false);
-        importTriangleLabel = new TriangleLabel(editor, t -> importCanvas.growUsing(t.getProgress()), t -> importCanvas.shrinkUsing(t.getOppositeProgress()), importCanvas.getShowingProperty());
-        JavaFXUtil.addChangeListener(importTriangleLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
-        importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
-        //alterImports(editor.getImports());
-
-        this.fieldsCanvas = new FrameCanvas(editor, this, stylePrefix + "fields-");
-        fieldsLabelRow = new FrameContentRow(this, fieldsLabel);
-        addCanvas(fieldsLabelRow, fieldsCanvas);
-
-        this.methodsCanvas = new FrameCanvas(editor, this, stylePrefix);
-        methodsLabelRow = new FrameContentRow(this, methodsLabel);
-        addCanvas(methodsLabelRow, methodsCanvas);
-
-        frameEnabledProperty.set(enabled);
-
         // Spacer to make the class have a bit of space after last canvas;
         endSpacer = new FrameContentItem() {
             private Rectangle r = new Rectangle(1, 200, Color.TRANSPARENT);
@@ -186,6 +162,30 @@ public abstract class TopLevelDocumentMultiCanvasFrame extends DocumentedMultiCa
                 return r;
             }
         };
+
+        importsLabel = makeLabel("Imports");
+        fieldsLabel = makeLabel("Fields");
+        methodsLabel = makeLabel("Methods");
+
+        setDocumentation(documentation.toString());
+
+        importCanvas = createImportsCanvas(imports);// TODO delete this and uncomment it in saved() if it cause NPE in future
+        //importCanvas.addToLeftMargin(10.0);
+        importCanvas.getShowingProperty().set(false);
+        importTriangleLabel = new TriangleLabel(editor, t -> importCanvas.growUsing(t.getProgress()), t -> importCanvas.shrinkUsing(t.getOppositeProgress()), importCanvas.getShowingProperty());
+        JavaFXUtil.addChangeListener(importTriangleLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
+        importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
+        //alterImports(editor.getImports());
+
+        this.fieldsCanvas = new FrameCanvas(editor, this, stylePrefix + "fields-");
+        fieldsLabelRow = new FrameContentRow(this, fieldsLabel);
+        addCanvas(fieldsLabelRow, fieldsCanvas);
+
+        this.methodsCanvas = new FrameCanvas(editor, this, stylePrefix);
+        methodsLabelRow = new FrameContentRow(this, methodsLabel);
+        addCanvas(methodsLabelRow, methodsCanvas);
+
+        frameEnabledProperty.set(enabled);
     }
 
     protected SlotLabel makeLabel(String content)
