@@ -343,7 +343,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     // Used by ReturnFrame
     public StringExpression returnTypeProperty()
     {
-        return new SimpleStringProperty(); //TODOTYPESLOT returnType.textProperty();
+        return returnType.javaProperty();
     }
 
     @OnThread(Tag.FX)

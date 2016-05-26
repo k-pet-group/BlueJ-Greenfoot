@@ -20,14 +20,14 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
      */
     private boolean queuedUpdatePrompts;
     
-    private InfixExpression(InteractionManager editor, ExpressionSlot<?> slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
+    private InfixExpression(InteractionManager editor, ExpressionSlot<?> slot, String initialContent, BracketedStructured wrapper, StructuredSlot.ModificationToken token, Character... closingChars)
     {
-        super(editor, slot, initialContent, wrapper, closingChars);
+        super(editor, slot, initialContent, wrapper, token, closingChars);
     }
 
-    InfixExpression(InteractionManager editor, ExpressionSlot<?> slot, String stylePrefix)
+    InfixExpression(InteractionManager editor, ExpressionSlot<?> slot, StructuredSlot.ModificationToken token)
     {
-        super(editor, slot, stylePrefix);
+        super(editor, slot, token);
     }
     //package visible for testing
     /** Is this string an operator */
@@ -110,9 +110,9 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
     }
 
     @Override
-    InfixExpression newInfix(InteractionManager editor, ExpressionSlot<?> slot, String initialContent, BracketedStructured<?, ExpressionSlot<?>> wrapper, Character... closingChars)
+    InfixExpression newInfix(InteractionManager editor, ExpressionSlot<?> slot, String initialContent, BracketedStructured<?, ExpressionSlot<?>> wrapper, StructuredSlot.ModificationToken token, Character... closingChars)
     {
-        return new InfixExpression(editor, slot, initialContent, wrapper, closingChars);
+        return new InfixExpression(editor, slot, initialContent, wrapper, token, closingChars);
     }
 
 
@@ -126,7 +126,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
             return; // Nothing needs prompts
 
         slot.withParamNamesForConstructor(
-            poss -> setPromptsFromParamNames(poss, "<con>"));
+            poss -> setPromptsFromParamNames(poss));
     }
 
     // package-visible
@@ -142,7 +142,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
             return;
 
         slot.withParamNamesForPos(absPosOfMethodName, methodName,
-            poss -> setPromptsFromParamNames(poss, methodName));
+            poss -> setPromptsFromParamNames(poss));
     }
 
     /**
@@ -156,7 +156,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
      *                       If possibilities is empty, there are no methods found.
      *                       If possibilities is not size 1, there are multiple overloads for that name.
      */
-    private void setPromptsFromParamNames(List<List<String>> possibilities, String debugName)
+    private void setPromptsFromParamNames(List<List<String>> possibilities)
     {
         List<StructuredSlotField> curParams = getSimpleParameters();
         int curArity;
@@ -179,7 +179,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
             // No possibilities, remove all commas if empty:
             if (arityFlexible && !isEmpty())
             {
-                blank();
+                modification(this::blank);
             }
             curParams.stream().filter(f -> f != null).forEach(f -> f.setPromptText(""));
         }
@@ -193,12 +193,14 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
                 // No fixed arity; we know field must be near-blank, so just
                 // replace it with the right number of commas (may be zero):
                 boolean wasFocused = isFocused();
-                blank();
-                for (int i = 0; i < match.size() - 1; i++)
-                {
-                    // We add at end to avoid the overtyping logic:
-                    insertChar(getEndPos(), ',', false);
-                }
+                modification(token -> {
+                    blank(token);
+                    for (int i = 0; i < match.size() - 1; i++)
+                    {
+                        // We add at end to avoid the overtyping logic:
+                        insertChar(getEndPos(), ',', false, token);
+                    }
+                });
                 curParams = getSimpleParameters();
                 if (wasFocused)
                     getFirstField().requestFocus();

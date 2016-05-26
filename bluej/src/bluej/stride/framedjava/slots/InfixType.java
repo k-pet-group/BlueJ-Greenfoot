@@ -8,14 +8,14 @@ import bluej.utility.javafx.FXConsumer;
  */
 public class InfixType extends InfixStructured<TypeSlot, InfixType>
 {
-    private InfixType(InteractionManager editor, TypeSlot slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
+    private InfixType(InteractionManager editor, TypeSlot slot, String initialContent, BracketedStructured wrapper, StructuredSlot.ModificationToken token, Character... closingChars)
     {
-        super(editor, slot, initialContent, wrapper, closingChars);
+        super(editor, slot, initialContent, wrapper, token, closingChars);
     }
 
-    InfixType(InteractionManager editor, TypeSlot slot, String stylePrefix)
+    InfixType(InteractionManager editor, TypeSlot slot, StructuredSlot.ModificationToken token)
     {
-        super(editor, slot, stylePrefix);
+        super(editor, slot, token);
     }
     //package visible for testing
     /** Is this string an operator */
@@ -72,9 +72,9 @@ public class InfixType extends InfixStructured<TypeSlot, InfixType>
     }
 
     @Override
-    InfixType newInfix(InteractionManager editor, TypeSlot slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
+    InfixType newInfix(InteractionManager editor, TypeSlot slot, String initialContent, BracketedStructured wrapper, StructuredSlot.ModificationToken token, Character... closingChars)
     {
-        return new InfixType(editor, slot, initialContent, wrapper, closingChars);
+        return new InfixType(editor, slot, initialContent, wrapper, token, closingChars);
     }
 
     @Override

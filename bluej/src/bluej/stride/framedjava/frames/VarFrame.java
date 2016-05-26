@@ -157,7 +157,7 @@ public class VarFrame extends SingleLineFrame
         access.setValue(AccessPermission.PRIVATE);
 
         slotValue = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "var-value-");
-        // TODOTYPESLOT slotValue.bindTargetType(slotType.textProperty());
+        slotValue.bindTargetType(slotType.javaProperty());
         slotValue.setSimplePromptText("value");
         slotValue.onLostFocus(this::checkForEmptySlot);
         Platform.runLater(() -> {if (isFresh()) onNonFresh(this::checkForEmptySlot);});

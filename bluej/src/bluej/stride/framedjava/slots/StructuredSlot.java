@@ -94,6 +94,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.FXBiConsumer;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXFunction;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -175,7 +176,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     private boolean beenModified = false;
     // Keeps a mirror of the text content of the complete content of the slot, mirrored
     // from topLevel, and used to call listeners who want to know about changes in the slot's content.
-    private final StringProperty textMirror = new SimpleStringProperty("");
+    protected final StringProperty textMirror = new SimpleStringProperty("");
     // Because the selection in an expression slot can span multiple text fields, we must
     // draw it on ourselves as an overlay.  This list keeps track of all the positions in
     // the selection, i.e. the beginning before the first character, after the first character,
@@ -214,6 +215,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     private final BooleanProperty focusedProperty = new SimpleBooleanProperty(false);
     // We must keep a reference to this to avoid problems with GC and weak listeners:
     private final BooleanBinding effectivelyFocusedProperty;
+    private final List<ModificationToken> modificationTokens = new ArrayList<>();
+    private final List<FXRunnable> afterModify = new ArrayList<>();
 
     public StructuredSlot(InteractionManager editor,
                           Frame parentFrame, CodeFrame<?> parentCodeFrame, FrameContentRow row, String stylePrefix, COMPLETION_CALCULATOR completionCalculator, List<FrameCatalogue.Hint> hints)
@@ -224,11 +227,15 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         this.row = row;
         this.completionCalculator = completionCalculator;
         this.hints = hints;
-        topLevel = newInfix(editor, stylePrefix);
+        // Since there's no content at this stage, we don't have to worry
+        // about updating textMirror or running after actions.  In fact,
+        // they may be problematic at this stage because topLevel isn't
+        // even initialized until this returns:
+        topLevel = newInfix(editor, new ModificationToken());
 
         effectivelyFocusedProperty = focusedProperty.or(fakeCaretShowing);
         
-        this.textMirror.bind(topLevel.textProperty());
+        //TODOTYPESLOT figure out what to do here now:
         textMirror.addListener((a, b, c) -> {
             // We delay the modified call so that the current code gets a chance to finish its change:
             if (!modifyQueued && !editor.isLoading()) // Only need to queue one at any time
@@ -441,52 +448,63 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     public void setSimplePromptText(String t)
     {
-        topLevel.setPromptText((fields, ops) -> {
-            // If there's just one field:
-            if (ops.isEmpty() && fields.size() == 1 && fields.get(0) instanceof StructuredSlotField)
-                ((StructuredSlotField) fields.get(0)).setPromptText(t);
-            else if (fields.size() > 0)
-                ((StructuredSlotField) fields.get(0)).setPromptText("");
-        });
+        FXRunnable action = () -> {
+            topLevel.withContent((fields, ops) -> {
+                // If there's just one field:
+                if (ops.isEmpty() && fields.size() == 1 && fields.get(0) instanceof StructuredSlotField)
+                    ((StructuredSlotField)fields.get(0)).setPromptText(t);
+                else if (fields.size() > 0)
+                    ((StructuredSlotField)fields.get(0)).setPromptText("");
+            });
+        };
+        // We only act after complete updates:
+        afterModify.add(action);
+        // And trigger now:
+        action.run();
     }
     
     public void setMethodCallPromptText(String t)
     {
-        topLevel.setPromptText((fields, ops) -> {
-            // Can happen during blanking:
-            if (ops.size() == 0 || fields.size() == 0)
-                return;
+        FXRunnable action = () -> {
+            topLevel.withContent((fields, ops) -> {
+                // Can happen during blanking:
+                if (ops.size() == 0 || fields.size() == 0)
+                    return;
 
-            // Scan for fields that are followed by brackets (with no operator inbetween),
-            // and preceded by start or a dot:
-            for (int i = 0; i < fields.size() - 1 /* Don't look at last field */; i++)
-            {
-                if (fields.get(i) instanceof StructuredSlotField)
+                // Scan for fields that are followed by brackets (with no operator inbetween),
+                // and preceded by start or a dot:
+                for (int i = 0; i < fields.size() - 1 /* Don't look at last field */; i++)
                 {
-                    StructuredSlotField f = (StructuredSlotField)fields.get(i);
-                    // Brackets after, with no op inbetween:
-                    if (ops.get(i) == null && fields.get(i+1) instanceof BracketedStructured)
+                    if (fields.get(i) instanceof StructuredSlotField)
                     {
-                        // No op beforehand, or a dot:
-                        if (i == 0 || (ops.get(i-1) != null && ops.get(i-1).get().equals(".")))
+                        StructuredSlotField f = (StructuredSlotField)fields.get(i);
+                        // Brackets after, with no op inbetween:
+                        if (ops.get(i) == null && fields.get(i + 1) instanceof BracketedStructured)
                         {
-                            f.setPromptText(t);
+                            // No op beforehand, or a dot:
+                            if (i == 0 || (ops.get(i - 1) != null && ops.get(i - 1).get().equals(".")))
+                            {
+                                f.setPromptText(t);
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        };
+        // We only act after complete updates:
+        afterModify.add(action);
+        // And trigger now:
+        action.run();
     }
 
     public void onTextPropertyChange(FXConsumer<String> listener)
     {
-        // Really this property can show incomplete states, so we use runLater to make sure update is complete:
-        JavaFXUtil.addChangeListener(textMirror, s -> Platform.runLater(() -> listener.accept(textMirror.get())));
+        JavaFXUtil.addChangeListener(textMirror, listener);
     }
     public void onTextPropertyChangeOld(FXBiConsumer<String, String> listener)
     {
         // Really this property can show incomplete states, so we use runLater to make sure update is complete:
-        textMirror.addListener((a, oldVal, newVal) -> Platform.runLater(() -> listener.accept(oldVal, textMirror.get())));
+        textMirror.addListener((a, oldVal, newVal) -> listener.accept(oldVal, newVal));
     }
     
     public String getText()
@@ -528,11 +546,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     public void setText(String text)
     {
-        topLevel.blank();
-        if (! "".equals(text))
-        {
-            topLevel.insert(topLevel.getFirstField(), 0, text);
-        }
+        modification(token -> {
+            topLevel.blank(token);
+            if (!"".equals(text))
+            {
+                topLevel.insert(topLevel.getFirstField(), 0, text);
+            }
+        });
     }
 
     @Override
@@ -821,7 +841,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         }
     }
     
-    private void executeSuggestion(int selected)
+    private void executeSuggestion(int selected, ModificationToken token)
     {
         String name;
         List<String> params;
@@ -837,7 +857,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             //name = completionCalculator.getName(selected);
             //params = completionCalculator.getParams(selected);
         }
-        topLevel.insertSuggestion(suggestionLocation, name, params);
+        topLevel.insertSuggestion(suggestionLocation, name, params, token);
         modified();
         String completion = name + (params == null ? "" : "(" + params.stream().collect(Collectors.joining(",")) + ")");
         editor.recordCodeCompletionEnded(getSlotElement(), topLevel.caretPosToStringPos(suggestionLocation, false), getCurSuggestionWord(), completion);
@@ -1301,13 +1321,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             case ENTER:
                 if (highlighted != -1)
                 {
-                    executeSuggestion(highlighted);
+                    modification(token -> executeSuggestion(highlighted, token));
                     return Response.DISMISS;
                 }
             case ESCAPE:
                 return Response.DISMISS;
             case BACK_SPACE:
-                CaretPos updatedLocation = topLevel.deletePreviousAtPos(suggestionLocation);
+                CaretPos updatedLocation = modificationReturn(token -> topLevel.deletePreviousAtPos(suggestionLocation, token));
                 if (updatedLocation == null || !updatedLocation.init().equals(suggestionLocation.init()))
                 {
                     Platform.runLater(() -> topLevel.positionCaret(updatedLocation));
@@ -1338,11 +1358,11 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         // Pick a value if one was available to complete:
         if (highlighted != -1)
         {
-            executeSuggestion(highlighted);
+            modification(token -> executeSuggestion(highlighted, token));
         }
         else if (suggestionDisplay.eligibleCount() == 1  && getText().length() > 0)
         {
-            executeSuggestion(suggestionDisplay.getFirstEligible());
+            modification(token -> executeSuggestion(suggestionDisplay.getFirstEligible(), token));
         }
     }
 
@@ -1350,31 +1370,33 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     @OnThread(Tag.FXPlatform)
     public Response suggestionListKeyTyped(KeyEvent event, int highlighted)
     {
-        CaretPos updatedLocation = null;
-        if (!"\b".equals(event.getCharacter()))
-        {
-            updatedLocation = topLevel.insertAtPos(suggestionLocation, event.getCharacter());
-        }
-        else
-            return Response.CONTINUE;
-        
-        if (!updatedLocation.init().equals(suggestionLocation.init()))
-        {
-            return Response.DISMISS;
-        }
-        else
-        {
-            suggestionLocation = updatedLocation;
-            overlay.redraw();
-            updateSuggestions(true);
-            return Response.CONTINUE;
-        }
+        return modificationReturn(token -> {
+            CaretPos updatedLocation = null;
+            if (!"\b".equals(event.getCharacter()))
+            {
+                updatedLocation = topLevel.insertAtPos(suggestionLocation, event.getCharacter(), token);
+            }
+            else
+                return Response.CONTINUE;
+
+            if (!updatedLocation.init().equals(suggestionLocation.init()))
+            {
+                return Response.DISMISS;
+            }
+            else
+            {
+                suggestionLocation = updatedLocation;
+                overlay.redraw();
+                updateSuggestions(true);
+                return Response.CONTINUE;
+            }
+        });
     }
 
     @Override
     public void suggestionListChoiceClicked(int highlighted)
     {
-        executeSuggestion(highlighted);
+        modification(token -> executeSuggestion(highlighted, token));
     }
     
     
@@ -1408,10 +1430,12 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     public void setSplitText(String beforeCursor, String afterCursor)
     {
-        topLevel.blank();
-        CaretPos p = topLevel.insert_(topLevel.getFirstField(), 0, beforeCursor, false);
-        topLevel.insertAtPos(p, afterCursor);
-        Platform.runLater(() -> topLevel.positionCaret(p));
+        modification(token -> {
+            topLevel.blank(token);
+            CaretPos p = topLevel.insert_(topLevel.getFirstField(), 0, beforeCursor, false, token);
+            topLevel.insertAtPos(p, afterCursor, token);
+            token.after(() -> topLevel.positionCaret(p));
+        });
     }
 
     public boolean isCurrentlyCompleting()
@@ -1505,5 +1529,96 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         }
     }
     
-    protected abstract INFIX newInfix(InteractionManager editor, String stylePrefix);
+    protected abstract INFIX newInfix(InteractionManager editor, ModificationToken token);
+
+    /**
+     * Runs a block of code (passed as parameter) which modifies the slot.
+     * 
+     * Calls to this function can be safely nested, although it should be avoided
+     * where possible.  You should make sure that all related modifications are encompassed
+     * within a single modificationReturn call, so that the outside world only
+     * sees a single complete modification. 
+     * 
+     * @param modificationAction A block of code to run which modifies the slot.
+     * @param <T> The return type of the inner function.
+     * @return The return value of the inner function.
+     */
+    //package-visible
+    <T> T modificationReturn(FXFunction<ModificationToken, T> modificationAction)
+    {
+        ModificationToken token = new ModificationToken();
+        modificationTokens.add(token);
+        T ret = modificationAction.apply(token);
+        if (modificationTokens.get(modificationTokens.size() - 1) != token)
+            throw new IllegalStateException("Modifications did not nest"); // Should not be possible
+        modificationTokens.remove(token);
+        //We only update when outermost modification finishes, i.e. the modification stack is empty:
+        if (modificationTokens.isEmpty())
+        {
+            // All modifications finished; update and run after actions:
+            textMirror.set(topLevel.calculateText());
+            // Actions specific to this modification:
+            token.runAfters();
+            // And our persistent actions:
+            afterModify.forEach(FXRunnable::run);
+        }
+        else
+        {
+            // Add after actions to top of stack token, rather than running them now:
+            modificationTokens.get(0).afters.addAll(token.afters);
+        }
+        return ret;
+    }
+    
+    //package-visible
+    // See modificationReturn
+    void modification(FXConsumer<ModificationToken> modificationAction)
+    {
+        modificationReturn(t -> {modificationAction.accept(t);return 0;});
+    }
+    
+    //package-visible
+    // Only used for testing:
+    static <T> T testingModification(FXFunction<ModificationToken, T> modificationAction)
+    {
+        return modificationAction.apply(new ModificationToken());
+    }
+
+    /**
+     * We want to make sure that modifications to the slot's content only
+     * occur inside the modification/modificationReturn functions above.
+     * To this end, we require a ModificationToken parameter to any actions
+     * which modify a structured slot (StructuredSlotField.setText, fields.add, etc).
+     * 
+     * To get an instance of this class, you must use the modification/modificationReturn
+     * function rather than constructing one directly.  This ensures the post-modification
+     * actions are run correctly after a complete change.
+     */
+    public static class ModificationToken
+    {
+        // Actions to run when the modification completes:
+        private List<FXRunnable> afters = new ArrayList<>();
+        
+        private ModificationToken() { }
+
+        // Doesn't do anything, but you'll get an exception if you call it
+        // on a null token. 
+        public void check()
+        {
+
+        }
+
+        // Specify an action to run once the outermost current ongoing
+        // modification is complete.
+        public void after(FXRunnable action)
+        {
+            afters.add(action);
+        }
+        
+        // Run the after actions.
+        private void runAfters()
+        {
+            afters.forEach(FXRunnable::run);
+        }
+    }
 }

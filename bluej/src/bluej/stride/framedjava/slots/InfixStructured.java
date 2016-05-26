@@ -69,12 +69,15 @@ import bluej.stride.slots.EditableSlot;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXFunction;
 import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.MultiListener;
 import bluej.utility.javafx.SharedTransition;
 import bluej.utility.javafx.TextFieldDelegate;
 import bluej.utility.javafx.binding.DeepListBinding;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -261,10 +264,10 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     private final static String HEX_DIGITS_REGEX = "[0-9A-Fa-f]([0-9A-Fa-f_]*[0-9A-Fa-f])?";
     
     // fields is always 1 longer than operators. Always an StructuredSlotField in first and last position (which may be same, when size 1).
-    protected final ObservableList<StructuredSlotComponent> fields = FXCollections.observableArrayList();
+    protected final ProtectedList<StructuredSlotComponent> fields = new ProtectedList<>();
     // Operator 0 is between field 0 and field 1.  Operator N trails field N.
     // Can be null when the operator is effectively a bracket.
-    protected final ObservableList<Operator> operators = FXCollections.observableArrayList();
+    protected final ProtectedList<Operator> operators = new ProtectedList<>();
     
     //private final FlowPane components = new FlowPane();    
     //private final HBox components = new HBox();
@@ -288,10 +291,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
      * Create top-level InfixStructured, just inside the StructuredSlot
      */
     // package-visible
-    InfixStructured(InteractionManager editor, SLOT slot, String stylePrefix)
+    InfixStructured(InteractionManager editor, SLOT slot, StructuredSlot.ModificationToken token)
     {
-        // TODO make use of stylePrefix
-        this(editor, slot, "", null);
+        this(editor, slot, "", null, token);
     }
     
     /**
@@ -302,7 +304,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
      *    to add rich content, pass "" for this parameter and insert the rich content afterwards.
      */
     //package-visible
-    InfixStructured(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured wrapper, Character... closingChars)
+    InfixStructured(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured wrapper, StructuredSlot.ModificationToken token, Character... closingChars)
     {
         this.editor = editor;
         this.parent = wrapper;
@@ -311,7 +313,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         
         this.textProperty.set(initialContent);
         // When starting, add just one empty field:
-        fields.add(makeNewField(initialContent, false));
+        fields.add(makeNewField(initialContent, false), token);
 
         final ObservableList<Node> extraPrefix = FXCollections.observableArrayList();
         final ObservableList<Node> extraSuffix = FXCollections.observableArrayList();
@@ -338,7 +340,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             @Override
             protected Stream<ObservableList<?>> getListenTargets()
             {
-                return Stream.concat(Stream.of(fields, operators, extraPrefix, extraSuffix), fields.stream().map(StructuredSlotComponent::getComponents));
+                return Stream.concat(Stream.of(fields.observable(), operators.observable(), extraPrefix, extraSuffix), fields.stream().map(StructuredSlotComponent::getComponents));
             }
 
             @Override
@@ -357,63 +359,16 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
 
         }.startListening();
         
-        // We want to bind the textProperty item to the expression content.
-        // There's several ways to do this, but we do it as follows.
-        
-        final ObservableList<ObservableStringValue> strings = FXCollections.observableArrayList();
-        
-        // First, we use a MultiListener to attach listeners to each observable string
-        // in the list, and when any change, we combine their values into textProperty.
-        // This must come before we bind to strings, so that the listeners fire on the first
-        // update of the strings list:
-        ChangeListener<String> individualListener = (a, b, c) -> {
-            textProperty.set(strings.stream().map(ObservableStringValue::get).collect(Collectors.joining()));
-        };
-        
-        MultiListener<ObservableStringValue> stringListener = new MultiListener<ObservableStringValue>(s -> {
-            s.addListener(individualListener);
-            return () -> s.removeListener(individualListener);
-        });
-        
-        strings.addListener((ListChangeListener<ObservableStringValue>)c -> {
-            stringListener.listenOnlyTo(strings.stream());
-            // Need to update content, too:
-            individualListener.changed(null, null, null);
-        });
-
-        // Second, we bind a list of observable strings to the observable strings in fields and operators,
-        // using a DeepListBinding similar to the one above:
-        new DeepListBinding<ObservableStringValue>(strings) {
-            
-            @Override
-            protected Stream<ObservableList<?>> getListenTargets()
-            {
-                return Stream.of(fields, operators);
-            }
-
-            @Override
-            protected Stream<ObservableStringValue> calculateValues()
-            {
-                // Must filter out nulls after interleaving, to preserve ordering:
-                return Utility.interleave(
-                                fields.stream().map(f -> f.textProperty()),
-                                operators.stream().map(o -> o == null ? null : o.textProperty()))
-                       .filter(x -> x != null);
-            }
-
-        }.startListening();
-        
-        fields.addListener((ListChangeListener)c -> {
+        fields.observable().addListener((ListChangeListener)c -> {
             // If we are not a single field, remove prompts on all fields:
             if (fields.size() != 1)
             {
-                for (StructuredSlotComponent comp : fields)
-                {
+                fields.forEach(comp -> {
                     if (comp instanceof StructuredSlotField)
                     {
                         ((StructuredSlotField)comp).setPromptText("");
                     }
-                }
+                });
             }   
         });
         
@@ -423,7 +378,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         //   - We recursively traverse the LHS and RHS of this operator with same algorithm.
         // - On return, if lowest operator in LHS or RHS is identical to outer, we take
         components.addListener((ListChangeListener)c -> 
-            calculatePrecedences(operators, fields.stream().map(StructuredSlotComponent::isFieldAndEmpty).limit(operators.size()).collect(Collectors.toList()))
+            calculatePrecedences(operators.stream().collect(Collectors.toList()), fields.stream().map(StructuredSlotComponent::isFieldAndEmpty).limit(operators.size()).collect(Collectors.toList()))
         );
         
         updateBreaks();
@@ -1042,7 +997,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     
     public void delete(StructuredSlotField f, int start, int end)
     {
-        f.setText(f.getText().substring(0, start) + f.getText().substring(end));
+        modification(token -> f.setText(f.getText().substring(0, start) + f.getText().substring(end), token));
     }
     
     @Override
@@ -1159,10 +1114,10 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     @Override
     public boolean deleteSelection()
     {
-        return deleteSelection_(getCurrentPos()) != null;
+        return modificationReturn(token -> deleteSelection_(getCurrentPos(), token) != null);
     }
     
-    CaretPos deleteSelection_(CaretPos cur)
+    CaretPos deleteSelection_(CaretPos cur, StructuredSlot.ModificationToken token)
     {
         if (anchorPos == null || anchorPos.equals(cur))
         {
@@ -1188,26 +1143,26 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             {
                 InfixStructured nested = ((BracketedStructured)fields.get(start.index)).getContent();
                 nested.setAnchorIfUnset(start.subPos);
-                return new CaretPos(start.index, nested.deleteSelection_(end.subPos));
+                return new CaretPos(start.index, nested.deleteSelection_(end.subPos, token));
             }
             else if (fields.get(start.index) instanceof StringLiteralExpression)
             {
                 StringLiteralExpression s = (StringLiteralExpression) fields.get(start.index);
                 StructuredSlotField f = s.getField();
-                f.setText(f.getText().substring(0, start.subPos.index) + f.getText().substring(end.subPos.index));
+                f.setText(f.getText().substring(0, start.subPos.index) + f.getText().substring(end.subPos.index), token);
                 return start;
             }
         }
         // Collapse the remaining before/after content into startField, and delete necessary fields and operators:
         StructuredSlotField startField = (StructuredSlotField)fields.get(start.index);
         StructuredSlotField endField = (StructuredSlotField)fields.get(end.index);
-        startField.setText(startField.getText().substring(0, start.subPos.index) + endField.getText().substring(end.subPos.index));
+        startField.setText(startField.getText().substring(0, start.subPos.index) + endField.getText().substring(end.subPos.index), token);
         for (int i = start.index + 1; i <= end.index;i++)
         {
-            operators.remove(start.index);
-            fields.remove(start.index + 1);
+            operators.remove(start.index, token);
+            fields.remove(start.index + 1, token);
         }
-        CaretPos pos = checkFieldChange(start.index, start);
+        CaretPos pos = checkFieldChange(start.index, start, token);
         positionCaret(pos);
         if (slot != null)
         {
@@ -1224,32 +1179,32 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     @OnThread(Tag.FXPlatform)
     public boolean deletePrevious(StructuredSlotField f, int posInField, boolean atStart)
     {
-        positionCaret(deletePrevious_(f, posInField, atStart));
+        modification(token -> positionCaret(deletePrevious_(f, posInField, atStart, token)));
         return true;
     }
-
+    
     @OnThread(Tag.FXPlatform)
-    public CaretPos deletePreviousAtPos(CaretPos p)
+    public CaretPos deletePreviousAtPos(CaretPos p, StructuredSlot.ModificationToken token)
     {
         StructuredSlotComponent c = fields.get(p.index);
         if (c instanceof StructuredSlotField)
         {
-            return deletePrevious_((StructuredSlotField)c, p.subPos.index, p.subPos.index == 0);
+            return deletePrevious_((StructuredSlotField)c, p.subPos.index, p.subPos.index == 0, token);
         }
         else if (c instanceof StringLiteralExpression)
         {
-            return deletePrevious_(((StringLiteralExpression)c).getField(), p.subPos.index, p.subPos.index == 0);
+            return deletePrevious_(((StringLiteralExpression)c).getField(), p.subPos.index, p.subPos.index == 0, token);
         }
         else if (c instanceof BracketedStructured)
         {
-            return new CaretPos(p.index, ((BracketedStructured)c).getContent().deletePreviousAtPos(p.subPos));
+            return new CaretPos(p.index, ((BracketedStructured)c).getContent().deletePreviousAtPos(p.subPos, token));
         }
         throw new IllegalStateException();
     }
 
     // package-visible for testing, implementation of deletePrevious
     @OnThread(Tag.FXPlatform)
-    CaretPos deletePrevious_(StructuredSlotField f, int posInField, boolean atStart)
+    CaretPos deletePrevious_(StructuredSlotField f, int posInField, boolean atStart, StructuredSlot.ModificationToken token)
     {
         int index = findField(f);
         if (atStart)
@@ -1264,7 +1219,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     // No operator, must be closing bracket/quote beforehand
                     // In this case, we want to get rid of the brackets/quotes, and fold the contents into the slots adjacent to the brackets
                     boolean inString = fields.get(index) instanceof StringLiteralExpression;
-                    return flattenCompound(inString ? index : index - 1, !inString);
+                    return flattenCompound(inString ? index : index - 1, !inString, token);
                 }
                 else
                 {
@@ -1275,14 +1230,14 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     if (op.length() > 1 && !op.equals("new "))
                     {
                         prev.set(op.substring(0, op.length() - 1));
-                        return checkFieldChange(index - 1, new CaretPos(index, new CaretPos(0, null)));
+                        return checkFieldChange(index - 1, new CaretPos(index, new CaretPos(0, null)), token);
                     }
                     else
                     {
                         // Otherwise, we will delete the operator and fold the joined contents of the surrounding
                         // fields, and any remaining content from the operator
                         // (only applicable with "new " operator) into the joined field
-                        operators.remove(index - 1);
+                        operators.remove(index - 1, token);
                         StructuredSlotField prevField = (StructuredSlotField)fields.get(index - 1);
                         String opRemaining = "";
                         if (op.equals("new "))
@@ -1290,11 +1245,11 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                             opRemaining = "new"; // Delete the space
                         }
                         int newPos = prevField.getText().length() + opRemaining.length();
-                        prevField.setText(prevField.getText() + opRemaining + f.getText());
-                        fields.remove(index);
+                        prevField.setText(prevField.getText() + opRemaining + f.getText(), token);
+                        fields.remove(index, token);
                         
                         //TODO act different if compound is involved
-                        return checkFieldChange(index - 1, new CaretPos(index - 1, new CaretPos(newPos, null)));
+                        return checkFieldChange(index - 1, new CaretPos(index - 1, new CaretPos(newPos, null)), token);
                     }
                 }
             }
@@ -1302,7 +1257,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             {
                 // If it is the first field, delegate to parent or slot:
                 if (parent != null) {
-                    return new CaretPos(-1, parent.flatten(false));
+                    return new CaretPos(-1, parent.flatten(false, token));
                 }
                 if (slot != null) {
                     if (slot.backspaceAtStart()) {
@@ -1321,16 +1276,16 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         else {
             // If we aren't at the start of our field, it's easy: delete character and call checkFieldChange
             String s = f.getText();
-            f.setText(s.substring(0, posInField - 1) + s.substring(posInField));
-            CaretPos p = checkFieldChange(index, new CaretPos(index, new CaretPos(posInField - 1, null)));
+            f.setText(s.substring(0, posInField - 1) + s.substring(posInField), token);
+            CaretPos p = checkFieldChange(index, new CaretPos(index, new CaretPos(posInField - 1, null)), token);
             return p;
         }
     }
     
     // Package visible
-    CaretPos flattenCompound(StructuredSlotComponent item, boolean caretAtEnd)
+    CaretPos flattenCompound(StructuredSlotComponent item, boolean caretAtEnd, StructuredSlot.ModificationToken token)
     {
-        return flattenCompound(fields.indexOf(item), caretAtEnd);
+        return flattenCompound(fields.indexOf(item), caretAtEnd, token);
     }
     
     /**
@@ -1339,20 +1294,20 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
      * into the "index" position in this InfixStructured.  Used when deleting brackets but you want
      * to retain the content.
      */
-    private CaretPos flattenCompound(int index, boolean atEnd)
+    private CaretPos flattenCompound(int index, boolean atEnd, StructuredSlot.ModificationToken token)
     {
         StructuredSlotField fieldBefore = (StructuredSlotField) fields.get(index - 1);
         String after = fields.get(index+1).getCopyText(null, null);
         String content = fields.get(index).getCopyText(fields.get(index).getStartPos(), fields.get(index).getEndPos());
         
         // Must remove second field first:
-        fields.remove(index+1);
-        if (operators.remove(index) != null) throw new IllegalStateException();
-        fields.remove(index);
-        if (operators.remove(index-1) != null) throw new IllegalStateException();
+        fields.remove(index+1, token);
+        if (operators.remove(index, token) != null) throw new IllegalStateException();
+        fields.remove(index, token);
+        if (operators.remove(index-1, token) != null) throw new IllegalStateException();
         
         int len = fieldBefore.getText().length();
-        CaretPos mid = insert_(fieldBefore, len, content, false);
+        CaretPos mid = insert_(fieldBefore, len, content, false, token);
         // TODO stop using testing method here:
         testingInsert(mid, after);
         if (atEnd)
@@ -1367,12 +1322,12 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
      */
     public boolean deleteNext(StructuredSlotField f, int posInField, boolean atEnd)
     {
-        positionCaret(deleteNext_(f, posInField, atEnd));
+        modification(token -> positionCaret(deleteNext_(f, posInField, atEnd, token)));
         return true;
     }
     
     // package-visible (for testing), implementation of deleteNext
-    CaretPos deleteNext_(StructuredSlotField f, int posInField, boolean atEnd)
+    CaretPos deleteNext_(StructuredSlotField f, int posInField, boolean atEnd, StructuredSlot.ModificationToken token)
     {
         int index = findField(f);
         // Have we requested a delete-next at the end of a field
@@ -1386,7 +1341,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 {
                     // No operator, must be opening bracket/quote after
                     // In this case, we want to get rid of the brackets/quotes, and fold the contents into the slots adjacent to the brackets
-                    return flattenCompound(index + 1, false);
+                    return flattenCompound(index + 1, false, token);
                 }
                 else
                 {
@@ -1397,7 +1352,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     if (op.length() > 1 && isOperator(op.substring(1)))
                     {
                         next.set(op.substring(1));
-                        return checkFieldChange(index, new CaretPos(index, new CaretPos(posInField, null)));
+                        return checkFieldChange(index, new CaretPos(index, new CaretPos(posInField, null)), token);
                     }
                     else
                     {
@@ -1410,20 +1365,20 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                             opRemaining = "ew"; // Remove 'n' because of delete, and space to avoid awkwardness
                         }
                         
-                        operators.remove(index);
+                        operators.remove(index, token);
                         int newPos = f.getText().length();
-                        f.setText(f.getText() + opRemaining + ((StructuredSlotField)fields.get(index + 1)).getText());
-                        fields.remove(index + 1);
+                        f.setText(f.getText() + opRemaining + ((StructuredSlotField)fields.get(index + 1)).getText(), token);
+                        fields.remove(index + 1, token);
                         
                         
-                        return checkFieldChange(index, new CaretPos(index, new CaretPos(newPos, null)));
+                        return checkFieldChange(index, new CaretPos(index, new CaretPos(newPos, null)), token);
                     }
                 }
             }
             else
             {
                 if (parent != null)
-                    return new CaretPos(-1, parent.flatten(true));
+                    return new CaretPos(-1, parent.flatten(true, token));
                 else
                 {
                     if (slot != null)
@@ -1439,8 +1394,8 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         {
             // Not deleting at the end; no special complications
             String s = f.getText();
-            f.setText(s.substring(0, posInField) + s.substring(posInField+1));
-            return checkFieldChange(index, new CaretPos(index, new CaretPos(posInField, null)));
+            f.setText(s.substring(0, posInField) + s.substring(posInField+1), token);
+            return checkFieldChange(index, new CaretPos(index, new CaretPos(posInField, null)), token);
         }
     }
     
@@ -1479,13 +1434,13 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
      */
     public void insert(StructuredSlotField f, int posInField, String text)
     {
-        insert_(f, posInField, text, true);
+        modification(token -> insert_(f, posInField, text, true, token));
     }
     
     /**
      * Package-visible implementation of insert method, used directly by test classes.
      */
-    CaretPos insert_(StructuredSlotField f, int posInField, String text, boolean user)
+    CaretPos insert_(StructuredSlotField f, int posInField, String text, boolean user, StructuredSlot.ModificationToken token)
     {
         if ( parent == null && !text.isEmpty() && text.length() > 0 && closingChars.contains(text.charAt(0)) ) {
             slot.focusNext();
@@ -1502,14 +1457,14 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         // Unless it's a opening bracket, any insertion must involve first deleting the selection:
         if (text.length() > 0 && !isOpeningBracket(text.charAt(0)) && text.charAt(0) != '\"')
         {
-            CaretPos postDeletion = deleteSelection_(pos);
+            CaretPos postDeletion = deleteSelection_(pos, token);
             if (postDeletion != null)
                 pos = postDeletion;
         }
         
         for (int i = 0; i < text.length(); i++)
         {
-            pos = insertChar(pos, text.charAt(i), user);
+            pos = insertChar(pos, text.charAt(i), user, token);
             
             // Blank selection after first insertion:
             // (We don't do it before first insertion, because you might have pressed '(' which should
@@ -1537,19 +1492,19 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         return pos; // Returned for testing purposes
     }
     
-    CaretPos insertAtPos(CaretPos p, String after)
+    CaretPos insertAtPos(CaretPos p, String after, StructuredSlot.ModificationToken token)
     {
         StructuredSlotComponent f = fields.get(p.index);
         if (f instanceof StructuredSlotField) {
-            return insert_((StructuredSlotField)fields.get(p.index), p.subPos.index, after, false);
+            return insert_((StructuredSlotField)fields.get(p.index), p.subPos.index, after, false, token);
         }
         if (f instanceof StringLiteralExpression) {
-            return insert_(((StringLiteralExpression)fields.get(p.index)).getField(), p.subPos.index, after, false);
+            return insert_(((StringLiteralExpression)fields.get(p.index)).getField(), p.subPos.index, after, false, token);
         }
-        return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().insertAtPos(p.subPos, after));
+        return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().insertAtPos(p.subPos, after, token));
     }
 
-    protected CaretPos insertChar(CaretPos pos, char c, boolean user)
+    protected CaretPos insertChar(CaretPos pos, char c, boolean user, StructuredSlot.ModificationToken token)
     {
         final StructuredSlotComponent slot = fields.get(pos.index);
         // Bit hacky to use instanceof, but it's easier to have logic here than in subclasses:
@@ -1601,18 +1556,18 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 String before = f.getText().substring(0, posInField);
                 String following = f.getText().substring(posInField);
                 
-                f.setText(before);
-                operators.add(pos.index, new Operator("" + c, this));
-                fields.add(pos.index + 1, makeNewField(following, false));
+                f.setText(before, token);
+                operators.add(pos.index, new Operator("" + c, this), token);
+                fields.add(pos.index + 1, makeNewField(following, false), token);
                 return new CaretPos(pos.index + 1, new CaretPos(0, null));
             }
             else if (anchorPos != null && (isOpeningBracket(c) || c == '\"'))
             {
                 // If there is a selection, enclose that in the bracket/quote:                
                 String content = anchorPos.before(pos) ? getCopyText(anchorPos, pos) : getCopyText(pos, anchorPos);
-                pos = deleteSelection_(pos);
-                pos = insertChar(pos, c, false);
-                insertAtPos(pos, content);
+                pos = deleteSelection_(pos, token);
+                pos = insertChar(pos, c, false, token);
+                insertAtPos(pos, content, token);
                 return new CaretPos(pos.index + 1, new CaretPos(0, null));
             }
             else if (isOpeningBracket(c))
@@ -1630,22 +1585,22 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 }
                 
                 String following = f.getText().substring(posInField);
-                f.setText(f.getText().substring(0, posInField));
-                operators.add(pos.index, null);
+                f.setText(f.getText().substring(0, posInField), token);
+                operators.add(pos.index, null, token);
                 
-                fields.add(pos.index + 1, new BracketedStructured(editor, this, this.slot, c, ""));
+                fields.add(pos.index + 1, new BracketedStructured(editor, this, this.slot, c, "", token), token);
                 if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null
                         || !(fields.get(pos.index + 2) instanceof StructuredSlotField))
                 {
                     // Used to be operator directly after this field (or we are at end), must add another field to pad
                     // RHS (not allowed to have operator after compound with no field inbetween)
-                    operators.add(pos.index + 1, null);
-                    fields.add(pos.index + 2, makeNewField(following, false));
+                    operators.add(pos.index + 1, null, token);
+                    fields.add(pos.index + 2, makeNewField(following, false), token);
                 }
                 else
                 {
                     StructuredSlotField follow = (StructuredSlotField)fields.get(pos.index+2);
-                    follow.setText(following + follow.getText());
+                    follow.setText(following + follow.getText(), token);
                 }
                 return new CaretPos(pos.index + 1, new CaretPos(0, new CaretPos(0, null)));
             }
@@ -1665,20 +1620,20 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             else if (c == '\"')
             {
                 String following = f.getText().substring(posInField);
-                f.setText(f.getText().substring(0, posInField));
-                operators.add(pos.index, null);
-                fields.add(pos.index + 1, new StringLiteralExpression(makeNewField("", true), this));
+                f.setText(f.getText().substring(0, posInField), token);
+                operators.add(pos.index, null, token);
+                fields.add(pos.index + 1, new StringLiteralExpression(makeNewField("", true), this), token);
                 if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null || fields.get(pos.index + 2) instanceof StringLiteralExpression)
                 {
                     // Used to be operator directly after this field (or we are at end), must add another field to pad
                     // RHS (not allowed to have operator after compound with no field inbetween)
-                    operators.add(pos.index + 1, null);
-                    fields.add(pos.index + 2, makeNewField(following, false));
+                    operators.add(pos.index + 1, null, token);
+                    fields.add(pos.index + 2, makeNewField(following, false), token);
                 }
                 else
                 {
                     StructuredSlotField follow = (StructuredSlotField)fields.get(pos.index+2);
-                    follow.setText(following + follow.getText());
+                    follow.setText(following + follow.getText(), token);
                 }
                 return new CaretPos(pos.index + 1, new CaretPos(0, new CaretPos(0, null)));
             }
@@ -1689,17 +1644,17 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 {
                     String following = f.getText().substring(posInField);
                 
-                    f.setText("");
-                    operators.add(pos.index, new Operator("new ", this));
-                    fields.add(pos.index + 1, makeNewField(following, false));
+                    f.setText("", token);
+                    operators.add(pos.index, new Operator("new ", this), token);
+                    fields.add(pos.index + 1, makeNewField(following, false), token);
                     return new CaretPos(pos.index + 1, new CaretPos(0, null));
                 }
                 else
                 {
                     // Just insert normally:
-                    f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField));
+                    f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
                     
-                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user);
+                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
                 }
             }
@@ -1707,7 +1662,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         else if (slot instanceof BracketedStructured)
         {
             // This can occur when pasting/loading content:
-            CaretPos newSubPos = ((BracketedStructured)slot).getContent().insertChar(pos.subPos, c, false);
+            CaretPos newSubPos = ((BracketedStructured)slot).getContent().insertChar(pos.subPos, c, false, token);
             if (newSubPos.index == Integer.MAX_VALUE)
             {
                 // Must be field following:
@@ -1738,7 +1693,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             }
             
             // If it is not a quote, or it is after a backslash, insert as-is:
-            f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField));
+            f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
             return new CaretPos(pos.index, new CaretPos(posInField+1, null));
         }
         return null;
@@ -1873,9 +1828,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         return status;
     }
 
-    private CaretPos checkFieldChange(int index, CaretPos pos)
+    private CaretPos checkFieldChange(int index, CaretPos pos, StructuredSlot.ModificationToken token)
     {
-        return checkFieldChange(index, pos, false, false);
+        return checkFieldChange(index, pos, false, false, token);
     }
     /**
      * Checks the field at the given index, and performs any rearrangements necessary that
@@ -1885,7 +1840,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
      * Returns the new position (adjustment of the passed pos)
      * 
      */
-    private CaretPos checkFieldChange(int index, CaretPos pos, boolean addedDot, boolean user)
+    private CaretPos checkFieldChange(int index, CaretPos pos, boolean addedDot, boolean user, StructuredSlot.ModificationToken token)
     {
         if (fields.get(index) instanceof StringLiteralExpression)
             return pos; // No need to do this for string literals
@@ -1910,19 +1865,19 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             boolean isDoubleDot = afterDot.startsWith(".");
             if (!precedesDotInFloatingPointLiteral(beforeDot) || isDoubleDot /* two dots is operator */)
             {
-                f.setText(beforeDot);
+                f.setText(beforeDot, token);
                  
                 if (isDoubleDot)
                 {
-                    operators.add(index, new Operator("..", this));
-                    fields.add(index + 1, makeNewField(afterDot.substring(1), false));
+                    operators.add(index, new Operator("..", this), token);
+                    fields.add(index + 1, makeNewField(afterDot.substring(1), false), token);
                 }
                 else
                 {
                     boolean wasShowingSuggestions = slot != null && slot.isShowingSuggestions();
                     
-                    operators.add(index, new Operator(".", this));
-                    fields.add(index + 1, makeNewField(afterDot, false));
+                    operators.add(index, new Operator(".", this), token);
+                    fields.add(index + 1, makeNewField(afterDot, false), token);
                     if (beforeDot.equals("") && afterDot.equals("") && addedDot
                             && index >= 2
                             && fields.get(index - 1) instanceof BracketedStructured
@@ -1932,10 +1887,10 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                             && operators.get(index - 1) == null
                             && false) // TODO: see tasks.txt
                     {
-                        operators.add(index+1, null);
-                        fields.add(index+2, new BracketedStructured(editor, this, slot, '(', ""));
-                        operators.add(index+2, null);
-                        fields.add(index+3, makeNewField("", false));
+                        operators.add(index+1, null, token);
+                        fields.add(index+2, new BracketedStructured(editor, this, slot, '(', "", token), token);
+                        operators.add(index+2, null, token);
+                        fields.add(index+3, makeNewField("", false), token);
                     }
                     
                     // If a dot is entered and code completion was showing, re-trigger it in the new field:
@@ -1958,8 +1913,8 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 }
                 // else before the dot field, leave as-is
                 
-                pos = checkFieldChange(index, pos);
-                return checkFieldChange(index + 1, pos);
+                pos = checkFieldChange(index, pos, token);
+                return checkFieldChange(index + 1, pos, token);
             }
             // else if it is a literal and it's in the slot already, leave in slot.
             // But we still need to continue in case plus or minus was just added, or second dot...
@@ -1969,9 +1924,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         {
             // Need to merge dot back in:
             int prevLen = f.getText().length();
-            f.setText(f.getText() + nextOp + ((StructuredSlotField)fields.get(index + 1)).getText());
-            operators.remove(index);
-            fields.remove(index+1);
+            f.setText(f.getText() + nextOp + ((StructuredSlotField)fields.get(index + 1)).getText(), token);
+            operators.remove(index, token);
+            fields.remove(index+1, token);
             
             if (pos.index > index + 1)
             {
@@ -2012,9 +1967,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             // If it satisfies neither of these, split out into its own field:
             if (!atBeginningAndUnary && !midwayAfterEorP)
             {
-                operators.add(index, new Operator(f.getText().substring(plusMinusIndex, plusMinusIndex+1), this));
-                f.setText(before);
-                fields.add(index + 1, makeNewField(after, false));
+                operators.add(index, new Operator(f.getText().substring(plusMinusIndex, plusMinusIndex+1), this), token);
+                f.setText(before, token);
+                fields.add(index + 1, makeNewField(after, false), token);
                 if (pos.index > index) // already after split field:
                     return new CaretPos(pos.index + 1, pos.subPos);
                 else if (pos.index == index)
@@ -2034,9 +1989,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         {
             // Need to merge dot back in:
             int prevLen = f.getText().length();
-            f.setText(f.getText() + nextOp + ((StructuredSlotField)fields.get(index + 1)).getText());
-            operators.remove(index);
-            fields.remove(index+1);
+            f.setText(f.getText() + nextOp + ((StructuredSlotField)fields.get(index + 1)).getText(), token);
+            operators.remove(index, token);
+            fields.remove(index+1, token);
             
             if (pos.index > index + 1)
             {
@@ -2053,9 +2008,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 && prevField != null && prevField.getText().equals("") && !bracketBeforePrevField)
         {
             // Merge operator back in:
-            operators.remove(index - 1);
-            fields.remove(index - 1);
-            f.setText(prevOp + f.getText());
+            operators.remove(index - 1, token);
+            fields.remove(index - 1, token);
+            f.setText(prevOp + f.getText(), token);
             pos = new CaretPos(pos.index - 1, new CaretPos(pos.subPos.index + 1, null));
         }
         
@@ -2116,13 +2071,8 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     }
     
     // package-visible
-    void setPromptText(BiConsumer<List<StructuredSlotComponent>, List<Operator>> setPrompts)
+    void withContent(BiConsumer<ProtectedList<StructuredSlotComponent>, ProtectedList<Operator>> setPrompts)
     {
-        // Run later so that we only see complete updates:
-        ListChangeListener<Object> listener = a -> Platform.runLater(() -> setPrompts.accept(fields, operators));
-        fields.addListener(listener);
-        operators.addListener(listener);
-        //Trigger now, too:
         setPrompts.accept(fields, operators);
     }
 
@@ -2266,11 +2216,12 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         return height;
     }
     
-    public void blank()
+    public void blank(StructuredSlot.ModificationToken token)
     {
-        operators.clear();
-        fields.clear();
-        fields.add(makeNewField("", false));
+        token.check();
+        operators.clear(token);
+        fields.clear(token);
+        fields.add(makeNewField("", false), token);
         anchorPos = null;
     }
     
@@ -2321,13 +2272,6 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         insert((StructuredSlotField) fields.get(index + 1), 0, text);
     }
 
-    public void replaceContent(CaretPos start, CaretPos end, String insertion)
-    {
-        anchorPos = end;
-        deleteSelection_(start);
-        insertAtPos(start, insertion);
-    }
-
     // For testing purposes, package visible
     String testingGetState(CaretPos caret)
     {
@@ -2353,33 +2297,38 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     // will be ignored (it will not be inserted).
     CaretPos testingInsert(String text, char rememberPos)
     {
-        int index = text.indexOf(rememberPos);
-        if (rememberPos != '\0' && index != -1) {
-            String before = text.substring(0, index);
-            String after = text.substring(index + 1);
-            CaretPos p = insert_((StructuredSlotField)fields.get(0), 0, before, false);
-            testingInsert(p, after);
-            return p;
-        }
-        
-        return insert_((StructuredSlotField) fields.get(0), 0, text, false);
+        return modificationReturn(token -> {
+            int index = text.indexOf(rememberPos);
+            if (rememberPos != '\0' && index != -1)
+            {
+                String before = text.substring(0, index);
+                String after = text.substring(index + 1);
+                CaretPos p = insert_((StructuredSlotField)fields.get(0), 0, before, false, token);
+                testingInsert(p, after);
+                return p;
+            }
+
+            return insert_((StructuredSlotField)fields.get(0), 0, text, false, token);
+        });
     }
     
     CaretPos testingInsert(CaretPos p, String after)
     {
-        return insertAtPos(p, after);
+        return modificationReturn(token -> insertAtPos(p, after, token));
     }
 
     @OnThread(Tag.FXPlatform)
     CaretPos testingBackspace(CaretPos p)
     {
-        StructuredSlotComponent f = fields.get(p.index);
-        if (f instanceof StructuredSlotField)
-            return deletePrevious_((StructuredSlotField)fields.get(p.index), p.subPos.index, p.subPos.index == 0);
-        else if (f instanceof StringLiteralExpression)
-            return deletePrevious_(((StringLiteralExpression)fields.get(p.index)).getField(), p.subPos.index, p.subPos.index == 0);
-        else
-            return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().testingBackspace(p.subPos));
+        return modificationReturn(token -> {
+            StructuredSlotComponent f = fields.get(p.index);
+            if (f instanceof StructuredSlotField)
+                return deletePrevious_((StructuredSlotField)fields.get(p.index), p.subPos.index, p.subPos.index == 0, token);
+            else if (f instanceof StringLiteralExpression)
+                return deletePrevious_(((StringLiteralExpression)fields.get(p.index)).getField(), p.subPos.index, p.subPos.index == 0, token);
+            else
+                return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().testingBackspace(p.subPos));
+        });
     }
     
     CaretPos testingDelete(CaretPos p)
@@ -2393,30 +2342,30 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         else
             return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().testingDelete(p.subPos));
         
-        return deleteNext_(f, p.subPos.index, p.subPos.index == f.getText().length());
+        return modificationReturn(token -> deleteNext_(f, p.subPos.index, p.subPos.index == f.getText().length(), token));
     }
     
     CaretPos testingDeleteSelection(CaretPos start, CaretPos end)
     {
         anchorPos = start;
-        return deleteSelection_(end);
+        return modificationReturn(token -> deleteSelection_(end, token));
     }
 
     CaretPos testingInsertWithSelection(CaretPos start, CaretPos end, char c)
     {
         anchorPos = start;
-        return insertAtPos(end, "" + c);
+        return modificationReturn(token -> insertAtPos(end, "" + c, token));
     }
     
-    public void insertSuggestion(CaretPos p, String name, List<String> params)
+    public void insertSuggestion(CaretPos p, String name, List<String> params, StructuredSlot.ModificationToken token)
     {
         StructuredSlotComponent f = fields.get(p.index);
         if (f instanceof StructuredSlotField)
         {
             // Blank the field (easier than working out prefixes etc)
-            ((StructuredSlotField) f).setText("");
+            ((StructuredSlotField) f).setText("", token);
             // And insert the new name.  It may have a dot in it, so caret may move to another field:
-            p = insert_((StructuredSlotField)f, 0, name, false);
+            p = insert_((StructuredSlotField)f, 0, name, false, token);
             if (params != null)
             {
                 StringBuilder commas = new StringBuilder();
@@ -2428,7 +2377,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     BracketedStructured b = ((BracketedStructured)fields.get(p.index + 1));
                     if (b.getContent().isEmpty())
                     {
-                        b.getContent().insertAtPos(new CaretPos(0, new CaretPos(0, null)), commas.toString());
+                        b.getContent().insertAtPos(new CaretPos(0, new CaretPos(0, null)), commas.toString(), token);
                     }
                     // else if there are brackets with content, leave them alone.
 
@@ -2439,7 +2388,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 }
                 else
                 {
-                    insertAtPos(new CaretPos(p.index, new CaretPos(p.subPos.index, null)), "(" + commas.toString() + ")");
+                    insertAtPos(new CaretPos(p.index, new CaretPos(p.subPos.index, null)), "(" + commas.toString() + ")", token);
                     // If no parameters, focus after the brackets.  Otherwise, focus first parameter
                     StructuredSlotComponent focusField = fields.get(params.isEmpty() ? p.index + 2 : p.index + 1);
                     // We use a runLater as we need to request focus after the suggestion window has been hidden:
@@ -2451,7 +2400,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         }
         else
         {
-            f.insertSuggestion(p.subPos, name, params);
+            f.insertSuggestion(p.subPos, name, params, token);
         }
     }
 
@@ -2566,7 +2515,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                         && (i == fields.size() - 1 || !(fields.get(i) instanceof BracketedStructured) || ((BracketedStructured)fields.get(i)).getOpening() != '('))
                 {
                     // It doesn't have dot before it, and doesn't have a bracket afterwards -- it's a reference:
-                    refs.add(new StructuredSlot.PlainVarReference(f::setText, f.getNodeForPos(null)));
+                    refs.add(new StructuredSlot.PlainVarReference(text -> modification(token -> f.setText(text, token)), f.getNodeForPos(null)));
                 }
             }
             else if (fields.get(i) instanceof BracketedStructured)
@@ -2862,8 +2811,34 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     
     abstract boolean canBeUnary(String s);
     
-    abstract INFIX newInfix(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured<?, SLOT> wrapper, Character... closingChars);
+    abstract INFIX newInfix(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured<?, SLOT> wrapper, StructuredSlot.ModificationToken token, Character... closingChars);
 
+    private <T> T modificationReturn(FXFunction<StructuredSlot.ModificationToken, T> modificationAction)
+    {
+        if (slot != null) // can be null during testing
+            return slot.modificationReturn(modificationAction);
+        else
+            return StructuredSlot.testingModification(modificationAction);
+    }
+
+    protected <T> void modification(FXConsumer<StructuredSlot.ModificationToken> modificationAction)
+    {
+        if (slot != null) // can be null during testing
+            slot.modificationReturn(t -> {modificationAction.accept(t);return 0;});
+        else
+            StructuredSlot.testingModification(t -> {modificationAction.accept(t); return 0;});
+    }
+    
+    //package-visible:
+    String calculateText()
+    {
+        // Must filter out nulls after interleaving, to preserve ordering:
+        return Utility.interleave(
+            fields.stream().map(f -> f.textProperty()),
+            operators.stream().map(o -> o == null ? null : o.textProperty()))
+            .filter(x -> x != null).map(ObservableStringValue::get).collect(Collectors.joining());
+    }
+    
     /**
      * A simple class to allow a mutable integer to be passed around while building a CaretPosMap
      */

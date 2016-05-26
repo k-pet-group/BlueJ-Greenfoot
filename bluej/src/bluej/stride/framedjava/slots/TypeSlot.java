@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javafx.beans.binding.StringExpression;
+
 import bluej.Config;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
@@ -108,9 +110,9 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     }
 
     @Override
-    protected InfixType newInfix(InteractionManager editor, String stylePrefix)
+    protected InfixType newInfix(InteractionManager editor, ModificationToken token)
     {
-        return new InfixType(editor, this, stylePrefix);
+        return new InfixType(editor, this, token);
     }
 
     public void markReturnType()
@@ -170,5 +172,11 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     {
         //TODOTYPESLOT find links for sub-types of generics too, and for "Object" in Object[]
         return Collections.singletonList(new PossibleTypeLink(getText(), 0, getText().length(), this));
+    }
+    
+    public StringExpression javaProperty()
+    {
+        // Java is the text until we sort out wildcards:
+        return textMirror;
     }
 }

@@ -40,9 +40,9 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     @Override
-    protected InfixExpression newInfix(InteractionManager editor, String stylePrefix)
+    protected InfixExpression newInfix(InteractionManager editor, ModificationToken token)
     {
-        return new InfixExpression(editor, this, stylePrefix);
+        return new InfixExpression(editor, this, token);
     }
     
     @Override

@@ -69,7 +69,7 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     /** The label which displays the closing bracket */
     private final Label closingLabel;
     
-    public BracketedStructured(InteractionManager editor, INFIX parent, SLOT slot, char opening, String initialContent)
+    public BracketedStructured(InteractionManager editor, INFIX parent, SLOT slot, char opening, String initialContent, StructuredSlot.ModificationToken token)
     {
         this.parent = parent;
         this.opening = opening;
@@ -81,7 +81,7 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
         case '<': closing = '>'; break;
         default: throw new IllegalArgumentException("Unrecognised bracket: " + opening);
         }
-        content = parent.newInfix(editor, slot, initialContent, this, closing);
+        content = parent.newInfix(editor, slot, initialContent, this, token, closing);
         openingLabel = StructuredSlot.makeBracket("" + opening, true, content);
         closingLabel = StructuredSlot.makeBracket("" + closing, false, content);
         HangingFlowPane.setBreakBefore(closingLabel, false);
@@ -218,9 +218,9 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
         return content;
     }
 
-    public CaretPos flatten(boolean atEnd)
+    public CaretPos flatten(boolean atEnd, StructuredSlot.ModificationToken token)
     {
-        return parent.flattenCompound(this, atEnd);        
+        return parent.flattenCompound(this, atEnd, token);
     }
 
     @Override
@@ -230,9 +230,9 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     }
 
     @Override
-    public void insertSuggestion(CaretPos p, String name, List<String> params)
+    public void insertSuggestion(CaretPos p, String name, List<String> params, StructuredSlot.ModificationToken token)
     {
-        content.insertSuggestion(p, name, params);
+        content.insertSuggestion(p, name, params, token);
     }
 
     //package-visible

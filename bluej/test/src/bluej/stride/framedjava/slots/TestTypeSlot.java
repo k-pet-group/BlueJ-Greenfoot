@@ -63,7 +63,7 @@ public class TestTypeSlot
 
     private void testInsert(String insertion, String result)
     {
-        InfixType e = new InfixType(null, null, "");
+        InfixType e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
         CaretPos p = e.testingInsert(insertion, '\0');
         assertEquals(insertion + " -> " + result, new CompareWrapper(result), new CompareWrapper(e.testingGetState(p)));
         
@@ -79,7 +79,7 @@ public class TestTypeSlot
         String noPos = result.replace("$", "");
         for (int split = 1; split < insertion.length(); split++)
         {
-            e = new InfixType(null, null, "");
+            e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
             e.testingInsert(e.testingInsert(insertion.substring(0, split), '\0'),  insertion.substring(split));
             assertEquals(insertion + " -> " + noPos, new CompareWrapper(noPos), new CompareWrapper(e.testingGetState(null)));
         }
@@ -89,7 +89,7 @@ public class TestTypeSlot
     
     private void testMultiInsert(String multiInsertion, String firstResult, String secondResult)
     {
-        InfixType e = new InfixType(null, null, "");
+        InfixType e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
         int startNest = multiInsertion.indexOf('{');
         int endNest = multiInsertion.indexOf('}', startNest);
         if (startNest == -1 || endNest == -1)
@@ -106,7 +106,7 @@ public class TestTypeSlot
     
     private void testInsertExisting(String start, String insertion, String result)
     {
-        InfixType e = new InfixType(null, null, "");
+        InfixType e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
         CaretPos p = e.testingInsert(start, '$');
         p = e.testingInsert(p, insertion);
         
@@ -123,7 +123,7 @@ public class TestTypeSlot
     {
         if (testBackspace)
         {
-            InfixType e = new InfixType(null, null, "");
+            InfixType e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
             CaretPos p = e.testingInsert(insertionInclBackspace, '\b');
             e.positionCaret(p);
             
@@ -144,7 +144,7 @@ public class TestTypeSlot
             
             // We still use \b because we know it won't occur again in the string:
             String joined = before + "\b" + after;
-            InfixType e = new InfixType(null, null, "");
+            InfixType e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
             CaretPos p = e.testingInsert(joined, '\b');
             e.positionCaret(p);
             p = e.testingDelete(p);
@@ -154,7 +154,7 @@ public class TestTypeSlot
     
     private void testDeleteSelection(String src, String result)
     {
-        InfixType e = new InfixType(null, null, "");
+        InfixType e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
         int startNest = src.indexOf('{');
         int endNest = src.indexOf('}', startNest);
         if (startNest == -1 || endNest == -1)
@@ -173,7 +173,7 @@ public class TestTypeSlot
     
     private void testSelectionInsert(char c, String src, String result)
     {
-        InfixType e = new InfixType(null, null, "");
+        InfixType e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
         int startNest = src.indexOf('{');
         int endNest = src.indexOf('}', startNest);
         if (startNest == -1 || endNest == -1)
@@ -214,7 +214,7 @@ public class TestTypeSlot
     
     private void testCaretPosMap(String src, String result, String java, CPM... cpms)
     {
-        InfixType e = new InfixType(null, null, "");
+        InfixType e = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
         CaretPos p = e.testingInsert(src, '\0');
         assertEquals(src + " -> " + result, new CompareWrapper(result), new CompareWrapper(e.testingGetState(p).replace("$", "")));
         for (CPM cpm : cpms)

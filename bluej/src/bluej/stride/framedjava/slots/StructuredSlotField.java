@@ -282,8 +282,9 @@ class StructuredSlotField implements StructuredSlotComponent
         return field.getText();
     }
     
-    public void setText(String s)
+    public void setText(String s, StructuredSlot.ModificationToken token)
     {
+        token.check();
         field.setText(s);
     }
     
@@ -371,11 +372,11 @@ class StructuredSlotField implements StructuredSlotComponent
     }
 
     @Override
-    public void insertSuggestion(CaretPos p, String name, List<String> params)
+    public void insertSuggestion(CaretPos p, String name, List<String> params, StructuredSlot.ModificationToken token)
     {
         if (params != null)
             throw new IllegalArgumentException();
-        setText(getText().substring(0, p.index) + name + getText().substring(p.index));
+        setText(getText().substring(0, p.index) + name + getText().substring(p.index), token);
     }
     
     private void calculateTooltip(FXConsumer<String> tooltipConsumer)

@@ -208,11 +208,11 @@ class StringLiteralExpression implements StructuredSlotComponent
     }
 
     @Override
-    public void insertSuggestion(CaretPos p, String name, List<String> params)
+    public void insertSuggestion(CaretPos p, String name, List<String> params, StructuredSlot.ModificationToken token)
     {
         if (params != null)
             throw new IllegalArgumentException();
-        getField().setText(name);
+        getField().setText(name, token);
         getField().focusAtPos(new CaretPos(name.length(), null));
     }
 
