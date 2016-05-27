@@ -9,6 +9,7 @@ import javafx.application.Platform;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.JavaFXUtil;
 
 /**
  * Created by neil on 22/05/2016.
@@ -249,7 +250,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
 
 
     /**
-     * Queues a call to update prompts in method calls.  Will not
+     * Queues a call to update prompts in method calls after modification has finished.  Will not
      * queue more than one such call at any time.
      */
     void queueUpdatePromptsInMethodCalls()
@@ -257,7 +258,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
         if (!queuedUpdatePrompts)
         {
             queuedUpdatePrompts = true;
-            Platform.runLater(this::updatePromptsInMethodCalls);
+            slot.afterCurrentModification(this::updatePromptsInMethodCalls);
         }
     }
     
@@ -350,4 +351,11 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
         }
     }
 
+    @Override
+    protected StructuredSlotField makeNewField(String content, boolean stringLiteral)
+    {
+        StructuredSlotField field = super.makeNewField(content, stringLiteral);
+        JavaFXUtil.addChangeListener(field.textProperty(), t -> queueUpdatePromptsInMethodCalls());
+        return field;
+    }
 }

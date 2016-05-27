@@ -116,8 +116,6 @@ class StructuredSlotField implements StructuredSlotComponent
             shrinkGrow.run();
             if (!stringLiteral)
                 updateBreaks();
-            if (parent instanceof InfixExpression) //TODOTYPESLOT
-                ((InfixExpression)parent).queueUpdatePromptsInMethodCalls();
         });
         field.promptTextProperty().addListener((a, b, c) -> {
             shrinkGrow.run();

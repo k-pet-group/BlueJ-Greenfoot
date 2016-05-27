@@ -489,7 +489,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
     public void onTextPropertyChangeOld(FXBiConsumer<String, String> listener)
     {
-        // Really this property can show incomplete states, so we use runLater to make sure update is complete:
         textMirror.addListener((a, oldVal, newVal) -> listener.accept(oldVal, newVal));
     }
     
@@ -1570,6 +1569,15 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     static <T> T testingModification(FXFunction<ModificationToken, T> modificationAction)
     {
         return modificationAction.apply(new ModificationToken());
+    }
+
+    //package-visible
+    void afterCurrentModification(FXRunnable action)
+    {
+        if (modificationTokens.isEmpty())
+            action.run();
+        else
+            modificationTokens.get(0).after(action);
     }
 
     /**

@@ -475,7 +475,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 || before.matches("\\A\\s*0x" + HEX_DIGITS_REGEX + "\\z");
     }
 
-    private StructuredSlotField makeNewField(String content, boolean stringLiteral)
+    protected StructuredSlotField makeNewField(String content, boolean stringLiteral)
     {
         StructuredSlotField f = new StructuredSlotField(this, content, stringLiteral);
         if (editor != null) // Can be null during testing
