@@ -192,7 +192,6 @@ public class Parser
             public IfBuilder(String condition)
             {
                 this.conditions.add(toFilled(condition));
-                blocks.add(new ArrayList<>());
             }
 
             public void addCondBlock()
@@ -247,27 +246,28 @@ public class Parser
         protected void beginIfCondBlock(LocatableToken token)
         {
             super.beginIfCondBlock(token);
-            getIfBuilder().addCondBlock();
+            getIfBuilder(false).addCondBlock();
         }
 
         @Override
         protected void gotElseIf(LocatableToken token)
         {
             super.gotElseIf(token);
-            getIfBuilder().addElseIf();
+            getIfBuilder(false).addElseIf();
         }
 
         @Override
         protected void endIfStmt(LocatableToken token, boolean included)
         {
             super.endIfStmt(token, included);
-            getIfBuilder().endIf();
+            getIfBuilder(true).endIf();
         }
 
-        private IfBuilder getIfBuilder()
+        // If true, pop it from stack.  If false, peek and leave it on stack
+        private IfBuilder getIfBuilder(boolean pop)
         {
             if (statementHandlers.peek() instanceof IfBuilder)
-                return (IfBuilder)statementHandlers.peek();
+                return (IfBuilder)(pop ? statementHandlers.pop() : statementHandlers.peek());
             else
                 return null;
         }

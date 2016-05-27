@@ -36,12 +36,19 @@ public class JavaToStrideTest
         assertEquals("while (0) {while (1) { while (2) {} } while (3) while (4); while(5); }",
                 _while("0", _while("1", _while("2")), _while("3", _while("4")), _while("5")));
 
-        //assertEquals("if (0);", _if("0"));
-
         assertEquals("return 0;", _return("0"));
         assertEquals("return 0+1;", _return("0+1"));
         assertEquals("return 0+(1+2);", _return("0+(1+2)"));
         assertEquals("return;", _return());
+    }
+    
+    @Test
+    public void testIf()
+    {
+        assertEquals("if (0);", _if("0"));
+        assertEquals("if (0) return 1;", _if("0", _return("1")));
+        assertEquals("if (0) return 1; else return 2;", _ifElse("0", Arrays.asList(_return("1")), Arrays.asList(_return("2"))));
+        //TODO test else-if
     }
 
     private ReturnElement _return()
@@ -57,6 +64,18 @@ public class JavaToStrideTest
     private WhileElement _while(String expression, CodeElement... body)
     {
         return new WhileElement(null, new FilledExpressionSlotFragment(expression, expression), Arrays.asList(body), true);
+    }
+
+    // If without any elses
+    private IfElement _if(String expression, CodeElement... body)
+    {
+        return new IfElement(null, new FilledExpressionSlotFragment(expression, expression), Arrays.asList(body), Collections.emptyList(), Collections.emptyList(), null, true);
+    }
+
+    // If with an else
+    private IfElement _ifElse(String expression, List<CodeElement> body, List<CodeElement> elseBody)
+    {
+        return new IfElement(null, new FilledExpressionSlotFragment(expression, expression), body, Collections.emptyList(), Collections.emptyList(), elseBody, true);
     }
 
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
