@@ -208,7 +208,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     // We must keep a reference to this to avoid problems with GC and weak listeners:
     private final BooleanBinding effectivelyFocusedProperty;
     private final List<ModificationToken> modificationTokens = new ArrayList<>();
-    private final List<FXRunnable> afterModify = new ArrayList<>();
+    protected final List<FXRunnable> afterModify = new ArrayList<>();
 
     public StructuredSlot(InteractionManager editor,
                           Frame parentFrame, CodeFrame<?> parentCodeFrame, FrameContentRow row, String stylePrefix, COMPLETION_CALCULATOR completionCalculator, List<FrameCatalogue.Hint> hints)

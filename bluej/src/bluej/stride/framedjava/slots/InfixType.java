@@ -1,6 +1,9 @@
 package bluej.stride.framedjava.slots;
 
+import java.util.Optional;
+
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.javafx.FXBiConsumer;
 import bluej.utility.javafx.FXConsumer;
 
 /**
@@ -81,5 +84,16 @@ public class InfixType extends InfixStructured<TypeSlot, InfixType>
     public void calculateTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)
     {
         //We could add hints here for inner types, e.g. underscore in ArrayList<_>
+    }
+
+    void runIfCommaDirect(FXBiConsumer<String, String> listener)
+    {
+        Optional<Integer> optIndex = operators.findFirst(op -> op != null && op.get().equals(","));
+        optIndex.ifPresent(index -> {
+            // We know normal fields must surround operator:
+            String before = getCopyText(null, new CaretPos(index, fields.get(index).getEndPos()));
+            String after = getCopyText(new CaretPos(index + 1, new CaretPos(0, null)), null);
+            listener.accept(before, after);
+        });
     }
 }

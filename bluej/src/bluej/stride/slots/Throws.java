@@ -31,7 +31,7 @@ import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 
-public class Throws extends TypeList implements SlotValueListener
+public class Throws extends TypeList
 {
     public Throws(Frame parentFrame, Supplier<TypeSlot> slotGenerator, FXRunnable focusOnNext, InteractionManager editor)
     {

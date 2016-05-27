@@ -147,7 +147,7 @@ public class FormalParameters
                     Platform.runLater(checkStillFocused);
             }
         };
-        TypeSlot paramType = typeSlot; //TODOTYPESLOT may be more to add back
+        TypeSlot paramType = typeSlot; //TODOTYPESLOT there is more to add back from initialiseTextSlot
         paramType.setText(type);
         paramType.setSimplePromptText("paramType");
         TextSlot<NameDefSlotFragment> paramName = initialiseTextSlot("paramName", name, false, nameSlot);

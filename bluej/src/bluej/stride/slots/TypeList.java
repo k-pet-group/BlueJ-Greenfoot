@@ -48,7 +48,7 @@ import bluej.utility.javafx.binding.DeepListBinding;
  * This class holds a list of TypeSlot, and handles the use of backspace, delete,
  * and typing commas to shrink/extend the list.
  */
-public class TypeList implements SlotValueListener
+public class TypeList
 {
     /**
      * The list of header items to show; this will be a list of type slots with
@@ -167,36 +167,25 @@ public class TypeList implements SlotValueListener
     {
         final TypeSlot slot = slotGenerator.get();
         
-        /*TODOTYPESLOT
-        slot.addValueListener(this);
+        slot.addBackspaceAtStartListener(() -> backSpacePressedAtStart(slot));
+        slot.addDeleteAtEndListener(() -> deletePressedAtEnd(slot));
+        
+        slot.onTopLevelComma((before, after) -> {
+            // If the user has entered a comma, split the type slot at that point
+            // and add a new slot with the second half of the content:
+            TypeSlot newSlot = addTypeSlot(typeSlots.indexOf(slot) + 1);
+            slot.setText(before);
+            newSlot.setText(after);
+            newSlot.requestFocus(Focus.LEFT);
+        });
         slot.addFocusListener(parentFrame);
-        slot.addValueListener(SlotTraversalChars.IDENTIFIER);*/
+        slot.addClosingChar(' ');
         
         typeSlots.add(index, slot);
         return slot;
     }
 
-    @Override
-    public boolean valueChanged(HeaderItem slot, String oldValue, String newValue,
-            FocusParent<HeaderItem> parent)
-    {
-        // If the user has entered a comma, split the type slot at that point
-        // and add a new slot with the second half of the content:
-        if (newValue.contains(",")) {
-            TypeSlot newSlot = addTypeSlot(typeSlots.indexOf(slot) + 1);
-            String right = newValue.substring(newValue.indexOf(",") + 1);
-            // Hacky way to chop the string after listeners have run:
-            //TODOTYPESLOT
-            Platform.runLater(() -> ((TypeSlot)slot).setText(newValue.substring(0, newValue.indexOf(","))));
-            newSlot.setText(right);
-            newSlot.requestFocus(Focus.LEFT);
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void backSpacePressedAtStart(HeaderItem slot)
+    private boolean backSpacePressedAtStart(TypeSlot slot)
     {
         int index = typeSlots.indexOf(slot);
         // Delete our slot:
@@ -208,15 +197,16 @@ public class TypeList implements SlotValueListener
             // Iffy way to keep caret in right place:
             prev.requestFocus();
             prev.recallFocus(prev.getText().length() - remainder.length());
+            return true;
         }
         else
         {
             focusOnNext.run();
+            return true;
         }
     }
 
-    @Override
-    public void deletePressedAtEnd(HeaderItem slot)
+    private boolean deletePressedAtEnd(TypeSlot slot)
     {
         int index = typeSlots.indexOf(slot);
         // If we're not the last parameter, delete the one after us:
@@ -225,11 +215,13 @@ public class TypeList implements SlotValueListener
             String prev = typeSlots.get(index).getText();
             typeSlots.get(index).setText(prev + remainder);
             typeSlots.get(index).recallFocus(prev.length());
+            return false;
         }
         // If we are, delete us!
         else {
             delete((TypeSlot) slot);
             focusOnNext.run();
+            return true;
         }
     }
 

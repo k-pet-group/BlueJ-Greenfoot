@@ -1,5 +1,6 @@
 package bluej.stride.framedjava.slots;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,8 +20,12 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SuggestedFollowUpDisplay;
 import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXBiConsumer;
 import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Created by neil on 22/05/2016.
@@ -29,6 +34,8 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
 {
     private final InteractionManager editor;
     private boolean isReturnType = false;
+    private final List<FXSupplier<Boolean>> backspaceListeners = new ArrayList<>();
+    private final List<FXSupplier<Boolean>> deleteListeners = new ArrayList<>();
     
     public static enum Role
     {
@@ -122,6 +129,9 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     
     private void adjustReturnFrames(String oldValue, String newValue)
     {
+        if (!isReturnType)
+            return;
+        
         if ((oldValue.equals("void") || oldValue.equals("")) && !(newValue.equals("void") || newValue.equals("")))
         {
             // Added a return type; need to go through and add empty slots for all returns that don't have them:
@@ -178,5 +188,52 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     {
         // Java is the text until we sort out wildcards:
         return textMirror;
+    }
+
+    /**
+     * An action to call when a comma is inserted at the top-level of
+     * the type slot (i.e. "HashMap<Int,>" would not trigger this because
+     * it's inside a generic sub-structured item).  Passes the text
+     * before the comma and after the comma.
+     */
+    public void onTopLevelComma(FXBiConsumer<String, String> listener)
+    {
+        afterModify.add(() -> {
+            topLevel.runIfCommaDirect(listener);
+        });
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) boolean backspaceAtStart()
+    {
+        // Must make sure that we run all listeners, and not short-circuit because one returned true:
+        boolean transferredFocus = Utility.mapList(backspaceListeners, FXSupplier::get).stream().reduce(false, (a, b) -> a || b); 
+        if (transferredFocus)
+            return true;
+        else
+            return super.backspaceAtStart();
+    }
+
+    @Override
+    public boolean deleteAtEnd()
+    {
+        // Must make sure that we run all listeners, and not short-circuit because one returned true:
+        boolean transferredFocus = Utility.mapList(deleteListeners, FXSupplier::get).stream().reduce(false, (a, b) -> a || b);
+        if (transferredFocus)
+            return true;
+        else
+            return super.deleteAtEnd();
+    }
+    
+    // Should return true if focus has been transferred out of the slot
+    public void addBackspaceAtStartListener(FXSupplier<Boolean> listener)
+    {
+        backspaceListeners.add(listener);
+    }
+
+    // Should return true if focus has been transferred out of the slot
+    public void addDeleteAtEndListener(FXSupplier<Boolean> listener)
+    {
+        deleteListeners.add(listener);
     }
 }

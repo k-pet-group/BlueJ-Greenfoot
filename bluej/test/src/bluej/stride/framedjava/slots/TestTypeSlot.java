@@ -2,6 +2,8 @@ package bluej.stride.framedjava.slots;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
@@ -16,6 +18,7 @@ import static bluej.stride.framedjava.slots.Operator.Precedence.HIGH;
 import static bluej.stride.framedjava.slots.Operator.Precedence.LOW;
 import static bluej.stride.framedjava.slots.Operator.Precedence.MEDIUM;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class TestTypeSlot
 {
@@ -307,6 +310,7 @@ public class TestTypeSlot
     @Test
     public void testFloating()
     {
+        //TODOTYPESLOT make this test pass
         testInsert("1.0", "{1}.{0$}");
         testInsert("10.20", "{10}.{20$}");
         testInsert("a.0", "{a}.{0$}");
@@ -592,5 +596,38 @@ public class TestTypeSlot
     {
         testInsert("(", "{$}");
         testInsert("foo()", "{foo$}");
+    }
+    
+    private void testNoComma(String str)
+    {
+        InfixType type = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
+        type.testingInsert(str, '\0');
+        AtomicBoolean run = new AtomicBoolean(false);
+        type.runIfCommaDirect((a, b) -> run.set(true));
+        assertFalse("Checking comma did not run", run.get());
+    }
+
+    private void testComma(String src, String before, String after)
+    {
+        InfixType type = StructuredSlot.testingModification(token -> new InfixType(null, null, token));
+        type.testingInsert(src, '\0');
+        String[] beforeAfter = new String[] {null, null};
+        type.runIfCommaDirect((a, b) -> {beforeAfter[0] = a; beforeAfter[1] = b;});
+        assertEquals("Checking before comma: \"" + src + "\"", before, beforeAfter[0]);
+        assertEquals("Checking after comma: \"" + src + "\"", after, beforeAfter[1]);
+    }
+    
+    @Test
+    public void testComma()
+    {
+        testNoComma("aaa");
+        testNoComma("a.b");
+        testNoComma("a<b,c>");
+        testComma(",", "", "");
+        testComma("a,", "a", "");
+        testComma(",b", "", "b");
+        testComma("a,b", "a", "b");
+        testComma("a<x>,b<y>", "a<x>", "b<y>");
+        testComma("a<x,x2>,b<y,c<z1,z2>>", "a<x,x2>", "b<y,c<z1,z2>>");
     }
 }

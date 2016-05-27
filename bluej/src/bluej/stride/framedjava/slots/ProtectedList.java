@@ -2,7 +2,10 @@ package bluej.stride.framedjava.slots;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -80,5 +83,15 @@ public class ProtectedList<T>
     public ObservableList<?> observable()
     {
         return content;
+    }
+    
+    public Optional<Integer> findFirst(Predicate<T> function)
+    {
+        for (int i = 0; i < content.size(); i++)
+        {
+            if (function.test(content.get(i)))
+                return Optional.of(i);
+        }
+        return Optional.empty();
     }
 }
