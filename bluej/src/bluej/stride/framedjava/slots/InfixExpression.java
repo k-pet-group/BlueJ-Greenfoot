@@ -235,9 +235,10 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
             if (i < fields.size() - 1 &&
                 fields.get(i) instanceof StructuredSlotField &&
                 !fields.get(i).isFieldAndEmpty() &&
-                fields.get(i + 1) instanceof BracketedStructured)
+                fields.get(i + 1) instanceof BracketedStructured &&
+                ((BracketedStructured)fields.get(i+1)).getOpening() == '(' )
             {
-                // Text, non-empty, followed by brackets.  Must be a method call:
+                // Text, non-empty, followed by round brackets.  Must be a method call:
                 BracketedStructured bracketedParams = (BracketedStructured) fields.get(i + 1);
                 CaretPos absPos = absolutePos(new CaretPos(i, new CaretPos(0, null)));
                 ((InfixExpression)bracketedParams.getContent()).treatAsParams_updatePrompts(fields.get(i).getCopyText(null, null), absPos);

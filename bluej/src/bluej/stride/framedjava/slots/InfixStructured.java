@@ -2366,7 +2366,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 for (int i = 0; i < params.size() - 1; i++)
                     commas.append(',');
                 
-                if (p.index + 1 < fields.size() && fields.get(p.index + 1) instanceof BracketedStructured)
+                if (p.index + 1 < fields.size() && fields.get(p.index + 1) instanceof BracketedStructured && ((BracketedStructured)fields.get(p.index + 1)).getOpening() == opening)
                 {
                     BracketedStructured b = ((BracketedStructured)fields.get(p.index + 1));
                     if (b.getContent().isEmpty())
