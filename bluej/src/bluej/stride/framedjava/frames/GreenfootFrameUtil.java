@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,9 @@ import java.util.List;
 
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+
+import bluej.parser.ParseFailure;
+import bluej.stride.framedjava.ast.Parser;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -51,9 +54,21 @@ public class GreenfootFrameUtil
     public static List<CodeElement> getClipboardElements()
     {
         final Clipboard clipboard = Clipboard.getSystemClipboard();
-        // TODO: use mime type
         if (clipboard.hasString()) {
-            return getElements(clipboard.getString());
+            List<CodeElement> strideElements = getElements(clipboard.getString());
+            if (strideElements != null)
+                return strideElements;
+            
+            try
+            {
+                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString());
+                return javaElements;
+            }
+            catch (ParseFailure pf)
+            {
+                //TODO give user message about why the paste failed
+                return null;
+            }
         }
 
         return null;
@@ -111,7 +126,6 @@ public class GreenfootFrameUtil
 
         final Clipboard clipboard = Clipboard.getSystemClipboard();
         final ClipboardContent content = new ClipboardContent();
-        // TODO copy code as stored XML with own mime type
         content.putString(getXmlForMultipleFrames(frames));
         content.putImage(Frame.takeShot(frames, null));
         clipboard.setContent(content);
