@@ -1,4 +1,4 @@
-package bluej.bluej.stride.framedjava.ast;
+package bluej.stride.framedjava.ast;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,8 +39,8 @@ public class JavaToStrideTest
                 _while("0", _while("1", _while("2")), _while("3", _while("4")), _while("5")));
 
         assertEquals("return 0;", _return("0"));
-        assertEquals("return 0+1;", _return("0+1"));
-        assertEquals("return 0+(1+2);", _return("0+(1+2)"));
+        assertEquals("return 0+1;", _return("0 + 1"));
+        assertEquals("return 0+(1+2);", _return("0 + ( 1 + 2 )"));
         assertEquals("return;", _return());
     }
     
@@ -63,15 +63,38 @@ public class JavaToStrideTest
     @Test
     public void testCall()
     {
-        assertEquals("go();", _call("go()"));
-        assertEquals("move(6 + 7);", _call("move(6 + 7)"));
-        assertEquals("getFoo().move(6 + 7);", _call("getFoo().move(6 + 7)"));
+        assertEquals("go();", _call("go ( )"));
+        assertEquals("move(6 + 7);", _call("move ( 6 + 7 )"));
+        assertEquals("getFoo().move(6 + 7);", _call("getFoo ( ) . move ( 6 + 7 )"));
         
         // Assignments will become call-frames initially, even though on insertion
         // as real code, CallFrame will check and self-convert to AssignFrame:
-        assertEquals("x = getX();", _call("x = getX()"));
+        assertEquals("x = getX();", _call("x = getX ( )"));
     }
     
+    @Test
+    public void testExpression()
+    {
+        assertExpression("0", "0");
+        assertExpression("0 + 1", "0+1");
+        assertExpression("0 + 1", "0 + 1");
+        assertExpression("0 + 1", "0  +  1");
+        assertExpression("0 >= 1", "0  >=  1");
+        assertExpression("0 > = 1", "0  > =  1");
+        assertExpression("new Foo ( )", "new Foo()");
+        assertExpression("newFoo ( )", "newFoo()");
+        assertExpression("<:", "instanceof");
+        assertExpression("a <: b", "a instanceof b");
+        assertExpression("a instanceofb", "a instanceofb");
+        // Confusingly, if you put <: in from the Java side, you should get < : (two operators):
+        assertExpression("a < : b", "a <: b");
+    }
+
+    private static void assertExpression(String expectedStride, String original)
+    {
+        Assert.assertEquals(expectedStride, Parser.replaceInstanceof(original));
+    }
+
     private CallElement _call(String call)
     {
         return new CallElement(null, new CallExpressionSlotFragment(call, call), true);

@@ -157,6 +157,28 @@ public class Parser
         return parser.getCodeElements();
     }
 
+    // package-visible for testing
+    static String replaceInstanceof(String src)
+    {
+        // It is a bit inefficient to re-lex the string, but
+        // it's easiest this way and conversion is not particularly time sensitive:
+        JavaLexer lexer = new JavaLexer(new StringReader(src));
+        StringBuilder r = new StringBuilder();
+        while (true)
+        {
+            LocatableToken token = lexer.nextToken();
+            if (token.getType() == JavaTokenTypes.EOF)
+                return r.toString();
+            if (r.length() != 0)
+                r.append(" ");
+            if (token.getType() == JavaTokenTypes.LITERAL_instanceof)
+                r.append("<:");
+            else
+                r.append(token.getText());
+        }
+    }
+
+
     private static class JavaStrideParser extends JavaParser
     {
         private final String source;
@@ -358,7 +380,7 @@ public class Parser
         {
             return source.substring(start.getPosition(), end.getPosition());
         }
-
+        
         private void withExpression(Consumer<String> handler)
         {
             expressionHandlers.push(new ExpressionHandler()
@@ -380,7 +402,7 @@ public class Parser
                 {
                     outstanding -= 1;
                     if (outstanding == 0)
-                        handler.accept(getText(start, end));
+                        handler.accept(replaceInstanceof(getText(start, end)));
                     else
                         // We get popped by default; add ourselves back in:
                         expressionHandlers.push(this);
