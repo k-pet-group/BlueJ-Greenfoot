@@ -179,10 +179,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     // after the second, third, etc and after the final one.  These positions may be spread
     // across multiple graphical lines if the slot has wrapped in the flow pane.
     private List<TextOverlayPosition> selectionDrawPositions;
-    // Keeps track of whether we have queued a runLater call to modified.  Since all sorts
-    // of modifications can happen to a slot's content in a single logical change, this makes
-    // sure modified is only called once per logical change.
-    private boolean modifyQueued = false;
     // A list of actions to take when this slot loses focus:
     private final List<FXRunnable> lostFocusActions = new ArrayList<>();
     // The position at which code completion is currently taking place.  We can't just
@@ -231,18 +227,12 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
         effectivelyFocusedProperty = focusedProperty.or(fakeCaretShowing);
         
-        //TODOTYPESLOT figure out what to do here now:
-        textMirror.addListener((a, b, c) -> {
-            // We delay the modified call so that the current code gets a chance to finish its change:
-            if (!modifyQueued && !editor.isLoading()) // Only need to queue one at any time
+        JavaFXUtil.addChangeListener(textMirror, t -> {
+            if (!editor.isLoading())
             {
-                modifyQueued = true;
-                Platform.runLater(() -> {
-                    modified();
-                    modifyQueued = false;
-                });
+                modified();
             }
-            else if (editor.isLoading())
+            else
             {
                 parentFrame.trackBlank();
             }
