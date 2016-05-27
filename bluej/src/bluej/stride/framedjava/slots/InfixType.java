@@ -78,8 +78,8 @@ public class InfixType extends InfixStructured<TypeSlot, InfixType>
     }
 
     @Override
-    public void withTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)
+    public void calculateTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)
     {
-        //TODOTYPESLOT
+        //We could add hints here for inner types, e.g. underscore in ArrayList<_>
     }
 }

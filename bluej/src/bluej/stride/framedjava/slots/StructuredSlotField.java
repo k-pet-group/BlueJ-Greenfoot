@@ -372,7 +372,7 @@ class StructuredSlotField implements StructuredSlotComponent
     }
 
     @Override
-    public void insertSuggestion(CaretPos p, String name, List<String> params, StructuredSlot.ModificationToken token)
+    public void insertSuggestion(CaretPos p, String name, char opening, List<String> params, StructuredSlot.ModificationToken token)
     {
         if (params != null)
             throw new IllegalArgumentException();
@@ -385,7 +385,7 @@ class StructuredSlotField implements StructuredSlotComponent
         if (!getText().equals("") && !isFocused())
             tooltipConsumer.accept("");
         else
-            parent.withTooltipFor(this, tooltipConsumer);
+            parent.calculateTooltipFor(this, tooltipConsumer);
     }
 
     @Override

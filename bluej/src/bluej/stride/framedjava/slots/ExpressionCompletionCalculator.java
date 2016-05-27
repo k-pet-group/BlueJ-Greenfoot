@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import bluej.parser.AssistContent.ParamInfo;
@@ -57,7 +56,7 @@ public class ExpressionCompletionCalculator implements StructuredCompletionCalcu
     }
 
     @Override
-    public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, SuggestionListListener clickListener, String targetType, FXPlatformConsumer<SuggestionList> handler)
+    public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, SuggestionListListener clickListener, String targetType, boolean completingStartOfSlot, FXPlatformConsumer<SuggestionList> handler)
     {
         editor.withCompletions(pos, completing, codeEl, assists -> {
             completions = assists.stream()
@@ -172,29 +171,10 @@ public class ExpressionCompletionCalculator implements StructuredCompletionCalcu
             .collect(Collectors.toList())));
     }
 
-    // Not sure where is best to put this rarity stuff:
-
-    private static final Map<String, List<String>> commonTypes = new HashMap<>();
-    {
-        commonTypes.put(null, Arrays.asList("boolean", "char", "double", "int", "void"));
-        commonTypes.put("greenfoot", Arrays.asList("Actor", "GreenfootImage", "GreenfootSound", "MouseInfo", "UserInfo", "World"));
-        commonTypes.put("java.lang", Arrays.asList("Exception", "Object", "String"));
-        commonTypes.put("java.util", Arrays.asList("ArrayList", "HashMap", "HashSet", "LinkedList", "List", "Map", "Set"));
-    }
-
-    public static SuggestionList.SuggestionShown getRarity(AssistContentThreadSafe ac)
+    private static SuggestionList.SuggestionShown getRarity(AssistContentThreadSafe ac)
     {
         switch (ac.getKind())
         {
-            case TYPE:
-                if (commonTypes.containsKey(ac.getPackage()))
-                {
-                    return commonTypes.get(ac.getPackage()).contains(ac.getName()) ? SuggestionList.SuggestionShown.COMMON : SuggestionList.SuggestionShown.RARE;
-                }
-                else
-                {
-                    return SuggestionList.SuggestionShown.COMMON;
-                }
             case METHOD:
                 if (ac.getDeclaringClass().equals("java.lang.Object"))
                 {
@@ -213,5 +193,11 @@ public class ExpressionCompletionCalculator implements StructuredCompletionCalcu
             default:
                 return SuggestionList.SuggestionShown.COMMON;
         }
+    }
+
+    @Override
+    public char getOpening(int selected)
+    {
+        return '(';
     }
 }

@@ -24,7 +24,6 @@ package bluej.stride.framedjava.slots;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,14 +35,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
-import bluej.stride.framedjava.ast.Parser;
+
 import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -65,19 +63,15 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.EditableSlot;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXFunction;
 import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.MultiListener;
 import bluej.utility.javafx.SharedTransition;
 import bluej.utility.javafx.TextFieldDelegate;
 import bluej.utility.javafx.binding.DeepListBinding;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -2357,7 +2351,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         return modificationReturn(token -> insertAtPos(end, "" + c, token));
     }
     
-    public void insertSuggestion(CaretPos p, String name, List<String> params, StructuredSlot.ModificationToken token)
+    public void insertSuggestion(CaretPos p, String name, char opening, List<String> params, StructuredSlot.ModificationToken token)
     {
         StructuredSlotComponent f = fields.get(p.index);
         if (f instanceof StructuredSlotField)
@@ -2400,12 +2394,12 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         }
         else
         {
-            f.insertSuggestion(p.subPos, name, params, token);
+            f.insertSuggestion(p.subPos, name, opening, params, token);
         }
     }
 
 
-    public abstract void withTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler);
+    public abstract void calculateTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler);
         
     protected CaretPos absolutePos(CaretPos p)
     {

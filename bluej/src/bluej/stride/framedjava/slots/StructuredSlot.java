@@ -34,7 +34,6 @@ import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 
 import bluej.stride.framedjava.ast.StructuredSlotFragment;
-import bluej.stride.framedjava.ast.SuperThis;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.slots.InfixStructured.RangeType;
 import bluej.stride.generic.ExtensionDescription;
@@ -66,7 +65,6 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import bluej.Config;
 import bluej.editor.stride.CodeOverlayPane;
-import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.ErrorAndFixDisplay;
@@ -78,8 +76,6 @@ import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.InteractionManager.FileCompletion;
-import bluej.stride.slots.ChoiceSlot;
-import bluej.stride.slots.CompletionCalculator;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.FocusParent;
@@ -788,7 +784,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             editor.afterRegenerateAndReparse(() -> {
                 final int stringPos = topLevel.caretPosToStringPos(topLevel.getCurrentPos(), true);
                 PosInSourceDoc posInFile = getSlotElement().getPosInSourceDoc(stringPos);
-                completionCalculator.withCalculatedSuggestionList(posInFile, this.asExpressionSlot(), parentCodeFrame.getCode(), StructuredSlot.this, (targetType == null /* || not at start getStartOfCurWord() != 0 */) ? null : targetType.get(), withSuggList);
+                completionCalculator.withCalculatedSuggestionList(posInFile, this.asExpressionSlot(), parentCodeFrame.getCode(), StructuredSlot.this, (targetType == null /* || not at start getStartOfCurWord() != 0 */) ? null : targetType.get(), field == topLevel.getFirstField(), withSuggList);
                 editor.recordCodeCompletionStarted(getSlotElement(), stringPos, field.getText().substring(0, caretPosition));
             });
         }
@@ -845,19 +841,21 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     {
         String name;
         List<String> params;
+        char opening;
         if (fileCompletions != null && selected != -1)
         {
             FileCompletion fc = fileCompletions.get(selected);
             name = fc.getFile().getName();
             params = null;
+            opening = '\0';
         }
         else
         {
-            return; //TODOTYPESLOT
-            //name = completionCalculator.getName(selected);
-            //params = completionCalculator.getParams(selected);
+            name = completionCalculator.getName(selected);
+            params = completionCalculator.getParams(selected);
+            opening = completionCalculator.getOpening(selected);
         }
-        topLevel.insertSuggestion(suggestionLocation, name, params, token);
+        topLevel.insertSuggestion(suggestionLocation, name, opening, params, token);
         modified();
         String completion = name + (params == null ? "" : "(" + params.stream().collect(Collectors.joining(",")) + ")");
         editor.recordCodeCompletionEnded(getSlotElement(), topLevel.caretPosToStringPos(suggestionLocation, false), getCurSuggestionWord(), completion);

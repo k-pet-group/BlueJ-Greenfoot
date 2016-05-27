@@ -261,7 +261,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
     }
     
     @Override
-    public void withTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)
+    public void calculateTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)
     {
         int slotIndex = fields.indexOf(expressionSlotField);
 

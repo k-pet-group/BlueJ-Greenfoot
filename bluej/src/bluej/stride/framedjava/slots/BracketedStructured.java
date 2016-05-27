@@ -37,7 +37,6 @@ import bluej.stride.framedjava.slots.InfixStructured.CaretPosMap;
 import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.Frame.View;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -230,9 +229,9 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     }
 
     @Override
-    public void insertSuggestion(CaretPos p, String name, List<String> params, StructuredSlot.ModificationToken token)
+    public void insertSuggestion(CaretPos p, String name, char opening, List<String> params, StructuredSlot.ModificationToken token)
     {
-        content.insertSuggestion(p, name, params, token);
+        content.insertSuggestion(p, name, opening, params, token);
     }
 
     //package-visible

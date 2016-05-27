@@ -23,14 +23,15 @@ package bluej.stride.slots;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.StructuredCompletionCalculator;
 import bluej.utility.Utility;
-import javafx.scene.control.TextField;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
@@ -38,7 +39,6 @@ import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 
 public class TypeCompletionCalculator implements StructuredCompletionCalculator
@@ -71,30 +71,72 @@ public class TypeCompletionCalculator implements StructuredCompletionCalculator
         this.kinds.add(kind);
     }
 
+    private static final Map<String, List<String>> commonTypes = new HashMap<>();
+    private static final Map<String, List<String>> boxedTypes = new HashMap<>();
+    static {
+        commonTypes.put(null, Arrays.asList("boolean", "char", "double", "int", "void"));
+        commonTypes.put("greenfoot", Arrays.asList("Actor", "GreenfootImage", "GreenfootSound", "MouseInfo", "UserInfo", "World"));
+        commonTypes.put("java.lang", Arrays.asList("Exception", "Object", "String"));
+        commonTypes.put("java.util", Arrays.asList("ArrayList", "HashMap", "HashSet", "LinkedList", "List", "Map", "Set"));
+        boxedTypes.put("java.lang", Arrays.asList("Boolean", "Character", "Double", "Float", "Integer"));
+    }
+
+    public static SuggestionList.SuggestionShown getRarity(AssistContentThreadSafe ac, boolean boxedAsCommon)
+    {
+        switch (ac.getKind())
+        {
+            case TYPE:
+                if (boxedAsCommon && boxedTypes.containsKey(ac.getPackage()) && boxedTypes.get(ac.getPackage()).contains(ac.getName()) )
+                {
+                    return SuggestionList.SuggestionShown.COMMON;
+                }
+                else if (commonTypes.containsKey(ac.getPackage()))
+                {
+                    return commonTypes.get(ac.getPackage()).contains(ac.getName()) ? SuggestionList.SuggestionShown.COMMON : SuggestionList.SuggestionShown.RARE;
+                }
+                else
+                {
+                    return SuggestionList.SuggestionShown.COMMON;
+                }
+            default:
+                throw new IllegalStateException();
+        }
+    }
+    
     @Override
     public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing,
-                                             CodeElement codeEl, SuggestionListListener listener,  String targetType, FXPlatformConsumer<SuggestionList> handler) {
-        
-        editor.withTypes(superType, true, kinds, acs -> {
+                                             CodeElement codeEl, SuggestionListListener listener, String targetType, boolean completingStartOfSlot, FXPlatformConsumer<SuggestionList> handler) {
+
+        HashSet<InteractionManager.Kind> curKinds = new HashSet<>(kinds);
+        // We only complete primitives at the start; they can't follow
+        // package names or be in generic types
+        if (!completingStartOfSlot)
+            curKinds.remove(InteractionManager.Kind.PRIMITIVE);
+        editor.withTypes(superType, true, curKinds, acs -> {
             this.acs = new ArrayList<>(acs);
             this.acs.removeIf(ac -> !ac.accessibleFromPackage(""));
-            List<SuggestionDetailsWithHTMLDoc> suggestions = Utility.mapList(this.acs, ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), ExpressionCompletionCalculator.getRarity(ac), ac.getDocHTML()));
+            List<SuggestionDetailsWithHTMLDoc> suggestions = Utility.mapList(this.acs, ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), getRarity(ac, !completingStartOfSlot), ac.getDocHTML()));
             SuggestionList suggestionDisplay = new SuggestionList(editor, suggestions, null, SuggestionList.SuggestionShown.COMMON, null, listener);
             handler.accept(suggestionDisplay);
         });
     }
-
-    /* TODOTYPESLOT
+    
     @Override
-    public boolean execute(TextField field, int selected, int startOfCurWord)
+    public String getName(int selected)
     {
-        if (selected == -1)
-            return false;
-        
-        AssistContentThreadSafe a = acs.get(selected);
-        field.setText(a.getName());
-        
-        return true;
+        return acs.get(selected).getName();
     }
-    */
+
+    @Override
+    public List<String> getParams(int selected)
+    {
+        //TODO support generics
+        return null;
+    }
+
+    @Override
+    public char getOpening(int selected)
+    {
+        return '<';
+    }
 }
