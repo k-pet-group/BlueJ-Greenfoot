@@ -104,8 +104,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         List<CodeElement> fields = getMembers(fieldsCanvas);
         List<CodeElement> methods = getMembers(methodsCanvas);
         List<ImportElement> imports = Utility.mapList(getMembers(importCanvas), e -> (ImportElement)e);
-        element = new InterfaceElement(this, projectResolver, paramName.getSlotElement(),
-                null, //extendsList.getTypes(),
+        element = new InterfaceElement(this, projectResolver, paramName.getSlotElement(), extendsList.getTypes(),
                 fields, methods, new JavadocUnit(getDocumentation()), packageSlot == null ? null : packageSlot.getSlotElement(),
                 imports, frameEnabledProperty.get());
     }
