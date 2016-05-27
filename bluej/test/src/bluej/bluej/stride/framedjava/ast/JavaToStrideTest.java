@@ -48,7 +48,14 @@ public class JavaToStrideTest
         assertEquals("if (0);", _if("0"));
         assertEquals("if (0) return 1;", _if("0", _return("1")));
         assertEquals("if (0) return 1; else return 2;", _ifElse("0", Arrays.asList(_return("1")), Arrays.asList(_return("2"))));
-        //TODO test else-if
+        assertEquals("if (0) return 1; else if (2) return 3; else if (4) return 5; else return 6;",
+            _ifElseIf("0", Arrays.asList(_return("1")),
+                      Arrays.asList("2", "4"), Arrays.asList(Arrays.asList(_return("3")), Arrays.asList(_return("5"))),
+                      Arrays.asList(_return("6"))));
+        assertEquals("if (0) return 1; else if (2) return 3; else if (4) return 5;",
+            _ifElseIf("0", Arrays.asList(_return("1")),
+                Arrays.asList("2", "4"), Arrays.asList(Arrays.asList(_return("3")), Arrays.asList(_return("5"))),
+                null));
     }
 
     private ReturnElement _return()
@@ -69,14 +76,25 @@ public class JavaToStrideTest
     // If without any elses
     private IfElement _if(String expression, CodeElement... body)
     {
-        return new IfElement(null, new FilledExpressionSlotFragment(expression, expression), Arrays.asList(body), Collections.emptyList(), Collections.emptyList(), null, true);
+        return _ifElse(expression, Arrays.asList(body), null);
     }
 
     // If with an else
     private IfElement _ifElse(String expression, List<CodeElement> body, List<CodeElement> elseBody)
     {
-        return new IfElement(null, new FilledExpressionSlotFragment(expression, expression), body, Collections.emptyList(), Collections.emptyList(), elseBody, true);
+        return _ifElseIf(expression, body, Collections.emptyList(), Collections.emptyList(), elseBody);
     }
+
+    private IfElement _ifElseIf(String expression, List<CodeElement> body, List<String> expressions, List<List<CodeElement>> elseIfBodies, List<CodeElement> elseBody)
+    {
+        return new IfElement(null, filled(expression), body, expressions.stream().map(this::filled).collect(Collectors.toList()), elseIfBodies, elseBody, true);
+    }
+    
+    private FilledExpressionSlotFragment filled(String e)
+    {
+        return new FilledExpressionSlotFragment(e, e);
+    }
+        
 
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
     {
