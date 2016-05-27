@@ -25,6 +25,7 @@ package bluej.stride.framedjava.frames;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
@@ -35,6 +36,8 @@ import bluej.stride.framedjava.elements.SandwichCanvasesElement;
 import bluej.stride.framedjava.elements.TryElement;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
+import bluej.stride.generic.FrameContentItem;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
@@ -49,6 +52,8 @@ import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.stride.slots.VariableNameDefTextSlot;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Container-block representing a try-catch statement.
@@ -111,26 +116,6 @@ public class TryFrame extends SandwichCanvasesFrame
         TypeSlot type = new TypeSlot(editor, this, this, row, TypeSlot.Role.THROWS_CATCH, "catch-type-");
         type.setSimplePromptText("type");
         type.addClosingChar(' ');
-        /*TODOTYPESLOT
-        type.addValueListener(new SlotValueListener() {
-            @Override
-            public boolean valueChanged(HeaderItem slot, String oldValue, String newValue, FocusParent<HeaderItem> parent) {
-                if (newValue.contains(",")) {
-                    return false;
-                }
-                return true;
-            }
-
-            @Override
-            public void backSpacePressedAtStart(HeaderItem slot) {
-                if (row.getSlotsDirect().allMatch(EditableSlot::isAlmostBlank)) {
-                    pullUpCanvasContents(canvas.getFirstCursor().getUp(), canvas);
-                }
-                else {
-                    row.focusLeft(slot);
-                }
-            }
-        });*/
 
         VariableNameDefTextSlot var = new VariableNameDefTextSlot(editor, this, this, row, "catch-var-");
         var.setPromptText("name");
@@ -171,6 +156,19 @@ public class TryFrame extends SandwichCanvasesFrame
         catchTypes.add(at, type);
         catchVars.add(at, var);
         return row;
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) boolean backspaceAtStart(FrameContentItem srcRow, HeaderItem src)
+    {
+        if (catchTypes.contains(src))
+        {
+            if (((FrameContentRow)srcRow).getSlotsDirect().allMatch(EditableSlot::isAlmostBlank)) {
+                FrameCanvas canvas = getCanvases().collect(Collectors.toList()).get(1 + catchTypes.indexOf(src));
+                pullUpCanvasContents(canvas.getFirstCursor().getUp(), canvas);
+            }
+        }
+        return super.backspaceAtStart(srcRow, src);
     }
 
     public static FrameFactory<TryFrame> getFactory()
