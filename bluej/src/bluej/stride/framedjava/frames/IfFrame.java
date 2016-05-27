@@ -103,7 +103,7 @@ public class IfFrame extends SandwichCanvasesFrame
      * @param elseContents If null, no finally.
      */
     public IfFrame(InteractionManager editor, ExpressionSlotFragment condition, List<Frame> thenContents,
-                    List<ExpressionSlotFragment> elseIfConditions, List<List<Frame>> elseIfContents,
+                    List<FilledExpressionSlotFragment> elseIfConditions, List<List<Frame>> elseIfContents,
                     List<Frame> elseContents, boolean enabled)
     {
         this(editor, thenContents);
@@ -196,7 +196,7 @@ public class IfFrame extends SandwichCanvasesFrame
     protected SandwichCanvasesElement regenerateCodeElement(List<CodeElement> firstCanvasContents,
                  List<List<CodeElement>> intermediateCanvasesContents, List<CodeElement> tailCanvasContents, boolean enabled)
     {
-        List<ExpressionSlotFragment> elseIfConditionsCode = Utility.mapList(elseIfConditions, ExpressionSlot::getSlotElement);
+        List<FilledExpressionSlotFragment> elseIfConditionsCode = Utility.mapList(elseIfConditions, ExpressionSlot::getSlotElement);
         return new IfElement(this, ifCondition.getSlotElement(), firstCanvasContents, elseIfConditionsCode,
                 intermediateCanvasesContents, tailCanvasContents, enabled);
     }

@@ -74,6 +74,7 @@ import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.utility.Debug;
 import bluej.utility.javafx.AnnotatableTextField;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.FXConsumer;
@@ -549,12 +550,16 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 suggestionDisplayProperty.set(s);
                 updateSuggestions(true);
                 suggestionDisplayProperty.get().highlightFirstEligible();
+                Debug.time("!!! Showing");
                 suggestionDisplayProperty.get().show(field.getNode(), suggestionXOffset, field.heightProperty());
+                Debug.time("!!! Shown");
                 field.setFakeCaretShowing(true);
             };
+            Debug.time("!!! Requesting suggestion");
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
             editor.afterRegenerateAndReparse(() -> {
                 final int stringPos = field.getCaretPosition();
+                Debug.time("!!! Calculating suggestions");
                 completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, handler);
                 editor.recordCodeCompletionStarted(getSlotElement(), stringPos, getCurWord());
             });

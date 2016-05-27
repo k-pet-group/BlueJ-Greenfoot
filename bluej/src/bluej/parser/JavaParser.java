@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -230,6 +230,8 @@ public class JavaParser
     protected void beginIfCondBlock(LocatableToken token) { }
     
     protected void endIfCondBlock(LocatableToken token, boolean included) { }
+
+    protected void gotElseIf(LocatableToken token) {}
     
     protected void endIfStmt(LocatableToken token, boolean included) { }
     
@@ -1409,9 +1411,11 @@ public class JavaParser
         while (true) {
             switch (statementTokenIndexes[token.getType()]) {
             case 1: // SEMI
+                gotEmptyStatement();
                 return token; // empty statement
             case 2: // LITERAL_return
                 token = nextToken();
+                gotReturnStatement(token.getType() != JavaTokenTypes.SEMI);
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     tokenStream.pushBack(token);
                     parseExpression();
@@ -1636,7 +1640,11 @@ public class JavaParser
             return token;
         }
     }
-    
+
+    protected void gotReturnStatement(boolean hasValue) { }
+
+    protected void gotEmptyStatement() { }
+
     /**
      * Parse a try/catch/finally. The first token is 'try'.
      * @param token  The first token (must be 'try').
@@ -2100,6 +2108,7 @@ public class JavaParser
             if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_else) {
                 tokenStream.nextToken(); // "else"
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_if) {
+                    gotElseIf(token);
                     nextToken(); // "if"
                     continue mainLoop;
                 }

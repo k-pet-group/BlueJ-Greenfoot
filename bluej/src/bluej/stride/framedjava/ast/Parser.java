@@ -22,13 +22,23 @@
 package bluej.stride.framedjava.ast;
 
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import bluej.parser.JavaParser;
 import bluej.parser.ParseFailure;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.IfElement;
+import bluej.stride.framedjava.elements.LocatableElement;
+import bluej.stride.framedjava.elements.ReturnElement;
+import bluej.stride.framedjava.elements.WhileElement;
 
 public class Parser
 {
@@ -138,4 +148,257 @@ public class Parser
         return true;
         
     }
+
+    public static List<CodeElement> javaToStride(String java) throws ParseFailure
+    {
+        JavaStrideParser parser = new JavaStrideParser(java);
+        parser.parseStatement();
+        return parser.getCodeElements();
+    }
+
+    private static class JavaStrideParser extends JavaParser
+    {
+        private final String source;
+        private Stack<ExpressionHandler> expressionHandlers = new Stack<>();
+        private Stack<StatementHandler> statementHandlers = new Stack<>();
+        private List<CodeElement> result = null;
+
+        public JavaStrideParser(String java)
+        {
+            super(new StringReader(java), false);
+            this.source = java;
+            statementHandlers.push(r -> this.result = r);
+        }
+
+        private static interface StatementHandler
+        {
+            public void foundStatement(List<CodeElement> statements);
+
+            default public void endBlock() {};
+        }
+
+        private static interface ExpressionHandler
+        {
+            public void expressionBegun(LocatableToken start);
+            public void expressionEnd(LocatableToken end);
+        }
+
+        private class IfBuilder implements StatementHandler
+        {
+            // Size is always >= 1, and either equal to blocks.size, or one less than blocks.size (if last one is else)
+            private final ArrayList<FilledExpressionSlotFragment> conditions = new ArrayList<>();
+            private final ArrayList<List<CodeElement>> blocks = new ArrayList<>();
+
+            public IfBuilder(String condition)
+            {
+                this.conditions.add(toFilled(condition));
+                blocks.add(new ArrayList<>());
+            }
+
+            public void addCondBlock()
+            {
+                blocks.add(new ArrayList<>());
+                withStatement(this);
+            }
+
+            public void addElseIf()
+            {
+                withExpression(e -> conditions.add(toFilled(e)));
+            }
+
+            public void endIf()
+            {
+                JavaStrideParser.this.foundStatement(new IfElement(null,
+                        conditions.get(0), blocks.get(0),
+                        conditions.subList(1, conditions.size()), blocks.subList(1, conditions.size()),
+                        blocks.size() > conditions.size() ? blocks.get(blocks.size() - 1) : null,
+                        true
+                ));
+            }
+
+            @Override
+            public void foundStatement(List<CodeElement> statements)
+            {
+                blocks.get(blocks.size() - 1).addAll(statements);
+            }
+        }
+
+        @Override
+        protected void beginWhileLoop(LocatableToken token)
+        {
+            super.beginWhileLoop(token);
+            withExpression(exp -> {
+                withStatement(body -> {
+                    foundStatement(new WhileElement(null, toFilled(exp), body, true));
+                });
+            });
+        }
+
+        @Override
+        protected void beginIfStmt(LocatableToken token)
+        {
+            super.beginIfStmt(token);
+            withExpression(exp -> {
+                withStatement(new IfBuilder(exp));
+            });
+        }
+
+        @Override
+        protected void beginIfCondBlock(LocatableToken token)
+        {
+            super.beginIfCondBlock(token);
+            getIfBuilder().addCondBlock();
+        }
+
+        @Override
+        protected void gotElseIf(LocatableToken token)
+        {
+            super.gotElseIf(token);
+            getIfBuilder().addElseIf();
+        }
+
+        @Override
+        protected void endIfStmt(LocatableToken token, boolean included)
+        {
+            super.endIfStmt(token, included);
+            getIfBuilder().endIf();
+        }
+
+        private IfBuilder getIfBuilder()
+        {
+            if (statementHandlers.peek() instanceof IfBuilder)
+                return (IfBuilder)statementHandlers.peek();
+            else
+                return null;
+        }
+
+        private FilledExpressionSlotFragment toFilled(String exp)
+        {
+            return new FilledExpressionSlotFragment(exp, exp);
+        }
+
+        private OptionalExpressionSlotFragment toOptional(String exp)
+        {
+            return new OptionalExpressionSlotFragment(exp, exp);
+        }
+
+        @Override
+        protected void gotReturnStatement(boolean hasValue)
+        {
+            super.gotReturnStatement(hasValue);
+            if (hasValue)
+                withExpression(exp -> foundStatement(new ReturnElement(null, toOptional(exp), true)));
+            else
+                foundStatement(new ReturnElement(null, toOptional(""), true));
+        }
+
+        @Override
+        protected void gotEmptyStatement()
+        {
+            super.gotEmptyStatement();
+            foundStatements(Collections.emptyList());
+        }
+
+        @Override
+        protected void beginExpression(LocatableToken token)
+        {
+            super.beginExpression(token);
+            if (!expressionHandlers.isEmpty())
+                expressionHandlers.peek().expressionBegun(token);
+        }
+
+        @Override
+        protected void endExpression(LocatableToken token, boolean emptyExpression)
+        {
+            super.endExpression(token, emptyExpression);
+            expressionHandlers.pop().expressionEnd(token);
+        }
+
+        @Override
+        protected void beginStmtblockBody(LocatableToken token)
+        {
+            super.beginStmtblockBody(token);
+            withStatement(new StatementHandler() {
+                final ArrayList<CodeElement> block = new ArrayList<>();
+                @Override
+                public void endBlock()
+                {
+                    // We were just collecting the block -- pass to parent handler:
+                    foundStatements(block);
+                }
+
+                @Override
+                public void foundStatement(List<CodeElement> statements)
+                {
+                    block.addAll(statements);
+                    //By default we are popped; re-add:
+                    withStatement(this);
+                }
+            });
+        }
+
+        @Override
+        protected void endStmtblockBody(LocatableToken token, boolean included)
+        {
+            super.endStmtblockBody(token, included);
+            statementHandlers.pop().endBlock();
+        }
+
+
+
+        private String getText(LocatableToken start, LocatableToken end)
+        {
+            return source.substring(start.getPosition(), end.getPosition());
+        }
+
+        private void withExpression(Consumer<String> handler)
+        {
+            expressionHandlers.push(new ExpressionHandler()
+            {
+                LocatableToken start;
+                // Amount of expressions begun but not ending:
+                int outstanding = 0;
+                @Override
+                public void expressionBegun(LocatableToken start)
+                {
+                    // Only record first begin:
+                    if (outstanding == 0)
+                        this.start = start;
+                    outstanding += 1;
+                }
+
+                @Override
+                public void expressionEnd(LocatableToken end)
+                {
+                    outstanding -= 1;
+                    if (outstanding == 0)
+                        handler.accept(getText(start, end));
+                    else
+                        // We get popped by default; add ourselves back in:
+                        expressionHandlers.push(this);
+                }
+            });
+        }
+
+        private void withStatement(StatementHandler handler)
+        {
+            statementHandlers.push(handler);
+        }
+
+        private void foundStatement(CodeElement statement)
+        {
+            foundStatements(Collections.singletonList(statement));
+        }
+
+        private void foundStatements(List<CodeElement> statements)
+        {
+            statementHandlers.pop().foundStatement(statements);
+        }
+
+        public List<CodeElement> getCodeElements()
+        {
+            return result;
+        }
+    }
+
 }

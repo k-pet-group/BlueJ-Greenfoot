@@ -50,7 +50,7 @@ public class IfElement extends SandwichCanvasesElement
     private static final String CONDITION_JAVA_LABEL = "condition-java";
 
     private FilledExpressionSlotFragment condition;
-    private List<ExpressionSlotFragment> elseIfConditions = new ArrayList<>();
+    private List<FilledExpressionSlotFragment> elseIfConditions = new ArrayList<>();
     private IfFrame frame;
 
     /**
@@ -64,7 +64,7 @@ public class IfElement extends SandwichCanvasesElement
      *                      indicates that there is an else, but it is empty
      */
     public IfElement(IfFrame frame, FilledExpressionSlotFragment condition, List<CodeElement> thenContents,
-             List<ExpressionSlotFragment> elseIfConditions, List<List<CodeElement>> elseIfContents,
+             List<FilledExpressionSlotFragment> elseIfConditions, List<List<CodeElement>> elseIfContents,
              List<CodeElement> elseContents, boolean enabled)
     {
         super(frame, ELEMENT, thenContents, ELSE_IF_LABEL, ELSE_IF_JAVA_LABEL, elseIfContents, ELSE_LABEL, elseContents, enabled);
