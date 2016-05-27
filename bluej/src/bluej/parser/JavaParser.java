@@ -475,6 +475,8 @@ public class JavaParser
         gotBinaryOperator(token);
     }
     
+    protected void gotStatementExpression() { }
+    
     protected void gotClassLiteral(LocatableToken token) { }
     
     /** Saw a binary operator as part of an expression */
@@ -1500,6 +1502,7 @@ public class JavaParser
                     return parseVariableDeclarations(token, true);
                 }
                 else {
+                    gotStatementExpression();
                     parseExpression();                                              
                     token = tokenStream.nextToken();
                     if (token.getType() == JavaTokenTypes.COMMA && allowComma) {
@@ -1630,6 +1633,7 @@ public class JavaParser
             }
 
             tokenStream.pushBack(token);
+            gotStatementExpression();
             parseExpression();
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.SEMI) {

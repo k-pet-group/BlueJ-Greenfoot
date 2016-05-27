@@ -38,6 +38,7 @@ import bluej.stride.framedjava.slots.CallExpressionSlot;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
+import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
@@ -133,5 +134,15 @@ public class CallFrame extends SingleLineFrame
         {
             getParentCanvas().replaceBlock(this, new AssignFrame(getEditor(), info.lhs, info.rhs));
         }
+    }
+
+    @Override
+    public void setParentCanvas(FrameCanvas parentCanvas)
+    {
+        super.setParentCanvas(parentCanvas);
+        // When converting from Java we may have a top-level equals straight away,
+        // but we won't have replaced it yet because our parent canvas was null.
+        // So we check again here once our parentCanvas is not null:
+        checkForTopLevelEquals();
     }
 }

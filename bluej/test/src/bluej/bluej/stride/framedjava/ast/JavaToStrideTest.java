@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
 import bluej.stride.framedjava.ast.Parser;
+import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.LocatableElement;
@@ -56,6 +58,23 @@ public class JavaToStrideTest
             _ifElseIf("0", Arrays.asList(_return("1")),
                 Arrays.asList("2", "4"), Arrays.asList(Arrays.asList(_return("3")), Arrays.asList(_return("5"))),
                 null));
+    }
+    
+    @Test
+    public void testCall()
+    {
+        assertEquals("go();", _call("go()"));
+        assertEquals("move(6 + 7);", _call("move(6 + 7)"));
+        assertEquals("getFoo().move(6 + 7);", _call("getFoo().move(6 + 7)"));
+        
+        // Assignments will become call-frames initially, even though on insertion
+        // as real code, CallFrame will check and self-convert to AssignFrame:
+        assertEquals("x = getX();", _call("x = getX()"));
+    }
+    
+    private CallElement _call(String call)
+    {
+        return new CallElement(null, new CallExpressionSlotFragment(call, call), true);
     }
 
     private ReturnElement _return()

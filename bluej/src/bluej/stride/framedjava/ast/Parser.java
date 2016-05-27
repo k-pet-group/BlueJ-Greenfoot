@@ -34,6 +34,7 @@ import bluej.parser.ParseFailure;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.LocatableElement;
@@ -165,7 +166,7 @@ public class Parser
 
         public JavaStrideParser(String java)
         {
-            super(new StringReader(java), false);
+            super(new StringReader(java), true);
             this.source = java;
             statementHandlers.push(r -> this.result = r);
         }
@@ -297,6 +298,13 @@ public class Parser
         {
             super.gotEmptyStatement();
             foundStatements(Collections.emptyList());
+        }
+        
+        @Override
+        protected void gotStatementExpression()
+        {
+            super.gotStatementExpression();
+            withExpression(e -> foundStatement(new CallElement(null, new CallExpressionSlotFragment(e, e), true)));
         }
 
         @Override
