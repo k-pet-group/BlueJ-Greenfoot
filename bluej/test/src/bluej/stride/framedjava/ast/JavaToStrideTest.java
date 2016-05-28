@@ -12,8 +12,10 @@ import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.LocatableElement;
+import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import nu.xom.Element;
@@ -89,6 +91,34 @@ public class JavaToStrideTest
         // Confusingly, if you put <: in from the Java side, you should get < : (two operators):
         assertExpression("a < : b", "a <: b");
     }
+    
+    @Test
+    public void testMethod()
+    {
+        assertEqualsClass("public void foo() { return; }", _method(AccessPermission.PUBLIC, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Arrays.asList(_return())));
+        assertEqualsClass("public final void foo(int x) { return; }", _method(AccessPermission.PUBLIC, false, true, "void", "foo", Arrays.asList(_param("int", "x")), Collections.emptyList(), Arrays.asList(_return())));
+
+        assertEqualsClass("Foo(int x, String y) throws IOException { }",
+            _constructor(AccessPermission.PROTECTED, Arrays.asList(_param("int", "x"), _param("String", "y")),
+                Arrays.asList("IOException"), Arrays.asList()));
+        
+        //TODO test: javadoc, constructor super/this, generic methods
+    }
+    
+    private ParamFragment _param(String type, String name)
+    {
+        return new ParamFragment(new TypeSlotFragment(type, type), new NameDefSlotFragment(name));
+    }
+
+    private CodeElement _method(AccessPermission accessPermission, boolean _static, boolean _final, String returnType, String name, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
+    {
+        return new NormalMethodElement(null, new AccessPermissionFragment(accessPermission), _static, _final, new TypeSlotFragment(returnType, returnType), new NameDefSlotFragment(name), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), body, new JavadocUnit(""), true);
+    }
+
+    private CodeElement _constructor(AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
+    {
+        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), null, null, body, new JavadocUnit(""), true);
+    }
 
     private static void assertExpression(String expectedStride, String original)
     {
@@ -140,7 +170,15 @@ public class JavaToStrideTest
 
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
     {
-        List<CodeElement> result = Parser.javaToStride(javaSource);
+        List<CodeElement> result = Parser.javaToStride(javaSource, false);
+        List<String> resultXML = result.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
+        List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
+        Assert.assertEquals("Checking XML", expectedXML, resultXML);
+    }
+
+    private static void assertEqualsClass(String javaSource, CodeElement... expectedStride)
+    {
+        List<CodeElement> result = Parser.javaToStride(javaSource, true);
         List<String> resultXML = result.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
         List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
         Assert.assertEquals("Checking XML", expectedXML, resultXML);

@@ -51,7 +51,7 @@ public class GreenfootFrameUtil
         return Arrays.asList(new CutFrameOperation(editor), new CopyFrameOperation(editor));
     }
 
-    public static List<CodeElement> getClipboardElements()
+    public static List<CodeElement> getClipboardElements(boolean classItem)
     {
         final Clipboard clipboard = Clipboard.getSystemClipboard();
         if (clipboard.hasString()) {
@@ -61,7 +61,7 @@ public class GreenfootFrameUtil
             
             try
             {
-                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString());
+                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString(), classItem);
                 return javaElements;
             }
             catch (ParseFailure pf)

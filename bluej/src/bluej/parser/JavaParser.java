@@ -505,13 +505,13 @@ public class JavaParser
      * We've seen a constructor declaration. The token supplied is the constructor name.
      * The hiddenToken is the comment before the constructor.
      */
-    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers) {}
 
     /**
      * We've seen a method declaration; the token parameter is the method name;
      * the hiddenToken parameter is the comment before the method
      */
-    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
+    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers) {}
 
     /** 
      * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
@@ -1198,10 +1198,10 @@ public class JavaParser
                 else if (ttype == JavaTokenTypes.LPAREN) {
                     // method declaration
                     if (isConstructor) {
-                        gotConstructorDecl(idToken, hiddenToken);
+                        gotConstructorDecl(idToken, hiddenToken, modifiers);
                     }
                     else {
-                        gotMethodDeclaration(idToken, hiddenToken);
+                        gotMethodDeclaration(idToken, hiddenToken, modifiers);
                     }
                     modifiersConsumed();
                     parseMethodParamsBody();
@@ -1264,10 +1264,12 @@ public class JavaParser
         }
         token = nextToken();
         if (token.getType() == JavaTokenTypes.LITERAL_throws) {
+            beginThrows(token);
             do {
                 parseTypeSpec(true);
                 token = nextToken();
             } while (token.getType() == JavaTokenTypes.COMMA);
+            endThrows();
         }
         if (token.getType() == JavaTokenTypes.LCURLY) {
             // method body
@@ -1300,7 +1302,10 @@ public class JavaParser
             endMethodDecl(token, true);
         }
     }
-        
+
+    protected void beginThrows(LocatableToken token) { }
+    protected void endThrows() { }
+
     /**
      * Parse a statement block - such as a method body. The opening curly brace should already be consumed.
      * On return the closing curly (if present) remains in the token stream.

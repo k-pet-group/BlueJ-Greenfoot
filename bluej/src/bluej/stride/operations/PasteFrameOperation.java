@@ -24,6 +24,7 @@ package bluej.stride.operations;
 import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.GreenfootFrameUtil;
+import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
@@ -50,7 +51,8 @@ public class PasteFrameOperation extends FrameOperation
     @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
-        List<CodeElement> elements = GreenfootFrameUtil.getClipboardElements();
+        boolean classItem = editor.getFocusedCursor().getParentCanvas().getParent() instanceof TopLevelFrame;
+        List<CodeElement> elements = GreenfootFrameUtil.getClipboardElements(classItem);
         if (elements != null && elements.size() > 0) {
             editor.recordEdits(StrideEditReason.FLUSH);
             if (frames.size() > 0) {

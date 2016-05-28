@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -946,7 +946,7 @@ public class EditorParser extends JavaParser
     
     @Override
     protected void gotConstructorDecl(LocatableToken token,
-            LocatableToken hiddenToken)
+                                      LocatableToken hiddenToken, List<LocatableToken> modifiers)
     {
         endDecl(token); // remove placeholder
         LocatableToken start = pcuStmtBegin;
@@ -967,7 +967,7 @@ public class EditorParser extends JavaParser
     
     @Override
     protected void gotMethodDeclaration(LocatableToken token,
-            LocatableToken hiddenToken)
+                                        LocatableToken hiddenToken, List<LocatableToken> modifiers)
     {
         endDecl(token); // remove placeholder
         LocatableToken start = pcuStmtBegin;

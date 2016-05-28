@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -547,9 +547,9 @@ public class InfoParser extends EditorParser
     }
     
     @Override
-    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
+    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers)
     {
-        super.gotMethodDeclaration(token, hiddenToken);
+        super.gotMethodDeclaration(token, hiddenToken, modifiers);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
         currentMethod = new MethodDesc();
         currentMethod.returnType =  ((MethodNode) scopeStack.peek()).getReturnType();
@@ -561,9 +561,9 @@ public class InfoParser extends EditorParser
     }
 
     @Override
-    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers)
     {
-        super.gotConstructorDecl(token, hiddenToken);
+        super.gotConstructorDecl(token, hiddenToken, modifiers);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
         currentMethod = new MethodDesc();
         currentMethod.name = token.getText();

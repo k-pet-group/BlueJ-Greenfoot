@@ -22,12 +22,15 @@
 package bluej.stride.framedjava.ast;
 
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
-import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import bluej.parser.JavaParser;
 import bluej.parser.ParseFailure;
@@ -36,8 +39,9 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
-import bluej.stride.framedjava.elements.LocatableElement;
+import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.WhileElement;
 
@@ -150,10 +154,19 @@ public class Parser
         
     }
 
-    public static List<CodeElement> javaToStride(String java) throws ParseFailure
+    public static List<CodeElement> javaToStride(String java, boolean classItem) throws ParseFailure
     {
-        JavaStrideParser parser = new JavaStrideParser(java);
-        parser.parseStatement();
+        JavaStrideParser parser;
+        if (classItem)
+        {
+            parser = new JavaStrideParser(java + "}");
+            parser.parseClassBody();
+        }
+        else
+        {
+            parser = new JavaStrideParser(java);
+            parser.parseStatement();
+        }
         return parser.getCodeElements();
     }
 
@@ -182,15 +195,34 @@ public class Parser
     private static class JavaStrideParser extends JavaParser
     {
         private final String source;
-        private Stack<ExpressionHandler> expressionHandlers = new Stack<>();
-        private Stack<StatementHandler> statementHandlers = new Stack<>();
+        private final Stack<ExpressionHandler> expressionHandlers = new Stack<>();
+        private final Stack<StatementHandler> statementHandlers = new Stack<>();
         private List<CodeElement> result = null;
+        private final Stack<MethodDetails> methods = new Stack<>();
+        private final Stack<String> types = new Stack<>();
+        
+        private final List<String> warnings = new ArrayList<>();
+        private int startThrows;
 
         public JavaStrideParser(String java)
         {
             super(new StringReader(java), true);
             this.source = java;
             statementHandlers.push(r -> this.result = r);
+        }
+        
+        private static class MethodDetails
+        {
+            public final String name;
+            public final List<LocatableToken> modifiers = new ArrayList<>();
+            public final List<ParamFragment> parameters = new ArrayList<>();
+            public final List<String> throwsTypes = new ArrayList<>();
+
+            public MethodDetails(String name, List<LocatableToken> modifiers)
+            {
+                this.name = name;
+                this.modifiers.addAll(modifiers);
+            }
         }
 
         private static interface StatementHandler
@@ -204,6 +236,23 @@ public class Parser
         {
             public void expressionBegun(LocatableToken start);
             public void expressionEnd(LocatableToken end);
+        }
+        
+        private class BlockCollector implements StatementHandler
+        {
+            private final List<CodeElement> content = new ArrayList<>();
+            @Override
+            public void foundStatement(List<CodeElement> statements)
+            {
+                content.addAll(statements);
+                // We keep ourselves on the stack until someone removes us:
+                withStatement(this);
+            }
+            
+            public List<CodeElement> getContent()
+            {
+                return content;
+            }
         }
 
         private class IfBuilder implements StatementHandler
@@ -374,7 +423,95 @@ public class Parser
             statementHandlers.pop().endBlock();
         }
 
+        @Override
+        protected void beginThrows(LocatableToken token)
+        {
+            super.beginThrows(token);
+            startThrows = types.size();
+        }
 
+        @Override
+        protected void endThrows()
+        {
+            super.endThrows();
+            while (types.size() > startThrows)
+            {
+                methods.peek().throwsTypes.add(types.pop());
+            }
+            Collections.reverse(methods.peek().throwsTypes);
+        }
+
+        @Override
+        protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers)
+        {
+            super.gotConstructorDecl(token, hiddenToken, modifiers);
+            methods.push(new MethodDetails(null, modifiers));
+            withStatement(new BlockCollector());
+        }
+
+        @Override
+        protected void gotMethodDeclaration(LocatableToken nameToken, LocatableToken hiddenToken, List<LocatableToken> modifiers)
+        {
+            super.gotMethodDeclaration(nameToken, hiddenToken, modifiers);
+            methods.push(new MethodDetails(nameToken.getText(), modifiers));
+            withStatement(new BlockCollector());
+        }
+
+        @Override
+        protected void endMethodDecl(LocatableToken token, boolean included)
+        {
+            super.endMethodDecl(token, included);
+            List<CodeElement> body = ((BlockCollector)statementHandlers.pop()).getContent();
+            MethodDetails details = methods.pop();
+            String name = details.name;
+            List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList());
+            List<LocatableToken> modifiers = details.modifiers;
+            // If they make the item package-visible, we will turn this into protected:
+            AccessPermission permission = AccessPermission.PROTECTED;
+            // These are not else-if, so that we remove all recognised modifiers:
+            if (modifiers.removeIf(t -> t.getText().equals("private")))
+                permission = AccessPermission.PRIVATE;
+            if (modifiers.removeIf(t -> t.getText().equals("protected")))
+                permission = AccessPermission.PROTECTED;
+            if (modifiers.removeIf(t -> t.getText().equals("public")))
+                permission = AccessPermission.PUBLIC;
+            if (name != null)
+            {
+                boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
+                boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
+                // Any remaining are unrecognised:
+                modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
+                String type = types.pop();
+                foundStatement(new NormalMethodElement(null, new AccessPermissionFragment(permission),
+                    _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), details.parameters,
+                    throwsTypes, body, new JavadocUnit(""), true));
+            }
+            else
+            {
+                // Any remaining are unrecognised:
+                modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
+                foundStatement(new ConstructorElement(null, new AccessPermissionFragment(permission),
+                    details.parameters,
+                    throwsTypes, null, null, body, new JavadocUnit(""), true));
+            }
+        }
+
+        @Override
+        protected void gotTypeSpec(List<LocatableToken> tokens)
+        {
+            super.gotTypeSpec(tokens);
+            types.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()));
+        }
+
+        @Override
+        protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken)
+        {
+            super.gotMethodParameter(token, ellipsisToken);
+            if (ellipsisToken != null) //TODO or support it?
+                warnings.add("Unsupported feature: varargs");
+            String type = types.pop();
+            methods.peek().parameters.add(new ParamFragment(new TypeSlotFragment(type, type), new NameDefSlotFragment(token.getText())));
+        }
 
         private String getText(LocatableToken start, LocatableToken end)
         {

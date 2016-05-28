@@ -711,4 +711,5 @@ public class NewParserTest extends TestCase
     {
         new JavaParser(new StringReader("int foo = 0; }")).parseClassBody();
     }
+
 }
