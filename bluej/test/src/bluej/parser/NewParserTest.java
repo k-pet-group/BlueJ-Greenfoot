@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -655,5 +655,60 @@ public class NewParserTest extends TestCase
         );
         JavaParser ip = new JavaParser(sr);
         ip.parseCU();
+    }
+    
+    public void testConstructor1()
+    {
+        new JavaParser(new StringReader("Foo() { return; } }")).parseClassBody();
+    }
+
+    public void testConstructor2()
+    {
+        new JavaParser(new StringReader("public Foo() { return; } }")).parseClassBody();
+    }
+
+    public void testConstructor3()
+    {
+        new JavaParser(new StringReader("<T> Foo(T t) { return; } }")).parseClassBody();
+    }
+
+    public void testConstructor4()
+    {
+        new JavaParser(new StringReader("public <T, U> Foo() { return; } }")).parseClassBody();
+    }
+
+    public void testMethod1()
+    {
+        new JavaParser(new StringReader("void foo() { return; } }")).parseClassBody();
+    }
+
+    public void testMethod2()
+    {
+        new JavaParser(new StringReader("<T, U> void foo() { return; } }")).parseClassBody();
+    }
+
+    public void testMethod3()
+    {
+        new JavaParser(new StringReader("public <T, U> void foo() { return; } }")).parseClassBody();
+    }
+
+    public void testMethod4()
+    {
+        new JavaParser(new StringReader("public <T, U> java.lang.String[] foo() { return; } }")).parseClassBody();
+    }
+
+    public void testField1()
+    {
+        new JavaParser(new StringReader("int foo; }")).parseClassBody();
+    }
+
+    public void testField2()
+    {
+        new JavaParser(new StringReader("int foo[]; }")).parseClassBody();
+    }
+
+    public void testField3()
+    {
+        new JavaParser(new StringReader("int foo = 0; }")).parseClassBody();
     }
 }

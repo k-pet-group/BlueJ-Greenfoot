@@ -1132,14 +1132,6 @@ public class JavaParser
                     endElement(token, true);
                 }
             }
-            else if (token.getType() == JavaTokenTypes.IDENT
-                    && tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
-                // constructor
-                gotConstructorDecl(token, hiddenToken);
-                modifiersConsumed();
-                nextToken();
-                parseMethodParamsBody();
-            }
             else if (token.getType() == JavaTokenTypes.LT
                     || token.getType() == JavaTokenTypes.IDENT
                     || isPrimitiveType(token)) {
