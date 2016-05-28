@@ -255,7 +255,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
      */
     void queueUpdatePromptsInMethodCalls()
     {
-        if (!queuedUpdatePrompts)
+        if (!queuedUpdatePrompts && slot != null)
         {
             queuedUpdatePrompts = true;
             slot.afterCurrentModification(this::updatePromptsInMethodCalls);
