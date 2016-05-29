@@ -84,8 +84,16 @@ public class JavaToStrideTest
         assertExpression("a instanceofb", "a instanceofb");
         // Confusingly, if you put <: in from the Java side, you should get < : (two operators):
         assertExpression("a < : b", "a <: b");
-        
-        //TODO test instanceof in the -java portion, in various contexts (e.g. super/this calls)
+    }
+    
+    @Test
+    public void testInstanceof()
+    {
+        assertEquals("while (a instanceof b) {}", _while(new FilledExpressionSlotFragment("a <: b", "a instanceof b")));
+        assertEquals("if (a instanceof b) {} else if (c instanceof d) {}", _ifElseIf(new FilledExpressionSlotFragment("a <: b", "a instanceof b"), l(), l(new FilledExpressionSlotFragment("c <: d", "c instanceof d")), l(l()), null));
+        assertEquals("foo(a instanceof b);", _call(new CallExpressionSlotFragment("foo ( a <: b )", "foo ( a instanceof b )")));
+        assertEquals("return (a instanceof b);", _return(new OptionalExpressionSlotFragment("( a <: b )", "( a instanceof b )")));
+        assertEqualsClass("C() {super(a instanceof b);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, new SuperThisParamsExpressionFragment("a <: b", "a instanceof b"), l()));
     }
     
     @Test
@@ -132,6 +140,11 @@ public class JavaToStrideTest
         return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), new SuperThisFragment(superThis), new SuperThisParamsExpressionFragment(superThisArgs, superThisArgs), body, new JavadocUnit(comment), true);
     }
 
+    private CodeElement _constructorDelegate(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, SuperThis superThis, SuperThisParamsExpressionFragment superThisArgs, List<CodeElement> body)
+    {
+        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), new SuperThisFragment(superThis), superThisArgs, body, new JavadocUnit(comment), true);
+    }
+
     private static void assertExpression(String expectedStride, String original)
     {
         Assert.assertEquals(expectedStride, JavaStrideParser.replaceInstanceof(original));
@@ -139,7 +152,12 @@ public class JavaToStrideTest
 
     private CallElement _call(String call)
     {
-        return new CallElement(null, new CallExpressionSlotFragment(call, call), true);
+        return _call(new CallExpressionSlotFragment(call, call));
+    }
+
+    private CallElement _call(CallExpressionSlotFragment call)
+    {
+        return new CallElement(null, call, true);
     }
 
     private ReturnElement _return()
@@ -149,12 +167,22 @@ public class JavaToStrideTest
 
     private ReturnElement _return(String s)
     {
-        return new ReturnElement(null, new OptionalExpressionSlotFragment(s, s), true);
+        return _return(new OptionalExpressionSlotFragment(s, s));
+    }
+
+    private ReturnElement _return(OptionalExpressionSlotFragment s)
+    {
+        return new ReturnElement(null, s, true);
     }
 
     private WhileElement _while(String expression, CodeElement... body)
     {
-        return new WhileElement(null, new FilledExpressionSlotFragment(expression, expression), Arrays.asList(body), true);
+        return _while(filled(expression), body);
+    }
+
+    private WhileElement _while(FilledExpressionSlotFragment expression, CodeElement... body)
+    {
+        return new WhileElement(null, expression, Arrays.asList(body), true);
     }
 
     // If without any elses
@@ -173,6 +201,11 @@ public class JavaToStrideTest
     {
         return new IfElement(null, filled(expression), body, expressions.stream().map(this::filled).collect(Collectors.toList()), elseIfBodies, elseBody, true);
     }
+
+    private IfElement _ifElseIf(FilledExpressionSlotFragment expression, List<CodeElement> body, List<FilledExpressionSlotFragment> expressions, List<List<CodeElement>> elseIfBodies, List<CodeElement> elseBody)
+    {
+        return new IfElement(null, expression, body, expressions, elseIfBodies, elseBody, true);
+    }
     
     private FilledExpressionSlotFragment filled(String e)
     {
@@ -187,7 +220,7 @@ public class JavaToStrideTest
 
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
     {
-        List<CodeElement> result = Parser.javaToStride(javaSource, false);
+        List<CodeElement> result = Parser.javaToStride(javaSource, Parser.JavaContext.STATEMENT);
         List<String> resultXML = result.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
         List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
         Assert.assertEquals("Checking XML", expectedXML, resultXML);
@@ -195,7 +228,7 @@ public class JavaToStrideTest
 
     private static void assertEqualsClass(String javaSource, CodeElement... expectedStride)
     {
-        List<CodeElement> result = Parser.javaToStride(javaSource, true);
+        List<CodeElement> result = Parser.javaToStride(javaSource, Parser.JavaContext.CLASS_MEMBER);
         List<String> resultXML = result.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
         List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
         Assert.assertEquals("Checking XML", expectedXML, resultXML);

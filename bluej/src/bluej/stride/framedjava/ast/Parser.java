@@ -139,19 +139,36 @@ public class Parser
         return true;
         
     }
+    
+    public static enum JavaContext
+    {
+        /** An item within a method (or similar) */
+        STATEMENT,
+        /** An item within a *class* body (field, method, constructor) */
+        CLASS_MEMBER,
+        /** Ditto but for interfaces */
+        INTERFACE_MEMBER,
+        /** Top-level of file; package, imports and a declaration */
+        TOP_LEVEL
+        //TODO: should there be another context for case statements?
+    }
+    
 
-    public static List<CodeElement> javaToStride(String java, boolean classItem) throws ParseFailure
+    public static List<CodeElement> javaToStride(String java, JavaContext context) throws ParseFailure
     {
         JavaStrideParser parser;
-        if (classItem)
+        switch (context)
         {
-            parser = new JavaStrideParser(java + "}");
-            parser.parseClassBody();
-        }
-        else
-        {
-            parser = new JavaStrideParser(java);
-            parser.parseStatement();
+            case CLASS_MEMBER:
+                parser = new JavaStrideParser(java + "}");
+                parser.parseClassBody();
+                break;
+            case STATEMENT:
+                parser = new JavaStrideParser(java);
+                parser.parseStatement();
+                break;
+            default:
+                throw new UnsupportedOperationException();
         }
         return parser.getCodeElements();
     }

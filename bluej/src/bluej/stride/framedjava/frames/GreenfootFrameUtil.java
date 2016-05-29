@@ -61,7 +61,7 @@ public class GreenfootFrameUtil
             
             try
             {
-                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString(), classItem);
+                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString(), classItem ? Parser.JavaContext.CLASS_MEMBER : Parser.JavaContext.STATEMENT);
                 return javaElements;
             }
             catch (ParseFailure pf)

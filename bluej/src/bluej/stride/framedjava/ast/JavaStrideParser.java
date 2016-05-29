@@ -55,13 +55,25 @@ class JavaStrideParser extends JavaParser
         public final List<String> throwsTypes = new ArrayList<>();
         public final String comment; // may be null
         public String constructorCall; // may be null
-        public List<String> constructorArgs; // may be null
+        public List<Expression> constructorArgs; // may be null
 
         public MethodDetails(String name, List<LocatableToken> modifiers, String comment)
         {
             this.name = name;
             this.modifiers.addAll(modifiers);
             this.comment = comment;
+        }
+    }
+    
+    private static class Expression
+    {
+        public final String stride;
+        public final String java;
+
+        private Expression(String stride, String java)
+        {
+            this.java = java;
+            this.stride = stride;
         }
     }
 
@@ -116,7 +128,7 @@ class JavaStrideParser extends JavaParser
         private final ArrayList<FilledExpressionSlotFragment> conditions = new ArrayList<>();
         private final ArrayList<List<CodeElement>> blocks = new ArrayList<>();
 
-        public IfBuilder(String condition)
+        public IfBuilder(Expression condition)
         {
             this.conditions.add(toFilled(condition));
         }
@@ -199,14 +211,14 @@ class JavaStrideParser extends JavaParser
             return null;
     }
 
-    private FilledExpressionSlotFragment toFilled(String exp)
+    private FilledExpressionSlotFragment toFilled(Expression exp)
     {
-        return new FilledExpressionSlotFragment(exp, exp);
+        return new FilledExpressionSlotFragment(exp.stride, exp.java);
     }
 
-    private OptionalExpressionSlotFragment toOptional(String exp)
+    private OptionalExpressionSlotFragment toOptional(Expression exp)
     {
-        return new OptionalExpressionSlotFragment(exp, exp);
+        return new OptionalExpressionSlotFragment(exp.stride, exp.java);
     }
 
     @Override
@@ -216,7 +228,7 @@ class JavaStrideParser extends JavaParser
         if (hasValue)
             withExpression(exp -> foundStatement(new ReturnElement(null, toOptional(exp), true)));
         else
-            foundStatement(new ReturnElement(null, toOptional(""), true));
+            foundStatement(new ReturnElement(null, toOptional(new Expression("", "")), true));
     }
 
     @Override
@@ -230,7 +242,7 @@ class JavaStrideParser extends JavaParser
     protected void gotStatementExpression()
     {
         super.gotStatementExpression();
-        withExpression(e -> foundStatement(new CallElement(null, new CallExpressionSlotFragment(e, e), true)));
+        withExpression(e -> foundStatement(new CallElement(null, new CallExpressionSlotFragment(e.stride, e.java), true)));
     }
 
     @Override
@@ -348,10 +360,13 @@ class JavaStrideParser extends JavaParser
             // Any remaining are unrecognised:
             modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
             SuperThis delegate = SuperThis.fromString(details.constructorCall);
-            String delegateArgs = delegate == null ? null : details.constructorArgs.stream().collect(Collectors.joining(","));
+            Expression delegateArgs = delegate == null ? null : new Expression(
+                details.constructorArgs.stream().map(e -> e.stride).collect(Collectors.joining(",")),
+                details.constructorArgs.stream().map(e -> e.java).collect(Collectors.joining(","))
+            );
             foundStatement(new ConstructorElement(null, new AccessPermissionFragment(permission),
                 details.parameters,
-                throwsTypes, delegate == null ? null : new SuperThisFragment(delegate), delegateArgs == null ? null : new SuperThisParamsExpressionFragment(delegateArgs, delegateArgs), body, new JavadocUnit(details.comment), true));
+                throwsTypes, delegate == null ? null : new SuperThisFragment(delegate), delegateArgs == null ? null : new SuperThisParamsExpressionFragment(delegateArgs.stride, delegateArgs.java), body, new JavadocUnit(details.comment), true));
         }
     }
 
@@ -448,7 +463,7 @@ class JavaStrideParser extends JavaParser
         return source.substring(start.getPosition(), end.getPosition());
     }
 
-    private void withExpression(Consumer<String> handler)
+    private void withExpression(Consumer<Expression> handler)
     {
         expressionHandlers.push(new ExpressionHandler()
         {
@@ -470,7 +485,10 @@ class JavaStrideParser extends JavaParser
             {
                 outstanding -= 1;
                 if (outstanding == 0)
-                    handler.accept(replaceInstanceof(getText(start, end)));
+                {
+                    String java = getText(start, end);
+                    handler.accept(new Expression(replaceInstanceof(java), uniformSpacing(java)));
+                }
                 else
                     // We get popped by default; add ourselves back in:
                     expressionHandlers.push(this);
@@ -483,11 +501,11 @@ class JavaStrideParser extends JavaParser
         statementHandlers.push(handler);
     }
 
-    private void withArgumentList(Consumer<List<String>> argHandler)
+    private void withArgumentList(Consumer<List<Expression>> argHandler)
     {
         argumentHandlers.push(new ArgumentListHandler()
         {
-            final List<String> args = new ArrayList<String>();
+            final List<Expression> args = new ArrayList<>();
             int outstanding = 0;
 
             @Override
@@ -556,6 +574,23 @@ class JavaStrideParser extends JavaParser
                 r.append("<:");
             else
                 r.append(token.getText());
+        }
+    }
+
+    static String uniformSpacing(String src)
+    {
+        // It is a bit inefficient to re-lex the string, but
+        // it's easiest this way and conversion is not particularly time sensitive:
+        JavaLexer lexer = new JavaLexer(new StringReader(src));
+        StringBuilder r = new StringBuilder();
+        while (true)
+        {
+            LocatableToken token = lexer.nextToken();
+            if (token.getType() == JavaTokenTypes.EOF)
+                return r.toString();
+            if (r.length() != 0)
+                r.append(" ");
+            r.append(token.getText());
         }
     }
 
