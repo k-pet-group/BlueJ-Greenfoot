@@ -1,15 +1,10 @@
 package bluej.stride.framedjava.ast;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
-import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
-import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
@@ -18,7 +13,6 @@ import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.WhileElement;
-import nu.xom.Element;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -95,14 +89,21 @@ public class JavaToStrideTest
     @Test
     public void testMethod()
     {
-        assertEqualsClass("public void foo() { return; }", _method(AccessPermission.PUBLIC, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Arrays.asList(_return())));
-        assertEqualsClass("public final void foo(int x) { return; }", _method(AccessPermission.PUBLIC, false, true, "void", "foo", Arrays.asList(_param("int", "x")), Collections.emptyList(), Arrays.asList(_return())));
+        assertEqualsClass("public void foo() { return; }", _method(null, AccessPermission.PUBLIC, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Arrays.asList(_return())));
+        assertEqualsClass("public final void foo(int x) { return; }", _method(null, AccessPermission.PUBLIC, false, true, "void", "foo", Arrays.asList(_param("int", "x")), Collections.emptyList(), Arrays.asList(_return())));
 
         assertEqualsClass("Foo(int x, String y) throws IOException { }",
-            _constructor(AccessPermission.PROTECTED, Arrays.asList(_param("int", "x"), _param("String", "y")),
+            _constructor(null, AccessPermission.PROTECTED, Arrays.asList(_param("int", "x"), _param("String", "y")),
                 Arrays.asList("IOException"), Arrays.asList()));
-        
-        //TODO test: javadoc, constructor super/this, generic methods
+     
+        assertEqualsClass("/** Comment */ private void foo() {}", _method("Comment", AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+        assertEqualsClass("/** Multi\n * line \n * comment.\n*/ private static final java.lang.String foo() throws IOException, NullPointerException {}",
+            _method("Multi line comment.", AccessPermission.PRIVATE, true, true, "java.lang.String", "foo",
+                Collections.emptyList(), Arrays.asList("IOException", "NullPointerException"), Collections.emptyList()));
+        assertEqualsClass("/** First\nPara.\n\nSecond\nPara.\n\n\nThird Para.*/\nprotected Foo(){}",
+            _constructor("First Para.\nSecond Para.\n\nThird Para.",
+                AccessPermission.PROTECTED, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+        //TODO test: more javadoc (incl multiline), constructor super/this, generic methods
     }
     
     private ParamFragment _param(String type, String name)
@@ -110,14 +111,14 @@ public class JavaToStrideTest
         return new ParamFragment(new TypeSlotFragment(type, type), new NameDefSlotFragment(name));
     }
 
-    private CodeElement _method(AccessPermission accessPermission, boolean _static, boolean _final, String returnType, String name, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
+    private CodeElement _method(String comment, AccessPermission accessPermission, boolean _static, boolean _final, String returnType, String name, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
     {
-        return new NormalMethodElement(null, new AccessPermissionFragment(accessPermission), _static, _final, new TypeSlotFragment(returnType, returnType), new NameDefSlotFragment(name), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), body, new JavadocUnit(""), true);
+        return new NormalMethodElement(null, new AccessPermissionFragment(accessPermission), _static, _final, new TypeSlotFragment(returnType, returnType), new NameDefSlotFragment(name), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), body, new JavadocUnit(comment), true);
     }
 
-    private CodeElement _constructor(AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
+    private CodeElement _constructor(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
     {
-        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), null, null, body, new JavadocUnit(""), true);
+        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), null, null, body, new JavadocUnit(comment), true);
     }
 
     private static void assertExpression(String expectedStride, String original)

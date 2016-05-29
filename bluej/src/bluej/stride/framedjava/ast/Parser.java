@@ -24,6 +24,7 @@ package bluej.stride.framedjava.ast;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +45,8 @@ import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.WhileElement;
+import bluej.utility.JavaUtils;
+import bluej.utility.Utility;
 
 public class Parser
 {
@@ -200,6 +203,7 @@ public class Parser
         private List<CodeElement> result = null;
         private final Stack<MethodDetails> methods = new Stack<>();
         private final Stack<String> types = new Stack<>();
+        private final List<String> comments = new Stack<>();
         
         private final List<String> warnings = new ArrayList<>();
         private int startThrows;
@@ -217,11 +221,13 @@ public class Parser
             public final List<LocatableToken> modifiers = new ArrayList<>();
             public final List<ParamFragment> parameters = new ArrayList<>();
             public final List<String> throwsTypes = new ArrayList<>();
+            public final String comment; // may be null
 
-            public MethodDetails(String name, List<LocatableToken> modifiers)
+            public MethodDetails(String name, List<LocatableToken> modifiers, String comment)
             {
                 this.name = name;
                 this.modifiers.addAll(modifiers);
+                this.comment = comment;
             }
         }
 
@@ -445,7 +451,7 @@ public class Parser
         protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers)
         {
             super.gotConstructorDecl(token, hiddenToken, modifiers);
-            methods.push(new MethodDetails(null, modifiers));
+            methods.push(new MethodDetails(null, modifiers, getJavadoc()));
             withStatement(new BlockCollector());
         }
 
@@ -453,7 +459,7 @@ public class Parser
         protected void gotMethodDeclaration(LocatableToken nameToken, LocatableToken hiddenToken, List<LocatableToken> modifiers)
         {
             super.gotMethodDeclaration(nameToken, hiddenToken, modifiers);
-            methods.push(new MethodDetails(nameToken.getText(), modifiers));
+            methods.push(new MethodDetails(nameToken.getText(), modifiers, getJavadoc()));
             withStatement(new BlockCollector());
         }
 
@@ -484,7 +490,7 @@ public class Parser
                 String type = types.pop();
                 foundStatement(new NormalMethodElement(null, new AccessPermissionFragment(permission),
                     _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), details.parameters,
-                    throwsTypes, body, new JavadocUnit(""), true));
+                    throwsTypes, body, new JavadocUnit(details.comment), true));
             }
             else
             {
@@ -492,7 +498,7 @@ public class Parser
                 modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
                 foundStatement(new ConstructorElement(null, new AccessPermissionFragment(permission),
                     details.parameters,
-                    throwsTypes, null, null, body, new JavadocUnit(""), true));
+                    throwsTypes, null, null, body, new JavadocUnit(details.comment), true));
             }
         }
 
@@ -511,6 +517,35 @@ public class Parser
                 warnings.add("Unsupported feature: varargs");
             String type = types.pop();
             methods.peek().parameters.add(new ParamFragment(new TypeSlotFragment(type, type), new NameDefSlotFragment(token.getText())));
+        }
+
+        @Override
+        public void gotComment(LocatableToken token)
+        {
+            super.gotComment(token);
+            String comment = JavaUtils.javadocToString(token.getText());
+            if (comment.startsWith("//"))
+                comment = comment.substring(2);
+            comment = Arrays.stream(Utility.split(comment, System.getProperty("line.separator")))
+                .map(String::trim)
+                .reduce((a, b) -> {
+                    a = a.isEmpty() ? "\n" : a;
+                    if (a.endsWith("\n"))
+                        return a + (b.isEmpty() ? "\n" : b);
+                    else if (b.isEmpty())
+                        return a + "\n";
+                    else
+                        return a + " " + b;
+                }).orElse("");
+            comments.add(comment);
+        }
+        
+        private String getJavadoc()
+        {
+            if (!comments.isEmpty())
+                return comments.remove(comments.size() - 1);
+            else
+                return null;
         }
 
         private String getText(LocatableToken start, LocatableToken end)
