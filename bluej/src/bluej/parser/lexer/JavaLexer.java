@@ -467,10 +467,10 @@ public final class JavaLexer implements TokenStream
     
     private int getSLCommentType(char ch)
     {
-        int rval=0;     
+        int rval=ch;     
 
         do{  
-            textBuffer.append(ch);
+            textBuffer.append((char)rval);
             rval=readNextChar();
             //eof
             if (rval==-1 || rval == '\n') {

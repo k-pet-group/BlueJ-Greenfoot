@@ -425,6 +425,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(1, token.getLine());
         assertEquals(33, token.getEndColumn());
         assertEquals(1, token.getEndLine());
+        assertEquals("// single line", token.getText());
         
         //more complicated comments
         ts = getNonfilteringLexerFor("/**test*this***/");
@@ -446,6 +447,7 @@ public class LexerTest extends junit.framework.TestCase
         ts = getNonfilteringLexerFor("// single line comment\n  an_identifier");
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.SL_COMMENT, token.getType());
+        assertEquals("// single line comment", token.getText());
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.IDENT, token.getType());
         token = (LocatableToken) ts.nextToken();
