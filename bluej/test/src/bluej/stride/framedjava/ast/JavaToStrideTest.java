@@ -134,7 +134,7 @@ public class JavaToStrideTest
 
     private static void assertExpression(String expectedStride, String original)
     {
-        Assert.assertEquals(expectedStride, Parser.replaceInstanceof(original));
+        Assert.assertEquals(expectedStride, JavaStrideParser.replaceInstanceof(original));
     }
 
     private CallElement _call(String call)
