@@ -200,6 +200,7 @@ public class Parser
         private final String source;
         private final Stack<ExpressionHandler> expressionHandlers = new Stack<>();
         private final Stack<StatementHandler> statementHandlers = new Stack<>();
+        private final Stack<ArgumentListHandler> argumentHandlers = new Stack<>();
         private List<CodeElement> result = null;
         private final Stack<MethodDetails> methods = new Stack<>();
         private final Stack<String> types = new Stack<>();
@@ -222,6 +223,8 @@ public class Parser
             public final List<ParamFragment> parameters = new ArrayList<>();
             public final List<String> throwsTypes = new ArrayList<>();
             public final String comment; // may be null
+            public String constructorCall; // may be null
+            public List<String> constructorArgs; // may be null
 
             public MethodDetails(String name, List<LocatableToken> modifiers, String comment)
             {
@@ -242,6 +245,13 @@ public class Parser
         {
             public void expressionBegun(LocatableToken start);
             public void expressionEnd(LocatableToken end);
+        }
+        
+        private static interface ArgumentListHandler
+        {
+            public void argumentListBegun();
+            public void gotArgument();
+            public void argumentListEnd();
         }
         
         private class BlockCollector implements StatementHandler
@@ -496,9 +506,11 @@ public class Parser
             {
                 // Any remaining are unrecognised:
                 modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
+                SuperThis delegate = SuperThis.fromString(details.constructorCall);
+                String delegateArgs = delegate == null ? null : details.constructorArgs.stream().collect(Collectors.joining(","));
                 foundStatement(new ConstructorElement(null, new AccessPermissionFragment(permission),
                     details.parameters,
-                    throwsTypes, null, null, body, new JavadocUnit(details.comment), true));
+                    throwsTypes, delegate == null ? null : new SuperThisFragment(delegate), delegateArgs == null ? null : new SuperThisParamsExpressionFragment(delegateArgs, delegateArgs), body, new JavadocUnit(details.comment), true));
             }
         }
 
@@ -520,12 +532,27 @@ public class Parser
         }
 
         @Override
+        protected void gotConstructorCall(LocatableToken token)
+        {
+            super.gotConstructorCall(token);
+            MethodDetails method = methods.peek();
+            method.constructorCall = token.getText();
+            // This will be parsed as an expression statement, so we need to cancel
+            // that and replace with our own handler to discard:
+            expressionHandlers.pop();
+            withExpression(e -> {});
+            withArgumentList(args -> {method.constructorArgs = args;});
+        }
+
+        @Override
         public void gotComment(LocatableToken token)
         {
             super.gotComment(token);
-            String comment = JavaUtils.javadocToString(token.getText());
+            String comment = token.getText();
             if (comment.startsWith("//"))
-                comment = comment.substring(2);
+                comment = comment.substring(2).trim();
+            else
+                comment = JavaUtils.javadocToString(comment);
             comment = Arrays.stream(Utility.split(comment, System.getProperty("line.separator")))
                 .map(String::trim)
                 .reduce((a, b) -> {
@@ -539,7 +566,31 @@ public class Parser
                 }).orElse("");
             comments.add(comment);
         }
-        
+
+        @Override
+        protected void beginArgumentList(LocatableToken token)
+        {
+            super.beginArgumentList(token);
+            if (!argumentHandlers.isEmpty())
+                argumentHandlers.peek().argumentListBegun();
+        }
+
+        @Override
+        protected void endArgumentList(LocatableToken token)
+        {
+            super.endArgumentList(token);
+            if (!argumentHandlers.isEmpty())
+                argumentHandlers.peek().argumentListEnd();
+        }
+
+        @Override
+        protected void endArgument()
+        {
+            super.endArgument();
+            if (!argumentHandlers.isEmpty())
+                argumentHandlers.peek().gotArgument();
+        }
+
         private String getJavadoc()
         {
             if (!comments.isEmpty())
@@ -587,6 +638,45 @@ public class Parser
             statementHandlers.push(handler);
         }
 
+        private void withArgumentList(Consumer<List<String>> argHandler)
+        {
+            argumentHandlers.push(new ArgumentListHandler()
+            {
+                final List<String> args = new ArrayList<String>();
+                int outstanding = 0;
+                @Override
+                public void argumentListBegun()
+                {
+                    outstanding += 1;
+                    if (outstanding == 1)
+                    {
+                        withExpression(args::add);
+                    }
+                }
+
+                @Override
+                public void gotArgument()
+                {
+                    if (outstanding == 1)
+                    {
+                        withExpression(args::add);
+                    }
+                }
+
+                @Override
+                public void argumentListEnd()
+                {
+                    if (outstanding == 1)
+                    {
+                        expressionHandlers.pop();
+                        argHandler.accept(args);
+                        argumentHandlers.pop();
+                    }
+                    outstanding -= 1;
+                }
+            });
+        }
+        
         private void foundStatement(CodeElement statement)
         {
             foundStatements(Collections.singletonList(statement));

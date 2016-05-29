@@ -84,6 +84,8 @@ public class JavaToStrideTest
         assertExpression("a instanceofb", "a instanceofb");
         // Confusingly, if you put <: in from the Java side, you should get < : (two operators):
         assertExpression("a < : b", "a <: b");
+        
+        //TODO test instanceof in the -java portion, in various contexts (e.g. super/this calls)
     }
     
     @Test
@@ -103,7 +105,11 @@ public class JavaToStrideTest
         assertEqualsClass("/** First\nPara.\n\nSecond\nPara.\n\n\nThird Para.*/\nprotected Foo(){}",
             _constructor("First Para.\nSecond Para.\n\nThird Para.",
                 AccessPermission.PROTECTED, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
-        //TODO test: more javadoc (incl multiline), constructor super/this, generic methods
+        
+        assertEqualsClass("// X\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
+        assertEqualsClass("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
+        assertEqualsClass("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2,3", l()));
+        //TODO test: abstract methods, interface methods (incl default), generic methods (either fail or do our best)
     }
     
     private ParamFragment _param(String type, String name)
@@ -119,6 +125,11 @@ public class JavaToStrideTest
     private CodeElement _constructor(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
     {
         return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), null, null, body, new JavadocUnit(comment), true);
+    }
+
+    private CodeElement _constructorDelegate(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, SuperThis superThis, String superThisArgs, List<CodeElement> body)
+    {
+        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), new SuperThisFragment(superThis), new SuperThisParamsExpressionFragment(superThisArgs, superThisArgs), body, new JavadocUnit(comment), true);
     }
 
     private static void assertExpression(String expectedStride, String original)
@@ -168,6 +179,11 @@ public class JavaToStrideTest
         return new FilledExpressionSlotFragment(e, e);
     }
         
+    // Short-hand for Arrays.asList
+    private static <T> List<T> l(T... items)
+    {
+        return Arrays.asList(items);
+    }
 
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
     {
