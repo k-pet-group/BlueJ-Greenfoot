@@ -1088,14 +1088,14 @@ public class EditorParser extends JavaParser
     }
         
     @Override
-    protected void beginFieldDeclarations(LocatableToken first)
+    protected void beginFieldDeclarations(LocatableToken first, List<LocatableToken> modifiers)
     {
         arrayDecls = 0;
         endDecl(first); // remove placeholder
     }
     
     @Override
-    protected void gotField(LocatableToken first, LocatableToken idToken)
+    protected void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows)
     {
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(first.getLine(), first.getColumn());
@@ -1121,7 +1121,7 @@ public class EditorParser extends JavaParser
     
     @Override
     protected void gotSubsequentField(LocatableToken first,
-            LocatableToken idToken)
+                                      LocatableToken idToken, boolean initFollows)
     {
         FieldNode field = new FieldNode(scopeStack.peek(), idToken.getText(), lastField, arrayDecls);
         arrayDecls = 0;
@@ -1151,19 +1151,19 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginVariableDecl(LocatableToken first)
     {
-        beginFieldDeclarations(first);
+        beginFieldDeclarations(first, null);
     }
     
     @Override
     protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited)
     {
-        gotField(first, idToken);
+        gotField(first, idToken, inited);
     }
     
     @Override
     protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited)
     {
-        gotSubsequentField(first, idToken);
+        gotSubsequentField(first, idToken, inited);
     }
     
     @Override
@@ -1183,14 +1183,14 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotForInit(LocatableToken first, LocatableToken idToken)
     {
-        gotField(first, idToken);
+        gotField(first, idToken, true);
     }
     
     @Override
     protected void gotSubsequentForInit(LocatableToken first,
             LocatableToken idToken)
     {
-        gotSubsequentField(first, idToken);
+        gotSubsequentField(first, idToken, true);
     }
     
     @Override

@@ -104,7 +104,7 @@ public class UnitTestParser extends JavaParser
     }
     
     @Override
-    protected void gotField(LocatableToken first, LocatableToken idToken)
+    protected void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows)
     {
         if (classLevel == 1 && !haveClassInfo) {
             fieldStarts.push(new SourceLocation(first.getLine(), first.getColumn()));

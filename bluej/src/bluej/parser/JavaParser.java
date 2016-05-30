@@ -399,17 +399,19 @@ public class JavaParser
      * Got a field declaration, which might declare multiple fields. Each field will generate
      * gotField() or gotSubsequentField().
      * @param first  The first token in the declaration
+     * @param modifiers
      */
-    protected void beginFieldDeclarations(LocatableToken first) { }
+    protected void beginFieldDeclarations(LocatableToken first, List<LocatableToken> modifiers) { }
     
     /**
      * Got a field (inside a type definition).
      * @param first     The first token that forms part of the field declaration
      * @param idToken   The token with the name of the field.
+     * @param initExpressionFollows
      */
-    protected void gotField(LocatableToken first, LocatableToken idToken) { }
+    protected void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows) { }
 
-    protected void gotSubsequentField(LocatableToken first, LocatableToken idToken) { }
+    protected void gotSubsequentField(LocatableToken first, LocatableToken idToken, boolean initFollows) { }
     
     /** End a single field declaration (but not necessarily the field declaration statement) */
     protected void endField(LocatableToken token, boolean included) { }
@@ -1167,14 +1169,14 @@ public class JavaParser
                 if (ttype == JavaTokenTypes.LBRACK || ttype == JavaTokenTypes.SEMI
                         || ttype == JavaTokenTypes.ASSIGN || ttype == JavaTokenTypes.COMMA) {
                     // This must be a field declaration
-                    beginFieldDeclarations(first);
+                    beginFieldDeclarations(first, modifiers);
                     if (ttype == JavaTokenTypes.LBRACK) {
                         tokenStream.pushBack(token);
                         parseArrayDeclarators();
                         token = nextToken();
                         ttype = token.getType();
                     }
-                    gotField(first, idToken);
+                    gotField(first, idToken, ttype == JavaTokenTypes.ASSIGN);
                     if (ttype == JavaTokenTypes.SEMI) {
                         endField(token, true);
                         endFieldDeclarations(token, true);
@@ -2268,7 +2270,7 @@ public class JavaParser
             LocatableToken nameToken, boolean inited)
     {
         if (type == DECL_TYPE_FIELD) {
-            gotSubsequentField(firstToken, nameToken);
+            gotSubsequentField(firstToken, nameToken, inited);
         }
         else if (type == DECL_TYPE_VAR) {
             gotSubsequentVar(firstToken, nameToken, inited);

@@ -19,6 +19,7 @@ import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
+import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
@@ -32,19 +33,21 @@ class JavaStrideParser extends JavaParser
     private final Stack<ExpressionHandler> expressionHandlers = new Stack<>();
     private final Stack<StatementHandler> statementHandlers = new Stack<>();
     private final Stack<ArgumentListHandler> argumentHandlers = new Stack<>();
-    private List<CodeElement> result = null;
     private final Stack<MethodDetails> methods = new Stack<>();
     private final Stack<String> types = new Stack<>();
+    private final Stack<FieldDetails> curField = new Stack<>();
     private final List<String> comments = new Stack<>();
 
     private final List<String> warnings = new ArrayList<>();
     private int startThrows;
+    
+    private final BlockCollector result = new BlockCollector();
 
     JavaStrideParser(String java)
     {
         super(new StringReader(java), true);
         this.source = java;
-        statementHandlers.push(r -> this.result = r);
+        statementHandlers.push(result);
     }
     
     private static class MethodDetails
@@ -64,6 +67,18 @@ class JavaStrideParser extends JavaParser
             this.name = name;
             this.modifiers.addAll(modifiers);
             this.comment = comment;
+        }
+    }
+    
+    private static class FieldDetails
+    {
+        public final String type;
+        public final List<LocatableToken> modifiers = new ArrayList<>();
+
+        public FieldDetails(String type, List<LocatableToken> modifiers)
+        {
+            this.type = type;
+            this.modifiers.addAll(modifiers);
         }
     }
     
@@ -337,21 +352,14 @@ class JavaStrideParser extends JavaParser
         String name = details.name;
         List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList());
         List<LocatableToken> modifiers = details.modifiers;
-        // If they make the item package-visible, we will turn this into protected:
-        AccessPermission permission = AccessPermission.PROTECTED;
-        // These are not else-if, so that we remove all recognised modifiers:
-        if (modifiers.removeIf(t -> t.getText().equals("private")))
-            permission = AccessPermission.PRIVATE;
-        if (modifiers.removeIf(t -> t.getText().equals("protected")))
-            permission = AccessPermission.PROTECTED;
-        if (modifiers.removeIf(t -> t.getText().equals("public")))
-            permission = AccessPermission.PUBLIC;
+        //Note: this modifies the list:
+        AccessPermission permission = removeAccess(modifiers);
         if (name != null)
         {
             boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
             boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
             // Any remaining are unrecognised:
-            modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
+            warnUnsupportedModifiers(modifiers);
             String type = details.type;
             foundStatement(new NormalMethodElement(null, new AccessPermissionFragment(permission),
                 _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), details.parameters,
@@ -360,7 +368,7 @@ class JavaStrideParser extends JavaParser
         else
         {
             // Any remaining are unrecognised:
-            modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
+            warnUnsupportedModifiers(modifiers);
             SuperThis delegate = SuperThis.fromString(details.constructorCall);
             Expression delegateArgs = delegate == null ? null : new Expression(
                 details.constructorArgs.stream().map(e -> e.stride).collect(Collectors.joining(",")),
@@ -370,6 +378,25 @@ class JavaStrideParser extends JavaParser
                 details.parameters,
                 throwsTypes, delegate == null ? null : new SuperThisFragment(delegate), delegateArgs == null ? null : new SuperThisParamsExpressionFragment(delegateArgs.stride, delegateArgs.java), body, new JavadocUnit(details.comment), true));
         }
+    }
+
+    private void warnUnsupportedModifiers(List<LocatableToken> modifiers)
+    {
+        modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
+    }
+
+    private static AccessPermission removeAccess(List<LocatableToken> modifiers)
+    {
+        // If they make the item package-visible, we will turn this into protected:
+        AccessPermission permission = AccessPermission.PROTECTED;
+        // These are not else-if, so that we remove all recognised modifiers:
+        if (modifiers.removeIf(t -> t.getText().equals("private")))
+            permission = AccessPermission.PRIVATE;
+        if (modifiers.removeIf(t -> t.getText().equals("protected")))
+            permission = AccessPermission.PROTECTED;
+        if (modifiers.removeIf(t -> t.getText().equals("public")))
+            permission = AccessPermission.PUBLIC;
+        return permission;
     }
 
     @Override
@@ -403,6 +430,56 @@ class JavaStrideParser extends JavaParser
         withArgumentList(args -> {
             method.constructorArgs = args;
         });
+    }
+
+    @Override
+    protected void beginFieldDeclarations(LocatableToken first, List<LocatableToken> modifiers)
+    {
+        super.beginFieldDeclarations(first, modifiers);
+        curField.push(new FieldDetails(types.pop(), modifiers));
+    }
+
+    @Override
+    protected void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows)
+    {
+        super.gotField(first, idToken, initExpressionFollows);
+        handleField(idToken, initExpressionFollows);
+    }
+
+    private void handleField(LocatableToken idToken, boolean initExpressionFollows)
+    {
+        FieldDetails details = curField.peek();
+        // Important we take copy:
+        List<LocatableToken> modifiers = new ArrayList<>(details.modifiers);
+        //Note: this modifies the list:
+        AccessPermission permission = removeAccess(modifiers);
+        boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
+        boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
+        // Any remaining are unrecognised:
+        warnUnsupportedModifiers(modifiers);
+
+        Consumer<Expression> handler = e -> foundStatement(new VarElement(null,
+            new AccessPermissionFragment(permission), _static, _final,
+            new TypeSlotFragment(details.type, details.type), new NameDefSlotFragment(idToken.getText()),
+            e == null ? null : toFilled(e), true));
+        if (initExpressionFollows)
+            withExpression(handler);
+        else
+            handler.accept(null);
+    }
+
+    @Override
+    protected void gotSubsequentField(LocatableToken first, LocatableToken idToken, boolean initFollows)
+    {
+        super.gotSubsequentField(first, idToken, initFollows);
+        handleField(idToken, initFollows);
+    }
+
+    @Override
+    protected void endFieldDeclarations(LocatableToken token, boolean included)
+    {
+        super.endFieldDeclarations(token, included);
+        curField.pop();
     }
 
     @Override
@@ -555,7 +632,7 @@ class JavaStrideParser extends JavaParser
 
     public List<CodeElement> getCodeElements()
     {
-        return result;
+        return result.getContent();
     }
 
     // package-visible for testing

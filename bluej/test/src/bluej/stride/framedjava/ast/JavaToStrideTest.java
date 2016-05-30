@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.parser.AssistContent;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
@@ -12,6 +13,7 @@ import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
+import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import org.junit.Assert;
 import org.junit.Test;
@@ -84,6 +86,8 @@ public class JavaToStrideTest
         assertExpression("a instanceofb", "a instanceofb");
         // Confusingly, if you put <: in from the Java side, you should get < : (two operators):
         assertExpression("a < : b", "a <: b");
+        
+        //TODO test casts (seems to be a problem)
     }
     
     @Test
@@ -118,6 +122,22 @@ public class JavaToStrideTest
         assertEqualsClass("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
         assertEqualsClass("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2,3", l()));
         //TODO test: abstract methods, interface methods (incl default), generic methods (either fail or do our best)
+    }
+    
+    @Test
+    public void testField()
+    {
+        assertEqualsClass("int x;", _var(AccessPermission.PROTECTED, false, false, "int", "x", null));
+        assertEqualsClass("public static final int CONST=7;", _var(AccessPermission.PUBLIC, true, true, "int", "CONST", "7"));
+        assertEqualsClass("private final bool b = 7, c=false;",
+            _var(AccessPermission.PRIVATE, false, true, "bool", "b", "7"),
+            _var(AccessPermission.PRIVATE, false, true, "bool", "c", "false"));
+        //TODO add a couple more tests
+    }
+    
+    private VarElement _var(AccessPermission access, boolean _static, boolean _final, String type, String name, String init)
+    {
+        return new VarElement(null, new AccessPermissionFragment(access), _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), init == null ? null : filled(init), true);
     }
     
     private ParamFragment _param(String type, String name)
