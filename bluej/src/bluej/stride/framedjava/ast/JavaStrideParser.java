@@ -56,9 +56,11 @@ class JavaStrideParser extends JavaParser
         public final String comment; // may be null
         public String constructorCall; // may be null
         public List<Expression> constructorArgs; // may be null
+        public final String type;
 
-        public MethodDetails(String name, List<LocatableToken> modifiers, String comment)
+        public MethodDetails(String type, String name, List<LocatableToken> modifiers, String comment)
         {
+            this.type = type;
             this.name = name;
             this.modifiers.addAll(modifiers);
             this.comment = comment;
@@ -314,7 +316,7 @@ class JavaStrideParser extends JavaParser
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers)
     {
         super.gotConstructorDecl(token, hiddenToken, modifiers);
-        methods.push(new MethodDetails(null, modifiers, getJavadoc()));
+        methods.push(new MethodDetails(null, null, modifiers, getJavadoc()));
         withStatement(new BlockCollector());
     }
 
@@ -322,7 +324,7 @@ class JavaStrideParser extends JavaParser
     protected void gotMethodDeclaration(LocatableToken nameToken, LocatableToken hiddenToken, List<LocatableToken> modifiers)
     {
         super.gotMethodDeclaration(nameToken, hiddenToken, modifiers);
-        methods.push(new MethodDetails(nameToken.getText(), modifiers, getJavadoc()));
+        methods.push(new MethodDetails(types.pop(), nameToken.getText(), modifiers, getJavadoc()));
         withStatement(new BlockCollector());
     }
 
@@ -350,7 +352,7 @@ class JavaStrideParser extends JavaParser
             boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
             // Any remaining are unrecognised:
             modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
-            String type = types.pop();
+            String type = details.type;
             foundStatement(new NormalMethodElement(null, new AccessPermissionFragment(permission),
                 _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), details.parameters,
                 throwsTypes, body, new JavadocUnit(details.comment), true));
