@@ -2293,7 +2293,6 @@ public class JavaParser
         gotTypeSpec(typeSpecTokens);
         
         LocatableToken token = nextToken();
-        modifiersConsumed();
         if (token.getType() != JavaTokenTypes.IDENT) {
             error("Expecting identifier (in variable/field declaration)");
             tokenStream.pushBack(token);
@@ -2306,6 +2305,7 @@ public class JavaParser
         LocatableToken idToken = token;
         token = nextToken();
         gotVariableDecl(first, idToken, token.getType() == JavaTokenTypes.ASSIGN);
+        modifiersConsumed();
 
         if (token.getType() == JavaTokenTypes.ASSIGN) {
             parseExpression();
