@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import bluej.parser.AssistContent;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.LocatableElement;
@@ -149,7 +150,21 @@ public class JavaToStrideTest
                 _var(null, false, true, "String", "c", filled("( String ) false")),
                 _var(null, false, true, "String", "d", null));
     }
-    
+
+    @Test
+    public void testComments()
+    {
+        assertEquals("//Declares x\nint x;", _comment("Declares x"), _var(null, false, false, "int", "x", null));
+        assertEquals("//Declares x\nint x /* empty */;", _comment("Declares x empty"), _var(null, false, false, "int", "x", null));
+        assertEquals("//Declares x\nint x /* empty */;int y;", _comment("Declares x empty"), _var(null, false, false, "int", "x", null), _var(null, false, false, "int", "y", null));
+        assertEquals("//Declares x\nint x;int y/* empty */;", _comment("Declares x"), _var(null, false, false, "int", "x", null), _comment("empty"), _var(null, false, false, "int", "y", null));
+    }
+
+    private CommentElement _comment(String s)
+    {
+        return new CommentElement(s);
+    }
+
     private VarElement _var(AccessPermission access, boolean _static, boolean _final, String type, String name, FilledExpressionSlotFragment init)
     {
         return new VarElement(null, access == null ? null : new AccessPermissionFragment(access), _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), init, true);

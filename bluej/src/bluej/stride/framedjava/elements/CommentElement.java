@@ -54,6 +54,11 @@ public class CommentElement extends CodeElement
         this.comment = frame.getComment();
     }
 
+    public CommentElement(String s)
+    {
+        this.comment = s;
+    }
+
     @Override
     public JavaSource toJavaSource()
     {

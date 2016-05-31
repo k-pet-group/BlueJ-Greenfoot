@@ -15,6 +15,7 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
@@ -37,7 +38,7 @@ class JavaStrideParser extends JavaParser
     private final Stack<String> types = new Stack<>();
     private final Stack<FieldOrVarDetails> curField = new Stack<>();
     private final Stack<List<LocatableToken>> modifiers = new Stack<>();
-    private final List<String> comments = new Stack<>();
+    private final List<String> comments = new ArrayList<>();
 
     private final List<String> warnings = new ArrayList<>();
     private int startThrows;
@@ -672,7 +673,16 @@ class JavaStrideParser extends JavaParser
 
     private void foundStatements(List<CodeElement> statements)
     {
-        statementHandlers.pop().foundStatement(statements);
+        if (comments.isEmpty())
+            statementHandlers.pop().foundStatement(statements);
+        else
+        {
+            ArrayList<CodeElement> all = new ArrayList<>();
+            all.add(new CommentElement(comments.stream().collect(Collectors.joining(" "))));
+            comments.clear();
+            all.addAll(statements);
+            statementHandlers.pop().foundStatement(all);
+        }
     }
 
     public List<CodeElement> getCodeElements()
