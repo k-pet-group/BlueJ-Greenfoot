@@ -36,6 +36,7 @@ class JavaStrideParser extends JavaParser
     private final Stack<MethodDetails> methods = new Stack<>();
     private final Stack<String> types = new Stack<>();
     private final Stack<FieldDetails> curField = new Stack<>();
+    private final Stack<List<LocatableToken>> modifiers = new Stack<>();
     private final List<String> comments = new Stack<>();
 
     private final List<String> warnings = new ArrayList<>();
@@ -328,18 +329,18 @@ class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers)
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
-        super.gotConstructorDecl(token, hiddenToken, modifiers);
-        methods.push(new MethodDetails(null, null, modifiers, getJavadoc()));
+        super.gotConstructorDecl(token, hiddenToken);
+        methods.push(new MethodDetails(null, null, modifiers.peek(), getJavadoc()));
         withStatement(new BlockCollector());
     }
 
     @Override
-    protected void gotMethodDeclaration(LocatableToken nameToken, LocatableToken hiddenToken, List<LocatableToken> modifiers)
+    protected void gotMethodDeclaration(LocatableToken nameToken, LocatableToken hiddenToken)
     {
-        super.gotMethodDeclaration(nameToken, hiddenToken, modifiers);
-        methods.push(new MethodDetails(types.pop(), nameToken.getText(), modifiers, getJavadoc()));
+        super.gotMethodDeclaration(nameToken, hiddenToken);
+        methods.push(new MethodDetails(types.pop(), nameToken.getText(), modifiers.peek(), getJavadoc()));
         withStatement(new BlockCollector());
     }
 
@@ -433,10 +434,39 @@ class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void beginFieldDeclarations(LocatableToken first, List<LocatableToken> modifiers)
+    protected void gotDeclBegin(LocatableToken token)
     {
-        super.beginFieldDeclarations(first, modifiers);
-        curField.push(new FieldDetails(types.pop(), modifiers));
+        super.gotDeclBegin(token);
+        modifiers.push(new ArrayList<>());
+    }
+
+    @Override
+    protected void beginFormalParameter(LocatableToken token)
+    {
+        super.beginFormalParameter(token);
+        modifiers.push(new ArrayList<>());
+    }
+
+    @Override
+    protected void modifiersConsumed()
+    {
+        super.modifiersConsumed();
+        modifiers.pop();
+    }
+
+    @Override
+    protected void gotModifier(LocatableToken token)
+    {
+        super.gotModifier(token);
+        if (!modifiers.isEmpty())
+            modifiers.peek().add(token);
+    }
+
+    @Override
+    protected void beginFieldDeclarations(LocatableToken first)
+    {
+        super.beginFieldDeclarations(first);
+        curField.push(new FieldDetails(types.pop(), modifiers.peek()));
     }
 
     @Override

@@ -547,9 +547,9 @@ public class InfoParser extends EditorParser
     }
     
     @Override
-    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers)
+    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
     {
-        super.gotMethodDeclaration(token, hiddenToken, modifiers);
+        super.gotMethodDeclaration(token, hiddenToken);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
         currentMethod = new MethodDesc();
         currentMethod.returnType =  ((MethodNode) scopeStack.peek()).getReturnType();
@@ -561,9 +561,9 @@ public class InfoParser extends EditorParser
     }
 
     @Override
-    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers)
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
-        super.gotConstructorDecl(token, hiddenToken, modifiers);
+        super.gotConstructorDecl(token, hiddenToken);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
         currentMethod = new MethodDesc();
         currentMethod.name = token.getText();

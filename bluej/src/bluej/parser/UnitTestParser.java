@@ -156,7 +156,7 @@ public class UnitTestParser extends JavaParser
     
     @Override
     protected void gotMethodDeclaration(LocatableToken token,
-                                        LocatableToken hiddenToken, List<LocatableToken> modifiers)
+                                        LocatableToken hiddenToken)
     {
         if (classLevel == 1 && ! haveClassInfo) {
             inMethod = true;

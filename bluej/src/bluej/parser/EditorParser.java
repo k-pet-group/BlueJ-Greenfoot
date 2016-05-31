@@ -946,7 +946,7 @@ public class EditorParser extends JavaParser
     
     @Override
     protected void gotConstructorDecl(LocatableToken token,
-                                      LocatableToken hiddenToken, List<LocatableToken> modifiers)
+                                      LocatableToken hiddenToken)
     {
         endDecl(token); // remove placeholder
         LocatableToken start = pcuStmtBegin;
@@ -967,7 +967,7 @@ public class EditorParser extends JavaParser
     
     @Override
     protected void gotMethodDeclaration(LocatableToken token,
-                                        LocatableToken hiddenToken, List<LocatableToken> modifiers)
+                                        LocatableToken hiddenToken)
     {
         endDecl(token); // remove placeholder
         LocatableToken start = pcuStmtBegin;
@@ -1088,7 +1088,7 @@ public class EditorParser extends JavaParser
     }
         
     @Override
-    protected void beginFieldDeclarations(LocatableToken first, List<LocatableToken> modifiers)
+    protected void beginFieldDeclarations(LocatableToken first)
     {
         arrayDecls = 0;
         endDecl(first); // remove placeholder
@@ -1151,7 +1151,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginVariableDecl(LocatableToken first)
     {
-        beginFieldDeclarations(first, null);
+        beginFieldDeclarations(first);
     }
     
     @Override

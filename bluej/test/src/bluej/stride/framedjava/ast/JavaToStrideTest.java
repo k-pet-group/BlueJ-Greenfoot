@@ -125,19 +125,25 @@ public class JavaToStrideTest
     }
     
     @Test
-    public void testField()
+    public void testFieldAndVar()
     {
         assertEqualsClass("int x;", _var(AccessPermission.PROTECTED, false, false, "int", "x", null));
-        assertEqualsClass("public static final int CONST=7;", _var(AccessPermission.PUBLIC, true, true, "int", "CONST", "7"));
+        assertEqualsClass("public static final int CONST=7;", _var(AccessPermission.PUBLIC, true, true, "int", "CONST", filled("7")));
         assertEqualsClass("private final bool b = 7, c=false;",
-            _var(AccessPermission.PRIVATE, false, true, "bool", "b", "7"),
-            _var(AccessPermission.PRIVATE, false, true, "bool", "c", "false"));
-        //TODO add a couple more tests
+            _var(AccessPermission.PRIVATE, false, true, "bool", "b", filled("7")),
+            _var(AccessPermission.PRIVATE, false, true, "bool", "c", filled("false")));
+        assertEqualsClass("public static String a = null, b, c=(String)false, d;",
+                _var(AccessPermission.PUBLIC, true, false, "String", "a", filled("null")),
+                _var(AccessPermission.PUBLIC, true, false, "String", "b", null),
+                _var(AccessPermission.PUBLIC, true, false, "String", "c", filled("( String ) false")),
+                _var(AccessPermission.PUBLIC, true, false, "String", "d", null));
+
+        //assertEquals("int x;", _var(null, false, false, "int", "x", null));
     }
     
-    private VarElement _var(AccessPermission access, boolean _static, boolean _final, String type, String name, String init)
+    private VarElement _var(AccessPermission access, boolean _static, boolean _final, String type, String name, FilledExpressionSlotFragment init)
     {
-        return new VarElement(null, new AccessPermissionFragment(access), _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), init == null ? null : filled(init), true);
+        return new VarElement(null, access == null ? null : new AccessPermissionFragment(access), _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), init, true);
     }
     
     private ParamFragment _param(String type, String name)

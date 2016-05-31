@@ -399,9 +399,9 @@ public class JavaParser
      * Got a field declaration, which might declare multiple fields. Each field will generate
      * gotField() or gotSubsequentField().
      * @param first  The first token in the declaration
-     * @param modifiers
+     *
      */
-    protected void beginFieldDeclarations(LocatableToken first, List<LocatableToken> modifiers) { }
+    protected void beginFieldDeclarations(LocatableToken first) { }
     
     /**
      * Got a field (inside a type definition).
@@ -507,13 +507,13 @@ public class JavaParser
      * We've seen a constructor declaration. The token supplied is the constructor name.
      * The hiddenToken is the comment before the constructor.
      */
-    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers) {}
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
 
     /**
      * We've seen a method declaration; the token parameter is the method name;
      * the hiddenToken parameter is the comment before the method
      */
-    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken, List<LocatableToken> modifiers) {}
+    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
 
     /** 
      * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
@@ -1169,7 +1169,7 @@ public class JavaParser
                 if (ttype == JavaTokenTypes.LBRACK || ttype == JavaTokenTypes.SEMI
                         || ttype == JavaTokenTypes.ASSIGN || ttype == JavaTokenTypes.COMMA) {
                     // This must be a field declaration
-                    beginFieldDeclarations(first, modifiers);
+                    beginFieldDeclarations(first);
                     if (ttype == JavaTokenTypes.LBRACK) {
                         tokenStream.pushBack(token);
                         parseArrayDeclarators();
@@ -1200,10 +1200,10 @@ public class JavaParser
                 else if (ttype == JavaTokenTypes.LPAREN) {
                     // method declaration
                     if (isConstructor) {
-                        gotConstructorDecl(idToken, hiddenToken, modifiers);
+                        gotConstructorDecl(idToken, hiddenToken);
                     }
                     else {
-                        gotMethodDeclaration(idToken, hiddenToken, modifiers);
+                        gotMethodDeclaration(idToken, hiddenToken);
                     }
                     modifiersConsumed();
                     parseMethodParamsBody();
@@ -3468,6 +3468,7 @@ public class JavaParser
                 && token.getType() != JavaTokenTypes.RCURLY) {
             tokenStream.pushBack(token);
 
+            beginFormalParameter(token);
             parseModifiers();
             parseTypeSpec(true);
             LocatableToken idToken = nextToken(); // identifier
@@ -3494,7 +3495,9 @@ public class JavaParser
         }
         tokenStream.pushBack(token);
     }
-        
+
+    protected void beginFormalParameter(LocatableToken token) { }
+
     private void pushBackAll(List<LocatableToken> tokens)
     {
         ListIterator<LocatableToken> i = tokens.listIterator(tokens.size());
