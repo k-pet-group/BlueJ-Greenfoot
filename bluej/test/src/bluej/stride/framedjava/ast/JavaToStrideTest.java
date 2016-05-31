@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import bluej.parser.AssistContent;
+import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
@@ -41,6 +42,8 @@ public class JavaToStrideTest
         assertEquals("return 0+1;", _return("0 + 1"));
         assertEquals("return 0+(1+2);", _return("0 + ( 1 + 2 )"));
         assertEquals("return;", _return());
+
+        assertEquals("break;", new BreakElement(null, true));
     }
     
     @Test

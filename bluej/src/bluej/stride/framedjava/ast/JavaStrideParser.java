@@ -13,6 +13,7 @@ import bluej.parser.JavaParser;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
@@ -538,17 +539,33 @@ class JavaStrideParser extends JavaParser
         else
             comment = JavaUtils.javadocToString(comment);
         comment = Arrays.stream(Utility.split(comment, System.getProperty("line.separator")))
-            .map(String::trim)
-            .reduce((a, b) -> {
-                a = a.isEmpty() ? "\n" : a;
-                if (a.endsWith("\n"))
-                    return a + (b.isEmpty() ? "\n" : b);
-                else if (b.isEmpty())
-                    return a + "\n";
-                else
-                    return a + " " + b;
-            }).orElse("");
+                .map(String::trim)
+                .reduce((a, b) -> {
+                    a = a.isEmpty() ? "\n" : a;
+                    if (a.endsWith("\n"))
+                        return a + (b.isEmpty() ? "\n" : b);
+                    else if (b.isEmpty())
+                        return a + "\n";
+                    else
+                        return a + " " + b;
+                }).orElse("");
         comments.add(comment);
+    }
+
+    @Override
+    protected void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken)
+    {
+        super.gotBreakContinue(keywordToken, labelToken);
+        if (keywordToken.getType() == JavaTokenTypes.LITERAL_break)
+        {
+            foundStatement(new BreakElement(null, true));
+            if (labelToken != null)
+                warnings.add("Unsupported feature: label on break");
+        }
+        else
+        {
+            warnings.add("Unsupported feature: " + keywordToken.getText());
+        }
     }
 
     @Override

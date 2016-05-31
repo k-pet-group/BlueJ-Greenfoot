@@ -1460,9 +1460,15 @@ public class JavaParser
             case 11: // LITERAL_continue
             case 12: // LITERAL_break
                 // There might be a label afterwards
+                LocatableToken keywordToken = token;
                 token = nextToken();
                 if (token.getType() == JavaTokenTypes.IDENT) {
                     token = nextToken();
+                    gotBreakContinue(keywordToken, token);
+                }
+                else
+                {
+                    gotBreakContinue(keywordToken, null);
                 }
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     tokenStream.pushBack(token);
@@ -1643,6 +1649,8 @@ public class JavaParser
             return token;
         }
     }
+
+    protected void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken) { }
 
     protected void gotReturnStatement(boolean hasValue) { }
 
