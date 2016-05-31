@@ -896,7 +896,17 @@ public class FrameEditor implements Editor
     @OnThread(Tag.Any)
     public void printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground) 
     {
-        // TODO Auto-generated method stub
+        javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
+        if (job.showPrintDialog(null)) {
+            Platform.runLater(() -> {
+                if (job != null) {
+                    boolean success = job.printPage(panel.getSource().getFrame().getNode());
+                    if (success) {
+                        job.endJob();
+                    }
+                }
+            });
+        }
     }
 
     @Override
