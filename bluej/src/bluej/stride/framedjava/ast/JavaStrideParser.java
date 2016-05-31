@@ -35,7 +35,7 @@ class JavaStrideParser extends JavaParser
     private final Stack<ArgumentListHandler> argumentHandlers = new Stack<>();
     private final Stack<MethodDetails> methods = new Stack<>();
     private final Stack<String> types = new Stack<>();
-    private final Stack<FieldDetails> curField = new Stack<>();
+    private final Stack<FieldOrVarDetails> curField = new Stack<>();
     private final Stack<List<LocatableToken>> modifiers = new Stack<>();
     private final List<String> comments = new Stack<>();
 
@@ -71,12 +71,12 @@ class JavaStrideParser extends JavaParser
         }
     }
     
-    private static class FieldDetails
+    private static class FieldOrVarDetails
     {
         public final String type;
         public final List<LocatableToken> modifiers = new ArrayList<>();
 
-        public FieldDetails(String type, List<LocatableToken> modifiers)
+        public FieldOrVarDetails(String type, List<LocatableToken> modifiers)
         {
             this.type = type;
             this.modifiers.addAll(modifiers);
@@ -354,7 +354,7 @@ class JavaStrideParser extends JavaParser
         List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList());
         List<LocatableToken> modifiers = details.modifiers;
         //Note: this modifies the list:
-        AccessPermission permission = removeAccess(modifiers);
+        AccessPermission permission = removeAccess(modifiers, AccessPermission.PROTECTED);
         if (name != null)
         {
             boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
@@ -386,10 +386,10 @@ class JavaStrideParser extends JavaParser
         modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
     }
 
-    private static AccessPermission removeAccess(List<LocatableToken> modifiers)
+    private static AccessPermission removeAccess(List<LocatableToken> modifiers, AccessPermission defaultAccess)
     {
-        // If they make the item package-visible, we will turn this into protected:
-        AccessPermission permission = AccessPermission.PROTECTED;
+        // If they make the item package-visible, we will turn this into defaultAccess:
+        AccessPermission permission = defaultAccess;
         // These are not else-if, so that we remove all recognised modifiers:
         if (modifiers.removeIf(t -> t.getText().equals("private")))
             permission = AccessPermission.PRIVATE;
@@ -466,30 +466,38 @@ class JavaStrideParser extends JavaParser
     protected void beginFieldDeclarations(LocatableToken first)
     {
         super.beginFieldDeclarations(first);
-        curField.push(new FieldDetails(types.pop(), modifiers.peek()));
+        curField.push(new FieldOrVarDetails(types.pop(), modifiers.peek()));
     }
 
     @Override
     protected void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows)
     {
         super.gotField(first, idToken, initExpressionFollows);
-        handleField(idToken, initExpressionFollows);
+        handleFieldOrVar(idToken, initExpressionFollows, AccessPermission.PROTECTED);
     }
 
-    private void handleField(LocatableToken idToken, boolean initExpressionFollows)
+    @Override
+    protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited)
     {
-        FieldDetails details = curField.peek();
+        super.gotVariableDecl(first, idToken, inited);
+        curField.push(new FieldOrVarDetails(types.pop(), modifiers.peek()));
+        handleFieldOrVar(idToken, inited, null);
+    }
+
+    private void handleFieldOrVar(LocatableToken idToken, boolean initExpressionFollows, AccessPermission defaultAccess)
+    {
+        FieldOrVarDetails details = curField.peek();
         // Important we take copy:
         List<LocatableToken> modifiers = new ArrayList<>(details.modifiers);
         //Note: this modifies the list:
-        AccessPermission permission = removeAccess(modifiers);
+        AccessPermission permission = removeAccess(modifiers, defaultAccess);
         boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
         boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
         // Any remaining are unrecognised:
         warnUnsupportedModifiers(modifiers);
 
         Consumer<Expression> handler = e -> foundStatement(new VarElement(null,
-            new AccessPermissionFragment(permission), _static, _final,
+            permission == null ? null : new AccessPermissionFragment(permission), _static, _final,
             new TypeSlotFragment(details.type, details.type), new NameDefSlotFragment(idToken.getText()),
             e == null ? null : toFilled(e), true));
         if (initExpressionFollows)
@@ -502,7 +510,14 @@ class JavaStrideParser extends JavaParser
     protected void gotSubsequentField(LocatableToken first, LocatableToken idToken, boolean initFollows)
     {
         super.gotSubsequentField(first, idToken, initFollows);
-        handleField(idToken, initFollows);
+        handleFieldOrVar(idToken, initFollows, AccessPermission.PROTECTED);
+    }
+
+    @Override
+    protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited)
+    {
+        super.gotSubsequentVar(first, idToken, inited);
+        handleFieldOrVar(idToken, inited, null);
     }
 
     @Override

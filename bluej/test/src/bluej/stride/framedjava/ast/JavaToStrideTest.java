@@ -138,7 +138,16 @@ public class JavaToStrideTest
                 _var(AccessPermission.PUBLIC, true, false, "String", "c", filled("( String ) false")),
                 _var(AccessPermission.PUBLIC, true, false, "String", "d", null));
 
-        //assertEquals("int x;", _var(null, false, false, "int", "x", null));
+        assertEquals("int x;", _var(null, false, false, "int", "x", null));
+        assertEquals("final int CONST=7;", _var(null, false, true, "int", "CONST", filled("7")));
+        assertEquals("bool b = 7, c=false;",
+                _var(null, false, false, "bool", "b", filled("7")),
+                _var(null, false, false, "bool", "c", filled("false")));
+        assertEquals("final String a = null, b, c=(String)false, d;",
+                _var(null, false, true, "String", "a", filled("null")),
+                _var(null, false, true, "String", "b", null),
+                _var(null, false, true, "String", "c", filled("( String ) false")),
+                _var(null, false, true, "String", "d", null));
     }
     
     private VarElement _var(AccessPermission access, boolean _static, boolean _final, String type, String name, FilledExpressionSlotFragment init)
