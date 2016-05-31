@@ -165,7 +165,8 @@ public class Parser
                 break;
             case STATEMENT:
                 parser = new JavaStrideParser(java);
-                parser.parseStatement();
+                while (parser.getTokenStream().LA(1).getType() != JavaTokenTypes.EOF)
+                    parser.parseStatement();
                 break;
             default:
                 throw new UnsupportedOperationException();
