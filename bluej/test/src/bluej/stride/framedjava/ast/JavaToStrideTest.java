@@ -15,6 +15,7 @@ import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
+import bluej.stride.framedjava.elements.ThrowElement;
 import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import org.junit.Assert;
@@ -44,6 +45,9 @@ public class JavaToStrideTest
         assertEquals("return;", _return());
 
         assertEquals("break;", new BreakElement(null, true));
+
+        assertEquals("throw e;", new ThrowElement(null, filled("e"), true));
+        assertEquals("throw new IOException();", new ThrowElement(null, filled("new IOException ( )"), true));
     }
     
     @Test

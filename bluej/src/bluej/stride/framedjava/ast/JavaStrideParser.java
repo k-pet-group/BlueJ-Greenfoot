@@ -21,6 +21,7 @@ import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
+import bluej.stride.framedjava.elements.ThrowElement;
 import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import bluej.utility.JavaUtils;
@@ -566,6 +567,13 @@ class JavaStrideParser extends JavaParser
         {
             warnings.add("Unsupported feature: " + keywordToken.getText());
         }
+    }
+
+    @Override
+    protected void gotThrow(LocatableToken token)
+    {
+        super.gotThrow(token);
+        withExpression(e -> foundStatement(new ThrowElement(null, toFilled(e), true)));
     }
 
     @Override

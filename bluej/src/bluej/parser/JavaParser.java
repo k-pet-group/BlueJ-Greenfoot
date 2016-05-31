@@ -1477,6 +1477,7 @@ public class JavaParser
                 }
                 return token;
             case 13: // LITERAL_throw
+                gotThrow(token);
                 parseExpression();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
@@ -1649,6 +1650,8 @@ public class JavaParser
             return token;
         }
     }
+
+    protected void gotThrow(LocatableToken token) { }
 
     protected void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken) { }
 
