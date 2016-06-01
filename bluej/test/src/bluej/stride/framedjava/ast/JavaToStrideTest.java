@@ -140,6 +140,7 @@ public class JavaToStrideTest
                 Arrays.asList("IOException"), Arrays.asList()));
      
         assertEqualsMember("/** Comment */ private void foo() {}", _method("Comment", AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+        assertEqualsMember("// Comment\nprivate void foo() {}", _comment("Comment"), _method(null, AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
         assertEqualsMember("/** Multi\n * line \n * comment.\n*/ private static final java.lang.String foo() throws IOException, NullPointerException {}",
             _method("Multi line comment.", AccessPermission.PRIVATE, true, true, "java.lang.String", "foo",
                 Collections.emptyList(), Arrays.asList("IOException", "NullPointerException"), Collections.emptyList()));
@@ -147,7 +148,7 @@ public class JavaToStrideTest
             _constructor("First Para.\nSecond Para.\n\nThird Para.",
                 AccessPermission.PROTECTED, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
         
-        assertEqualsMember("// X\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
+        assertEqualsMember("/** X*/\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
         assertEqualsMember("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
         assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2,3", l()));
         //TODO test: abstract methods, interface methods (incl default), generic methods (either fail or do our best)
@@ -190,8 +191,11 @@ public class JavaToStrideTest
         
         assertEquals("break; // Post-comment", new BreakElement(null, true), _comment("Post-comment"));
         assertEquals("while(true) {/*Just-comment*/}", _while("true", _comment("Just-comment")));
+        assertEquals("while(true) {/*Pre-comment*/ break;}", _while("true", _comment("Pre-comment"), new BreakElement(null, true)));
+        assertEquals("while(true) /*Pre-comment*/ break;", _while("true", _comment("Pre-comment"), new BreakElement(null, true)));
         assertEquals("while(true) {break; /*End-comment*/}", _while("true", new BreakElement(null, true), _comment("End-comment")));
         assertEquals("while(true) {break; }/*After-comment*/", _while("true", new BreakElement(null, true)), _comment("After-comment"));
+        assertEquals("while(true) break;/*After-comment*/", _while("true", new BreakElement(null, true)), _comment("After-comment"));
         assertEquals("return 0; /*XXX*/ while(true) {}", _return("0"), _comment("XXX"), _while("true"));
     }
     

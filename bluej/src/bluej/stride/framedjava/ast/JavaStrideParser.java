@@ -87,6 +87,7 @@ class JavaStrideParser extends JavaParser
      */
     private final Stack<String> prevTypes = new Stack<>();
     private final Stack<Consumer<String>> typeHandlers = new Stack<>();
+    private final Stack<IfBuilder> ifHandlers = new Stack<>();
     
     private final Stack<FieldOrVarDetails> curField = new Stack<>();
     /**
@@ -111,9 +112,8 @@ class JavaStrideParser extends JavaParser
      * Any warnings encountered in the conversion process.
      */
     private final List<String> warnings = new ArrayList<>();
-    private int startThrows;
     
-    private final BlockCollector result = new BlockCollector();
+    private final StatementHandler result = new StatementHandler(false) { public void endBlock() { } };
     private Stack<TryDetails> tries = new Stack<>();
 
     JavaStrideParser(String java)
@@ -176,17 +176,6 @@ class JavaStrideParser extends JavaParser
         }
     }
 
-    private static interface StatementHandler
-    {
-        public void foundStatement(List<CodeElement> statements);
-
-        default public void endBlock()
-        {
-        }
-
-        default public void gotComment(LocatableToken token) {};
-    }
-
     private static interface ExpressionHandler
     {
         public void expressionBegun(LocatableToken start);
@@ -221,32 +210,56 @@ class JavaStrideParser extends JavaParser
         public void argumentListEnd();
     }
 
-    private class BlockCollector implements StatementHandler
+    private abstract class StatementHandler
     {
         private final List<CodeElement> content = new ArrayList<>();
         private final List<LocatableToken> comments = new ArrayList<>();
+        private final boolean expectingSingle;
 
-        @Override
+        public StatementHandler(boolean expectingSingle)
+        {
+            this.expectingSingle = expectingSingle;
+
+            // Steal comments at current position:
+            // TODO this is hacky, stop using instanceof and do it properly:
+            if (!statementHandlers.isEmpty() && statementHandlers.peek() instanceof StatementHandler)
+            {
+                StatementHandler prev = (StatementHandler)statementHandlers.peek();
+                int curPosition = getCurPosition();
+                Predicate<LocatableToken> afterCurPosition = t -> t.getPosition() >= curPosition;
+                comments.addAll(prev.comments.stream().filter(afterCurPosition).collect(Collectors.toList()));
+                prev.comments.removeIf(afterCurPosition);
+            }
+        }
+
         public void foundStatement(List<CodeElement> statements)
         {
             CommentElement el = collateComments(false);
             if (el != null)
                 content.add(el);
             content.addAll(statements);
-            // We keep ourselves on the stack until someone removes us:
-            withStatement(this);
+            // Unless we are expecting just one item (e.g. body of while),
+            // we keep ourselves on the stack until someone removes us:
+            if (!expectingSingle)
+                withStatement(this);
+            else
+                endBlock();
         }
 
-        public List<CodeElement> getContent(boolean eof)
+        public final List<CodeElement> getContent(boolean eof)
         {
             CommentElement el = collateComments(eof);
             if (el != null)
                 content.add(el);
+            if (!comments.isEmpty())
+            {
+                // Pass any left-over comments to our parent:
+                comments.forEach(statementHandlers.peek()::gotComment);
+            }
             return content;
         }
 
-        @Override
-        public void gotComment(LocatableToken token)
+        public final void gotComment(LocatableToken token)
         {
             comments.add(token);
         }
@@ -257,7 +270,7 @@ class JavaStrideParser extends JavaParser
             // But sometimes the parser looks ahead, or puts tokens back into the stream.
             // By then we have seen the comment, but really it's ahead of our current position.
             // So when we gather up the comments, we must only gather those which are behind us:
-            int curPosition = Optional.ofNullable(getTokenStream().getMostRecent()).map(LocatableToken::getPosition).orElse(0);
+            int curPosition = getCurPosition();
             Predicate<LocatableToken> behindCurPosition = t -> eof || t.getPosition() < curPosition;
             if (!comments.stream().anyMatch(behindCurPosition))
                 return null;
@@ -265,9 +278,21 @@ class JavaStrideParser extends JavaParser
             comments.removeIf(behindCurPosition);
             return el;
         }
+
+        private int getCurPosition()
+        {
+            return (int) Optional.ofNullable(getTokenStream().getMostRecent()).map(LocatableToken::getPosition).orElse(0);
+        }
+
+        /**
+         * When endBlock is called, this BlockHandler will just have been removed from the
+         * stack of handlers.  You should use this to deal with the results of the collected block
+         * (call getContent to get them).
+         */
+        public abstract void endBlock();
     }
 
-    private class IfBuilder implements StatementHandler
+    private class IfBuilder
     {
         // Size is always >= 1, and either equal to blocks.size, or one less than blocks.size (if last one is else)
         private final ArrayList<FilledExpressionSlotFragment> conditions = new ArrayList<>();
@@ -278,10 +303,17 @@ class JavaStrideParser extends JavaParser
             this.conditions.add(toFilled(condition));
         }
 
+        // A new block will follow, either for if, else-if or else
         public void addCondBlock()
         {
-            blocks.add(new ArrayList<>());
-            withStatement(this);
+            withStatement(new StatementHandler(true)
+            {
+                @Override
+                public void endBlock()
+                {
+                    blocks.add(getContent(false));
+                }
+            });
         }
 
         public void addElseIf()
@@ -298,12 +330,6 @@ class JavaStrideParser extends JavaParser
                 true
             ));
         }
-
-        @Override
-        public void foundStatement(List<CodeElement> statements)
-        {
-            blocks.get(blocks.size() - 1).addAll(statements);
-        }
     }
 
     @Override
@@ -311,8 +337,12 @@ class JavaStrideParser extends JavaParser
     {
         super.beginWhileLoop(token);
         withExpression(exp -> {
-            withStatement(body -> {
-                foundStatement(new WhileElement(null, toFilled(exp), body, true));
+            withStatement(new StatementHandler(true) {
+                @Override
+                public void endBlock()
+                {
+                    JavaStrideParser.this.foundStatement(new WhileElement(null, toFilled(exp), getContent(false), true));
+                }
             });
         });
     }
@@ -322,7 +352,7 @@ class JavaStrideParser extends JavaParser
     {
         super.beginIfStmt(token);
         withExpression(exp -> {
-            withStatement(new IfBuilder(exp));
+            ifHandlers.add(new IfBuilder(exp));
         });
     }
 
@@ -330,30 +360,23 @@ class JavaStrideParser extends JavaParser
     protected void beginIfCondBlock(LocatableToken token)
     {
         super.beginIfCondBlock(token);
-        getIfBuilder(false).addCondBlock();
+        ifHandlers.peek().addCondBlock();
     }
 
     @Override
     protected void gotElseIf(LocatableToken token)
     {
         super.gotElseIf(token);
-        getIfBuilder(false).addElseIf();
+        ifHandlers.peek().addElseIf();
     }
+
+
 
     @Override
     protected void endIfStmt(LocatableToken token, boolean included)
     {
         super.endIfStmt(token, included);
-        getIfBuilder(true).endIf();
-    }
-
-    // If true, pop it from stack.  If false, peek and leave it on stack
-    private IfBuilder getIfBuilder(boolean pop)
-    {
-        if (statementHandlers.peek() instanceof IfBuilder)
-            return (IfBuilder)(pop ? statementHandlers.pop() : statementHandlers.peek());
-        else
-            return null;
+        ifHandlers.pop().endIf();
     }
 
     private FilledExpressionSlotFragment toFilled(Expression exp)
@@ -413,7 +436,7 @@ class JavaStrideParser extends JavaParser
     protected void beginStmtblockBody(LocatableToken token)
     {
         super.beginStmtblockBody(token);
-        withStatement(new BlockCollector()
+        withStatement(new StatementHandler(false)
         {
             @Override
             public void endBlock()
@@ -450,7 +473,14 @@ class JavaStrideParser extends JavaParser
     {
         super.gotConstructorDecl(token, hiddenToken);
         methods.push(new MethodDetails(null, null, modifiers.peek(), getJavadoc()));
-        withStatement(new BlockCollector());
+        withStatement(new StatementHandler(false)
+        {
+            @Override
+            public void endBlock()
+            {
+
+            }
+        });
     }
 
     @Override
@@ -458,14 +488,21 @@ class JavaStrideParser extends JavaParser
     {
         super.gotMethodDeclaration(nameToken, hiddenToken);
         methods.push(new MethodDetails(prevTypes.pop(), nameToken.getText(), modifiers.peek(), getJavadoc()));
-        withStatement(new BlockCollector());
+        withStatement(new StatementHandler(false)
+        {
+            @Override
+            public void endBlock()
+            {
+
+            }
+        });
     }
 
     @Override
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
         super.endMethodDecl(token, included);
-        List<CodeElement> body = ((BlockCollector)statementHandlers.pop()).getContent(false);
+        List<CodeElement> body = ((StatementHandler)statementHandlers.pop()).getContent(false);
         MethodDetails details = methods.pop();
         String name = details.name;
         List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(toType(t))).collect(Collectors.toList());
@@ -735,14 +772,21 @@ class JavaStrideParser extends JavaParser
     protected void beginTypeBody(LocatableToken leftCurlyToken)
     {
         super.beginTypeBody(leftCurlyToken);
-        withStatement(new BlockCollector());
+        withStatement(new StatementHandler(false)
+        {
+            @Override
+            public void endBlock()
+            {
+
+            }
+        });
     }
 
     @Override
     protected void endTypeBody(LocatableToken endCurlyToken, boolean included)
     {
         super.endTypeBody(endCurlyToken, included);
-        List<CodeElement> content = ((BlockCollector)statementHandlers.pop()).getContent(false);
+        List<CodeElement> content = statementHandlers.pop().getContent(false);
         if (!typeDefHandlers.isEmpty())
             typeDefHandlers.peek().gotContent(content);
     }
@@ -804,7 +848,14 @@ class JavaStrideParser extends JavaParser
         if (hasResource)
             warnings.add("Unsupported feature: try-with-resource");
         tries.push(new TryDetails());
-        withStatement(statements -> tries.peek().tryContent.addAll(statements));
+        withStatement(new StatementHandler(true)
+        {
+            @Override
+            public void endBlock()
+            {
+                tries.peek().tryContent.addAll(getContent(false));
+            }
+        });
     }
 
     @Override
@@ -814,7 +865,14 @@ class JavaStrideParser extends JavaParser
         if (token.getType() == JavaTokenTypes.LITERAL_catch)
             tries.peek().catchTypes.push(new ArrayList<>());
         else
-            withStatement(statements -> {tries.peek().finallyContents = new ArrayList<>(statements);});
+            withStatement(new StatementHandler(true)
+            {
+                @Override
+                public void endBlock()
+                {
+                    tries.peek().finallyContents = new ArrayList<>(getContent(false));
+                }
+            });
 
     }
 
@@ -824,7 +882,14 @@ class JavaStrideParser extends JavaParser
         super.gotCatchVarName(token);
         tries.peek().catchNames.add(token.getText());
         tries.peek().catchTypes.peek().add(prevTypes.pop());
-        withStatement(statements -> tries.peek().catchBlocks.add(statements));
+        withStatement(new StatementHandler(true)
+        {
+            @Override
+            public void endBlock()
+            {
+                tries.peek().catchBlocks.add(getContent(false));
+            }
+        });
     }
 
     @Override
