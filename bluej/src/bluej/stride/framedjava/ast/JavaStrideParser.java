@@ -22,6 +22,7 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
+import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.ThrowElement;
@@ -109,6 +110,8 @@ class JavaStrideParser extends JavaParser
     
     private final StatementHandler result = new StatementHandler(false) { public void endBlock() { } };
     private Stack<TryDetails> tries = new Stack<>();
+    private String pkg;
+    private final List<String> imports = new ArrayList<>();
 
     JavaStrideParser(String java)
     {
@@ -186,7 +189,7 @@ class JavaStrideParser extends JavaParser
 
         public void gotName(String name);
 
-        public void startedClass(List<LocatableToken> modifiers);
+        public void startedClass(List<LocatableToken> modifiers, String doc);
 
         void gotContent(List<CodeElement> content);
 
@@ -534,8 +537,8 @@ class JavaStrideParser extends JavaParser
             warnUnsupportedModifiers("method", modifiers);
             SuperThis delegate = SuperThis.fromString(details.constructorCall);
             Expression delegateArgs = delegate == null ? null : new Expression(
-                details.constructorArgs.stream().map(e -> e.stride).collect(Collectors.joining(",")),
-                details.constructorArgs.stream().map(e -> e.java).collect(Collectors.joining(","))
+                details.constructorArgs.stream().map(e -> e.stride).collect(Collectors.joining(" , ")),
+                details.constructorArgs.stream().map(e -> e.java).collect(Collectors.joining(" , "))
             );
             foundStatement(new ConstructorElement(null, new AccessPermissionFragment(permission),
                 details.parameters,
@@ -721,7 +724,7 @@ class JavaStrideParser extends JavaParser
         {
             case TYPEDEF_CLASS:
                 if (!typeDefHandlers.isEmpty())
-                    typeDefHandlers.peek().startedClass(modifiers);
+                    typeDefHandlers.peek().startedClass(modifiers, statementHandlers.peek().getJavadoc());
                 break;
         }
     }
@@ -800,6 +803,13 @@ class JavaStrideParser extends JavaParser
     }
 
     @Override
+    protected void gotPackage(List<LocatableToken> pkgTokens)
+    {
+        super.gotPackage(pkgTokens);
+        this.pkg = pkgTokens.stream().map(LocatableToken::getText).collect(Collectors.joining());
+    }
+
+    @Override
     public void gotComment(LocatableToken token)
     {
         super.gotComment(token);
@@ -811,7 +821,7 @@ class JavaStrideParser extends JavaParser
         if (comment.startsWith("//"))
             comment = comment.substring(2).trim();
         else
-            comment = JavaUtils.javadocToString(comment);
+            comment = JavaUtils.javadocToString(comment).trim();
         comment = Arrays.stream(Utility.split(comment, System.getProperty("line.separator")))
                 .map(String::trim)
                 .reduce((a, b) -> {
@@ -944,6 +954,20 @@ class JavaStrideParser extends JavaParser
     }
 
     @Override
+    protected void gotImport(List<LocatableToken> tokens, boolean isStatic)
+    {
+        super.gotImport(tokens, isStatic);
+        imports.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()));
+    }
+
+    @Override
+    protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic)
+    {
+        super.gotWildcardImport(tokens, isStatic);
+        imports.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()));
+    }
+
+    @Override
     protected void beginArgumentList(LocatableToken token)
     {
         super.beginArgumentList(token);
@@ -1041,6 +1065,7 @@ class JavaStrideParser extends JavaParser
     private class ClassDelegate implements TypeDefDelegate
     {
         private final List<LocatableToken> modifiers;
+        private final String doc;
         private String name;
         private final List<VarElement> fields = new ArrayList<>();
         private final List<ConstructorElement> constructors = new ArrayList<>();
@@ -1048,9 +1073,10 @@ class JavaStrideParser extends JavaParser
         private String extendsType;
         private final List<String> implementsTypes = new ArrayList<>();
 
-        public ClassDelegate(List<LocatableToken> modifiers)
+        public ClassDelegate(List<LocatableToken> modifiers, String doc)
         {
             this.modifiers = new ArrayList<>(modifiers);
+            this.doc = doc;
         }
 
         @Override
@@ -1095,7 +1121,7 @@ class JavaStrideParser extends JavaParser
                 toType(extendsType),
                 implementsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields,
                 constructors, methods,
-                null, null, Collections.emptyList(), true);
+                new JavadocUnit(doc), pkg == null ? null : new PackageFragment(pkg), imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
         }
     }
 
@@ -1125,10 +1151,10 @@ class JavaStrideParser extends JavaParser
             }
 
             @Override
-            public void startedClass(List<LocatableToken> modifiers)
+            public void startedClass(List<LocatableToken> modifiers, String doc)
             {
                 if (outstanding == 1)
-                    delegate = new ClassDelegate(modifiers);
+                    delegate = new ClassDelegate(modifiers, doc);
             }
 
             @Override

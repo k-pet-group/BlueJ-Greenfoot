@@ -163,7 +163,7 @@ public class JavaToStrideTest
         
         assertEqualsMember("/** X*/\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
         assertEqualsMember("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
-        assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2,3", l()));
+        assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2 , 3", l()));
         //TODO test: abstract methods, interface methods (incl default), generic methods (either fail or do our best)
     }
     
@@ -232,16 +232,38 @@ public class JavaToStrideTest
     }
 
     @Test
-    public void testRandomMethod()
+    public void testRandomTopLevel()
     {
-        // TODO remove this and only do test random class (we can't generate Java from constructors without surrounding class)
         for (int i = 0; i < 1000; i++)
         {
-            roundTrip(many(() -> genMethod()), Parser.JavaContext.CLASS_MEMBER);
+            roundTrip(l(genTopLevel()), Parser.JavaContext.TOP_LEVEL);
         }
     }
+    
+    private static CodeElement genTopLevel()
+    {
+        return new ClassElement(null, null, rand(), genName(), rand() ? genType() : null, some(() -> genType()),
+            some(() -> new VarElement(null, genAccess(), rand(), rand(), genType(), genName(), rand() ? genExpression() : null, true)),
+            some(() -> {
+                boolean hasSuperThis = rand();
+                boolean isSuper = rand();
+                return new ConstructorElement(null, genAccess(), some(() -> genParam()), some(() -> genThrowsType()), hasSuperThis ? new SuperThisFragment(isSuper ? SuperThis.SUPER : SuperThis.THIS) : null, hasSuperThis ? genSuperThisParams() : null, some(() -> genStatement(3)), rand() ? null : genComment(), true);
+            }),
+            some(() -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genComment(), true)),
+            new JavadocUnit("Hi"), rand() ? null : genPackage(), some(() -> genImport()), true);
+    }
 
-    private static CodeElement genMethod()
+    private static ImportElement genImport()
+    {
+        return new ImportElement("hi.xx", null, true); // TODO add more
+    }
+
+    private static PackageFragment genPackage()
+    {
+        return new PackageFragment("hi.xx"); // TODO add more
+    }
+
+    private static CodeElement genMember()
     {
         return oneOf(
                 () -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genComment(), true),
@@ -250,6 +272,7 @@ public class JavaToStrideTest
                     boolean isSuper = rand();
                     return new ConstructorElement(null, genAccess(), some(() -> genParam()), some(() -> genThrowsType()), hasSuperThis ? new SuperThisFragment(isSuper ? SuperThis.SUPER : SuperThis.THIS) : null, hasSuperThis ? genSuperThisParams() : null, some(() -> genStatement(3)), rand() ? null : genComment(), true);
                 },
+                () -> new VarElement(null, genAccess(), rand(), rand(), genType(), genName(), rand() ? genExpression() : null, true),
                 () -> new CommentElement("/** J" + rand(0, 9) + " */"),
                 () -> new CommentElement("/* C" + rand(0, 9) + " */")
         );
@@ -257,7 +280,7 @@ public class JavaToStrideTest
 
     private static SuperThisParamsExpressionFragment genSuperThisParams()
     {
-        return (SuperThisParamsExpressionFragment)some(() -> (ExpressionSlotFragment)genExpression()).stream().reduce(new SuperThisParamsExpressionFragment("", ""), (a, b) -> new SuperThisParamsExpressionFragment(a.getContent() + " , " + b.getContent(), a.getJavaCode() + " , " + b.getJavaCode()));
+        return some(() -> (ExpressionSlotFragment)genExpression()).stream().map(e -> new SuperThisParamsExpressionFragment(e.getContent(), e.getJavaCode())).reduce((a, b) -> new SuperThisParamsExpressionFragment(a.getContent() + " , " + b.getContent(), a.getJavaCode() + " , " + b.getJavaCode())).orElse(new SuperThisParamsExpressionFragment("", ""));
     }
 
     private static ThrowsTypeFragment genThrowsType()
@@ -277,7 +300,7 @@ public class JavaToStrideTest
 
     private static JavadocUnit genComment()
     {
-        return new JavadocUnit("Hi");
+        return new JavadocUnit("Hi"); //TODO add more
     }
 
     private static CodeElement genStatement(int maxDepth)
