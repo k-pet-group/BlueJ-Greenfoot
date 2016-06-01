@@ -15,6 +15,7 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
@@ -28,20 +29,66 @@ import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 
 /**
- * Created by neil on 29/05/2016.
+ * A parser for parsing Java with the purpose of converting it to Stride.
+ * 
+ * The JavaParser class does not build an AST, but rather makes callbacks
+ * as it parses.  Thus it is up to us to keep track of state and build
+ * a Stride AST.  We keep track of state in two ways:
+ * 
+ *  - We have handlers for expressions, statements, etc, rather than a state
+ *    machine with say integer states.  If we parse a block, we install a
+ *    statement handler to accept statements and join them into a list.
+ *    Handlers work well where we know in advance that we expect a particular
+ *    item.  We always use stacks of handlers, because the constructs
+ *    can usually nest, so outer handlers are often there waiting for some
+ *    inner item to finish and be dealt with.
+ *    
+ *  - In some other cases, e.g. modifiers, rather than having upfront handlers,
+ *    we just build a stack of things we've seen, to be dealt with once
+ *    we know what it is later on.
  */
 class JavaStrideParser extends JavaParser
 {
+    /** The original source code being transformed */
     private final String source;
+    /** 
+     * The stack of expression handlers.
+     * The top item, if any, gets passed expression begin/end events.
+     * If the stack is empty, the expression is ignored.
+     */
     private final Stack<ExpressionHandler> expressionHandlers = new Stack<>();
     private final Stack<StatementHandler> statementHandlers = new Stack<>();
+    /**
+     * The stack of actual-argument handlers.
+     * The top item, if any, gets passed argument list begin/another/end events.
+     * If the stack is empty, the arguments are ignored.
+     */
     private final Stack<ArgumentListHandler> argumentHandlers = new Stack<>();
+    private final Stack<TypeDefHandler> typeDefHandlers = new Stack<>();
     private final Stack<MethodDetails> methods = new Stack<>();
     private final Stack<String> types = new Stack<>();
     private final Stack<FieldOrVarDetails> curField = new Stack<>();
+    /**
+     * Modifiers seen.  Each time we start seeing modifiers, we push a new list
+     * on to the stack, then add them to the list at the top of the stack.
+     * When modifiersConsumed is called, we pop the stack.  If you want to use
+     * the modifiers, you must peek (NOT pop!) before modifiersConsumed is called.
+     * 
+     * I'm fairly confident that modifier lists can't nest, which would mean this
+     * stack is only ever 0 or 1 items high, but it doesn't harm to have a stack
+     * and it fits with the design of everything else.
+     */
     private final Stack<List<LocatableToken>> modifiers = new Stack<>();
+    /**
+     * The list of comments we have seen since they were last dealt with.
+     * Each item includes it's /* * / (space here to avoid ending this comment!) or // delimiters
+     * The list gets cleared once the comments have been dealt with.
+     */
     private final List<String> comments = new ArrayList<>();
 
+    /**
+     * Any warnings encountered in the conversion process.
+     */
     private final List<String> warnings = new ArrayList<>();
     private int startThrows;
     
@@ -113,7 +160,21 @@ class JavaStrideParser extends JavaParser
     {
         public void expressionBegun(LocatableToken start);
 
-        public void expressionEnd(LocatableToken end);
+        // Return true if we should be removed from the stack
+        public boolean expressionEnd(LocatableToken end);
+    }
+
+    private static interface TypeDefHandler
+    {
+        public void typeDefBegun(LocatableToken start);
+
+        public void typeDefEnd(LocatableToken end);
+
+        public void gotName(String name);
+
+        public void startedClass(List<LocatableToken> modifiers);
+
+        void gotContent(List<CodeElement> content);
     }
 
     private static interface ArgumentListHandler
@@ -278,7 +339,11 @@ class JavaStrideParser extends JavaParser
     protected void endExpression(LocatableToken token, boolean emptyExpression)
     {
         super.endExpression(token, emptyExpression);
-        expressionHandlers.pop().expressionEnd(token);
+        if (!expressionHandlers.isEmpty())
+        {
+            if (expressionHandlers.peek().expressionEnd(token))
+                expressionHandlers.pop();
+        }
     }
 
     @Override
@@ -531,6 +596,63 @@ class JavaStrideParser extends JavaParser
     }
 
     @Override
+    protected void gotTopLevelDecl(LocatableToken token)
+    {
+        super.gotTopLevelDecl(token);
+        withTypeDef(td -> foundStatement(td));
+    }
+
+    @Override
+    protected void gotTypeDef(LocatableToken firstToken, int tdType)
+    {
+        super.gotTypeDef(firstToken, tdType);
+        if (tdType == TYPEDEF_EPIC_FAIL)
+            return;
+        if (!typeDefHandlers.isEmpty())
+            typeDefHandlers.peek().typeDefBegun(firstToken);
+        List<LocatableToken> modifiers = this.modifiers.peek();
+        switch (tdType)
+        {
+            case TYPEDEF_CLASS:
+                if (!typeDefHandlers.isEmpty())
+                    typeDefHandlers.peek().startedClass(modifiers);
+                break;
+        }
+    }
+
+    @Override
+    protected void gotTypeDefEnd(LocatableToken token, boolean included)
+    {
+        super.gotTypeDefEnd(token, included);
+        if (!typeDefHandlers.isEmpty())
+        {
+            typeDefHandlers.peek().gotContent(((BlockCollector)statementHandlers.pop()).getContent());
+            typeDefHandlers.peek().typeDefEnd(token);
+        }
+    }
+
+    @Override
+    protected void gotTypeDefExtends(LocatableToken extendsToken)
+    {
+        super.gotTypeDefExtends(extendsToken);
+    }
+
+    @Override
+    protected void gotTypeDefImplements(LocatableToken implementsToken)
+    {
+        super.gotTypeDefImplements(implementsToken);
+    }
+
+    @Override
+    protected void gotTypeDefName(LocatableToken nameToken)
+    {
+        super.gotTypeDefName(nameToken);
+        if (!typeDefHandlers.isEmpty())
+            typeDefHandlers.peek().gotName(nameToken.getText());
+        withStatement(new BlockCollector());
+    }
+
+    @Override
     public void gotComment(LocatableToken token)
     {
         super.gotComment(token);
@@ -613,6 +735,23 @@ class JavaStrideParser extends JavaParser
         return source.substring(start.getPosition(), end.getPosition());
     }
 
+    /**
+     * Passes the next complete expression to the handler.
+     * 
+     * This will consume the next outermost expression.  Inner expressions
+     * will be ignored unless another handler is installed in the mean-time.
+     * 
+     * e.g. Let's say you call withExpression(h).  Then you parse:
+     * 0+(1+2)+3;
+     * 
+     * The 0 will be the start of the outermost expression.  The 1 will
+     * also begin an expression, but this handler will just ignore
+     * the fact that there was an inner expression, and will wait
+     * until the 3 which ends the expression, and will pass
+     * "0+(1+2)+3" to the handler.  It will not pass "1+2".
+     * 
+     * @param handler The callback for the next outermost expression.
+     */
     private void withExpression(Consumer<Expression> handler)
     {
         expressionHandlers.push(new ExpressionHandler()
@@ -631,17 +770,119 @@ class JavaStrideParser extends JavaParser
             }
 
             @Override
-            public void expressionEnd(LocatableToken end)
+            public boolean expressionEnd(LocatableToken end)
             {
                 outstanding -= 1;
+                // If the outermost has finished, pass it to handler:
                 if (outstanding == 0)
                 {
                     String java = getText(start, end);
                     handler.accept(new Expression(replaceInstanceof(java), uniformSpacing(java)));
+                    // Finished now:
+                    return true;
                 }
                 else
-                    // We get popped by default; add ourselves back in:
-                    expressionHandlers.push(this);
+                    // Not finished yet:
+                    return false;
+            }
+        });
+    }
+    
+    private static interface TypeDefDelegate
+    {
+        public void gotName(String name);
+
+        public CodeElement end();
+
+        public void gotContent(CodeElement element);
+    }
+    
+    private class ClassDelegate implements TypeDefDelegate
+    {
+        private final List<LocatableToken> modifiers;
+        private String name;
+        private final List<VarElement> fields = new ArrayList<>();
+        private final List<ConstructorElement> constructors = new ArrayList<>();
+        private final List<NormalMethodElement> methods = new ArrayList<>();
+
+        public ClassDelegate(List<LocatableToken> modifiers)
+        {
+            this.modifiers = new ArrayList<>(modifiers);
+        }
+
+        @Override
+        public void gotName(String name)
+        {
+            this.name = name;
+        }
+
+        @Override
+        public void gotContent(CodeElement element)
+        {
+            if (element instanceof VarElement)
+                fields.add((VarElement)element);
+            else if (element instanceof ConstructorElement)
+                constructors.add((ConstructorElement)element);
+            else if (element instanceof NormalMethodElement)
+                methods.add((NormalMethodElement)element);
+            else
+                warnings.add("Unsupported class member: " + element.getClass());
+        }
+
+        @Override
+        public CodeElement end()
+        {
+            return new ClassElement(null, null, false, new NameDefSlotFragment(name),
+                null, Collections.emptyList(), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(),
+                null, null, Collections.emptyList(), true);
+        }
+    }
+
+    private void withTypeDef(Consumer<CodeElement> handler)
+    {
+        typeDefHandlers.push(new TypeDefHandler()
+        {
+            TypeDefDelegate delegate = null;
+            // Amount of typeDefs begun but not ending:
+            int outstanding = 0;
+
+            @Override
+            public void typeDefBegun(LocatableToken start)
+            {
+                // Only record first begin:
+                outstanding += 1;
+            }
+
+            @Override
+            public void typeDefEnd(LocatableToken end)
+            {
+                outstanding -= 1;
+                if (outstanding == 0)
+                {
+                    handler.accept(delegate.end());
+                }
+            }
+
+            @Override
+            public void startedClass(List<LocatableToken> modifiers)
+            {
+                if (outstanding == 1)
+                    delegate = new ClassDelegate(modifiers);
+            }
+
+            @Override
+            public void gotName(String name)
+            {
+                if (outstanding == 1)
+                    delegate.gotName(name);
+            }
+
+            @Override
+            public void gotContent(List<CodeElement> content)
+            {
+                if (outstanding == 1)
+                    content.forEach(delegate::gotContent);
             }
         });
     }
@@ -682,8 +923,10 @@ class JavaStrideParser extends JavaParser
             {
                 if (outstanding == 1)
                 {
+                    // We were expecting another argument; cancel that:
                     expressionHandlers.pop();
                     argHandler.accept(args);
+                    // Remove us from the handlers:
                     argumentHandlers.pop();
                 }
                 outstanding -= 1;

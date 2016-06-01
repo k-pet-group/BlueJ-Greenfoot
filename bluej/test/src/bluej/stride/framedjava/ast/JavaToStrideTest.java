@@ -5,13 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import bluej.parser.AssistContent;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
+import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
@@ -105,42 +106,42 @@ public class JavaToStrideTest
         assertEquals("if (a instanceof b) {} else if (c instanceof d) {}", _ifElseIf(new FilledExpressionSlotFragment("a <: b", "a instanceof b"), l(), l(new FilledExpressionSlotFragment("c <: d", "c instanceof d")), l(l()), null));
         assertEquals("foo(a instanceof b);", _call(new CallExpressionSlotFragment("foo ( a <: b )", "foo ( a instanceof b )")));
         assertEquals("return (a instanceof b);", _return(new OptionalExpressionSlotFragment("( a <: b )", "( a instanceof b )")));
-        assertEqualsClass("C() {super(a instanceof b);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, new SuperThisParamsExpressionFragment("a <: b", "a instanceof b"), l()));
+        assertEqualsMember("C() {super(a instanceof b);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, new SuperThisParamsExpressionFragment("a <: b", "a instanceof b"), l()));
     }
     
     @Test
     public void testMethod()
     {
-        assertEqualsClass("public void foo() { return; }", _method(null, AccessPermission.PUBLIC, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Arrays.asList(_return())));
-        assertEqualsClass("public final void foo(int x) { return; }", _method(null, AccessPermission.PUBLIC, false, true, "void", "foo", Arrays.asList(_param("int", "x")), Collections.emptyList(), Arrays.asList(_return())));
+        assertEqualsMember("public void foo() { return; }", _method(null, AccessPermission.PUBLIC, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Arrays.asList(_return())));
+        assertEqualsMember("public final void foo(int x) { return; }", _method(null, AccessPermission.PUBLIC, false, true, "void", "foo", Arrays.asList(_param("int", "x")), Collections.emptyList(), Arrays.asList(_return())));
 
-        assertEqualsClass("Foo(int x, String y) throws IOException { }",
+        assertEqualsMember("Foo(int x, String y) throws IOException { }",
             _constructor(null, AccessPermission.PROTECTED, Arrays.asList(_param("int", "x"), _param("String", "y")),
                 Arrays.asList("IOException"), Arrays.asList()));
      
-        assertEqualsClass("/** Comment */ private void foo() {}", _method("Comment", AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
-        assertEqualsClass("/** Multi\n * line \n * comment.\n*/ private static final java.lang.String foo() throws IOException, NullPointerException {}",
+        assertEqualsMember("/** Comment */ private void foo() {}", _method("Comment", AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+        assertEqualsMember("/** Multi\n * line \n * comment.\n*/ private static final java.lang.String foo() throws IOException, NullPointerException {}",
             _method("Multi line comment.", AccessPermission.PRIVATE, true, true, "java.lang.String", "foo",
                 Collections.emptyList(), Arrays.asList("IOException", "NullPointerException"), Collections.emptyList()));
-        assertEqualsClass("/** First\nPara.\n\nSecond\nPara.\n\n\nThird Para.*/\nprotected Foo(){}",
+        assertEqualsMember("/** First\nPara.\n\nSecond\nPara.\n\n\nThird Para.*/\nprotected Foo(){}",
             _constructor("First Para.\nSecond Para.\n\nThird Para.",
                 AccessPermission.PROTECTED, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
         
-        assertEqualsClass("// X\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
-        assertEqualsClass("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
-        assertEqualsClass("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2,3", l()));
+        assertEqualsMember("// X\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
+        assertEqualsMember("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
+        assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2,3", l()));
         //TODO test: abstract methods, interface methods (incl default), generic methods (either fail or do our best)
     }
     
     @Test
     public void testFieldAndVar()
     {
-        assertEqualsClass("int x;", _var(AccessPermission.PROTECTED, false, false, "int", "x", null));
-        assertEqualsClass("public static final int CONST=7;", _var(AccessPermission.PUBLIC, true, true, "int", "CONST", filled("7")));
-        assertEqualsClass("private final bool b = 7, c=false;",
+        assertEqualsMember("int x;", _var(AccessPermission.PROTECTED, false, false, "int", "x", null));
+        assertEqualsMember("public static final int CONST=7;", _var(AccessPermission.PUBLIC, true, true, "int", "CONST", filled("7")));
+        assertEqualsMember("private final bool b = 7, c=false;",
             _var(AccessPermission.PRIVATE, false, true, "bool", "b", filled("7")),
             _var(AccessPermission.PRIVATE, false, true, "bool", "c", filled("false")));
-        assertEqualsClass("public static String a = null, b, c=(String)false, d;",
+        assertEqualsMember("public static String a = null, b, c=(String)false, d;",
                 _var(AccessPermission.PUBLIC, true, false, "String", "a", filled("null")),
                 _var(AccessPermission.PUBLIC, true, false, "String", "b", null),
                 _var(AccessPermission.PUBLIC, true, false, "String", "c", filled("( String ) false")),
@@ -165,6 +166,21 @@ public class JavaToStrideTest
         assertEquals("//Declares x\nint x /* empty */;", _comment("Declares x empty"), _var(null, false, false, "int", "x", null));
         assertEquals("//Declares x\nint x /* empty */;int y;", _comment("Declares x empty"), _var(null, false, false, "int", "x", null), _var(null, false, false, "int", "y", null));
         assertEquals("//Declares x\nint x;int y/* empty */;", _comment("Declares x"), _var(null, false, false, "int", "x", null), _comment("empty"), _var(null, false, false, "int", "y", null));
+    }
+    
+    @Test
+    public void testWhole()
+    {
+        assertEqualsFile("class Foo {}", _class(null, l(), null, false, "Foo", null, l(), l(), l(), l()));
+        assertEqualsFile("abstract class A extends B { int x; }",
+            _class(null, l(), null, true, "A", "B", l(), l(_var(null, false, false, "int", "x", null)), l(), l()));
+    }
+
+    private ClassElement _class(String pkg, List<String> imports, String javadoc, boolean _abstract, String name, String _extends, List<String> _implements, List<VarElement> fields, List<ConstructorElement> constructors, List<NormalMethodElement> methods)
+    {
+        return new ClassElement(null, null, _abstract, new NameDefSlotFragment(name), _extends == null ? null : new TypeSlotFragment(_extends, _extends),
+            _implements.stream().map(t -> new TypeSlotFragment(t, t)).collect(Collectors.toList()),
+            fields, constructors, methods, new JavadocUnit(javadoc), pkg == null ? null : new PackageFragment(pkg), imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
     }
 
     private CommentElement _comment(String s)
@@ -277,15 +293,22 @@ public class JavaToStrideTest
 
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
     {
-        List<CodeElement> result = Parser.javaToStride(javaSource, Parser.JavaContext.STATEMENT);
-        List<String> resultXML = result.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
-        List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
-        Assert.assertEquals("Checking XML", expectedXML, resultXML);
+        test(javaSource, expectedStride, Parser.JavaContext.STATEMENT);
     }
 
-    private static void assertEqualsClass(String javaSource, CodeElement... expectedStride)
+    private static void assertEqualsMember(String javaSource, CodeElement... expectedStride)
     {
-        List<CodeElement> result = Parser.javaToStride(javaSource, Parser.JavaContext.CLASS_MEMBER);
+        test(javaSource, expectedStride, Parser.JavaContext.CLASS_MEMBER);
+    }
+
+    private static void assertEqualsFile(String javaSource, CodeElement... expectedStride)
+    {
+        test(javaSource, expectedStride, Parser.JavaContext.TOP_LEVEL);
+    }
+
+    private static void test(String javaSource, CodeElement[] expectedStride, Parser.JavaContext classMember)
+    {
+        List<CodeElement> result = Parser.javaToStride(javaSource, classMember);
         List<String> resultXML = result.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
         List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
         Assert.assertEquals("Checking XML", expectedXML, resultXML);

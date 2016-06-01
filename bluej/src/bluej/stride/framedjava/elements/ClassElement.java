@@ -137,7 +137,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
      * analysis/compilation from the open editor)
      */
     public ClassElement(ClassFrame frame, EntityResolver projectResolver, boolean abstractModifier, NameDefSlotFragment className, 
-            TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, List<CodeElement> fields, List<CodeElement> constructors, List<CodeElement> methods,
+            TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, List<? extends CodeElement> fields, List<? extends CodeElement> constructors, List<? extends CodeElement> methods,
             JavadocUnit documentation, PackageFragment packageName, List<ImportElement> imports, boolean enabled)
     {
         this.frame = frame;

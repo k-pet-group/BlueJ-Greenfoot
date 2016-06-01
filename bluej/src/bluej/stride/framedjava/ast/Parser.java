@@ -168,6 +168,10 @@ public class Parser
                 while (parser.getTokenStream().LA(1).getType() != JavaTokenTypes.EOF)
                     parser.parseStatement();
                 break;
+            case TOP_LEVEL:
+                parser = new JavaStrideParser(java);
+                parser.parseCU();
+                break;
             default:
                 throw new UnsupportedOperationException();
         }

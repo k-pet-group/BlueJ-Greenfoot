@@ -633,6 +633,7 @@ public class JavaParser
         }
         else if (isModifier(token) || isTypeDeclarator(token)) {
             // optional: class/interface/enum
+            gotTopLevelDecl(token);
             gotDeclBegin(token);
             tokenStream.pushBack(token);
             parseModifiers();
@@ -648,7 +649,11 @@ public class JavaParser
         }
         return state;
     }
-    
+
+    protected void gotTopLevelDecl(LocatableToken token)
+    {
+    }
+
     /**
      * Parse a "package xyz;"-type statement. The "package"-literal token must have already
      * been read from the token stream.
