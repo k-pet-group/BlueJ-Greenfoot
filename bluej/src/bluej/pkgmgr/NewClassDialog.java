@@ -261,7 +261,7 @@ class NewClassDialog extends EscapeDialog
     {
         for (TemplateInfo template : templates)
         {
-            template.button.setEnabled(template.sourceTypes.contains(sourceType));
+            template.button.setVisible(template.sourceTypes.contains(sourceType));
         }
         updateOKButton();
     }
