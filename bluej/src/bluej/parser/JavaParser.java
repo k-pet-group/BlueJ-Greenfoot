@@ -354,10 +354,16 @@ public class JavaParser
     protected void gotTypeDefName(LocatableToken nameToken) { }
 
     /** Called when we have seen the "extends" literal token */
-    protected void gotTypeDefExtends(LocatableToken extendsToken) { }
+    protected void beginTypeDefExtends(LocatableToken extendsToken) { }
+    
+    /** Called after we have seen the last type in an "extends" type list */
+    protected void endTypeDefExtends() { }
 
     /** Called when we have seen the "implements" literal token */
-    protected void gotTypeDefImplements(LocatableToken implementsToken) { }
+    protected void beginTypeDefImplements(LocatableToken implementsToken) { }
+
+    /** Called after we have seen the last type in an "implements" type list */
+    protected void endTypeDefImplements() { }
 
     protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
@@ -894,7 +900,7 @@ public class JavaParser
 
         // extends...
         if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-            gotTypeDefExtends(token);
+            beginTypeDefExtends(token);
             do {
                 parseTypeSpec(true);
                 token = nextToken();
@@ -907,11 +913,12 @@ public class JavaParser
                 // Don't push the token back on the token stream - it really is part of the type
                 return null;
             }
+            endTypeDefExtends();
         }
 
         // implements...
         if (token.getType() == JavaTokenTypes.LITERAL_implements) {
-            gotTypeDefImplements(token);
+            beginTypeDefImplements(token);
             do {
                 parseTypeSpec(true);
                 token = nextToken();
@@ -924,6 +931,7 @@ public class JavaParser
                 // Don't push the token back on the token stream - it really is part of the type
                 return null;
             }
+            endTypeDefImplements();
         }
         
         if (token.getType() == JavaTokenTypes.LCURLY) {

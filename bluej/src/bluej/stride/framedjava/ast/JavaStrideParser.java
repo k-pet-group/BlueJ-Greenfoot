@@ -66,7 +66,25 @@ class JavaStrideParser extends JavaParser
     private final Stack<ArgumentListHandler> argumentHandlers = new Stack<>();
     private final Stack<TypeDefHandler> typeDefHandlers = new Stack<>();
     private final Stack<MethodDetails> methods = new Stack<>();
-    private final Stack<String> types = new Stack<>();
+    /**
+     * Types are an awkward case.  Sometimes you know in advance that you
+     * expect a type (e.g. after "throws" or "extends").  Other times, you
+     * only know what a type is for once you've seen later tokens
+     * (e.g. if you see a type in a method, it could be beginning a field
+     * or a method).  So we need both handlers for types we expect,
+     * and a list/stack of types we have seen but will handle later.
+     * The rule is simple: if typeHandlers is not empty, that receives
+     * the type.  Otherwise, the type gets put on the top of the prevTypes stack.
+     * 
+     * Note that types don't nest (unlike, say, expressions), so we don't
+     * have to worry about keeping track of the outermost.
+     * 
+     * Also note that typeHandlers are not popped by default; you must
+     * do the popping.
+     */
+    private final Stack<String> prevTypes = new Stack<>();
+    private final Stack<Consumer<String>> typeHandlers = new Stack<>();
+    
     private final Stack<FieldOrVarDetails> curField = new Stack<>();
     /**
      * Modifiers seen.  Each time we start seeing modifiers, we push a new list
@@ -175,6 +193,10 @@ class JavaStrideParser extends JavaParser
         public void startedClass(List<LocatableToken> modifiers);
 
         void gotContent(List<CodeElement> content);
+
+        void typeDefExtends(String type);
+        
+        void typeDefImplements(String type);
     }
 
     private static interface ArgumentListHandler
@@ -382,18 +404,14 @@ class JavaStrideParser extends JavaParser
     protected void beginThrows(LocatableToken token)
     {
         super.beginThrows(token);
-        startThrows = types.size();
+        typeHandlers.push(type -> methods.peek().throwsTypes.add(type));
     }
 
     @Override
     protected void endThrows()
     {
         super.endThrows();
-        while (types.size() > startThrows)
-        {
-            methods.peek().throwsTypes.add(types.pop());
-        }
-        Collections.reverse(methods.peek().throwsTypes);
+        typeHandlers.pop();
     }
 
     @Override
@@ -408,7 +426,7 @@ class JavaStrideParser extends JavaParser
     protected void gotMethodDeclaration(LocatableToken nameToken, LocatableToken hiddenToken)
     {
         super.gotMethodDeclaration(nameToken, hiddenToken);
-        methods.push(new MethodDetails(types.pop(), nameToken.getText(), modifiers.peek(), getJavadoc()));
+        methods.push(new MethodDetails(prevTypes.pop(), nameToken.getText(), modifiers.peek(), getJavadoc()));
         withStatement(new BlockCollector());
     }
 
@@ -419,7 +437,7 @@ class JavaStrideParser extends JavaParser
         List<CodeElement> body = ((BlockCollector)statementHandlers.pop()).getContent();
         MethodDetails details = methods.pop();
         String name = details.name;
-        List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList());
+        List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(toType(t))).collect(Collectors.toList());
         List<LocatableToken> modifiers = details.modifiers;
         //Note: this modifies the list:
         AccessPermission permission = removeAccess(modifiers, AccessPermission.PROTECTED);
@@ -431,7 +449,7 @@ class JavaStrideParser extends JavaParser
             warnUnsupportedModifiers(modifiers);
             String type = details.type;
             foundStatement(new NormalMethodElement(null, new AccessPermissionFragment(permission),
-                _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), details.parameters,
+                _static, _final, toType(type), new NameDefSlotFragment(name), details.parameters,
                 throwsTypes, body, new JavadocUnit(details.comment), true));
         }
         else
@@ -447,6 +465,14 @@ class JavaStrideParser extends JavaParser
                 details.parameters,
                 throwsTypes, delegate == null ? null : new SuperThisFragment(delegate), delegateArgs == null ? null : new SuperThisParamsExpressionFragment(delegateArgs.stride, delegateArgs.java), body, new JavadocUnit(details.comment), true));
         }
+    }
+
+    private static TypeSlotFragment toType(String t)
+    {
+        if (t == null)
+            return null;
+        else
+            return new TypeSlotFragment(t, t);
     }
 
     private void warnUnsupportedModifiers(List<LocatableToken> modifiers)
@@ -472,7 +498,11 @@ class JavaStrideParser extends JavaParser
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         super.gotTypeSpec(tokens);
-        types.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()));
+        String type = tokens.stream().map(LocatableToken::getText).collect(Collectors.joining());
+        if (!typeHandlers.isEmpty())
+            typeHandlers.peek().accept(type);
+        else
+            prevTypes.add(type);
     }
 
     @Override
@@ -481,8 +511,8 @@ class JavaStrideParser extends JavaParser
         super.gotMethodParameter(token, ellipsisToken);
         if (ellipsisToken != null) //TODO or support it?
             warnings.add("Unsupported feature: varargs");
-        String type = types.pop();
-        methods.peek().parameters.add(new ParamFragment(new TypeSlotFragment(type, type), new NameDefSlotFragment(token.getText())));
+        String type = prevTypes.pop();
+        methods.peek().parameters.add(new ParamFragment(toType(type), new NameDefSlotFragment(token.getText())));
     }
 
     @Override
@@ -534,7 +564,7 @@ class JavaStrideParser extends JavaParser
     protected void beginFieldDeclarations(LocatableToken first)
     {
         super.beginFieldDeclarations(first);
-        curField.push(new FieldOrVarDetails(types.pop(), modifiers.peek()));
+        curField.push(new FieldOrVarDetails(prevTypes.pop(), modifiers.peek()));
     }
 
     @Override
@@ -548,7 +578,7 @@ class JavaStrideParser extends JavaParser
     protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited)
     {
         super.gotVariableDecl(first, idToken, inited);
-        curField.push(new FieldOrVarDetails(types.pop(), modifiers.peek()));
+        curField.push(new FieldOrVarDetails(prevTypes.pop(), modifiers.peek()));
         handleFieldOrVar(idToken, inited, null);
     }
 
@@ -566,7 +596,7 @@ class JavaStrideParser extends JavaParser
 
         Consumer<Expression> handler = e -> foundStatement(new VarElement(null,
             permission == null ? null : new AccessPermissionFragment(permission), _static, _final,
-            new TypeSlotFragment(details.type, details.type), new NameDefSlotFragment(idToken.getText()),
+            toType(details.type), new NameDefSlotFragment(idToken.getText()),
             e == null ? null : toFilled(e), true));
         if (initExpressionFollows)
             withExpression(handler);
@@ -632,15 +662,35 @@ class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void gotTypeDefExtends(LocatableToken extendsToken)
+    protected void beginTypeDefExtends(LocatableToken extendsToken)
     {
-        super.gotTypeDefExtends(extendsToken);
+        super.beginTypeDefExtends(extendsToken);
+        typeHandlers.push(type -> {
+            typeDefHandlers.peek().typeDefExtends(type);
+        });
     }
 
     @Override
-    protected void gotTypeDefImplements(LocatableToken implementsToken)
+    protected void endTypeDefExtends()
     {
-        super.gotTypeDefImplements(implementsToken);
+        super.endTypeDefExtends();
+        typeHandlers.pop();
+    }
+
+    @Override
+    protected void beginTypeDefImplements(LocatableToken implementsToken)
+    {
+        super.beginTypeDefImplements(implementsToken);
+        typeHandlers.push(type -> {
+            typeDefHandlers.peek().typeDefImplements(type);
+        });
+    }
+
+    @Override
+    protected void endTypeDefImplements()
+    {
+        super.endTypeDefImplements();
+        typeHandlers.pop();
     }
 
     @Override
@@ -795,6 +845,10 @@ class JavaStrideParser extends JavaParser
         public CodeElement end();
 
         public void gotContent(CodeElement element);
+
+        void gotImplements(String type);
+
+        void gotExtends(String type);
     }
     
     private class ClassDelegate implements TypeDefDelegate
@@ -804,6 +858,8 @@ class JavaStrideParser extends JavaParser
         private final List<VarElement> fields = new ArrayList<>();
         private final List<ConstructorElement> constructors = new ArrayList<>();
         private final List<NormalMethodElement> methods = new ArrayList<>();
+        private String extendsType;
+        private final List<String> implementsTypes = new ArrayList<>();
 
         public ClassDelegate(List<LocatableToken> modifiers)
         {
@@ -814,6 +870,18 @@ class JavaStrideParser extends JavaParser
         public void gotName(String name)
         {
             this.name = name;
+        }
+
+        @Override
+        public void gotExtends(String type)
+        {
+            extendsType = type;
+        }
+
+        @Override
+        public void gotImplements(String type)
+        {
+            implementsTypes.add(type);
         }
 
         @Override
@@ -833,7 +901,8 @@ class JavaStrideParser extends JavaParser
         public CodeElement end()
         {
             return new ClassElement(null, null, false, new NameDefSlotFragment(name),
-                null, Collections.emptyList(), Collections.emptyList(),
+                toType(extendsType),
+                implementsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), Collections.emptyList(),
                 Collections.emptyList(), Collections.emptyList(),
                 null, null, Collections.emptyList(), true);
         }
@@ -883,6 +952,20 @@ class JavaStrideParser extends JavaParser
             {
                 if (outstanding == 1)
                     content.forEach(delegate::gotContent);
+            }
+
+            @Override
+            public void typeDefImplements(String type)
+            {
+                if (outstanding == 1)
+                    delegate.gotImplements(type);
+            }
+
+            @Override
+            public void typeDefExtends(String type)
+            {
+                if (outstanding == 1)
+                    delegate.gotExtends(type);
             }
         });
     }

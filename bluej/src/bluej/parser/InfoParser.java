@@ -649,9 +649,9 @@ public class InfoParser extends EditorParser
     }
 
     @Override
-    protected void gotTypeDefExtends(LocatableToken extendsToken)
+    protected void beginTypeDefExtends(LocatableToken extendsToken)
     {
-        super.gotTypeDefExtends(extendsToken);
+        super.beginTypeDefExtends(extendsToken);
         if (classLevel == 0 && storeCurrentClassInfo) {
             gotExtends = true;
             SourceLocation extendsStart = info.getExtendsInsertSelection().getStartLocation();
@@ -674,9 +674,9 @@ public class InfoParser extends EditorParser
     }
 
     @Override
-    protected void gotTypeDefImplements(LocatableToken implementsToken)
+    protected void beginTypeDefImplements(LocatableToken implementsToken)
     {
-        super.gotTypeDefImplements(implementsToken);
+        super.beginTypeDefImplements(implementsToken);
         if (classLevel == 0 && storeCurrentClassInfo) {
             gotExtends = false;
             gotImplements = true;

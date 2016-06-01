@@ -1262,14 +1262,14 @@ public class EditorParser extends JavaParser
     }
 
     @Override
-    protected void gotTypeDefExtends(LocatableToken extendsToken)
+    protected void beginTypeDefExtends(LocatableToken extendsToken)
     {
         gotExtends = true;
         gotImplements = false;
     }
     
     @Override
-    protected void gotTypeDefImplements(LocatableToken implementsToken)
+    protected void beginTypeDefImplements(LocatableToken implementsToken)
     {
         gotImplements = true;
         gotExtends = false;
