@@ -40,7 +40,6 @@ import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
-import bluej.stride.framedjava.elements.DefaultCaseElement;
 import bluej.stride.framedjava.elements.ForeachElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.ImportElement;
@@ -80,7 +79,6 @@ public class Loader
         case ClassElement.ELEMENT: throw new IllegalArgumentException("Cannot load top level element via loadElement: " + el.getLocalName());
         case CommentElement.ELEMENT: return new CommentElement(el);
         case ConstructorElement.ELEMENT: return new ConstructorElement(el);
-        case DefaultCaseElement.ELEMENT: return new DefaultCaseElement(el);
         case ForeachElement.ELEMENT: return new ForeachElement(el);
         case IfElement.ELEMENT: return new IfElement(el);
         case ImportElement.ELEMENT: return new ImportElement(el);
