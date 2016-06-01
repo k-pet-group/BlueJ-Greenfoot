@@ -22,6 +22,7 @@ import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.ThrowElement;
+import bluej.stride.framedjava.elements.TryElement;
 import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import org.junit.Assert;
@@ -54,8 +55,22 @@ public class JavaToStrideTest
 
         assertEquals("throw e;", new ThrowElement(null, filled("e"), true));
         assertEquals("throw new IOException();", new ThrowElement(null, filled("new IOException ( )"), true));
+
+        assertEquals("try { return 0; } catch (Exception e) { return 1; }", _try(l(_return("0")), l(new TypeSlotFragment("Exception", "Exception")), l(new NameDefSlotFragment("e")), l(l(_return("1"))), null));
+        assertEquals("try { return 0; } finally { return 1;}", _try(l(_return("0")), l(), l(), l(), l(_return("1"))));
+        assertEquals("try { return 0; } catch (E1 e1) { return 1; } catch (E2 e2) { return 2; } finally { return -1;}", _try(l(_return("0")), l(new TypeSlotFragment("E1", "E1"), new TypeSlotFragment("E2", "E2")), l(new NameDefSlotFragment("e1"), new NameDefSlotFragment("e2")), l(l(_return("1")), l(_return("2"))), l(_return("- 1"))));
+        assertEquals("try { return 0; } catch (E1A|E1B e1) { return 1; } catch (E2A|E2B|E2C e2) { return 2; } finally { return -1;}",
+                _try(l(_return("0")),
+                        l(new TypeSlotFragment("E1A", "E1A"), new TypeSlotFragment("E1B", "E1B"), new TypeSlotFragment("E2A", "E2A"), new TypeSlotFragment("E2B", "E2B"), new TypeSlotFragment("E2C", "E2C")),
+                        l(new NameDefSlotFragment("e1"), new NameDefSlotFragment("e1"), new NameDefSlotFragment("e2"), new NameDefSlotFragment("e2"), new NameDefSlotFragment("e2")),
+                        l(l(_return("1")), l(_return("1")), l(_return("2")), l(_return("2")), l(_return("2"))), l(_return("- 1"))));
     }
-    
+
+    private TryElement _try(List<CodeElement> tryContents, List<TypeSlotFragment> catchTypes, List<NameDefSlotFragment> catchNames, List<List<CodeElement>> catchContents, List<CodeElement> finallyContents)
+    {
+        return new TryElement(null, tryContents, catchTypes, catchNames, catchContents, finallyContents, true);
+    }
+
     @Test
     public void testIf()
     {
@@ -209,6 +224,7 @@ public class JavaToStrideTest
         );
         List<Supplier<CodeElement>> all = new ArrayList<>(Arrays.asList(
             () -> new WhileElement(null, genExpression(), some(() -> genStatement(maxDepth - 1)), true)
+                //TODO if, try, etc
         ));
         all.addAll(terminals);
         //TODO call/assignment

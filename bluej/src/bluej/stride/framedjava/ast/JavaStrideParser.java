@@ -25,6 +25,7 @@ import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.ThrowElement;
+import bluej.stride.framedjava.elements.TryElement;
 import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import bluej.utility.JavaUtils;
@@ -113,6 +114,7 @@ class JavaStrideParser extends JavaParser
     private int startThrows;
     
     private final BlockCollector result = new BlockCollector();
+    private Stack<TryDetails> tries = new Stack<>();
 
     JavaStrideParser(String java)
     {
@@ -151,6 +153,15 @@ class JavaStrideParser extends JavaParser
             this.type = type;
             this.modifiers.addAll(modifiers);
         }
+    }
+
+    private static class TryDetails
+    {
+        private final List<CodeElement> tryContent = new ArrayList<>();
+        private final Stack<List<String>> catchTypes = new Stack<>();
+        private final List<String> catchNames = new ArrayList<>();
+        private final List<List<CodeElement>> catchBlocks = new ArrayList<>();
+        private List<CodeElement> finallyContents = null;
     }
     
     private static class Expression
@@ -784,6 +795,66 @@ class JavaStrideParser extends JavaParser
     {
         super.gotThrow(token);
         withExpression(e -> foundStatement(new ThrowElement(null, toFilled(e), true)));
+    }
+
+    @Override
+    protected void beginTryCatchSmt(LocatableToken token, boolean hasResource)
+    {
+        super.beginTryCatchSmt(token, hasResource);
+        if (hasResource)
+            warnings.add("Unsupported feature: try-with-resource");
+        tries.push(new TryDetails());
+        withStatement(statements -> tries.peek().tryContent.addAll(statements));
+    }
+
+    @Override
+    protected void gotCatchFinally(LocatableToken token)
+    {
+        super.gotCatchFinally(token);
+        if (token.getType() == JavaTokenTypes.LITERAL_catch)
+            tries.peek().catchTypes.push(new ArrayList<>());
+        else
+            withStatement(statements -> {tries.peek().finallyContents = new ArrayList<>(statements);});
+
+    }
+
+    @Override
+    protected void gotCatchVarName(LocatableToken token)
+    {
+        super.gotCatchVarName(token);
+        tries.peek().catchNames.add(token.getText());
+        tries.peek().catchTypes.peek().add(prevTypes.pop());
+        withStatement(statements -> tries.peek().catchBlocks.add(statements));
+    }
+
+    @Override
+    protected void gotMultiCatch(LocatableToken token)
+    {
+        super.gotMultiCatch(token);
+        tries.peek().catchTypes.peek().add(prevTypes.pop());
+    }
+
+    @Override
+    protected void endTryCatchStmt(LocatableToken token, boolean included)
+    {
+        super.endTryCatchStmt(token, included);
+        TryDetails details = tries.pop();
+        List<TypeSlotFragment> catchTypes = new ArrayList<>();
+        List<NameDefSlotFragment> catchNames = new ArrayList<>();
+        List<List<CodeElement>> catchBlocks = new ArrayList<>();
+        for (int i = 0; i < details.catchNames.size(); i++)
+        {
+            final int iFinal = i;
+            // We replicate each catch block for each type that's inside:
+            details.catchTypes.get(i).forEach(type -> {
+                catchTypes.add(new TypeSlotFragment(type, type));
+                catchNames.add(new NameDefSlotFragment(details.catchNames.get(iFinal)));
+                catchBlocks.add(new ArrayList<>(details.catchBlocks.get(iFinal)));
+
+            });
+        }
+        foundStatement(new TryElement(null, details.tryContent, catchTypes, catchNames, catchBlocks, details.finallyContents, true));
+
     }
 
     @Override

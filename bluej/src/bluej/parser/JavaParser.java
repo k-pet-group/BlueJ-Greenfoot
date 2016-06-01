@@ -251,7 +251,7 @@ public class JavaParser
     
     protected void endDoWhile(LocatableToken token, boolean included) { }
     
-    protected void beginTryCatchSmt(LocatableToken token) { }
+    protected void beginTryCatchSmt(LocatableToken token, boolean hasResource) { }
     
     protected void beginTryBlock(LocatableToken token) { }
     
@@ -1679,7 +1679,7 @@ public class JavaParser
      */
     public LocatableToken parseTryCatchStmt(LocatableToken token)
     {
-        beginTryCatchSmt(token);
+        beginTryCatchSmt(token, tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN);
         token = nextToken();
         if (token.getType() == JavaTokenTypes.LPAREN) {
             // Java 7 try-with-resource
@@ -1745,6 +1745,7 @@ public class JavaParser
         while (laType == JavaTokenTypes.LITERAL_catch
                 || laType == JavaTokenTypes.LITERAL_finally) {
             token = nextToken();
+            gotCatchFinally(token);
             if (laType == JavaTokenTypes.LITERAL_catch) {
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.LPAREN) {
@@ -1766,6 +1767,7 @@ public class JavaParser
                         // Java 7 multi-catch
                         break;
                     }
+                    gotMultiCatch(token);
                 }
                 
                 if (token.getType() != JavaTokenTypes.IDENT) {
@@ -1774,6 +1776,7 @@ public class JavaParser
                     endTryCatchStmt(token, false);
                     return null;
                 }
+                gotCatchVarName(token);
                 token = nextToken();
                 
                 if (token.getType() != JavaTokenTypes.RPAREN) {
@@ -1801,7 +1804,13 @@ public class JavaParser
         }
         return token;
     }
-        
+
+    protected void gotCatchFinally(LocatableToken token) { }
+
+    protected void gotMultiCatch(LocatableToken token) { }
+
+    protected void gotCatchVarName(LocatableToken token) { }
+
     /**
      * Parse an "assert" statement. Returns the concluding semi-colon token, or null on error.
      * {@code lastToken} will be set to the last token which is part of the statement.

@@ -756,7 +756,7 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void beginTryCatchSmt(LocatableToken token)
+    protected void beginTryCatchSmt(LocatableToken token, boolean hasResource)
     {
         JavaParentNode tryNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_SELECTION);
         int curOffset = getTopNodeOffset();
