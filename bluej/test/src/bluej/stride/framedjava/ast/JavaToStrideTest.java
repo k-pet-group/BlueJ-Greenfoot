@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.elements.BreakElement;
@@ -229,10 +227,59 @@ public class JavaToStrideTest
     {
         for (int i = 0; i < 10000; i++)
         {
-            roundTripStatement(several(() -> genStatement(3)));
+            roundTrip(many(() -> genStatement(3)), Parser.JavaContext.STATEMENT);
         }
     }
-    
+
+    @Test
+    public void testRandomMethod()
+    {
+        // TODO remove this and only do test random class (we can't generate Java from constructors without surrounding class)
+        for (int i = 0; i < 1000; i++)
+        {
+            roundTrip(many(() -> genMethod()), Parser.JavaContext.CLASS_MEMBER);
+        }
+    }
+
+    private static CodeElement genMethod()
+    {
+        return oneOf(
+                () -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genComment(), true),
+                () -> {
+                    boolean hasSuperThis = rand();
+                    boolean isSuper = rand();
+                    return new ConstructorElement(null, genAccess(), some(() -> genParam()), some(() -> genThrowsType()), hasSuperThis ? new SuperThisFragment(isSuper ? SuperThis.SUPER : SuperThis.THIS) : null, hasSuperThis ? genSuperThisParams() : null, some(() -> genStatement(3)), rand() ? null : genComment(), true);
+                },
+                () -> new CommentElement("/** J" + rand(0, 9) + " */"),
+                () -> new CommentElement("/* C" + rand(0, 9) + " */")
+        );
+    }
+
+    private static SuperThisParamsExpressionFragment genSuperThisParams()
+    {
+        return (SuperThisParamsExpressionFragment)some(() -> (ExpressionSlotFragment)genExpression()).stream().reduce(new SuperThisParamsExpressionFragment("", ""), (a, b) -> new SuperThisParamsExpressionFragment(a.getContent() + " , " + b.getContent(), a.getJavaCode() + " , " + b.getJavaCode()));
+    }
+
+    private static ThrowsTypeFragment genThrowsType()
+    {
+        return new ThrowsTypeFragment(genType());
+    }
+
+    private static ParamFragment genParam()
+    {
+        return new ParamFragment(genType(), genName());
+    }
+
+    private static AccessPermissionFragment genAccess()
+    {
+        return new AccessPermissionFragment(oneOf(() -> AccessPermission.PRIVATE, () -> AccessPermission.PROTECTED, () -> AccessPermission.PUBLIC));
+    }
+
+    private static JavadocUnit genComment()
+    {
+        return new JavadocUnit("Hi");
+    }
+
     private static CodeElement genStatement(int maxDepth)
     {
         List<Supplier<CodeElement>> terminals = Arrays.asList(
@@ -240,7 +287,7 @@ public class JavaToStrideTest
             () -> new BreakElement(null, true),
             () -> new ReturnElement(null, genOptExpression(), true),
             () -> new ThrowElement(null, genExpression(), true),
-            () -> new VarElement(null, null, false, rand(0, 1) == 0, genType(), genName(), rand(0, 1) == 0 ? genExpression() : null, true),
+            () -> new VarElement(null, null, false, rand(), genType(), genName(), rand() ? genExpression() : null, true),
                 //Calls and assignments are always turned back into calls, so for round-tripping we start as calls:
             () -> new CallElement(null, genCallOrAssign(), true)
         );
@@ -269,6 +316,11 @@ public class JavaToStrideTest
             return oneOf(terminals.toArray(new Supplier[0]));
         else
             return oneOf(all.toArray(new Supplier[0]));
+    }
+
+    private static boolean rand()
+    {
+        return rand(0, 1) == 0;
     }
 
     private static CallExpressionSlotFragment genCallOrAssign()
@@ -355,9 +407,9 @@ public class JavaToStrideTest
         return collapseComments(Stream.generate(item).limit(rand(0, 4)).collect(Collectors.toList()));
     }
 
-    private static <T> List<T> several(Supplier<T> item)
+    private static <T> List<T> many(Supplier<T> item)
     {
-        return collapseComments(Stream.generate(item).limit(rand(1, 3)).collect(Collectors.toList()));
+        return collapseComments(Stream.generate(item).limit(rand(1, 5)).collect(Collectors.toList()));
     }
     
     private static int rand(int min, int max)
@@ -365,16 +417,16 @@ public class JavaToStrideTest
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
     
-    private static void roundTripStatement(List<CodeElement> original)
+    private static void roundTrip(List<CodeElement> original, Parser.JavaContext context)
     {
         String java = collapseComments(original).stream().map(el -> el.toJavaSource().toTemporaryJavaCodeString()).collect(Collectors.joining("\n"));
         try
         {
-            test(java, original.toArray(new CodeElement[0]), Parser.JavaContext.STATEMENT);
+            test(java, original.toArray(new CodeElement[0]), context);
         }
         catch (Exception e)
         {
-            System.out.println("Error while round-tripping: " + original.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.joining()) + "\n\n" + java);
+            System.err.println("Error while round-tripping: " + original.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.joining()) + "\n\n" + java);
             throw e;
         }
     }
@@ -497,12 +549,14 @@ public class JavaToStrideTest
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
     {
         test(javaSource, expectedStride, Parser.JavaContext.STATEMENT);
-        roundTripStatement(Arrays.asList(expectedStride));
+        roundTrip(Arrays.asList(expectedStride), Parser.JavaContext.STATEMENT);
     }
 
     private static void assertEqualsMember(String javaSource, CodeElement... expectedStride)
     {
         test(javaSource, expectedStride, Parser.JavaContext.CLASS_MEMBER);
+        // Round tripping is awkward, e.g. constructors by themselves can't generate
+        // Java because they need their name from their parent class
     }
 
     private static void assertEqualsFile(String javaSource, CodeElement... expectedStride)
