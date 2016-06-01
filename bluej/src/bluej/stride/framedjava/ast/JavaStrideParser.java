@@ -856,7 +856,13 @@ class JavaStrideParser extends JavaParser
         if (hasResource)
             warnings.add("Unsupported feature: try-with-resource");
         tries.push(new TryDetails());
-        withStatement(new StatementHandler(true)
+    }
+
+    @Override
+    protected void beginTryBlock(LocatableToken token)
+    {
+        super.beginTryBlock(token);
+        withStatement(new StatementHandler(false)
         {
             @Override
             public void endBlock()
@@ -864,6 +870,13 @@ class JavaStrideParser extends JavaParser
                 tries.peek().tryContent.addAll(getContent(false));
             }
         });
+    }
+
+    @Override
+    protected void endTryBlock(LocatableToken token, boolean included)
+    {
+        super.endTryBlock(token, included);
+        statementHandlers.pop().endBlock();
     }
 
     @Override

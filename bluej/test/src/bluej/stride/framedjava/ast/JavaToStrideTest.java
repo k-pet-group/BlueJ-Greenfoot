@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.elements.BreakElement;
@@ -56,14 +57,28 @@ public class JavaToStrideTest
         assertEquals("throw e;", new ThrowElement(null, filled("e"), true));
         assertEquals("throw new IOException();", new ThrowElement(null, filled("new IOException ( )"), true));
 
-        assertEquals("try { return 0; } catch (Exception e) { return 1; }", _try(l(_return("0")), l(new TypeSlotFragment("Exception", "Exception")), l(new NameDefSlotFragment("e")), l(l(_return("1"))), null));
+        assertEquals("try { return 0; } catch (Exception e) { return 1; }", _try(l(_return("0")), l(type("Exception")), l(name("e")), l(l(_return("1"))), null));
         assertEquals("try { return 0; } finally { return 1;}", _try(l(_return("0")), l(), l(), l(), l(_return("1"))));
-        assertEquals("try { return 0; } catch (E1 e1) { return 1; } catch (E2 e2) { return 2; } finally { return -1;}", _try(l(_return("0")), l(new TypeSlotFragment("E1", "E1"), new TypeSlotFragment("E2", "E2")), l(new NameDefSlotFragment("e1"), new NameDefSlotFragment("e2")), l(l(_return("1")), l(_return("2"))), l(_return("- 1"))));
+        assertEquals("try { return 0; } catch (E1 e1) { return 1; } catch (E2 e2) { return 2; } finally { return -1;}", _try(l(_return("0")), l(type("E1"), type("E2")), l(name("e1"), name("e2")), l(l(_return("1")), l(_return("2"))), l(_return("- 1"))));
         assertEquals("try { return 0; } catch (E1A|E1B e1) { return 1; } catch (E2A|E2B|E2C e2) { return 2; } finally { return -1;}",
                 _try(l(_return("0")),
-                        l(new TypeSlotFragment("E1A", "E1A"), new TypeSlotFragment("E1B", "E1B"), new TypeSlotFragment("E2A", "E2A"), new TypeSlotFragment("E2B", "E2B"), new TypeSlotFragment("E2C", "E2C")),
-                        l(new NameDefSlotFragment("e1"), new NameDefSlotFragment("e1"), new NameDefSlotFragment("e2"), new NameDefSlotFragment("e2"), new NameDefSlotFragment("e2")),
+                        l(type("E1A"), type("E1B"), type("E2A"), type("E2B"), type("E2C")),
+                        l(name("e1"), name("e1"), name("e2"), name("e2"), name("e2")),
                         l(l(_return("1")), l(_return("1")), l(_return("2")), l(_return("2")), l(_return("2"))), l(_return("- 1"))));
+
+        // Failing random test:
+        assertEquals("try { } catch (java.lang.String x) { while (0) { } } catch (int x) { }",
+                _try(l(), l(type("java.lang.String"), type("int")), l(name("x"), name("x")), l(l(_while("0")), l()), null));
+    }
+
+    private static TypeSlotFragment type(String t)
+    {
+        return new TypeSlotFragment(t, t);
+    }
+
+    private static NameDefSlotFragment name(String n)
+    {
+        return new NameDefSlotFragment(n);
     }
 
     private TryElement _try(List<CodeElement> tryContents, List<TypeSlotFragment> catchTypes, List<NameDefSlotFragment> catchNames, List<List<CodeElement>> catchContents, List<CodeElement> finallyContents)
@@ -224,18 +239,59 @@ public class JavaToStrideTest
             () -> new CommentElement("c" + rand(0, 9)),
             () -> new BreakElement(null, true),
             () -> new ReturnElement(null, genOptExpression(), true),
-            () -> new ThrowElement(null, genExpression(), true)
+            () -> new ThrowElement(null, genExpression(), true),
+            () -> new VarElement(null, null, false, rand(0, 1) == 0, genType(), genName(), rand(0, 1) == 0 ? genExpression() : null, true),
+                //Calls and assignments are always turned back into calls, so for round-tripping we start as calls:
+            () -> new CallElement(null, genCallOrAssign(), true)
         );
         List<Supplier<CodeElement>> all = new ArrayList<>(Arrays.asList(
-            () -> new WhileElement(null, genExpression(), some(() -> genStatement(maxDepth - 1)), true)
-                //TODO if, try, etc
+            () -> new WhileElement(null, genExpression(), some(() -> genStatement(maxDepth - 1)), true),
+            () -> {
+                int elseIfs = rand(0, 2);
+                boolean _else = rand(0, 1) == 1;
+                return new IfElement(null, genExpression(), some(() -> genStatement(maxDepth - 1)),
+                        replicate(elseIfs, () -> genExpression()),
+                        replicate(elseIfs, () -> some(() -> genStatement(maxDepth - 1))),
+                        _else ? null : some(() -> genStatement(maxDepth - 1)), true);
+            },
+            () -> {
+                int catches = rand(0, 2);
+                boolean _finally = rand(0, 1) == 1;
+                return new TryElement(null, some(() -> genStatement(maxDepth - 1)),
+                        replicate(catches, () -> genType()),
+                        replicate(catches, () -> genName()),
+                        replicate(catches, () -> some(() -> genStatement(maxDepth - 1))),
+                        _finally ? null : some(() -> genStatement(maxDepth - 1)), true);
+            }
         ));
         all.addAll(terminals);
-        //TODO call/assignment
         if (maxDepth <= 1)
             return oneOf(terminals.toArray(new Supplier[0]));
         else
             return oneOf(all.toArray(new Supplier[0]));
+    }
+
+    private static CallExpressionSlotFragment genCallOrAssign()
+    {
+        return oneOf(
+                () -> {
+                    FilledExpressionSlotFragment call = genCall();
+                    FilledExpressionSlotFragment expression = genExpression();
+                    return new CallExpressionSlotFragment(call.getContent() + " = " + expression.getContent(), call.getJavaCode() + " = " + expression.getJavaCode());
+                },
+                () -> {
+                    FilledExpressionSlotFragment call = genCall();
+                    return new CallExpressionSlotFragment(call.getContent(), call.getJavaCode());
+                }
+        );
+    }
+
+    private static <T> List<T> replicate(int count, Supplier<T> supplier)
+    {
+        ArrayList<T> r = new ArrayList<>();
+        for (int i = 0; i < count; i++)
+            r.add(supplier.get());
+        return r;
     }
 
     private static OptionalExpressionSlotFragment genOptExpression()
@@ -246,7 +302,31 @@ public class JavaToStrideTest
     private static FilledExpressionSlotFragment genExpression()
     {
         return oneOf(
-            () -> new FilledExpressionSlotFragment("0", "0")
+            () -> filled("0"),
+            () -> filled("\"hello\\n\""),
+            () -> new FilledExpressionSlotFragment("a <: b", "a instanceof b"),
+            () -> genCall()
+        );
+    }
+
+    private static FilledExpressionSlotFragment genCall()
+    {
+        return filled("foo . getX ( )");//TODO add more
+    }
+
+    private static TypeSlotFragment genType()
+    {
+        return oneOf(
+                () -> type("T"),
+                () -> type("int"),
+                () -> type("java.lang.String")
+        );
+    }
+
+    private static NameDefSlotFragment genName()
+    {
+        return oneOf(
+                () -> name("x")
         );
     }
 
@@ -288,13 +368,21 @@ public class JavaToStrideTest
     private static void roundTripStatement(List<CodeElement> original)
     {
         String java = collapseComments(original).stream().map(el -> el.toJavaSource().toTemporaryJavaCodeString()).collect(Collectors.joining("\n"));
-        test(java, original.toArray(new CodeElement[0]), Parser.JavaContext.STATEMENT);
+        try
+        {
+            test(java, original.toArray(new CodeElement[0]), Parser.JavaContext.STATEMENT);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error while round-tripping: " + original.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.joining()) + "\n\n" + java);
+            throw e;
+        }
     }
 
     private ClassElement _class(String pkg, List<String> imports, String javadoc, boolean _abstract, String name, String _extends, List<String> _implements, List<VarElement> fields, List<ConstructorElement> constructors, List<NormalMethodElement> methods)
     {
-        return new ClassElement(null, null, _abstract, new NameDefSlotFragment(name), _extends == null ? null : new TypeSlotFragment(_extends, _extends),
-            _implements.stream().map(t -> new TypeSlotFragment(t, t)).collect(Collectors.toList()),
+        return new ClassElement(null, null, _abstract, name(name), _extends == null ? null : type(_extends),
+            _implements.stream().map(t -> type(t)).collect(Collectors.toList()),
             fields, constructors, methods, new JavadocUnit(javadoc), pkg == null ? null : new PackageFragment(pkg), imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
     }
 
@@ -305,32 +393,32 @@ public class JavaToStrideTest
 
     private VarElement _var(AccessPermission access, boolean _static, boolean _final, String type, String name, FilledExpressionSlotFragment init)
     {
-        return new VarElement(null, access == null ? null : new AccessPermissionFragment(access), _static, _final, new TypeSlotFragment(type, type), new NameDefSlotFragment(name), init, true);
+        return new VarElement(null, access == null ? null : new AccessPermissionFragment(access), _static, _final, type(type), name(name), init, true);
     }
     
     private ParamFragment _param(String type, String name)
     {
-        return new ParamFragment(new TypeSlotFragment(type, type), new NameDefSlotFragment(name));
+        return new ParamFragment(type(type), name(name));
     }
 
     private CodeElement _method(String comment, AccessPermission accessPermission, boolean _static, boolean _final, String returnType, String name, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
     {
-        return new NormalMethodElement(null, new AccessPermissionFragment(accessPermission), _static, _final, new TypeSlotFragment(returnType, returnType), new NameDefSlotFragment(name), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), body, new JavadocUnit(comment), true);
+        return new NormalMethodElement(null, new AccessPermissionFragment(accessPermission), _static, _final, type(returnType), name(name), params, _throws.stream().map(t -> new ThrowsTypeFragment(type(t))).collect(Collectors.toList()), body, new JavadocUnit(comment), true);
     }
 
     private CodeElement _constructor(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
     {
-        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), null, null, body, new JavadocUnit(comment), true);
+        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(type(t))).collect(Collectors.toList()), null, null, body, new JavadocUnit(comment), true);
     }
 
     private CodeElement _constructorDelegate(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, SuperThis superThis, String superThisArgs, List<CodeElement> body)
     {
-        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), new SuperThisFragment(superThis), new SuperThisParamsExpressionFragment(superThisArgs, superThisArgs), body, new JavadocUnit(comment), true);
+        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(type(t))).collect(Collectors.toList()), new SuperThisFragment(superThis), new SuperThisParamsExpressionFragment(superThisArgs, superThisArgs), body, new JavadocUnit(comment), true);
     }
 
     private CodeElement _constructorDelegate(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, SuperThis superThis, SuperThisParamsExpressionFragment superThisArgs, List<CodeElement> body)
     {
-        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(new TypeSlotFragment(t, t))).collect(Collectors.toList()), new SuperThisFragment(superThis), superThisArgs, body, new JavadocUnit(comment), true);
+        return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(type(t))).collect(Collectors.toList()), new SuperThisFragment(superThis), superThisArgs, body, new JavadocUnit(comment), true);
     }
 
     private static void assertExpression(String expectedStride, String original)
@@ -387,7 +475,7 @@ public class JavaToStrideTest
 
     private IfElement _ifElseIf(String expression, List<CodeElement> body, List<String> expressions, List<List<CodeElement>> elseIfBodies, List<CodeElement> elseBody)
     {
-        return new IfElement(null, filled(expression), body, expressions.stream().map(this::filled).collect(Collectors.toList()), elseIfBodies, elseBody, true);
+        return new IfElement(null, filled(expression), body, expressions.stream().map(JavaToStrideTest::filled).collect(Collectors.toList()), elseIfBodies, elseBody, true);
     }
 
     private IfElement _ifElseIf(FilledExpressionSlotFragment expression, List<CodeElement> body, List<FilledExpressionSlotFragment> expressions, List<List<CodeElement>> elseIfBodies, List<CodeElement> elseBody)
@@ -395,7 +483,7 @@ public class JavaToStrideTest
         return new IfElement(null, expression, body, expressions, elseIfBodies, elseBody, true);
     }
     
-    private FilledExpressionSlotFragment filled(String e)
+    private static FilledExpressionSlotFragment filled(String e)
     {
         return new FilledExpressionSlotFragment(e, e);
     }
