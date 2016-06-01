@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import bluej.parser.JavaParser;
@@ -102,7 +103,7 @@ class JavaStrideParser extends JavaParser
      * Each item includes it's /* * / (space here to avoid ending this comment!) or // delimiters
      * The list gets cleared once the comments have been dealt with.
      */
-    private final List<String> comments = new ArrayList<>();
+    private final List<LocatableToken> comments = new ArrayList<>();
 
     /**
      * Any warnings encountered in the conversion process.
@@ -720,7 +721,11 @@ class JavaStrideParser extends JavaParser
     public void gotComment(LocatableToken token)
     {
         super.gotComment(token);
-        String comment = token.getText();
+        comments.add(token);
+    }
+
+    private String processComment(String comment)
+    {
         if (comment.startsWith("//"))
             comment = comment.substring(2).trim();
         else
@@ -736,7 +741,7 @@ class JavaStrideParser extends JavaParser
                     else
                         return a + " " + b;
                 }).orElse("");
-        comments.add(comment);
+        return comment;
     }
 
     @Override
@@ -789,7 +794,7 @@ class JavaStrideParser extends JavaParser
     private String getJavadoc()
     {
         if (!comments.isEmpty())
-            return comments.remove(comments.size() - 1);
+            return processComment(comments.remove(comments.size() - 1).getText());
         else
             return null;
     }
@@ -1047,8 +1052,14 @@ class JavaStrideParser extends JavaParser
         else
         {
             ArrayList<CodeElement> all = new ArrayList<>();
-            all.add(new CommentElement(comments.stream().collect(Collectors.joining(" "))));
-            comments.clear();
+            // We collect comments which the token stream has seen in the comments list.
+            // But sometimes the parser looks ahead, or puts tokens back into the stream.
+            // By then we have seen the comment, but really it's ahead of our current position.
+            // So when we gather up the comments, we must only gather those which are behind us:
+            int curPosition = getTokenStream().getMostRecent().getPosition();
+            Predicate<LocatableToken> behindCurPosition = t -> t.getPosition() < curPosition;
+            all.add(new CommentElement(comments.stream().filter(behindCurPosition).map(LocatableToken::getText).map(this::processComment).collect(Collectors.joining(" "))));
+            comments.removeIf(behindCurPosition);
             all.addAll(statements);
             statementHandlers.pop().foundStatement(all);
         }

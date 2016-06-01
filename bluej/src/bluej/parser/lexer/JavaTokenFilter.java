@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,6 +40,7 @@ public final class JavaTokenFilter implements TokenStream
     private LocatableToken lastComment;
     private LocatableToken cachedToken;
     private List<LocatableToken> buffer = new LinkedList<LocatableToken>();
+    private LinkedList<LocatableToken> recent = new LinkedList<>();
     private JavaParser parser;
     
     public JavaTokenFilter(TokenStream source)
@@ -56,28 +57,38 @@ public final class JavaTokenFilter implements TokenStream
         
     public LocatableToken nextToken()
     {
+        LocatableToken rval;
         if (! buffer.isEmpty()) {
             // Make sure we have a cached token; necessary to ensure that token lengths
             // are set correctly.
             if (cachedToken == null) {
                 cachedToken = nextToken2();
             }
-            return buffer.remove(buffer.size() - 1);
+            rval = buffer.remove(buffer.size() - 1);
         }
-    	
-    	// We cache one lookahead token so that we can be sure the returned token
-        // has its end column set correctly. (The end column for a token can only be set
-        // when the following token is received).
-        LocatableToken rval;
-        if (cachedToken == null) {
-            rval = nextToken2();
+        else
+        {
+            // We cache one lookahead token so that we can be sure the returned token
+            // has its end column set correctly. (The end column for a token can only be set
+            // when the following token is received).
+
+            if (cachedToken == null)
+            {
+                rval = nextToken2();
+            }
+            else
+            {
+                rval = cachedToken;
+            }
+
+            cachedToken = nextToken2();
         }
-        else {
-            rval = cachedToken;
-        }
-        
-        cachedToken = nextToken2();
-        return (LocatableToken) rval;
+        // We keep up to 30 in the recent list; if you push back more than that,
+        // we don't keep track:
+        recent.addLast(rval);
+        if (recent.size() > 30)
+            recent.removeFirst();
+        return rval;
     }
     
     /**
@@ -86,7 +97,18 @@ public final class JavaTokenFilter implements TokenStream
      */
     public void pushBack(LocatableToken token)
     {
-    	buffer.add(token);
+        buffer.add(token);
+        if (!recent.isEmpty() && token == recent.getLast())
+            recent.removeLast();
+    }
+
+    /**
+     * Gets the most recent token returned by nextToken which has not been
+     * pushed back using pushBack.
+     */
+    public LocatableToken getMostRecent()
+    {
+        return recent.getLast();
     }
     
     /**
@@ -95,23 +117,23 @@ public final class JavaTokenFilter implements TokenStream
      */
     public LocatableToken LA(int distance)
     {
-    	if (cachedToken != null) {
-    	   buffer.add(0, (LocatableToken) cachedToken);
-    	   cachedToken = null;
-    	}
-    	
-    	int numToAdd = distance - buffer.size();
-    	while (numToAdd > 0) {
-    	   buffer.add(0, nextToken2());
-    	   numToAdd--;
-    	}
+        if (cachedToken != null) {
+           buffer.add(0, (LocatableToken) cachedToken);
+           cachedToken = null;
+        }
+        
+        int numToAdd = distance - buffer.size();
+        while (numToAdd > 0) {
+           buffer.add(0, nextToken2());
+           numToAdd--;
+        }
     
-    	return buffer.get(buffer.size() - distance);
+        return buffer.get(buffer.size() - distance);
     }
     
     private LocatableToken nextToken2()
-    {    	
-    	LocatableToken t = null;
+    {
+        LocatableToken t = null;
         
         // Repeatedly read tokens until we find a non-comment, non-whitespace token.
         while (true) {
