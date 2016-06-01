@@ -177,53 +177,8 @@ class NewClassDialog extends EscapeDialog
      */
     private void addClassTypeButtons(JPanel panel)
     {
-        String templateSuffix = ".tmpl";
-        int suffixLength = templateSuffix.length();
-
-        // first, get templates out of defined templates from bluej.defs
-        // (we do this rather than usign the directory only to be able to
-        // force an order on the templates.)
-
-        String templateString = Config.getPropString("bluej.classTemplates");
-
-        StringTokenizer tokenizer = new StringTokenizer(templateString);
-
-        while (tokenizer.hasMoreTokens()) {
-            templates.add(new TemplateInfo(tokenizer.nextToken()));
-        }
-
-        // next, get templates from files in template directory and
-        // merge them in
-
-        File templateDir = Config.getClassTemplateDir();
-        if(!templateDir.exists()) {
-            DialogManager.showError(this, "error-no-templates");
-        }
-        else {
-            String[] files = templateDir.list();
-            
-            for(int i=0; i < files.length; i++) {
-                if(files[i].endsWith(templateSuffix)) {
-                    String templateName = files[i].substring(0, files[i].length() - suffixLength);
-                    SourceType sourceType = SourceType.Java;
-                    if (templateName.endsWith("Stride"))
-                    {
-                        templateName = templateName.substring(0, templateName.length() - "Stride".length());
-                        sourceType = SourceType.Stride;
-                    }
-                    String finalTemplateName = templateName;
-                    TemplateInfo template = templates.stream().filter(t -> t.name.equals(finalTemplateName)).findFirst().orElse(null);
-                    if (template != null)
-                    {
-                        template.sourceTypes.add(sourceType);
-                    }
-                    else
-                    {
-                        templates.add(new TemplateInfo(templateName, sourceType));
-                    }
-                }
-            }
-        }
+        addJavaTemplates();
+        addStrideTemplates();
        
         // Create a radio button for each template found
         JRadioButton button;
@@ -244,7 +199,64 @@ class NewClassDialog extends EscapeDialog
             });
         }
     }
-    
+
+    private void addJavaTemplates()
+    {
+        String templateSuffix = ".tmpl";
+        int suffixLength = templateSuffix.length();
+        SourceType sourceType = SourceType.Java;
+
+        // first, get templates out of defined templates from bluej.defs
+        // (we do this rather than using the directory only to be able to
+        // force an order on the templates.)
+        String templateString = Config.getPropString("bluej.classTemplates.java");
+        StringTokenizer tokenizer = new StringTokenizer(templateString);
+        while (tokenizer.hasMoreTokens()) {
+            templates.add(new TemplateInfo(tokenizer.nextToken()));
+        }
+
+        // next, get templates from files in template directory and merge them in
+        File templateDir = Config.getClassTemplateDir();
+        if(!templateDir.exists()) {
+            DialogManager.showError(this, "error-no-templates");
+        }
+        else {
+            Arrays.asList(templateDir.list()).forEach(file -> {
+                if(file.endsWith(templateSuffix)) {
+                    String templateName = file.substring(0, file.length() - suffixLength);
+                    if (!templateName.endsWith("Stride")) {
+                        TemplateInfo template = templates.stream().filter(t -> t.name.equals(templateName)).findFirst().orElse(null);
+                        if (template != null) {
+                            template.sourceTypes.add(sourceType);
+                        }
+                        else {
+                            templates.add(new TemplateInfo(templateName, sourceType));
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private void addStrideTemplates()
+    {
+        SourceType sourceType = SourceType.Stride;
+
+        // first, get templates out of defined templates from bluej.defs
+        String templateString = Config.getPropString("bluej.classTemplates.stride");
+        StringTokenizer tokenizer = new StringTokenizer(templateString);
+        while (tokenizer.hasMoreTokens()) {
+            String templateName = tokenizer.nextToken();
+            TemplateInfo template = templates.stream().filter(t -> t.name.equals(templateName)).findFirst().orElse(null);
+            if (template != null) {
+                template.sourceTypes.add(sourceType);
+            }
+            else {
+                templates.add(new TemplateInfo(templateName, sourceType));
+            }
+        }
+    }
+
     private void updateButtons(SourceType sourceType)
     {
         for (TemplateInfo template : templates)
