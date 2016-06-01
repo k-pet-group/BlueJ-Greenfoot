@@ -101,12 +101,6 @@ class JavaStrideParser extends JavaParser
      * and it fits with the design of everything else.
      */
     private final Stack<List<LocatableToken>> modifiers = new Stack<>();
-    /**
-     * The list of comments we have seen since they were last dealt with.
-     * Each item includes it's /* * / (space here to avoid ending this comment!) or // delimiters
-     * The list gets cleared once the comments have been dealt with.
-     */
-    private final List<LocatableToken> comments = new ArrayList<>();
 
     /**
      * Any warnings encountered in the conversion process.
@@ -213,6 +207,11 @@ class JavaStrideParser extends JavaParser
     private abstract class StatementHandler
     {
         private final List<CodeElement> content = new ArrayList<>();
+        /**
+         * The list of comments we have seen since they were last dealt with.
+         * Each item includes it's /* * / (space here to avoid ending this comment!) or // delimiters
+         * The list gets cleared once the comments have been dealt with.
+         */
         private final List<LocatableToken> comments = new ArrayList<>();
         private final boolean expectingSingle;
 
@@ -290,6 +289,15 @@ class JavaStrideParser extends JavaParser
          * (call getContent to get them).
          */
         public abstract void endBlock();
+
+        public String getJavadoc()
+        {
+            if (!comments.isEmpty() && comments.get(comments.size() - 1).getText().startsWith("/**"))
+            {
+                return processComment(comments.remove(comments.size() - 1).getText());
+            }
+            return null;
+        }
     }
 
     private class IfBuilder
@@ -472,7 +480,7 @@ class JavaStrideParser extends JavaParser
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
         super.gotConstructorDecl(token, hiddenToken);
-        methods.push(new MethodDetails(null, null, modifiers.peek(), getJavadoc()));
+        methods.push(new MethodDetails(null, null, modifiers.peek(), statementHandlers.peek().getJavadoc()));
         withStatement(new StatementHandler(false)
         {
             @Override
@@ -487,7 +495,7 @@ class JavaStrideParser extends JavaParser
     protected void gotMethodDeclaration(LocatableToken nameToken, LocatableToken hiddenToken)
     {
         super.gotMethodDeclaration(nameToken, hiddenToken);
-        methods.push(new MethodDetails(prevTypes.pop(), nameToken.getText(), modifiers.peek(), getJavadoc()));
+        methods.push(new MethodDetails(prevTypes.pop(), nameToken.getText(), modifiers.peek(), statementHandlers.peek().getJavadoc()));
         withStatement(new StatementHandler(false)
         {
             @Override
@@ -944,14 +952,6 @@ class JavaStrideParser extends JavaParser
         super.endArgument();
         if (!argumentHandlers.isEmpty())
             argumentHandlers.peek().gotArgument();
-    }
-
-    private String getJavadoc()
-    {
-        if (!comments.isEmpty())
-            return processComment(comments.remove(comments.size() - 1).getText());
-        else
-            return null;
     }
 
     private String getText(LocatableToken start, LocatableToken end)
