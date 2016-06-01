@@ -3,6 +3,9 @@ package bluej.stride.framedjava.ast;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import bluej.stride.framedjava.elements.BreakElement;
@@ -178,6 +181,47 @@ public class JavaToStrideTest
         // TODO more tests
     }
     
+    @Test
+    public void testRandomStatement()
+    {
+        for (int i = 0; i < 10000; i++)
+        {
+            roundTripStatement(genStatement(3));
+            roundTripStatement(genStatement(3), genStatement(3));
+            roundTripStatement(genStatement(3), genStatement(3), genStatement(3));
+        }
+    }
+    
+    private static CodeElement genStatement(int maxDepth)
+    {
+        return oneOf(
+            () -> new BreakElement(null, true),
+            () -> new ReturnElement(null, genOptExpression(), true)
+        );
+    }
+
+    private static OptionalExpressionSlotFragment genOptExpression()
+    {
+        return oneOf(() -> null, () -> new OptionalExpressionSlotFragment(genExpression()));
+    }
+
+    private static FilledExpressionSlotFragment genExpression()
+    {
+        return oneOf(
+            () -> new FilledExpressionSlotFragment("0", "0")
+        );
+    }
+
+    private static <T> T oneOf(Supplier<T>... items)
+    {
+        return items[rand(0, items.length - 1)].get();
+    }
+    
+    private static int rand(int min, int max)
+    {
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
+    }
+    
     private static void roundTripStatement(CodeElement... els)
     {
         String java = Arrays.stream(els).map(el -> el.toJavaSource().toTemporaryJavaCodeString()).collect(Collectors.joining("\n"));
@@ -243,7 +287,7 @@ public class JavaToStrideTest
 
     private ReturnElement _return()
     {
-        return new ReturnElement(null, new OptionalExpressionSlotFragment("", ""), true);
+        return new ReturnElement(null, null, true);
     }
 
     private ReturnElement _return(String s)

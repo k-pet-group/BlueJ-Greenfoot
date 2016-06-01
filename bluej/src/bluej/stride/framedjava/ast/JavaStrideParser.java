@@ -333,7 +333,7 @@ class JavaStrideParser extends JavaParser
         if (hasValue)
             withExpression(exp -> foundStatement(new ReturnElement(null, toOptional(exp), true)));
         else
-            foundStatement(new ReturnElement(null, toOptional(new Expression("", "")), true));
+            foundStatement(new ReturnElement(null, null, true));
     }
 
     @Override
