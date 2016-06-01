@@ -173,7 +173,7 @@ public class JavaToStrideTest
     {
         assertEqualsFile("class Foo {}", _class(null, l(), null, false, "Foo", null, l(), l(), l(), l()));
         assertEqualsFile("abstract class A extends B { int x; }",
-            _class(null, l(), null, true, "A", "B", l(), l(_var(null, false, false, "int", "x", null)), l(), l()));
+            _class(null, l(), null, true, "A", "B", l(), l(_var(AccessPermission.PROTECTED, false, false, "int", "x", null)), l(), l()));
     }
 
     private ClassElement _class(String pkg, List<String> imports, String javadoc, boolean _abstract, String name, String _extends, List<String> _implements, List<VarElement> fields, List<ConstructorElement> constructors, List<NormalMethodElement> methods)

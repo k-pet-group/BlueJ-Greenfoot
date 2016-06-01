@@ -446,7 +446,7 @@ class JavaStrideParser extends JavaParser
             boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
             boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
             // Any remaining are unrecognised:
-            warnUnsupportedModifiers(modifiers);
+            warnUnsupportedModifiers("method", modifiers);
             String type = details.type;
             foundStatement(new NormalMethodElement(null, new AccessPermissionFragment(permission),
                 _static, _final, toType(type), new NameDefSlotFragment(name), details.parameters,
@@ -455,7 +455,7 @@ class JavaStrideParser extends JavaParser
         else
         {
             // Any remaining are unrecognised:
-            warnUnsupportedModifiers(modifiers);
+            warnUnsupportedModifiers("method", modifiers);
             SuperThis delegate = SuperThis.fromString(details.constructorCall);
             Expression delegateArgs = delegate == null ? null : new Expression(
                 details.constructorArgs.stream().map(e -> e.stride).collect(Collectors.joining(",")),
@@ -475,9 +475,9 @@ class JavaStrideParser extends JavaParser
             return new TypeSlotFragment(t, t);
     }
 
-    private void warnUnsupportedModifiers(List<LocatableToken> modifiers)
+    private void warnUnsupportedModifiers(String context, List<LocatableToken> modifiers)
     {
-        modifiers.forEach(t -> warnings.add("Unsupported method modifier: " + t.getText()));
+        modifiers.forEach(t -> warnings.add("Unsupported " + context + " modifier: " + t.getText()));
     }
 
     private static AccessPermission removeAccess(List<LocatableToken> modifiers, AccessPermission defaultAccess)
@@ -592,7 +592,7 @@ class JavaStrideParser extends JavaParser
         boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
         boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
         // Any remaining are unrecognised:
-        warnUnsupportedModifiers(modifiers);
+        warnUnsupportedModifiers("variable", modifiers);
 
         Consumer<Expression> handler = e -> foundStatement(new VarElement(null,
             permission == null ? null : new AccessPermissionFragment(permission), _static, _final,
@@ -656,7 +656,6 @@ class JavaStrideParser extends JavaParser
         super.gotTypeDefEnd(token, included);
         if (!typeDefHandlers.isEmpty())
         {
-            typeDefHandlers.peek().gotContent(((BlockCollector)statementHandlers.pop()).getContent());
             typeDefHandlers.peek().typeDefEnd(token);
         }
     }
@@ -699,7 +698,22 @@ class JavaStrideParser extends JavaParser
         super.gotTypeDefName(nameToken);
         if (!typeDefHandlers.isEmpty())
             typeDefHandlers.peek().gotName(nameToken.getText());
+    }
+
+    @Override
+    protected void beginTypeBody(LocatableToken leftCurlyToken)
+    {
+        super.beginTypeBody(leftCurlyToken);
         withStatement(new BlockCollector());
+    }
+
+    @Override
+    protected void endTypeBody(LocatableToken endCurlyToken, boolean included)
+    {
+        super.endTypeBody(endCurlyToken, included);
+        List<CodeElement> content = ((BlockCollector)statementHandlers.pop()).getContent();
+        if (!typeDefHandlers.isEmpty())
+            typeDefHandlers.peek().gotContent(content);
     }
 
     @Override
@@ -900,10 +914,14 @@ class JavaStrideParser extends JavaParser
         @Override
         public CodeElement end()
         {
-            return new ClassElement(null, null, false, new NameDefSlotFragment(name),
+            boolean _abstract = modifiers.removeIf(t -> t.getText().equals("abstract"));
+            // Public is the default so don't warn it's unsupported:
+            modifiers.remove("public");
+            warnUnsupportedModifiers("class", modifiers);
+            return new ClassElement(null, null, _abstract, new NameDefSlotFragment(name),
                 toType(extendsType),
-                implementsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), Collections.emptyList(),
-                Collections.emptyList(), Collections.emptyList(),
+                implementsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields,
+                constructors, methods,
                 null, null, Collections.emptyList(), true);
         }
     }
