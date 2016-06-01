@@ -108,7 +108,7 @@ public final class JavaTokenFilter implements TokenStream
      */
     public LocatableToken getMostRecent()
     {
-        return recent.getLast();
+        return recent.isEmpty() ? null : recent.getLast();
     }
     
     /**

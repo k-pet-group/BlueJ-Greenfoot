@@ -1,5 +1,6 @@
 package bluej.stride.framedjava.ast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
@@ -165,10 +167,17 @@ public class JavaToStrideTest
     @Test
     public void testComments()
     {
+        assertEquals("//ABC", _comment("ABC"));
         assertEquals("//Declares x\nint x;", _comment("Declares x"), _var(null, false, false, "int", "x", null));
         assertEquals("//Declares x\nint x /* empty */;", _comment("Declares x empty"), _var(null, false, false, "int", "x", null));
         assertEquals("//Declares x\nint x /* empty */;int y;", _comment("Declares x empty"), _var(null, false, false, "int", "x", null), _var(null, false, false, "int", "y", null));
         assertEquals("//Declares x\nint x;int y/* empty */;", _comment("Declares x"), _var(null, false, false, "int", "x", null), _comment("empty"), _var(null, false, false, "int", "y", null));
+        
+        assertEquals("break; // Post-comment", new BreakElement(null, true), _comment("Post-comment"));
+        assertEquals("while(true) {/*Just-comment*/}", _while("true", _comment("Just-comment")));
+        assertEquals("while(true) {break; /*End-comment*/}", _while("true", new BreakElement(null, true), _comment("End-comment")));
+        assertEquals("while(true) {break; }/*After-comment*/", _while("true", new BreakElement(null, true)), _comment("After-comment"));
+        assertEquals("return 0; /*XXX*/ while(true) {}", _return("0"), _comment("XXX"), _while("true"));
     }
     
     @Test
@@ -186,18 +195,27 @@ public class JavaToStrideTest
     {
         for (int i = 0; i < 10000; i++)
         {
-            roundTripStatement(genStatement(3));
-            roundTripStatement(genStatement(3), genStatement(3));
-            roundTripStatement(genStatement(3), genStatement(3), genStatement(3));
+            roundTripStatement(several(() -> genStatement(3)));
         }
     }
     
     private static CodeElement genStatement(int maxDepth)
     {
-        return oneOf(
+        List<Supplier<CodeElement>> terminals = Arrays.asList(
+            () -> new CommentElement("c" + rand(0, 9)),
             () -> new BreakElement(null, true),
-            () -> new ReturnElement(null, genOptExpression(), true)
+            () -> new ReturnElement(null, genOptExpression(), true),
+            () -> new ThrowElement(null, genExpression(), true)
         );
+        List<Supplier<CodeElement>> all = new ArrayList<>(Arrays.asList(
+            () -> new WhileElement(null, genExpression(), some(() -> genStatement(maxDepth - 1)), true)
+        ));
+        all.addAll(terminals);
+        //TODO call/assignment
+        if (maxDepth <= 1)
+            return oneOf(terminals.toArray(new Supplier[0]));
+        else
+            return oneOf(all.toArray(new Supplier[0]));
     }
 
     private static OptionalExpressionSlotFragment genOptExpression()
@@ -217,15 +235,40 @@ public class JavaToStrideTest
         return items[rand(0, items.length - 1)].get();
     }
     
+    private static <T> List<T> collapseComments(List<T> items)
+    {
+        ArrayList<T> r = new ArrayList<>(items);
+        int i = 1;
+        while (i < r.size())
+        {
+            // We don't try two comment elements next to each other:
+            if (r.get(i - 1) instanceof CommentElement && r.get(i) instanceof CommentElement)
+                r.remove(i);
+            else
+                i += 1;
+        }
+        return r;
+    }
+    
+    private static <T> List<T> some(Supplier<T> item)
+    {
+        return collapseComments(Stream.generate(item).limit(rand(0, 4)).collect(Collectors.toList()));
+    }
+
+    private static <T> List<T> several(Supplier<T> item)
+    {
+        return collapseComments(Stream.generate(item).limit(rand(1, 3)).collect(Collectors.toList()));
+    }
+    
     private static int rand(int min, int max)
     {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
     
-    private static void roundTripStatement(CodeElement... els)
+    private static void roundTripStatement(List<CodeElement> original)
     {
-        String java = Arrays.stream(els).map(el -> el.toJavaSource().toTemporaryJavaCodeString()).collect(Collectors.joining("\n"));
-        test(java, els, Parser.JavaContext.STATEMENT);
+        String java = collapseComments(original).stream().map(el -> el.toJavaSource().toTemporaryJavaCodeString()).collect(Collectors.joining("\n"));
+        test(java, original.toArray(new CodeElement[0]), Parser.JavaContext.STATEMENT);
     }
 
     private ClassElement _class(String pkg, List<String> imports, String javadoc, boolean _abstract, String name, String _extends, List<String> _implements, List<VarElement> fields, List<ConstructorElement> constructors, List<NormalMethodElement> methods)
@@ -346,7 +389,7 @@ public class JavaToStrideTest
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
     {
         test(javaSource, expectedStride, Parser.JavaContext.STATEMENT);
-        roundTripStatement(expectedStride);
+        roundTripStatement(Arrays.asList(expectedStride));
     }
 
     private static void assertEqualsMember(String javaSource, CodeElement... expectedStride)

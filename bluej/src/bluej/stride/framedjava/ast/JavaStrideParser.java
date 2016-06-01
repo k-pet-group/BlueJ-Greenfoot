@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -172,7 +173,7 @@ class JavaStrideParser extends JavaParser
         {
         }
 
-        ;
+        default public void gotComment(LocatableToken token) {};
     }
 
     private static interface ExpressionHandler
@@ -212,18 +213,46 @@ class JavaStrideParser extends JavaParser
     private class BlockCollector implements StatementHandler
     {
         private final List<CodeElement> content = new ArrayList<>();
+        private final List<LocatableToken> comments = new ArrayList<>();
 
         @Override
         public void foundStatement(List<CodeElement> statements)
         {
+            CommentElement el = collateComments(false);
+            if (el != null)
+                content.add(el);
             content.addAll(statements);
             // We keep ourselves on the stack until someone removes us:
             withStatement(this);
         }
 
-        public List<CodeElement> getContent()
+        public List<CodeElement> getContent(boolean eof)
         {
+            CommentElement el = collateComments(eof);
+            if (el != null)
+                content.add(el);
             return content;
+        }
+
+        @Override
+        public void gotComment(LocatableToken token)
+        {
+            comments.add(token);
+        }
+        
+        private CommentElement collateComments(boolean eof)
+        {
+            // We collect comments which the token stream has seen in the comments list.
+            // But sometimes the parser looks ahead, or puts tokens back into the stream.
+            // By then we have seen the comment, but really it's ahead of our current position.
+            // So when we gather up the comments, we must only gather those which are behind us:
+            int curPosition = Optional.ofNullable(getTokenStream().getMostRecent()).map(LocatableToken::getPosition).orElse(0);
+            Predicate<LocatableToken> behindCurPosition = t -> eof || t.getPosition() < curPosition;
+            if (!comments.stream().anyMatch(behindCurPosition))
+                return null;
+            CommentElement el = new CommentElement(comments.stream().filter(behindCurPosition).map(LocatableToken::getText).map(JavaStrideParser::processComment).collect(Collectors.joining(" ")));
+            comments.removeIf(behindCurPosition);
+            return el;
         }
     }
 
@@ -373,23 +402,13 @@ class JavaStrideParser extends JavaParser
     protected void beginStmtblockBody(LocatableToken token)
     {
         super.beginStmtblockBody(token);
-        withStatement(new StatementHandler()
+        withStatement(new BlockCollector()
         {
-            final ArrayList<CodeElement> block = new ArrayList<>();
-
             @Override
             public void endBlock()
             {
                 // We were just collecting the block -- pass to parent handler:
-                foundStatements(block);
-            }
-
-            @Override
-            public void foundStatement(List<CodeElement> statements)
-            {
-                block.addAll(statements);
-                //By default we are popped; re-add:
-                withStatement(this);
+                foundStatements(getContent(false));
             }
         });
     }
@@ -435,7 +454,7 @@ class JavaStrideParser extends JavaParser
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
         super.endMethodDecl(token, included);
-        List<CodeElement> body = ((BlockCollector)statementHandlers.pop()).getContent();
+        List<CodeElement> body = ((BlockCollector)statementHandlers.pop()).getContent(false);
         MethodDetails details = methods.pop();
         String name = details.name;
         List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(toType(t))).collect(Collectors.toList());
@@ -712,7 +731,7 @@ class JavaStrideParser extends JavaParser
     protected void endTypeBody(LocatableToken endCurlyToken, boolean included)
     {
         super.endTypeBody(endCurlyToken, included);
-        List<CodeElement> content = ((BlockCollector)statementHandlers.pop()).getContent();
+        List<CodeElement> content = ((BlockCollector)statementHandlers.pop()).getContent(false);
         if (!typeDefHandlers.isEmpty())
             typeDefHandlers.peek().gotContent(content);
     }
@@ -721,10 +740,10 @@ class JavaStrideParser extends JavaParser
     public void gotComment(LocatableToken token)
     {
         super.gotComment(token);
-        comments.add(token);
+        statementHandlers.peek().gotComment(token);
     }
 
-    private String processComment(String comment)
+    private static String processComment(String comment)
     {
         if (comment.startsWith("//"))
             comment = comment.substring(2).trim();
@@ -1047,27 +1066,15 @@ class JavaStrideParser extends JavaParser
 
     private void foundStatements(List<CodeElement> statements)
     {
-        if (comments.isEmpty())
-            statementHandlers.pop().foundStatement(statements);
-        else
-        {
-            ArrayList<CodeElement> all = new ArrayList<>();
-            // We collect comments which the token stream has seen in the comments list.
-            // But sometimes the parser looks ahead, or puts tokens back into the stream.
-            // By then we have seen the comment, but really it's ahead of our current position.
-            // So when we gather up the comments, we must only gather those which are behind us:
-            int curPosition = getTokenStream().getMostRecent().getPosition();
-            Predicate<LocatableToken> behindCurPosition = t -> t.getPosition() < curPosition;
-            all.add(new CommentElement(comments.stream().filter(behindCurPosition).map(LocatableToken::getText).map(this::processComment).collect(Collectors.joining(" "))));
-            comments.removeIf(behindCurPosition);
-            all.addAll(statements);
-            statementHandlers.pop().foundStatement(all);
-        }
+        statementHandlers.pop().foundStatement(statements);
     }
 
+    /**
+     * Gets the overall result of the parse
+     */
     public List<CodeElement> getCodeElements()
     {
-        return result.getContent();
+        return result.getContent(true);
     }
 
     // package-visible for testing
