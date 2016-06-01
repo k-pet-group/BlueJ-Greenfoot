@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,6 @@ import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.BreakpointElement;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CaseElement;
-import bluej.stride.framedjava.elements.CatchElement;
 import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
@@ -78,7 +77,6 @@ public class Loader
         case BreakpointElement.ELEMENT: return new BreakpointElement(el);
         case CallElement.ELEMENT: return new CallElement(el);
         case CaseElement.ELEMENT: return new CaseElement(el);
-        case CatchElement.ELEMENT: return new CatchElement(el);
         case ClassElement.ELEMENT: throw new IllegalArgumentException("Cannot load top level element via loadElement: " + el.getLocalName());
         case CommentElement.ELEMENT: return new CommentElement(el);
         case ConstructorElement.ELEMENT: return new ConstructorElement(el);
