@@ -17,6 +17,7 @@ import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
+import bluej.stride.framedjava.elements.ForeachElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.InterfaceElement;
@@ -78,6 +79,14 @@ public class JavaToStrideTest
 
         assertEquals("switch (0) { case 1: break; }", _switch("0", l(_case("1", new BreakElement(null, true))), null));
         assertEquals("switch (0) { default: break; }", _switch("0", l(), l(new BreakElement(null, true))));
+
+        assertEquals("for (int x : xs) return;", _forEach("int", "x", "xs", _return()));
+        assertEquals("for (int x : (int[])xs) return;", _forEach("int", "x", "( int [ ] ) xs", _return()));
+    }
+
+    private CodeElement _forEach(String type, String var, String of, CodeElement... body)
+    {
+        return new ForeachElement(null, type(type), name(var), filled(of), l(body), true);
     }
 
     private static TypeSlotFragment type(String t)
@@ -254,9 +263,9 @@ public class JavaToStrideTest
     @Test
     public void testRandomStatement()
     {
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < 1000; i++)
         {
-            roundTrip(many(() -> genStatement(3)), Parser.JavaContext.STATEMENT);
+            roundTrip(many(() -> genStatement(4)), Parser.JavaContext.STATEMENT);
         }
     }
 
@@ -363,7 +372,8 @@ public class JavaToStrideTest
                         replicate(catches, () -> some(() -> genStatement(maxDepth - 1))),
                         _finally ? null : some(() -> genStatement(maxDepth - 1)), true);
             },
-            () -> new SwitchElement(null, genExpression(), some(() -> genCase()), rand() ? null : some(() -> genStatement(2)), true)
+            () -> new ForeachElement(null, genType(), genName(), genExpression(), some(() -> genStatement(maxDepth - 1)), true),
+            () -> new SwitchElement(null, genExpression(), some(() -> genCase()), rand() ? null : some(() -> genStatement(maxDepth - 1)), true)
         ));
         all.addAll(terminals);
         if (maxDepth <= 1)
@@ -682,6 +692,10 @@ public class JavaToStrideTest
         List<CodeElement> result = Parser.javaToStride(javaSource, classMember);
         List<String> resultXML = result.stream().map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
         List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
-        Assert.assertEquals("Checking XML", expectedXML, resultXML);
+        if (expectedXML.size() == 1 && resultXML.size() == 1)
+            // Get better output if we compare strings:
+            Assert.assertEquals("Checking XML", expectedXML.get(0), resultXML.get(0));
+        else
+            Assert.assertEquals("Checking XML", expectedXML, resultXML);
     }
 }

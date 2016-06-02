@@ -22,6 +22,7 @@ import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
+import bluej.stride.framedjava.elements.ForeachElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.InterfaceElement;
@@ -94,6 +95,7 @@ class JavaStrideParser extends JavaParser
     private final Stack<Consumer<String>> typeHandlers = new Stack<>();
     private final Stack<IfBuilder> ifHandlers = new Stack<>();
     private final Stack<SwitchHandler> switchHandlers = new Stack<>();
+    private final Stack<ForHandler> forHandlers = new Stack<>();
     
     private final Stack<FieldOrVarDetails> curField = new Stack<>();
     /**
@@ -242,6 +244,44 @@ class JavaStrideParser extends JavaParser
             inDefault = true;
             defaultContents = new ArrayList<>();
             withStatement(newHandler());
+        }
+    }
+
+    private class ForHandler
+    {
+        private String type;
+        // Should always be at least one var:
+        private final List<String> vars = new ArrayList<>();
+        private boolean isEach;
+        private Expression eachVar;
+
+        public void gotType(String type, List<LocatableToken> modifiers)
+        {
+            this.type = type;
+            // Our for-each loops are always final so we ignore final modifier:
+            modifiers.removeIf(t -> t.getText().equals("final"));
+            warnUnsupportedModifiers("for-loop", modifiers);
+        }
+
+        public void gotName(String name)
+        {
+            this.vars.add(name);
+        }
+
+        public void gotEach(Expression e)
+        {
+            isEach = true;
+            eachVar = e;
+        }
+
+        public void gotVarInit(Expression e)
+        {
+            //TODO
+        }
+
+        public List<CodeElement> end(List<CodeElement> content)
+        {
+            return Arrays.asList(new ForeachElement(null, new TypeSlotFragment(type, type), new NameDefSlotFragment(vars.get(0)), new FilledExpressionSlotFragment(eachVar.stride, eachVar.java), content, true));
         }
     }
     
@@ -1094,6 +1134,52 @@ class JavaStrideParser extends JavaParser
     {
         super.endSwitchBlock(token);
         statementHandlers.pop().endBlock();
+    }
+
+    @Override
+    protected void beginForLoop(LocatableToken token)
+    {
+        super.beginForLoop(token);
+        forHandlers.push(new ForHandler());
+        modifiers.push(new ArrayList<>());
+
+    }
+
+    @Override
+    protected void gotForInit(LocatableToken first, LocatableToken idToken)
+    {
+        super.gotForInit(first, idToken);
+        // Whether for or for-each, we will have seen a type:
+        forHandlers.peek().gotType(prevTypes.pop(), modifiers.peek());
+        forHandlers.peek().gotName(idToken.getText());
+    }
+
+    @Override
+    protected void determinedForLoop(boolean forEachLoop, boolean initFollows)
+    {
+        super.determinedForLoop(forEachLoop, initFollows);
+        if (forEachLoop)
+        {
+            withExpression(e -> forHandlers.peek().gotEach(e));
+        }
+        else if (initFollows)
+        {
+            withExpression(e -> forHandlers.peek().gotVarInit(e));
+        }
+    }
+
+    @Override
+    protected void beginForLoopBody(LocatableToken token)
+    {
+        super.beginForLoopBody(token);
+        withStatement(new StatementHandler(true)
+        {
+            @Override
+            public void endBlock()
+            {
+                JavaStrideParser.this.foundStatements(forHandlers.pop().end(getContent(false)));
+            }
+        });
     }
 
     @Override

@@ -1999,9 +1999,11 @@ public class JavaParser
                 gotForInit(first, idToken);
                 token = nextToken();
                 if (token.getType() == JavaTokenTypes.COLON) {
+                    determinedForLoop(true, false);
                     // This is a "new" for loop (Java 5)
                     endForInit(idToken, true);
                     endForInitDecls(idToken, true);
+                    modifiersConsumed();
                     parseExpression();
                     token = nextToken();
                     if (token.getType() != JavaTokenTypes.RPAREN) {
@@ -2018,6 +2020,7 @@ public class JavaParser
                     return token;
                 }
                 else {
+                    determinedForLoop(false, token.getType() == JavaTokenTypes.ASSIGN);
                     // Old style loop with initialiser
                     if (token.getType() == JavaTokenTypes.ASSIGN) {
                         parseExpression();
@@ -2090,7 +2093,9 @@ public class JavaParser
         endForLoop(token);
         return token;
     }
-    
+
+    protected void determinedForLoop(boolean forEachLoop, boolean initExpressionFollows) { }
+
     private void endForLoop(LocatableToken token)
     {
         if (token == null) {
