@@ -964,7 +964,7 @@ class JavaStrideParser extends JavaParser
     protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic)
     {
         super.gotWildcardImport(tokens, isStatic);
-        imports.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()));
+        imports.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()) + ".*");
     }
 
     @Override

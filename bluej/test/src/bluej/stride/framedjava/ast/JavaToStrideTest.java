@@ -1,5 +1,6 @@
 package bluej.stride.framedjava.ast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,8 +25,12 @@ import bluej.stride.framedjava.elements.ThrowElement;
 import bluej.stride.framedjava.elements.TryElement;
 import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
+import bluej.utility.Utility;
+import com.sun.tools.internal.jxc.api.JXC;
+import nu.xom.Element;
 import org.junit.Assert;
 import org.junit.Test;
+import static bluej.stride.framedjava.ast.JavaStrideParser.uniformSpacing;
 
 /**
  * Note: some of the test cases are not semantically valid, but as long as they are syntactically valid
@@ -128,8 +133,6 @@ public class JavaToStrideTest
         assertExpression("a instanceofb", "a instanceofb");
         // Confusingly, if you put <: in from the Java side, you should get < : (two operators):
         assertExpression("a < : b", "a <: b");
-        
-        //TODO test casts (seems to be a problem)
     }
     
     @Test
@@ -218,8 +221,12 @@ public class JavaToStrideTest
         assertEqualsFile("class Foo {}", _class(null, l(), null, false, "Foo", null, l(), l(), l(), l()));
         assertEqualsFile("abstract class A extends B { int x; }",
             _class(null, l(), null, true, "A", "B", l(), l(_var(AccessPermission.PROTECTED, false, false, "int", "x", null)), l(), l()));
-        
-        // TODO more tests
+
+        assertEqualsFile("package p; import java.util.*; /**Mixed order*/class Jumble implements A,B,C { public double method() {return 0.0;}; private int member; protected Jumble() {return;} }",
+            _class("p", l("java.util.*"), "Mixed order", false, "Jumble", null, l("A", "B", "C"),
+                l(_var(AccessPermission.PRIVATE, false, false, "int", "member", null)),
+                l(_constructor(null, AccessPermission.PROTECTED, l(), l(), l(_return()))),
+                l(_method(null, AccessPermission.PUBLIC, false, false, "double", "method", l(), l(), l(_return("0.0"))))));
     }
     
     @Test
@@ -249,33 +256,21 @@ public class JavaToStrideTest
                 boolean isSuper = rand();
                 return new ConstructorElement(null, genAccess(), some(() -> genParam()), some(() -> genThrowsType()), hasSuperThis ? new SuperThisFragment(isSuper ? SuperThis.SUPER : SuperThis.THIS) : null, hasSuperThis ? genSuperThisParams() : null, some(() -> genStatement(3)), rand() ? null : genComment(), true);
             }),
+            //TODO add abstract methods
+            // TODO add non-Javadoc comments 
             some(() -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genComment(), true)),
             new JavadocUnit("Hi"), rand() ? null : genPackage(), some(() -> genImport()), true);
+        // TODO test interfaces
     }
 
     private static ImportElement genImport()
     {
-        return new ImportElement("hi.xx", null, true); // TODO add more
+        return new ImportElement(oneOf("p.*", "hi.xx", "java.lang.String", "java.util.*"), null, true);
     }
 
     private static PackageFragment genPackage()
     {
-        return new PackageFragment("hi.xx"); // TODO add more
-    }
-
-    private static CodeElement genMember()
-    {
-        return oneOf(
-                () -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genComment(), true),
-                () -> {
-                    boolean hasSuperThis = rand();
-                    boolean isSuper = rand();
-                    return new ConstructorElement(null, genAccess(), some(() -> genParam()), some(() -> genThrowsType()), hasSuperThis ? new SuperThisFragment(isSuper ? SuperThis.SUPER : SuperThis.THIS) : null, hasSuperThis ? genSuperThisParams() : null, some(() -> genStatement(3)), rand() ? null : genComment(), true);
-                },
-                () -> new VarElement(null, genAccess(), rand(), rand(), genType(), genName(), rand() ? genExpression() : null, true),
-                () -> new CommentElement("/** J" + rand(0, 9) + " */"),
-                () -> new CommentElement("/* C" + rand(0, 9) + " */")
-        );
+        return new PackageFragment(oneOf("p", "hi.xx", "a0.b1.c2"));
     }
 
     private static SuperThisParamsExpressionFragment genSuperThisParams()
@@ -295,12 +290,12 @@ public class JavaToStrideTest
 
     private static AccessPermissionFragment genAccess()
     {
-        return new AccessPermissionFragment(oneOf(() -> AccessPermission.PRIVATE, () -> AccessPermission.PROTECTED, () -> AccessPermission.PUBLIC));
+        return new AccessPermissionFragment(oneOf(AccessPermission.PRIVATE, AccessPermission.PROTECTED, AccessPermission.PUBLIC));
     }
 
     private static JavadocUnit genComment()
     {
-        return new JavadocUnit("Hi"); //TODO add more
+        return new JavadocUnit(oneOf("Hi", "One Two", "A B C."));
     }
 
     private static CodeElement genStatement(int maxDepth)
@@ -336,9 +331,9 @@ public class JavaToStrideTest
         ));
         all.addAll(terminals);
         if (maxDepth <= 1)
-            return oneOf(terminals.toArray(new Supplier[0]));
+            return genOneOf(terminals.toArray(new Supplier[0]));
         else
-            return oneOf(all.toArray(new Supplier[0]));
+            return genOneOf(all.toArray(new Supplier[0]));
     }
 
     private static boolean rand()
@@ -348,7 +343,7 @@ public class JavaToStrideTest
 
     private static CallExpressionSlotFragment genCallOrAssign()
     {
-        return oneOf(
+        return genOneOf(
                 () -> {
                     FilledExpressionSlotFragment call = genCall();
                     FilledExpressionSlotFragment expression = genExpression();
@@ -371,41 +366,78 @@ public class JavaToStrideTest
 
     private static OptionalExpressionSlotFragment genOptExpression()
     {
-        return oneOf(() -> null, () -> new OptionalExpressionSlotFragment(genExpression()));
+        return genOneOf(() -> null, () -> new OptionalExpressionSlotFragment(genExpression()));
     }
 
     private static FilledExpressionSlotFragment genExpression()
     {
-        return oneOf(
+        return genExpression(2);
+    }
+    
+    private static FilledExpressionSlotFragment concat(FilledExpressionSlotFragment a, FilledExpressionSlotFragment b)
+    {
+        return new FilledExpressionSlotFragment(a.getContent() + " " + b.getContent(), a.getJavaCode() + " " + b.getJavaCode());
+    }
+
+    private static FilledExpressionSlotFragment genExpression(int maxDepth)
+    {
+        //Terminals:
+        List<Supplier<FilledExpressionSlotFragment>> all = Arrays.asList(
             () -> filled("0"),
             () -> filled("\"hello\\n\""),
+            () -> filled("\"c\" + 0"),
+            () -> filled("\"\" . length ( )"),
+            () -> filled("new Foo ( )"),
             () -> new FilledExpressionSlotFragment("a <: b", "a instanceof b"),
             () -> genCall()
         );
+        if (maxDepth > 1)
+        {
+            // Non-terminals:
+            return genOneOf(
+                // Unary operator:
+                () -> concat(filled(oneOf("!")), genExpression(maxDepth - 1)),
+                // Cast:
+                () -> {
+                    TypeSlotFragment t = genType();
+                    return concat(new FilledExpressionSlotFragment("( " + uniformSpacing(t.getContent()) + " )", "( " + uniformSpacing(t.getJavaCode()) + " )"), genExpression(maxDepth - 1));
+                },
+                // Binary operator:
+                () -> concat(genExpression(maxDepth - 1), genOneOf(
+                    () -> concat(filled("+"), genExpression(maxDepth - 1)),
+                    () -> concat(filled("-"), genExpression(maxDepth - 1)),
+                    () -> concat(filled("<<"), genExpression(maxDepth - 1)),
+                    () -> {
+                        TypeSlotFragment t = genType();
+                        return new FilledExpressionSlotFragment("<: " + uniformSpacing(t.getContent()), "instanceof " + uniformSpacing(t.getJavaCode()));
+                    })
+                )
+            );
+        }
+        return genOneOf(all.toArray(new Supplier[0]));
     }
 
     private static FilledExpressionSlotFragment genCall()
     {
-        return filled("foo . getX ( )");//TODO add more
+        return filled(oneOf("foo . getX ( )", "x ( )", "foo ( ) [ getN ( 6 + 7 ) ]", "x ( )", "y ( )", "a ( ) . b ( )"));
     }
 
     private static TypeSlotFragment genType()
     {
-        return oneOf(
-                () -> type("T"),
-                () -> type("int"),
-                () -> type("java.lang.String")
-        );
+        return type(oneOf("T", "int", "char", "double", "float", "int_", "double", "Double", "java.lang.String", "a.b", "a.b.c.d", "List<String>", "A.B<C.D>[]", "int[]", "double[][]", "List<String>[][]"));
     }
 
     private static NameDefSlotFragment genName()
     {
-        return oneOf(
-                () -> name("x")
-        );
+        return name(oneOf("x","y","i","z081","foo","bar","name_thing", "Class", "_package", "ABCD"));
     }
 
-    private static <T> T oneOf(Supplier<T>... items)
+    private static <T> T oneOf(T... items)
+    {
+        return items[rand(0, items.length - 1)];
+    }
+
+    private static <T> T genOneOf(Supplier<T>... items)
     {
         return items[rand(0, items.length - 1)].get();
     }
@@ -476,12 +508,12 @@ public class JavaToStrideTest
         return new ParamFragment(type(type), name(name));
     }
 
-    private CodeElement _method(String comment, AccessPermission accessPermission, boolean _static, boolean _final, String returnType, String name, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
+    private NormalMethodElement _method(String comment, AccessPermission accessPermission, boolean _static, boolean _final, String returnType, String name, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
     {
         return new NormalMethodElement(null, new AccessPermissionFragment(accessPermission), _static, _final, type(returnType), name(name), params, _throws.stream().map(t -> new ThrowsTypeFragment(type(t))).collect(Collectors.toList()), body, new JavadocUnit(comment), true);
     }
 
-    private CodeElement _constructor(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
+    private ConstructorElement _constructor(String comment, AccessPermission accessPermission, List<ParamFragment> params, List<String> _throws, List<CodeElement> body)
     {
         return new ConstructorElement(null, new AccessPermissionFragment(accessPermission), params, _throws.stream().map(t -> new ThrowsTypeFragment(type(t))).collect(Collectors.toList()), null, null, body, new JavadocUnit(comment), true);
     }
@@ -586,12 +618,24 @@ public class JavaToStrideTest
     {
         test(javaSource, expectedStride, Parser.JavaContext.TOP_LEVEL);
     }
+    
+    private static String serialise(Element el)
+    {
+        try
+        {
+            return Utility.serialiseCodeToString(el);
+        }
+        catch (IOException e)
+        {
+            return null;
+        }
+    }
 
     private static void test(String javaSource, CodeElement[] expectedStride, Parser.JavaContext classMember)
     {
         List<CodeElement> result = Parser.javaToStride(javaSource, classMember);
-        List<String> resultXML = result.stream().map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
-        List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(LocatableElement::toXML).collect(Collectors.toList());
+        List<String> resultXML = result.stream().map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
+        List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
         Assert.assertEquals("Checking XML", expectedXML, resultXML);
     }
 }
