@@ -40,19 +40,19 @@
 bluej.language1=english:English:eng
 bluej.language2=afrikaans:Afrikaans:afr
 bluej.language3=catalan:Catalan:cat
-bluej.language4=chinese:Chinese:chi
-bluej.language5=czech:Czech:cze
+bluej.language4=chinese:Chinese:zho
+bluej.language5=czech:Czech:ces
 bluej.language6=danish:Danish:dan
-bluej.language7=dutch:Dutch:dum
-bluej.language8=french:French:fre
-bluej.language9=german:German:ger
-bluej.language10=greek:Greek:gre
+bluej.language7=dutch:Dutch:nld
+bluej.language8=french:French:fra
+bluej.language9=german:German:deu
+bluej.language10=greek:Greek:ell
 bluej.language11=italian:Italian:ita
 bluej.language12=japanese:Japanese:jpn
 bluej.language13=korean:Korean:kor
 bluej.language14=portuguese:Portuguese:por
 bluej.language15=russian:Russian:rus
-bluej.language16=slovak:Slovak:slo
+bluej.language16=slovak:Slovak:slk
 bluej.language17=spanish:Spanish:spa
 bluej.language18=swedish:Swedish:swe
 
