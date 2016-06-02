@@ -1072,9 +1072,10 @@ class JavaStrideParser extends JavaParser
         private final List<LocatableToken> modifiers;
         private final String doc;
         private String name;
-        private final List<VarElement> fields = new ArrayList<>();
-        private final List<ConstructorElement> constructors = new ArrayList<>();
+        private final List<CodeElement> fields = new ArrayList<>();
+        private final List<CodeElement> constructors = new ArrayList<>();
         private final List<CodeElement> methods = new ArrayList<>();
+        private final List<CommentElement> pendingComments = new ArrayList<>();
         private String extendsType;
         private final List<String> implementsTypes = new ArrayList<>();
 
@@ -1106,18 +1107,43 @@ class JavaStrideParser extends JavaParser
         public void gotContent(CodeElement element)
         {
             if (element instanceof VarElement)
-                fields.add((VarElement)element);
+            {
+                fields.addAll(pendingComments);
+                fields.add(element);
+            }
             else if (element instanceof ConstructorElement)
-                constructors.add((ConstructorElement)element);
+            {
+                constructors.addAll(pendingComments);
+                constructors.add(element);
+            }
             else if (element instanceof NormalMethodElement || element instanceof MethodProtoElement)
+            {
+                methods.addAll(pendingComments);
                 methods.add(element);
+            }
+            else if (element instanceof CommentElement)
+            {
+                pendingComments.add((CommentElement)element);
+                return;
+            }
             else
+            {
                 warnings.add("Unsupported class member: " + element.getClass());
+                return;
+            }
+            pendingComments.clear();
         }
 
         @Override
         public CodeElement end()
         {
+            if (!methods.isEmpty())
+                methods.addAll(pendingComments);
+            else if (!constructors.isEmpty())
+                constructors.addAll(pendingComments);
+            else
+                fields.addAll(pendingComments);
+            pendingComments.clear();
             boolean _abstract = modifiers.removeIf(t -> t.getText().equals("abstract"));
             // Public is the default so don't warn it's unsupported:
             modifiers.remove("public");

@@ -27,7 +27,6 @@ import bluej.stride.framedjava.elements.TryElement;
 import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import bluej.utility.Utility;
-import com.sun.tools.internal.jxc.api.JXC;
 import nu.xom.Element;
 import org.junit.Assert;
 import org.junit.Test;
@@ -169,6 +168,7 @@ public class JavaToStrideTest
         assertEqualsMember("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
         assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2 , 3", l()));
         //TODO test: abstract methods, interface methods (incl default), generic methods (either fail or do our best)
+        //TODO test non-Javadoc mid-class comments
     }
     
     @Test
@@ -251,20 +251,23 @@ public class JavaToStrideTest
     private static CodeElement genTopLevel()
     {
         return new ClassElement(null, null, rand(), genName(), rand() ? genType() : null, some(() -> genType()),
-            some(() -> new VarElement(null, genAccess(), rand(), rand(), genType(), genName(), rand() ? genExpression() : null, true)),
-            some(() -> {
+            somePrecede(() -> genComment(), () -> new VarElement(null, genAccess(), rand(), rand(), genType(), genName(), rand() ? genExpression() : null, true)),
+            somePrecede(() -> genComment(), () -> {
                 boolean hasSuperThis = rand();
                 boolean isSuper = rand();
-                return new ConstructorElement(null, genAccess(), some(() -> genParam()), some(() -> genThrowsType()), hasSuperThis ? new SuperThisFragment(isSuper ? SuperThis.SUPER : SuperThis.THIS) : null, hasSuperThis ? genSuperThisParams() : null, some(() -> genStatement(3)), rand() ? null : genComment(), true);
+                return new ConstructorElement(null, genAccess(), some(() -> genParam()), some(() -> genThrowsType()), hasSuperThis ? new SuperThisFragment(isSuper ? SuperThis.SUPER : SuperThis.THIS) : null, hasSuperThis ? genSuperThisParams() : null, some(() -> genStatement(3)), rand() ? null : genJavadoc(), true);
             }),
-            //TODO add abstract methods
-            // TODO add non-Javadoc comments 
-            some(() -> genOneOf(
-                () -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genComment(), true),
-                () -> new MethodProtoElement(null, genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), rand() ? null : genComment(), true)
+            somePrecede(() -> genComment(), () -> genOneOf(
+                () -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genJavadoc(), true),
+                () -> new MethodProtoElement(null, genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), rand() ? null : genJavadoc(), true)
             )),
             new JavadocUnit("Hi"), rand() ? null : genPackage(), some(() -> genImport()), true);
         // TODO test interfaces
+    }
+
+    private static CommentElement genComment()
+    {
+        return new CommentElement(oneOf("Hello", "Bye", "Whatever", "///"));
     }
 
     private static ImportElement genImport()
@@ -297,7 +300,7 @@ public class JavaToStrideTest
         return new AccessPermissionFragment(oneOf(AccessPermission.PRIVATE, AccessPermission.PROTECTED, AccessPermission.PUBLIC));
     }
 
-    private static JavadocUnit genComment()
+    private static JavadocUnit genJavadoc()
     {
         return new JavadocUnit(oneOf("Hi", "One Two", "A B C."));
     }
@@ -464,6 +467,11 @@ public class JavaToStrideTest
     private static <T> List<T> some(Supplier<T> item)
     {
         return collapseComments(Stream.generate(item).limit(rand(0, 4)).collect(Collectors.toList()));
+    }
+
+    private static <T> List<T> somePrecede(Supplier<T> before, Supplier<T> item)
+    {
+        return collapseComments(Stream.generate(item).limit(rand(0, 4)).flatMap(x -> rand() ? Stream.of(x) : Stream.of(before.get(), x)).collect(Collectors.toList()));
     }
 
     private static <T> List<T> many(Supplier<T> item)
