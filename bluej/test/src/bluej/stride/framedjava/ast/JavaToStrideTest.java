@@ -19,6 +19,7 @@ import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.LocatableElement;
+import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.ThrowElement;
@@ -258,7 +259,10 @@ public class JavaToStrideTest
             }),
             //TODO add abstract methods
             // TODO add non-Javadoc comments 
-            some(() -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genComment(), true)),
+            some(() -> genOneOf(
+                () -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genComment(), true),
+                () -> new MethodProtoElement(null, genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), rand() ? null : genComment(), true)
+            )),
             new JavadocUnit("Hi"), rand() ? null : genPackage(), some(() -> genImport()), true);
         // TODO test interfaces
     }

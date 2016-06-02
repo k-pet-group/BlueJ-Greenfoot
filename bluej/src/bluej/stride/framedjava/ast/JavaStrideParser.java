@@ -23,6 +23,7 @@ import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.ImportElement;
+import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.elements.ThrowElement;
@@ -130,6 +131,7 @@ class JavaStrideParser extends JavaParser
         public String constructorCall; // may be null
         public List<Expression> constructorArgs; // may be null
         public final String type;
+        public boolean hasBody = false;
 
         public MethodDetails(String type, String name, List<LocatableToken> modifiers, String comment)
         {
@@ -484,14 +486,6 @@ class JavaStrideParser extends JavaParser
     {
         super.gotConstructorDecl(token, hiddenToken);
         methods.push(new MethodDetails(null, null, modifiers.peek(), statementHandlers.peek().getJavadoc()));
-        withStatement(new StatementHandler(false)
-        {
-            @Override
-            public void endBlock()
-            {
-
-            }
-        });
     }
 
     @Override
@@ -499,6 +493,13 @@ class JavaStrideParser extends JavaParser
     {
         super.gotMethodDeclaration(nameToken, hiddenToken);
         methods.push(new MethodDetails(prevTypes.pop(), nameToken.getText(), modifiers.peek(), statementHandlers.peek().getJavadoc()));
+    }
+
+    @Override
+    protected void beginMethodBody(LocatableToken token)
+    {
+        super.beginMethodBody(token);
+        methods.peek().hasBody = true;
         withStatement(new StatementHandler(false)
         {
             @Override
@@ -513,8 +514,8 @@ class JavaStrideParser extends JavaParser
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
         super.endMethodDecl(token, included);
-        List<CodeElement> body = ((StatementHandler)statementHandlers.pop()).getContent(false);
         MethodDetails details = methods.pop();
+        List<CodeElement> body = details.hasBody ? statementHandlers.pop().getContent(false) : null;
         String name = details.name;
         List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(toType(t))).collect(Collectors.toList());
         List<LocatableToken> modifiers = details.modifiers;
@@ -527,9 +528,13 @@ class JavaStrideParser extends JavaParser
             // Any remaining are unrecognised:
             warnUnsupportedModifiers("method", modifiers);
             String type = details.type;
-            foundStatement(new NormalMethodElement(null, new AccessPermissionFragment(permission),
-                _static, _final, toType(type), new NameDefSlotFragment(name), details.parameters,
-                throwsTypes, body, new JavadocUnit(details.comment), true));
+            if (details.hasBody)
+                foundStatement(new NormalMethodElement(null, new AccessPermissionFragment(permission),
+                    _static, _final, toType(type), new NameDefSlotFragment(name), details.parameters,
+                    throwsTypes, body, new JavadocUnit(details.comment), true));
+            else
+                foundStatement(new MethodProtoElement(null, toType(type), new NameDefSlotFragment(name),
+                    details.parameters, throwsTypes, new JavadocUnit(details.comment), true));
         }
         else
         {
@@ -1069,7 +1074,7 @@ class JavaStrideParser extends JavaParser
         private String name;
         private final List<VarElement> fields = new ArrayList<>();
         private final List<ConstructorElement> constructors = new ArrayList<>();
-        private final List<NormalMethodElement> methods = new ArrayList<>();
+        private final List<CodeElement> methods = new ArrayList<>();
         private String extendsType;
         private final List<String> implementsTypes = new ArrayList<>();
 
@@ -1104,8 +1109,8 @@ class JavaStrideParser extends JavaParser
                 fields.add((VarElement)element);
             else if (element instanceof ConstructorElement)
                 constructors.add((ConstructorElement)element);
-            else if (element instanceof NormalMethodElement)
-                methods.add((NormalMethodElement)element);
+            else if (element instanceof NormalMethodElement || element instanceof MethodProtoElement)
+                methods.add(element);
             else
                 warnings.add("Unsupported class member: " + element.getClass());
         }

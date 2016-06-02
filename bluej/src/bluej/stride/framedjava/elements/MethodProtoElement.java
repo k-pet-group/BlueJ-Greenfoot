@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.Utility;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.JavaFragment;
@@ -115,8 +116,27 @@ public class MethodProtoElement extends DocumentContainerCodeElement
         List<JavaFragment> header = new ArrayList<>();
         Collections.addAll(header, returnType, space(),  name, f(frame, "("));
         ParamFragment.addParamsToHeader(frame, this, params, header);
-        header.add(f(frame, ");"));
+        header.add(f(frame, ")"));
+        header.addAll(throwsToJava());
+        header.add(f(frame, ";"));
         return header;
+    }
+
+    /**
+     * Helper method for subclasses when generating Java: Turn throws declaration into Java
+     */
+    private List<JavaFragment> throwsToJava()
+    {
+        if (throwsTypes.isEmpty())
+            return Collections.emptyList();
+
+        ArrayList<JavaFragment> typesAndCommas = throwsTypes.stream().map(ThrowsTypeFragment::getJavaSource).collect(Utility.intersperse(() -> (JavaFragment)f(null, ", ")));
+
+        typesAndCommas.add(0, space());
+        typesAndCommas.add(0, f(frame, "throws"));
+        typesAndCommas.add(0, space());
+
+        return typesAndCommas;
     }
 
     @Override
