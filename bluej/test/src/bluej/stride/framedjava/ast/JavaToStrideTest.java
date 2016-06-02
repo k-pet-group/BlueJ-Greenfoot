@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.CaseElement;
 import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
@@ -23,6 +24,7 @@ import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
+import bluej.stride.framedjava.elements.SwitchElement;
 import bluej.stride.framedjava.elements.ThrowElement;
 import bluej.stride.framedjava.elements.TryElement;
 import bluej.stride.framedjava.elements.VarElement;
@@ -73,6 +75,9 @@ public class JavaToStrideTest
         // Failing random test:
         assertEquals("try { } catch (java.lang.String x) { while (0) { } } catch (int x) { }",
                 _try(l(), l(type("java.lang.String"), type("int")), l(name("x"), name("x")), l(l(_while("0")), l()), null));
+
+        assertEquals("switch (0) { case 1: break; }", _switch("0", l(_case("1", new BreakElement(null, true))), null));
+        assertEquals("switch (0) { default: break; }", _switch("0", l(), l(new BreakElement(null, true))));
     }
 
     private static TypeSlotFragment type(String t)
@@ -83,6 +88,16 @@ public class JavaToStrideTest
     private static NameDefSlotFragment name(String n)
     {
         return new NameDefSlotFragment(n);
+    }
+
+    private SwitchElement _switch(String exp, List<CaseElement> cases, List<CodeElement> defaultBody)
+    {
+        return new SwitchElement(null, filled(exp), cases, defaultBody, true);
+    }
+
+    private CaseElement _case(String exp, CodeElement... body)
+    {
+        return new CaseElement(null, filled(exp), l(body), true);
     }
 
     private TryElement _try(List<CodeElement> tryContents, List<TypeSlotFragment> catchTypes, List<NameDefSlotFragment> catchNames, List<List<CodeElement>> catchContents, List<CodeElement> finallyContents)
@@ -134,6 +149,8 @@ public class JavaToStrideTest
         assertExpression("a instanceofb", "a instanceofb");
         // Confusingly, if you put <: in from the Java side, you should get < : (two operators):
         assertExpression("a < : b", "a <: b");
+
+        // TODO test += etc, and ++
     }
     
     @Test
@@ -345,13 +362,19 @@ public class JavaToStrideTest
                         replicate(catches, () -> genName()),
                         replicate(catches, () -> some(() -> genStatement(maxDepth - 1))),
                         _finally ? null : some(() -> genStatement(maxDepth - 1)), true);
-            }
+            },
+            () -> new SwitchElement(null, genExpression(), some(() -> genCase()), rand() ? null : some(() -> genStatement(2)), true)
         ));
         all.addAll(terminals);
         if (maxDepth <= 1)
             return genOneOf(terminals.toArray(new Supplier[0]));
         else
             return genOneOf(all.toArray(new Supplier[0]));
+    }
+
+    private static CaseElement genCase()
+    {
+        return new CaseElement(null, genExpression(), some(() -> genStatement(2)), true);
     }
 
     private static boolean rand()

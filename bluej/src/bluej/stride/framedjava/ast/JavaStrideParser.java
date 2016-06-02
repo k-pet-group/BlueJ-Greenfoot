@@ -17,6 +17,7 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.CaseElement;
 import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.CommentElement;
@@ -27,6 +28,7 @@ import bluej.stride.framedjava.elements.InterfaceElement;
 import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
+import bluej.stride.framedjava.elements.SwitchElement;
 import bluej.stride.framedjava.elements.ThrowElement;
 import bluej.stride.framedjava.elements.TryElement;
 import bluej.stride.framedjava.elements.VarElement;
@@ -91,6 +93,7 @@ class JavaStrideParser extends JavaParser
     private final Stack<String> prevTypes = new Stack<>();
     private final Stack<Consumer<String>> typeHandlers = new Stack<>();
     private final Stack<IfBuilder> ifHandlers = new Stack<>();
+    private final Stack<SwitchHandler> switchHandlers = new Stack<>();
     
     private final Stack<FieldOrVarDetails> curField = new Stack<>();
     /**
@@ -162,6 +165,84 @@ class JavaStrideParser extends JavaParser
         private final List<String> catchNames = new ArrayList<>();
         private final List<List<CodeElement>> catchBlocks = new ArrayList<>();
         private List<CodeElement> finallyContents = null;
+    }
+
+    private class SwitchHandler
+    {
+        private Expression expression;
+        private final List<Expression> cases = new ArrayList<>();
+        private final List<List<CodeElement>> caseContents = new ArrayList<>();
+        private List<CodeElement> defaultContents; // null if no default
+        private boolean inDefault;
+
+        public void gotSwitchExpression(Expression e)
+        {
+            this.expression = e;
+        }
+
+        public SwitchElement end()
+        {
+            List<CodeElement> caseFrames = new ArrayList<>();
+            for (int i = 0; i < cases.size(); i++)
+            {
+                caseFrames.add(new CaseElement(null, new FilledExpressionSlotFragment(cases.get(i).stride, cases.get(i).java), caseContents.get(i), true));
+            }
+
+            return new SwitchElement(null, new FilledExpressionSlotFragment(expression.stride, expression.java),
+                    caseFrames, defaultContents, true);
+        }
+
+        public void beginBlock()
+        {
+            withStatement(newHandler());
+        }
+
+        private StatementHandler newHandler()
+        {
+            return new StatementHandler(false)
+            {
+                @Override
+                public void endBlock()
+                {
+                    storePrevCode(this);
+                    JavaStrideParser.this.foundStatement(switchHandlers.pop().end());
+                }
+            };
+        }
+
+
+        public void gotCase(Expression e)
+        {
+            // Important that we store prev code before adding to cases:
+            storePrevCode(null);
+            cases.add(e);
+            withStatement(newHandler());
+        }
+
+        private void storePrevCode(StatementHandler handler)
+        {
+            List<CodeElement> prevContent = (handler == null ? statementHandlers.pop() : handler).getContent(false);
+            if (cases.isEmpty() && !inDefault)
+            {
+                // Content before first case; discard it
+            }
+            else
+            {
+                if (inDefault)
+                    defaultContents.addAll(prevContent);
+                else
+                    caseContents.add(prevContent);
+            }
+        }
+
+        public void gotDefault()
+        {
+            storePrevCode(null);
+            // Important we set these up after storing previous code:
+            inDefault = true;
+            defaultContents = new ArrayList<>();
+            withStatement(newHandler());
+        }
     }
     
     private static class Expression
@@ -977,6 +1058,42 @@ class JavaStrideParser extends JavaParser
     {
         super.gotWildcardImport(tokens, isStatic);
         imports.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()) + ".*");
+    }
+
+    @Override
+    protected void beginSwitchStmt(LocatableToken token)
+    {
+        super.beginSwitchStmt(token);
+        switchHandlers.push(new SwitchHandler());
+        withExpression(e -> switchHandlers.peek().gotSwitchExpression(e));
+    }
+
+    @Override
+    protected void beginSwitchBlock(LocatableToken token)
+    {
+        super.beginSwitchBlock(token);
+        switchHandlers.peek().beginBlock();
+    }
+
+    @Override
+    protected void gotSwitchCase()
+    {
+        super.gotSwitchCase();
+        withExpression(e -> switchHandlers.peek().gotCase(e));
+    }
+
+    @Override
+    protected void gotSwitchDefault()
+    {
+        super.gotSwitchDefault();
+        switchHandlers.peek().gotDefault();
+    }
+
+    @Override
+    protected void endSwitchBlock(LocatableToken token)
+    {
+        super.endSwitchBlock(token);
+        statementHandlers.pop().endBlock();
     }
 
     @Override

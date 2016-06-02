@@ -49,12 +49,12 @@ public class SwitchElement extends ContainerCodeElement implements JavaSingleLin
     private final List<CodeElement> defaultContents;
     private SwitchFrame frame;
     
-    public SwitchElement(SwitchFrame frame, FilledExpressionSlotFragment expression, List<CodeElement> casesContents,
+    public SwitchElement(SwitchFrame frame, FilledExpressionSlotFragment expression, List<? extends CodeElement> casesContents,
                          List<CodeElement> defaultContents, boolean enabled)
     {
         this.frame = frame;
         this.expression = expression;
-        this.casesContents = casesContents;
+        this.casesContents = new ArrayList<>(casesContents);
         this.casesContents.forEach(c -> c.setParent(this));
 
         this.defaultContents = defaultContents;

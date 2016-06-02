@@ -1454,6 +1454,7 @@ public class JavaParser
             case 8: // LITERAL_switch
                 return parseSwitchStatement(token);
             case 9: // LITERAL_case
+                gotSwitchCase();
                 parseExpression();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.COLON) {
@@ -1463,6 +1464,7 @@ public class JavaParser
                 }
                 return token;
             case 10: // LITERAL_default
+                gotSwitchDefault();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.COLON) {
                     error("Expecting ':' at end of case expression");
@@ -1663,6 +1665,10 @@ public class JavaParser
             return token;
         }
     }
+
+    protected void gotSwitchCase() { }
+
+    protected void gotSwitchDefault() { }
 
     protected void gotThrow(LocatableToken token) { }
 
