@@ -395,7 +395,7 @@ public class JavaParser
     
     protected void gotForInit(LocatableToken first, LocatableToken idToken) { }
     
-    protected void gotSubsequentForInit(LocatableToken first, LocatableToken idToken) { }
+    protected void gotSubsequentForInit(LocatableToken first, LocatableToken idToken, boolean initFollows) { }
     
     protected void endForInit(LocatableToken token, boolean included) { }
     
@@ -2048,7 +2048,9 @@ public class JavaParser
         }
 
         // We're expecting a regular (old-style) statement at this point
-        if (tokenStream.LA(1).getType() != JavaTokenTypes.SEMI) {
+        boolean semiFollows = tokenStream.LA(1).getType() == JavaTokenTypes.SEMI;
+        gotForTest(!semiFollows);
+        if (!semiFollows) {
             // test expression
             parseExpression();
         }
@@ -2064,7 +2066,9 @@ public class JavaParser
             endForLoop(token, false);
             return null;
         }
-        if (tokenStream.LA(1).getType() != JavaTokenTypes.RPAREN) {
+        boolean bracketFollows = tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN;
+        gotForIncrement(!bracketFollows);
+        if (!bracketFollows) {
             // loop increment expression
             parseExpression();
             while (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA) {
@@ -2093,6 +2097,9 @@ public class JavaParser
         endForLoop(token);
         return token;
     }
+
+    protected void gotForTest(boolean isPresent) { }
+    protected void gotForIncrement(boolean isPresent) { }
 
     protected void determinedForLoop(boolean forEachLoop, boolean initExpressionFollows) { }
 
@@ -2320,7 +2327,7 @@ public class JavaParser
             gotSubsequentVar(firstToken, nameToken, inited);
         }
         else {
-            gotSubsequentForInit(firstToken, nameToken);
+            gotSubsequentForInit(firstToken, nameToken, inited);
         }
     }
     

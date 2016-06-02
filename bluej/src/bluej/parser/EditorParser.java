@@ -1188,7 +1188,7 @@ public class EditorParser extends JavaParser
     
     @Override
     protected void gotSubsequentForInit(LocatableToken first,
-            LocatableToken idToken)
+                                        LocatableToken idToken, boolean initFollows)
     {
         gotSubsequentField(first, idToken, true);
     }

@@ -82,6 +82,19 @@ public class JavaToStrideTest
 
         assertEquals("for (int x : xs) return;", _forEach("int", "x", "xs", _return()));
         assertEquals("for (int x : (int[])xs) return;", _forEach("int", "x", "( int [ ] ) xs", _return()));
+
+        assertEquals("for (int i = 0; i < 10; i = i + 1) return;",
+                _var(null, false, false, "int", "i", filled("0")),
+                _while("i < 10", _return(), _call("i = i + 1"))
+        );
+        //TODO test with i++
+        assertEquals("for (int i = 0, j, k = (double)7, l; i < 10; i = i + 1) {return 0; return 1;}",
+                _var(null, false, false, "int", "i", filled("0")),
+                _var(null, false, false, "int", "j", null),
+                _var(null, false, false, "int", "k", filled("( double ) 7")),
+                _var(null, false, false, "int", "l", null),
+                _while("i < 10", _return("0"), _return("1"), _call("i = i + 1"))
+        );
     }
 
     private CodeElement _forEach(String type, String var, String of, CodeElement... body)

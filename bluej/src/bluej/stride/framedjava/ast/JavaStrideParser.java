@@ -252,8 +252,12 @@ class JavaStrideParser extends JavaParser
         private String type;
         // Should always be at least one var:
         private final List<String> vars = new ArrayList<>();
+        // Should always be the same size as vars, null indicates no initialiser
+        private final List<Expression> inits = new ArrayList<>();
         private boolean isEach;
         private Expression eachVar;
+        private Expression post; // null means empty
+        private Expression condition; // null means empty
 
         public void gotType(String type, List<LocatableToken> modifiers)
         {
@@ -266,6 +270,8 @@ class JavaStrideParser extends JavaParser
         public void gotName(String name)
         {
             this.vars.add(name);
+            // Assume no initializer unless we find one:
+            this.inits.add(null);
         }
 
         public void gotEach(Expression e)
@@ -276,12 +282,36 @@ class JavaStrideParser extends JavaParser
 
         public void gotVarInit(Expression e)
         {
-            //TODO
+            this.inits.set(this.vars.size() - 1, e);
         }
 
         public List<CodeElement> end(List<CodeElement> content)
         {
-            return Arrays.asList(new ForeachElement(null, new TypeSlotFragment(type, type), new NameDefSlotFragment(vars.get(0)), new FilledExpressionSlotFragment(eachVar.stride, eachVar.java), content, true));
+            if (isEach)
+                return Arrays.asList(new ForeachElement(null, new TypeSlotFragment(type, type), new NameDefSlotFragment(vars.get(0)), new FilledExpressionSlotFragment(eachVar.stride, eachVar.java), content, true));
+            else
+            {
+                List<CodeElement> initAndLoop = new ArrayList<>();
+                for (int i = 0; i < vars.size(); i++)
+                {
+                    initAndLoop.add(new VarElement(null, null, false, false, toType(type), new NameDefSlotFragment(vars.get(i)), inits.get(i) == null ? null : toFilled(inits.get(i)), true));
+                }
+                List<CodeElement> loopBody = new ArrayList<>(content);
+                if (post != null)
+                    loopBody.add(new CallElement(null, new CallExpressionSlotFragment(post.stride, post.java), true));
+                initAndLoop.add(new WhileElement(null, condition != null ? toFilled(condition) : new FilledExpressionSlotFragment("true", "true"), loopBody, true));
+                return initAndLoop;
+            }
+        }
+
+        public void gotPost(Expression e)
+        {
+            this.post = e;
+        }
+
+        public void gotCondition(Expression e)
+        {
+            this.condition = e;
         }
     }
     
@@ -1155,6 +1185,15 @@ class JavaStrideParser extends JavaParser
     }
 
     @Override
+    protected void gotSubsequentForInit(LocatableToken first, LocatableToken idToken, boolean initFollows)
+    {
+        super.gotSubsequentForInit(first, idToken, initFollows);
+        forHandlers.peek().gotName(idToken.getText());
+        if (initFollows)
+            withExpression(e -> forHandlers.peek().gotVarInit(e));
+    }
+
+    @Override
     protected void determinedForLoop(boolean forEachLoop, boolean initFollows)
     {
         super.determinedForLoop(forEachLoop, initFollows);
@@ -1166,6 +1205,22 @@ class JavaStrideParser extends JavaParser
         {
             withExpression(e -> forHandlers.peek().gotVarInit(e));
         }
+    }
+
+    @Override
+    protected void gotForIncrement(boolean isPresent)
+    {
+        super.gotForIncrement(isPresent);
+        if (isPresent)
+            withExpression(e -> forHandlers.peek().gotPost(e));
+    }
+
+    @Override
+    protected void gotForTest(boolean isPresent)
+    {
+        super.gotForTest(isPresent);
+        if (isPresent)
+            withExpression(e -> forHandlers.peek().gotCondition(e));
     }
 
     @Override
