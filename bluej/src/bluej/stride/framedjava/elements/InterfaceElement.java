@@ -222,8 +222,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
 
         if (!packageName.getContent().equals(""))
             java.prependLine(Arrays.asList(f(frame, "package "), packageName, f(frame, ";")), null);
-        java.prependLine(Arrays.asList((JavaFragment)f(frame, "// WARNING: This file is auto-generated and any changes to it will be overwritten")), null);
-
+        
         openingCurly.setFrame(frame);
         java.appendLine(Arrays.asList(openingCurly), null);
         fields.stream().filter(f -> f.isEnable()).forEach(f -> java.addIndented(f.toJavaSource()));
