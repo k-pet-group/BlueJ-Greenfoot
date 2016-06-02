@@ -29,8 +29,14 @@ spanish         1.5.5            x    labels+dialog+frames, Rev: 14946      Cabr
 
 IMPORTANT:
 When adding a new translation, it should be added in the build scripts: package/build.xml and package/greenfoot-build.xml
-It should also be added to greenfoot.defs so users can see the available languages.
+It should also be added to bluej.defs and greenfoot.defs so users can see the available languages.
 
+
+IMPORTANT:
+Translations need to be encoded using Latin-1 (ISO-8859-1) encoding; characters not representable in Latin-1 must be written
+as "Unicode-encoded characters" (\uXXXX notation) as produced by the "native2ascii" utility that comes with the JDK.
+
+The code templates however should be encoded in UTF-8.
 
 
 language        old translators
