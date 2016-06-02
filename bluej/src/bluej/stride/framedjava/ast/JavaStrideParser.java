@@ -23,6 +23,7 @@ import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.ImportElement;
+import bluej.stride.framedjava.elements.InterfaceElement;
 import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.ReturnElement;
@@ -192,6 +193,8 @@ class JavaStrideParser extends JavaParser
         public void gotName(String name);
 
         public void startedClass(List<LocatableToken> modifiers, String doc);
+
+        public void startedInterface(List<LocatableToken> modifiers, String doc);
 
         void gotContent(List<CodeElement> content);
 
@@ -731,6 +734,10 @@ class JavaStrideParser extends JavaParser
                 if (!typeDefHandlers.isEmpty())
                     typeDefHandlers.peek().startedClass(modifiers, statementHandlers.peek().getJavadoc());
                 break;
+            case TYPEDEF_INTERFACE:
+                if (!typeDefHandlers.isEmpty())
+                    typeDefHandlers.peek().startedInterface(modifiers, statementHandlers.peek().getJavadoc());
+                break;
         }
     }
 
@@ -1067,6 +1074,83 @@ class JavaStrideParser extends JavaParser
         void gotExtends(String type);
     }
     
+    private class InterfaceDelegate implements TypeDefDelegate
+    {
+        private final List<LocatableToken> modifiers;
+        private final String doc;
+        private String name;
+        private final List<CodeElement> fields = new ArrayList<>();
+        private final List<CodeElement> methods = new ArrayList<>();
+        private final List<CommentElement> pendingComments = new ArrayList<>();
+        private final List<String> extendsTypes = new ArrayList<>();
+
+        public InterfaceDelegate(List<LocatableToken> modifiers, String doc)
+        {
+            this.modifiers = new ArrayList<>(modifiers);
+            this.doc = doc;
+        }
+
+        @Override
+        public void gotName(String name)
+        {
+            this.name = name;
+        }
+
+        @Override
+        public void gotExtends(String type)
+        {
+            extendsTypes.add(type);
+        }
+
+        @Override
+        public void gotImplements(String type)
+        {
+            
+        }
+
+        @Override
+        public void gotContent(CodeElement element)
+        {
+            if (element instanceof VarElement)
+            {
+                fields.addAll(pendingComments);
+                fields.add(element);
+            }
+            else if (element instanceof NormalMethodElement || element instanceof MethodProtoElement)
+            {
+                methods.addAll(pendingComments);
+                methods.add(element);
+            }
+            else if (element instanceof CommentElement)
+            {
+                pendingComments.add((CommentElement)element);
+                return;
+            }
+            else
+            {
+                warnings.add("Unsupported class member: " + element.getClass());
+                return;
+            }
+            pendingComments.clear();
+        }
+
+        @Override
+        public CodeElement end()
+        {
+            if (!methods.isEmpty())
+                methods.addAll(pendingComments);
+            else
+                fields.addAll(pendingComments);
+            pendingComments.clear();
+            // Public is the default so don't warn it's unsupported:
+            modifiers.remove("public");
+            warnUnsupportedModifiers("class", modifiers);
+            return new InterfaceElement(null, null, new NameDefSlotFragment(name),
+                extendsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields, methods,
+                new JavadocUnit(doc), pkg == null ? null : new PackageFragment(pkg), imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
+        }
+    }
+    
     private class ClassDelegate implements TypeDefDelegate
     {
         private final List<LocatableToken> modifiers;
@@ -1186,6 +1270,13 @@ class JavaStrideParser extends JavaParser
             {
                 if (outstanding == 1)
                     delegate = new ClassDelegate(modifiers, doc);
+            }
+
+            @Override
+            public void startedInterface(List<LocatableToken> modifiers, String doc)
+            {
+                if (outstanding == 1)
+                    delegate = new InterfaceDelegate(modifiers, doc);
             }
 
             @Override

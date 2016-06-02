@@ -18,6 +18,7 @@ import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.ImportElement;
+import bluej.stride.framedjava.elements.InterfaceElement;
 import bluej.stride.framedjava.elements.LocatableElement;
 import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
@@ -167,8 +168,8 @@ public class JavaToStrideTest
         assertEqualsMember("/** X*/\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
         assertEqualsMember("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
         assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2 , 3", l()));
-        //TODO test: abstract methods, interface methods (incl default), generic methods (either fail or do our best)
-        //TODO test non-Javadoc mid-class comments
+        //TODO test: abstract methods, interface methods (incl default -- should fail), generic methods (either fail or do our best)
+        
     }
     
     @Test
@@ -228,6 +229,9 @@ public class JavaToStrideTest
                 l(_var(AccessPermission.PRIVATE, false, false, "int", "member", null)),
                 l(_constructor(null, AccessPermission.PROTECTED, l(), l(), l(_return()))),
                 l(_method(null, AccessPermission.PUBLIC, false, false, "double", "method", l(), l(), l(_return("0.0"))))));
+        
+        // TODO test interfaces
+        //TODO test non-Javadoc mid-class comments
     }
     
     @Test
@@ -250,7 +254,8 @@ public class JavaToStrideTest
     
     private static CodeElement genTopLevel()
     {
-        return new ClassElement(null, null, rand(), genName(), rand() ? genType() : null, some(() -> genType()),
+        return genOneOf(
+        () -> new ClassElement(null, null, rand(), genName(), rand() ? genType() : null, some(() -> genType()),
             somePrecede(() -> genComment(), () -> new VarElement(null, genAccess(), rand(), rand(), genType(), genName(), rand() ? genExpression() : null, true)),
             somePrecede(() -> genComment(), () -> {
                 boolean hasSuperThis = rand();
@@ -261,8 +266,14 @@ public class JavaToStrideTest
                 () -> new NormalMethodElement(null, genAccess(), rand(), rand(), genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), some(() -> genStatement(3)), rand() ? null : genJavadoc(), true),
                 () -> new MethodProtoElement(null, genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), rand() ? null : genJavadoc(), true)
             )),
-            new JavadocUnit("Hi"), rand() ? null : genPackage(), some(() -> genImport()), true);
-        // TODO test interfaces
+            genJavadoc(), rand() ? null : genPackage(), some(() -> genImport()), true),
+        () -> new InterfaceElement(null, null, genName(), some(() -> genType()),
+            somePrecede(() -> genComment(), () -> new VarElement(null, genAccess(), rand(), rand(), genType(), genName(), rand() ? genExpression() : null, true)),
+            somePrecede(() -> genComment(), 
+                () -> new MethodProtoElement(null, genType(), genName(), some(() -> genParam()), some(() -> genThrowsType()), rand() ? null : genJavadoc(), true)
+            ),
+            genJavadoc(), rand() ? null : genPackage(), some(() -> genImport()), true)
+        );
     }
 
     private static CommentElement genComment()
