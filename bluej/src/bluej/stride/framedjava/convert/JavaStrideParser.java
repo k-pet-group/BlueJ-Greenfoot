@@ -50,6 +50,8 @@ import bluej.stride.framedjava.elements.WhileElement;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 
+import static bluej.parser.lexer.JavaTokenTypes.SL_COMMENT;
+
 /**
  * A parser for parsing Java with the purpose of converting it to Stride.
  * 
@@ -142,7 +144,9 @@ public class JavaStrideParser extends JavaParser
         public void add(ConversionWarning warning, Consumer<LocatableToken> commentAdd)
         {
             warnings.add(warning);
-            commentAdd.accept(new LocatableToken(0, "// " + (testing ? ("WARNING:" + warning.getClass().getName()) : warning.getMessage())));
+            LocatableToken dummyToken = new LocatableToken(SL_COMMENT, "// " + (testing ? ("WARNING:" + warning.getClass().getName()) : warning.getMessage()));
+            dummyToken.setPosition(-1, -1, -1, -1, -1, dummyToken.getText().length());
+            commentAdd.accept(dummyToken);
         }
     }
     private final WarningManager warnings = new WarningManager();
@@ -1286,6 +1290,20 @@ public class JavaStrideParser extends JavaParser
     {
         super.beginInitBlock(first, lcurly);
         warnings.add(new UnsupportedFeature("initializer block"));
+        // Add a statement handler to soak up and ignore all the statements:
+        withStatement(new StatementHandler(false) {
+            @Override
+            public void endBlock()
+            {
+            }
+        });
+    }
+
+    @Override
+    protected void endInitBlock(LocatableToken rcurly, boolean included)
+    {
+        super.endInitBlock(rcurly, included);
+        statementHandlers.pop();
     }
 
     private String getText(LocatableToken start, LocatableToken end)

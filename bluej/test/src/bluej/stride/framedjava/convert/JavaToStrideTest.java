@@ -350,12 +350,11 @@ public class JavaToStrideTest
         assertWarningFile("public enum Foo { F }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
 
         // Initializers:
-        assertWarningFile("class Foo { { int x; } }", UnsupportedFeature.class, _class(null, l(), null, false, "Foo", null, l(), l(_commentWarn(UnsupportedFeature.class), _var(null, false, false, "int", "x", null)), l(), l()));
-        // Two warnings; one for initializer, one for return:
-        assertWarningFile("class Foo { { return; } }", UnsupportedFeature.class, _class(null, l(), null, false, "Foo", null, l(), l(_commentWarn(UnsupportedFeature.class), _commentWarn(UnsupportedFeature.class)), l(), l()));
-        assertWarningFile("interface Foo { static { int x; } }", UnsupportedFeature.class, new InterfaceElement(null, null, name("Foo"), l(), l(_commentWarn(UnsupportedFeature.class), _var(null, false, false, "int", "x", null)), l(), new JavadocUnit(""), null, Collections.emptyList(), true));
-        assertWarningMember("{ int x; }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _var(null, false, false, "int", "x", null));
-        assertWarningMember("static { int x; }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _var(null, false, false, "int", "x", null));
+        assertWarningFile("class Foo { { int x; } }", UnsupportedFeature.class, _class(null, l(), null, false, "Foo", null, l(), l(_commentWarn(UnsupportedFeature.class)), l(), l()));
+        assertWarningFile("class Foo { { return; } }", UnsupportedFeature.class, _class(null, l(), null, false, "Foo", null, l(), l(_commentWarn(UnsupportedFeature.class)), l(), l()));
+        assertWarningFile("interface Foo { static { int x; } }", UnsupportedFeature.class, new InterfaceElement(null, null, name("Foo"), l(), l(_commentWarn(UnsupportedFeature.class)), l(), new JavadocUnit(""), null, Collections.emptyList(), true));
+        assertWarningMember("{ int x; }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
+        assertWarningMember("static { int x; }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
 
         // Inner classes:
         assertWarningMember("class Inner { }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
