@@ -759,13 +759,14 @@ public class JavaToStrideTest
 
     private static void test(String javaSource, CodeElement[] expectedStride, Parser.JavaContext classMember)
     {
-        List<CodeElement> result = Parser.javaToStride(javaSource, classMember);
-        List<String> resultXML = result.stream().map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
+        Parser.ConversionResult result = Parser.javaToStride(javaSource, classMember);
+        List<String> resultXML = result.getElements().stream().map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
         List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
         if (expectedXML.size() == 1 && resultXML.size() == 1)
             // Get better output if we compare strings:
             Assert.assertEquals("Checking XML", expectedXML.get(0), resultXML.get(0));
         else
             Assert.assertEquals("Checking XML", expectedXML, resultXML);
+        Assert.assertEquals("No warnings\n" + javaSource, Collections.emptyList(), result.getWarnings());
     }
 }

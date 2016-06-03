@@ -29,6 +29,7 @@ import bluej.parser.ParseFailure;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.stride.framedjava.convert.ConversionWarning;
 import bluej.stride.framedjava.convert.JavaStrideParser;
 import bluej.stride.framedjava.elements.CodeElement;
 
@@ -153,9 +154,30 @@ public class Parser
         TOP_LEVEL
         //TODO: should there be another context for case statements?
     }
-    
 
-    public static List<CodeElement> javaToStride(String java, JavaContext context) throws ParseFailure
+    public static class ConversionResult
+    {
+        private final List<CodeElement> elements;
+        private final List<ConversionWarning> warnings;
+
+        private ConversionResult(List<CodeElement> elements, List<ConversionWarning> warnings)
+        {
+            this.elements = elements;
+            this.warnings = warnings;
+        }
+
+        public List<CodeElement> getElements()
+        {
+            return elements;
+        }
+
+        public List<ConversionWarning> getWarnings()
+        {
+            return warnings;
+        }
+    }
+
+    public static ConversionResult javaToStride(String java, JavaContext context) throws ParseFailure
     {
         JavaStrideParser parser;
         switch (context)
@@ -176,7 +198,7 @@ public class Parser
             default:
                 throw new UnsupportedOperationException();
         }
-        return parser.getCodeElements();
+        return new ConversionResult(parser.getCodeElements(), parser.getWarnings());
     }
 
 

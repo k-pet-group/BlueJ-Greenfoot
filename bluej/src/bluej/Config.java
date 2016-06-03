@@ -973,7 +973,8 @@ public final class Config
         }
         
         int index;
-        String str = langProps.getProperty(strname, def);
+        // langProps can be null during testing:
+        String str = langProps == null ? def : langProps.getProperty(strname, def);
         // remove all underscores
         while( (index = str.indexOf('_')) != -1){
             str = str.substring(0, index) + str.substring(index+1);

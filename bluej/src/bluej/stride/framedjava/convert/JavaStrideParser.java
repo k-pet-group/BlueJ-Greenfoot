@@ -123,7 +123,7 @@ public class JavaStrideParser extends JavaParser
     /**
      * Any warnings encountered in the conversion process.
      */
-    private final List<String> warnings = new ArrayList<>();
+    private final List<ConversionWarning> warnings = new ArrayList<>();
     
     private final StatementHandler result = new StatementHandler(false) { public void endBlock() { } };
     private Stack<TryBuilder> tries = new Stack<>();
@@ -135,6 +135,11 @@ public class JavaStrideParser extends JavaParser
         super(new StringReader(java), true);
         this.source = java;
         statementHandlers.push(result);
+    }
+
+    public List<ConversionWarning> getWarnings()
+    {
+        return warnings;
     }
 
     private class SwitchHandler
@@ -599,6 +604,8 @@ public class JavaStrideParser extends JavaParser
         {
             boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
             boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
+            // We determine abstract by lack of body, but we shouldn't warn about it:
+            modifiers.removeIf(t -> t.getText().equals("abstract"));
             // Any remaining are unrecognised:
             warnUnsupportedModifiers("method", modifiers);
             String type = details.type;
@@ -632,7 +639,7 @@ public class JavaStrideParser extends JavaParser
 
     private void warnUnsupportedModifiers(String context, List<LocatableToken> modifiers)
     {
-        modifiers.forEach(t -> warnings.add("Unsupported " + context + " modifier: " + t.getText()));
+        modifiers.forEach(t -> warnings.add(new ConversionWarning.UnsupportedModifier(context, t.getText())));
     }
 
     private static AccessPermission removeAccess(List<LocatableToken> modifiers, AccessPermission defaultAccess)
@@ -665,7 +672,7 @@ public class JavaStrideParser extends JavaParser
     {
         super.gotMethodParameter(token, ellipsisToken);
         if (ellipsisToken != null) //TODO or support it?
-            warnings.add("Unsupported feature: varargs");
+            warnings.add(new ConversionWarning.UnsupportedFeature("varargs"));
         String type = prevTypes.pop();
         methods.peek().parameters.add(new ParamFragment(toType(type), new NameDefSlotFragment(token.getText())));
     }
@@ -932,11 +939,11 @@ public class JavaStrideParser extends JavaParser
         {
             foundStatement(new BreakElement(null, true));
             if (labelToken != null)
-                warnings.add("Unsupported feature: label on break");
+                warnings.add(new ConversionWarning.UnsupportedFeature("break label"));
         }
         else
         {
-            warnings.add("Unsupported feature: " + keywordToken.getText());
+            warnings.add(new ConversionWarning.UnsupportedFeature(keywordToken.getText()));
         }
     }
 
@@ -952,7 +959,7 @@ public class JavaStrideParser extends JavaParser
     {
         super.beginTryCatchSmt(token, hasResource);
         if (hasResource)
-            warnings.add("Unsupported feature: try-with-resource");
+            warnings.add(new ConversionWarning.UnsupportedFeature("try-with-resource"));
         tries.push(new TryBuilder());
     }
 
@@ -1280,7 +1287,7 @@ public class JavaStrideParser extends JavaParser
             }
             else
             {
-                warnings.add("Unsupported class member: " + element.getClass());
+                warnings.add(new ConversionWarning.UnsupportedFeature(element.getClass().toString()));
                 return;
             }
             pendingComments.clear();
@@ -1295,8 +1302,8 @@ public class JavaStrideParser extends JavaParser
                 fields.addAll(pendingComments);
             pendingComments.clear();
             // Public is the default so don't warn it's unsupported:
-            modifiers.remove("public");
-            warnUnsupportedModifiers("class", modifiers);
+            modifiers.removeIf(t -> t.getText().equals("public"));
+            warnUnsupportedModifiers("interface", modifiers);
             return new InterfaceElement(null, null, new NameDefSlotFragment(name),
                 extendsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields, methods,
                 new JavadocUnit(doc), pkg == null ? null : new PackageFragment(pkg), imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
@@ -1364,7 +1371,7 @@ public class JavaStrideParser extends JavaParser
             }
             else
             {
-                warnings.add("Unsupported class member: " + element.getClass());
+                warnings.add(new ConversionWarning.UnsupportedFeature(element.getClass().toString()));
                 return;
             }
             pendingComments.clear();
@@ -1382,7 +1389,7 @@ public class JavaStrideParser extends JavaParser
             pendingComments.clear();
             boolean _abstract = modifiers.removeIf(t -> t.getText().equals("abstract"));
             // Public is the default so don't warn it's unsupported:
-            modifiers.remove("public");
+            modifiers.removeIf(t -> t.getText().equals("public"));
             warnUnsupportedModifiers("class", modifiers);
             return new ClassElement(null, null, _abstract, new NameDefSlotFragment(name),
                 toType(extendsType),
