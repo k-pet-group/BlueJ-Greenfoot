@@ -1327,6 +1327,23 @@ public class JavaStrideParser extends JavaParser
         statementHandlers.pop();
     }
 
+    @Override
+    protected void gotLambda(boolean lambdaIsBlock)
+    {
+        super.gotLambda(lambdaIsBlock);
+        if (lambdaIsBlock)
+        {
+            warnings.add(new UnsupportedFeature("lambda block"));
+            // Add a statement handler to soak up and ignore all the statements:
+            withStatement(new StatementHandler(true) {
+                @Override
+                public void endBlock()
+                {
+                }
+            });
+        }
+    }
+
     private String getText(LocatableToken start, LocatableToken end)
     {
         return source.substring(start.getPosition(), end.getPosition());

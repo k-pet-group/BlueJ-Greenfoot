@@ -2880,7 +2880,9 @@ public class JavaParser
     
     private void parseLambdaBody()
     {
-        if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
+        boolean blockFollows = tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY;
+        gotLambda(blockFollows);
+        if (blockFollows) {
             beginStmtblockBody(nextToken()); // consume the curly
             parseStmtBlock();
             LocatableToken token = nextToken();
@@ -2897,7 +2899,13 @@ public class JavaParser
             parseExpression();
         }
     }
-    
+
+    /**
+     * A lambda expression has been found.  If lambdaIsBlock, a statement block body
+     * follows, otherwise an expression follows.
+     */
+    protected void gotLambda(boolean lambdaIsBlock) { }
+
     /**
      * Parse an expression
      */

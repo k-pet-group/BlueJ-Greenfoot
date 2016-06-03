@@ -162,6 +162,12 @@ public class JavaToStrideTest
         assertWarning("x = new Foo() { };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "new Foo ( ) { }"));
         assertWarning("x = new Foo() { int y; };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "new Foo ( ) { int y ; }"));
         // TODO remove inner class content from the expression
+
+        // Non-block lambdas should work:
+        assertEquals("x = c -> 3;", _assign("x", "c -> 3"));
+        // Block lambdas should give warning:
+        assertWarning("x = c -> { return 3; };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "c -> { return 3 ; }"));
+        // TODO remove lambda block content from the expression
     }
 
     private CodeElement _assign(String lhs, String rhs)
