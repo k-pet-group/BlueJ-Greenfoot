@@ -47,11 +47,15 @@ interface Modifier
     {
         // Without the "@"
         private final String annotation;
-        private final List<Expression> params;
+        private List<Expression> params; // null if not present
 
-        public AnnotationModifier(List<LocatableToken> annotation, List<Expression> params)
+        public AnnotationModifier(List<LocatableToken> annotation)
         {
             this.annotation = annotation.stream().map(LocatableToken::getText).collect(Collectors.joining());
+        }
+
+        public void setParams(List<Expression> params)
+        {
             this.params = new ArrayList<>(params);
         }
 
@@ -74,7 +78,7 @@ interface Modifier
         @Override
         public String toString()
         {
-            return "@" + annotation + params.stream().map(Expression::toString).collect(Collectors.joining(" , "));
+            return "@" + annotation + (params == null ? "" : params.stream().map(Expression::toString).collect(Collectors.joining(" , ")));
         }
     }
 }

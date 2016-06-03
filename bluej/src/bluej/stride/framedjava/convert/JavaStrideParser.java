@@ -606,6 +606,8 @@ public class JavaStrideParser extends JavaParser
             boolean _static = modifiers.removeIf(t -> t.isKeyword("static"));
             // We determine abstract by lack of body, but we shouldn't warn about it:
             modifiers.removeIf(t -> t.isKeyword("abstract"));
+            // We ignore @Override:
+            modifiers.removeIf(t -> t.isAnnotation("@Override"));
             // Any remaining are unrecognised:
             warnUnsupportedModifiers("method", modifiers);
             String type = details.type;
@@ -720,6 +722,19 @@ public class JavaStrideParser extends JavaParser
         super.gotModifier(token);
         if (!modifiers.isEmpty())
             modifiers.peek().add(new Modifier.KeywordModifier(token));
+    }
+
+    @Override
+    protected void gotAnnotation(List<LocatableToken> annName, boolean paramsFollow)
+    {
+        super.gotAnnotation(annName, paramsFollow);
+        if (!modifiers.isEmpty())
+        {
+            Modifier.AnnotationModifier ann = new Modifier.AnnotationModifier(annName);
+            modifiers.peek().add(ann);
+            if (paramsFollow)
+                withArgumentList(exps -> ann.setParams(exps));
+        }
     }
 
     @Override
