@@ -106,7 +106,7 @@ public class JavaToStrideTest
                 _while("i < 10", _return(), _call("i = i + 1"))
         );
         // However, i++ becomes an assignment because we do transform it:
-        assertEquals("for (int i = 0; i < 10; i++) return;",
+        assertEqualsNoRound("for (int i = 0; i < 10; i++) return;",
             _var(null, false, false, "int", "i", filled("0")),
             _while("i < 10", _return(), _assign("i", "i + 1"))
         );
@@ -122,10 +122,10 @@ public class JavaToStrideTest
     @Test
     public void testIncDec()
     {
-        assertEquals("++i;", _assign("i", "i + 1"));
-        assertEquals("i++;", _assign("i", "i + 1"));
-        assertEquals("++i[j.k];", _assign("i [ j . k ]", "i [ j . k ] = i [ j . k ] + 1"));
-        assertEquals("i[j.k]++;", _assign("i [ j . k ]", "i [ j . k ] = i [ j . k ] + 1"));
+        assertEqualsNoRound("++i;", _assign("i", "i + 1"));
+        assertEqualsNoRound("i++;", _assign("i", "i + 1"));
+        assertEqualsNoRound("++i[j.k];", _assign("i [ j . k ]", "i [ j . k ] + 1"));
+        assertEqualsNoRound("i[j.k]++;", _assign("i [ j . k ]", "i [ j . k ] + 1"));
         //TODO assert one that shouldn't be supported.
     }
 
@@ -705,6 +705,11 @@ public class JavaToStrideTest
     private static <T> List<T> l(T... items)
     {
         return Arrays.asList(items);
+    }
+
+    private static void assertEqualsNoRound(String javaSource, CodeElement... expectedStride)
+    {
+        test(javaSource, expectedStride, Parser.JavaContext.STATEMENT);
     }
 
     private static void assertEquals(String javaSource, CodeElement... expectedStride)

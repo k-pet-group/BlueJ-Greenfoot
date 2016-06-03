@@ -11,6 +11,7 @@ import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
 import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
+import bluej.stride.framedjava.elements.AssignElement;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 
@@ -76,6 +77,15 @@ class Expression
 
     public CodeElement toStatement()
     {
-        return new CallElement(null, new CallExpressionSlotFragment(stride, java), true);
+        if (java.startsWith("++ ") || java.startsWith("-- "))
+            return new AssignElement(null, new FilledExpressionSlotFragment(stride.substring(3), java.substring(3)), new FilledExpressionSlotFragment(stride.substring(3) + " " + stride.substring(0, 1) + " 1", java.substring(3) + " " + java.substring(0, 1) + " 1"), true);
+        else if (java.endsWith(" ++") || java.endsWith(" ++"))
+        {
+            String choppedStride = stride.substring(0, stride.length() - 3);
+            String choppedJava = java.substring(0, java.length() - 3);
+            return new AssignElement(null, new FilledExpressionSlotFragment(choppedStride, choppedJava), new FilledExpressionSlotFragment(choppedStride + " " + stride.substring(stride.length() - 1, stride.length()) + " 1", choppedJava + " " + java.substring(java.length() - 1, java.length()) + " 1"), true);
+        }
+        else
+            return new CallElement(null, new CallExpressionSlotFragment(stride, java), true);
     }
 }
