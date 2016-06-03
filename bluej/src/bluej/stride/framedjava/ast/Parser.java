@@ -174,22 +174,22 @@ public class Parser
         }
     }
 
-    public static ConversionResult javaToStride(String java, JavaContext context) throws ParseFailure
+    public static ConversionResult javaToStride(String java, JavaContext context, boolean testing) throws ParseFailure
     {
         JavaStrideParser parser;
         switch (context)
         {
             case CLASS_MEMBER:
-                parser = new JavaStrideParser(java + "}");
+                parser = new JavaStrideParser(java + "}", testing);
                 parser.parseClassBody();
                 break;
             case STATEMENT:
-                parser = new JavaStrideParser(java);
+                parser = new JavaStrideParser(java, testing);
                 while (parser.getTokenStream().LA(1).getType() != JavaTokenTypes.EOF)
                     parser.parseStatement();
                 break;
             case TOP_LEVEL:
-                parser = new JavaStrideParser(java);
+                parser = new JavaStrideParser(java, testing);
                 parser.parseCU();
                 break;
             default:

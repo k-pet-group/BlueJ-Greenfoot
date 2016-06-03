@@ -28,6 +28,7 @@ import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
 import bluej.stride.framedjava.ast.ThrowsTypeFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.convert.ConversionWarning.UnsupportedFeature;
+import bluej.stride.framedjava.convert.ConversionWarning.UnsupportedModifier;
 import bluej.stride.framedjava.elements.AssignElement;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
@@ -125,8 +126,9 @@ public class JavaToStrideTest
         assertEquals("{return 0;} {return 1;}", _return("0"), _return("1"));
         assertEquals("if (true) {return 0;} {return 1;}", _if("true", _return("0")), _return("1"));
 
-        assertWarning("assert true;", UnsupportedFeature.class);
-        assertWarning("synchronized (this) { };", UnsupportedFeature.class);
+        assertWarning("assert true;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
+        assertWarning("synchronized (this) { };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
+        assertWarning("synchronized (this) { return; };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _return());
     }
     
     @Test
@@ -141,9 +143,9 @@ public class JavaToStrideTest
         assertEquals("--i[j.k];", _assign("i [ j . k ]", "i [ j . k ] - 1"));
         assertEquals("i[j.k]--;", _assign("i [ j . k ]", "i [ j . k ] - 1"));
 
-        assertWarning("foo(--i);", UnsupportedFeature.class);
-        assertWarning("x = 0 + i++;", UnsupportedFeature.class);
-        assertWarning("while (++i <= 10) ;", UnsupportedFeature.class);
+        assertWarning("foo(--i);", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _call("foo ( -- i )"));
+        assertWarning("x = 0 + i++;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "0 + i ++"));
+        assertWarning("while (++i <= 10) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("++ i <= 10"));
     }
     
     @Test
@@ -152,9 +154,9 @@ public class JavaToStrideTest
         assertEquals("i += 1;", _assign("i", "i + 1"));
         assertEquals("a . x <<= 4;", _assign("a . x", "a . x << 4"));
 
-        assertWarning("while ((i += 1) < 7) ;", UnsupportedFeature.class);
-        assertWarning("while ((i = next()) != null) ;", UnsupportedFeature.class);
-        assertWarning("while (b = cond()) ;", UnsupportedFeature.class);
+        assertWarning("while ((i += 1) < 7) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("( i += 1 ) < 7"));
+        assertWarning("while ((i = next()) != null) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("( i = next ( ) ) != null"));
+        assertWarning("while (b = cond()) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("b = cond ( )"));
     }
 
     private CodeElement _assign(String lhs, String rhs)
@@ -278,7 +280,8 @@ public class JavaToStrideTest
         //TODO test: abstract methods, interface methods (incl default -- should fail), generic methods (either fail or do our best)
 
         // @Override should flag in Constructor
-        assertWarningMember("@Override Foo() {}", ConversionWarning.UnsupportedModifier.class);
+        assertWarningMember("@Override Foo() {}", UnsupportedModifier.class, _commentWarn(UnsupportedModifier.class),
+            _constructor(null, AccessPermission.PROTECTED, l(), l(), l()));
 
     }
     
@@ -344,23 +347,31 @@ public class JavaToStrideTest
                 l(_constructor(null, AccessPermission.PROTECTED, l(), l(), l(_return()))),
                 l(_method(null, AccessPermission.PUBLIC, false, false, "double", "method", l(), l(), l(_return("0.0"))))));
 
-        assertWarningFile("public enum Foo { F }", UnsupportedFeature.class);
+        assertWarningFile("public enum Foo { F }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
 
         // Initializers:
-        assertWarningFile("class Foo { { int x; } }", UnsupportedFeature.class);
-        assertWarningFile("interface Foo { static { int x; } }", UnsupportedFeature.class);
-        assertWarningMember("{ int x; }", UnsupportedFeature.class);
-        assertWarningMember("static { int x; }", UnsupportedFeature.class);
+        assertWarningFile("class Foo { { int x; } }", UnsupportedFeature.class, _class(null, l(), null, false, "Foo", null, l(), l(_commentWarn(UnsupportedFeature.class), _var(null, false, false, "int", "x", null)), l(), l()));
+        // Two warnings; one for initializer, one for return:
+        assertWarningFile("class Foo { { return; } }", UnsupportedFeature.class, _class(null, l(), null, false, "Foo", null, l(), l(_commentWarn(UnsupportedFeature.class), _commentWarn(UnsupportedFeature.class)), l(), l()));
+        assertWarningFile("interface Foo { static { int x; } }", UnsupportedFeature.class, new InterfaceElement(null, null, name("Foo"), l(), l(_commentWarn(UnsupportedFeature.class), _var(null, false, false, "int", "x", null)), l(), new JavadocUnit(""), null, Collections.emptyList(), true));
+        assertWarningMember("{ int x; }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _var(null, false, false, "int", "x", null));
+        assertWarningMember("static { int x; }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _var(null, false, false, "int", "x", null));
 
         // Inner classes:
-        assertWarningMember("class Inner { }", UnsupportedFeature.class);
-        assertWarningMember("private interface Inner { }", UnsupportedFeature.class);
-        assertWarningMember("public enum Inner { I }", UnsupportedFeature.class);
+        assertWarningMember("class Inner { }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
+        assertWarningMember("private interface Inner { }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
+        // One warning for enum, one for inner:
+        assertWarningMember("public enum Inner { I }", UnsupportedFeature.class, _comment("WARNING:" + UnsupportedFeature.class.getName() + " WARNING:" + UnsupportedFeature.class.getName()));
 
         // TODO test interfaces
         //TODO test non-Javadoc mid-class comments
     }
-    
+
+    private CommentElement _commentWarn(Class<? extends ConversionWarning> cls)
+    {
+        return _comment("WARNING:" + cls.getName());
+    }
+
     @Test
     public void testRandomStatement()
     {
@@ -632,7 +643,7 @@ public class JavaToStrideTest
         String java = collapseComments(original).stream().map(el -> el.toJavaSource().toTemporaryJavaCodeString()).collect(Collectors.joining("\n"));
         try
         {
-            test(java, original.toArray(new CodeElement[0]), context);
+            test(java, original.toArray(new CodeElement[0]), context, true);
         }
         catch (Exception e)
         {
@@ -641,7 +652,7 @@ public class JavaToStrideTest
         }
     }
 
-    private ClassElement _class(String pkg, List<String> imports, String javadoc, boolean _abstract, String name, String _extends, List<String> _implements, List<VarElement> fields, List<ConstructorElement> constructors, List<NormalMethodElement> methods)
+    private ClassElement _class(String pkg, List<String> imports, String javadoc, boolean _abstract, String name, String _extends, List<String> _implements, List<CodeElement> fields, List<ConstructorElement> constructors, List<NormalMethodElement> methods)
     {
         return new ClassElement(null, null, _abstract, name(name), _extends == null ? null : type(_extends),
             _implements.stream().map(t -> type(t)).collect(Collectors.toList()),
@@ -756,27 +767,22 @@ public class JavaToStrideTest
         return Arrays.asList(items);
     }
 
-    private static void assertEqualsNoRound(String javaSource, CodeElement... expectedStride)
-    {
-        test(javaSource, expectedStride, Parser.JavaContext.STATEMENT);
-    }
-
     private static void assertEquals(String javaSource, CodeElement... expectedStride)
     {
-        test(javaSource, expectedStride, Parser.JavaContext.STATEMENT);
+        test(javaSource, expectedStride, Parser.JavaContext.STATEMENT, true);
         roundTrip(Arrays.asList(expectedStride), Parser.JavaContext.STATEMENT);
     }
 
     private static void assertEqualsMember(String javaSource, CodeElement... expectedStride)
     {
-        test(javaSource, expectedStride, Parser.JavaContext.CLASS_MEMBER);
+        test(javaSource, expectedStride, Parser.JavaContext.CLASS_MEMBER, true);
         // Round tripping is awkward, e.g. constructors by themselves can't generate
         // Java because they need their name from their parent class
     }
 
     private static void assertEqualsFile(String javaSource, CodeElement... expectedStride)
     {
-        test(javaSource, expectedStride, Parser.JavaContext.TOP_LEVEL);
+        test(javaSource, expectedStride, Parser.JavaContext.TOP_LEVEL, true);
     }
     
     private static String serialise(Element el)
@@ -791,9 +797,9 @@ public class JavaToStrideTest
         }
     }
 
-    private static void test(String javaSource, CodeElement[] expectedStride, Parser.JavaContext classMember)
+    private static void test(String javaSource, CodeElement[] expectedStride, Parser.JavaContext classMember, boolean checkNoWarnings)
     {
-        Parser.ConversionResult result = Parser.javaToStride(javaSource, classMember);
+        Parser.ConversionResult result = Parser.javaToStride(javaSource, classMember, true);
         List<String> resultXML = result.getElements().stream().map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
         List<String> expectedXML = Arrays.stream(expectedStride).map(CodeElement::toXML).map(JavaToStrideTest::serialise).collect(Collectors.toList());
         if (expectedXML.size() == 1 && resultXML.size() == 1)
@@ -801,26 +807,30 @@ public class JavaToStrideTest
             Assert.assertEquals("Checking XML", expectedXML.get(0), resultXML.get(0));
         else
             Assert.assertEquals("Checking XML", expectedXML, resultXML);
-        Assert.assertEquals("No warnings\n" + javaSource, Collections.emptyList(), result.getWarnings());
+        if (checkNoWarnings)
+            Assert.assertEquals("No warnings\n" + javaSource, Collections.emptyList(), result.getWarnings());
     }
 
-    private static void assertWarningMember(String javaSource, Class<? extends ConversionWarning> cls)
+    private static void assertWarningMember(String javaSource, Class<? extends ConversionWarning> cls, CodeElement... items)
     {
         testWarning(javaSource, cls, Parser.JavaContext.CLASS_MEMBER);
+        test(javaSource, items, Parser.JavaContext.CLASS_MEMBER, false);
     }
-    private static void assertWarning(String javaSource, Class<? extends ConversionWarning> cls)
+    private static void assertWarning(String javaSource, Class<? extends ConversionWarning> cls, CodeElement... items)
     {
         testWarning(javaSource, cls, JavaContext.STATEMENT);
+        test(javaSource, items, JavaContext.STATEMENT, false);
     }
-    private static void assertWarningFile(String javaSource, Class<? extends ConversionWarning> cls)
+    private static void assertWarningFile(String javaSource, Class<? extends ConversionWarning> cls, CodeElement... items)
     {
         testWarning(javaSource, cls, JavaContext.TOP_LEVEL);
+        test(javaSource, items, JavaContext.TOP_LEVEL, false);
     }
 
 
     private static void testWarning(String javaSource, Class<? extends ConversionWarning> cls, JavaContext context)
     {
-        List<ConversionWarning> warnings = Parser.javaToStride(javaSource, context).getWarnings();
+        List<ConversionWarning> warnings = Parser.javaToStride(javaSource, context, true).getWarnings();
         Assert.assertTrue("Expected warning", !warnings.isEmpty());
         Assert.assertTrue("Expected specific warning type", warnings.stream().anyMatch(cls::isInstance));
     }

@@ -10,6 +10,7 @@ import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import bluej.parser.JavaParser;
 import bluej.parser.ParseFailure;
@@ -121,27 +122,48 @@ public class JavaStrideParser extends JavaParser
      * and it fits with the design of everything else.
      */
     private final Stack<List<Modifier>> modifiers = new Stack<>();
-
     /**
-     * Any warnings encountered in the conversion process.
+     * Whether we are testing.  If so, we use a special string for all warning comments
      */
-    private final List<ConversionWarning> warnings = new ArrayList<>();
+    private final boolean testing;
+
+    private class WarningManager
+    {
+        /**
+         * Any warnings encountered in the conversion process.
+         */
+        private final List<ConversionWarning> warnings = new ArrayList<>();
+
+        public void add(ConversionWarning warning)
+        {
+            add(warning, JavaStrideParser.this::gotComment);
+        }
+
+        public void add(ConversionWarning warning, Consumer<LocatableToken> commentAdd)
+        {
+            warnings.add(warning);
+            commentAdd.accept(new LocatableToken(0, "// " + (testing ? ("WARNING:" + warning.getClass().getName()) : warning.getMessage())));
+        }
+    }
+    private final WarningManager warnings = new WarningManager();
+
     
     private final StatementHandler result = new StatementHandler(false) { public void endBlock() { } };
     private Stack<TryBuilder> tries = new Stack<>();
     private String pkg;
     private final List<String> imports = new ArrayList<>();
 
-    public JavaStrideParser(String java)
+    public JavaStrideParser(String java, boolean testing)
     {
         super(new StringReader(java), true);
         this.source = java;
+        this.testing = testing;
         statementHandlers.push(result);
     }
 
     public List<ConversionWarning> getWarnings()
     {
-        return warnings;
+        return warnings.warnings;
     }
 
     private class SwitchHandler
@@ -383,6 +405,11 @@ public class JavaStrideParser extends JavaParser
                 return processComment(comments.remove(comments.size() - 1).getText());
             }
             return null;
+        }
+
+        public List<CodeElement> stealComments()
+        {
+            return Stream.of(collateComments(false)).filter(c -> c != null).collect(Collectors.toList());
         }
     }
 
@@ -1439,7 +1466,7 @@ public class JavaStrideParser extends JavaParser
             }
             else
             {
-                warnings.add(new ConversionWarning.UnsupportedFeature(element.getClass().toString()));
+                warnings.add(new ConversionWarning.UnsupportedFeature(element.getClass().toString()), t -> pendingComments.add(new CommentElement(processComment(t.getText()))));
                 return;
             }
             pendingComments.clear();
@@ -1496,14 +1523,20 @@ public class JavaStrideParser extends JavaParser
             public void startedClass(List<Modifier> modifiers, String doc)
             {
                 if (outstanding == 1)
+                {
                     delegate = new ClassDelegate(modifiers, doc);
+                    statementHandlers.peek().stealComments().forEach(delegate::gotContent);
+                }
             }
 
             @Override
             public void startedInterface(List<Modifier> modifiers, String doc)
             {
                 if (outstanding == 1)
+                {
                     delegate = new InterfaceDelegate(modifiers, doc);
+                    statementHandlers.peek().stealComments().forEach(delegate::gotContent);
+                }
             }
 
             @Override

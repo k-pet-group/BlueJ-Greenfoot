@@ -61,7 +61,8 @@ public class GreenfootFrameUtil
             
             try
             {
-                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString(), classItem ? Parser.JavaContext.CLASS_MEMBER : Parser.JavaContext.STATEMENT).getElements();
+                //TODO pass context in directly by asking canvas, rather than bool classItem
+                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString(), classItem ? Parser.JavaContext.CLASS_MEMBER : Parser.JavaContext.STATEMENT, false).getElements();
                 //TODO display warnings if there are any
                 return javaElements;
             }

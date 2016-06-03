@@ -1,6 +1,7 @@
 package bluej.stride.framedjava.convert;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -91,7 +92,7 @@ class ExpressionBuilder
                     @Override
                     public CodeElement toStatement()
                     {
-                        return new AssignElement(null, new Expression(lhs, incDec, addWarning).toFilled(), new Expression(rhs, incDec, addWarning).toFilled(), true);
+                        return new AssignElement(null, new Expression(lhs, incDec, addWarning).toFilled(), new Expression(rhs, Collections.emptyList(), addWarning).toFilled(), true);
                     }
                 });
             }

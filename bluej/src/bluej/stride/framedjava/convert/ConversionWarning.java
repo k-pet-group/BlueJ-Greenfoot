@@ -30,6 +30,11 @@ public abstract class ConversionWarning
         }
     }
 
+    public String getMessage()
+    {
+        return text;
+    }
+
     // For better output in test failures:
     public String toString()
     {
