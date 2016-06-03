@@ -21,7 +21,6 @@ import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
 import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.ParamFragment;
 import bluej.stride.framedjava.ast.SuperThis;
@@ -159,10 +158,10 @@ public class JavaStrideParser extends JavaParser
             List<CodeElement> caseFrames = new ArrayList<>();
             for (int i = 0; i < cases.size(); i++)
             {
-                caseFrames.add(new CaseElement(null, new FilledExpressionSlotFragment(cases.get(i).stride, cases.get(i).java), caseContents.get(i), true));
+                caseFrames.add(new CaseElement(null, cases.get(i).toFilled(), caseContents.get(i), true));
             }
 
-            return new SwitchElement(null, new FilledExpressionSlotFragment(expression.stride, expression.java),
+            return new SwitchElement(null, expression.toFilled(),
                     caseFrames, defaultContents, true);
         }
 
@@ -260,18 +259,18 @@ public class JavaStrideParser extends JavaParser
         public List<CodeElement> end(List<CodeElement> content)
         {
             if (isEach)
-                return Arrays.asList(new ForeachElement(null, new TypeSlotFragment(type, type), new NameDefSlotFragment(vars.get(0)), new FilledExpressionSlotFragment(eachVar.stride, eachVar.java), content, true));
+                return Arrays.asList(new ForeachElement(null, new TypeSlotFragment(type, type), new NameDefSlotFragment(vars.get(0)), eachVar.toFilled(), content, true));
             else
             {
                 List<CodeElement> initAndLoop = new ArrayList<>();
                 for (int i = 0; i < vars.size(); i++)
                 {
-                    initAndLoop.add(new VarElement(null, null, false, false, toType(type), new NameDefSlotFragment(vars.get(i)), inits.get(i) == null ? null : toFilled(inits.get(i)), true));
+                    initAndLoop.add(new VarElement(null, null, false, false, toType(type), new NameDefSlotFragment(vars.get(i)), inits.get(i) == null ? null : inits.get(i).toFilled(), true));
                 }
                 List<CodeElement> loopBody = new ArrayList<>(content);
                 if (post != null)
-                    loopBody.add(new CallElement(null, new CallExpressionSlotFragment(post.stride, post.java), true));
-                initAndLoop.add(new WhileElement(null, condition != null ? toFilled(condition) : new FilledExpressionSlotFragment("true", "true"), loopBody, true));
+                    loopBody.add(post.toStatement());
+                initAndLoop.add(new WhileElement(null, condition != null ? condition.toFilled() : new FilledExpressionSlotFragment("true", "true"), loopBody, true));
                 return initAndLoop;
             }
         }
@@ -399,7 +398,7 @@ public class JavaStrideParser extends JavaParser
 
         public IfBuilder(Expression condition)
         {
-            this.conditions.add(toFilled(condition));
+            this.conditions.add(condition.toFilled());
         }
 
         // A new block will follow, either for if, else-if or else
@@ -417,7 +416,7 @@ public class JavaStrideParser extends JavaParser
 
         public void addElseIf()
         {
-            withExpression(e -> conditions.add(toFilled(e)));
+            withExpression(e -> conditions.add(e.toFilled()));
         }
 
         public void endIf()
@@ -440,7 +439,7 @@ public class JavaStrideParser extends JavaParser
                 @Override
                 public void endBlock()
                 {
-                    JavaStrideParser.this.foundStatement(new WhileElement(null, toFilled(exp), getContent(false), true));
+                    JavaStrideParser.this.foundStatement(new WhileElement(null, exp.toFilled(), getContent(false), true));
                 }
             });
         });
@@ -478,22 +477,12 @@ public class JavaStrideParser extends JavaParser
         ifHandlers.pop().endIf();
     }
 
-    private FilledExpressionSlotFragment toFilled(Expression exp)
-    {
-        return new FilledExpressionSlotFragment(exp.stride, exp.java);
-    }
-
-    private OptionalExpressionSlotFragment toOptional(Expression exp)
-    {
-        return new OptionalExpressionSlotFragment(exp.stride, exp.java);
-    }
-
     @Override
     protected void gotReturnStatement(boolean hasValue)
     {
         super.gotReturnStatement(hasValue);
         if (hasValue)
-            withExpression(exp -> foundStatement(new ReturnElement(null, toOptional(exp), true)));
+            withExpression(exp -> foundStatement(new ReturnElement(null, exp.toOptional(), true)));
         else
             foundStatement(new ReturnElement(null, null, true));
     }
@@ -509,7 +498,7 @@ public class JavaStrideParser extends JavaParser
     protected void gotStatementExpression()
     {
         super.gotStatementExpression();
-        withExpression(e -> foundStatement(new CallElement(null, new CallExpressionSlotFragment(e.stride, e.java), true)));
+        withExpression(e -> foundStatement(e.toStatement()));
     }
 
     @Override
@@ -627,13 +616,10 @@ public class JavaStrideParser extends JavaParser
             // Any remaining are unrecognised:
             warnUnsupportedModifiers("method", modifiers);
             SuperThis delegate = SuperThis.fromString(details.constructorCall);
-            Expression delegateArgs = delegate == null ? null : new Expression(
-                details.constructorArgs.stream().map(e -> e.stride).collect(Collectors.joining(" , ")),
-                details.constructorArgs.stream().map(e -> e.java).collect(Collectors.joining(" , "))
-            );
+            Expression delegateArgs = delegate == null ? null : new Expression(details.constructorArgs, " , ");
             foundStatement(new ConstructorElement(null, new AccessPermissionFragment(permission),
                 details.parameters,
-                throwsTypes, delegate == null ? null : new SuperThisFragment(delegate), delegateArgs == null ? null : new SuperThisParamsExpressionFragment(delegateArgs.stride, delegateArgs.java), body, new JavadocUnit(details.comment), true));
+                throwsTypes, delegate == null ? null : new SuperThisFragment(delegate), delegateArgs == null ? null : delegateArgs.toSuperThis(), body, new JavadocUnit(details.comment), true));
         }
     }
 
@@ -767,7 +753,7 @@ public class JavaStrideParser extends JavaParser
         Consumer<Expression> handler = e -> foundStatement(new VarElement(null,
             permission == null ? null : new AccessPermissionFragment(permission), _static, _final,
             toType(details.type), new NameDefSlotFragment(idToken.getText()),
-            e == null ? null : toFilled(e), true));
+            e == null ? null : e.toFilled(), true));
         if (initExpressionFollows)
             withExpression(handler);
         else
@@ -951,7 +937,7 @@ public class JavaStrideParser extends JavaParser
     protected void gotThrow(LocatableToken token)
     {
         super.gotThrow(token);
-        withExpression(e -> foundStatement(new ThrowElement(null, toFilled(e), true)));
+        withExpression(e -> foundStatement(new ThrowElement(null, e.toFilled(), true)));
     }
 
     @Override
