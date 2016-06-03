@@ -79,7 +79,7 @@ class Expression
     {
         if (java.startsWith("++ ") || java.startsWith("-- "))
             return new AssignElement(null, new FilledExpressionSlotFragment(stride.substring(3), java.substring(3)), new FilledExpressionSlotFragment(stride.substring(3) + " " + stride.substring(0, 1) + " 1", java.substring(3) + " " + java.substring(0, 1) + " 1"), true);
-        else if (java.endsWith(" ++") || java.endsWith(" ++"))
+        else if (java.endsWith(" ++") || java.endsWith(" --"))
         {
             String choppedStride = stride.substring(0, stride.length() - 3);
             String choppedJava = java.substring(0, java.length() - 3);

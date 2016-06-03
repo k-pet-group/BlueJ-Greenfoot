@@ -126,6 +126,10 @@ public class JavaToStrideTest
         assertEqualsNoRound("i++;", _assign("i", "i + 1"));
         assertEqualsNoRound("++i[j.k];", _assign("i [ j . k ]", "i [ j . k ] + 1"));
         assertEqualsNoRound("i[j.k]++;", _assign("i [ j . k ]", "i [ j . k ] + 1"));
+        assertEqualsNoRound("--i;", _assign("i", "i - 1"));
+        assertEqualsNoRound("i--;", _assign("i", "i - 1"));
+        assertEqualsNoRound("--i[j.k];", _assign("i [ j . k ]", "i [ j . k ] - 1"));
+        assertEqualsNoRound("i[j.k]--;", _assign("i [ j . k ]", "i [ j . k ] - 1"));
         //TODO assert one that shouldn't be supported.
     }
 
