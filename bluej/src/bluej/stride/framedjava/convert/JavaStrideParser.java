@@ -510,6 +510,16 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
+    protected void gotBinaryOperator(LocatableToken token)
+    {
+        super.gotBinaryOperator(token);
+        if (!expressionHandlers.isEmpty())
+        {
+            expressionHandlers.peek().binaryOperator(token);
+        }
+    }
+
+    @Override
     protected void beginStmtblockBody(LocatableToken token)
     {
         super.beginStmtblockBody(token);

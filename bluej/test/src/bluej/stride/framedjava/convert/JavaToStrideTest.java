@@ -103,10 +103,10 @@ public class JavaToStrideTest
         // i = i + 1 gets turned into a call because we don't parse the expression
         assertEquals("for (int i = 0; i < 10; i = i + 1) return;",
                 _var(null, false, false, "int", "i", filled("0")),
-                _while("i < 10", _return(), _call("i = i + 1"))
+                _while("i < 10", _return(), _assign("i", "i + 1"))
         );
         // However, i++ becomes an assignment because we do transform it:
-        assertEqualsNoRound("for (int i = 0; i < 10; i++) return;",
+        assertEquals("for (int i = 0; i < 10; i++) return;",
             _var(null, false, false, "int", "i", filled("0")),
             _while("i < 10", _return(), _assign("i", "i + 1"))
         );
@@ -115,22 +115,28 @@ public class JavaToStrideTest
                 _var(null, false, false, "int", "j", null),
                 _var(null, false, false, "int", "k", filled("( double ) 7")),
                 _var(null, false, false, "int", "l", null),
-                _while("i < 10", _return("0"), _return("1"), _call("i = i + 1"))
+                _while("i < 10", _return("0"), _return("1"), _assign("i", "i + 1"))
         );
     }
     
     @Test
     public void testIncDec()
     {
-        assertEqualsNoRound("++i;", _assign("i", "i + 1"));
-        assertEqualsNoRound("i++;", _assign("i", "i + 1"));
-        assertEqualsNoRound("++i[j.k];", _assign("i [ j . k ]", "i [ j . k ] + 1"));
-        assertEqualsNoRound("i[j.k]++;", _assign("i [ j . k ]", "i [ j . k ] + 1"));
-        assertEqualsNoRound("--i;", _assign("i", "i - 1"));
-        assertEqualsNoRound("i--;", _assign("i", "i - 1"));
-        assertEqualsNoRound("--i[j.k];", _assign("i [ j . k ]", "i [ j . k ] - 1"));
-        assertEqualsNoRound("i[j.k]--;", _assign("i [ j . k ]", "i [ j . k ] - 1"));
+        assertEquals("++i;", _assign("i", "i + 1"));
+        assertEquals("i++;", _assign("i", "i + 1"));
+        assertEquals("++i[j.k];", _assign("i [ j . k ]", "i [ j . k ] + 1"));
+        assertEquals("i[j.k]++;", _assign("i [ j . k ]", "i [ j . k ] + 1"));
+        assertEquals("--i;", _assign("i", "i - 1"));
+        assertEquals("i--;", _assign("i", "i - 1"));
+        assertEquals("--i[j.k];", _assign("i [ j . k ]", "i [ j . k ] - 1"));
+        assertEquals("i[j.k]--;", _assign("i [ j . k ]", "i [ j . k ] - 1"));
         //TODO assert one that shouldn't be supported.
+    }
+    
+    @Test
+    public void testAssign()
+    {
+        assertEquals("i += 1;", _assign("i", "i + 1"));
     }
 
     private CodeElement _assign(String lhs, String rhs)
@@ -191,9 +197,7 @@ public class JavaToStrideTest
         assertEquals("move(6 + 7);", _call("move ( 6 + 7 )"));
         assertEquals("getFoo().move(6 + 7);", _call("getFoo ( ) . move ( 6 + 7 )"));
         
-        // Assignments will become call-frames initially, even though on insertion
-        // as real code, CallFrame will check and self-convert to AssignFrame:
-        assertEquals("x = getX();", _call("x = getX ( )"));
+        assertEquals("x = getX();", _assign("x", "getX ( )"));
     }
     
     @Test
@@ -405,7 +409,7 @@ public class JavaToStrideTest
             () -> new ThrowElement(null, genExpression(), true),
             () -> new VarElement(null, null, false, rand(), genType(), genName(), rand() ? genExpression() : null, true),
                 //Calls and assignments are always turned back into calls, so for round-tripping we start as calls:
-            () -> new CallElement(null, genCallOrAssign(), true)
+            () -> genCallOrAssign()
         );
         List<Supplier<CodeElement>> all = new ArrayList<>(Arrays.asList(
             () -> new WhileElement(null, genExpression(), some(() -> genStatement(maxDepth - 1)), true),
@@ -446,17 +450,15 @@ public class JavaToStrideTest
         return rand(0, 1) == 0;
     }
 
-    private static CallExpressionSlotFragment genCallOrAssign()
+    private static CodeElement genCallOrAssign()
     {
         return genOneOf(
                 () -> {
-                    FilledExpressionSlotFragment call = genCall();
-                    FilledExpressionSlotFragment expression = genExpression();
-                    return new CallExpressionSlotFragment(call.getContent() + " = " + expression.getContent(), call.getJavaCode() + " = " + expression.getJavaCode());
+                    return new AssignElement(null, filled(genName().getContent()), genExpression(), true);
                 },
                 () -> {
                     FilledExpressionSlotFragment call = genCall();
-                    return new CallExpressionSlotFragment(call.getContent(), call.getJavaCode());
+                    return new CallElement(null, new CallExpressionSlotFragment(call.getContent(), call.getJavaCode()), true);
                 }
         );
     }
