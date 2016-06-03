@@ -88,7 +88,7 @@ public class JavaStrideParser extends JavaParser
      */
     private final Stack<ArgumentListHandler> argumentHandlers = new Stack<>();
     private final Stack<TypeDefHandler> typeDefHandlers = new Stack<>();
-    private final Stack<MethodDetails> methods = new Stack<>();
+    private final Stack<MethodBuilder> methods = new Stack<>();
     /**
      * Types are an awkward case.  Sometimes you know in advance that you
      * expect a type (e.g. after "throws" or "extends").  Other times, you
@@ -111,7 +111,7 @@ public class JavaStrideParser extends JavaParser
     private final Stack<SwitchHandler> switchHandlers = new Stack<>();
     private final Stack<ForHandler> forHandlers = new Stack<>();
     
-    private final Stack<FieldOrVarDetails> curField = new Stack<>();
+    private final Stack<FieldOrVarBuilder> curField = new Stack<>();
     /**
      * Modifiers seen.  Each time we start seeing modifiers, we push a new list
      * on to the stack, then add them to the list at the top of the stack.
@@ -130,7 +130,7 @@ public class JavaStrideParser extends JavaParser
     private final List<String> warnings = new ArrayList<>();
     
     private final StatementHandler result = new StatementHandler(false) { public void endBlock() { } };
-    private Stack<TryDetails> tries = new Stack<>();
+    private Stack<TryBuilder> tries = new Stack<>();
     private String pkg;
     private final List<String> imports = new ArrayList<>();
 
@@ -139,48 +139,6 @@ public class JavaStrideParser extends JavaParser
         super(new StringReader(java), true);
         this.source = java;
         statementHandlers.push(result);
-    }
-    
-    private static class MethodDetails
-    {
-        public final String name;
-        public final List<LocatableToken> modifiers = new ArrayList<>();
-        public final List<ParamFragment> parameters = new ArrayList<>();
-        public final List<String> throwsTypes = new ArrayList<>();
-        public final String comment; // may be null
-        public String constructorCall; // may be null
-        public List<Expression> constructorArgs; // may be null
-        public final String type;
-        public boolean hasBody = false;
-
-        public MethodDetails(String type, String name, List<LocatableToken> modifiers, String comment)
-        {
-            this.type = type;
-            this.name = name;
-            this.modifiers.addAll(modifiers);
-            this.comment = comment;
-        }
-    }
-    
-    private static class FieldOrVarDetails
-    {
-        public final String type;
-        public final List<LocatableToken> modifiers = new ArrayList<>();
-
-        public FieldOrVarDetails(String type, List<LocatableToken> modifiers)
-        {
-            this.type = type;
-            this.modifiers.addAll(modifiers);
-        }
-    }
-
-    private static class TryDetails
-    {
-        private final List<CodeElement> tryContent = new ArrayList<>();
-        private final Stack<List<String>> catchTypes = new Stack<>();
-        private final List<String> catchNames = new ArrayList<>();
-        private final List<List<CodeElement>> catchBlocks = new ArrayList<>();
-        private List<CodeElement> finallyContents = null;
     }
 
     private class SwitchHandler
@@ -328,53 +286,13 @@ public class JavaStrideParser extends JavaParser
             this.condition = e;
         }
     }
-    
-    private static class Expression
-    {
-        public final String stride;
-        public final String java;
 
-        private Expression(String stride, String java)
-        {
-            this.java = java;
-            this.stride = stride;
-        }
-    }
-
-    private static interface ExpressionHandler
+    static interface ExpressionHandler
     {
         public void expressionBegun(LocatableToken start);
 
         // Return true if we should be removed from the stack
         public boolean expressionEnd(LocatableToken end);
-    }
-
-    private static interface TypeDefHandler
-    {
-        public void typeDefBegun(LocatableToken start);
-
-        public void typeDefEnd(LocatableToken end);
-
-        public void gotName(String name);
-
-        public void startedClass(List<LocatableToken> modifiers, String doc);
-
-        public void startedInterface(List<LocatableToken> modifiers, String doc);
-
-        void gotContent(List<CodeElement> content);
-
-        void typeDefExtends(String type);
-        
-        void typeDefImplements(String type);
-    }
-
-    private static interface ArgumentListHandler
-    {
-        public void argumentListBegun();
-
-        public void gotArgument();
-
-        public void argumentListEnd();
     }
 
     private abstract class StatementHandler
@@ -653,14 +571,14 @@ public class JavaStrideParser extends JavaParser
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
         super.gotConstructorDecl(token, hiddenToken);
-        methods.push(new MethodDetails(null, null, modifiers.peek(), statementHandlers.peek().getJavadoc()));
+        methods.push(new MethodBuilder(null, null, modifiers.peek(), statementHandlers.peek().getJavadoc()));
     }
 
     @Override
     protected void gotMethodDeclaration(LocatableToken nameToken, LocatableToken hiddenToken)
     {
         super.gotMethodDeclaration(nameToken, hiddenToken);
-        methods.push(new MethodDetails(prevTypes.pop(), nameToken.getText(), modifiers.peek(), statementHandlers.peek().getJavadoc()));
+        methods.push(new MethodBuilder(prevTypes.pop(), nameToken.getText(), modifiers.peek(), statementHandlers.peek().getJavadoc()));
     }
 
     @Override
@@ -682,7 +600,7 @@ public class JavaStrideParser extends JavaParser
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
         super.endMethodDecl(token, included);
-        MethodDetails details = methods.pop();
+        MethodBuilder details = methods.pop();
         List<CodeElement> body = details.hasBody ? statementHandlers.pop().getContent(false) : null;
         String name = details.name;
         List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(toType(t))).collect(Collectors.toList());
@@ -771,7 +689,7 @@ public class JavaStrideParser extends JavaParser
     protected void gotConstructorCall(LocatableToken token)
     {
         super.gotConstructorCall(token);
-        MethodDetails method = methods.peek();
+        MethodBuilder method = methods.peek();
         method.constructorCall = token.getText();
         // This will be parsed as an expression statement, so we need to cancel
         // that and replace with our own handler to discard:
@@ -816,7 +734,7 @@ public class JavaStrideParser extends JavaParser
     protected void beginFieldDeclarations(LocatableToken first)
     {
         super.beginFieldDeclarations(first);
-        curField.push(new FieldOrVarDetails(prevTypes.pop(), modifiers.peek()));
+        curField.push(new FieldOrVarBuilder(prevTypes.pop(), modifiers.peek()));
     }
 
     @Override
@@ -830,13 +748,13 @@ public class JavaStrideParser extends JavaParser
     protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited)
     {
         super.gotVariableDecl(first, idToken, inited);
-        curField.push(new FieldOrVarDetails(prevTypes.pop(), modifiers.peek()));
+        curField.push(new FieldOrVarBuilder(prevTypes.pop(), modifiers.peek()));
         handleFieldOrVar(idToken, inited, null);
     }
 
     private void handleFieldOrVar(LocatableToken idToken, boolean initExpressionFollows, AccessPermission defaultAccess)
     {
-        FieldOrVarDetails details = curField.peek();
+        FieldOrVarBuilder details = curField.peek();
         // Important we take copy:
         List<LocatableToken> modifiers = new ArrayList<>(details.modifiers);
         //Note: this modifies the list:
@@ -1042,7 +960,7 @@ public class JavaStrideParser extends JavaParser
         super.beginTryCatchSmt(token, hasResource);
         if (hasResource)
             warnings.add("Unsupported feature: try-with-resource");
-        tries.push(new TryDetails());
+        tries.push(new TryBuilder());
     }
 
     @Override
@@ -1111,7 +1029,7 @@ public class JavaStrideParser extends JavaParser
     protected void endTryCatchStmt(LocatableToken token, boolean included)
     {
         super.endTryCatchStmt(token, included);
-        TryDetails details = tries.pop();
+        TryBuilder details = tries.pop();
         List<TypeSlotFragment> catchTypes = new ArrayList<>();
         List<NameDefSlotFragment> catchNames = new ArrayList<>();
         List<List<CodeElement>> catchBlocks = new ArrayList<>();
