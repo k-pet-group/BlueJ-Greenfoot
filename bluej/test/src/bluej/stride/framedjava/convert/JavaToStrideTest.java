@@ -349,7 +349,7 @@ public class JavaToStrideTest
         // Inner classes:
         assertWarningMember("class Inner { }", UnsupportedFeature.class);
         assertWarningMember("private interface Inner { }", UnsupportedFeature.class);
-        assertWarningMember("public enum Inner { }", UnsupportedFeature.class);
+        assertWarningMember("public enum Inner { I }", UnsupportedFeature.class);
 
         // TODO test interfaces
         //TODO test non-Javadoc mid-class comments

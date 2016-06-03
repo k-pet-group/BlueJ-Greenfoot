@@ -344,11 +344,6 @@ public class JavaStrideParser extends JavaParser
             return content;
         }
 
-        protected final List<CodeElement> peekContents()
-        {
-            return content;
-        }
-
         public final void gotComment(LocatableToken token)
         {
             comments.add(token);
@@ -832,6 +827,8 @@ public class JavaStrideParser extends JavaParser
             return;
         if (!typeDefHandlers.isEmpty())
             typeDefHandlers.peek().typeDefBegun(firstToken);
+        else
+            warnings.add(new UnsupportedFeature("inner class/interface/enum"));
         List<Modifier> modifiers = this.modifiers.peek();
         switch (tdType)
         {
@@ -914,8 +911,6 @@ public class JavaStrideParser extends JavaParser
             @Override
             public void endBlock()
             {
-                peekContents().stream().filter(b -> !(b instanceof VarElement || b instanceof NormalMethodElement || b instanceof ConstructorElement || b instanceof MethodProtoElement)).
-                    findFirst().ifPresent(x -> warnings.add(new UnsupportedFeature("initializer block")));
             }
         });
     }
@@ -1237,6 +1232,13 @@ public class JavaStrideParser extends JavaParser
     {
         super.beginSynchronizedBlock(token);
         warnings.add(new UnsupportedFeature("synchronized"));
+    }
+
+    @Override
+    protected void beginInitBlock(LocatableToken first, LocatableToken lcurly)
+    {
+        super.beginInitBlock(first, lcurly);
+        warnings.add(new UnsupportedFeature("initializer block"));
     }
 
     private String getText(LocatableToken start, LocatableToken end)
