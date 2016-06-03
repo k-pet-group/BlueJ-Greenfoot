@@ -17,7 +17,6 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
-import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
@@ -25,11 +24,9 @@ import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.ParamFragment;
 import bluej.stride.framedjava.ast.SuperThis;
 import bluej.stride.framedjava.ast.SuperThisFragment;
-import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
 import bluej.stride.framedjava.ast.ThrowsTypeFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.BreakElement;
-import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CaseElement;
 import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -78,7 +75,7 @@ public class JavaStrideParser extends JavaParser
      * The top item, if any, gets passed expression begin/end events.
      * If the stack is empty, the expression is ignored.
      */
-    private final Stack<ExpressionHandler> expressionHandlers = new Stack<>();
+    private final Stack<ExpressionBuilder> expressionHandlers = new Stack<>();
     private final Stack<StatementHandler> statementHandlers = new Stack<>();
     /**
      * The stack of actual-argument handlers.
@@ -284,14 +281,6 @@ public class JavaStrideParser extends JavaParser
         {
             this.condition = e;
         }
-    }
-
-    static interface ExpressionHandler
-    {
-        public void expressionBegun(LocatableToken start);
-
-        // Return true if we should be removed from the stack
-        public boolean expressionEnd(LocatableToken end);
     }
 
     private abstract class StatementHandler
@@ -1203,38 +1192,7 @@ public class JavaStrideParser extends JavaParser
      */
     private void withExpression(Consumer<Expression> handler)
     {
-        expressionHandlers.push(new ExpressionHandler()
-        {
-            LocatableToken start;
-            // Amount of expressions begun but not ending:
-            int outstanding = 0;
-
-            @Override
-            public void expressionBegun(LocatableToken start)
-            {
-                // Only record first begin:
-                if (outstanding == 0)
-                    this.start = start;
-                outstanding += 1;
-            }
-
-            @Override
-            public boolean expressionEnd(LocatableToken end)
-            {
-                outstanding -= 1;
-                // If the outermost has finished, pass it to handler:
-                if (outstanding == 0)
-                {
-                    String java = getText(start, end);
-                    handler.accept(new Expression(replaceInstanceof(java), uniformSpacing(java)));
-                    // Finished now:
-                    return true;
-                }
-                else
-                    // Not finished yet:
-                    return false;
-            }
-        });
+        expressionHandlers.push(new ExpressionBuilder(handler, this::getText));
     }
     
     private static interface TypeDefDelegate
