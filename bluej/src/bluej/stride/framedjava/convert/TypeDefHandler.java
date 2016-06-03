@@ -16,9 +16,9 @@ interface TypeDefHandler
 
     public void gotName(String name);
 
-    public void startedClass(List<LocatableToken> modifiers, String doc);
+    public void startedClass(List<Modifier> modifiers, String doc);
 
-    public void startedInterface(List<LocatableToken> modifiers, String doc);
+    public void startedInterface(List<Modifier> modifiers, String doc);
 
     void gotContent(List<CodeElement> content);
 

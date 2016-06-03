@@ -12,7 +12,7 @@ import bluej.stride.framedjava.ast.ParamFragment;
 class MethodBuilder
 {
     final String name;
-    final List<LocatableToken> modifiers = new ArrayList<>();
+    final List<Modifier> modifiers = new ArrayList<>();
     final List<ParamFragment> parameters = new ArrayList<>();
     final List<String> throwsTypes = new ArrayList<>();
     final String comment; // may be null
@@ -21,7 +21,7 @@ class MethodBuilder
     final String type;
     boolean hasBody = false;
 
-    MethodBuilder(String type, String name, List<LocatableToken> modifiers, String comment)
+    MethodBuilder(String type, String name, List<Modifier> modifiers, String comment)
     {
         this.type = type;
         this.name = name;

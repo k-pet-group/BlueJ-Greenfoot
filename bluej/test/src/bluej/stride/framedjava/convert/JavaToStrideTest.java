@@ -236,7 +236,7 @@ public class JavaToStrideTest
         assertEqualsMember("public void foo() { return; }", _method(null, AccessPermission.PUBLIC, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Arrays.asList(_return())));
         assertEqualsMember("public final void foo(int x) { return; }", _method(null, AccessPermission.PUBLIC, false, true, "void", "foo", Arrays.asList(_param("int", "x")), Collections.emptyList(), Arrays.asList(_return())));
 
-        assertEqualsMember("public final void foo(int[] x, double y[][], String[] s[]) { return; }",
+        assertEqualsMember("@Override public final void foo(int[] x, double y[][], String[] s[]) { return; }",
                 _method(null, AccessPermission.PUBLIC, false, true, "void", "foo",
                         Arrays.asList(_param("int[]", "x"), _param("double[][]", "y"), _param("String[][]", "s")),
                         Collections.emptyList(), Arrays.asList(_return())));
@@ -258,7 +258,10 @@ public class JavaToStrideTest
         assertEqualsMember("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
         assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2 , 3", l()));
         //TODO test: abstract methods, interface methods (incl default -- should fail), generic methods (either fail or do our best)
-        
+
+        // @Override should flag in Constructor
+        assertWarningMember("@Override Foo() {}", ConversionWarning.UnsupportedModifier.class);
+
     }
     
     @Test
@@ -768,5 +771,12 @@ public class JavaToStrideTest
         else
             Assert.assertEquals("Checking XML", expectedXML, resultXML);
         Assert.assertEquals("No warnings\n" + javaSource, Collections.emptyList(), result.getWarnings());
+    }
+
+    private static void assertWarningMember(String javaSource, Class<? extends ConversionWarning> cls)
+    {
+        List<ConversionWarning> warnings = Parser.javaToStride(javaSource, Parser.JavaContext.CLASS_MEMBER).getWarnings();
+        Assert.assertTrue("Expected warning", !warnings.isEmpty());
+        Assert.assertTrue("Expected specific warning type", warnings.stream().anyMatch(cls::isInstance));
     }
 }

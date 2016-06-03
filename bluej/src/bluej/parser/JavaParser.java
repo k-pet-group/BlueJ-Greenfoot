@@ -2762,14 +2762,21 @@ public class JavaParser
     public void parseAnnotation()
     {
         LocatableToken token = nextToken(); // IDENT
-        parseDottedIdent(token);
-        if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
+        List<LocatableToken> annName = parseDottedIdent(token);
+        boolean paramsFollow = tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN;
+        gotAnnotation(annName, paramsFollow);
+        if (paramsFollow) {
             // arguments
             token = tokenStream.nextToken(); // LPAREN
             parseArgumentList(token);
         }
     }
-        
+
+    protected void gotAnnotation(List<LocatableToken> annName, boolean paramsFollow)
+    {
+
+    }
+
     private static int [] expressionTokenIndexes = new int[JavaTokenTypes.INVALID+1];
     
     static {

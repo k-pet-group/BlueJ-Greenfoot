@@ -88,4 +88,11 @@ class Expression
         else
             return new CallElement(null, new CallExpressionSlotFragment(stride, java), true);
     }
+
+    @Override
+    public String toString()
+    {
+        // If we need to display to the user, display the original Java:
+        return java;
+    }
 }

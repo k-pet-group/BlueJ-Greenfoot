@@ -118,7 +118,7 @@ public class JavaStrideParser extends JavaParser
      * stack is only ever 0 or 1 items high, but it doesn't harm to have a stack
      * and it fits with the design of everything else.
      */
-    private final Stack<List<LocatableToken>> modifiers = new Stack<>();
+    private final Stack<List<Modifier>> modifiers = new Stack<>();
 
     /**
      * Any warnings encountered in the conversion process.
@@ -232,11 +232,11 @@ public class JavaStrideParser extends JavaParser
         private Expression post; // null means empty
         private Expression condition; // null means empty
 
-        public void gotType(String type, List<LocatableToken> modifiers)
+        public void gotType(String type, List<Modifier> modifiers)
         {
             this.type = type;
             // Our for-each loops are always final so we ignore final modifier:
-            modifiers.removeIf(t -> t.getText().equals("final"));
+            modifiers.removeIf(t -> t.isKeyword("final"));
             warnUnsupportedModifiers("for-loop", modifiers);
         }
 
@@ -597,15 +597,15 @@ public class JavaStrideParser extends JavaParser
         List<CodeElement> body = details.hasBody ? statementHandlers.pop().getContent(false) : null;
         String name = details.name;
         List<ThrowsTypeFragment> throwsTypes = details.throwsTypes.stream().map(t -> new ThrowsTypeFragment(toType(t))).collect(Collectors.toList());
-        List<LocatableToken> modifiers = details.modifiers;
+        List<Modifier> modifiers = details.modifiers;
         //Note: this modifies the list:
         AccessPermission permission = removeAccess(modifiers, AccessPermission.PROTECTED);
         if (name != null)
         {
-            boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
-            boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
+            boolean _final = modifiers.removeIf(t -> t.isKeyword("final"));
+            boolean _static = modifiers.removeIf(t -> t.isKeyword("static"));
             // We determine abstract by lack of body, but we shouldn't warn about it:
-            modifiers.removeIf(t -> t.getText().equals("abstract"));
+            modifiers.removeIf(t -> t.isKeyword("abstract"));
             // Any remaining are unrecognised:
             warnUnsupportedModifiers("method", modifiers);
             String type = details.type;
@@ -637,21 +637,21 @@ public class JavaStrideParser extends JavaParser
             return new TypeSlotFragment(t, t);
     }
 
-    private void warnUnsupportedModifiers(String context, List<LocatableToken> modifiers)
+    private void warnUnsupportedModifiers(String context, List<Modifier> modifiers)
     {
-        modifiers.forEach(t -> warnings.add(new ConversionWarning.UnsupportedModifier(context, t.getText())));
+        modifiers.forEach(t -> warnings.add(new ConversionWarning.UnsupportedModifier(context, t.toString())));
     }
 
-    private static AccessPermission removeAccess(List<LocatableToken> modifiers, AccessPermission defaultAccess)
+    private static AccessPermission removeAccess(List<Modifier> modifiers, AccessPermission defaultAccess)
     {
         // If they make the item package-visible, we will turn this into defaultAccess:
         AccessPermission permission = defaultAccess;
         // These are not else-if, so that we remove all recognised modifiers:
-        if (modifiers.removeIf(t -> t.getText().equals("private")))
+        if (modifiers.removeIf(t -> t.isKeyword("private")))
             permission = AccessPermission.PRIVATE;
-        if (modifiers.removeIf(t -> t.getText().equals("protected")))
+        if (modifiers.removeIf(t -> t.isKeyword("protected")))
             permission = AccessPermission.PROTECTED;
-        if (modifiers.removeIf(t -> t.getText().equals("public")))
+        if (modifiers.removeIf(t -> t.isKeyword("public")))
             permission = AccessPermission.PUBLIC;
         return permission;
     }
@@ -719,7 +719,7 @@ public class JavaStrideParser extends JavaParser
     {
         super.gotModifier(token);
         if (!modifiers.isEmpty())
-            modifiers.peek().add(token);
+            modifiers.peek().add(new Modifier.KeywordModifier(token));
     }
 
     @Override
@@ -756,11 +756,11 @@ public class JavaStrideParser extends JavaParser
     {
         FieldOrVarBuilder details = curField.peek();
         // Important we take copy:
-        List<LocatableToken> modifiers = new ArrayList<>(details.modifiers);
+        List<Modifier> modifiers = new ArrayList<>(details.modifiers);
         //Note: this modifies the list:
         AccessPermission permission = removeAccess(modifiers, defaultAccess);
-        boolean _final = modifiers.removeIf(t -> t.getText().equals("final"));
-        boolean _static = modifiers.removeIf(t -> t.getText().equals("static"));
+        boolean _final = modifiers.removeIf(t -> t.isKeyword("final"));
+        boolean _static = modifiers.removeIf(t -> t.isKeyword("static"));
         // Any remaining are unrecognised:
         warnUnsupportedModifiers("variable", modifiers);
 
@@ -810,7 +810,7 @@ public class JavaStrideParser extends JavaParser
             return;
         if (!typeDefHandlers.isEmpty())
             typeDefHandlers.peek().typeDefBegun(firstToken);
-        List<LocatableToken> modifiers = this.modifiers.peek();
+        List<Modifier> modifiers = this.modifiers.peek();
         switch (tdType)
         {
             case TYPEDEF_CLASS:
@@ -1235,7 +1235,7 @@ public class JavaStrideParser extends JavaParser
     
     private class InterfaceDelegate implements TypeDefDelegate
     {
-        private final List<LocatableToken> modifiers;
+        private final List<Modifier> modifiers;
         private final String doc;
         private String name;
         private final List<CodeElement> fields = new ArrayList<>();
@@ -1243,7 +1243,7 @@ public class JavaStrideParser extends JavaParser
         private final List<CommentElement> pendingComments = new ArrayList<>();
         private final List<String> extendsTypes = new ArrayList<>();
 
-        public InterfaceDelegate(List<LocatableToken> modifiers, String doc)
+        public InterfaceDelegate(List<Modifier> modifiers, String doc)
         {
             this.modifiers = new ArrayList<>(modifiers);
             this.doc = doc;
@@ -1302,7 +1302,7 @@ public class JavaStrideParser extends JavaParser
                 fields.addAll(pendingComments);
             pendingComments.clear();
             // Public is the default so don't warn it's unsupported:
-            modifiers.removeIf(t -> t.getText().equals("public"));
+            modifiers.removeIf(t -> t.isKeyword("public"));
             warnUnsupportedModifiers("interface", modifiers);
             return new InterfaceElement(null, null, new NameDefSlotFragment(name),
                 extendsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields, methods,
@@ -1312,7 +1312,7 @@ public class JavaStrideParser extends JavaParser
     
     private class ClassDelegate implements TypeDefDelegate
     {
-        private final List<LocatableToken> modifiers;
+        private final List<Modifier> modifiers;
         private final String doc;
         private String name;
         private final List<CodeElement> fields = new ArrayList<>();
@@ -1322,7 +1322,7 @@ public class JavaStrideParser extends JavaParser
         private String extendsType;
         private final List<String> implementsTypes = new ArrayList<>();
 
-        public ClassDelegate(List<LocatableToken> modifiers, String doc)
+        public ClassDelegate(List<Modifier> modifiers, String doc)
         {
             this.modifiers = new ArrayList<>(modifiers);
             this.doc = doc;
@@ -1387,9 +1387,9 @@ public class JavaStrideParser extends JavaParser
             else
                 fields.addAll(pendingComments);
             pendingComments.clear();
-            boolean _abstract = modifiers.removeIf(t -> t.getText().equals("abstract"));
+            boolean _abstract = modifiers.removeIf(t -> t.isKeyword("abstract"));
             // Public is the default so don't warn it's unsupported:
-            modifiers.removeIf(t -> t.getText().equals("public"));
+            modifiers.removeIf(t -> t.isKeyword("public"));
             warnUnsupportedModifiers("class", modifiers);
             return new ClassElement(null, null, _abstract, new NameDefSlotFragment(name),
                 toType(extendsType),
@@ -1425,14 +1425,14 @@ public class JavaStrideParser extends JavaParser
             }
 
             @Override
-            public void startedClass(List<LocatableToken> modifiers, String doc)
+            public void startedClass(List<Modifier> modifiers, String doc)
             {
                 if (outstanding == 1)
                     delegate = new ClassDelegate(modifiers, doc);
             }
 
             @Override
-            public void startedInterface(List<LocatableToken> modifiers, String doc)
+            public void startedInterface(List<Modifier> modifiers, String doc)
             {
                 if (outstanding == 1)
                     delegate = new InterfaceDelegate(modifiers, doc);

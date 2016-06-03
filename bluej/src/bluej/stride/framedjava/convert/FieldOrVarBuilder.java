@@ -11,9 +11,9 @@ import bluej.parser.lexer.LocatableToken;
 class FieldOrVarBuilder
 {
     final String type;
-    final List<LocatableToken> modifiers = new ArrayList<>();
+    final List<Modifier> modifiers = new ArrayList<>();
 
-    FieldOrVarBuilder(String type, List<LocatableToken> modifiers)
+    FieldOrVarBuilder(String type, List<Modifier> modifiers)
     {
         this.type = type;
         this.modifiers.addAll(modifiers);
