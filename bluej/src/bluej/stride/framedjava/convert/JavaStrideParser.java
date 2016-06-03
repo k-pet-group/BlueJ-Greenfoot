@@ -1306,6 +1306,27 @@ public class JavaStrideParser extends JavaParser
         statementHandlers.pop();
     }
 
+    @Override
+    protected void beginAnonClassBody(LocatableToken token, boolean isEnumMember)
+    {
+        super.beginAnonClassBody(token, isEnumMember);
+        warnings.add(new UnsupportedFeature("anonymous class"));
+        // Add a statement handler to soak up and ignore all the statements:
+        withStatement(new StatementHandler(false) {
+            @Override
+            public void endBlock()
+            {
+            }
+        });
+    }
+
+    @Override
+    protected void endAnonClassBody(LocatableToken token, boolean included)
+    {
+        super.endAnonClassBody(token, included);
+        statementHandlers.pop();
+    }
+
     private String getText(LocatableToken start, LocatableToken end)
     {
         return source.substring(start.getPosition(), end.getPosition());

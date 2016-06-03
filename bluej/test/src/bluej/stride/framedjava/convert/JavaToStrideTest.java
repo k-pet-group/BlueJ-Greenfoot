@@ -157,6 +157,11 @@ public class JavaToStrideTest
         assertWarning("while ((i += 1) < 7) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("( i += 1 ) < 7"));
         assertWarning("while ((i = next()) != null) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("( i = next ( ) ) != null"));
         assertWarning("while (b = cond()) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("b = cond ( )"));
+
+        assertEquals("x = new Foo();", _assign("x", "new Foo ( )"));
+        assertWarning("x = new Foo() { };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "new Foo ( ) { }"));
+        assertWarning("x = new Foo() { int y; };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "new Foo ( ) { int y ; }"));
+        // TODO remove inner class content from the expression
     }
 
     private CodeElement _assign(String lhs, String rhs)
