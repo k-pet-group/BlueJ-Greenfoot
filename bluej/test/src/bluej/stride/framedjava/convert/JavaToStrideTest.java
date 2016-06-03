@@ -236,6 +236,11 @@ public class JavaToStrideTest
         assertEqualsMember("public void foo() { return; }", _method(null, AccessPermission.PUBLIC, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Arrays.asList(_return())));
         assertEqualsMember("public final void foo(int x) { return; }", _method(null, AccessPermission.PUBLIC, false, true, "void", "foo", Arrays.asList(_param("int", "x")), Collections.emptyList(), Arrays.asList(_return())));
 
+        assertEqualsMember("public final void foo(int[] x, double y[][], String[] s[]) { return; }",
+                _method(null, AccessPermission.PUBLIC, false, true, "void", "foo",
+                        Arrays.asList(_param("int[]", "x"), _param("double[][]", "y"), _param("String[][]", "s")),
+                        Collections.emptyList(), Arrays.asList(_return())));
+
         assertEqualsMember("Foo(int x, String y) throws IOException { }",
             _constructor(null, AccessPermission.PROTECTED, Arrays.asList(_param("int", "x"), _param("String", "y")),
                 Arrays.asList("IOException"), Arrays.asList()));
@@ -280,6 +285,10 @@ public class JavaToStrideTest
                 _var(null, false, true, "String", "b", null),
                 _var(null, false, true, "String", "c", filled("( String ) false")),
                 _var(null, false, true, "String", "d", null));
+
+        assertEquals("int[] x;", _var(null, false, false, "int[]", "x", null));
+        assertEquals("int x[];", _var(null, false, false, "int[]", "x", null));
+        assertEquals("int[] x[];", _var(null, false, false, "int[][]", "x", null));
     }
 
     @Test

@@ -737,6 +737,14 @@ public class JavaStrideParser extends JavaParser
         handleFieldOrVar(idToken, inited, null);
     }
 
+    @Override
+    protected void gotArrayDeclarator()
+    {
+        super.gotArrayDeclarator();
+        if (!prevTypes.isEmpty())
+            prevTypes.push(prevTypes.pop() + "[]");
+    }
+
     private void handleFieldOrVar(LocatableToken idToken, boolean initExpressionFollows, AccessPermission defaultAccess)
     {
         FieldOrVarBuilder details = curField.peek();
