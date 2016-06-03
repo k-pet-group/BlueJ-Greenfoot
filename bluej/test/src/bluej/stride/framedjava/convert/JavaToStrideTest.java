@@ -21,11 +21,13 @@ import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
 import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.ParamFragment;
 import bluej.stride.framedjava.ast.Parser;
+import bluej.stride.framedjava.ast.Parser.JavaContext;
 import bluej.stride.framedjava.ast.SuperThis;
 import bluej.stride.framedjava.ast.SuperThisFragment;
 import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
 import bluej.stride.framedjava.ast.ThrowsTypeFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.convert.ConversionWarning.UnsupportedFeature;
 import bluej.stride.framedjava.elements.AssignElement;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
@@ -117,6 +119,14 @@ public class JavaToStrideTest
                 _var(null, false, false, "int", "l", null),
                 _while("i < 10", _return("0"), _return("1"), _assign("i", "i + 1"))
         );
+
+        // Inner blocks:
+        assertEquals("return 0; {return 1;}", _return("0"), _return("1"));
+        assertEquals("{return 0;} {return 1;}", _return("0"), _return("1"));
+        assertEquals("if (true) {return 0;} {return 1;}", _if("true", _return("0")), _return("1"));
+
+        assertWarning("assert true;", UnsupportedFeature.class);
+        assertWarning("synchronized (this) { };", UnsupportedFeature.class);
     }
     
     @Test
@@ -130,7 +140,9 @@ public class JavaToStrideTest
         assertEquals("i--;", _assign("i", "i - 1"));
         assertEquals("--i[j.k];", _assign("i [ j . k ]", "i [ j . k ] - 1"));
         assertEquals("i[j.k]--;", _assign("i [ j . k ]", "i [ j . k ] - 1"));
-        //TODO assert one that shouldn't be supported.
+
+        assertWarning("0 + i++;", UnsupportedFeature.class);
+        assertWarning("foo(--i);", UnsupportedFeature.class);
     }
     
     @Test
@@ -325,7 +337,20 @@ public class JavaToStrideTest
                 l(_var(AccessPermission.PRIVATE, false, false, "int", "member", null)),
                 l(_constructor(null, AccessPermission.PROTECTED, l(), l(), l(_return()))),
                 l(_method(null, AccessPermission.PUBLIC, false, false, "double", "method", l(), l(), l(_return("0.0"))))));
-        
+
+        assertWarningFile("public enum Foo { F }", UnsupportedFeature.class);
+
+        // Initializers:
+        assertWarningFile("class Foo { { int x; } }", UnsupportedFeature.class);
+        assertWarningFile("interface Foo { static { int x; } }", UnsupportedFeature.class);
+        assertWarningMember("{ int x; }", UnsupportedFeature.class);
+        assertWarningMember("static { int x; }", UnsupportedFeature.class);
+
+        // Inner classes:
+        assertWarningMember("class Inner { }", UnsupportedFeature.class);
+        assertWarningMember("private interface Inner { }", UnsupportedFeature.class);
+        assertWarningMember("public enum Inner { }", UnsupportedFeature.class);
+
         // TODO test interfaces
         //TODO test non-Javadoc mid-class comments
     }
@@ -775,7 +800,21 @@ public class JavaToStrideTest
 
     private static void assertWarningMember(String javaSource, Class<? extends ConversionWarning> cls)
     {
-        List<ConversionWarning> warnings = Parser.javaToStride(javaSource, Parser.JavaContext.CLASS_MEMBER).getWarnings();
+        testWarning(javaSource, cls, Parser.JavaContext.CLASS_MEMBER);
+    }
+    private static void assertWarning(String javaSource, Class<? extends ConversionWarning> cls)
+    {
+        testWarning(javaSource, cls, JavaContext.STATEMENT);
+    }
+    private static void assertWarningFile(String javaSource, Class<? extends ConversionWarning> cls)
+    {
+        testWarning(javaSource, cls, JavaContext.TOP_LEVEL);
+    }
+
+
+    private static void testWarning(String javaSource, Class<? extends ConversionWarning> cls, JavaContext context)
+    {
+        List<ConversionWarning> warnings = Parser.javaToStride(javaSource, context).getWarnings();
         Assert.assertTrue("Expected warning", !warnings.isEmpty());
         Assert.assertTrue("Expected specific warning type", warnings.stream().anyMatch(cls::isInstance));
     }

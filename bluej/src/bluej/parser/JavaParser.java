@@ -1825,6 +1825,7 @@ public class JavaParser
      */
     public LocatableToken parseAssertStatement(LocatableToken token)
     {
+        gotAssert();
         parseExpression();
         token = tokenStream.nextToken();
         if (token.getType() == JavaTokenTypes.COLON) {
@@ -1841,6 +1842,8 @@ public class JavaParser
         lastToken = token;
         return token;
     }
+
+    protected void gotAssert() { }
 
     /** Parse a "switch(...) {  }" statement. */
     public LocatableToken parseSwitchStatement(LocatableToken token)

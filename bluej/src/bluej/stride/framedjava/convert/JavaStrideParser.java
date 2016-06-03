@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import bluej.parser.JavaParser;
+import bluej.parser.ParseFailure;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -26,6 +27,7 @@ import bluej.stride.framedjava.ast.SuperThis;
 import bluej.stride.framedjava.ast.SuperThisFragment;
 import bluej.stride.framedjava.ast.ThrowsTypeFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.convert.ConversionWarning.UnsupportedFeature;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CaseElement;
 import bluej.stride.framedjava.elements.ClassElement;
@@ -315,7 +317,7 @@ public class JavaStrideParser extends JavaParser
             }
         }
 
-        public void foundStatement(List<CodeElement> statements)
+        public final void foundStatement(List<CodeElement> statements)
         {
             CommentElement el = collateComments(false);
             if (el != null)
@@ -339,6 +341,11 @@ public class JavaStrideParser extends JavaParser
                 // Pass any left-over comments to our parent:
                 comments.forEach(statementHandlers.peek()::gotComment);
             }
+            return content;
+        }
+
+        protected final List<CodeElement> peekContents()
+        {
             return content;
         }
 
@@ -374,7 +381,7 @@ public class JavaStrideParser extends JavaParser
          */
         public abstract void endBlock();
 
-        public String getJavadoc()
+        public final String getJavadoc()
         {
             if (!comments.isEmpty() && comments.get(comments.size() - 1).getText().startsWith("/**"))
             {
@@ -836,6 +843,15 @@ public class JavaStrideParser extends JavaParser
                 if (!typeDefHandlers.isEmpty())
                     typeDefHandlers.peek().startedInterface(modifiers, statementHandlers.peek().getJavadoc());
                 break;
+            case TYPEDEF_ANNOTATION:
+                warnings.add(new UnsupportedFeature("annotation"));
+                break;
+            case TYPEDEF_ENUM:
+                warnings.add(new UnsupportedFeature("enum"));
+                break;
+            default:
+                throw new ParseFailure("Typedef parse failure");
+
         }
     }
 
@@ -898,7 +914,8 @@ public class JavaStrideParser extends JavaParser
             @Override
             public void endBlock()
             {
-
+                peekContents().stream().filter(b -> !(b instanceof VarElement || b instanceof NormalMethodElement || b instanceof ConstructorElement || b instanceof MethodProtoElement)).
+                    findFirst().ifPresent(x -> warnings.add(new UnsupportedFeature("initializer block")));
             }
         });
     }
@@ -1208,6 +1225,20 @@ public class JavaStrideParser extends JavaParser
             argumentHandlers.peek().gotArgument();
     }
 
+    @Override
+    protected void gotAssert()
+    {
+        super.gotAssert();
+        warnings.add(new UnsupportedFeature("assert"));
+    }
+
+    @Override
+    protected void beginSynchronizedBlock(LocatableToken token)
+    {
+        super.beginSynchronizedBlock(token);
+        warnings.add(new UnsupportedFeature("synchronized"));
+    }
+
     private String getText(LocatableToken start, LocatableToken end)
     {
         return source.substring(start.getPosition(), end.getPosition());
@@ -1433,7 +1464,7 @@ public class JavaStrideParser extends JavaParser
             public void typeDefEnd(LocatableToken end)
             {
                 outstanding -= 1;
-                if (outstanding == 0)
+                if (outstanding == 0 && delegate != null)
                 {
                     handler.accept(delegate.end());
                 }
@@ -1456,28 +1487,28 @@ public class JavaStrideParser extends JavaParser
             @Override
             public void gotName(String name)
             {
-                if (outstanding == 1)
+                if (outstanding == 1 && delegate != null)
                     delegate.gotName(name);
             }
 
             @Override
             public void gotContent(List<CodeElement> content)
             {
-                if (outstanding == 1)
+                if (outstanding == 1 && delegate != null)
                     content.forEach(delegate::gotContent);
             }
 
             @Override
             public void typeDefImplements(String type)
             {
-                if (outstanding == 1)
+                if (outstanding == 1 && delegate != null)
                     delegate.gotImplements(type);
             }
 
             @Override
             public void typeDefExtends(String type)
             {
-                if (outstanding == 1)
+                if (outstanding == 1 && delegate != null)
                     delegate.gotExtends(type);
             }
         });

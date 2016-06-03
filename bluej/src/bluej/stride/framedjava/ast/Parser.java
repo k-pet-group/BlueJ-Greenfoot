@@ -146,13 +146,10 @@ public class Parser
     {
         /** An item within a method (or similar) */
         STATEMENT,
-        /** An item within a *class* body (field, method, constructor) */
+        /** An item within a class or interface body (field, method, constructor) */
         CLASS_MEMBER,
-        /** Ditto but for interfaces */
-        INTERFACE_MEMBER,
         /** Top-level of file; package, imports and a declaration */
         TOP_LEVEL
-        //TODO: should there be another context for case statements?
     }
 
     public static class ConversionResult
