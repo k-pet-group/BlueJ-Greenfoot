@@ -1,4 +1,4 @@
-package bluej.stride.framedjava.ast;
+package bluej.stride.framedjava.convert;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -15,6 +15,20 @@ import bluej.parser.JavaParser;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.stride.framedjava.ast.AccessPermission;
+import bluej.stride.framedjava.ast.AccessPermissionFragment;
+import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
+import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
+import bluej.stride.framedjava.ast.JavadocUnit;
+import bluej.stride.framedjava.ast.NameDefSlotFragment;
+import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
+import bluej.stride.framedjava.ast.PackageFragment;
+import bluej.stride.framedjava.ast.ParamFragment;
+import bluej.stride.framedjava.ast.SuperThis;
+import bluej.stride.framedjava.ast.SuperThisFragment;
+import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
+import bluej.stride.framedjava.ast.ThrowsTypeFragment;
+import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CaseElement;
@@ -56,7 +70,7 @@ import bluej.utility.Utility;
  *    we just build a stack of things we've seen, to be dealt with once
  *    we know what it is later on.
  */
-class JavaStrideParser extends JavaParser
+public class JavaStrideParser extends JavaParser
 {
     /** The original source code being transformed */
     private final String source;
@@ -120,7 +134,7 @@ class JavaStrideParser extends JavaParser
     private String pkg;
     private final List<String> imports = new ArrayList<>();
 
-    JavaStrideParser(String java)
+    public JavaStrideParser(String java)
     {
         super(new StringReader(java), true);
         this.source = java;

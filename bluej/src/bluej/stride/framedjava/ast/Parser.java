@@ -29,6 +29,7 @@ import bluej.parser.ParseFailure;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.stride.framedjava.convert.JavaStrideParser;
 import bluej.stride.framedjava.elements.CodeElement;
 
 public class Parser

@@ -1,4 +1,4 @@
-package bluej.stride.framedjava.ast;
+package bluej.stride.framedjava.convert;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +10,23 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.ast.AccessPermission;
+import bluej.stride.framedjava.ast.AccessPermissionFragment;
+import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
+import bluej.stride.framedjava.ast.ExpressionSlotFragment;
+import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
+import bluej.stride.framedjava.ast.JavadocUnit;
+import bluej.stride.framedjava.ast.NameDefSlotFragment;
+import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
+import bluej.stride.framedjava.ast.PackageFragment;
+import bluej.stride.framedjava.ast.ParamFragment;
+import bluej.stride.framedjava.ast.Parser;
+import bluej.stride.framedjava.ast.SuperThis;
+import bluej.stride.framedjava.ast.SuperThisFragment;
+import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
+import bluej.stride.framedjava.ast.ThrowsTypeFragment;
+import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.elements.AssignElement;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CaseElement;
@@ -34,7 +51,7 @@ import bluej.utility.Utility;
 import nu.xom.Element;
 import org.junit.Assert;
 import org.junit.Test;
-import static bluej.stride.framedjava.ast.JavaStrideParser.uniformSpacing;
+import static bluej.stride.framedjava.convert.JavaStrideParser.uniformSpacing;
 
 /**
  * Note: some of the test cases are not semantically valid, but as long as they are syntactically valid
@@ -83,11 +100,16 @@ public class JavaToStrideTest
         assertEquals("for (int x : xs) return;", _forEach("int", "x", "xs", _return()));
         assertEquals("for (int x : (int[])xs) return;", _forEach("int", "x", "( int [ ] ) xs", _return()));
 
+        // i = i + 1 gets turned into a call because we don't parse the expression
         assertEquals("for (int i = 0; i < 10; i = i + 1) return;",
                 _var(null, false, false, "int", "i", filled("0")),
                 _while("i < 10", _return(), _call("i = i + 1"))
         );
-        //TODO test with i++
+        // However, i++ becomes an assignment because we do transform it:
+        assertEquals("for (int i = 0; i < 10; i++) return;",
+            _var(null, false, false, "int", "i", filled("0")),
+            _while("i < 10", _return(), _assign("i", "i + 1"))
+        );
         assertEquals("for (int i = 0, j, k = (double)7, l; i < 10; i = i + 1) {return 0; return 1;}",
                 _var(null, false, false, "int", "i", filled("0")),
                 _var(null, false, false, "int", "j", null),
@@ -95,6 +117,21 @@ public class JavaToStrideTest
                 _var(null, false, false, "int", "l", null),
                 _while("i < 10", _return("0"), _return("1"), _call("i = i + 1"))
         );
+    }
+    
+    @Test
+    public void testIncDec()
+    {
+        assertEquals("++i;", _assign("i", "i + 1"));
+        assertEquals("i++;", _assign("i", "i + 1"));
+        assertEquals("++i[j.k];", _assign("i [ j . k ]", "i [ j . k ] = i [ j . k ] + 1"));
+        assertEquals("i[j.k]++;", _assign("i [ j . k ]", "i [ j . k ] = i [ j . k ] + 1"));
+        //TODO assert one that shouldn't be supported.
+    }
+
+    private CodeElement _assign(String lhs, String rhs)
+    {
+        return new AssignElement(null, filled(lhs), filled(rhs), true);
     }
 
     private CodeElement _forEach(String type, String var, String of, CodeElement... body)
