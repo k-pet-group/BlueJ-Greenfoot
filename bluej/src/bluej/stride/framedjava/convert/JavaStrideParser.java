@@ -1508,42 +1508,4 @@ public class JavaStrideParser extends JavaParser
         return result.getContent(true);
     }
 
-    // package-visible for testing
-    static String replaceInstanceof(String src)
-    {
-        // It is a bit inefficient to re-lex the string, but
-        // it's easiest this way and conversion is not particularly time sensitive:
-        JavaLexer lexer = new JavaLexer(new StringReader(src));
-        StringBuilder r = new StringBuilder();
-        while (true)
-        {
-            LocatableToken token = lexer.nextToken();
-            if (token.getType() == JavaTokenTypes.EOF)
-                return r.toString();
-            if (r.length() != 0)
-                r.append(" ");
-            if (token.getType() == JavaTokenTypes.LITERAL_instanceof)
-                r.append("<:");
-            else
-                r.append(token.getText());
-        }
-    }
-
-    static String uniformSpacing(String src)
-    {
-        // It is a bit inefficient to re-lex the string, but
-        // it's easiest this way and conversion is not particularly time sensitive:
-        JavaLexer lexer = new JavaLexer(new StringReader(src));
-        StringBuilder r = new StringBuilder();
-        while (true)
-        {
-            LocatableToken token = lexer.nextToken();
-            if (token.getType() == JavaTokenTypes.EOF)
-                return r.toString();
-            if (r.length() != 0)
-                r.append(" ");
-            r.append(token.getText());
-        }
-    }
-
 }

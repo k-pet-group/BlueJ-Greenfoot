@@ -51,7 +51,7 @@ import bluej.utility.Utility;
 import nu.xom.Element;
 import org.junit.Assert;
 import org.junit.Test;
-import static bluej.stride.framedjava.convert.JavaStrideParser.uniformSpacing;
+import static bluej.stride.framedjava.convert.Expression.uniformSpacing;
 
 /**
  * Note: some of the test cases are not semantically valid, but as long as they are syntactically valid
@@ -501,7 +501,7 @@ public class JavaToStrideTest
                 // Cast:
                 () -> {
                     TypeSlotFragment t = genType();
-                    return concat(new FilledExpressionSlotFragment("( " + uniformSpacing(t.getContent()) + " )", "( " + uniformSpacing(t.getJavaCode()) + " )"), genExpression(maxDepth - 1));
+                    return concat(new FilledExpressionSlotFragment("( " + uniformSpacing(t.getContent(), false) + " )", "( " + uniformSpacing(t.getJavaCode(), false) + " )"), genExpression(maxDepth - 1));
                 },
                 // Binary operator:
                 () -> concat(genExpression(maxDepth - 1), genOneOf(
@@ -510,7 +510,7 @@ public class JavaToStrideTest
                     () -> concat(filled("<<"), genExpression(maxDepth - 1)),
                     () -> {
                         TypeSlotFragment t = genType();
-                        return new FilledExpressionSlotFragment("<: " + uniformSpacing(t.getContent()), "instanceof " + uniformSpacing(t.getJavaCode()));
+                        return new FilledExpressionSlotFragment("<: " + uniformSpacing(t.getContent(), false), "instanceof " + uniformSpacing(t.getJavaCode(), false));
                     })
                 )
             );
@@ -636,7 +636,7 @@ public class JavaToStrideTest
 
     private static void assertExpression(String expectedStride, String original)
     {
-        Assert.assertEquals(expectedStride, JavaStrideParser.replaceInstanceof(original));
+        Assert.assertEquals(expectedStride, new Expression(original).toFilled().getContent());
     }
 
     private CallElement _call(String call)
