@@ -527,6 +527,26 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
+    protected void gotUnaryOperator(LocatableToken token)
+    {
+        super.gotUnaryOperator(token);
+        if (!expressionHandlers.isEmpty())
+        {
+            expressionHandlers.peek().unaryOperator(token);
+        }
+    }
+
+    @Override
+    protected void gotPostOperator(LocatableToken token)
+    {
+        super.gotPostOperator(token);
+        if (!expressionHandlers.isEmpty())
+        {
+            expressionHandlers.peek().postOperator(token);
+        }
+    }
+
+    @Override
     protected void beginStmtblockBody(LocatableToken token)
     {
         super.beginStmtblockBody(token);
@@ -626,7 +646,7 @@ public class JavaStrideParser extends JavaParser
             // Any remaining are unrecognised:
             warnUnsupportedModifiers("method", modifiers);
             SuperThis delegate = SuperThis.fromString(details.constructorCall);
-            Expression delegateArgs = delegate == null ? null : new Expression(details.constructorArgs, " , ");
+            Expression delegateArgs = delegate == null ? null : new Expression(details.constructorArgs, " , ", warnings::add);
             foundStatement(new ConstructorElement(null, new AccessPermissionFragment(permission),
                 details.parameters,
                 throwsTypes, delegate == null ? null : new SuperThisFragment(delegate), delegateArgs == null ? null : delegateArgs.toSuperThis(), body, new JavadocUnit(details.comment), true));
@@ -1265,7 +1285,7 @@ public class JavaStrideParser extends JavaParser
      */
     private void withExpression(Consumer<Expression> handler)
     {
-        expressionHandlers.push(new ExpressionBuilder(handler, this::getText));
+        expressionHandlers.push(new ExpressionBuilder(handler, this::getText, warnings::add));
     }
     
     private static interface TypeDefDelegate

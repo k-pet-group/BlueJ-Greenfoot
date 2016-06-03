@@ -141,14 +141,20 @@ public class JavaToStrideTest
         assertEquals("--i[j.k];", _assign("i [ j . k ]", "i [ j . k ] - 1"));
         assertEquals("i[j.k]--;", _assign("i [ j . k ]", "i [ j . k ] - 1"));
 
-        assertWarning("0 + i++;", UnsupportedFeature.class);
         assertWarning("foo(--i);", UnsupportedFeature.class);
+        assertWarning("x = 0 + i++;", UnsupportedFeature.class);
+        assertWarning("while (++i <= 10) ;", UnsupportedFeature.class);
     }
     
     @Test
     public void testAssign()
     {
         assertEquals("i += 1;", _assign("i", "i + 1"));
+        assertEquals("a . x <<= 4;", _assign("a . x", "a . x << 4"));
+
+        assertWarning("while ((i += 1) < 7) ;", UnsupportedFeature.class);
+        assertWarning("while ((i = next()) != null) ;", UnsupportedFeature.class);
+        assertWarning("while (b = cond()) ;", UnsupportedFeature.class);
     }
 
     private CodeElement _assign(String lhs, String rhs)
@@ -679,7 +685,7 @@ public class JavaToStrideTest
 
     private static void assertExpression(String expectedStride, String original)
     {
-        Assert.assertEquals(expectedStride, new Expression(original).toFilled().getContent());
+        Assert.assertEquals(expectedStride, new Expression(original, Collections.emptyList(), w -> {}).toFilled().getContent());
     }
 
     private CallElement _call(String call)

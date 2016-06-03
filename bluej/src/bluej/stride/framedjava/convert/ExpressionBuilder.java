@@ -1,11 +1,16 @@
 package bluej.stride.framedjava.convert;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
+import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
+import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
+import bluej.stride.framedjava.convert.ConversionWarning.UnsupportedFeature;
 import bluej.stride.framedjava.elements.AssignElement;
 import bluej.stride.framedjava.elements.CodeElement;
 
@@ -20,11 +25,14 @@ class ExpressionBuilder
     private final Consumer<Expression> handler;
     private final BiFunction<LocatableToken, LocatableToken, String> getText;
     private LocatableToken assignOp; // may be null
+    private List<Integer> incDec = new ArrayList<>();
+    private final Consumer<ConversionWarning> addWarning;
 
-    ExpressionBuilder(Consumer<Expression> handler, BiFunction<LocatableToken, LocatableToken, String> getText)
+    ExpressionBuilder(Consumer<Expression> handler, BiFunction<LocatableToken, LocatableToken, String> getText, Consumer<ConversionWarning> addWarning)
     {
         this.handler = handler;
         this.getText = getText;
+        this.addWarning = addWarning;
     }
 
     void expressionBegun(LocatableToken start)
@@ -45,7 +53,7 @@ class ExpressionBuilder
             if (assignOp == null)
             {
                 String java = getText.apply(start, end);
-                handler.accept(new Expression(java));
+                handler.accept(new Expression(java, incDec, addWarning));
             }
             else
             {
@@ -58,11 +66,32 @@ class ExpressionBuilder
                 String rhs = assignOp.getText().equals("=")
                     ? getText.apply(assignOp, end).substring(assignOp.getText().length())
                     : lhs + " " + assignOp.getText().substring(0, assignOp.getText().length() - 1) + " " + getText.apply(assignOp, end).substring(assignOp.getText().length());
-                handler.accept(new Expression(wholeJava) {
+                handler.accept(new Expression(wholeJava, incDec, addWarning) {
+                    @Override
+                    FilledExpressionSlotFragment toFilled()
+                    {
+                        addWarning.accept(new UnsupportedFeature(assignOp.getText() + " in expression"));
+                        return super.toFilled();
+                    }
+
+                    @Override
+                    OptionalExpressionSlotFragment toOptional()
+                    {
+                        addWarning.accept(new UnsupportedFeature(assignOp.getText() + " in expression"));
+                        return super.toOptional();
+                    }
+
+                    @Override
+                    SuperThisParamsExpressionFragment toSuperThis()
+                    {
+                        addWarning.accept(new UnsupportedFeature(assignOp.getText() + " in expression"));
+                        return super.toSuperThis();
+                    }
+
                     @Override
                     public CodeElement toStatement()
                     {
-                        return new AssignElement(null, new Expression(lhs).toFilled(), new Expression(rhs).toFilled(), true);
+                        return new AssignElement(null, new Expression(lhs, incDec, addWarning).toFilled(), new Expression(rhs, incDec, addWarning).toFilled(), true);
                     }
                 });
             }
@@ -77,9 +106,6 @@ class ExpressionBuilder
 
     public void binaryOperator(LocatableToken opToken)
     {
-        if (outstanding > 1)
-            return; // Don't care about inner assignment operators, only top-level
-        
         switch (opToken.getType())
         {
             case JavaTokenTypes.BAND_ASSIGN:
@@ -94,10 +120,25 @@ class ExpressionBuilder
             case JavaTokenTypes.SR_ASSIGN:
             case JavaTokenTypes.STAR_ASSIGN:
             case JavaTokenTypes.ASSIGN:
-                assignOp = opToken;
+                if (outstanding == 1)
+                    assignOp = opToken;
+                else
+                    addWarning.accept(new UnsupportedFeature(opToken.getText() + " in expression"));
                 break;
             default:
                 return;
         } 
+    }
+
+    public void unaryOperator(LocatableToken token)
+    {
+
+        if (token.getType() == JavaTokenTypes.INC || token.getType() == JavaTokenTypes.DEC)
+            incDec.add(token.getType());
+    }
+
+    public void postOperator(LocatableToken token)
+    {
+        unaryOperator(token);
     }
 }

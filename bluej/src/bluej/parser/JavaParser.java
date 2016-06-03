@@ -3313,6 +3313,7 @@ public class JavaParser
                     if (token.getType() == JavaTokenTypes.INC
                             || token.getType() == JavaTokenTypes.DEC) {
                         // post operators (unary)
+                        gotPostOperator(token);
                         continue;
                     }
                     else if (token.getType() == JavaTokenTypes.QUESTION) {
@@ -3337,7 +3338,9 @@ public class JavaParser
             }
         }
     }
-    
+
+    protected void gotPostOperator(LocatableToken token) { }
+
     protected void gotArrayTypeIdentifier(LocatableToken token)
     {
         gotIdentifier(token);        
