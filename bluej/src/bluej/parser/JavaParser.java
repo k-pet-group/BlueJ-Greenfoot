@@ -493,10 +493,12 @@ public class JavaParser
     protected void gotUnaryOperator(LocatableToken token) { }
     
     /** Saw a "?" operator. This will be followed by the left-hand-side expression
-     * (demarked by beginExpression() and endExpression()) followed by a continuation
+     * (demarked by beginExpression() and endExpression(), then gotQuestionColon) followed by a continuation
      * of the current expression (for the right-hand-side).
      */
     protected void gotQuestionOperator(LocatableToken token) { }
+
+    protected void gotQuestionColon(LocatableToken token) { }
     
     /**
      * Saw the "instanceof" operator. The type spec will follow.
@@ -3338,6 +3340,7 @@ public class JavaParser
                             endExpression(token, true);
                             return;
                         }
+                        gotQuestionColon(token);
                         token = nextToken();
                         break opLoop;
                     }

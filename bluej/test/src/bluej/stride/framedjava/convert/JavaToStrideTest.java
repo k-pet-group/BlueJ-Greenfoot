@@ -168,6 +168,8 @@ public class JavaToStrideTest
         assertEquals("x = c -> 3;", _assign("x", "c -> 3"));
         // Block lambdas should give warning:
         assertWarning("x = c -> {return 3;};", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "c ->"));
+        
+        assertWarning("x = a ? b : c;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "a b c"));
     }
 
     private CodeElement _assign(String lhs, String rhs)

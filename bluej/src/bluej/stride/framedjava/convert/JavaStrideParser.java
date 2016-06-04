@@ -1505,6 +1505,23 @@ public class JavaStrideParser extends JavaParser
             endExpressionMask(closeCurly);
     }
 
+    @Override
+    protected void gotQuestionColon(LocatableToken token)
+    {
+        super.gotQuestionColon(token);
+        expressionHandlers.peek().beginMask(token);
+        expressionHandlers.peek().endMask(token);
+    }
+
+    @Override
+    protected void gotQuestionOperator(LocatableToken token)
+    {
+        super.gotQuestionOperator(token);
+        warnings.add(new UnsupportedFeature("conditional operator (.. ? .. : ..)"));
+        expressionHandlers.peek().beginMask(token);
+        expressionHandlers.peek().endMask(token);
+    }
+
     private String getText(LocatableToken start, LocatableToken endExcl, List<Mask> masks)
     {
         if (masks.isEmpty())
