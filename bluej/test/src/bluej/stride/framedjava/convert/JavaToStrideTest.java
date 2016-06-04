@@ -174,6 +174,9 @@ public class JavaToStrideTest
         assertWarning("x = (int c) -> 3;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "( c ) -> 3"));
         
         assertWarning("x = a ? b : c;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "a b c"));
+        
+        // Method references should work fine:
+        assertEquals("ref = a::b;", _assign("ref", "a :: b"));
     }
 
     private CodeElement _assign(String lhs, String rhs)
@@ -255,6 +258,12 @@ public class JavaToStrideTest
         assertExpression("a < : b", "a <: b");
 
         // TODO test += etc, and ++
+        assertExpression("0 << 1", "0 << 1");
+        assertExpression("0 | 1", "0|1");
+        assertExpression("0 & 1", "0&1");
+        assertExpression("0 || 1", "0 ||1");
+        assertExpression("0 && 1", "0&& 1");
+        assertExpression("a :: b", "a::b");
     }
     
     @Test

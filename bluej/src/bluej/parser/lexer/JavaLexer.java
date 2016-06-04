@@ -502,6 +502,7 @@ public final class JavaLexer implements TokenStream
         if (':' == ch) {
             int rval = readNextChar();
             if (rval == ':') {
+                textBuffer.append((char)rval);
                 readNextChar();
                 return JavaTokenTypes.METHOD_REFERENCE;
             }
