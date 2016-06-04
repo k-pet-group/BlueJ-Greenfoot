@@ -375,6 +375,8 @@ public class JavaToStrideTest
 
         // Inner classes:
         assertWarningMember("class Inner { }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
+        assertWarningMember("class Inner extends A implements B { int x; public Inner() {return;} private void foo() { break; } }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
+        assertWarningFile("class Outer { class Inner extends A implements B { int x; public Inner() {return;} private void foo() { break; } } }", UnsupportedFeature.class, _class(null, l(), null, false, "Outer", null, l(), l(_commentWarn(UnsupportedFeature.class)), l(), l()));
         assertWarningMember("private interface Inner { }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
         // One warning for enum, one for inner:
         assertWarningMember("public enum Inner { I }", UnsupportedFeature.class, _comment("WARNING:" + UnsupportedFeature.class.getName() + " WARNING:" + UnsupportedFeature.class.getName()));

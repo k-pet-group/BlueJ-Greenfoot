@@ -1005,7 +1005,16 @@ public class JavaStrideParser extends JavaParser
     protected void gotTopLevelDecl(LocatableToken token)
     {
         super.gotTopLevelDecl(token);
-        withTypeDef(td -> foundStatement(td));
+        withTypeDef(td -> foundStatement(td), false);
+    }
+
+    @Override
+    protected void gotInnerType(LocatableToken start)
+    {
+        super.gotInnerType(start);
+        // Ignore inner class:
+        withTypeDef(inner -> {}, true);
+        warnings.add(new UnsupportedFeature("inner " + start.getText()));
     }
 
     @Override
@@ -1014,20 +1023,15 @@ public class JavaStrideParser extends JavaParser
         super.gotTypeDef(firstToken, tdType);
         if (tdType == TYPEDEF_EPIC_FAIL)
             return;
-        if (!typeDefHandlers.isEmpty())
-            typeDefHandlers.peek().typeDefBegun(firstToken);
-        else
-            warnings.add(new UnsupportedFeature("inner class/interface/enum"));
+        typeDefHandlers.peek().typeDefBegun(firstToken);            
         List<Modifier> modifiers = this.modifiers.peek();
         switch (tdType)
         {
             case TYPEDEF_CLASS:
-                if (!typeDefHandlers.isEmpty())
-                    typeDefHandlers.peek().startedClass(modifiers, statementHandlers.peek().getJavadoc());
+                typeDefHandlers.peek().startedClass(modifiers, statementHandlers.peek().getJavadoc());
                 break;
             case TYPEDEF_INTERFACE:
-                if (!typeDefHandlers.isEmpty())
-                    typeDefHandlers.peek().startedInterface(modifiers, statementHandlers.peek().getJavadoc());
+                typeDefHandlers.peek().startedInterface(modifiers, statementHandlers.peek().getJavadoc());
                 break;
             case TYPEDEF_ANNOTATION:
                 warnings.add(new UnsupportedFeature("annotation"));
@@ -1047,7 +1051,7 @@ public class JavaStrideParser extends JavaParser
         super.gotTypeDefEnd(token, included);
         if (!typeDefHandlers.isEmpty())
         {
-            typeDefHandlers.peek().typeDefEnd(token);
+            typeDefHandlers.pop().typeDefEnd(token);
         }
     }
 
@@ -1774,26 +1778,21 @@ public class JavaStrideParser extends JavaParser
         }
     }
 
-    private void withTypeDef(Consumer<CodeElement> handler)
+    private void withTypeDef(Consumer<CodeElement> handler, boolean inner)
     {
         typeDefHandlers.push(new TypeDefHandler()
         {
             TypeDefDelegate delegate = null;
-            // Amount of typeDefs begun but not ending:
-            int outstanding = 0;
 
             @Override
             public void typeDefBegun(LocatableToken start)
             {
-                // Only record first begin:
-                outstanding += 1;
             }
 
             @Override
             public void typeDefEnd(LocatableToken end)
             {
-                outstanding -= 1;
-                if (outstanding == 0 && delegate != null)
+                if (delegate != null)
                 {
                     handler.accept(delegate.end());
                 }
@@ -1802,48 +1801,48 @@ public class JavaStrideParser extends JavaParser
             @Override
             public void startedClass(List<Modifier> modifiers, String doc)
             {
-                if (outstanding == 1)
-                {
-                    delegate = new ClassDelegate(modifiers, doc);
+                // We discard inner class modifiers to avoid warning about them,
+                // since we discard the whole inner class anyway:
+                delegate = new ClassDelegate(inner ? Collections.emptyList() : modifiers, doc);
+                if (!inner)
                     statementHandlers.peek().stealComments().forEach(delegate::gotContent);
-                }
             }
 
             @Override
             public void startedInterface(List<Modifier> modifiers, String doc)
             {
-                if (outstanding == 1)
-                {
-                    delegate = new InterfaceDelegate(modifiers, doc);
+                // We discard inner class modifiers to avoid warning about them,
+                // since we discard the whole inner class anyway:
+                delegate = new InterfaceDelegate(inner ? Collections.emptyList() : modifiers, doc);
+                if (!inner)
                     statementHandlers.peek().stealComments().forEach(delegate::gotContent);
-                }
             }
 
             @Override
             public void gotName(String name)
             {
-                if (outstanding == 1 && delegate != null)
+                if (delegate != null)
                     delegate.gotName(name);
             }
 
             @Override
             public void gotContent(List<CodeElement> content)
             {
-                if (outstanding == 1 && delegate != null)
+                if (delegate != null)
                     content.forEach(delegate::gotContent);
             }
 
             @Override
             public void typeDefImplements(String type)
             {
-                if (outstanding == 1 && delegate != null)
+                if (delegate != null)
                     delegate.gotImplements(type);
             }
 
             @Override
             public void typeDefExtends(String type)
             {
-                if (outstanding == 1 && delegate != null)
+                if (delegate != null)
                     delegate.gotExtends(type);
             }
         });

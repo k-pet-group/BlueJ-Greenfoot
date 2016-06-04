@@ -1125,6 +1125,7 @@ public class JavaParser
                 || token.getType() == JavaTokenTypes.LITERAL_interface
                 || token.getType() == JavaTokenTypes.LITERAL_enum
                 || token.getType() == JavaTokenTypes.AT) {
+            gotInnerType(token);
             tokenStream.pushBack(token);
             parseTypeDef(firstMod != null ? firstMod : token);
         }
@@ -1236,6 +1237,10 @@ public class JavaParser
             }
         }
         
+    }
+
+    protected void gotInnerType(LocatableToken start)
+    {
     }
 
     protected void parseArrayDeclarators()
@@ -1590,6 +1595,7 @@ public class JavaParser
                 gotDeclBegin(token);
                 parseModifiers();
                 if (isTypeDeclarator(tokenStream.LA(1)) || tokenStream.LA(1).getType() == JavaTokenTypes.AT) {
+                    gotInnerType(tokenStream.LA(1));
                     parseTypeDef(token);
                 }
                 else {
