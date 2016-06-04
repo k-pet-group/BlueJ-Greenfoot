@@ -43,19 +43,22 @@ interface Modifier
      */
     public boolean isAnnotation(String annotation);
 
+    LocatableToken getStart();
+    LocatableToken getEnd();
+
     static class KeywordModifier implements Modifier
     {
-        private final String keyword;
+        private final LocatableToken keyword;
         
         KeywordModifier(LocatableToken keyword)
         {
-            this.keyword = keyword.getText();
+            this.keyword = keyword;
         }
 
         @Override
         public boolean isKeyword(String modifier)
         {
-            return this.keyword.equals(modifier);
+            return this.keyword.getText().equals(modifier);
         }
 
         @Override
@@ -65,9 +68,21 @@ interface Modifier
         }
 
         @Override
-        public String toString()
+        public LocatableToken getStart()
         {
             return keyword;
+        }
+
+        @Override
+        public LocatableToken getEnd()
+        {
+            return keyword;
+        }
+
+        @Override
+        public String toString()
+        {
+            return keyword.getText();
         }
     }
 
@@ -75,11 +90,15 @@ interface Modifier
     {
         // Without the "@"
         private final String annotation;
+        private final LocatableToken start;
+        private final LocatableToken end;
         private List<Expression> params; // null if not present
 
         public AnnotationModifier(List<LocatableToken> annotation)
         {
             this.annotation = annotation.stream().map(LocatableToken::getText).collect(Collectors.joining());
+            this.start = annotation.get(0);
+            this.end = annotation.get(annotation.size() - 1);
         }
 
         public void setParams(List<Expression> params)
@@ -107,6 +126,18 @@ interface Modifier
         public String toString()
         {
             return "@" + annotation + (params == null ? "" : params.stream().map(Expression::toString).collect(Collectors.joining(" , ")));
+        }
+
+        @Override
+        public LocatableToken getEnd()
+        {
+            return end;
+        }
+
+        @Override
+        public LocatableToken getStart()
+        {
+            return start;
         }
     }
 }

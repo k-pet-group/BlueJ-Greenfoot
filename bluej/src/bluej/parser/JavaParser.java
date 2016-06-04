@@ -3499,6 +3499,7 @@ public class JavaParser
         while (token.getType() != JavaTokenTypes.RPAREN
                 && token.getType() != JavaTokenTypes.RCURLY) {
             tokenStream.pushBack(token);
+            gotLambdaFormalParam();
             //parse modifiers if any
             List<LocatableToken> rval = parseModifiers();
             
@@ -3506,6 +3507,7 @@ public class JavaParser
             int tt2 = tokenStream.LA(2).getType();
             if (tt1 == JavaTokenTypes.IDENT && (tt2 == JavaTokenTypes.COMMA || tt2 == JavaTokenTypes.RPAREN)) {
                 token = nextToken(); // identifier
+                gotLambdaFormalName(token);
                 token = nextToken();
             }
             else {
@@ -3514,6 +3516,7 @@ public class JavaParser
                     error("Formal lambda parameter specified incorrectly");
                     return;
                 }
+                gotLambdaFormalType(rval);
                 token = nextToken();
                 if (token.getType() == JavaTokenTypes.TRIPLE_DOT) {
                     token = nextToken();
@@ -3523,6 +3526,7 @@ public class JavaParser
                     error("Formal lambda parameter lacks a name");
                     return;
                 }
+                gotLambdaFormalName(token);
                 parseArrayDeclarators();
                 token = nextToken();
             }
@@ -3536,7 +3540,11 @@ public class JavaParser
         }
         tokenStream.pushBack(token);
     }
-    
+
+    protected void gotLambdaFormalParam() { }
+    protected void gotLambdaFormalName(LocatableToken name) { }
+    protected void gotLambdaFormalType(List<LocatableToken> type) { }
+
     /**
      * Parse a list of formal parameters (possibly empty)
      */

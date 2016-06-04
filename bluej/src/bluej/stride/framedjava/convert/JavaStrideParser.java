@@ -1480,6 +1480,35 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
+    protected void gotLambdaFormalName(LocatableToken name)
+    {
+        super.gotLambdaFormalName(name);
+        warnUnsupportedModifiers("lambda parameter", modifiers.peek());
+        // Hide modifiers from expression:
+        modifiers.peek().forEach(mod -> {
+            expressionHandlers.peek().beginMask(mod.getStart());
+            expressionHandlers.peek().endMask(mod.getEnd());
+        });
+    }
+
+    @Override
+    protected void gotLambdaFormalParam()
+    {
+        super.gotLambdaFormalParam();
+        modifiers.push(new ArrayList<>());
+    }
+
+    @Override
+    protected void gotLambdaFormalType(List<LocatableToken> tokens)
+    {
+        super.gotLambdaFormalType(tokens);
+        warnings.add(new UnsupportedFeature("lambda parameter type"));
+        // Hide type from expression:
+        expressionHandlers.peek().beginMask(tokens.get(0));
+        expressionHandlers.peek().endMask(tokens.get(tokens.size() - 1));
+    }
+
+    @Override
     protected void beginLambda(boolean lambdaIsBlock, LocatableToken openCurly)
     {
         super.beginLambda(lambdaIsBlock, openCurly);

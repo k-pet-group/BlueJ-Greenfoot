@@ -169,6 +169,10 @@ public class JavaToStrideTest
         // Block lambdas should give warning:
         assertWarning("x = c -> {return 3;};", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "c ->"));
         
+        // We don't currently support types or modifiers on params:
+        assertWarning("x = (final c) -> 3;", UnsupportedModifier.class, _commentWarn(UnsupportedModifier.class), _assign("x", "( c ) -> 3"));
+        assertWarning("x = (int c) -> 3;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "( c ) -> 3"));
+        
         assertWarning("x = a ? b : c;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "a b c"));
     }
 
