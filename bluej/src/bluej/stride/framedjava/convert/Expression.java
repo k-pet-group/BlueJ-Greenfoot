@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.stride.framedjava.convert;
 
 import java.io.StringReader;
@@ -19,15 +40,26 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 
 /**
- * Created by neil on 03/06/2016.
+ * An expression.  Because expressions have different text in Stride versus Java
+ * (because of instanceof), we must keep track of them seperately.
  */
 class Expression
 {
     private final String stride;
     private final String java;
+    /**
+     * A list of JavaTokenTypes.{INC,DEC} found in the expression.  A warning
+     * should be generated if any turn out to be unsupported.
+     */
     private final List<Integer> incDec;
+    /**
+     * A callback to add a warning.
+     */
     private final Consumer<ConversionWarning> addWarning;
 
+    /**
+     * @param src A java expression
+     */
     Expression(String src, List<Integer> incDec, Consumer<ConversionWarning> addWarning)
     {
         this.stride = uniformSpacing(src, true);
@@ -36,6 +68,10 @@ class Expression
         this.addWarning = addWarning;
     }
 
+    /**
+     * @param expressions A list of expressions to join
+     * @param join The string to put between each pair of adjacent expressions
+     */
     Expression(List<Expression> expressions, String join, Consumer<ConversionWarning> addWarning)
     {
         this.stride = expressions.stream().map(e -> e.stride).collect(Collectors.joining(join));
@@ -45,6 +81,13 @@ class Expression
         this.addWarning = addWarning;
     }
 
+    /**
+     * Package-visible for testing
+     * 
+     * @param src Java source code
+     * @param replaceInstanceof True to replace instanceof with <:
+     * @return A version of src with a space between each consecutive token
+     */
     static String uniformSpacing(String src, boolean replaceInstanceof)
     {
         // It is a bit inefficient to re-lex the string, but
@@ -85,6 +128,8 @@ class Expression
 
     public CodeElement toStatement()
     {
+        // We look for increment and decrement at the beginning/end
+        // Then if there are any other inc/dec, we warn that they are unsupported.
         boolean startInc = java.startsWith("++ ");
         boolean startDec = java.startsWith("-- ");
         boolean endInc = java.endsWith(" ++");

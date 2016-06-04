@@ -2881,7 +2881,7 @@ public class JavaParser
     private void parseLambdaBody()
     {
         boolean blockFollows = tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY;
-        gotLambda(blockFollows);
+        beginLambda(blockFollows, blockFollows ? tokenStream.LA(1) : null);
         if (blockFollows) {
             beginStmtblockBody(nextToken()); // consume the curly
             parseStmtBlock();
@@ -2893,10 +2893,12 @@ public class JavaParser
             }
             else {
                 endStmtblockBody(token, true);
+                endLambda(token);
             }
         }
         else {
             parseExpression();
+            endLambda(null);
         }
     }
 
@@ -2904,7 +2906,9 @@ public class JavaParser
      * A lambda expression has been found.  If lambdaIsBlock, a statement block body
      * follows, otherwise an expression follows.
      */
-    protected void gotLambda(boolean lambdaIsBlock) { }
+    protected void beginLambda(boolean lambdaIsBlock, LocatableToken openCurly) { }
+
+    protected void endLambda(LocatableToken closeCurly) { }
 
     /**
      * Parse an expression

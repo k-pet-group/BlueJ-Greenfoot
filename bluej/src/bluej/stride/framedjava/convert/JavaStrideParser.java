@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.stride.framedjava.convert;
 
 import java.io.StringReader;
@@ -14,7 +35,6 @@ import java.util.stream.Stream;
 
 import bluej.parser.JavaParser;
 import bluej.parser.ParseFailure;
-import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.ast.AccessPermission;
@@ -81,6 +101,11 @@ public class JavaStrideParser extends JavaParser
      * If the stack is empty, the expression is ignored.
      */
     private final Stack<ExpressionBuilder> expressionHandlers = new Stack<>();
+    /**
+     * The stack of statement/defintion handlers.
+     * The top item, if any, gets passed completed statements/definitions.
+     * Should never be empty
+     */
     private final Stack<StatementHandler> statementHandlers = new Stack<>();
     /**
      * The stack of actual-argument handlers.
@@ -88,7 +113,13 @@ public class JavaStrideParser extends JavaParser
      * If the stack is empty, the arguments are ignored.
      */
     private final Stack<ArgumentListHandler> argumentHandlers = new Stack<>();
+    /**
+     * The stack of types currently being defined.
+     */
     private final Stack<TypeDefHandler> typeDefHandlers = new Stack<>();
+    /**
+     * The stack of methods currently being defined.
+     */
     private final Stack<MethodBuilder> methods = new Stack<>();
     /**
      * Types are an awkward case.  Sometimes you know in advance that you
@@ -107,11 +138,24 @@ public class JavaStrideParser extends JavaParser
      * do the popping.
      */
     private final Stack<String> prevTypes = new Stack<>();
+    // See comment for prevTypes
     private final Stack<Consumer<String>> typeHandlers = new Stack<>();
+    /**
+     * The stack of if-statements currently being defined.
+     */
     private final Stack<IfBuilder> ifHandlers = new Stack<>();
+    /**
+     * The stack of switch-statements currently being defined.
+     */
     private final Stack<SwitchHandler> switchHandlers = new Stack<>();
+    /**
+     * The stack of for/foreach-statements currently being defined.
+     */
     private final Stack<ForHandler> forHandlers = new Stack<>();
-    
+
+    /**
+     * The stack of field/variable declarations currently being defined.
+     */
     private final Stack<FieldOrVarBuilder> curField = new Stack<>();
     /**
      * Modifiers seen.  Each time we start seeing modifiers, we push a new list
@@ -129,6 +173,9 @@ public class JavaStrideParser extends JavaParser
      */
     private final boolean testing;
 
+    /**
+     * A small class to handle the list of warnings
+     */
     private class WarningManager
     {
         /**
@@ -136,11 +183,17 @@ public class JavaStrideParser extends JavaParser
          */
         private final List<ConversionWarning> warnings = new ArrayList<>();
 
+        /**
+         * Adds a warning, and calls gotComment to add a comment
+         */
         public void add(ConversionWarning warning)
         {
             add(warning, JavaStrideParser.this::gotComment);
         }
 
+        /**
+         * Adds a warning, and calls the given callback to add a warning comment
+         */
         public void add(ConversionWarning warning, Consumer<LocatableToken> commentAdd)
         {
             warnings.add(warning);
@@ -151,12 +204,28 @@ public class JavaStrideParser extends JavaParser
     }
     private final WarningManager warnings = new WarningManager();
 
-    
+    /**
+     * The top-most StatementHandler, which collects the result of the parse.
+     */
     private final StatementHandler result = new StatementHandler(false) { public void endBlock() { } };
+    /**
+     * The stack of try/catch/finally currently being defined
+     */
     private Stack<TryBuilder> tries = new Stack<>();
+    /**
+     * The name of the package declaration seen in the file (null if none) 
+     */
     private String pkg;
+    /**
+     * The list of imports seen in the file.
+     */
     private final List<String> imports = new ArrayList<>();
 
+    /**
+     * Constructors a parser for the given Java source code.
+     * @param java The source code to parse.
+     * @param testing True if we are testing (alters the unsupported warning comment format)
+     */
     public JavaStrideParser(String java, boolean testing)
     {
         super(new StringReader(java), true);
@@ -165,6 +234,9 @@ public class JavaStrideParser extends JavaParser
         statementHandlers.push(result);
     }
 
+    /**
+     * Gets the list of conversion warnings seen (call after parsing)
+     */
     public List<ConversionWarning> getWarnings()
     {
         return warnings.warnings;
@@ -172,10 +244,15 @@ public class JavaStrideParser extends JavaParser
 
     private class SwitchHandler
     {
+        // The initial expression in the switch
         private Expression expression;
+        // The expressions in the cases (one per case)
         private final List<Expression> cases = new ArrayList<>();
+        // The code inside each case (one per case)
         private final List<List<CodeElement>> caseContents = new ArrayList<>();
-        private List<CodeElement> defaultContents; // null if no default
+        // The code in the default block.  null if no default
+        private List<CodeElement> defaultContents;
+        // Keeps track of whether we are in the default block
         private boolean inDefault;
 
         public void gotSwitchExpression(Expression e)
@@ -183,6 +260,7 @@ public class JavaStrideParser extends JavaParser
             this.expression = e;
         }
 
+        // Completes the parse of the switch and returns the switch element.
         public SwitchElement end()
         {
             List<CodeElement> caseFrames = new ArrayList<>();
@@ -195,6 +273,7 @@ public class JavaStrideParser extends JavaParser
                     caseFrames, defaultContents, true);
         }
 
+        // Begins the block after the switch (...) header
         public void beginBlock()
         {
             withStatement(newHandler());
@@ -213,7 +292,7 @@ public class JavaStrideParser extends JavaParser
             };
         }
 
-
+        // Called when we have found a new "case expression:", passing the expression
         public void gotCase(Expression e)
         {
             // Important that we store prev code before adding to cases:
@@ -222,6 +301,8 @@ public class JavaStrideParser extends JavaParser
             withStatement(newHandler());
         }
 
+        // When we find a new case/default label, we must store the code
+        // we've seen in the previous case/default bit.
         private void storePrevCode(StatementHandler handler)
         {
             List<CodeElement> prevContent = (handler == null ? statementHandlers.pop() : handler).getContent(false);
@@ -238,6 +319,7 @@ public class JavaStrideParser extends JavaParser
             }
         }
 
+        // Called when we have found a default: label.
         public void gotDefault()
         {
             storePrevCode(null);
@@ -250,16 +332,22 @@ public class JavaStrideParser extends JavaParser
 
     private class ForHandler
     {
+        // The type of the for-each variable, or classic-for variable(s)
         private String type;
-        // Should always be at least one var:
+        // Should always be at least one var for classic-for, or exactly one for for-each:
         private final List<String> vars = new ArrayList<>();
-        // Should always be the same size as vars, null indicates no initialiser
+        // Should always be the same size as vars, null indicates no initialiser for that var
         private final List<Expression> inits = new ArrayList<>();
+        // Whether this is for-each (true) or classic-for (false)
         private boolean isEach;
+        // The expression looped through in a for-each loop (null in classic-for)
         private Expression eachVar;
-        private Expression post; // null means empty
+        // The expression in third-place in a classic-for. null if empty or for-each
+        private Expression post;
+        // The expression in second-place in a classic-for. null if empty or for-each
         private Expression condition; // null means empty
 
+        // Called when we have seen the type at the start of the for
         public void gotType(String type, List<Modifier> modifiers)
         {
             this.type = type;
@@ -268,6 +356,7 @@ public class JavaStrideParser extends JavaParser
             warnUnsupportedModifiers("for-loop", modifiers);
         }
 
+        // Called when we have seen the name of a loop variable
         public void gotName(String name)
         {
             this.vars.add(name);
@@ -275,17 +364,23 @@ public class JavaStrideParser extends JavaParser
             this.inits.add(null);
         }
 
+        // Called when we know we have a for-each loop.  The expression
+        // is the part after the colon.
         public void gotEach(Expression e)
         {
             isEach = true;
             eachVar = e;
         }
 
+        // Called with the initialiser expression of a variable in a classic-for loop
         public void gotVarInit(Expression e)
         {
             this.inits.set(this.vars.size() - 1, e);
         }
 
+        // Ends the for-loop, giving the contents of the body.
+        // Returns the loop content.  It's a list because classic-for loops
+        // get transformed into initialisers->while 
         public List<CodeElement> end(List<CodeElement> content)
         {
             if (isEach)
@@ -305,19 +400,28 @@ public class JavaStrideParser extends JavaParser
             }
         }
 
+        // Called when we have seen the third-part of a classic-for.  Pass null if empty
         public void gotPost(Expression e)
         {
             this.post = e;
         }
 
+        // Called when we have seen the second-part of a classic-for.  Pass null if empty
         public void gotCondition(Expression e)
         {
             this.condition = e;
         }
     }
 
+    /**
+     * A class to handle statements/declarations when we have seen them.
+     * Can be used for single items or for blocks (see constructor).
+     */
     private abstract class StatementHandler
     {
+        /**
+         * The list of items seen.
+         */
         private final List<CodeElement> content = new ArrayList<>();
         /**
          * The list of comments we have seen since they were last dealt with.
@@ -325,17 +429,35 @@ public class JavaStrideParser extends JavaParser
          * The list gets cleared once the comments have been dealt with.
          */
         private final List<LocatableToken> comments = new ArrayList<>();
+        // See constructor
         private final boolean expectingSingle;
 
+        /**
+         * Constructs a statement handler
+         * @param expectingSingle Whether we expect one call of foundStatement,
+         *     or several until we are manually stopped.  There are various contexts:
+         *   - A for-loop, while-loop, if-statement, etc.  In this case
+         *     you may find a single statement, or you may find a block,
+         *     but the block will get parsed by beginBlockStmtBody which
+         *     will install a further StatementHandler to collect the block.
+         *     So you put an outer new StatementHandler(true) [i.e. expectingSingle=true]
+         *     on the stack.  If it's a single statement, we will get one
+         *     statement and finish.  If it's a block, the inner StatementHandler(false)
+         *     [expectingSingle=false) will collect it and pass it to us as one
+         *     list, and we finish.
+         *   - A block has begun.  This might be in beginStmtBlockBody, or
+         *     where we know a block occurs (e.g. try-statement, class definition).
+         *     In this case, pass expectingSingle=false because we know we are in
+         *     a block.  You may need to manually call endBlock yourself in this case.
+         */
         public StatementHandler(boolean expectingSingle)
         {
             this.expectingSingle = expectingSingle;
 
-            // Steal comments at current position:
-            // TODO this is hacky, stop using instanceof and do it properly:
-            if (!statementHandlers.isEmpty() && statementHandlers.peek() instanceof StatementHandler)
+            // Steal comments at current position from outer handler:
+            if (!statementHandlers.isEmpty())
             {
-                StatementHandler prev = (StatementHandler)statementHandlers.peek();
+                StatementHandler prev = statementHandlers.peek();
                 int curPosition = getCurPosition();
                 Predicate<LocatableToken> afterCurPosition = t -> t.getPosition() >= curPosition;
                 comments.addAll(prev.comments.stream().filter(afterCurPosition).collect(Collectors.toList()));
@@ -343,6 +465,7 @@ public class JavaStrideParser extends JavaParser
             }
         }
 
+        // Called when contents have been found.
         public final void foundStatement(List<CodeElement> statements)
         {
             CommentElement el = collateComments(false);
@@ -350,13 +473,16 @@ public class JavaStrideParser extends JavaParser
                 content.add(el);
             content.addAll(statements);
             // Unless we are expecting just one item (e.g. body of while),
-            // we keep ourselves on the stack until someone removes us:
+            // we keep ourselves on the stack until someone removes us,
+            // by putting ourselves back on the stack:
             if (!expectingSingle)
                 withStatement(this);
             else
                 endBlock();
         }
 
+        // Called to get the content found by this StatementHandler,
+        // including any comments.
         public final List<CodeElement> getContent(boolean eof)
         {
             CommentElement el = collateComments(eof);
@@ -370,11 +496,15 @@ public class JavaStrideParser extends JavaParser
             return content;
         }
 
+        // Called when a comment has been found while parsing
         public final void gotComment(LocatableToken token)
         {
             comments.add(token);
         }
         
+        // Joins together all comments we have seen into one comment element.
+        // Pass eof=true to force collection of all comments, even those
+        // beyond the point of our current parse.
         private CommentElement collateComments(boolean eof)
         {
             // We collect comments which the token stream has seen in the comments list.
@@ -390,18 +520,20 @@ public class JavaStrideParser extends JavaParser
             return el;
         }
 
+        // Works out the current parse position
         private int getCurPosition()
         {
             return (int) Optional.ofNullable(getTokenStream().getMostRecent()).map(LocatableToken::getPosition).orElse(0);
         }
 
         /**
-         * When endBlock is called, this BlockHandler will just have been removed from the
+         * When endBlock is called, this StatementHandler will usually just have been removed from the
          * stack of handlers.  You should use this to deal with the results of the collected block
          * (call getContent to get them).
          */
         public abstract void endBlock();
 
+        // If the most recent comment was a /**..*/ comment, return it, else return null
         public final String getJavadoc()
         {
             if (!comments.isEmpty() && comments.get(comments.size() - 1).getText().startsWith("/**"))
@@ -411,18 +543,24 @@ public class JavaStrideParser extends JavaParser
             return null;
         }
 
+        // Steal the comments from this handler.
         public List<CodeElement> stealComments()
         {
             return Stream.of(collateComments(false)).filter(c -> c != null).collect(Collectors.toList());
         }
     }
 
+    /**
+     * A class keeping track of an if/else-if/else block being put together.
+     */
     private class IfBuilder
     {
+        // The blocks (first is if, then optional else-if, last is optional else)
+        private final ArrayList<List<CodeElement>> blocks = new ArrayList<>();
         // Size is always >= 1, and either equal to blocks.size, or one less than blocks.size (if last one is else)
         private final ArrayList<FilledExpressionSlotFragment> conditions = new ArrayList<>();
-        private final ArrayList<List<CodeElement>> blocks = new ArrayList<>();
-
+        
+        // Constructs a builder, given the initial if-condition
         public IfBuilder(Expression condition)
         {
             this.conditions.add(condition.toFilled());
@@ -441,11 +579,13 @@ public class JavaStrideParser extends JavaParser
             });
         }
 
+        // Found an else-if, an expression will follow
         public void addElseIf()
         {
             withExpression(e -> conditions.add(e.toFilled()));
         }
 
+        // Ends the whole if.
         public void endIf()
         {
             JavaStrideParser.this.foundStatement(new IfElement(null,
@@ -494,9 +634,7 @@ public class JavaStrideParser extends JavaParser
         super.gotElseIf(token);
         ifHandlers.peek().addElseIf();
     }
-
-
-
+    
     @Override
     protected void endIfStmt(LocatableToken token, boolean included)
     {
@@ -1310,6 +1448,7 @@ public class JavaStrideParser extends JavaParser
     protected void beginAnonClassBody(LocatableToken token, boolean isEnumMember)
     {
         super.beginAnonClassBody(token, isEnumMember);
+        beginExpressionMask(token);
         warnings.add(new UnsupportedFeature("anonymous class"));
         // Add a statement handler to soak up and ignore all the statements:
         withStatement(new StatementHandler(false) {
@@ -1320,20 +1459,34 @@ public class JavaStrideParser extends JavaParser
         });
     }
 
+    private void beginExpressionMask(LocatableToken from)
+    {
+        if (!expressionHandlers.isEmpty())
+            expressionHandlers.peek().beginMask(from);
+    }
+
+    private void endExpressionMask(LocatableToken from)
+    {
+        if (!expressionHandlers.isEmpty())
+            expressionHandlers.peek().endMask(from);
+    }
+
     @Override
     protected void endAnonClassBody(LocatableToken token, boolean included)
     {
         super.endAnonClassBody(token, included);
         statementHandlers.pop();
+        endExpressionMask(token);
     }
 
     @Override
-    protected void gotLambda(boolean lambdaIsBlock)
+    protected void beginLambda(boolean lambdaIsBlock, LocatableToken openCurly)
     {
-        super.gotLambda(lambdaIsBlock);
+        super.beginLambda(lambdaIsBlock, openCurly);
         if (lambdaIsBlock)
         {
             warnings.add(new UnsupportedFeature("lambda block"));
+            beginExpressionMask(openCurly);
             // Add a statement handler to soak up and ignore all the statements:
             withStatement(new StatementHandler(true) {
                 @Override
@@ -1344,9 +1497,33 @@ public class JavaStrideParser extends JavaParser
         }
     }
 
-    private String getText(LocatableToken start, LocatableToken end)
+    @Override
+    protected void endLambda(LocatableToken closeCurly)
     {
-        return source.substring(start.getPosition(), end.getPosition());
+        super.endLambda(closeCurly);
+        if (closeCurly != null)
+            endExpressionMask(closeCurly);
+    }
+
+    private String getText(LocatableToken start, LocatableToken endExcl, List<Mask> masks)
+    {
+        if (masks.isEmpty())
+            return source.substring(start.getPosition(), endExcl.getPosition());
+        else
+        {
+            int prev = start.getPosition();
+            StringBuilder r = new StringBuilder();
+            for (Mask m : masks)
+            {
+                if (m.getStart().getPosition() >= prev && m.getEnd().getPosition() <= endExcl.getPosition())
+                {
+                    r.append(source.substring(prev, m.getStart().getPosition()));
+                    prev = m.getEnd().getPosition() + m.getEnd().getLength();
+                }
+            }
+            r.append(source.substring(prev, endExcl.getPosition()));
+            return r.toString();
+        }
     }
 
     /**
@@ -1371,6 +1548,7 @@ public class JavaStrideParser extends JavaParser
         expressionHandlers.push(new ExpressionBuilder(handler, this::getText, warnings::add));
     }
     
+    // A delegate for our TypeDefHandler implementation
     private static interface TypeDefDelegate
     {
         public void gotName(String name);
@@ -1426,7 +1604,7 @@ public class JavaStrideParser extends JavaParser
                 fields.addAll(pendingComments);
                 fields.add(element);
             }
-            else if (element instanceof NormalMethodElement || element instanceof MethodProtoElement)
+            else if (element instanceof MethodProtoElement)
             {
                 methods.addAll(pendingComments);
                 methods.add(element);
@@ -1438,7 +1616,7 @@ public class JavaStrideParser extends JavaParser
             }
             else
             {
-                warnings.add(new ConversionWarning.UnsupportedFeature(element.getClass().toString()));
+                warnings.add(new ConversionWarning.UnsupportedFeature(element.getClass().toString()), t -> pendingComments.add(new CommentElement(processComment(t.getText()))));
                 return;
             }
             pendingComments.clear();
@@ -1630,46 +1808,52 @@ public class JavaStrideParser extends JavaParser
         statementHandlers.push(handler);
     }
 
+    private class ArgumentListHandler
+    {
+        private final List<Expression> args = new ArrayList<>();
+        private int outstanding = 0;
+        private final Consumer<List<Expression>> argHandler;
+
+        public ArgumentListHandler(Consumer<List<Expression>> argHandler)
+        {
+            this.argHandler = argHandler;
+        }
+
+        public void argumentListBegun()
+        {
+            outstanding += 1;
+            if (outstanding == 1)
+            {
+                withExpression(args::add);
+            }
+        }
+
+        public void gotArgument()
+        {
+            if (outstanding == 1)
+            {
+                withExpression(args::add);
+            }
+        }
+
+        public void argumentListEnd()
+        {
+            if (outstanding == 1)
+            {
+                // We were expecting another argument; cancel that:
+                expressionHandlers.pop();
+                argHandler.accept(args);
+                // Remove us from the handlers:
+                argumentHandlers.pop();
+            }
+            outstanding -= 1;
+        }
+    }
+
+
     private void withArgumentList(Consumer<List<Expression>> argHandler)
     {
-        argumentHandlers.push(new ArgumentListHandler()
-        {
-            final List<Expression> args = new ArrayList<>();
-            int outstanding = 0;
-
-            @Override
-            public void argumentListBegun()
-            {
-                outstanding += 1;
-                if (outstanding == 1)
-                {
-                    withExpression(args::add);
-                }
-            }
-
-            @Override
-            public void gotArgument()
-            {
-                if (outstanding == 1)
-                {
-                    withExpression(args::add);
-                }
-            }
-
-            @Override
-            public void argumentListEnd()
-            {
-                if (outstanding == 1)
-                {
-                    // We were expecting another argument; cancel that:
-                    expressionHandlers.pop();
-                    argHandler.accept(args);
-                    // Remove us from the handlers:
-                    argumentHandlers.pop();
-                }
-                outstanding -= 1;
-            }
-        });
+        argumentHandlers.push(new ArgumentListHandler(argHandler));
     }
 
     private void foundStatement(CodeElement statement)

@@ -21,24 +21,36 @@
  */
 package bluej.stride.framedjava.convert;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import bluej.parser.lexer.LocatableToken;
 
 /**
- * A simple class to keep track of the details of a field/local var declaration set being parsed
+ * A class which records a masked section of the file.
+ * See ExpressionBuilder.
  */
-class FieldOrVarBuilder
+class Mask
 {
-    // The type of the variable
-    final String type;
-    // The modifiers
-    final List<Modifier> modifiers = new ArrayList<>();
+    // Start token (included in masking)
+    private final LocatableToken start;
+    // End token (included in masking)
+    private LocatableToken end;
 
-    FieldOrVarBuilder(String type, List<Modifier> modifiers)
+    public Mask(LocatableToken start)
     {
-        this.type = type;
-        this.modifiers.addAll(modifiers);
+        this.start = start;
+    }
+
+    public void setEnd(LocatableToken end)
+    {
+        this.end = end;
+    }
+
+    public LocatableToken getEnd()
+    {
+        return end;
+    }
+
+    public LocatableToken getStart()
+    {
+        return start;
     }
 }

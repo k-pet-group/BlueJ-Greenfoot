@@ -120,6 +120,8 @@ public class JavaToStrideTest
                 _var(null, false, false, "int", "l", null),
                 _while("i < 10", _return("0"), _return("1"), _assign("i", "i + 1"))
         );
+        assertEquals("for (;;) return;", _while("true", _return()));
+        assertEquals("for (;false;) return;", _while("false", _return()));
 
         // Inner blocks:
         assertEquals("return 0; {return 1;}", _return("0"), _return("1"));
@@ -159,15 +161,13 @@ public class JavaToStrideTest
         assertWarning("while (b = cond()) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("b = cond ( )"));
 
         assertEquals("x = new Foo();", _assign("x", "new Foo ( )"));
-        assertWarning("x = new Foo() { };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "new Foo ( ) { }"));
-        assertWarning("x = new Foo() { int y; };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "new Foo ( ) { int y ; }"));
-        // TODO remove inner class content from the expression
+        assertWarning("x = new Foo() { };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "new Foo ( )"));
+        assertWarning("x = new Foo() { int y; };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "new Foo ( )"));
 
         // Non-block lambdas should work:
         assertEquals("x = c -> 3;", _assign("x", "c -> 3"));
         // Block lambdas should give warning:
-        assertWarning("x = c -> { return 3; };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "c -> { return 3 ; }"));
-        // TODO remove lambda block content from the expression
+        assertWarning("x = c -> {return 3;};", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "c ->"));
     }
 
     private CodeElement _assign(String lhs, String rhs)
@@ -363,7 +363,7 @@ public class JavaToStrideTest
         // Initializers:
         assertWarningFile("class Foo { { int x; } }", UnsupportedFeature.class, _class(null, l(), null, false, "Foo", null, l(), l(_commentWarn(UnsupportedFeature.class)), l(), l()));
         assertWarningFile("class Foo { { return; } }", UnsupportedFeature.class, _class(null, l(), null, false, "Foo", null, l(), l(_commentWarn(UnsupportedFeature.class)), l(), l()));
-        assertWarningFile("interface Foo { static { int x; } }", UnsupportedFeature.class, new InterfaceElement(null, null, name("Foo"), l(), l(_commentWarn(UnsupportedFeature.class)), l(), new JavadocUnit(""), null, Collections.emptyList(), true));
+        assertWarningFile("interface Foo { static { int x; } }", UnsupportedFeature.class, _interface("", "Foo", l(), l(_commentWarn(UnsupportedFeature.class)), l()));
         assertWarningMember("{ int x; }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
         assertWarningMember("static { int x; }", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
 
@@ -373,8 +373,19 @@ public class JavaToStrideTest
         // One warning for enum, one for inner:
         assertWarningMember("public enum Inner { I }", UnsupportedFeature.class, _comment("WARNING:" + UnsupportedFeature.class.getName() + " WARNING:" + UnsupportedFeature.class.getName()));
 
-        // TODO test interfaces
+        // Default methods:
+        // One warning about default modifier, one about the method body:
+        assertWarningFile("/**Hi*/interface Foo extends A, B { default public void foo() {} }", UnsupportedFeature.class,
+            _interface("Hi", "Foo", l("A", "B"), l(_commentWarn(UnsupportedModifier.class), _commentWarn(UnsupportedFeature.class)), l()));
+        
+        // TODO test interfaces more (incl package, imports)
         //TODO test non-Javadoc mid-class comments
+    }
+
+    private InterfaceElement _interface(String javadoc, String name, List<String> extendsTypes, List<CodeElement> fields, List<CodeElement> methods)
+    {
+        return new InterfaceElement(null, null, name(name), extendsTypes.stream().map(JavaToStrideTest::type).collect(Collectors.toList()), 
+            fields, methods, new JavadocUnit(javadoc), null, Collections.emptyList(), true);
     }
 
     private CommentElement _commentWarn(Class<? extends ConversionWarning> cls)
