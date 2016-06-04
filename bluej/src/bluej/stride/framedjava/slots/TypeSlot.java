@@ -26,8 +26,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.beans.binding.StringExpression;
+import javafx.scene.Node;
 
 import bluej.Config;
 import bluej.editor.stride.FrameCatalogue;
@@ -39,6 +41,7 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SuggestedFollowUpDisplay;
+import bluej.stride.slots.CopyableHeaderItem;
 import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXBiConsumer;
@@ -51,7 +54,7 @@ import threadchecker.Tag;
 /**
  * Created by neil on 22/05/2016.
  */
-public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCompletionCalculator>
+public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCompletionCalculator> implements CopyableHeaderItem
 {
     private final InteractionManager editor;
     private boolean isReturnType = false;
@@ -256,5 +259,11 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     public void addDeleteAtEndListener(FXSupplier<Boolean> listener)
     {
         deleteListeners.add(listener);
+    }
+
+    @Override
+    public Stream<? extends Node> makeDisplayClone(InteractionManager editor)
+    {
+        return topLevel.makeDisplayClone(editor);
     }
 }

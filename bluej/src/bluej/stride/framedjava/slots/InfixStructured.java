@@ -379,6 +379,16 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         JavaFXUtil.addChangeListener(textProperty, value -> updateBreaks());
     }
 
+
+    public Stream<? extends Node> makeDisplayClone(InteractionManager editor)
+    {
+        // Important that we flatMap after interleaving, to preserve ordering:
+        return Utility.interleave(
+                fields.stream().map(c -> c.makeDisplayClone(editor)),
+                operators.stream().map(o -> o == null ? Stream.<Node>empty() : Stream.of(o.makeDisplayClone(editor))))
+                .flatMap(x -> x);
+    }
+    
     private void updateBreaks()
     {
         // Update possible breaks.

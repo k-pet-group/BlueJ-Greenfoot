@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.SharedTransition;
 
 import javafx.beans.value.ObservableStringValue;
@@ -202,4 +203,9 @@ interface StructuredSlotComponent
      * to enter this expression (including sub-expressions)
      */
     int calculateEffort();
+
+    /**
+     * Makes a display clone (a la CopyableHeaderItem)
+     */
+    Stream<Node> makeDisplayClone(InteractionManager editor);
 }

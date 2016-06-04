@@ -36,6 +36,7 @@ import javafx.event.EventType;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
@@ -44,6 +45,7 @@ import bluej.stride.framedjava.slots.InfixStructured.CaretPosMap;
 import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.EditableSlot.MenuItems;
 import bluej.utility.javafx.DelegableScalableTextField;
 import bluej.utility.javafx.FXConsumer;
@@ -490,5 +492,18 @@ class StructuredSlotField implements StructuredSlotComponent
     public int calculateEffort()
     {
         return Math.min(3, field.getText().length());
+    }
+
+    @Override
+    public Stream<Node> makeDisplayClone(InteractionManager editor)
+    {
+        TextField f = new TextField();
+        f.textProperty().bind(field.textProperty());
+        f.prefWidthProperty().bind(field.prefWidthProperty());
+        JavaFXUtil.bindList(f.getStyleClass(), field.getStyleClass());
+        JavaFXUtil.bindPseudoclasses(f, field.getPseudoClassStates());
+        JavaFXUtil.setPseudoclass("bj-pinned", true, f);
+        f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(editor.getFontSizeCSS()).concat(";"));
+        return Stream.of(f);
     }
 }

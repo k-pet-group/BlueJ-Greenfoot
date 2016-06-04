@@ -37,6 +37,7 @@ import bluej.stride.framedjava.slots.InfixStructured.CaretPosMap;
 import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.Frame.View;
+import bluej.utility.Utility;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -339,5 +340,15 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     INFIX getParent()
     {
         return parent;
+    }
+
+    @Override
+    public Stream<Node> makeDisplayClone(InteractionManager editor)
+    {
+        return Utility.concat(
+            Stream.of(JavaFXUtil.cloneLabel(openingLabel, editor.getFontSizeCSS())),
+            content.makeDisplayClone(editor),
+            Stream.of(JavaFXUtil.cloneLabel(closingLabel, editor.getFontSizeCSS()))
+        );
     }
 }

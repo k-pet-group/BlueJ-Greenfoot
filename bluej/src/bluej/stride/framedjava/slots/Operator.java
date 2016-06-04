@@ -33,6 +33,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -133,6 +134,7 @@ class Operator
         // 13 is cast, TODO
         case "new ": prec = 14; break;
         case ".": prec = 15; break;
+        case "->": prec = 16; break;
         default: throw new IllegalStateException("Unknown operator: " + op);
         }
         return prec;
@@ -239,6 +241,11 @@ class Operator
     public void setJavaPreviewRangeOverride(String s)
     {
         rangeJavaPreview.set(s);
+    }
+
+    public Node makeDisplayClone(InteractionManager editor)
+    {
+        return JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS());
     }
 
     public static enum Precedence
