@@ -264,6 +264,10 @@ public class JavaToStrideTest
         assertExpression("0 || 1", "0 ||1");
         assertExpression("0 && 1", "0&& 1");
         assertExpression("a :: b", "a::b");
+        
+        // Example found while pasting from BlueJ (double escaped here):
+        assertEquals("if (c == '\\\\' || c == '\"' || c == '\\'') buf.append('\\\\');",
+            _if("c == '\\\\' || c == '\"' || c == '\\''", _call("buf . append ( '\\\\' )")));
     }
     
     @Test
@@ -303,11 +307,19 @@ public class JavaToStrideTest
         assertEqualsMember("/** X*/\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
         assertEqualsMember("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
         assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2 , 3", l()));
-        //TODO test: abstract methods, interface methods (incl default -- should fail), generic methods (either fail or do our best)
+        //TODO test: abstract methods, interface methods (incl default -- should fail)
 
+        assertEqualsMember("//Normal\n/** Javadoc */ private void foo() {}", _comment("Normal"), _method("Javadoc", AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+        
+        assertWarningMember("private <T extends A> List<T> foo(T t) {}", UnsupportedFeature.class,
+            _commentWarn(UnsupportedFeature.class),
+            _method(null, AccessPermission.PRIVATE, false, false, "List<T>", "foo", l(_param("T", "t")), l(), l()));
+        
         // @Override should flag in Constructor
         assertWarningMember("@Override Foo() {}", UnsupportedModifier.class, _commentWarn(UnsupportedModifier.class),
             _constructor(null, AccessPermission.PROTECTED, l(), l(), l()));
+        assertWarningMember("/**Javadoc*/@Override Foo() {}", UnsupportedModifier.class, _commentWarn(UnsupportedModifier.class),
+            _constructor("Javadoc", AccessPermission.PROTECTED, l(), l(), l()));
 
     }
     

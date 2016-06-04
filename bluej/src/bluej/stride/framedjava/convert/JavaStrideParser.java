@@ -752,6 +752,13 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
+    protected void gotMethodTypeParamsBegin()
+    {
+        super.gotMethodTypeParamsBegin();
+        warnings.add(new UnsupportedFeature("generic methods"));
+    }
+
+    @Override
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
         super.gotConstructorDecl(token, hiddenToken);
