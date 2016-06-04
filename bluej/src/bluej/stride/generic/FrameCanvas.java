@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.BlankFrame;
 
@@ -1187,4 +1188,14 @@ public class FrameCanvas implements FrameContentItem
     }
 
 
+    public Parser.JavaContext getContext()
+    {
+        switch (getParent().getChildKind(this))
+        {
+            case STATEMENTS:
+                return Parser.JavaContext.STATEMENT;
+            default:
+                return Parser.JavaContext.CLASS_MEMBER;
+        }
+    }
 }

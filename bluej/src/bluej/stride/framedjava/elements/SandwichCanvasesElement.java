@@ -25,6 +25,7 @@ package bluej.stride.framedjava.elements;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -279,5 +280,18 @@ public abstract class SandwichCanvasesElement extends ContainerCodeElement imple
     {
         Stream<CodeElement> intermediateCanvasStream = intermediateCanvasContents.stream().flatMap(c -> streamContained(c));
         return Utility.concat(streamContained(firstCanvasContents), intermediateCanvasStream, streamContained(tailCanvasContents));
+    }
+
+    /** If the child is a direct member of an intermediate canvas, return its index,
+     * otherwise return empty optional
+     */
+    protected Optional<Integer> findDirectIntermediateChild(CodeElement child)
+    {
+        for (int i = 0; i < intermediateCanvasContents.size(); i++)
+        {
+            if (intermediateCanvasContents.get(i).stream().anyMatch(c -> c == child))
+                return Optional.of(i);
+        }
+        return Optional.empty();
     }
 }

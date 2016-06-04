@@ -151,7 +151,7 @@ public class ForeachElement extends ContainerCodeElement
     }
     
     @Override
-    public List<LocalParamInfo> getDeclaredVariablesWithin()
+    public List<LocalParamInfo> getDeclaredVariablesWithin(CodeElement child)
     {
         return Collections.singletonList(new LocalParamInfo(type.getContent(), var.getContent(), false, this));
     }

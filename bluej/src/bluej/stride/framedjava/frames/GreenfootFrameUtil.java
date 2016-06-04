@@ -51,7 +51,7 @@ public class GreenfootFrameUtil
         return Arrays.asList(new CutFrameOperation(editor), new CopyFrameOperation(editor));
     }
 
-    public static List<CodeElement> getClipboardElements(boolean classItem)
+    public static List<CodeElement> getClipboardElements(Parser.JavaContext context)
     {
         final Clipboard clipboard = Clipboard.getSystemClipboard();
         if (clipboard.hasString()) {
@@ -61,8 +61,7 @@ public class GreenfootFrameUtil
             
             try
             {
-                //TODO pass context in directly by asking canvas, rather than bool classItem
-                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString(), classItem ? Parser.JavaContext.CLASS_MEMBER : Parser.JavaContext.STATEMENT, false).getElements();
+                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString(), context, false).getElements();
                 //TODO display warnings if there are any
                 return javaElements;
             }

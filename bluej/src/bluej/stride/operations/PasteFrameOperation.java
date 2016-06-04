@@ -51,8 +51,7 @@ public class PasteFrameOperation extends FrameOperation
     @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
-        boolean classItem = editor.getFocusedCursor().getParentCanvas().getParent() instanceof TopLevelFrame;
-        List<CodeElement> elements = GreenfootFrameUtil.getClipboardElements(classItem);
+        List<CodeElement> elements = GreenfootFrameUtil.getClipboardElements(editor.getFocusedCursor().getParentCanvas().getContext());
         if (elements != null && elements.size() > 0) {
             editor.recordEdits(StrideEditReason.FLUSH);
             if (frames.size() > 0) {

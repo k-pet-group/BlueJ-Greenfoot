@@ -230,7 +230,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
     }
 
     @Override
-    public List<LocalParamInfo> getDeclaredVariablesWithin()
+    public List<LocalParamInfo> getDeclaredVariablesWithin(CodeElement child)
     {
         List<LocalParamInfo> vars = new ArrayList<>();
         params.forEach(param -> vars.add(new LocalParamInfo(param.getParamType().getContent(), param.getParamName().getContent(), true, this)));

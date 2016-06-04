@@ -24,7 +24,9 @@ package bluej.stride.framedjava.elements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
@@ -118,5 +120,13 @@ public class TryElement extends SandwichCanvasesElement
     protected Stream<SlotFragment> getDirectSlotFragments()
     {
         return Stream.empty();
+    }
+
+    @Override
+    public List<LocalParamInfo> getDeclaredVariablesWithin(CodeElement child)
+    {
+        Optional<Integer> subCanvas = findDirectIntermediateChild(child);
+        
+        return subCanvas.map(i -> Arrays.asList(new LocalParamInfo(catchTypes.get(i).getContent(), catchNames.get(i).getContent(), false, this))).orElse(Collections.emptyList());
     }
 }

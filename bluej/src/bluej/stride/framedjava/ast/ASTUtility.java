@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,7 +54,7 @@ public class ASTUtility
         ContainerCodeElement parent = cur.getParent();
 
         if (includeCurDecl && cur instanceof ContainerCodeElement)
-            vars.addAll(((ContainerCodeElement)cur).getDeclaredVariablesWithin());
+            vars.addAll(((ContainerCodeElement)cur).getDeclaredVariablesWithin(cur));
 
         // We don't go through classes because we are not interested in fields, only locals and params:
         while (parent != null && (includeFields || parent.getTopLevelElement() == null))
@@ -63,7 +63,7 @@ public class ASTUtility
             {
                 vars.addAll(c.getDeclaredVariablesAfter());
             }
-            vars.addAll(parent.getDeclaredVariablesWithin());
+            vars.addAll(parent.getDeclaredVariablesWithin(cur));
             
             cur = parent;
             parent = parent.getParent();
