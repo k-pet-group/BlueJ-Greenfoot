@@ -59,14 +59,21 @@ class StringLiteralExpression implements StructuredSlotComponent
     private final Label openingQuote;
     /** The label for the closing quote */
     private final Label closingQuote;
+    /** Either single quote or double quote */
+    private final String quote;
+    private final String openingSmartQuote;
+    private final String closingSmartQuote;
 
-    public StringLiteralExpression(StructuredSlotField f, InfixStructured parent)
+    public StringLiteralExpression(char quoteChar, StructuredSlotField f, InfixStructured parent)
     {
         field = f;
+        this.quote = "" + quoteChar;
         // The quotes use proper open/close quote symbols normally, but
         // switch to straight quotes in Java preview mode.
-        openingQuote = StructuredSlot.makeBracket("\u201C", true, parent);
-        closingQuote = StructuredSlot.makeBracket("\u201D", false, parent);
+        openingSmartQuote = quoteChar == '"' ? "\u201C" : "\u2018";
+        closingSmartQuote = quoteChar == '"' ? "\u201D" : "\u2019";
+        openingQuote = StructuredSlot.makeBracket(openingSmartQuote, true, parent);
+        closingQuote = StructuredSlot.makeBracket(closingSmartQuote, false, parent);
         components.add(openingQuote);
         components.addAll(field.getComponents());
         components.add(closingQuote);
@@ -78,7 +85,7 @@ class StringLiteralExpression implements StructuredSlotComponent
         JavaFXUtil.addStyleClass(openingQuote, "expression-string-literal-quote");
         JavaFXUtil.addStyleClass(closingQuote, "expression-string-literal-quote");
 
-        textProperty = new ReadOnlyStringWrapper("\"").concat(f.textProperty()).concat("\"");
+        textProperty = new ReadOnlyStringWrapper(quote).concat(f.textProperty()).concat(quote);
     }
 
     @Override
@@ -139,10 +146,10 @@ class StringLiteralExpression implements StructuredSlotComponent
         // We only add start and end when from/to are null:
         StringBuilder b = new StringBuilder();
         if (from == null)
-            b.append("\"");
+            b.append(quote);
         b.append(field.getCopyText(from, to));        
         if (to == null)
-            b.append("\"");
+            b.append(quote);
         
         return b.toString();
     }
@@ -151,9 +158,9 @@ class StringLiteralExpression implements StructuredSlotComponent
     public String getJavaCode()
     {
         StringBuilder b = new StringBuilder();
-        b.append("\"");
+        b.append(quote);
         b.append(field.getText());        
-        b.append("\"");
+        b.append(quote);
         
         return b.toString();
     }
@@ -196,10 +203,10 @@ class StringLiteralExpression implements StructuredSlotComponent
     public String testingGetState(CaretPos pos)
     {
         if (pos == null)
-            return "\"" + field.getText() + "\"";
+            return quote + field.getText() + quote;
         else
         {
-            return "\"" + field.getText().substring(0, pos.index) + "$" + field.getText().substring(pos.index) + "\"";
+            return quote + field.getText().substring(0, pos.index) + "$" + field.getText().substring(pos.index) + quote;
         }
     }
 
@@ -241,8 +248,8 @@ class StringLiteralExpression implements StructuredSlotComponent
     {
         field.setView(oldView, newView, animate);
         JavaFXUtil.setPseudoclass("bj-java-preview", newView == View.JAVA_PREVIEW, openingQuote, closingQuote);
-        openingQuote.setText(newView == View.JAVA_PREVIEW ? "\"" : "\u201C");
-        closingQuote.setText(newView == View.JAVA_PREVIEW ? "\"" : "\u201D");
+        openingQuote.setText(newView == View.JAVA_PREVIEW ? quote : openingSmartQuote);
+        closingQuote.setText(newView == View.JAVA_PREVIEW ? quote : closingSmartQuote);
     }
 
     @Override
@@ -285,5 +292,11 @@ class StringLiteralExpression implements StructuredSlotComponent
             field.makeDisplayClone(editor),
             Stream.of(JavaFXUtil.cloneLabel(closingQuote, editor.getFontSizeCSS()))
         );
+    }
+
+    //package-visible
+    String getQuote()
+    {
+        return quote;
     }
 }

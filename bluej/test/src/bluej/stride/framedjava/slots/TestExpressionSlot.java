@@ -280,13 +280,17 @@ public class TestExpressionSlot
     {
         // With trailing quote
         testInsert("\"hello\"", "{}_\"hello\"_{$}");
-        // Without (caret stays in string:
+        // Without trailing quote (caret stays in string):
         testInsert("\"hello", "{}_\"hello$\"_{}");
         testInsert("\"hello\"+\"world\"", "{}_\"hello\"_{}+{}_\"world\"_{$}");
         testInsert("\"hello\"+\"world\"+(5*6)", "{}_\"hello\"_{}+{}_\"world\"_{}+{}_({5}*{6})_{$}");
         
         // Quote in a string, escaped:
         testInsert("\"\\\"\"", "{}_\"\\\"\"_{$}");
+        // Escaped single quote:
+        testInsert("\"\\\'\"", "{}_\"\\\'\"_{$}");
+        // Unescaped single quote:
+        testInsert("\"'\"", "{}_\"'\"_{$}");
         
         // Adding quote later:
         testMultiInsert("abc{\"}def", "{abc$def}", "{abc}_\"$\"_{def}");
@@ -298,6 +302,20 @@ public class TestExpressionSlot
         // Also, after:
         testInsertExisting("\"a\"$", "\"b", "{}_\"a\"_{}_\"b$\"_{}");
 
+        // Test character literal:
+        testInsert("'a'", "{}_'a'_{$}");
+        testInsert("'a", "{}_'a$'_{}");
+        // Escaped single quote in character literal:
+        testInsert("'\\''", "{}_'\\''_{$}");
+        // Escaped double quote in character literal:
+        testInsert("'\\\"'", "{}_'\\\"'_{$}");
+        // Unescaped double quote in character literal:
+        testInsert("'\"'", "{}_'\"'_{$}");
+        
+        
+        // Example found while pasting from BlueJ (double escaped here)
+        testInsert("c == '\\\\' || c == '\"' || c == '\\''",
+            "{c}=={}_\'\\\\\'_{}||{c}=={}_'\"'_{}||{c}=={}_'\\''_{$}");
     }
     
     @Test

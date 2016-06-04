@@ -1621,12 +1621,12 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     return pos;
                 }
             }
-            else if (c == '\"')
+            else if (c == '\"' || c == '\'')
             {
                 String following = f.getText().substring(posInField);
                 f.setText(f.getText().substring(0, posInField), token);
                 operators.add(pos.index, null, token);
-                fields.add(pos.index + 1, new StringLiteralExpression(makeNewField("", true), this), token);
+                fields.add(pos.index + 1, new StringLiteralExpression(c, makeNewField("", true), this), token);
                 if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null || fields.get(pos.index + 2) instanceof StringLiteralExpression)
                 {
                     // Used to be operator directly after this field (or we are at end), must add another field to pad
@@ -1679,9 +1679,10 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         }
         else if (slot instanceof StringLiteralExpression)
         {
-            final StructuredSlotField f = ((StringLiteralExpression) slot).getField();
+            StringLiteralExpression lit = (StringLiteralExpression)slot;
+            final StructuredSlotField f = lit.getField();
             final int posInField = pos.subPos.index;
-            if (c == '\"' && getEscapeStatus(f.getText().substring(0, posInField)) == EscapeStatus.NORMAL)
+            if ((c == '\"' || c == '\'') && ("" + c).equals(lit.getQuote()) && getEscapeStatus(f.getText().substring(0, posInField)) == EscapeStatus.NORMAL)
             {
                 // Closing quote, not escaped
                 if (posInField == f.getText().length())
