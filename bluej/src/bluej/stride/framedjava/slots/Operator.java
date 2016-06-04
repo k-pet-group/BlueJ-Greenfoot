@@ -133,8 +133,10 @@ class Operator
         case "~": case "!": prec = 12; break;
         // 13 is cast, TODO
         case "new ": prec = 14; break;
-        case ".": prec = 15; break;
-        case "->": prec = 16; break;
+        case ":": // Not a valid operator, but can appear before user has completed ::, so give it same precedence as that.
+        case "::": prec = 15; break;
+        case ".": prec = 16; break;
+        case "->": prec = 17; break;
         default: throw new IllegalStateException("Unknown operator: " + op);
         }
         return prec;
