@@ -67,6 +67,8 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXFunction;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformFunction;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -1183,7 +1185,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     @OnThread(Tag.FXPlatform)
     public boolean deletePrevious(StructuredSlotField f, int posInField, boolean atStart)
     {
-        modification(token -> positionCaret(deletePrevious_(f, posInField, atStart, token)));
+        modificationPlatform(token -> positionCaret(deletePrevious_(f, posInField, atStart, token)));
         return true;
     }
     
@@ -2325,7 +2327,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     @OnThread(Tag.FXPlatform)
     CaretPos testingBackspace(CaretPos p)
     {
-        return modificationReturn(token -> {
+        return modificationReturnPlatform(token -> {
             StructuredSlotComponent f = fields.get(p.index);
             if (f instanceof StructuredSlotField)
                 return deletePrevious_((StructuredSlotField)fields.get(p.index), p.subPos.index, p.subPos.index == 0, token);
@@ -2832,6 +2834,20 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             slot.modificationReturn(t -> {modificationAction.accept(t);return 0;});
         else
             StructuredSlot.testingModification(t -> {modificationAction.accept(t); return 0;});
+    }
+
+    @OnThread(Tag.FXPlatform)
+    protected <T> void modificationPlatform(FXPlatformConsumer<StructuredSlot.ModificationToken> modificationAction)
+    {
+        // Defeat thread checker:
+        modification(modificationAction::accept);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private <T> T modificationReturnPlatform(FXPlatformFunction<StructuredSlot.ModificationToken, T> modificationAction)
+    {
+        // Defeat thread checker:
+        return modificationReturn(modificationAction::apply);
     }
     
     //package-visible:

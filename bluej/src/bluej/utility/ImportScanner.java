@@ -221,11 +221,12 @@ public class ImportScanner
                 // cause a deadlock because there are no background threads
                 // available, as they are all blocked waiting for this
                 // future to complete):
-                new Thread(() -> {
+                new Thread() { public void run()
+                {
                     RootPackageInfo rootPkg = findAllTypes();
                     loadCachedImports(rootPkg);
                     root.complete(rootPkg);
-                }).start();
+                }}.start();
                 return root;
             }
         }
@@ -254,7 +255,7 @@ public class ImportScanner
     }
     
     // Gets the class loader config to pass to the Reflections library
-    @OnThread(Tag.Worker)
+    @OnThread(Tag.Unique)
     private ConfigurationBuilder getClassloaderConfig()
     {
         List<ClassLoader> classLoadersList = new ArrayList<ClassLoader>();
@@ -314,7 +315,7 @@ public class ImportScanner
      * @param importSrcs Currently not used by caller, but narrows imports down
      * @return
      */
-    @OnThread(Tag.Worker)
+    @OnThread(Tag.Unique)
     private Reflections getReflections(List<String> importSrcs)
     {
         FilterBuilder filter = new FilterBuilder();
@@ -351,7 +352,7 @@ public class ImportScanner
         }
     }
 
-    @OnThread(Tag.Worker)
+    @OnThread(Tag.Unique)
     private RootPackageInfo findAllTypes()
     {
         reflections = getReflections(Collections.emptyList());

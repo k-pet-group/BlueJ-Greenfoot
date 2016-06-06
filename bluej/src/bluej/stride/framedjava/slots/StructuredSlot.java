@@ -92,6 +92,7 @@ import bluej.utility.javafx.FXBiConsumer;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXFunction;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformFunction;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -1314,7 +1315,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             case ESCAPE:
                 return Response.DISMISS;
             case BACK_SPACE:
-                CaretPos updatedLocation = modificationReturn(token -> topLevel.deletePreviousAtPos(suggestionLocation, token));
+                CaretPos updatedLocation = modificationReturnPlatform(token -> topLevel.deletePreviousAtPos(suggestionLocation, token));
                 if (updatedLocation == null || !updatedLocation.init().equals(suggestionLocation.init()))
                 {
                     Platform.runLater(() -> topLevel.positionCaret(updatedLocation));
@@ -1357,7 +1358,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     @OnThread(Tag.FXPlatform)
     public Response suggestionListKeyTyped(KeyEvent event, int highlighted)
     {
-        return modificationReturn(token -> {
+        return modificationReturnPlatform(token -> {
             CaretPos updatedLocation = null;
             if (!"\b".equals(event.getCharacter()))
             {
@@ -1531,6 +1532,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
      * @return The return value of the inner function.
      */
     //package-visible
+    @OnThread(Tag.FX)
     <T> T modificationReturn(FXFunction<ModificationToken, T> modificationAction)
     {
         ModificationToken token = new ModificationToken();
@@ -1555,6 +1557,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             modificationTokens.get(0).afters.addAll(token.afters);
         }
         return ret;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    <T> T modificationReturnPlatform(FXPlatformFunction<ModificationToken, T> modificationAction)
+    {
+        // Defeat thread-checker:
+        return modificationReturn((FXFunction<ModificationToken, T>)(modificationAction::apply));
     }
     
     //package-visible
