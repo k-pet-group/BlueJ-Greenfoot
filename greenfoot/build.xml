@@ -395,6 +395,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="build-common-jar" description="Create a jar with a common class dependencies." >
+        <mkdir dir="common/${common.class}/classes"/>
         <!-- Should first delete the class files in common (depend on clean-common) -->
         <javac
             executable="${build_java_home}/${java_command_dir_name}/javac"
@@ -565,10 +566,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
         
         <!-- Distributables -->
         <delete >
-            <fileset dir="package">
-                <include name="Greenfoot-*.zip"/>
-                <include name="greenfoot-*.jar"/>
-                <include name="Greenfoot-*.jar"/>
+            <fileset dir=".">
+                <include name="package/Greenfoot-*.zip"/>
+                <include name="package/greenfoot-*.jar"/>
+                <include name="package/Greenfoot-*.jar"/>
             </fileset>
         </delete>
         <!-- API doc -->
@@ -596,7 +597,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <target name="clean-common-weather" description="clean up Weather .jar and .class files to be built again" >
         <delete file="common/Weather/lib/Weather.jar"/>
         <delete includeemptydirs="true">
-            <fileset dir="common/Weather/classes" includes="**/*" defaultexcludes="no"/>
+            <fileset dir="common/Weather" includes="classes/**/*" defaultexcludes="no"/>
         </delete>
     </target>
 
@@ -847,7 +848,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <exclude name="scenarios/**/**/*.class" />
                 <exclude name="scenarios/**/**/greenfoot/" />
                 
-                <include name="common/*.java" />
+                <include name="common/**/*.java" />
+                <include name="common/**/*.jar" />
                 <include name="common/*.png" />
                 <include name="common/*.gif" />
                 <include name="imagelib/**/*" />           
