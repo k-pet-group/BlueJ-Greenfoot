@@ -33,7 +33,7 @@ public abstract class ConversionWarning
     // labelId is looked up in the Strings, then item is appended
     private ConversionWarning(String labelId, String item)
     {
-        this.text = Config.getString(labelId) + item;
+        this.text = Config.getString(labelId).trim() + " " + item;
     }
 
     /**

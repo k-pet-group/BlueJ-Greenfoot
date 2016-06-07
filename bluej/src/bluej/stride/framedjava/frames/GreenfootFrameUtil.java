@@ -25,12 +25,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 
 import bluej.parser.ParseFailure;
 import bluej.stride.framedjava.ast.Parser;
+import bluej.stride.framedjava.convert.ConversionWarning;
+import bluej.stride.framedjava.convert.ConvertResultDialog;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -43,6 +47,8 @@ import bluej.stride.operations.CopyFrameOperation;
 import bluej.stride.operations.CutFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class GreenfootFrameUtil
 {
@@ -50,24 +56,47 @@ public class GreenfootFrameUtil
     {
         return Arrays.asList(new CutFrameOperation(editor), new CopyFrameOperation(editor));
     }
+    
+    private static class XMLParseResult
+    {
+        public final List<CodeElement> elements; // null if error
+        public final String error; // null if success
 
+        public XMLParseResult(List<CodeElement> elements)
+        {
+            this.elements = elements;
+            this.error = null;
+        }
+
+        public XMLParseResult(String error)
+        {
+            this.elements = null;
+            this.error = error;
+        }
+    }
+
+    // On FXPlatform thread because it may show dialog:
+    @OnThread(Tag.FXPlatform)
     public static List<CodeElement> getClipboardElements(Parser.JavaContext context)
     {
         final Clipboard clipboard = Clipboard.getSystemClipboard();
         if (clipboard.hasString()) {
-            List<CodeElement> strideElements = getElements(clipboard.getString());
-            if (strideElements != null)
-                return strideElements;
+            XMLParseResult strideParseResult = getElements(clipboard.getString());
+            if (strideParseResult.elements != null)
+                return strideParseResult.elements;
             
             try
             {
-                List<CodeElement> javaElements = Parser.javaToStride(clipboard.getString(), context, false).getElements();
-                //TODO display warnings if there are any
-                return javaElements;
+                Parser.ConversionResult javaConvertResult = Parser.javaToStride(clipboard.getString(), context, false);
+                if (!javaConvertResult.getWarnings().isEmpty())
+                {
+                    new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
+                }
+                return javaConvertResult.getElements();
             }
             catch (ParseFailure pf)
             {
-                //TODO give user message about why the paste failed
+                new ConvertResultDialog(Optional.of(strideParseResult.error), pf.getMessage()).showAndWait();
                 return null;
             }
         }
@@ -75,7 +104,7 @@ public class GreenfootFrameUtil
         return null;
     }
 
-    public static List<CodeElement> getElements(String xmlString)
+    private static XMLParseResult getElements(String xmlString)
     {
         Builder parser = new Builder();
         Document doc = null;
@@ -84,22 +113,23 @@ public class GreenfootFrameUtil
         }
         catch (ParsingException | IOException e) {
             Debug.reportError(e);
+            return new XMLParseResult(e.getMessage());
         }
         
         if (doc == null) {
-            return null;
+            return new XMLParseResult("Unknown error");
         }
 
         Element root = doc.getRootElement();
         if (!root.getLocalName().equals("frames")) {
-            return null;
+            return new XMLParseResult("Outer element was not frames");
         }
         
         List<CodeElement> elements = new ArrayList<CodeElement>();
         for (int i = 0; i < root.getChildElements().size(); i++) {
             elements.add(Loader.loadElement(root.getChildElements().get(i)));
         }
-        return elements;
+        return new XMLParseResult(elements);
     }
     
     public static String getXmlForMultipleFrames(List<Frame> frames)
@@ -116,7 +146,7 @@ public class GreenfootFrameUtil
 
     public static List<CodeElement> getElementsForMultipleFrames(List<Frame> frames)
     {
-        return getElements(getXmlForMultipleFrames(frames));
+        return getElements(getXmlForMultipleFrames(frames)).elements;
     }
 
     public static void doCopy(List<Frame> frames)

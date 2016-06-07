@@ -63,3 +63,10 @@ frame.class.inherited.from=Inherited from $
 frame.undobanner.text=You just deleted a large piece of code.  If you didn't mean to, you can
 frame.undobanner.button=Undo this change
 frame.undobanner.close=Close
+
+stride.convert.unsupported.feature=Unsupported feature in Stride
+stride.convert.unsupported.modifier=Unsupported modifier in Stride
+stride.convert.warnings=Conversion from Java to Stride succeeded, but with the following warnings
+stride.convert.errors=Invalid Stride code and conversion from Java to Stride failed, with the following errors
+stride.convert.error.stride=Error while trying to unpack Stride code
+stride.convert.error.java=Error while trying to parse Java for conversion to Stride
