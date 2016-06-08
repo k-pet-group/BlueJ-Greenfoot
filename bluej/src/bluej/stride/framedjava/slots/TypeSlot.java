@@ -204,8 +204,7 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     @Override
     public List<PossibleTypeLink> findLinks()
     {
-        //TODOTYPESLOT find links for sub-types of generics too, and for "Object" in Object[]
-        return Collections.singletonList(new PossibleTypeLink(getText(), 0, getText().length(), this));
+        return topLevel.findTypeLinks();
     }
     
     public StringExpression javaProperty()

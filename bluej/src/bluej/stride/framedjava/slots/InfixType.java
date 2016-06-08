@@ -21,8 +21,11 @@
  */
 package bluej.stride.framedjava.slots;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXBiConsumer;
 import bluej.utility.javafx.FXConsumer;
@@ -116,5 +119,39 @@ public class InfixType extends InfixStructured<TypeSlot, InfixType>
             String after = getCopyText(new CaretPos(index + 1, new CaretPos(0, null)), null);
             listener.accept(before, after);
         });
+    }
+
+    public List<PossibleTypeLink> findTypeLinks()
+    {
+        List<PossibleTypeLink> links = new ArrayList<>();
+
+        int startField = 0;
+        StringBuilder type = new StringBuilder(fields.get(0).getCopyText(null, null));
+        
+        for (int i = 1; i <= fields.size(); i++)
+        {
+            if (i >= operators.size() || (operators.get(i) != null && !operators.get(i).get().equals(".")))
+            {
+                int start = caretPosToStringPos(new CaretPos(startField, fields.get(startField).getStartPos()), false);
+                int end = caretPosToStringPos(new CaretPos(i - 1, fields.get(i - 1).getEndPos()), false);
+                if (start != end)
+                    links.add(new PossibleTypeLink(type.toString(), start, end, slot));
+                type = new StringBuilder();
+                startField = i;
+            }
+            if (i >= fields.size())
+                break;
+            
+            if (fields.get(i) instanceof BracketedStructured)
+            {
+                links.addAll(((BracketedStructured<InfixType, TypeSlot>)fields.get(i)).getContent().findTypeLinks());
+            }
+            else
+            {
+                type.append(fields.get(i).getCopyText(null, null));
+            }
+        }
+
+        return links;
     }
 }

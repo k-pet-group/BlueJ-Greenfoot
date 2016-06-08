@@ -52,6 +52,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 
@@ -538,10 +539,34 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         f.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             if (e.getClickCount() > 1) // Double and triple clicks will be handled by the text field 
                 return;
+            if (!(e.isShortcutDown() || e.getButton() == MouseButton.MIDDLE))
+                return; // Either they must be holding shortcut button, or middle clicking
+            
             // check for click on underlined region
             CaretPos relNearest = getNearest(e.getSceneX(), e.getSceneY(), false, Optional.empty()).getPos();
             CaretPos absNearest = absolutePos(relNearest);
-            Utility.ifNotNull(slot.getOverlay().hoverAtPos(slot.getTopLevel().caretPosToStringPos(absNearest, false)), FXPlatformRunnable::runLater);
+            // First we check existing underlines:
+            FXPlatformRunnable linkRunnable = slot.getOverlay().hoverAtPos(slot.getTopLevel().caretPosToStringPos(absNearest, false));
+            if (linkRunnable != null)
+            {
+                // We've found an existing underline; run the action:
+                FXPlatformRunnable.runLater(linkRunnable);
+            }
+            else
+            {
+                // No existing underline; this may be because:
+                //  - there isn't anything of interest in this position
+                //  - the mouse click has changed things (e.g. in var frames, clicking the type slot focuses it and changes the frame content)
+                //  - the user middle-clicked, so we didn't scan in advance
+                // Thus to cover the latter two options, we scan again to be sure:
+                slot.withLinksAtPos(absNearest, optLink -> 
+                    optLink.ifPresent(link -> {
+                        FXPlatformRunnable onClick = link.getOnClick();
+                        if (onClick != null)
+                            FXPlatformRunnable.runLater(onClick);
+                    })
+                );
+            }
         });
         
         return f;
