@@ -70,6 +70,7 @@ public class SwitchFrame extends MultiCanvasFrame
     private JavaCanvas defaultCanvas;
     private SwitchElement element;
     private final InteractionManager editor; // Saved for creating default canvas.
+    private SlotLabel defaultLabel = new SlotLabel("default");
 
     /**
      * Default constructor.
@@ -115,7 +116,6 @@ public class SwitchFrame extends MultiCanvasFrame
         }
 
         defaultCanvas = new JavaCanvas(editor, this, "default-case-", false);
-        SlotLabel defaultLabel = new SlotLabel("default");
         JavaFXUtil.addStyleClass(defaultLabel, "divider-default-case");
         addCanvas(new FrameContentRow(this, defaultLabel), defaultCanvas);
         defaultCanvas.getFirstCursor().requestFocus();
@@ -440,5 +440,7 @@ public class SwitchFrame extends MultiCanvasFrame
             c.getCursors().forEach(cur -> cur.setView(newView, animate));
             c.setView(oldView, newView, animate);
         });
+
+        defaultLabel.setText(newView == View.JAVA_PREVIEW ? "default :" : "default");
     }
 }
