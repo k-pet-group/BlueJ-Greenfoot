@@ -553,6 +553,8 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             importTriangleLabel.expandedProperty().set(false);
 
         animateCanvasLabels(oldView, newView, animateProgress);
+
+        // TODO if extendsInheritedCanvases is added to Interfaces, use the code of setView in ClassFrame.
     }
 
     private void animateLabelRows(View newView, SharedTransition animateProgress)
