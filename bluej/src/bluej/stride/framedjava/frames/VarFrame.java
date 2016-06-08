@@ -164,10 +164,8 @@ public class VarFrame extends SingleLineFrame
 
         JavaFXUtil.addChangeListener(showingValue, showing -> {
             if (!showing) {
-                slotValue.setText("");
                 slotValue.cleanup();
             }
-            editor.modifiedFrame(this);
         });
 
         FXRunnable runAddValSlot = () -> {
