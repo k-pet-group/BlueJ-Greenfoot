@@ -34,18 +34,24 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -75,6 +81,7 @@ import bluej.extmgr.MenuManager;
 import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
 import bluej.graph.Vertex;
+import bluej.parser.ParseFailure;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.ParsedReflective;
@@ -98,6 +105,11 @@ import bluej.pkgmgr.target.role.EnumClassRole;
 import bluej.pkgmgr.target.role.InterfaceClassRole;
 import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.stride.framedjava.ast.Parser;
+import bluej.stride.framedjava.convert.ConversionWarning;
+import bluej.stride.framedjava.convert.ConvertResultDialog;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileEditor;
@@ -105,6 +117,8 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
+import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Platform;
@@ -129,6 +143,8 @@ public class ClassTarget extends DependentTarget
     private final static String compileStr = Config.getString("pkgmgr.classmenu.compile");
     private final static String inspectStr = Config.getString("pkgmgr.classmenu.inspect");
     private final static String removeStr = Config.getString("pkgmgr.classmenu.remove");
+    private final static String convertToJavaStr = Config.getString("pkgmgr.classmenu.convertToJava");
+    private final static String convertToStrideStr = Config.getString("pkgmgr.classmenu.convertToStride");
     private final static String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
 
     // Define Background Colours
@@ -1820,6 +1836,10 @@ public class ClassTarget extends DependentTarget
         role.addMenuItem(menu, new EditAction(), sourceOrDocExists);
         role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);
+        if (sourceAvailable == SourceType.Stride)
+            role.addMenuItem(menu, new ConvertToJavaAction(), true);
+        else if (sourceAvailable == SourceType.Java)
+            role.addMenuItem(menu, new ConvertToStrideAction(), true);
 
         // call on role object to add any options needed at bottom
         role.createRoleMenuEnd(menu, this, state);
@@ -1925,6 +1945,64 @@ public class ClassTarget extends DependentTarget
             if (checkDebuggerState()) {
                 inspect();
             }
+        }
+    }
+    
+    private class ConvertToJavaAction extends AbstractAction
+    {
+        public ConvertToJavaAction()
+        {
+            putValue(NAME, convertToJavaStr);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            Platform.runLater(() -> {
+                if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message"))
+                {
+                    SwingUtilities.invokeLater(() -> removeStride());
+                }
+            });
+        }
+    }
+
+    private class ConvertToStrideAction extends AbstractAction
+    {
+        public ConvertToStrideAction()
+        {
+            putValue(NAME, convertToStrideStr);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            Platform.runLater(() -> {
+                if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message"))
+                {
+                    try
+                    {
+                        Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(getJavaSourceFile().toPath()).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
+                        if (!javaConvertResult.getWarnings().isEmpty())
+                        {
+                            new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
+                        }
+                        List<CodeElement> elements = javaConvertResult.getElements();
+                        
+                        if (elements.size() != 1 || !(elements.get(0) instanceof TopLevelCodeElement))
+                        {
+                            JavaFXUtil.errorDialog("convert.to.stride.error.title", "convert.to.stride.error.message");
+                            return; // Abort
+                        }
+                        SwingUtilities.invokeLater(() -> addStride((TopLevelCodeElement)elements.get(0)));    
+                    }
+                    catch (IOException | ParseFailure pf)
+                    {
+                        new ConvertResultDialog(pf.getMessage()).showAndWait();
+                        // Abort the conversion
+                    }
+                }
+            });
         }
     }
 
@@ -2168,6 +2246,30 @@ public class ClassTarget extends DependentTarget
 
         // getSourceFile() will now return the Java file:
         DataCollector.convertStrideToJava(getPackage(), srcFile, getSourceFile());
+    }
+    
+    public void addStride(TopLevelCodeElement element)
+    {
+        if (editor != null)
+        {
+            editor.close();
+            editor = null;
+        }
+        File strideFile = getFrameSourceFile();
+        try
+        {
+            Files.write(strideFile.toPath(), Arrays.asList(Utility.splitLines(Utility.serialiseCodeToString(element.toXML()))), Charset.forName("UTF-8"));
+        }
+        catch (IOException e)
+        {
+            Debug.reportError(e);
+            Platform.runLater(() ->
+                JavaFXUtil.errorDialog(Config.getString("convert.to.stride.title"), e.getMessage())
+            );
+            return;
+        }
+        sourceAvailable = SourceType.Stride;
+        //DataCollector.convertJavaToStride(getPackage(), srcFile, getSourceFile());
     }
 
     @Override

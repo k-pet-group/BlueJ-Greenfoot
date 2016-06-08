@@ -96,7 +96,7 @@ public class GreenfootFrameUtil
             }
             catch (ParseFailure pf)
             {
-                new ConvertResultDialog(Optional.of(strideParseResult.error), pf.getMessage()).showAndWait();
+                new ConvertResultDialog(strideParseResult.error, pf.getMessage()).showAndWait();
                 return null;
             }
         }

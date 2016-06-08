@@ -45,22 +45,43 @@ public class ConvertResultDialog
     private final Alert alert;
     
     /**
-     * Constructor for when both parses failed.  The xmlParseError
-     * parameter contains the failure for parsing the XML (in the case of a paste),
+     * Constructor for when both parses failed during a paste.  The xmlParseError
+     * parameter contains the failure for parsing the XML,
      * in case the problem was the clipboard had been messed with.
      * 
      * The convertError parameter is the error (usually a parse failure)
      * in doing the Java->Stride conversion.
      */
-    
-    public ConvertResultDialog(Optional<String> xmlParseError, String convertError)
+    public ConvertResultDialog(String xmlParseError, String convertError)
     {
-        alert = new Alert(Alert.AlertType.ERROR, Config.getString("stride.convert.errors"), ButtonType.OK);
+        alert = new Alert(Alert.AlertType.ERROR, Config.getString("stride.convert.paste.errors"), ButtonType.OK);
+        alert.setTitle(Config.getString("stride.convert.paste.errors.title"));
+        alert.setHeaderText(alert.getTitle());
         StringBuilder s = new StringBuilder();
-        xmlParseError.ifPresent(e -> s.append(Config.getString("stride.convert.error.stride") + ":\n  " +  e + "\n\n"));
+        s.append(Config.getString("stride.convert.error.stride") + ":\n  " + xmlParseError + "\n\n");
         s.append(Config.getString("stride.convert.error.java") + ":\n  " + convertError);
         addDetails(s.toString());
     }
+
+    /**
+     * Constructor for when both parsing failed during a full conversion.
+     *
+     * The convertError parameter is the error (usually a parse failure)
+     * in doing the Java->Stride conversion.
+     */
+    public ConvertResultDialog(String convertError)
+    {
+        alert = new Alert(Alert.AlertType.ERROR, Config.getString("stride.convert.whole.errors"), ButtonType.OK);
+        alert.setTitle(Config.getString("stride.convert.whole.errors.title"));
+        alert.setHeaderText(alert.getTitle());
+        StringBuilder s = new StringBuilder();
+        s.append(Config.getString("stride.convert.error.java") + ":\n  " + convertError);
+        addDetails(s.toString());
+    }
+
+    /**
+     * Constructor for when a full conversion failed
+     */
 
     /**
      * Constructor for when the conversion succeeded, but had warnings.
@@ -71,14 +92,22 @@ public class ConvertResultDialog
     public ConvertResultDialog(List<String> warnings)
     {
         alert = new Alert(Alert.AlertType.WARNING, Config.getString("stride.convert.warnings"), ButtonType.OK);
+        alert.setTitle(Config.getString("stride.convert.warnings.title"));
+        alert.setHeaderText(alert.getTitle());
         addDetails(warnings.stream().collect(Collectors.joining("\n")));
     }
 
     private void addDetails(String extra)
     {
+        alert.getDialogPane().setMaxWidth(600.0);
+        
         TextArea extraDisplay = new TextArea(extra);
+        extraDisplay.setWrapText(true);
+        extraDisplay.setPrefRowCount(8);
         extraDisplay.setEditable(false);
-        VBox vBox = new VBox(new Label(alert.getContentText()), extraDisplay);
+        Label label = new Label(alert.getContentText());
+        label.setWrapText(true);
+        VBox vBox = new VBox(label, extraDisplay);
         // Should really be in CSS, but I just want to change this one property:
         vBox.setSpacing(20.0);
         alert.getDialogPane().setContent(vBox);

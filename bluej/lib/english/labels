@@ -384,6 +384,8 @@ pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.inspect=Inspect
 pkgmgr.classmenu.remove=Remove
+pkgmgr.classmenu.convertToJava=Convert to Java
+pkgmgr.classmenu.convertToStride=Convert to Stride
 pkgmgr.classmenu.createTest=Create Test Class
 
 pkgmgr.test.label=Testing

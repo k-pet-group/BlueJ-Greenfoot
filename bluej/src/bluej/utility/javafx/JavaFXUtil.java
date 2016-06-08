@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -82,7 +83,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
@@ -564,6 +567,37 @@ public class JavaFXUtil
             ((Runnable)action::run).run();
         else
             Platform.runLater(action::run);
+    }
+
+    /**
+     * Shows a dialog to the user (with OK/Cancel buttons) asking them to confirm an action
+     * 
+     * @param titleLabel The string to look up in the labels file for the title of the dialog
+     * @param messageLabel The string to look up in the labels file for the message of the dialog
+     * @return True if the user clicked OK, false if the user clicked Cancel or otherwise closed the dialog.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static boolean confirmDialog(String titleLabel, String messageLabel)
+    {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, Config.getString(messageLabel), ButtonType.OK, ButtonType.CANCEL);
+        alert.setTitle(Config.getString(titleLabel));
+        alert.setHeaderText(alert.getTitle());
+        Optional<ButtonType> pressed = alert.showAndWait();
+        return ButtonType.OK == pressed.orElse(ButtonType.CANCEL);
+    }
+
+    /**
+     * Shows an error dialog to the user, with an OK button
+     * 
+     * 
+     */
+    @OnThread(Tag.FXPlatform)
+    public static void errorDialog(String titleLabel, String messageLabel)
+    {
+        Alert alert = new Alert(Alert.AlertType.ERROR, Config.getString(messageLabel), ButtonType.OK);
+        alert.setTitle(Config.getString(titleLabel));
+        alert.setHeaderText(alert.getTitle());
+        alert.showAndWait();
     }
 
     /**
