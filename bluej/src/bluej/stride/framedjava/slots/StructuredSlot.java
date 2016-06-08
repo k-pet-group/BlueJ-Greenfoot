@@ -80,6 +80,7 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.FocusParent;
 import bluej.stride.slots.HeaderItem;
+import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SuggestionList;
 import bluej.stride.slots.SuggestionList.SuggestionDetails;
@@ -1269,23 +1270,14 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                     CaretPos caretPos = getTopLevel().getCurrentPos();
                     Debug.message("Scanning position: " + caretPos);
 
-                    List<? extends PossibleLink> possibleLinks = findLinks();
+                    FXPlatformConsumer<Optional<LinkedIdentifier>> withLink = optLink -> {
+                        removeScanning();
+                        optLink.ifPresent(defLink -> {
+                            items.add(MenuItemOrder.GOTO_DEFINITION.item(JavaFXUtil.makeMenuItem("Go to definition of \"" + defLink.getName() + "\"", defLink.getOnClick(), null)));
+                        });
+                    };
 
-                    possibleLinks.removeIf(possLink -> {
-                        CaretPos startCaretPos = javaPosToCaretPos(possLink.getStartPosition());
-                        CaretPos endCaretPos = javaPosToCaretPos(possLink.getEndPosition());
-
-                        return !CaretPos.between(startCaretPos, endCaretPos, caretPos);
-                    });
-
-                    possibleLinks.forEach(possLink ->
-                            editor.searchLink(possLink, optLink -> {
-                                removeScanning();
-                                optLink.ifPresent(defLink -> {
-                                    items.add(MenuItemOrder.GOTO_DEFINITION.item(JavaFXUtil.makeMenuItem("Go to definition of \"" + defLink.getName() + "\"", defLink.getOnClick(), null)));
-                                });
-                            })
-                    );
+                    withLinksAtPos(caretPos, withLink);
 
                     // Hack for now, to make scanning disappear if nothing is found:
                     JavaFXUtil.runAfter(Duration.millis(1000), this::removeScanning);
@@ -1300,6 +1292,22 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         
         return itemMap;
     }
+
+    //package-visible
+    void withLinksAtPos(CaretPos caretPos, FXPlatformConsumer<Optional<LinkedIdentifier>> withLink)
+    {
+        List<? extends PossibleLink> possibleLinks = findLinks();
+
+        possibleLinks.removeIf(possLink -> {
+            CaretPos startCaretPos = javaPosToCaretPos(possLink.getStartPosition());
+            CaretPos endCaretPos = javaPosToCaretPos(possLink.getEndPosition());
+
+            return !CaretPos.between(startCaretPos, endCaretPos, caretPos);
+        });
+
+        possibleLinks.forEach(possLink -> editor.searchLink(possLink, withLink));
+    }
+
     @Override
     @OnThread(Tag.FXPlatform)
     public Response suggestionListKeyPressed(KeyEvent event, int highlighted)
