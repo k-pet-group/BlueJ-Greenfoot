@@ -198,7 +198,7 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     }
 
     // Package-visible
-    InfixStructured getContent()
+    INFIX getContent()
     {
         return content;
     }

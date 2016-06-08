@@ -21,13 +21,24 @@
  */
 package bluej.stride.framedjava.slots;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javafx.application.Platform;
 
+import bluej.stride.framedjava.ast.ExpressionSlotFragment;
+import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.Parser;
+import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.ast.links.PossibleMethodUseLink;
+import bluej.stride.framedjava.ast.links.PossibleTypeLink;
+import bluej.stride.framedjava.ast.links.PossibleVarLink;
+import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
@@ -378,5 +389,95 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
         StructuredSlotField field = super.makeNewField(content, stringLiteral);
         JavaFXUtil.addChangeListener(field.textProperty(), t -> queueUpdatePromptsInMethodCalls());
         return field;
+    }
+
+    public List<? extends PossibleLink> findLinks(Optional<Character> surroundingBracket, Map<String, CodeElement> vars, Function<Integer, JavaFragment.PosInSourceDoc> posCalculator, int offset)
+    {
+        final List<PossibleLink> r = new ArrayList<>();
+
+        // Consume next compound identifier:
+        int cur = 0;
+        int beginningSlot = cur;
+        int endSlot = cur;
+        int endLength = -1;
+        String curOperand = "";
+        while (cur < fields.size())
+        {
+            if (fields.get(cur) instanceof StructuredSlotField)
+            {
+                final StructuredSlotField expressionSlotField = (StructuredSlotField) fields.get(cur);
+
+                if (expressionSlotField.getText().equals("class") && curOperand.endsWith("."))
+                {
+                    // What went before is assumed to be a type:
+                    r.add(new PossibleTypeLink(curOperand.substring(0, curOperand.length() - 1),
+                        offset+caretPosToStringPos(new CaretPos(beginningSlot, new CaretPos(0, null)), false),
+                        offset+caretPosToStringPos(new CaretPos(endSlot, new CaretPos(endLength, null)), false), getSlot()));
+                }
+
+                if (curOperand.equals(""))
+                    beginningSlot = cur;
+                curOperand += expressionSlotField.getText();
+                endSlot = cur;
+                endLength = expressionSlotField.getText().length();
+
+                if (cur < operators.size() && operators.get(cur) == null)
+                {
+                    // Must be a bracket next.  If round, this will be a method call, but handled below.
+                }
+                else if (cur < operators.size() && operators.get(cur).get().equals("."))
+                {
+                    // Fine, carry on building up the identifier
+                    curOperand += ".";
+                }
+                else
+                {
+                    // end of operand, File it away:
+
+                    if (cur == operators.size() && beginningSlot == 0 && surroundingBracket.isPresent() && surroundingBracket.get() == '(')
+                    {
+                        // Item took up whole length of bracket; may well be a type:
+                        r.add(new PossibleTypeLink(curOperand,
+                            offset+caretPosToStringPos(new CaretPos(beginningSlot, new CaretPos(0, null)), false),
+                            offset+caretPosToStringPos(new CaretPos(endSlot, new CaretPos(endLength, null)), false), getSlot()));
+                    }
+
+                    if (cur == beginningSlot)
+                    {
+                        // Plain (no dots):
+                        if (vars != null)
+                        {
+                            CodeElement el = vars.get(curOperand);
+                            if (el != null)
+                                r.add(new PossibleVarLink(curOperand, el,
+                                    offset+caretPosToStringPos(new CaretPos(beginningSlot, new CaretPos(0, null)), false),
+                                    offset+caretPosToStringPos(new CaretPos(endSlot, new CaretPos(endLength, null)), false), getSlot()));
+                        }
+                    }
+
+                    curOperand = "";
+                }
+            }
+            else if (fields.get(cur) instanceof BracketedStructured)
+            {
+                StructuredSlotField prev = (StructuredSlotField) fields.get(cur - 1);
+                int innerOffset = 1 + offset + caretPosToStringPos(new CaretPos(cur - 1, new CaretPos(prev.getText().length(), null)), false);
+                BracketedStructured<InfixExpression, ExpressionSlot<?>> be = (BracketedStructured<InfixExpression, ExpressionSlot<?>>)fields.get(cur);
+                r.addAll(be.getContent().findLinks(Optional.of(be.getOpening()), vars, posCalculator, innerOffset));
+
+                if (!curOperand.equals("") && be.getOpening() == '(')
+                {
+                    // curOperand is assumed to have been a method call:
+                    final int endSlotFinal = endSlot;
+                    r.add(new PossibleMethodUseLink(curOperand.substring(curOperand.indexOf(".") + 1), be.getContent().getSimpleParameters().size(), () -> posCalculator.apply(offset+caretPosToStringPos(new CaretPos(endSlotFinal, new CaretPos(0, null)), true)),
+                        offset+caretPosToStringPos(new CaretPos(endSlot, new CaretPos(0, null)), false),
+                        offset+caretPosToStringPos(new CaretPos(endSlot, new CaretPos(endLength, null)), false), getSlot()));
+                }
+            }
+
+            cur += 1;
+        }
+
+        return r;
     }
 }
