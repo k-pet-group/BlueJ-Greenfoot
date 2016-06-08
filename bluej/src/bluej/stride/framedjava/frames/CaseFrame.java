@@ -230,6 +230,7 @@ public class CaseFrame extends SingleCanvasFrame
     @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
+        // no curly brackets enclosing the inner statements
         super.setView(oldView, newView, animateProgress);
         opening.setText(newView == View.JAVA_PREVIEW ? "" : "(");
         // Re-use closing as colon syntax:

@@ -295,8 +295,6 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
         super.setView(oldView, newView, animateProgress);
         JavaFXUtil.setPseudoclass("bj-java-preview", newView == View.JAVA_PREVIEW, sidebar.getStyleable());
         canvas.getCursors().forEach(c -> c.setView(newView, animateProgress));
-        if (isFrameEnabled()  && (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW))
-            canvas.previewCurly(newView == View.JAVA_PREVIEW, header.getLeftFirstItem() + tweakCurlyX(), tweakOpeningCurlyY(), animateProgress);
         canvas.setView(oldView, newView, animateProgress);
     }
 

@@ -51,6 +51,7 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
+import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -63,7 +64,7 @@ public class WhileFrame extends SingleCanvasFrame
 {
     private final ExpressionSlot<FilledExpressionSlotFragment> paramCondition;
     private WhileElement element;
-    
+
     /**
      * Default constructor.
      */
@@ -256,5 +257,13 @@ public class WhileFrame extends SingleCanvasFrame
     public BreakEncloser asBreakEncloser()
     {
         return BreakEncloser.WHILE;
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) void setView(View oldView, View newView, SharedTransition animateProgress)
+    {
+        super.setView(oldView, newView, animateProgress);
+        if (isFrameEnabled()  && (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW))
+            canvas.previewCurly(newView == View.JAVA_PREVIEW, header.getLeftFirstItem() + tweakCurlyX(), tweakOpeningCurlyY(), animateProgress);
     }
 }

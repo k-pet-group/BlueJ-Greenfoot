@@ -67,7 +67,6 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.ChoiceSlot;
 import bluej.stride.slots.FormalParameters;
 import bluej.stride.slots.Throws;
-import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
@@ -445,6 +444,9 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
                 JavaFXUtil.setPseudoclass("bj-birdseye-doc", newView == View.BIRDSEYE_DOC, getNode(), canvas.getNode());
             }
         });
+
+        if (isFrameEnabled()  && (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW))
+            canvas.previewCurly(newView == View.JAVA_PREVIEW, header.getLeftFirstItem() + tweakCurlyX(), tweakOpeningCurlyY(), animate);
     }
 
     protected void restoreDetails(MethodWithBodyElement nme)

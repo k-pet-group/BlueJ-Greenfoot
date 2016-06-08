@@ -51,7 +51,6 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
-import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.stride.slots.VariableNameDefTextSlot;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.utility.Utility;
@@ -214,6 +213,9 @@ public class ForeachFrame extends SingleCanvasFrame
         String caption = newView == View.JAVA_PREVIEW ? "for" : "for each";
         headerCaptionLabel.setText(caption);
         inLabel.setText(newView == View.JAVA_PREVIEW ? (collection.isConstantRange() ? " = " : " : ") : " in ");
+
+        if (isFrameEnabled()  && (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW))
+            canvas.previewCurly(newView == View.JAVA_PREVIEW, header.getLeftFirstItem() + tweakCurlyX(), tweakOpeningCurlyY(), animateProgress);
     }
     
     @Override
