@@ -1160,7 +1160,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     
     /**
      * Sets the given view.
-     * @param view
+     * @param oldView the view transferring from
+     * @param newView the new view selected
      * @param animation A class to hook into to synchronise animations
      */
     @OnThread(Tag.FXPlatform)
