@@ -527,4 +527,69 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     }
 
     abstract protected Frame findASpecialMethod();
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public void setView(View oldView, View newView, SharedTransition animateProgress)
+    {
+        super.setView(oldView, newView, animateProgress);
+        boolean java = newView == View.JAVA_PREVIEW;
+        if (java || oldView == View.JAVA_PREVIEW) {
+            fieldsCanvas.previewCurly(java, true, false, header.getLeftFirstItem(), null, animateProgress);
+            methodsCanvas.previewCurly(java, false, true, header.getLeftFirstItem(), null, animateProgress);
+        }
+
+        getCanvases().forEach(canvas -> {
+            canvas.setView(oldView, newView, animateProgress);
+            canvas.getCursors().forEach(c -> c.setView(newView, animateProgress));
+        });
+
+        animateLabelRows(newView, animateProgress);
+        // Always show imports in Java preview:
+        if (java)
+            importTriangleLabel.expandedProperty().set(true);
+            // And don't show in bird's eye:
+        else if (newView.isBirdseye())
+            importTriangleLabel.expandedProperty().set(false);
+
+        animateCanvasLabels(oldView, newView, animateProgress);
+    }
+
+    private void animateLabelRows(View newView, SharedTransition animateProgress)
+    {
+        final List<FrameContentRow> labelRows = getLabelRows();
+        if (newView == View.NORMAL)
+        {
+            animateProgress.addOnStopped(() -> {
+                importTriangleLabel.setVisible(true);
+                importTriangleLabel.setManaged(true);
+                labelRows.forEach(r -> r.setSnapToPixel(true));
+            });
+        }
+        else
+        {
+            labelRows.forEach(r -> r.setSnapToPixel(false));
+            importTriangleLabel.setVisible(false);
+            importTriangleLabel.setManaged(false);
+        }
+    }
+
+    protected abstract List<FrameContentRow> getLabelRows();
+
+
+    private void animateCanvasLabels(View oldView, View newView, SharedTransition animateProgress)
+    {
+        List<SlotLabel> animateLabels = getCanvasLabels();
+        if (newView == View.JAVA_PREVIEW)
+        {
+            animateLabels.forEach(l -> l.shrinkVertically(animateProgress));
+        }
+        else if (oldView == View.JAVA_PREVIEW)
+        {
+            animateLabels.forEach(l -> l.growVertically(animateProgress));
+        }
+    }
+
+    protected abstract List<SlotLabel> getCanvasLabels();
+
 }

@@ -702,56 +702,24 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
         super.setView(oldView, newView, animateProgress);
-        boolean java = newView == View.JAVA_PREVIEW;
-        //Debug.message("Setting view: " + view + " " + java);
-        if (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW)
-        {
-            fieldsCanvas.previewCurly(java, true, false, header.getLeftFirstItem(), null, animateProgress);
-            methodsCanvas.previewCurly(java, false, true, header.getLeftFirstItem(), null, animateProgress);
-        }
-
-        getCanvases().forEach(canvas -> {
-            canvas.setView(oldView, newView, animateProgress);
-            canvas.getCursors().forEach(c -> c.setView(newView, animateProgress));
-        });
-
         if (!extendsInheritedCanvases.isEmpty())
         {
             if (newView != View.NORMAL)
                 inheritedLabel.expandedProperty().set(false);
         }
         inheritedLabel.setVisible(newView == View.NORMAL);
-        final List<FrameContentRow> labelRows = Arrays.asList(importRow, fieldsLabelRow, constructorsLabelRow, methodsLabelRow);
-        if (newView == View.NORMAL)
-        {
-            animateProgress.addOnStopped(() -> {
-                importTriangleLabel.setVisible(true);
-                importTriangleLabel.setManaged(true);
-                labelRows.forEach(r -> r.setSnapToPixel(true));
-            });
-        }
-        else
-        {
-            labelRows.forEach(r -> r.setSnapToPixel(false));
-            importTriangleLabel.setVisible(false);
-            importTriangleLabel.setManaged(false);
-        }
-        // Always show imports in Java preview:
-        if (java)
-            importTriangleLabel.expandedProperty().set(true);
-        // And don't show in bird's eye:
-        else if (newView.isBirdseye())
-            importTriangleLabel.expandedProperty().set(false);
+    }
 
-        List<SlotLabel> animateLabels = Arrays.asList(importsLabel, fieldsLabel, constructorsLabel, methodsLabel);
-        if (java)
-        {
-            animateLabels.forEach(l -> l.shrinkVertically(animateProgress));
-        }
-        else if (oldView == View.JAVA_PREVIEW)
-        {
-            animateLabels.forEach(l -> l.growVertically(animateProgress));
-        }
+    @Override
+    protected List<FrameContentRow> getLabelRows()
+    {
+        return Arrays.asList(importRow, fieldsLabelRow, constructorsLabelRow, methodsLabelRow);
+    }
+
+    @Override
+    protected List<SlotLabel> getCanvasLabels()
+    {
+        return Arrays.asList(importsLabel, fieldsLabel, constructorsLabel, methodsLabel);
     }
 
     public void compiled()
