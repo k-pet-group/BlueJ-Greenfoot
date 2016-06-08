@@ -129,14 +129,16 @@ class CaretPos
         // If bounds are both empty, must be inbetween
         if (start == null && end == null)
             return true;
-        // If at least one bound is present, and target is not null, is not inside: 
+        // If at least one bound is present, and target is null, is not inside: 
         else if (p == null)
             return false;
         
         if ((start == null || start.index <= p.index) && (end == null || p.index <= end.index))
         {
-            // Matches at this level; dig down:
-            return between(start == null ? null : start.subPos, end == null ? null : end.subPos, p.subPos);
+            // Matches at this level; dig down.
+            // We pass the subpositions for start/end if they match p at this level.  If they don't,
+            // e.g. start is 2->2, p is 3->0, we pass null because we know it's past that bound.
+            return between(start == null || start.index < p.index ? null : start.subPos, end == null || p.index < end.index ? null : end.subPos, p.subPos);
         }
         else
         {

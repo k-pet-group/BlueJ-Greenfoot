@@ -128,16 +128,21 @@ public class InfixType extends InfixStructured<TypeSlot, InfixType>
         int startField = 0;
         StringBuilder type = new StringBuilder(fields.get(0).getCopyText(null, null));
         
+        // We do a final iteration for i == fields.size() to process the content of the final field.
         for (int i = 1; i <= fields.size(); i++)
         {
-            if (i >= operators.size() || (operators.get(i) != null && !operators.get(i).get().equals(".")))
+            if (i - 1 >= operators.size() || operators.get(i - 1) == null || !operators.get(i - 1).get().equals("."))
             {
-                int start = caretPosToStringPos(new CaretPos(startField, fields.get(startField).getStartPos()), false);
-                int end = caretPosToStringPos(new CaretPos(i - 1, fields.get(i - 1).getEndPos()), false);
-                if (start != end)
+                int start = slot.getTopLevel().caretPosToStringPos(absolutePos(new CaretPos(startField, fields.get(startField).getStartPos())), false);
+                int end = slot.getTopLevel().caretPosToStringPos(absolutePos(new CaretPos(i - 1, fields.get(i - 1).getEndPos())), false);
+                if (start != end && type.length() > 0)
                     links.add(new PossibleTypeLink(type.toString(), start, end, slot));
                 type = new StringBuilder();
                 startField = i;
+            }
+            else
+            {
+                type.append(operators.get(i - 1).get());
             }
             if (i >= fields.size())
                 break;
