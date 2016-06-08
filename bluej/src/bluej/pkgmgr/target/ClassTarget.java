@@ -99,7 +99,6 @@ import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.role.AbstractClassRole;
-import bluej.pkgmgr.target.role.AppletClassRole;
 import bluej.pkgmgr.target.role.ClassRole;
 import bluej.pkgmgr.target.role.EnumClassRole;
 import bluej.pkgmgr.target.role.InterfaceClassRole;
@@ -234,10 +233,7 @@ public class ClassTarget extends DependentTarget
         // wrong, its no great shame as it'll be fixed the first time they
         // successfully analyse/compile the source.
         if (template != null) {
-            if (template.startsWith("applet")) {
-                role = new AppletClassRole();
-            }
-            else if (template.startsWith("unittest")) {
+            if (template.startsWith("unittest")) {
                 role = new UnitTestClassRole(true);
             }
             else if (template.startsWith("abstract")) {
@@ -529,7 +525,6 @@ public class ClassTarget extends DependentTarget
             
             ClassLoader clLoader = cl.getClassLoader();
             Class<?> junitClass = null;
-            Class<?> appletClass = null;
 
             // It shouldn't ever be the case that the class is on the bootstrap
             // class path (and was loaded by the bootstrap class loader), unless
@@ -542,29 +537,16 @@ public class ClassTarget extends DependentTarget
                 }
                 catch (ClassNotFoundException cnfe) {}
                 catch (LinkageError le) {}
-
-                try {
-                    appletClass = clLoader.loadClass("java.applet.Applet");
-                }
-                catch (ClassNotFoundException cnfe) {}
-                catch (LinkageError le) {}
             }
             
             if (junitClass == null) {
                 junitClass = junit.framework.TestCase.class;
             }
-            
-            if (appletClass == null) {
-                appletClass = java.applet.Applet.class;
-            }
-            
+
             // As cl is non-null, it is the definitive information
             // source ie. if it thinks its an applet who are we to argue
             // with it.
-            if (appletClass.isAssignableFrom(cl)) {
-                setRole(new AppletClassRole());
-            }
-            else if (junitClass.isAssignableFrom(cl)) {
+            if (junitClass.isAssignableFrom(cl)) {
                 setRole(new UnitTestClassRole(false));
             }
             else if (Modifier.isInterface(cl.getModifiers())) {
@@ -588,10 +570,7 @@ public class ClassTarget extends DependentTarget
             ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
 
             if (classInfo != null) {
-                if (classInfo.isApplet()) {
-                    setRole(new AppletClassRole());
-                }
-                else if (classInfo.isUnitTest()) {
+                if (classInfo.isUnitTest()) {
                     setRole(new UnitTestClassRole(false));
                 }
                 else if (classInfo.isInterface()) {
@@ -607,8 +586,7 @@ public class ClassTarget extends DependentTarget
                     // We shouldn't override applet/unit test class roles based only
                     // on source analysis: if they inherit only indirectly from Applet
                     // or UnitTest, source analysis won't give the correct role
-                    if (! (role instanceof AppletClassRole) &&
-                            ! (role instanceof UnitTestClassRole))
+                    if (! (role instanceof UnitTestClassRole))
                     {
                         setRole(new StdClassRole());
                     }
@@ -640,10 +618,7 @@ public class ClassTarget extends DependentTarget
         String intf = props.getProperty(prefix + ".showInterface");
         openWithInterface = Boolean.valueOf(intf).booleanValue();
 
-        if (AppletClassRole.APPLET_ROLE_NAME.equals(type)) {
-            setRole(new AppletClassRole());
-        }
-        else if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type)) {
+        if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type)) {
             setRole(new UnitTestClassRole(false));
         }
         else if (UnitTestClassRole.UNITTEST_ROLE_NAME_JUNIT4.equals(type)) {

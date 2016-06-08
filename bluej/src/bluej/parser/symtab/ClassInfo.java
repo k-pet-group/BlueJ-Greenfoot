@@ -47,7 +47,6 @@ import bluej.utility.SortedProperties;
  */
 public final class ClassInfo
 {
-    private static final String[] appletClasses = { "java.applet.Applet", "javax.swing.JApplet" };
     private static final String[] unitTestClasses = { "junit.framework.TestCase" };
 
     private boolean foundPublicClass = false;
@@ -69,7 +68,6 @@ public final class ClassInfo
 
     private boolean isInterface = false;
     private boolean isAbstract = false;
-    private boolean isApplet = false;
     private boolean isUnitTest = false;
     private boolean isEnum = false;
     
@@ -136,12 +134,6 @@ public final class ClassInfo
         superclass = name;
         if(used.contains(name)) {
             used.remove(name);
-        }
-
-        for (int i = 0; i < appletClasses.length; i++) {
-            if(name.equals(appletClasses[i])) {
-                isApplet = true;
-            }
         }
 
         for (int i = 0; i < unitTestClasses.length; i++) {
@@ -511,11 +503,6 @@ public final class ClassInfo
     public boolean isAbstract()
     {
         return this.isAbstract;
-    }
-
-    public boolean isApplet()
-    {
-        return this.isApplet;
     }
     
     public boolean isUnitTest()

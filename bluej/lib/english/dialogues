@@ -48,8 +48,6 @@ cannot-access-element
 Unable to access the array
 element specified.
 
-appletviewer-error
-Error executing applet in appletviewer.
 
 error-no-name
 You must specify a valid name.
@@ -240,10 +238,6 @@ no-bluej-package
 Error in opening package.
 The file/directory is not
 a BlueJ package:
-
-applet-height-width
-Applet height and width
-must be specified.
 
 not-yet-implemented
 Not Yet Implemented - sorry.

@@ -90,7 +90,6 @@
     <patternset id="bluej.examples">
         <exclude name="**/*.pkh" />
         <exclude name="**/.#*" />
-        <include name="examples/appletdemo/" />
         <include name="examples/debugdemo/" />
         <include name="examples/hello/" />
         <include name="examples/people/" />
