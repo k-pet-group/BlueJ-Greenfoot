@@ -35,7 +35,6 @@ import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ImportElement;
-import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.Frame;
@@ -160,9 +159,9 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             t -> extendsInheritedCanvases.forEach(c -> c.shrink(t)), new SimpleBooleanProperty(false));
         // Only enable the Label when we have inherited info available:
         inheritedLabel.setDisable(true);
-        extendsInheritedCanvases.addListener((ListChangeListener<? super InheritedCanvas>) c -> {
-            inheritedLabel.setDisable(extendsInheritedCanvases.isEmpty());
-        });
+        extendsInheritedCanvases.addListener((ListChangeListener<? super InheritedCanvas>) c ->
+            inheritedLabel.setDisable(extendsInheritedCanvases.isEmpty())
+        );
         JavaFXUtil.addChangeListener(inheritedLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
 
         // We must keep hold of an explicit reference to this binding, rather than inlining it.
@@ -198,8 +197,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         List<ImportElement> imports = Utility.mapList(getMembers(importCanvas), e -> (ImportElement)e);
         element = new ClassElement(this, projectResolver, abstractModifier.get(), paramName.getSlotElement(),
                     showingExtends.get() && !extendsSlot.getText().equals("") ? extendsSlot.getSlotElement() : null,
-                    implementsSlot.getTypes(), fields, constructors, methods,
-                    new JavadocUnit(getDocumentation()), packageSlot == null ? null : packageSlot.getSlotElement(), imports, frameEnabledProperty.get());
+                    implementsSlot.getTypes(), fields, constructors, methods, new JavadocUnit(getDocumentation()),
+                    packageSlot == null ? null : packageSlot.getSlotElement(), imports, frameEnabledProperty.get());
     }
 
     @Override
@@ -272,13 +271,11 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         if (fieldsCanvas.equals(canvas) || canvas == null) {
             abstractExtension = new ExtensionDescription(StrideDictionary.ABSTRACT_EXTENSION_CHAR, "Toggle abstract",
                     () -> abstractModifier.set(!abstractModifier.get()), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
-            implementsExtension = new ExtensionDescription(StrideDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration", () -> {
-                implementsSlot.addTypeSlotAtEnd("", true);
-            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
+            implementsExtension = new ExtensionDescription(StrideDictionary.IMPLEMENTS_EXTENSION_CHAR, "Add implements declaration",
+                    () -> implementsSlot.addTypeSlotAtEnd("", true), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
             if (!showingExtends.get()) {
-                extendsExtension = new ExtensionDescription(StrideDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration", () -> {
-                    showAndFocusExtends();
-                }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
+                extendsExtension = new ExtensionDescription(StrideDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration",
+                        () -> showAndFocusExtends(), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER);
             }
         }
 
@@ -299,11 +296,6 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         if (extendsInheritedCanvases.isEmpty()) {
             updateInheritedItems();
         }
-    }
-
-    public void addDefaultConstructor()
-    {
-        constructorsCanvas.getFirstCursor().insertBlockAfter(ConstructorFrame.getFactory().createBlock(editor));
     }
 
     private Comparator<String> getSuperClassComparator()
@@ -332,7 +324,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     private void updateInheritedItems()
     {
         // Add available frames:
-        withInheritedItems(new HashSet<CompletionKind>(Arrays.asList(CompletionKind.FIELD, CompletionKind.METHOD)), membersByClass ->
+        withInheritedItems(new HashSet<>(Arrays.asList(CompletionKind.FIELD, CompletionKind.METHOD)), membersByClass ->
         {
             if (inheritedEquals(membersByClass, curMembersByClass))
             {
@@ -665,16 +657,23 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     }
 
     @Override
-    public List<NormalMethodFrame> getMethods()
+    public void addDefaultConstructor()
     {
-        // abstract methods?
-        return methodsCanvas.getBlocksSubtype(NormalMethodFrame.class);
+        constructorsCanvas.getFirstCursor().insertBlockAfter(ConstructorFrame.getFactory().createBlock(editor));
     }
 
     @Override
     public List<ConstructorFrame> getConstructors()
     {
         return constructorsCanvas.getBlocksSubtype(ConstructorFrame.class);
+    }
+
+
+    @Override
+    public List<NormalMethodFrame> getMethods()
+    {
+        // abstract methods?
+        return methodsCanvas.getBlocksSubtype(NormalMethodFrame.class);
     }
 
     public FrameCanvas getConstructorsCanvas()
