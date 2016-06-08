@@ -310,7 +310,6 @@ public class TestTypeSlot
     @Test
     public void testFloating()
     {
-        //TODOTYPESLOT make this test pass
         testInsert("1.0", "{1}.{0$}");
         testInsert("10.20", "{10}.{20$}");
         testInsert("a.0", "{a}.{0$}");

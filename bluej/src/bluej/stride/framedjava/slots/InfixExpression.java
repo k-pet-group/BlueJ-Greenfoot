@@ -480,4 +480,10 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
 
         return r;
     }
+
+    @Override
+    protected boolean supportsFloatLiterals()
+    {
+        return true;
+    }
 }

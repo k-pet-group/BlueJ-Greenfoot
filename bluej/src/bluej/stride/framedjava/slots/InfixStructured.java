@@ -1786,6 +1786,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     {
         if (fields.get(index) instanceof StringLiteralExpression)
             return pos; // No need to do this for string literals
+
         StructuredSlotField f = (StructuredSlotField)fields.get(index);
         String prevOp = (index > 0 && operators.get(index - 1) != null)
                 ? operators.get(index - 1).get() : "";
@@ -1804,8 +1805,8 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             // We need to check if the start of the field is all numbers
             // If it is, then this dot is part of a floating point literal,
             // and we should not split
-            boolean isDoubleDot = afterDot.startsWith(".");
-            if (!precedesDotInFloatingPointLiteral(beforeDot) || isDoubleDot /* two dots is operator */)
+            boolean isDoubleDot = isOperator("..") && afterDot.startsWith(".");
+            if (!supportsFloatLiterals() || !precedesDotInFloatingPointLiteral(beforeDot) || isDoubleDot /* two dots is operator */)
             {
                 f.setText(beforeDot, token);
                  
@@ -1820,20 +1821,6 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     
                     operators.add(index, new Operator(".", this), token);
                     fields.add(index + 1, makeNewField(afterDot, false), token);
-                    if (beforeDot.equals("") && afterDot.equals("") && addedDot
-                            && index >= 2
-                            && fields.get(index - 1) instanceof BracketedStructured
-                            && fields.get(index - 2) instanceof StructuredSlotField
-                            && !((StructuredSlotField)fields.get(index - 2)).getText().equals("")
-                            && operators.get(index - 2) == null
-                            && operators.get(index - 1) == null
-                            && false) // TODO: see tasks.txt
-                    {
-                        operators.add(index+1, null, token);
-                        fields.add(index+2, new BracketedStructured(editor, this, slot, '(', "", token), token);
-                        operators.add(index+2, null, token);
-                        fields.add(index+3, makeNewField("", false), token);
-                    }
                     
                     // If a dot is entered and code completion was showing, re-trigger it in the new field:
                     // We use runLater to make sure the state is all settled before showing the completion:
@@ -1862,7 +1849,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             // But we still need to continue in case plus or minus was just added, or second dot...
         }
                 
-        if (precedesDotInFloatingPointLiteral(f.getText()) && nextOp.equals("."))
+        if (supportsFloatLiterals() && precedesDotInFloatingPointLiteral(f.getText()) && nextOp.equals("."))
         {
             // Need to merge dot back in:
             int prevLen = f.getText().length();
@@ -1959,6 +1946,11 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         return pos;
         
     }
+
+    /**
+     * Does this structured slot support floating point literals?  True for expression slots, false for type slots
+     */
+    protected abstract boolean supportsFloatLiterals();
 
     private boolean precedesPlusMinusInFloatingPointLiteral(String before) {
         return before.matches("\\A\\s*0x" + HEX_DIGITS_REGEX + "(\\.(" + HEX_DIGITS_REGEX +")?)?[pP]\\z") || 

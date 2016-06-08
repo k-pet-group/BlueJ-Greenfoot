@@ -159,4 +159,10 @@ public class InfixType extends InfixStructured<TypeSlot, InfixType>
 
         return links;
     }
+
+    @Override
+    protected boolean supportsFloatLiterals()
+    {
+        return false;
+    }
 }
