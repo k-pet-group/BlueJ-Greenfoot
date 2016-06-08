@@ -270,7 +270,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     //private final HBox components = new HBox();
     private final ObservableList<Node> components = FXCollections.observableArrayList();
     protected final BracketedStructured<INFIX, SLOT> parent; // null if top-level
-    private final Set<Character> closingChars = new HashSet<>(); // Empty if we are top-level
+    // The characters which cause us to go up a level (e.g. a closing bracket) or
+    // move to the next slot
+    private final Set<Character> closingChars = new HashSet<>();
     
     private final InteractionManager editor;
     protected final SLOT slot; // Can be null when testing, but otherwise non-null

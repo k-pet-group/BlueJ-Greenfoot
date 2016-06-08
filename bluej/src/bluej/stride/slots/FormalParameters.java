@@ -106,7 +106,6 @@ public class FormalParameters
         };
         final TypeSlot typeSlot = new TypeSlot(editor, parentFrame, codeParentFrame, row, TypeSlot.Role.DECLARATION, stylePrefix)
         {
-            /*TODOTYPESLOT
             @Override
             protected BooleanExpression getFreshExtra(CodeError err)
             {
@@ -114,7 +113,7 @@ public class FormalParameters
                     return freshProperty;
                 else
                     return super.getFreshExtra(err);
-            }*/
+            }
 
             @Override
             public void lostFocus()
@@ -147,14 +146,25 @@ public class FormalParameters
                     Platform.runLater(checkStillFocused);
             }
         };
-        TypeSlot paramType = typeSlot; //TODOTYPESLOT there is more to add back from initialiseTextSlot
+        TypeSlot paramType = typeSlot;
         paramType.setText(type);
         paramType.setSimplePromptText("paramType");
-        TextSlot<NameDefSlotFragment> paramName = initialiseTextSlot("paramName", name, false, nameSlot);
+        paramType.addClosingChar(' ');
+        paramType.addFocusListener(parentFrame);
+        paramType.addBackspaceAtStartListener(() -> backSpacePressedAtStart(paramType));
+        paramType.addDeleteAtEndListener(() -> deletePressedAtEnd(paramType));
+        paramType.onTopLevelComma((before, after) -> {
+            FormalParameter newFormal = addNewBefore(findFormal(paramType));
+            newFormal.getName().setText(before);
+            paramType.setText(after);
+            // Keep focus in type slot, at start:
+            Platform.runLater(() -> paramType.requestFocus(Focus.LEFT));
+        });
+        TextSlot<NameDefSlotFragment> paramName = initialiseTextSlot("paramName", name, nameSlot);
         
         return new FormalParameter(paramType, paramName);
     }
-    private <F extends TextSlotFragment> TextSlot<F> initialiseTextSlot(String promptText, F value, boolean isType, TextSlot<F> textSlot)
+    private <F extends TextSlotFragment> TextSlot<F> initialiseTextSlot(String promptText, F value, TextSlot<F> textSlot)
     {
         textSlot.setPromptText(promptText);
         textSlot.setText(value);
@@ -163,23 +173,13 @@ public class FormalParameters
             public boolean valueChanged(HeaderItem slot, String oldValue, String newValue, FocusParent<HeaderItem> parent)
             {
                 if (newValue.contains(",")) {
-                    if (isType) {
-                        if (findFormal(slot).getName().isFocused()) {
-                            //name is focused, add new after
-                            Platform.runLater(() -> addNewAfter(findFormal(slot)).requestFocus(Focus.LEFT));
-                        }
-                        else if (findFormal(slot).getType().isFocused()) {
-                            Platform.runLater(() -> addNewBefore(findFormal(slot)).requestFocus(Focus.LEFT));
-                        }
-                    }
-                    else {
-                        Platform.runLater(() -> addNewAfter(findFormal(slot)).requestFocus(Focus.LEFT));
-                    }
+                    FormalParameter newFormal = addNewAfter(findFormal(slot));
+                    Platform.runLater(() -> newFormal.requestFocus(Focus.LEFT));
                     return false;
                 }
 
                 if (newValue.contains(")")) {
-                    if (!isType && newValue.endsWith(")")) {
+                    if (newValue.endsWith(")")) {
                         parent.focusRight(textSlot);
                     }
                     return false;
@@ -355,7 +355,7 @@ public class FormalParameters
      *   Otherwise, delete parameter beforehand.
      *   (Note: if both are blank, it doesn't matter which we delete)
      */
-    private void backSpacePressedAtStart(HeaderItem slot)
+    private boolean backSpacePressedAtStart(HeaderItem slot)
     {
         FormalParameter formal = findFormal(slot);
         if (formal.getType() == slot)
@@ -367,6 +367,7 @@ public class FormalParameters
             {
                 // We are first parameter, just move left from us into method name:
                 row.focusLeft(formal.getType());
+                return true;
             }
             else
             {
@@ -376,6 +377,7 @@ public class FormalParameters
                     // We are; delete us and focus the right hand end of parameter before us:
                     deleteFormal(formal);
                     params.get(index - 1).getName().requestFocus(Focus.RIGHT);
+                    return true;
                 }
                 else
                 {
@@ -389,8 +391,9 @@ public class FormalParameters
             // Backspace at beginning of name.
             // Just move left, to end of type slot:
             formal.getType().requestFocus(Focus.RIGHT);
+            return true;
         }
-
+        return false;
     }
 
     /**
@@ -414,7 +417,7 @@ public class FormalParameters
      * 6 [end of name of last param]:
      *   Do nothing
      */
-    private void deletePressedAtEnd(HeaderItem slot)
+    private boolean deletePressedAtEnd(HeaderItem slot)
     {
         FormalParameter formal = findFormal(slot);
         if (formal.getType() == slot)
@@ -431,6 +434,7 @@ public class FormalParameters
                 deleteFormal(params.get(index+1));
             }
         }
+        return false;
     }
     
     private void deleteFormal(FormalParameter param)

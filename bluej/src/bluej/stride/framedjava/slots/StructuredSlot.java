@@ -39,8 +39,10 @@ import bluej.stride.framedjava.slots.InfixStructured.RangeType;
 import bluej.stride.generic.ExtensionDescription;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -394,8 +396,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     public void addError(CodeError err)
     {
         allErrors.add(err);
-        err.bindFresh(getParentFrame().freshProperty(), editor);
+        err.bindFresh(getFreshExtra(err).or(getParentFrame().freshProperty()), editor);
         recalculateShownErrors();
+    }
+
+    protected BooleanExpression getFreshExtra(CodeError err)
+    {
+        return new ReadOnlyBooleanWrapper(false);
     }
     
     @Override
