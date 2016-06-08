@@ -570,10 +570,10 @@
 }
 .switch-sidelabel { -fx-text-fill: switch-sidelabel; }
 .switch-sidelabel:bj-java-preview { -fx-text-fill: switch-frame-java; }
-.case-frame, .default-case-frame, .case-frame:bj-java-preview, .default-case-frame:bj-java-preview {
+.case-frame, .case-frame:bj-java-preview {
    -fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;
  }
-.case-sidelabel, .default-case-sidelabel { -fx-text-fill: transparent; }
+.case-sidelabel { -fx-text-fill: transparent; }
 
 .foreach-frame{ -fx-background-color: foreach-frame; -fx-border-color: foreach-border; }
 .foreach-frame:bj-java-preview { -fx-background-color: foreach-frame-java; -fx-border-color: foreach-border-java; }
