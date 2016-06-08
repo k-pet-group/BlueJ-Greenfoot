@@ -40,6 +40,9 @@ import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -371,5 +374,19 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         }
 
         return inners;
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public void setView(View oldView, View newView, SharedTransition animate)
+    {
+        super.setView(oldView, newView, animate);
+        JavaFXUtil.setPseudoclass("bj-java-preview", newView == View.JAVA_PREVIEW, sidebar.getStyleable());
+        getCanvases().forEach(c -> {
+            c.getCursors().forEach(cur -> cur.setView(newView, animate));
+            if (isFrameEnabled() && (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW))
+                c.previewCurly(newView == View.JAVA_PREVIEW, header.getLeftFirstItem(), null, animate);
+            c.setView(oldView, newView, animate);
+        });
     }
 }

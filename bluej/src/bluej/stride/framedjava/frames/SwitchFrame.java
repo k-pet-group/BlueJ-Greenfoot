@@ -54,6 +54,7 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -414,5 +415,30 @@ public class SwitchFrame extends MultiCanvasFrame
         return getEditableSlotsDirect().allMatch(EditableSlot::isAlmostBlank) &&
                 defaultCanvas == null &&
                 (casesCanvas.blockCount() == 0 || (casesCanvas.blockCount() == 1 && casesCanvas.getBlockContents().get(0).isAlmostBlank()));
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public void setView(View oldView, View newView, SharedTransition animate)
+    {
+        super.setView(oldView, newView, animate);
+        JavaFXUtil.setPseudoclass("bj-java-preview", newView == View.JAVA_PREVIEW, sidebar.getStyleable());
+
+        boolean java = newView == View.JAVA_PREVIEW;
+        if (isFrameEnabled() && (java || oldView == View.JAVA_PREVIEW))
+        {
+            if (defaultCanvas != null) {
+                casesCanvas.previewCurly(java, true, false, header.getLeftFirstItem(), null, animate);
+                defaultCanvas.previewCurly(java, false, true, header.getLeftFirstItem(), null, animate);
+            }
+            else {
+                casesCanvas.previewCurly(java, header.getLeftFirstItem(), null, animate);
+            }
+        }
+
+        getCanvases().forEach(c -> {
+            c.getCursors().forEach(cur -> cur.setView(newView, animate));
+            c.setView(oldView, newView, animate);
+        });
     }
 }
