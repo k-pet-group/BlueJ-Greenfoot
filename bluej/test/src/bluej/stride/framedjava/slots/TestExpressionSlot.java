@@ -490,8 +490,10 @@ public class TestExpressionSlot
         testSelectionInsert('(', "a{b+}+", "{a}_({b}+{})_{$}+{}");
         
         testSelectionInsert('\"', "a{bc}d", "{a}_\"bc\"_{$d}");
+        testSelectionInsert('\'', "a{bc}d", "{a}_\'bc\'_{$d}");
         testInsert("ab+cd", "{ab}+{cd$}");
         testSelectionInsert('\"', "a{b+c}d", "{a}_\"b+c\"_{$d}");
+        testSelectionInsert('\'', "a{b+c}d", "{a}_\'b+c\'_{$d}");
         
         testInsert("a+\"hello\"+c", "{a}+{}_\"hello\"_{}+{c$}");
         testSelectionInsert('\"', "a+\"h{ell}o\"+c", "{a}+{}_\"hell$o\"_{}+{c}");

@@ -360,39 +360,33 @@ public class TestTypeSlot
     {
         testDeleteSelection("a{bc}d", "{a$d}");
         testDeleteSelection("a{bc}", "{a$}");
-        /*TODOTYPESLOT
-        testInsert("a+(b*c)-d", "{a}+{}_({b}*{c})_{}-{d$}");
-        testDeleteSelection("{a}+(b*c)-d", "{$}+{}_({b}*{c})_{}-{d}");
-        testDeleteSelection("{a+}(b*c)-d", "{$}_({b}*{c})_{}-{d}");
-        testDeleteSelection("a+{(b*c)}-d", "{a}+{$}-{d}");
-        testDeleteSelection("a{+(b*c)}-d", "{a$}-{d}");
-        testDeleteSelection("a{+(b*c)-}d", "{a$d}");
-        testDeleteSelection("a+({b*c})-d", "{a}+{}_({$})_{}-{d}");
-        
-        testInsert("s+\"hello\"+t", "{s}+{}_\"hello\"_{}+{t$}");
-        testDeleteSelection("s+\"h{ell}o\"+t", "{s}+{}_\"h$o\"_{}+{t}");
-        */
+        testDeleteSelection("a<{b}.c>", "{a}_<{$}.{c}>_{}");
+        testDeleteSelection("a<{b.}c>", "{a}_<{$c}>_{}");
+        testDeleteSelection("a<{b.c}>", "{a}_<{$}>_{}");
+        testDeleteSelection("a{<b.c>}", "{a$}");
+        testDeleteSelection("a{<b.c>.}d.e", "{a$d}.{e}");
+        testDeleteSelection("a{<b.c>.d}.e", "{a$}.{e}");
+        testDeleteSelection("a{<b.c>.d.}e", "{a$e}");
     }
     
     @Test
     public void testSelectionOperation()
     {
-        /*TODOTYPESLOT
-        testSelectionInsert('(', "a{bc}d", "{a}_({bc})_{$d}");
-        testSelectionInsert('(', "a{b+c}d", "{a}_({b}+{c})_{$d}");
-        testSelectionInsert('(', "a{b+}d", "{a}_({b}+{})_{$d}");
-        testSelectionInsert('(', "a{b+}", "{a}_({b}+{})_{$}");
-        testSelectionInsert('(', "a{b++}", "{a}_({b}+{}+{})_{$}");
-        testSelectionInsert('(', "a{b+}+", "{a}_({b}+{})_{$}+{}");
-        
-        testSelectionInsert('\"', "a{bc}d", "{a}_\"bc\"_{$d}");
-        testInsert("ab+cd", "{ab}+{cd$}");
-        testSelectionInsert('\"', "a{b+c}d", "{a}_\"b+c\"_{$d}");
-        
-        testInsert("a+\"hello\"+c", "{a}+{}_\"hello\"_{}+{c$}");
-        testSelectionInsert('\"', "a+\"h{ell}o\"+c", "{a}+{}_\"hell$o\"_{}+{c}");
-        testSelectionInsert('\"', "a+\"hello\"{+c}", "{a}+{}_\"hello\"_{}_\"+c\"_{$}");
-        */
+        testSelectionInsert('<', "a{bc}d", "{a}_<{bc}>_{$d}");
+        testSelectionInsert('<', "a{b.c}d", "{a}_<{b}.{c}>_{$d}");
+        testSelectionInsert('<', "a{b.}d", "{a}_<{b}.{}>_{$d}");
+        testSelectionInsert('<', "a{b.}", "{a}_<{b}.{}>_{$}");
+        testSelectionInsert('<', "a{b..}", "{a}_<{b}.{}.{}>_{$}");
+        testSelectionInsert('<', "a{b.}.", "{a}_<{b}.{}>_{$}.{}");
+    }
+
+    @Test
+    public void testNoString()
+    {
+        testSelectionInsert('\"', "a{bc}d", "{abc$d}");
+        testSelectionInsert('\'', "a{bc}d", "{abc$d}");
+        testInsert("ab\"", "{ab$}");
+        testInsert("a\"b", "{ab$}");
     }
     
     private CaretPos makeCaretPos(int... xs)
@@ -422,155 +416,28 @@ public class TestTypeSlot
             new CPM(4, makeCaretPos(2, 0)),
             new CPM(5, makeCaretPos(2, 1))
         );
-        /*TODOTYPESLOT
-        testCaretPosMap("a*(b+\"cd\"+e)-(f)", "{a}*{}_({b}+{}_\"cd\"_{}+{e})_{}-{}_({f})_{}",
-            new CPM(0, makeCaretPos(0, 0)), // before a
-            new CPM(1, makeCaretPos(0, 1)), // before *
-            new CPM(2, makeCaretPos(1, 0)), // before (
-            new CPM(3, makeCaretPos(2, 0, 0)), // before b
-            new CPM(4, makeCaretPos(2, 0, 1)), // before +
-            new CPM(5, makeCaretPos(2, 1, 0)), // before "
-            new CPM(6, makeCaretPos(2, 2, 0)), // before c
-            new CPM(7, makeCaretPos(2, 2, 1)), // before d
-            new CPM(8, makeCaretPos(2, 2, 2)), // before "
-            new CPM(9, makeCaretPos(2, 3, 0)), // before +
-            new CPM(10, makeCaretPos(2, 4, 0)), // before e
-            new CPM(11, makeCaretPos(2, 4, 1)), // before )
-            new CPM(12, makeCaretPos(3, 0)), // before -
-            new CPM(13, makeCaretPos(4, 0)), // before (
-            new CPM(14, makeCaretPos(5, 0, 0)), // before f
-            new CPM(15, makeCaretPos(5, 0, 1)), // before )
-            new CPM(16, makeCaretPos(6, 0)) // before end
-        );
-        
-        testCaretPosMap("gW().aO(a,b,c)", "{gW}_({})_{}.{aO}_({a},{b},{c})_{}",
-                new CPM(0, makeCaretPos(0, 0)), // before g
-                new CPM(1, makeCaretPos(0, 1)), // before W
-                new CPM(2, makeCaretPos(0, 2)), // before (
-                
-                new CPM(3, makeCaretPos(1, 0, 0)), // before )
-                
-                new CPM(4, makeCaretPos(2, 0)), // before .
-                
-                new CPM(5, makeCaretPos(3, 0)), // before a
-                new CPM(6, makeCaretPos(3, 1)), // before 0
-                new CPM(7, makeCaretPos(3, 2)), // before (
-                
-                new CPM(8, makeCaretPos(4, 0, 0)), // before a
-                new CPM(9, makeCaretPos(4, 0, 1)), // before ,
-                
-                new CPM(10, makeCaretPos(4, 1, 0)), // before b
-                new CPM(11, makeCaretPos(4, 1, 1)), // before ,
-                
-                new CPM(12, makeCaretPos(4, 2, 0)), // before c
-                new CPM(13, makeCaretPos(4, 2, 1)), // before )
-                new CPM(14, makeCaretPos(5, 0)) // before end
-        );
-        
-        testCaretPosMap("1+2", "{1}+{2}", "1 + 2",
+
+        testCaretPosMap("a<b.c>", "{a}_<{b}.{c}>_{}",
                 new CPM(0, makeCaretPos(0, 0)),
                 new CPM(1, makeCaretPos(0, 1)),
-                new CPM(4, makeCaretPos(1, 0)),
-                new CPM(5, makeCaretPos(1, 1))
+                new CPM(2, makeCaretPos(1, 0, 0)),
+                new CPM(3, makeCaretPos(1, 0, 1)),
+                new CPM(4, makeCaretPos(1, 1, 0)),
+                new CPM(5, makeCaretPos(1, 1, 1)),
+                new CPM(6, makeCaretPos(2, 0))
         );
-        
-        testCaretPosMap("1++2", "{1}+{+2}", "1 + +2",
+
+        testCaretPosMap("a<b.c,d>", "{a}_<{b}.{c},{d}>_{}",
                 new CPM(0, makeCaretPos(0, 0)),
                 new CPM(1, makeCaretPos(0, 1)),
-                new CPM(4, makeCaretPos(1, 0)),
-                new CPM(5, makeCaretPos(1, 1)),
-                new CPM(6, makeCaretPos(1, 2))
+                new CPM(2, makeCaretPos(1, 0, 0)),
+                new CPM(3, makeCaretPos(1, 0, 1)),
+                new CPM(4, makeCaretPos(1, 1, 0)),
+                new CPM(5, makeCaretPos(1, 1, 1)),
+                new CPM(6, makeCaretPos(1, 2, 0)),
+                new CPM(7, makeCaretPos(1, 2, 1)),
+                new CPM(8, makeCaretPos(2, 0))
         );
-                
-        // Stride:
-        testCaretPosMap("a<:Crab", "{a}<:{Crab}",
-                new CPM(0, makeCaretPos(0, 0)),
-                new CPM(1, makeCaretPos(0, 1)),
-                new CPM(3, makeCaretPos(1, 0)),
-                new CPM(4, makeCaretPos(1, 1)),
-                new CPM(5, makeCaretPos(1, 2)),
-                new CPM(6, makeCaretPos(1, 3)),
-                new CPM(7, makeCaretPos(1, 4))
-        );
-        
-        // Java:
-        testCaretPosMap("a<:Crab", "{a}<:{Crab}", "a instanceof Crab",
-                new CPM(0, makeCaretPos(0, 0)),
-                new CPM(1, makeCaretPos(0, 1)),
-                new CPM(13, makeCaretPos(1, 0)),
-                new CPM(14, makeCaretPos(1, 1)),
-                new CPM(15, makeCaretPos(1, 2)),
-                new CPM(16, makeCaretPos(1, 3)),
-                new CPM(17, makeCaretPos(1, 4))
-        );
-        
-        final int f = "lang.stride.Utility.makeRange".length();
-        testCaretPosMap("1..2", "{1}..{2}", "lang.stride.Utility.makeRange(1, 2)",
-                new CPM(f + 1, makeCaretPos(0, 0)),
-                new CPM(f + 2, makeCaretPos(0, 1)),
-                new CPM(f + 4, makeCaretPos(1, 0)),
-                new CPM(f + 5, makeCaretPos(1, 1))
-        );
-
-        // Last part is semantically wrong, but should be syntactically allowed:
-        testCaretPosMap("1,2..3+4,5,6..7..8", "{1},{2}..{3}+{4},{5},{6}..{7}..{8}",
-                "1, lang.stride.Utility.makeRange(2, 3 + 4), 5, lang.stride.Utility.makeRange(6, lang.stride.Utility.makeRange(7, 8))",
-                new CPM(0, makeCaretPos(0, 0)), // 1
-                new CPM(1, makeCaretPos(0, 1)),
-                
-                new CPM(3 + f + 1, makeCaretPos(1, 0)), // 2
-                new CPM(3 + f + 2, makeCaretPos(1, 1)),
-                new CPM(3 + f + 4, makeCaretPos(2, 0)), // 3
-                new CPM(3 + f + 5, makeCaretPos(2, 1)),
-                new CPM(3 + f + 8, makeCaretPos(3, 0)), // 4
-                new CPM(3 + f + 9, makeCaretPos(3, 1)),
-                
-                new CPM(3 + f + 12, makeCaretPos(4, 0)), // 5
-                new CPM(3 + f + 13, makeCaretPos(4, 1)),
-                
-                new CPM(3 + f + 15 + f + 1, makeCaretPos(5, 0)), // 6
-                new CPM(3 + f + 15 + f + 2, makeCaretPos(5, 1)),
-                
-                new CPM(3 + f + 15 + f + 4 + f + 1, makeCaretPos(6, 0)), // 7
-                new CPM(3 + f + 15 + f + 4 + f + 2, makeCaretPos(6, 1)),
-                new CPM(3 + f + 15 + f + 4 + f + 4, makeCaretPos(7, 0)), // 8
-                new CPM(3 + f + 15 + f + 4 + f + 5, makeCaretPos(7, 1))
-        );
-
-        // Stride:
-        testCaretPosMap("600+\"a\",40", "{600}+{}_\"a\"_{},{40}",
-            new CPM(0, makeCaretPos(0,0)), // 600
-            new CPM(1, makeCaretPos(0,1)),
-            new CPM(2, makeCaretPos(0,2)),
-
-            new CPM(4, makeCaretPos(1,0)), // before closing quote
-
-            new CPM(5, makeCaretPos(2,0)), // before a
-            new CPM(6, makeCaretPos(2,1)), // after a
-
-            new CPM(7, makeCaretPos(3,0)), // after closing quote
-
-            new CPM(8, makeCaretPos(4,0)), // 40
-            new CPM(9, makeCaretPos(4,1))
-        );
-
-        // Java:
-        testCaretPosMap("600+\"a\",40", "{600}+{}_\"a\"_{},{40}", "600 + \"a\", 40",
-            new CPM(0, makeCaretPos(0,0)), // 600
-            new CPM(1, makeCaretPos(0,1)),
-            new CPM(2, makeCaretPos(0,2)),
-
-            new CPM(6, makeCaretPos(1,0)), // before closing quote
-
-            new CPM(7, makeCaretPos(2,0)), // before a
-            new CPM(8, makeCaretPos(2,1)), // after a
-
-            new CPM(9, makeCaretPos(3,0)), // after closing quote
-
-            new CPM(11, makeCaretPos(4,0)), // 40
-            new CPM(12, makeCaretPos(4,1))
-        );
-        */
     }
     
     @Test

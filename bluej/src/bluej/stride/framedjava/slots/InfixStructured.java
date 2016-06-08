@@ -1486,7 +1486,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         CaretPos pos = new CaretPos(index, new CaretPos(posInField, null));
         
         // Unless it's a opening bracket, any insertion must involve first deleting the selection:
-        if (text.length() > 0 && !isOpeningBracket(text.charAt(0)) && text.charAt(0) != '\"')
+        if (text.length() > 0 && !isOpeningBracket(text.charAt(0)) && text.charAt(0) != '\"' && text.charAt(0) != '\'')
         {
             CaretPos postDeletion = deleteSelection_(pos, token);
             if (postDeletion != null)
@@ -1592,7 +1592,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 fields.add(pos.index + 1, makeNewField(following, false), token);
                 return new CaretPos(pos.index + 1, new CaretPos(0, null));
             }
-            else if (anchorPos != null && (isOpeningBracket(c) || c == '\"'))
+            else if (anchorPos != null && (isOpeningBracket(c) || c == '\"' || c == '\''))
             {
                 // If there is a selection, enclose that in the bracket/quote:                
                 String content = anchorPos.before(pos) ? getCopyText(anchorPos, pos) : getCopyText(pos, anchorPos);
