@@ -103,7 +103,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
             
             for (AssistContentThreadSafe t : types)
             {
-                if (t.getName().equals(content))
+                if (t.getName().equals(content) || (t.getPackage() + "." + t.getName()).equals(content))
                 {
                     // Match -- no error
                     f.complete(Collections.emptyList());
