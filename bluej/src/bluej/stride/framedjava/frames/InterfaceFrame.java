@@ -246,13 +246,11 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         };
     }
 
-
-
     @Override
     @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
-        setViewNoOverride(oldView, newView, animateProgress);
+        super.setView(oldView, newView, animateProgress);
         boolean java = newView == View.JAVA_PREVIEW;
         if (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW)
         {

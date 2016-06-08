@@ -701,7 +701,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
-        setViewNoOverride(oldView, newView, animateProgress);
+        super.setView(oldView, newView, animateProgress);
         boolean java = newView == View.JAVA_PREVIEW;
         //Debug.message("Setting view: " + view + " " + java);
         if (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW)
