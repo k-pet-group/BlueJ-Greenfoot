@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,15 +64,8 @@ public class ImplementsDependencyPainter
 
         ImplementsDependency d = (ImplementsDependency) dependency;
         Stroke dashedStroke, normalStroke;
-        boolean isSelected = d.isSelected() && hasFocus;
-        if (isSelected) {
-            dashedStroke = dashedSelected;
-            normalStroke = normalSelected;
-        }
-        else {
-            dashedStroke = dashedUnselected;
-            normalStroke = normalUnselected;
-        }
+        dashedStroke = dashedUnselected;
+        normalStroke = normalUnselected;
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(normalColour);

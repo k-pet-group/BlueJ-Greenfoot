@@ -185,31 +185,14 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(1, testSel.getColumn());
         assertEquals(1, testSel.getEndLine());
         assertEquals(8, testSel.getEndColumn());
-        
-        // AffinedTransformer already extends JFrame
-        Selection extendsInsert = info.getExtendsInsertSelection();
-        assertNull(extendsInsert);
-        
+
         // No type parameters
         List<String> l = info.getTypeParameterTexts();
         if (l != null)
             assertEquals(0, l.size());
 //        testSel = info.getTypeParametersSelection();
 //        assertNull(testSel);
-        
-        // Implements insert
-        Selection implementsInsert = info.getImplementsInsertSelection();
-        assertEquals(47, implementsInsert.getEndColumn());
-        assertEquals(47, implementsInsert.getColumn());
-        assertEquals(6, implementsInsert.getEndLine());
-        assertEquals(6, implementsInsert.getLine());
 
-        Selection superReplace = info.getSuperReplaceSelection();
-        assertEquals(6, superReplace.getLine());
-        assertEquals(41, superReplace.getColumn());
-        assertEquals(6, superReplace.getEndLine());
-        assertEquals(47, superReplace.getEndColumn());
-        
         // Check that comment is created with parameter names
         Properties comments = info.getComments();
         
@@ -218,74 +201,6 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(wci != -1);
         String paramNames = comments.getProperty("comment" + wci + ".params");
         assertEquals("internalWidth internalHeight", paramNames);
-        
-        /*
-         * Second file - no superclass, multiple interfaces 
-         */
-        
-        file = getFile("multi_interface.dat");
-        info = InfoParser.parse(file);
-        
-        extendsInsert = info.getExtendsInsertSelection();
-        assertEquals(10, extendsInsert.getEndColumn());
-        assertEquals(10, extendsInsert.getColumn());
-        assertEquals(1, extendsInsert.getEndLine());
-        assertEquals(1, extendsInsert.getLine());
-        
-        // the implements insert selection should be just beyond the
-        // end of the last implemented interface
-        implementsInsert = info.getImplementsInsertSelection();
-        assertEquals(32, implementsInsert.getEndColumn());
-        assertEquals(32, implementsInsert.getColumn());
-        assertEquals(1, implementsInsert.getEndLine());
-        assertEquals(1, implementsInsert.getLine());
-        
-        // the interface selections: "implements" "AA" "," "BB" "," "CC"
-        List<Selection> interfaceSels = info.getInterfaceSelections();
-        assertEquals(6, interfaceSels.size());
-        Iterator<Selection> i = interfaceSels.iterator();
-        
-        // "implements"
-        Selection interfaceSel = (Selection) i.next();
-        assertEquals(1, interfaceSel.getLine());
-        assertEquals(11, interfaceSel.getColumn());
-        assertEquals(1, interfaceSel.getEndLine());
-        assertEquals(21, interfaceSel.getEndColumn());
-        
-        // "AA"
-        interfaceSel = (Selection) i.next();
-        assertEquals(1, interfaceSel.getLine());
-        assertEquals(22, interfaceSel.getColumn());
-        assertEquals(1, interfaceSel.getEndLine());
-        assertEquals(24, interfaceSel.getEndColumn());
-
-        // ", "
-        interfaceSel = (Selection) i.next();
-        assertEquals(1, interfaceSel.getLine());
-        assertEquals(24, interfaceSel.getColumn());
-        assertEquals(1, interfaceSel.getEndLine());
-        assertEquals(26, interfaceSel.getEndColumn());
-
-        // "BB"
-        interfaceSel = (Selection) i.next();
-        assertEquals(1, interfaceSel.getLine());
-        assertEquals(26, interfaceSel.getColumn());
-        assertEquals(1, interfaceSel.getEndLine());
-        assertEquals(28, interfaceSel.getEndColumn());
-
-        // ", "
-        interfaceSel = (Selection) i.next();
-        assertEquals(1, interfaceSel.getLine());
-        assertEquals(28, interfaceSel.getColumn());
-        assertEquals(1, interfaceSel.getEndLine());
-        assertEquals(30, interfaceSel.getEndColumn());
-
-        // "CC"
-        interfaceSel = (Selection) i.next();
-        assertEquals(1, interfaceSel.getLine());
-        assertEquals(30, interfaceSel.getColumn());
-        assertEquals(1, interfaceSel.getEndLine());
-        assertEquals(32, interfaceSel.getEndColumn());
     }
     
     public void testValidClassInfo2() throws Exception
@@ -318,10 +233,6 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(2, implemented.size());
         assertTrue(implemented.contains("java.lang.Runnable"));
         assertTrue(implemented.contains("java.lang.Iterable"));
-        Selection extendsSel = info.getExtendsInsertSelection();
-        assertNotNull(extendsSel);
-        assertEquals(1, extendsSel.getLine());
-        assertEquals(39, extendsSel.getColumn());
     }
 
     /**
@@ -462,23 +373,6 @@ public class BasicParseTest extends junit.framework.TestCase
         //ter.addCompilationUnit("", cuForSource("interface II extends I {}", pkgr));
         ter.addCompilationUnit("", cuForSource("interface J {}", pkgr));
         //ter.addCompilationUnit("", cuForSource("interface JJ extends I, J {}", pkgr));
-
-        String IIsrc = "interface II extends I { public void sampleMethod(); }";
-        ClassInfo info = InfoParser.parse(new StringReader(IIsrc), pkgr, "");
-        
-        List<Selection> isels = info.getInterfaceSelections();
-        assertEquals(2, isels.size());
-        assertEquals(14, isels.get(0).getColumn());
-        assertEquals(22, isels.get(1).getColumn());
-        
-        String JJsrc = "interface JJ extends I, J { public void sampleMethod(); }";
-        info = InfoParser.parse(new StringReader(JJsrc), pkgr, "");
-        isels = info.getInterfaceSelections();
-        assertEquals(4, isels.size());
-        assertEquals(14, isels.get(0).getColumn());  // "extends"
-        assertEquals(22, isels.get(1).getColumn());  // "I"
-        assertEquals(23, isels.get(2).getColumn());  // ","
-        assertEquals(25, isels.get(3).getColumn());  // "J"
     }
     
     public void testDependencyAnalysis()

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,6 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 
-import bluej.graph.RubberBand;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 
@@ -68,15 +67,9 @@ public class UsesDependencyPainter
         Stroke oldStroke = g.getStroke();
         UsesDependency d = (UsesDependency) dependency;
         Stroke dashedStroke, normalStroke;
-        boolean isSelected = d.isSelected() && hasFocus;
-        if (isSelected) {
-            dashedStroke = dashedSelected;
-            normalStroke = normalSelected;
-        }
-        else {
-            dashedStroke = dashedUnselected;
-            normalStroke = normalUnselected;
-        }
+        dashedStroke = dashedUnselected;
+        normalStroke = normalUnselected;
+
         g.setStroke(normalStroke);
         int src_x = d.getSourceX();
         int src_y = d.getSourceY();
@@ -124,70 +117,5 @@ public class UsesDependencyPainter
         g.drawLine(src_x, dst_y, dst_x, dst_y);
 
         g.setStroke(oldStroke);
-    }
-
-    /**
-     * Paint the usesdependency from DependTarget d, as a straight arrow to a
-     * point in the graph determined also by d
-     * 
-     * @param g
-     * @param d
-     */
-    public void paintIntermedateDependency(Graphics2D g, RubberBand rb)
-    {
-        Stroke dashedStroke, normalStroke;
-        dashedStroke = dashedUnselected;
-        normalStroke = normalUnselected;
-        g.setStroke(normalStroke);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        g.setColor(normalColour);
-
-        // Start from the centre of the src class
-        Point pFrom = rb.startPt;
-        Point pTo = rb.endPt;
-
-        // Get the angle of the line from src to dst.
-        double angle = Math.atan2(-(pFrom.getY() - pTo.getY()), pFrom.getX() - pTo.getX());
-
-//        Point pArrow = new Point(pTo.x + (int) ((ARROW_SIZE - 2) * Math.cos(angle)), pTo.y
-//                - (int) ((ARROW_SIZE - 2) * Math.sin(angle)));
-
-        // setup the arrow head
-        int[] xPoints = {pTo.x, pTo.x + (int) ((ARROW_SIZE) * Math.cos(angle + ARROW_ANGLE)),
-                pTo.x + (int) (ARROW_SIZE * Math.cos(angle - ARROW_ANGLE))};
-        int[] yPoints = {pTo.y, pTo.y - (int) ((ARROW_SIZE) * Math.sin(angle + ARROW_ANGLE)),
-                pTo.y - (int) (ARROW_SIZE * Math.sin(angle - ARROW_ANGLE))};
-
-        //draw the arrowhead
-        g.drawLine(xPoints[0], yPoints[0], xPoints[1], yPoints[1]);
-        g.drawLine(xPoints[0], yPoints[0], xPoints[2], yPoints[2]);
-        //draw the arrow line
-        g.setStroke(dashedStroke);
-        g.drawLine(pFrom.x, pFrom.y, xPoints[0], yPoints[0]);
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.pkgmgr.graphPainter.DependencyPainter#getPopupMenuPosition(bluej.pkgmgr.dependency.Dependency)
-     */
-    public Point getPopupMenuPosition(Dependency d)
-    {
-        UsesDependency usesDependency;
-        if (!(d instanceof UsesDependency)) {
-            throw new IllegalArgumentException("Not a UsesDependency");
-        }
-        usesDependency = (UsesDependency) d;
-
-        int delta_x = usesDependency.isEndLeft() ? -10 : 10;
-        int dst_x = usesDependency.getDestX();
-        int dst_y = usesDependency.getDestY();
-
-        int[] xPoints = {dst_x, dst_x + delta_x, dst_x + delta_x};
-        int[] yPoints = {dst_y, dst_y - 3, dst_y + 3};
-
-        return new Point((xPoints[0] + xPoints[1] + xPoints[2]) / 3, (yPoints[0] + yPoints[1] + yPoints[2]) / 3);
     }
 }

@@ -61,10 +61,6 @@ public final class ClassInfo
     
     private List<String> typeParameterTexts = new ArrayList<String>();
     private Selection typeParametersSelection;
-    private Selection extendsReplaceSelection;
-
-    // how we would replace the superclass name in a class
-    private Selection superReplaceSelection;
 
     private boolean isInterface = false;
     private boolean isAbstract = false;
@@ -235,121 +231,7 @@ public final class ClassInfo
     {
         hadParseError = err;
     }
-    
-    /**
-     * Where we would insert the string "extends" in a class/interface
-     */
-    private Selection extendsInsertSelection;
 
-    /**
-     * Record where we would insert the string "extends" in a class or interface.
-     * For a class/interface which already extends other classes/interfaces, should
-     * be set to null.
-     *
-     * @param s the Selection object which records a location to
-     *          insert the "extends" keyword or additional interface
-     */
-    public void setExtendsInsertSelection(Selection s)
-    {
-        extendsInsertSelection = s;
-    }
-
-    /**
-     * Returns where we would insert the string "extends" in a class/interface.
-     * For a class which already extends another classes, returns null.
-     * 
-     * For an interface which extends no other interfaces, returns where to
-     * insert "extends {super-interface-name}". For an interface which extends
-     * one or more other interfaces already, returns where to insert
-     * ", {additional-interface-name}".
-     *
-     * @returns s the Selection object which records a location to
-     *          insert the "extends" keyword
-     */
-    public Selection getExtendsInsertSelection()
-    {
-        return extendsInsertSelection;
-    }
-
-    /**
-     * Where we would insert the string " implements " in a class, or, if the
-     * class has existing interfaces, where we would add a new one in
-     * (as ", [interfacename]").
-     */
-    private Selection implementsInsertSelection;
-
-    /**
-     * Where we would insert the string " implements " in a class, or, if the
-     * class has existing interfaces, where we would add a new one in
-     * (as ", [interfacename]").
-     */
-    public void setImplementsInsertSelection(Selection s)
-    {
-        implementsInsertSelection = s;
-    }
-
-    /**
-     * Where we would insert the string " implements " in a class, or, if the
-     * class has existing interfaces, where we would add a new one in
-     * (as ", [interfacename]").
-     */
-    public Selection getImplementsInsertSelection()
-    {
-        return implementsInsertSelection;
-    }
-
-    /**
-     * Record how we would replace the string "extends" in a class.
-     * (For an interface, this is the first selection in the
-     *  InterfaceSelections list - see setInterfaceSelections)
-     *
-     * @param s the Section object which records the location of
-     *          the "extends" keyword for a class
-     */
-    public void setExtendsReplaceSelection(Selection s)
-    {
-        extendsReplaceSelection = s;
-    }
-
-    /**
-     * How we would replace the string "extends" in a class.
-     * (For an interface, this is the first selection in the
-     *  InterfaceSelections list - see setInterfaceSelections)
-     */
-    public Selection getExtendsReplaceSelection()
-    {
-        return extendsReplaceSelection;
-    }
-
-    public void setSuperReplaceSelection(Selection s)
-    {
-        superReplaceSelection = s;
-    }
-
-    public Selection getSuperReplaceSelection()
-    {
-        return superReplaceSelection;
-    }
-
-    // a vector of Selections of all the elements in a classes
-    // "implements" clause ie.
-    //     "implements" "InterfaceA" "," "InterfaceB"
-    // ... or an interface's "extends" clause ie.
-    //     "extends" "InterfaceA" "," "InterfaceB"
-    // ... or null if there is no clause
-    private List<Selection> interfaceSelections;
-
-    /**
-     * Set the selections for the interfaces, including the "implements" clause (or "extends"
-     * for interfaces), the interfaces themselves, and the commas between them. Eg:
-     * 
-     * "extends"  "InterfaceA"  ","  "InterfaceB"
-     */
-    public void setInterfaceSelections(List<Selection> selections)
-    {
-        interfaceSelections = selections;
-    }
-    
     public void addTypeParameterText(String typeParameterText)
     {
         typeParameterTexts.add(typeParameterText);
@@ -358,17 +240,6 @@ public final class ClassInfo
     public List<String> getTypeParameterTexts()
     {
         return typeParameterTexts;
-    }
-
-    public List<Selection> getInterfaceSelections()
-    {
-        return interfaceSelections;
-    }
-
-    public boolean hasInterfaceSelections()
-    {
-        return (interfaceSelections != null) &&
-                (interfaceSelections.size() > 0);
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 14825 2015-10-17 14:34:57Z nccb $
+ * @version $Id: UsesDependency.java 15998 2016-06-08 14:55:27Z nccb $
  */
 public class UsesDependency extends Dependency
 {
@@ -151,12 +151,7 @@ public class UsesDependency extends Dependency
     {
         return flag;
     }
-    
-    public void remove()
-    {
-        pkg.removeArrow(this);
-    }
-    
+
     /**
      * @return Returns the sourceX.
      */

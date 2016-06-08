@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,43 +86,6 @@ public class Parse15Test extends junit.framework.TestCase
         throws Exception
     {
         InfoParser.parse(getFile("15_generic.dat"));
-    }
-    
-    public void testSelections()
-        throws Exception
-    {
-        ClassInfo info = InfoParser.parse(getFile("generic_selections.dat"));
-        
-//        Selection testSel = info.getTypeParametersSelection();
-//        assertEquals(3, testSel.getLine());
-//        assertEquals(19, testSel.getColumn());
-//        assertEquals(3, testSel.getEndLine());
-//        assertEquals(40, testSel.getEndColumn());
-        
-        Selection testSel = info.getSuperReplaceSelection();
-        assertEquals(3, testSel.getLine());
-        assertEquals(49, testSel.getColumn());
-        assertEquals(4, testSel.getEndLine());
-        assertEquals(31, testSel.getEndColumn());
-        
-        List<Selection> l = info.getInterfaceSelections();
-        assertEquals(4, l.size());
-        // "implements"  "List<Thread>"  ","  "GenInt<U>"
-        Iterator<Selection> i = l.iterator();
-        i.next();
-        
-        testSel = (Selection) i.next();
-        assertEquals(5, testSel.getLine());
-        assertEquals(16, testSel.getColumn());
-        assertEquals(5, testSel.getEndLine());
-        assertEquals(28, testSel.getEndColumn());
-        
-        i.next();
-        testSel = (Selection) i.next();
-        assertEquals(5, testSel.getLine());
-        assertEquals(30, testSel.getColumn());
-        assertEquals(5, testSel.getEndLine());
-        assertEquals(39, testSel.getEndColumn());
     }
     
     public void testStaticImport()

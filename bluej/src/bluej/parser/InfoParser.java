@@ -120,7 +120,6 @@ public class InfoParser extends EditorParser
     
     private boolean gotExtends; // next type spec is the superclass/superinterfaces
     private boolean gotImplements; // next type spec(s) are interfaces
-    private List<Selection> interfaceSelections;
     private Selection lastCommaSelection;
 
     protected boolean hadError;
@@ -423,36 +422,19 @@ public class InfoParser extends EditorParser
             // The list of tokens gives us the name of the class that we extend
             superclassEntity = ParseUtils.getTypeEntity(scopeStack.get(0), null, tokens);
             info.setSuperclass(""); // this will be corrected when the type is resolved
-            Selection superClassSelection = getSelection(tokens);
-            info.setSuperReplaceSelection(superClassSelection);
-            info.setImplementsInsertSelection(new Selection(superClassSelection.getEndLine(),
-                    superClassSelection.getEndColumn()));
         }
         else if (isInterface) {
             Selection interfaceSel = getSelection(tokens);
             if (lastCommaSelection != null) {
                 lastCommaSelection.extendEnd(interfaceSel.getLine(), interfaceSel.getColumn());
-                interfaceSelections.add(lastCommaSelection);
                 lastCommaSelection = null;
             }
-            interfaceSelections.add(interfaceSel);
             JavaEntity interfaceEnt = ParseUtils.getTypeEntity(scopeStack.get(0), null, tokens);
             if (interfaceEnt != null) {
                 interfaceEntities.add(interfaceEnt);
             }
             if (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA) {
                 lastCommaSelection = getSelection(tokenStream.LA(1));
-            }
-            else {
-                info.setInterfaceSelections(interfaceSelections);
-                if (! info.isInterface()) {
-                    info.setImplementsInsertSelection(new Selection(interfaceSel.getEndLine(),
-                            interfaceSel.getEndColumn()));
-                }
-                else {
-                    info.setExtendsInsertSelection(new Selection(interfaceSel.getEndLine(),
-                            interfaceSel.getEndColumn()));
-                }
             }
         }
     }
@@ -634,8 +616,6 @@ public class InfoParser extends EditorParser
                 info.setAbstract(isAbstract);
                 info.addComment(info.getName(), comment, null);
                 Selection insertSelection = new Selection(nameToken.getLine(), nameToken.getEndColumn());
-                info.setExtendsInsertSelection(insertSelection);
-                info.setImplementsInsertSelection(insertSelection);
                 if (pkgSemiToken != null) {
                     info.setPackageSelections(getSelection(pkgLiteralToken), getSelection(packageTokens),
                             joinTokens(packageTokens), getSelection(pkgSemiToken));
@@ -654,20 +634,8 @@ public class InfoParser extends EditorParser
         super.beginTypeDefExtends(extendsToken);
         if (classLevel == 0 && storeCurrentClassInfo) {
             gotExtends = true;
-            SourceLocation extendsStart = info.getExtendsInsertSelection().getStartLocation();
-            int extendsEndCol = tokenStream.LA(1).getColumn();
-            int extendsEndLine = tokenStream.LA(1).getLine();
-            if (extendsStart.getLine() == extendsEndLine) {
-                info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsEndCol - extendsStart.getColumn()));
-            }
-            else {
-                info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
-            }
-            info.setExtendsInsertSelection(null);
             
             if (info.isInterface()) {
-                interfaceSelections = new LinkedList<Selection>();
-                interfaceSelections.add(getSelection(extendsToken));
                 interfaceEntities = new LinkedList<JavaEntity>();
             }
         }
@@ -680,8 +648,6 @@ public class InfoParser extends EditorParser
         if (classLevel == 0 && storeCurrentClassInfo) {
             gotExtends = false;
             gotImplements = true;
-            interfaceSelections = new LinkedList<Selection>();
-            interfaceSelections.add(getSelection(implementsToken));
             interfaceEntities = new LinkedList<JavaEntity>();
         }
     }

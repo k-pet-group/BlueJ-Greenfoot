@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,8 +50,6 @@ import bluej.utility.Debug;
 public abstract class Dependency extends Edge
 {
     Package pkg;
-    private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
-    protected boolean selected = false;
     //    protected static final float strokeWithDefault = 1.0f;
     //    protected static final float strokeWithSelected = 2.0f;
     private BDependency singleBDependency; // every Dependency has none or one BDependency
@@ -157,30 +155,6 @@ public abstract class Dependency extends Edge
         props.put(prefix + ".to", ((DependentTarget) to).getIdentifierName());
     }
 
-    /**
-     * Disply the context menu.
-     */
-    public void popupMenu(int x, int y, GraphEditor graphEditor)
-    {
-        JPopupMenu menu = new JPopupMenu();
-        menu.add(new RemoveAction());
-        menu.show(graphEditor, x, y);
-    }
-
-    private class RemoveAction extends AbstractAction
-    {
-        public RemoveAction()
-        {
-            putValue(NAME, removeStr);
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            remove();
-
-        }
-    }
-
     public String toString()
     {
         return getFrom().getIdentifierName() + " --> " + getTo().getIdentifierName();
@@ -196,25 +170,6 @@ public abstract class Dependency extends Edge
             DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), visible);
             ExtensionsManager.getInstance().delegateEvent(event);
         }
-    }
-
-    @Override
-    public void setSelected(boolean selected)
-    {
-        this.selected = selected;
-        repaint();
-    }
-
-    @Override
-    public boolean isSelected()
-    {
-        return selected;
-    }
-
-    @Override
-    public boolean isHandle(int x, int y)
-    {
-        return false;
     }
 
     /**

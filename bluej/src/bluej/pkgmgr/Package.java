@@ -214,22 +214,8 @@ public final class Package extends Graph
      */
     private String lastSourceName = "";
 
-    /** state constant - normal state */
-    public static final int S_IDLE = 0;
-    /** state constant - choose the "from" target of a "uses" dependency arrow */
-    public static final int S_CHOOSE_USES_FROM = 1;
-    /** state constant - choose the "to" target for a "uses" dependency arrow */
-    public static final int S_CHOOSE_USES_TO = 2;
-    /** state constant - choose the "from" target of an "extends" arrow */
-    public static final int S_CHOOSE_EXT_FROM = 3;
-    /** state constant - choose the "to" target for an "extends" arrow */
-    public static final int S_CHOOSE_EXT_TO = 4;
-
     /** determines the maximum length of the CallHistory of a package */
     public static final int HISTORY_LENGTH = 6;
-
-    /** the state a package can be in (one of the S_* values) */
-    private int state = S_IDLE;
 
     private PackageEditor editor;
     
@@ -552,22 +538,6 @@ public final class Package extends Graph
             }
         }
         return list.toArray(targetArray);
-    }
-
-    /**
-     * Get the selected Dependencies.
-     * 
-     * @return The currently selected dependency or null.
-     */
-    public Dependency getSelectedDependency()
-    {
-        for (Iterator<? extends Edge> it = getEdges(); it.hasNext();) {
-            Edge edge = it.next();
-            if (edge instanceof Dependency && edge.isSelected()) {
-                return (Dependency) edge;
-            }
-        }
-        return null;
     }
 
     /**
@@ -1730,9 +1700,6 @@ public final class Package extends Graph
      */
     public void removeArrow(Dependency d)
     {
-        if (!(d instanceof UsesDependency)) {
-            userRemoveDependency(d);
-        }
         removeDependency(d, true);
         graphChanged();
     }
@@ -1776,192 +1743,6 @@ public final class Package extends Graph
     }
 
     /**
-     * A user initiated addition of an "implements" clause from a class to
-     * an interface
-     *
-     * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
-     */
-    public void userAddImplementsClassDependency(Dependency d)
-    {
-        ClassTarget from = (ClassTarget) d.getFrom(); // a class
-        ClassTarget to = (ClassTarget) d.getTo(); // an interface
-        TextEditor ed = from.getEditor().assumeText();
-        try {
-            ed.save();
-            
-            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
-            if (info != null) {
-                
-                Selection s1 = info.getImplementsInsertSelection();
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an implements clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't already have it
-                    
-                    List<String> exists = getInterfaceTexts(ed, info.getInterfaceSelections());
-                    
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(to.getBaseName()))
-                        ed.insertText(", " + to.getBaseName(), false);
-                }
-                else {
-                    // otherwise we need to put the actual "implements" word
-                    // and the interface name
-                    ed.insertText(" implements " + to.getBaseName(), false);
-                }
-                ed.save();
-            }
-        }
-        catch (IOException ioe) {
-            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
-        }
-    }
-
-    /**
-     * A user initiated addition of an "extends" clause from an interface to
-     * an interface
-     *
-     * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
-     */
-    public void userAddImplementsInterfaceDependency(Dependency d)
-    {
-        ClassTarget from = (ClassTarget) d.getFrom(); // an interface
-        ClassTarget to = (ClassTarget) d.getTo(); // an interface
-        TextEditor ed = from.getEditor().assumeText();
-        try {
-            ed.save();
-
-            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
-
-            if (info != null) {
-                Selection s1 = info.getExtendsInsertSelection();
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an extends clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't
-                    // already have it
-                    
-                    List<String> exists = getInterfaceTexts(ed, info.getInterfaceSelections());
-                    
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(to.getBaseName()))
-                        ed.insertText(", " + to.getBaseName(), false);
-                }
-                else {
-                    // otherwise we need to put the actual "extends" word
-                    // and the interface name
-                    ed.insertText(" extends " + to.getBaseName(), false);
-                }
-                ed.save();
-            }
-        }
-        catch (IOException ioe) {
-            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
-        }
-    }
-
-    /**
-     * A user initiated addition of an "extends" clause from a class to
-     * a class
-     *
-     * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
-     */
-    public void userAddExtendsClassDependency(Dependency d)
-    {
-        ClassTarget from = (ClassTarget) d.getFrom();
-        ClassTarget to = (ClassTarget) d.getTo();
-        TextEditor ed = from.getEditor().assumeText();
-        try {
-            ed.save();
-
-            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
-
-            if (info != null) {
-                if (info.getSuperclass() == null) {
-                    Selection s1 = info.getExtendsInsertSelection();
-                    
-                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                    ed.insertText(" extends " + to.getBaseName(), false);
-                }
-                else {
-                    Selection s1 = info.getSuperReplaceSelection();
-                    
-                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                    ed.insertText(to.getBaseName(), false);
-                }
-                ed.save();
-            }
-        }
-        catch (IOException ioe) {
-            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
-        }
-    }
-
-    /**
-     * A user initiated removal of a dependency
-     *
-     * @param d  an instance of an Implements or Extends dependency
-     */
-    public void userRemoveDependency(Dependency d)
-    {
-        // if they are not both classtargets then I don't want to know about it
-        if (!(d.getFrom() instanceof ClassTarget) || !(d.getTo() instanceof ClassTarget))
-            return;
-
-        ClassTarget from = (ClassTarget) d.getFrom();
-        ClassTarget to = (ClassTarget) d.getTo();
-        TextEditor ed = from.getEditor().assumeText();
-        try {
-            ed.save();
-
-            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
-            if (info != null) {
-                Selection s1 = null;
-                
-                if (d instanceof ImplementsDependency) {
-                    List<Selection> vsels;
-                    List<String> vtexts;
-                    
-                    vsels = info.getInterfaceSelections();
-                    vtexts = getInterfaceTexts(ed, vsels);
-                    int where = vtexts.indexOf(to.getBaseName());
-                    
-                    // we have a special case if we deleted the first bit of an
-                    // "implements" clause, yet there are still clauses left.. we have
-                    // to delete the following "," instead of the preceding one.
-                    if (where == 1 && vsels.size() > 2)
-                        where = 2;
-                    
-                    if (where > 0) { // should always be true
-                        s1 = vsels.get(where - 1);
-                        s1.combineWith(vsels.get(where));
-                    }
-                }
-                else if (d instanceof ExtendsDependency) {
-                    // a class extends
-                    s1 = info.getExtendsReplaceSelection();
-                    s1.combineWith(info.getSuperReplaceSelection());
-                }
-                
-                // delete the text from the end backwards so that our
-                if (s1 != null) {
-                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                    ed.insertText("", false);
-                }
-                
-                ed.save();
-            }
-        }
-        catch (IOException ioe) {
-            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
-        }
-    }
-    
-    /**
      * Using a list of selections, retrieve a list of text strings from the editor which
      * correspond to those selections.
      * TODO this is usually used to get the implemented interfaces, but it is a clumsy way
@@ -2003,8 +1784,6 @@ public final class Package extends Graph
 
         DependentTarget to = d.getTo();
         to.removeDependencyIn(d, recalc);
-
-        removedSelectableElement(d);
 
         // Inform all listeners about the removed dependency
         DependencyEvent event = new DependencyEvent(d, this, DependencyEvent.Type.DEPENDENCY_REMOVED);
@@ -2131,16 +1910,6 @@ public final class Package extends Graph
         showExtends = state;
     }
 
-    public void setState(int state)
-    {
-        this.state = state;
-    }
-
-    public int getState()
-    {
-        return state;
-    }
-
     /**
      * Test whether a file instance denotes a BlueJ or Greenfoot package directory depending on which mode we are in.
      * 
@@ -2167,99 +1936,6 @@ public final class Package extends Graph
             return GreenfootProjectFile.isProjectFileName(name);
         else 
             return BlueJPackageFile.isPackageFileName(name);
-    }
-
-    /**
-     * Called when in an interesting state (e.g. adding a new dependency) and a
-     * target is selected. Calling with 'null' as parameter resets to idle state.
-     */
-    public void targetSelected(Target t)
-    {
-        if(t == null) {
-            if(getState() != S_IDLE) {
-                setState(S_IDLE);
-                setStatus(" ");
-            }
-            return;
-        }
-
-        switch(getState()) {
-            case S_CHOOSE_USES_FROM :
-                if (t instanceof DependentTarget) {
-                    fromChoice = (DependentTarget) t;
-                    setState(S_CHOOSE_USES_TO);
-                    setStatus(chooseUsesTo);
-                }
-                else {
-                    setState(S_IDLE);
-                    setStatus(" ");
-                }
-                break;
-
-            case S_CHOOSE_USES_TO :
-                if (t != fromChoice && t instanceof DependentTarget) {
-                    setState(S_IDLE);
-                    addDependency(new UsesDependency(this, fromChoice, (DependentTarget) t), true);
-                    setStatus(" ");
-                }
-                break;
-
-            case S_CHOOSE_EXT_FROM :
-
-                if (t instanceof DependentTarget) {
-                    fromChoice = (DependentTarget) t;
-                    setState(S_CHOOSE_EXT_TO);
-                    setStatus(chooseInhTo);
-                }
-                else {
-                    setState(S_IDLE);
-                    setStatus(" ");
-                }
-                break;
-
-            case S_CHOOSE_EXT_TO :
-                if (t != fromChoice) {
-                    setState(S_IDLE);
-                    if (t instanceof ClassTarget && fromChoice instanceof ClassTarget) {
-
-                        ClassTarget from = (ClassTarget) fromChoice;
-                        ClassTarget to = (ClassTarget) t;
-
-                        // if the target is an interface then we have an
-                        // implements dependency
-                        if (to.isInterface()) {
-                            Dependency d = new ImplementsDependency(this, from, to);
-
-                            if (from.isInterface()) {
-                                userAddImplementsInterfaceDependency(d);
-                            }
-                            else {
-                                userAddImplementsClassDependency(d);
-                            }
-
-                            addDependency(d, true);
-                        }
-                        else {
-                            // an extends dependency can only be from a class to
-                            // another class
-                            if (!from.isInterface() && !to.isEnum() && !from.isEnum()) {
-                                Dependency d = new ExtendsDependency(this, from, to);
-                                userAddExtendsClassDependency(d);
-                                addDependency(d, true);
-                            }
-                            else {
-                                // TODO display an error dialog or status
-                            }
-                        }
-                    }
-                    setStatus(" ");
-                }
-                break;
-
-            default :
-                // e.g. deleting arrow - selecting target ignored
-                break;
-        }
     }
 
     /**

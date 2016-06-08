@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -258,6 +258,12 @@ public abstract class Target extends Vertex
             pkg.getEditor().repaint(getX(), getY(), getWidth(), getHeight());
         }
     }
+
+    /**
+     * Remove this element from the graph.
+     */
+    abstract public void remove();
+
 
     /**
      * We have a notion of equality that relates solely to the identifierName.

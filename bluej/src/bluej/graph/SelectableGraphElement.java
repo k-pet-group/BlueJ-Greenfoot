@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,4 +28,10 @@ package bluej.graph;
 public abstract interface SelectableGraphElement extends GraphElement, Selectable
 {
     public abstract void singleSelected();
+
+    /**
+     * Post the context menu for this target.
+     */
+    abstract public void popupMenu(int x, int y, GraphEditor graphEditor);
+
 }

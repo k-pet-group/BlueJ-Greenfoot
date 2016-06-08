@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -74,7 +74,6 @@ public class GraphPainterStdImpl
         paintEdges(g, graph);
         paintVertices(g, graph);
         paintGhosts(g, graph);
-        paintIntermediateDependency(g, graph);
         
     }
 
@@ -211,26 +210,6 @@ public class GraphPainterStdImpl
         }
         else {
             //asserts false;
-        }
-    }
-
-    /**
-     * Paint an arrow representing the intermediate dependency 'd', using the
-     * appropiate painter, on 'g'
-     * 
-     * @param g
-     * @param d
-     */
-    private void paintIntermediateDependency(Graphics2D g, Graph graph)
-    {
-        RubberBand rb = graphEditor.getRubberBand();
-        if (rb != null) {
-            if (((Package)graph).getState() == Package.S_CHOOSE_EXT_TO) {
-                extendsDependencyPainter.paintIntermediateDependency(g, rb);
-            }
-            else if (((Package)graph).getState() == Package.S_CHOOSE_USES_TO) {
-                usesDependencyPainter.paintIntermedateDependency(g, rb);
-            }
         }
     }
 
