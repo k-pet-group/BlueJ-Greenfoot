@@ -62,8 +62,6 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     private final char opening;
     /** The closing bracket character (must be same bracket type as opening, but cached for convenience */
     private final char closing;
-    /** The text of the whole item (including opening/closing brackets) */
-    private final StringExpression textProperty;
     /** The label which displays the opening bracket */
     private final Label openingLabel;
     /** The label which displays the closing bracket */
@@ -86,8 +84,12 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
         closingLabel = StructuredSlot.makeBracket("" + closing, false, content);
         HangingFlowPane.setBreakBefore(closingLabel, false);
         ConcatListBinding.bind(components, FXCollections.observableArrayList(FXCollections.observableArrayList(openingLabel), content.getComponents(), FXCollections.observableArrayList(closingLabel)));
-        
-        textProperty = new ReadOnlyStringWrapper("" + opening).concat(content.textProperty()).concat("" + closing);
+    }
+
+    @Override
+    public String getText()
+    {
+        return "" + opening + content.getCopyText(null, null) + closing;
     }
 
     @Override
@@ -267,12 +269,6 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     public Stream<InfixStructured<?, ?>> getAllExpressions()
     {
         return content.getAllExpressions();
-    }
-    
-    @Override
-    public ObservableStringValue textProperty()
-    {
-        return textProperty;
     }
 
     // package-visible

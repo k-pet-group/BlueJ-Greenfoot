@@ -2790,9 +2790,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     {
         // Must filter out nulls after interleaving, to preserve ordering:
         return Utility.interleave(
-            fields.stream().map(f -> f.textProperty()),
-            operators.stream().map(o -> o == null ? null : o.textProperty()))
-            .filter(x -> x != null).map(ObservableStringValue::get).collect(Collectors.joining());
+            fields.stream().map(f -> f.getText()),
+            operators.stream().map(o -> o == null ? null : o.get()))
+            .filter(x -> x != null).collect(Collectors.joining());
     }
     
     /**

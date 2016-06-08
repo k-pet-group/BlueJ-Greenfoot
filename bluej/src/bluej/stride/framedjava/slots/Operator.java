@@ -210,11 +210,6 @@ class Operator
                          TextOverlayPosition.nodeToOverlay(l, l.getWidth(), 0.0, l.getBaselineOffset(), l.getHeight()));
     }
 
-    public ObservableStringValue textProperty()
-    {
-        return sourceProperty;
-    }
-
     public String getJavaCode()
     {
         if ("<:".equals(get()))

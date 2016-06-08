@@ -53,8 +53,6 @@ class StringLiteralExpression implements StructuredSlotComponent
     /** A permanent reference to the (unchanging) components: opening quote
      *  label, text field, closing quote label */
     private final ObservableList<Node> components = FXCollections.observableArrayList();
-    /** The text property: two quote characters around the inner text field content */
-    private final StringExpression textProperty;
     /** The label for the opening quote */
     private final Label openingQuote;
     /** The label for the closing quote */
@@ -84,8 +82,6 @@ class StringLiteralExpression implements StructuredSlotComponent
 
         JavaFXUtil.addStyleClass(openingQuote, "expression-string-literal-quote");
         JavaFXUtil.addStyleClass(closingQuote, "expression-string-literal-quote");
-
-        textProperty = new ReadOnlyStringWrapper(quote).concat(f.textProperty()).concat(quote);
     }
 
     @Override
@@ -238,11 +234,11 @@ class StringLiteralExpression implements StructuredSlotComponent
     }
 
     @Override
-    public ObservableStringValue textProperty()
+    public String getText()
     {
-        return textProperty;
+        return quote + field.getText() + quote;
     }
-    
+
     @Override
     public void setView(View oldView, View newView, SharedTransition animate)
     {

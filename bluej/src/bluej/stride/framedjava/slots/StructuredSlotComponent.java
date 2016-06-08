@@ -164,7 +164,7 @@ interface StructuredSlotComponent
      * currently being displayed, and the text you would have to type to
      * re-enter the expression.
      */
-    ObservableStringValue textProperty();
+    String getText();
 
     /**
      * Toggles between read-only Java preview and normal view, using the given

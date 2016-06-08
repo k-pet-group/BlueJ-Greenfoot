@@ -410,7 +410,6 @@ class StructuredSlotField implements StructuredSlotComponent
         field.addEventHandler(mouseEvent, eventHandler);        
     }
 
-    @Override
     public ObservableStringValue textProperty()
     {
         return field.textProperty();
