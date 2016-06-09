@@ -1952,12 +1952,13 @@ public class ClassTarget extends DependentTarget
         @Override
         public void actionPerformed(ActionEvent e)
         {
+            File javaSourceFile = getJavaSourceFile();
             Platform.runLater(() -> {
                 if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message"))
                 {
                     try
                     {
-                        Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(getJavaSourceFile().toPath()).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
+                        Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath()).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
                         if (!javaConvertResult.getWarnings().isEmpty())
                         {
                             new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
