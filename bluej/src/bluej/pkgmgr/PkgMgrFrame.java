@@ -2948,7 +2948,6 @@ public class PkgMgrFrame extends JPanel
             createMenuItem(newPackageAction, menu);
             createMenuItem(addClassAction, menu);
             createMenuItem(removeAction, menu);
-            menu.addSeparator();
         }
 
         menu = new JMenu(Config.getString("menu.tools"));
