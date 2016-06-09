@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,8 @@ package bluej.views;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A "callable" is the generalisation of a Constructor and a Method. This class
@@ -111,11 +113,13 @@ public abstract class CallableView extends MemberView
     /**
      * Print the method to a formatting print writer.
      */
+    @OnThread(Tag.Swing)
     public void print(FormattedPrintWriter out)
     {
         print(out, 0);
     }
 
+    @OnThread(Tag.Swing)
     public void print(FormattedPrintWriter out, int indents)
     {
         Comment comment = getComment();

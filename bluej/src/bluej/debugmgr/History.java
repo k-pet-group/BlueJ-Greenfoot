@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,9 @@ package bluej.debugmgr;
 import java.util.List;
 import java.util.ArrayList;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /** 
  * History objects maintain a history of text strings. This serves as a
  * superclass for various histories (see, for example, ClassHistory,
@@ -31,6 +34,7 @@ import java.util.ArrayList;
  *
  * @author Michael Kolling
  */
+@OnThread(Tag.Any)
 public class History
 {
     protected List<String> history = null;
@@ -66,7 +70,7 @@ public class History
 
     /**
      * Return the history of used classes.
-     */	
+     */
     public List<String> getHistory()
     {
         return history;

@@ -79,6 +79,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import bluej.classmgr.BPClassLoader;
 import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
 import bluej.utility.javafx.FXSupplier;
@@ -285,6 +286,7 @@ public class PkgMgrFrame extends JPanel
 
     // static methods to create and remove frames
     // lazy initialised dialogs
+    @OnThread(Tag.FXPlatform)
     private LibraryCallDialog libraryCallDialog = null;
     private ProjectPrintDialog projectPrintDialog = null;
     private ExportManager exporter;
@@ -2344,9 +2346,19 @@ public class PkgMgrFrame extends JPanel
      */
     public void callLibraryClass()
     {
-        if (libraryCallDialog == null)
-            libraryCallDialog = new LibraryCallDialog(this);
-        libraryCallDialog.setVisible(true);
+        Package pkgRef = getPackage();
+        BPClassLoader classLoader = getProject().getClassLoader();
+        Platform.runLater(() -> {
+            if (libraryCallDialog == null)
+            {
+                libraryCallDialog = new LibraryCallDialog(getFXWindow(), pkgRef, classLoader);
+            }
+            libraryCallDialog.setResult(null);
+            Optional<CallableView> result = libraryCallDialog.showAndWait();
+            result.ifPresent(viewToCall -> SwingUtilities.invokeLater(() -> {
+                pkgRef.getEditor().raiseMethodCallEvent(pkgRef, viewToCall);
+            }));
+        });
     }
 
     /**

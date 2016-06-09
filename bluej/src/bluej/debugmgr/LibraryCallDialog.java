@@ -21,19 +21,44 @@
  */
 package bluej.debugmgr;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.TextFieldListCell;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Window;
+import javafx.util.StringConverter;
 
-import bluej.*;
-import bluej.pkgmgr.*;
+import bluej.Config;
+import bluej.classmgr.BPClassLoader;
 import bluej.pkgmgr.Package;
-import bluej.utility.*;
-import bluej.views.*;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.views.CallableView;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
+import bluej.views.View;
+import bluej.views.ViewFilter;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This dialog allows selection of classes and their static methods from
@@ -42,71 +67,43 @@ import bluej.views.*;
  *
  * @author  Michael Kolling
  */
-public class LibraryCallDialog extends EscapeDialog
-    implements ActionListener, ListSelectionListener
+@OnThread(Tag.FXPlatform)
+public class LibraryCallDialog extends Dialog<CallableView>
 {
     private static final String[] clickHere = {
-        "    ",
-        "    " + Config.getString("callLibraryDialog.clickHere1"),
-        "    " + Config.getString("callLibraryDialog.clickHere2"),
+        Config.getString("callLibraryDialog.clickHere1"),
+        Config.getString("callLibraryDialog.clickHere2"),
     };
 
     private static final String[] classNotFound = {
-        "    ",
-        "    " + Config.getString("callLibraryDialog.classNotFound1"),
-        "    " + Config.getString("callLibraryDialog.classNotFound2"),
+        Config.getString("callLibraryDialog.classNotFound1"),
+        Config.getString("callLibraryDialog.classNotFound2"),
     };
 
-    private JComboBox classField;
-    private JList methodList;
-    private JButton docButton;
-    private JButton okButton;
-    private JButton cancelButton;
+    private ComboBox classField;
+    private ListView<CallableView> methodList;
+    private Label textOverlay;
+    private Button docButton;
 
-    private ClassHistory history;
-    private Package pkg;
-    private CallableView viewToCall;
-    private List<CallableView> currentViews;      // views currently displayed in list
+    private final ClassHistory history;
+    private final Package pkg;
+    private final ObservableList<CallableView> currentViews;      // views currently displayed in list
+    private final BPClassLoader classLoader;
 
-    public LibraryCallDialog(PkgMgrFrame pmf)
+    public LibraryCallDialog(Window parent, Package pkg, BPClassLoader classLoader)
     {
-        super(pmf.getWindow(), Config.getString("callLibraryDialog.title"), false);
-        pkg = pmf.getPackage();
-        currentViews = new ArrayList<CallableView>();
-        viewToCall = null;
+        setTitle(Config.getString("callLibraryDialog.title"));
+        initOwner(parent);
+        initModality(Modality.WINDOW_MODAL);
+        Config.addDialogStylesheets(getDialogPane());
+        setResultConverter(this::calculateResult);
+        
+        this.pkg = pkg;
+        this.classLoader = classLoader;
+        currentViews = FXCollections.observableArrayList();
         history = ClassHistory.getClassHistory(10);
         makeDialog();
-    }
-
-
-    /**
-     * Set the visibility of the dialog
-     */
-    public void setVisible(boolean show)
-    {
-        super.setVisible(show);
-        if (show) {
-            okButton.setEnabled(false);
-            classField.setModel(new DefaultComboBoxModel(history.getHistory().toArray()));
-            classSelected();
-            classField.requestFocus();
-        }
-    }
-
-    /**
-     * Process action events
-     */
-    public void actionPerformed(ActionEvent event)
-    {
-        Object eventSource = event.getSource();
-        if(eventSource == classField)
-            classSelected();
-        else if (eventSource == docButton)
-            showDocumentation();
-        else if (eventSource == okButton)
-            doOk();
-        else if (eventSource == cancelButton)
-            doCancel();
+        classSelected();
     }
 
     /**
@@ -114,36 +111,26 @@ public class LibraryCallDialog extends EscapeDialog
      */
     private void showDocumentation()
     {
-        String className = (String)classField.getEditor().getItem();
+        String className = classField.getEditor().getText();
         
         // Assume unqualified classes are in java.lang
         if(className.indexOf('.') == -1)
             className = "java.lang." + className;
         
-        Utility.showClassDocumentation(className, "#constructor_summary");
+        pkg.getProject().getDefaultFXTabbedEditor().openJavaCoreDocTab(className, "#constructor_summary");
     }
 
-    /**
-     * doOk - Process an "Ok" event to invoke a Constructor or Method.
-     *  Collects arguments and calls watcher objects (Invoker).
-     */
-    private void doOk()
+    private CallableView calculateResult(ButtonType buttonType)
     {
-        if(viewToCall == null)   // not a method - help text selected
-            return;
-
-        history.add((String)classField.getEditor().getItem());
-        setVisible(false);
-        pkg.getEditor().raiseMethodCallEvent(pkg, viewToCall);
-    }
-
-    /**
-     * Process a "Cancel" event to cancel a call.
-     * Makes dialog invisible.
-     */
-    private void doCancel()
-    {
-        setVisible(false);
+        if (buttonType == ButtonType.OK)
+        {
+            CallableView viewToCall = methodList.getSelectionModel().getSelectedItem();
+            if (viewToCall != null)
+                history.add(classField.getEditor().getText());
+            return viewToCall;
+        }
+        else
+            return null;
     }
 
     /**
@@ -155,10 +142,8 @@ public class LibraryCallDialog extends EscapeDialog
     {
         Class<?> cl = null;
         currentViews.clear();
-        viewToCall = null;
-        okButton.setEnabled(false);
 
-        String className = (String)classField.getEditor().getItem();
+        String className = classField.getEditor().getText();
 
         if(className.length() == 0) {
             displayTextInClassList(clickHere);
@@ -167,7 +152,7 @@ public class LibraryCallDialog extends EscapeDialog
 
         boolean loaded;
         try {
-            ClassLoader loader = pkg.getProject().getClassLoader();
+            ClassLoader loader = classLoader;
             cl = loader.loadClass(className);
             loaded = true;
         }
@@ -176,7 +161,7 @@ public class LibraryCallDialog extends EscapeDialog
         }
         if (!loaded) {   // try for unqualified names in java.lang
             try {
-                ClassLoader loader = pkg.getProject().getClassLoader();
+                ClassLoader loader = classLoader;
                 cl = loader.loadClass("java.lang."+className);
             }
             catch(Exception exc) {
@@ -194,7 +179,6 @@ public class LibraryCallDialog extends EscapeDialog
     {
         View classView = View.getView(cl);
         ViewFilter filter;
-        List<String> list = new ArrayList<String>();
 
         ConstructorView[] constructors = classView.getConstructors();
         
@@ -204,16 +188,16 @@ public class LibraryCallDialog extends EscapeDialog
             visibilityMod = ViewFilter.PACKAGE;
 
         filter = new ViewFilter(ViewFilter.INSTANCE | visibilityMod);
-        addMethods(list, constructors, filter);
+        Arrays.stream(constructors).filter(filter::accept).forEach(currentViews::add);
 
         MethodView[] methods = classView.getAllMethods();
         filter = new ViewFilter(ViewFilter.STATIC | visibilityMod);
-        addMethods(list, methods, filter);
+        Arrays.stream(methods).filter(filter::accept).forEach(currentViews::add);
 
-        methodList.setListData(list.toArray());
-        methodList.clearSelection();
-        methodList.setEnabled(true);
-        docButton.setEnabled(true);
+        textOverlay.setVisible(false);
+        methodList.getSelectionModel().clearSelection();
+        methodList.setDisable(false);
+        docButton.setDisable(false);
     }
 
     /**
@@ -221,135 +205,79 @@ public class LibraryCallDialog extends EscapeDialog
      */
     private void displayTextInClassList(String[] text)
     {
-        methodList.setListData(text);
-        methodList.setEnabled(false);
-        docButton.setEnabled(false);
+        textOverlay.setVisible(true);
+        textOverlay.setText(Arrays.stream(text).collect(Collectors.joining("\n")));
+        methodList.getItems().clear();
+        methodList.setDisable(true);
+        docButton.setDisable(true);
     }
-
-    /**
-     * Add some methods, filtered by a given view filter, to a list.
-     */
-    public void addMethods(List<String> list, CallableView[] methods,
-                            ViewFilter filter)
-    {
-        for(int i = 0; i < methods.length; i++) {
-            if(filter.accept(methods[i])) {
-                currentViews.add(methods[i]);
-                list.add(methods[i].getShortDesc());
-                //list.add(methods[i].toString());  // includes public static
-            }
-        }
-    }
-
-    // ----- ListSelectionListener interface -----
-
-    /**
-     *  A list item was selected. This can be either in the thread list,
-     *  the stack list, or one of the variable lists.
-     */
-    public void valueChanged(ListSelectionEvent event)
-    {
-        if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
-            return;
-
-        int index = methodList.getSelectedIndex();
-        if(index == -1)
-            return;
-
-        String text = (String)methodList.getSelectedValue();
-        if(text.charAt(0) == ' ')
-            return;
-
-        viewToCall = currentViews.get(index);
-        okButton.setEnabled(true);
-    }
-
-    // ----- end of ListSelectionListener interface -----
 
     /**
      * Build the Swing dialog.
      */
     private void makeDialog()
     {
-        JPanel contentPane = (JPanel)getContentPane();
+        getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
 
-        JPanel classPanel = new JPanel(new BorderLayout(4,6));
+        Pane classPanel = new HBox();
+        JavaFXUtil.addStyleClass(classPanel, "library-call-class");
         {
-            classPanel.add(new JLabel(
-                  Config.getString("callLibraryDialog.classLabel")),
-                  BorderLayout.WEST);
+            Label classLabel = new Label(
+                Config.getString("callLibraryDialog.classLabel"));
 
-            classField = new JComboBox(history.getHistory().toArray());
+            classField = new ComboBox(FXCollections.observableArrayList(history.getHistory()));
             classField.setEditable(true);
-            classField.setMaximumRowCount(10);
-            JTextField textField = (JTextField)classField.getEditor().getEditorComponent();
-            textField.setColumns(16);
-            classField.addActionListener(this);
-            classPanel.add(classField, BorderLayout.CENTER);
+            classField.setVisibleRowCount(10);
+            TextField textField = classField.getEditor();
+            textField.setPrefColumnCount(16);
+            JavaFXUtil.addChangeListener(classField.getSelectionModel().selectedItemProperty(), x -> JavaFXUtil.runNowOrLater(this::classSelected));
 
-            docButton = new JButton(Config.getString("callLibraryDialog.docButton"));
-            docButton.addActionListener(this);
-            docButton.setEnabled(false);
-            classPanel.add(docButton, BorderLayout.EAST);
+            docButton = new Button(Config.getString("callLibraryDialog.docButton"));
+            docButton.setOnAction(e -> showDocumentation());
+            docButton.setDisable(true);
+            classPanel.getChildren().setAll(classLabel, classField, docButton);
         }
 
-        // create the centre Panel
-        JPanel centrePanel = new JPanel(new BorderLayout());
-        {
-            methodList = new JList();
-            methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            methodList.addListSelectionListener(this);
-            methodList.setVisibleRowCount(8);
-            JScrollPane methodScrollPane = new JScrollPane(methodList);
-            methodScrollPane.setColumnHeaderView(new JLabel(
-                 Config.getString("callLibraryDialog.listHeading")));
+    
+        methodList = new ListView<>();
+        JavaFXUtil.addStyleClass(methodList, "library-call-methods");
+        methodList.setEditable(false);
+        methodList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        methodList.setItems(currentViews);
+        getDialogPane().lookupButton(ButtonType.OK).disableProperty().bind(methodList.getSelectionModel().selectedItemProperty().isNull());
+        
+        textOverlay = new Label();
+        methodList.setCellFactory(v -> {
+            ListCell<CallableView> cell = new TextFieldListCell<>(new StringConverter<CallableView>()
+            {
+                @Override
+                public String toString(CallableView object)
+                {
+                    return object.getShortDesc();
+                }
 
-            MouseListener mouseListener = new MouseAdapter() {
-                    public void mouseClicked(MouseEvent e) {
-                        if (e.getClickCount() == 2) {
-                            doOk();
-                        }
-                    }
-                };
-            methodList.addMouseListener(mouseListener);
-
-            centrePanel.add(methodScrollPane, BorderLayout.CENTER);
-
-        }
-
-        // create the Button Panel
-        JPanel buttonPanel = new JPanel();
-        {
-            buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
-            okButton = BlueJTheme.getOkButton();
-            okButton.addActionListener(this);
-            
-            cancelButton = BlueJTheme.getCancelButton();
-            cancelButton.addActionListener(this);
-            
-            DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
-
-            getRootPane().setDefaultButton(okButton);
-            okButton.setEnabled(false);
-        }
-
-        //contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-        contentPane.setLayout(new BorderLayout(6,6));
-        contentPane.setBorder(BlueJTheme.generalBorder);
-
-        contentPane.add(classPanel, BorderLayout.NORTH);
-        contentPane.add(centrePanel, BorderLayout.CENTER);
-        contentPane.add(buttonPanel, BorderLayout.SOUTH);
-
-        pack();
-        DialogManager.centreDialog(this);
-
-        // Close Action when close button is pressed
-        addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent event) {
-                    setVisible(false);
+                @Override
+                public CallableView fromString(String string)
+                {
+                    throw new UnsupportedOperationException();
                 }
             });
+            cell.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY)
+                {
+                    methodList.getSelectionModel().select(cell.getItem());
+                    ((Button)getDialogPane().lookupButton(ButtonType.OK)).fire();
+                }
+            });
+            return cell;
+        });
+
+        VBox contentPane = new VBox();
+        JavaFXUtil.addStyleClass(contentPane, "library-call-dialog-content");
+        contentPane.getChildren().add(classPanel);
+        contentPane.getChildren().add(JavaFXUtil.withStyleClass(new Label(Config.getString("callLibraryDialog.listHeading")), "library-call-heading"));
+        contentPane.getChildren().add(new StackPane(methodList, textOverlay));
+
+        getDialogPane().setContent(contentPane);
     }
 }

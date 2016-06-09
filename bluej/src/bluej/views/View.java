@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import java.util.*;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -39,6 +41,7 @@ import bluej.utility.JavaUtils;
  *
  * @author  Michael Cahill
  */
+@OnThread(Tag.Any)
 public class View
 {
     /** The class that this view is for **/
@@ -189,7 +192,7 @@ public class View
      * up in the inheritance hierarchy are first in the array, with the latest 
      * redefinition last.
      */
-    public MethodView[] getAllMethods()
+    public synchronized MethodView[] getAllMethods()
     {
         if(allMethods == null) {
             HashMap<String,MemberElement> map = new HashMap<String,MemberElement>();

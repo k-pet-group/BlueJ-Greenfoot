@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,16 @@
  */
 package bluej.debugmgr;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A history of Strings that maintains an internal cursor to provide
  * 'getNext'/'getPrevious'-style methods to traverse the history list. 
  * 
  * @author mik
  */
-
+@OnThread(Tag.Any)
 public class IndexHistory extends History {
 
     private int currentIndex;

@@ -289,17 +289,6 @@ public class Utility
         return buf.toString();
     }
 
-    /**
-     * Translate a given, qualified class name into a URL where we believe its
-     * documentation to be, and display that URL in a web browser.
-     */
-    public static void showClassDocumentation(String classname, String suffix)
-    {
-        String finalURL = getDocURL(classname, suffix);
-        // Debug.message(docURL + classname + ".html" + suffix);
-        openWebBrowser(finalURL);
-    }
-
     public static String getDocURL(String classname, String suffix)
     {
         classname = classname.replace('.', '/');

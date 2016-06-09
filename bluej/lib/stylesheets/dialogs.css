@@ -51,3 +51,16 @@
     -fx-hgap: 1em;
     -fx-vgap: 1em;
 }
+
+/* Library call dialog */
+.library-call-dialog-content {
+    -fx-padding: 1em;
+    -fx-spacing: 1em;
+}
+.library-call-class {
+    -fx-spacing: 1em;
+    -fx-alignment: baseline-left;
+}
+.library-call-methods {
+    -fx-pref-height: 300;
+}

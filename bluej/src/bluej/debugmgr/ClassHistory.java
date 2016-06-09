@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,14 +22,18 @@
 package bluej.debugmgr;
 
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /** 
  * This class implements a singleton history object for library class
  * invocations.
  *
  * @author Michael Kolling
- * @version $Id: ClassHistory.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ClassHistory.java 16001 2016-06-09 15:35:27Z nccb $
  *
  */
+@OnThread(Tag.Any)
 public class ClassHistory extends History
 {
     // ======= static (factory) section =======

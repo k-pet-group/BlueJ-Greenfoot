@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,8 @@
 package bluej.views;
 
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.*;
 
@@ -32,7 +34,7 @@ import java.util.*;
  */
 public final class Comment
 {
-    private String target;		// identifies what this comment is for
+    private String target;  // identifies what this comment is for
     private String text;
     private String paramnames[];
 
@@ -89,11 +91,13 @@ public final class Comment
         return (String[]) paramnames.clone();
     }
 
+    @OnThread(Tag.Swing)
     public void print(FormattedPrintWriter out)
     {
         print(out, 0);
     }
 
+    @OnThread(Tag.Swing)
     public void print(FormattedPrintWriter out, int indents)
     {
         out.setBold(false);
