@@ -46,6 +46,7 @@ class NewPackageDialog extends InputDialog<String>
     {
         super(Config.getString("pkgmgr.newPackage.title"), Config.getString("pkgmgr.newPackage.label"), Config.getString("pkgmgr.newPackage.prompt"), "new-package-dialog");
         initOwner(parent);
+        setOKEnabled(false);
     }
     
     public String convert(String fieldText)
@@ -56,14 +57,8 @@ class NewPackageDialog extends InputDialog<String>
     public boolean validate(String oldInput, String newInput)
     {
         newInput = newInput.trim();
-        if (newInput.equals(""))
-        {
-            setErrorText("");
-            setOKEnabled(false);
-            return true;
-        }
         
-        if (JavaNames.isQualifiedIdentifier(newInput))
+        if (!newInput.isEmpty() && JavaNames.isQualifiedIdentifier(newInput))
         {
             setOKEnabled(true);
             setErrorText("");

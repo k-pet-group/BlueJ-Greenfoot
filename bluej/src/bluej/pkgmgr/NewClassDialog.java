@@ -25,37 +25,28 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-import javafx.animation.RotateTransition;
-import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
-import javafx.util.Duration;
 
 import bluej.*;
 import bluej.extensions.SourceType;
 import bluej.utility.*;
-import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.dialog.DialogPaneAnimateError;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -74,9 +65,9 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
     private static List<String> windowsRestrictedWords;  //stores restricted windows class filenames
     private final TextField nameField;
+    private final DialogPaneAnimateError dialogPane;
     private boolean fieldHasHadContent = false;
     private final Label errorLabel;
-    private Button okButton;
 
     public static class NewClassInfo
     {
@@ -101,39 +92,9 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         setTitle(Config.getString("pkgmgr.newClass.title"));
         initOwner(parent);
         initModality(Modality.APPLICATION_MODAL);
-        setDialogPane(new DialogPane() {
-            RotateTransition t = null;
-            @Override
-            protected Node createButton(ButtonType buttonType)
-            {
-                Node normal = super.createButton(buttonType);
-                if (buttonType == ButtonType.OK)
-                {
-                    okButton = (Button)normal;
-                    AnchorPane okWrapper = new AnchorPane(normal);
-                    AnchorPane.setTopAnchor(okButton, 0.0);
-                    AnchorPane.setBottomAnchor(okButton, 0.0);
-                    AnchorPane.setLeftAnchor(okButton, 0.0);
-                    AnchorPane.setRightAnchor(okButton, 0.0);
-                    ButtonBar.setButtonData(okWrapper, buttonType.getButtonData());
-                    ButtonBar.setButtonUniformSize(okWrapper, true);
-                    okWrapper.setOnMouseEntered(e -> {
-                        updateOKButton(true);
-                        if (okButton.isDisable() && t == null)
-                        {
-                            t = new RotateTransition(Duration.millis(70), errorLabel);
-                            t.setByAngle(5);
-                            t.setAutoReverse(true);
-                            t.setCycleCount(4);
-                            t.setOnFinished(ev -> {t = null;});
-                            t.play();
-                        }
-                    });
-                    return okWrapper;
-                }
-                return normal;
-            }
-        });
+        errorLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
+        dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton(true));
+        setDialogPane(dialogPane);
         Config.addDialogStylesheets(getDialogPane());
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         
@@ -168,7 +129,6 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         templateButtons = new ToggleGroup();
         addClassTypeButtons(parent, mainPanel);
-        errorLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
         mainPanel.getChildren().add(errorLabel);
 
         // Must come after we create the radio buttons:
@@ -331,7 +291,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
      */
     private void setOKEnabled(boolean okEnabled)
     {
-        okButton.setDisable(!okEnabled);
+        dialogPane.getOKButton().setDisable(!okEnabled);
     }
 
     
@@ -380,4 +340,5 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             windowsRestrictedWords.add("LPT9");
         }
     }
+
 }

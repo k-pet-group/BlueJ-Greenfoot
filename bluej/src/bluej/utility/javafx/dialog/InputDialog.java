@@ -60,6 +60,8 @@ public abstract class InputDialog<R>
     // The optional (invisible unless addErrorTextLabel is called) label below the field
     // showing some error text.
     private final Label error;
+    // The dialog pane:
+    private final DialogPaneAnimateError dialogPane;
 
     /**
      * Creates an InputDialog.
@@ -80,6 +82,8 @@ public abstract class InputDialog<R>
         error = new Label();
         // By default, error label is shown
         content.getChildren().addAll(this.prompt, field, error);
+        dialogPane = new DialogPaneAnimateError(error, () -> validate("", ""));
+        dialog.setDialogPane(dialogPane);
         dialog.getDialogPane().setContent(content);
         // By default, we have an OK and Cancel button:
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
@@ -93,7 +97,7 @@ public abstract class InputDialog<R>
         JavaFXUtil.addStyleClass(error, "dialog-error-label");
         
         field.setTextFormatter(new TextFormatter<Object>((TextFormatter.Change change) -> {
-            if (!validate(change.getControlText(), change.getControlNewText()))
+            if (!change.getControlText().equals(change.getControlNewText()) && !validate(change.getControlText(), change.getControlNewText()))
             {
                 // I believe this is the right code to revert to the old content:
                 change.setRange(0, change.getControlText().length());
@@ -159,7 +163,7 @@ public abstract class InputDialog<R>
      */
     protected void setOKEnabled(boolean okEnabled)
     {
-        dialog.getDialogPane().lookupButton(ButtonType.OK).setDisable(!okEnabled);
+        dialogPane.getOKButton().setDisable(!okEnabled);
     }
 
     /**
@@ -178,6 +182,11 @@ public abstract class InputDialog<R>
      * You may also want to call setErrorText or setOKEnabled during your implementation of this method,
      * to show an error or disable the OK button if the input is invalid.  (But if you do, make
      * sure to blank the error and enable the OK button when the input becomes valid again.) 
+     * 
+     * This method gets called with "" for oldInput and newInput if the user hovers over
+     * the OK button while the field is blank, to allow you to set the error text (which
+     * will then be animated).  As per previous instruction, you should return true here
+     * because the newInput is the empty String.
      * 
      * @param oldInput The previous text
      * @param newInput The potential new input

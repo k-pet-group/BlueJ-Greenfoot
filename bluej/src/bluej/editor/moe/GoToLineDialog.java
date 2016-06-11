@@ -46,6 +46,7 @@ public class GoToLineDialog extends InputDialog<Integer>
     {
         super(goToLineTitle, goToLineLabel, Config.getString("editor.gotoline.prompt"), "goto-line-dialog");
         initOwner(parent);
+        setOKEnabled(false);
     }
 
     public void setRangeMax(int max)
@@ -70,18 +71,12 @@ public class GoToLineDialog extends InputDialog<Integer>
     @Override
     protected boolean validate(String oldInput, String newInput)
     {
-        if (newInput.equals(""))
-        {
-            setOKEnabled(false);
-            return true;
-        }
-        
         Integer n = convert(newInput);
         if (n == null)
         {
             setErrorText(notNumericMessage);
             setOKEnabled(!oldInput.equals(""));
-            return false;
+            return newInput.equals("");
         }
         else if (n >= 1 && n <= rangeMax)
         {
