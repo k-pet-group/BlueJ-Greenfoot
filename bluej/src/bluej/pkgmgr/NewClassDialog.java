@@ -22,14 +22,17 @@
 package bluej.pkgmgr;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
-
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -42,9 +45,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
-import bluej.*;
+import bluej.Config;
 import bluej.extensions.SourceType;
-import bluej.utility.*;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
+import bluej.utility.javafx.HorizontalRadio;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.dialog.DialogPaneAnimateError;
 import threadchecker.OnThread;
@@ -59,16 +64,34 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 {
-    private final ComboBox<SourceType> languageSelectionBox;
+    /** The radio buttons for class, interface, enum, etc */
     private final ToggleGroup templateButtons;
+    /** Which radio button is associated with which template */
     private final Map<RadioButton, TemplateInfo> templates = new IdentityHashMap<>();
+    
+    /** The buttons for the source language (Java/Stride) */
+    private final HorizontalRadio<SourceType> language;
 
-    private static List<String> windowsRestrictedWords;  //stores restricted windows class filenames
+    /** stores restricted windows class filenames */
+    private static List<String> windowsRestrictedWords;
+    /** The field with the class name */
     private final TextField nameField;
+    /** The dialog pane */
     private final DialogPaneAnimateError dialogPane;
+    /** Keeps track of whether the field has yet been non-blank.
+     *  We don't show an error for empty class name if the class name
+     *  has always been empty (unless the user mouses over OK)
+     */
     private boolean fieldHasHadContent = false;
+    /**
+     * The label with the error message.
+     */
     private final Label errorLabel;
 
+    /**
+     * The information selected in the dialog: class name,
+     * template name and source type.
+     */
     public static class NewClassInfo
     {
         public final String className;
@@ -85,7 +108,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     
     
     /**
-     * Construct a NewClassDialog
+     * Construct a NewClassDialog for the given package.
      */
     public NewClassDialog(Window parent, Package pkg)
     {
@@ -114,14 +137,13 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         mainPanel.getChildren().add(nameBox);
 
-        languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
-        
-        //languageSelectionBox.setMaximumSize(languageSelectionBox.getPreferredSize());
+        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride));
+        language.select(pkg.getDefaultSourceType());
         
         HBox langBox = new HBox();
         JavaFXUtil.addStyleClass(langBox, "new-class-dialog-hbox");
         langBox.getChildren().add(new Label(Config.getString("pkgmgr.newClass.lang")));
-        langBox.getChildren().add(languageSelectionBox);
+        langBox.getChildren().addAll(language.getButtons());
         langBox.setAlignment(Pos.BASELINE_LEFT);
         mainPanel.getChildren().add(langBox);
         
@@ -131,20 +153,18 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         addClassTypeButtons(parent, mainPanel);
         mainPanel.getChildren().add(errorLabel);
 
-        // Must come after we create the radio buttons:
-        JavaFXUtil.addChangeListener(languageSelectionBox.getSelectionModel().selectedItemProperty(), language -> {
+        JavaFXUtil.addChangeListener(language.selectedProperty(), language -> {
             templates.forEach((radio, info) -> {
                 radio.setDisable(!info.sourceTypes.contains(language));
             });
             updateOKButton(false);
         });
-        languageSelectionBox.getSelectionModel().select(pkg.getDefaultSourceType());
         
         getDialogPane().setContent(mainPanel);
         setResultConverter(buttonType -> {
             if (buttonType == ButtonType.OK)
             {
-                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, languageSelectionBox.getValue());
+                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get());
             }
             else
                 return null;
@@ -154,6 +174,10 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         setOnShown(e -> Platform.runLater(nameField::requestFocus));
     }
 
+    /**
+     * Each template has a name, and a set of source types for which that
+     * template is available.
+     */
     private static class TemplateInfo
     {
         private final String name;
@@ -244,6 +268,13 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         JavaFXUtil.addChangeListener(templateButtons.selectedToggleProperty(), selected -> updateOKButton(false));
     }
 
+    /**
+     * Enable/disable the OK button, and set the error label
+     * 
+     * @param force True if we want to display a message for the blank class name,
+     *              even if it has been blank since the dialog was shown (we do
+     *              this when the user mouses over OK).
+     */
     private void updateOKButton(boolean force)
     {
         String newClassName = nameField.getText().trim();
@@ -251,7 +282,11 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         Toggle selectedToggle = templateButtons.getSelectedToggle();
         TemplateInfo info = this.templates.get(selectedToggle);
         boolean enable = false;
-        if (!JavaNames.isIdentifier(newClassName))
+        if (info == null)
+            showError("No class type selected", false);
+        else if (((RadioButton)selectedToggle).isDisabled() || !info.sourceTypes.contains(language.selectedProperty().get()))
+            showError("Type not available for " + language.selectedProperty().get(), false);
+        else if (!JavaNames.isIdentifier(newClassName))
         {
             if (fieldHasHadContent || force)
                 showError("Not valid Java class name", true);
@@ -260,12 +295,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         {
             if (fieldHasHadContent || force)
                 showError("Windows restricted word", true);
-        }
-        else if (info == null)
-            showError("No class type selected", false);
-        else if (((RadioButton)selectedToggle).isDisabled() || !info.sourceTypes.contains(languageSelectionBox.getValue()))
-            showError("Type not available for " + languageSelectionBox.getSelectionModel().getSelectedItem(), false);
-        else
+        }else
         {
             hideError();
             enable = true;

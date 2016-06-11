@@ -10,6 +10,39 @@
     -fx-border-radius: 3;
     -fx-border-style: solid;
 }
+.radio-check-border {
+    -fx-padding: 0.5em 1em 0.5em 0.5em !important;
+}
+.radio-check-border > .radio {
+    -fx-background-color: null;
+}
+.radio-check-border > .radio > .dot {
+    -fx-shape: "M24 56 L64 16 L56 8 L24 42 L12 31 L5 38.5 Z"/* Thinner: "M24 56 L64 16 L60 12 L24 50 L10 37 L7 40.5 Z"*/;
+    -fx-opacity: 0.0;
+    -fx-background-color: black;
+}
+.radio-check-border:selected > .radio > .dot {
+    -fx-background-color: black;
+    -fx-opacity: 1.0;
+}
+.radio-check-border.left-pill {
+    -fx-background-radius: 9 0 0 9, 9 0 0 9, 8 0 0 8, 7 0 0 7;
+}
+.radio-check-border.left-pill:focused {
+    -fx-background-radius: 9 0 0 9, 8 0 0 8, 7 0 0 7, 10 0 0 10, 6 0 0 6;
+}
+.radio-check-border.right-pill {
+    -fx-background-radius: 0 9 9 0, 0 9 9 0, 0 8 8 0, 0 7 7 0;
+}
+.radio-check-border.right-pill:focused {
+    -fx-background-radius: 0 9 9 0, 0 8 8 0, 0 7 7 0, 0 10 10 0, 0 6 6 0;
+}
+.radio-check-border.center-pill {
+    -fx-background-radius: 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0;
+}
+.radio-check-border.center-pill:focused {
+    -fx-background-radius: 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0;
+}
 
 /* InputDialog helper class */
 .input-dialog-content {
