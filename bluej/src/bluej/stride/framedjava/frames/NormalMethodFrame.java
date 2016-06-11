@@ -158,7 +158,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         overrideLabel.addStyleClass("method-override-label");
         overrideLabel.setAlignment(HangingFlowPane.FlowAlignment.RIGHT);
         
-        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(access),
                 JavaFXUtil.listBool(staticModifier, staticLabel),
                 JavaFXUtil.listBool(finalModifier, finalLabel),

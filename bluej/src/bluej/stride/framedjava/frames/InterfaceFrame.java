@@ -85,7 +85,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
                 extendsList.clearIfSingleEmpty();
         });
 
-        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
                 FXCollections.observableArrayList(paramName),
                 extendsList.getHeaderItems()

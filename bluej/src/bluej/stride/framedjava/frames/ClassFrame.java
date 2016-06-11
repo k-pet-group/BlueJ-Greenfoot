@@ -167,7 +167,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         // We must keep hold of an explicit reference to this binding, rather than inlining it.
         // If you do not keep this stored in a field, it will get GC-ed.
         showInheritedToggle = showingExtends.and(Bindings.isNotEmpty(extendsInheritedCanvases));
-        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 JavaFXUtil.listBool(abstractModifier, abstractLabel),
                 FXCollections.observableArrayList(headerCaptionLabel),
                 FXCollections.observableArrayList(paramName),

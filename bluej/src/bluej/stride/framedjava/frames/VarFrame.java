@@ -176,7 +176,7 @@ public class VarFrame extends SingleLineFrame
 
         
 
-        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
                 JavaFXUtil.listBool(accessModifier, access),
                 JavaFXUtil.listBool(staticModifier, staticLabel),

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,14 +31,14 @@ import javafx.collections.ObservableList;
  */
 public class ConcatListBinding<T> extends DeepListBinding<T>
 {
-    private final ObservableList<ObservableList<T>> src;
+    private final ObservableList<ObservableList<? extends T>> src;
 
-    public static <T> void bind(ObservableList<T> dest, ObservableList<ObservableList<T>> src)
+    public static <T> void bind(ObservableList<T> dest, ObservableList<ObservableList<? extends T>> src)
     {
         new ConcatListBinding<>(dest, src).startListening();
     }
     
-    private ConcatListBinding(ObservableList<T> dest, ObservableList<ObservableList<T>> src)
+    private ConcatListBinding(ObservableList<T> dest, ObservableList<ObservableList<? extends T>> src)
     {
         super(dest);
         this.src = src;

@@ -193,7 +193,7 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
      * Binds the contents of this FrameContentRow to the concatenation of the given
      * list of lists of HeaderItems.
      */
-    public void bindContentsConcat(ObservableList<ObservableList<HeaderItem>> src)
+    public void bindContentsConcat(ObservableList<ObservableList<? extends HeaderItem>> src)
     {
         ConcatListBinding.bind(headerRowComponents, src);
     }

@@ -89,7 +89,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
         headerLabel.textProperty().bind(editor.nameProperty());
 
-        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(access),
                 FXCollections.observableArrayList(headerLabel),
                 paramsPane.getSlots(),

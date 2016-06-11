@@ -251,7 +251,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
                 e.consume();
             });
 
-            this.packageRow.bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+            this.packageRow.bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                     FXCollections.observableArrayList(new SlotLabel("package ")),
                     JavaFXUtil.listBool(notShowingPackageSlot, spacer),
                     JavaFXUtil.listBool(showingPackageSlot, this.packageSlot)

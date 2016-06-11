@@ -92,7 +92,7 @@ public class ReturnFrame extends SingleLineFrame
             e.consume();
     });
         
-        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<HeaderItem>>observableArrayList(
+        getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
                 JavaFXUtil.listBool(notShowingValue, spacer),
                 JavaFXUtil.listBool(showingValue, value),
