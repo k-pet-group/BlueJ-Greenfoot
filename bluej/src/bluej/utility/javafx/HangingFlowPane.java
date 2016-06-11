@@ -194,6 +194,7 @@ public class HangingFlowPane extends Pane {
      */
     public HangingFlowPane() {
         super();
+        getStyleClass().add("hanging-flow-pane");
     }
 
     /**
@@ -202,12 +203,15 @@ public class HangingFlowPane extends Pane {
      * @since JavaFX 8.0
      */
     public HangingFlowPane(Node... children) {
-        super();
+        this();
         getChildren().addAll(children);
     }
 
     private SimpleStyleableDoubleProperty hangingIndentProperty = new SimpleStyleableDoubleProperty(StyleableProperties.HANGING_INDENT, 0.0);
 
+    /**
+     * The amount that each row after the first is indented by.
+     */
     public SimpleStyleableDoubleProperty hangingIndentProperty()
     {
         return hangingIndentProperty;
@@ -218,6 +222,11 @@ public class HangingFlowPane extends Pane {
         hangingIndentProperty.set(pixels);
     }
 
+    /**
+     * The gap between rows when there are multiple rows
+     */
+    private SimpleStyleableDoubleProperty rowSpacingProperty = new SimpleStyleableDoubleProperty(StyleableProperties.ROW_SPACING, 0.0);
+    
     /**
      * The preferred width where content should wrap in a horizontal flowpane or
      * the preferred height where content should wrap in a vertical flowpane.
@@ -404,7 +413,7 @@ public class HangingFlowPane extends Pane {
             double runLength = 0;
             double runOffset = 0;
             Run run = new Run();
-            double vgap = 0;
+            double vgap = rowSpacingProperty.get();
             double hgap = 0;
 
             final List<Node> children = getChildren();
@@ -598,6 +607,8 @@ public class HangingFlowPane extends Pane {
             };
         private static final CssMetaData<HangingFlowPane, Number> HANGING_INDENT = JavaFXUtil.cssSize("-bj-hanging-indent", hfp -> hfp.hangingIndentProperty);
 
+        private static final CssMetaData<HangingFlowPane, Number> ROW_SPACING = JavaFXUtil.cssSize("-bj-row-spacing", hfp -> hfp.rowSpacingProperty);
+
         private static final CssMetaData<HangingFlowPane,VPos> ROW_VALIGNMENT =
             new CssMetaData<HangingFlowPane,VPos>("-fx-row-valignment",
                 new EnumConverter<VPos>(VPos.class), VPos.CENTER) {
@@ -622,6 +633,7 @@ public class HangingFlowPane extends Pane {
             styleables.add(ALIGNMENT);
             styleables.add(ROW_VALIGNMENT);
             styleables.add(HANGING_INDENT);
+            styleables.add(ROW_SPACING);
 
             STYLEABLES = Collections.unmodifiableList(styleables);
         }
