@@ -92,6 +92,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
      * The information selected in the dialog: class name,
      * template name and source type.
      */
+    @OnThread(Tag.Any)
     public static class NewClassInfo
     {
         public final String className;
@@ -108,9 +109,9 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     
     
     /**
-     * Construct a NewClassDialog for the given package.
+     * Construct a NewClassDialog.
      */
-    public NewClassDialog(Window parent, Package pkg)
+    public NewClassDialog(Window parent, SourceType defaultSourceType)
     {
         setTitle(Config.getString("pkgmgr.newClass.title"));
         initOwner(parent);
@@ -126,7 +127,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         
         nameField = new TextField();
         nameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
-        JavaFXUtil.addChangeListener(nameField.textProperty(), s -> {
+        JavaFXUtil.addChangeListenerPlatform(nameField.textProperty(), s -> {
             hideError();
             updateOKButton(false);
         });
@@ -138,7 +139,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         mainPanel.getChildren().add(nameBox);
 
         language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride));
-        language.select(pkg.getDefaultSourceType());
+        language.select(defaultSourceType);
         
         HBox langBox = new HBox();
         JavaFXUtil.addStyleClass(langBox, "new-class-dialog-hbox");
@@ -153,7 +154,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         addClassTypeButtons(parent, mainPanel);
         mainPanel.getChildren().add(errorLabel);
 
-        JavaFXUtil.addChangeListener(language.selectedProperty(), language -> {
+        JavaFXUtil.addChangeListenerPlatform(language.selectedProperty(), language -> {
             templates.forEach((radio, info) -> {
                 radio.setDisable(!info.sourceTypes.contains(language));
             });
@@ -178,6 +179,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
      * Each template has a name, and a set of source types for which that
      * template is available.
      */
+    @OnThread(Tag.Any)
     private static class TemplateInfo
     {
         private final String name;
@@ -265,7 +267,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             first = false;
         }
         
-        JavaFXUtil.addChangeListener(templateButtons.selectedToggleProperty(), selected -> updateOKButton(false));
+        JavaFXUtil.addChangeListenerPlatform(templateButtons.selectedToggleProperty(), selected -> updateOKButton(false));
     }
 
     /**

@@ -11,11 +11,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 
 import bluej.utility.javafx.FXPlatformRunnable;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A custom DialogPane that runs a "jiggle" animation on a given
  * error label whenever the user mouses over the disabled OK button.
  */
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class DialogPaneAnimateError extends DialogPane
 {
     /** An extra action to run when the OK button is mouse overed */

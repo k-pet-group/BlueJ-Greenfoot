@@ -2033,19 +2033,17 @@ public class PkgMgrFrame extends JPanel
      */
     public void doCreateNewClass()
     {
+        // Must take reference on Swing thread:
+        SourceType sourceType = this.pkg.getDefaultSourceType();
         Platform.runLater(() -> {
-            NewClassDialog dlg = new NewClassDialog(getFXWindow(), pkg);
+            NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
             Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
-            result.ifPresent(info -> {
-                String name = info.className;
-                String template = info.templateName;
-                SourceType sourceType = info.sourceType;
-
-                SwingUtilities.invokeLater(() -> {
-                    createNewClass(name, template, sourceType, true);
-                });
-            });
+            result.ifPresent(info -> 
+                SwingUtilities.invokeLater(() ->
+                    createNewClass(info.className, info.templateName, info.sourceType, true)
+                )
+            );
         });
     }
 

@@ -1181,6 +1181,16 @@ public class JavaFXUtil
         return () -> property.removeListener(wrapped);
     }
 
+    /** Like addChangeListener, but for when the item will definitely only be changed on the platform thread */
+    @OnThread(Tag.FXPlatform)
+    public static <T> FXPlatformRunnable addChangeListenerPlatform(ObservableValue<T> property, FXPlatformConsumer<T> listener)
+    {
+        // Defeat thread checker:
+        ChangeListener<T> wrapped = (a, b, newVal) -> ((FXConsumer<T>)listener::accept).accept(newVal);
+        property.addListener(wrapped);
+        return () -> property.removeListener(wrapped);
+    }
+
     /**
      * Creates a single FXRunnable which runs the given list of actions in order,
      * one after the other, on the FX thread.
