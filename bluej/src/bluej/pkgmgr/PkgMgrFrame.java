@@ -2033,15 +2033,20 @@ public class PkgMgrFrame extends JPanel
      */
     public void doCreateNewClass()
     {
-        NewClassDialog dlg = new NewClassDialog(this.getWindow(), pkg);
-        boolean okay = dlg.display();
+        Platform.runLater(() -> {
+            NewClassDialog dlg = new NewClassDialog(getFXWindow(), pkg);
+            Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
-        if (okay) {
-            String name = dlg.getClassName();
-            String template = dlg.getTemplateName();
+            result.ifPresent(info -> {
+                String name = info.className;
+                String template = info.templateName;
+                SourceType sourceType = info.sourceType;
 
-            createNewClass(name, template, dlg.getSourceType(), true);
-        }
+                SwingUtilities.invokeLater(() -> {
+                    createNewClass(name, template, sourceType, true);
+                });
+            });
+        });
     }
 
     /**

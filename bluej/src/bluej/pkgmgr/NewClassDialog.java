@@ -21,18 +21,43 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.*;
-import java.awt.event.*;
 import java.io.File;
 import java.util.*;
 import java.util.List;
 
-import javax.swing.*;
-import javax.swing.border.Border;
+import javafx.animation.RotateTransition;
+import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Window;
+import javafx.util.Duration;
 
 import bluej.*;
 import bluej.extensions.SourceType;
 import bluej.utility.*;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Dialog for creating a new class
@@ -40,120 +65,139 @@ import bluej.utility.*;
  * @author  Justin Tan
  * @author  Michael Kolling
  */
-class NewClassDialog extends EscapeDialog
+@OnThread(Tag.FXPlatform)
+class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 {
-    private final JTextField textFld;
-    private final JComboBox<SourceType> languageSelectionBox;
-    private final ButtonGroup templateButtons;
-    private final List<TemplateInfo> templates = new ArrayList<>();
+    private final ComboBox<SourceType> languageSelectionBox;
+    private final ToggleGroup templateButtons;
+    private final Map<RadioButton, TemplateInfo> templates = new IdentityHashMap<>();
 
-    private String newClassName = "";
-    private boolean ok;   // result: which button?
     private static List<String> windowsRestrictedWords;  //stores restricted windows class filenames
-    private final JButton okButton;
+    private final TextField nameField;
+    private boolean fieldHasHadContent = false;
+    private final Label errorLabel;
+    private Button okButton;
 
+    public static class NewClassInfo
+    {
+        public final String className;
+        public final String templateName;
+        public final SourceType sourceType;
+
+        private NewClassInfo(String className, String templateName, SourceType sourceType)
+        {
+            this.templateName = templateName;
+            this.className = className;
+            this.sourceType = sourceType;
+        }
+    }
+    
+    
     /**
      * Construct a NewClassDialog
      */
-    public NewClassDialog(Frame parent, Package pkg)
+    public NewClassDialog(Window parent, Package pkg)
     {
-        super(parent, Config.getString("pkgmgr.newClass.title"), true);
-        
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent E)
+        setTitle(Config.getString("pkgmgr.newClass.title"));
+        initOwner(parent);
+        initModality(Modality.APPLICATION_MODAL);
+        setDialogPane(new DialogPane() {
+            RotateTransition t = null;
+            @Override
+            protected Node createButton(ButtonType buttonType)
             {
-                ok = false;
-                setVisible(false);
+                Node normal = super.createButton(buttonType);
+                if (buttonType == ButtonType.OK)
+                {
+                    okButton = (Button)normal;
+                    AnchorPane okWrapper = new AnchorPane(normal);
+                    AnchorPane.setTopAnchor(okButton, 0.0);
+                    AnchorPane.setBottomAnchor(okButton, 0.0);
+                    AnchorPane.setLeftAnchor(okButton, 0.0);
+                    AnchorPane.setRightAnchor(okButton, 0.0);
+                    ButtonBar.setButtonData(okWrapper, buttonType.getButtonData());
+                    ButtonBar.setButtonUniformSize(okWrapper, true);
+                    okWrapper.setOnMouseEntered(e -> {
+                        updateOKButton(true);
+                        if (okButton.isDisable() && t == null)
+                        {
+                            t = new RotateTransition(Duration.millis(70), errorLabel);
+                            t.setByAngle(5);
+                            t.setAutoReverse(true);
+                            t.setCycleCount(4);
+                            t.setOnFinished(ev -> {t = null;});
+                            t.play();
+                        }
+                    });
+                    return okWrapper;
+                }
+                return normal;
             }
         });
+        Config.addDialogStylesheets(getDialogPane());
+        getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        
+        VBox mainPanel = new VBox();
+        JavaFXUtil.addStyleClass(mainPanel, "new-class-dialog");
+        
+        nameField = new TextField();
+        nameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
+        JavaFXUtil.addChangeListener(nameField.textProperty(), s -> {
+            hideError();
+            updateOKButton(false);
+        });
+        
+        HBox nameBox = new HBox(new Label(Config.getString("pkgmgr.newClass.label")), nameField);
+        JavaFXUtil.addStyleClass(nameBox, "new-class-dialog-hbox");
+        nameBox.setAlignment(Pos.BASELINE_LEFT);
 
-        JPanel mainPanel = new JPanel();
-        {
-            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(BlueJTheme.dialogBorder);
+        mainPanel.getChildren().add(nameBox);
 
-            textFld = new JTextField(12);
-            
-            Box nameBox = new Box(BoxLayout.X_AXIS);
-            nameBox.add(new JLabel(Config.getString("pkgmgr.newClass.label")));
-            nameBox.add(textFld);
-            nameBox.setAlignmentX(RIGHT_ALIGNMENT);
+        languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
+        
+        //languageSelectionBox.setMaximumSize(languageSelectionBox.getPreferredSize());
+        
+        HBox langBox = new HBox();
+        JavaFXUtil.addStyleClass(langBox, "new-class-dialog-hbox");
+        langBox.getChildren().add(new Label(Config.getString("pkgmgr.newClass.lang")));
+        langBox.getChildren().add(languageSelectionBox);
+        langBox.setAlignment(Pos.BASELINE_LEFT);
+        mainPanel.getChildren().add(langBox);
+        
+        mainPanel.getChildren().add(new Label(Config.getString("pkgmgr.newClass.classType")));
 
-            mainPanel.add(nameBox);
-            mainPanel.add(Box.createVerticalStrut(5));
+        templateButtons = new ToggleGroup();
+        addClassTypeButtons(parent, mainPanel);
+        errorLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
+        mainPanel.getChildren().add(errorLabel);
 
-            SourceType[] items = { SourceType.Stride, SourceType.Java };
-            languageSelectionBox = new JComboBox<>(items);
-            languageSelectionBox.setSelectedItem(pkg.getDefaultSourceType());
-            languageSelectionBox.addItemListener(e -> {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                {
-                    updateButtons((SourceType)e.getItem());
-                }
+        // Must come after we create the radio buttons:
+        JavaFXUtil.addChangeListener(languageSelectionBox.getSelectionModel().selectedItemProperty(), language -> {
+            templates.forEach((radio, info) -> {
+                radio.setDisable(!info.sourceTypes.contains(language));
             });
-            languageSelectionBox.setMaximumSize(languageSelectionBox.getPreferredSize());
-            
-            Box langBox = new Box(BoxLayout.X_AXIS);
-            langBox.add(new JLabel(Config.getString("pkgmgr.newClass.lang")));
-            langBox.add(languageSelectionBox);
-            langBox.setAlignmentX(RIGHT_ALIGNMENT);
-            mainPanel.add(langBox);
-            mainPanel.add(Box.createVerticalStrut(5));
-
-            JPanel choicePanel = new JPanel();
+            updateOKButton(false);
+        });
+        languageSelectionBox.getSelectionModel().select(pkg.getDefaultSourceType());
+        
+        getDialogPane().setContent(mainPanel);
+        setResultConverter(buttonType -> {
+            if (buttonType == ButtonType.OK)
             {
-                choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
-                choicePanel.setAlignmentX(RIGHT_ALIGNMENT);
-
-                //create compound border empty border outside of a titled border
-                Border b = BorderFactory.createCompoundBorder(
-                        BorderFactory.createTitledBorder(Config.getString("pkgmgr.newClass.classType")),
-                        BorderFactory.createEmptyBorder(0, 10, 0, 10));
-
-                choicePanel.setBorder(b);
-
-                templateButtons = new ButtonGroup();
-                addClassTypeButtons(choicePanel);
+                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, languageSelectionBox.getValue());
             }
-            choicePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-
-            mainPanel.add(choicePanel);
-            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
-
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            {
-                buttonPanel.setAlignmentX(RIGHT_ALIGNMENT);
-
-                okButton = BlueJTheme.getOkButton();
-                okButton.addActionListener(evt -> doOK());
-
-                JButton cancelButton = BlueJTheme.getCancelButton();
-                cancelButton.addActionListener(evt -> doCancel());
-
-                DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
-                getRootPane().setDefaultButton(okButton);
-            }
-
-            mainPanel.add(buttonPanel);
-        }
-
-        getContentPane().add(mainPanel);
-        pack();
-
-        DialogManager.centreDialog(this);
-        updateButtons((SourceType)languageSelectionBox.getSelectedItem());
-    }
-
-    public SourceType getSourceType()
-    {
-        return (SourceType)languageSelectionBox.getSelectedItem();
+            else
+                return null;
+        });
+        
+        updateOKButton(false);
+        setOnShown(e -> Platform.runLater(nameField::requestFocus));
     }
 
     private static class TemplateInfo
     {
         private final String name;
         private final Set<SourceType> sourceTypes = new HashSet<>();
-        private JRadioButton button;
 
         public TemplateInfo(String name)
         {
@@ -164,174 +208,132 @@ class NewClassDialog extends EscapeDialog
             this.name = name;
             sourceTypes.add(sourceType);
         }
-
-        public void setButton(JRadioButton button)
-        {
-            this.button = button;
-        }
     }
 
     /**
      * Add the class type buttons (defining the class template to be used
      * to the panel. The templates are defined in the "defs" file.
      */
-    private void addClassTypeButtons(JPanel panel)
-    {
-        addJavaTemplates();
-        addStrideTemplates();
-       
-        // Create a radio button for each template found
-        JRadioButton button;
-        boolean first = true;
-
-        for (TemplateInfo template : templates)
-        {
-            String label = Config.getString("pkgmgr.newClass." + template.name, template.name);
-            button = new JRadioButton(label, first);  // select first
-            button.setActionCommand(template.name);
-            template.setButton(button);
-            templateButtons.add(button);
-            panel.add(button);
-            first = false;
-            button.addItemListener(e -> {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    updateOKButton();
-            });
-        }
-    }
-
-    private void addJavaTemplates()
+    private void addClassTypeButtons(Window parent, Pane panel)
     {
         String templateSuffix = ".tmpl";
         int suffixLength = templateSuffix.length();
-        SourceType sourceType = SourceType.Java;
 
         // first, get templates out of defined templates from bluej.defs
-        // (we do this rather than using the directory only to be able to
+        // (we do this rather than usign the directory only to be able to
         // force an order on the templates.)
-        String templateString = Config.getPropString("bluej.classTemplates.java");
+
+        String templateString = Config.getPropString("bluej.classTemplates");
+
         StringTokenizer tokenizer = new StringTokenizer(templateString);
+
+        List<TemplateInfo> templates = new ArrayList<>();
         while (tokenizer.hasMoreTokens()) {
             templates.add(new TemplateInfo(tokenizer.nextToken()));
         }
 
-        // next, get templates from files in template directory and merge them in
+        // next, get templates from files in template directory and
+        // merge them in
+
         File templateDir = Config.getClassTemplateDir();
-        if(!templateDir.exists()) {
-            DialogManager.showError(this, "error-no-templates");
+        if (!templateDir.exists())
+        {
+            DialogManager.showErrorFX(parent, "error-no-templates");
         }
-        else {
-            Arrays.asList(templateDir.list()).forEach(file -> {
-                if(file.endsWith(templateSuffix)) {
+        else
+        {
+            for (String file : templateDir.list())
+            {
+                if (file.endsWith(templateSuffix))
+                {
                     String templateName = file.substring(0, file.length() - suffixLength);
-                    if (!templateName.endsWith("Stride")) {
-                        TemplateInfo template = templates.stream().filter(t -> t.name.equals(templateName)).findFirst().orElse(null);
-                        if (template != null) {
-                            template.sourceTypes.add(sourceType);
-                        }
-                        else {
-                            templates.add(new TemplateInfo(templateName, sourceType));
-                        }
+                    SourceType sourceType = SourceType.Java;
+                    if (templateName.endsWith("Stride"))
+                    {
+                        templateName = templateName.substring(0, templateName.length() - "Stride".length());
+                        sourceType = SourceType.Stride;
+                    }
+                    String finalTemplateName = templateName;
+                    TemplateInfo template = templates.stream().filter(t -> t.name.equals(finalTemplateName)).findFirst().orElse(null);
+                    if (template != null)
+                    {
+                        template.sourceTypes.add(sourceType);
+                    }
+                    else
+                    {
+                        templates.add(new TemplateInfo(templateName, sourceType));
                     }
                 }
-            });
-        }
-    }
-
-    private void addStrideTemplates()
-    {
-        SourceType sourceType = SourceType.Stride;
-
-        // first, get templates out of defined templates from bluej.defs
-        String templateString = Config.getPropString("bluej.classTemplates.stride");
-        StringTokenizer tokenizer = new StringTokenizer(templateString);
-        while (tokenizer.hasMoreTokens()) {
-            String templateName = tokenizer.nextToken();
-            TemplateInfo template = templates.stream().filter(t -> t.name.equals(templateName)).findFirst().orElse(null);
-            if (template != null) {
-                template.sourceTypes.add(sourceType);
             }
-            else {
-                templates.add(new TemplateInfo(templateName, sourceType));
-            }
-        }
-    }
+        }        
 
-    private void updateButtons(SourceType sourceType)
-    {
+        // Create a radio button for each template found
+        boolean first = true;
         for (TemplateInfo template : templates)
         {
-            template.button.setVisible(template.sourceTypes.contains(sourceType));
+            String label = Config.getString("pkgmgr.newClass." + template.name, template.name);
+            RadioButton button = new RadioButton(label);
+            if (first)
+                button.setSelected(true); // select first
+            button.setToggleGroup(templateButtons);
+            this.templates.put(button, template);
+            panel.getChildren().add(button);
+            first = false;
         }
-        updateOKButton();
+        
+        JavaFXUtil.addChangeListener(templateButtons.selectedToggleProperty(), selected -> updateOKButton(false));
+    }
+
+    private void updateOKButton(boolean force)
+    {
+        String newClassName = nameField.getText().trim();
+        fieldHasHadContent |= !newClassName.equals("");
+        Toggle selectedToggle = templateButtons.getSelectedToggle();
+        TemplateInfo info = this.templates.get(selectedToggle);
+        boolean enable = false;
+        if (!JavaNames.isIdentifier(newClassName))
+        {
+            if (fieldHasHadContent || force)
+                showError("Not valid Java class name", true);
+        }
+        else if (isWindowsRestrictedWord(newClassName))
+        {
+            if (fieldHasHadContent || force)
+                showError("Windows restricted word", true);
+        }
+        else if (info == null)
+            showError("No class type selected", false);
+        else if (((RadioButton)selectedToggle).isDisabled() || !info.sourceTypes.contains(languageSelectionBox.getValue()))
+            showError("Type not available for " + languageSelectionBox.getSelectionModel().getSelectedItem(), false);
+        else
+        {
+            hideError();
+            enable = true;
+        }
+        setOKEnabled(enable);
     }
     
-    private void updateOKButton()
+    private void hideError()
     {
-        boolean canOK = false;
-        for (JRadioButton button : Utility.iterableStream(templates.stream().map(t -> t.button)))
-        {
-            if (button.isSelected() && button.isEnabled())
-                canOK = true;
-        }
-        okButton.setEnabled(canOK);
+        errorLabel.setText("");
+        JavaFXUtil.setPseudoclass("bj-dialog-error", false, nameField);
+    }
+    
+    private void showError(String error, boolean problemIsName)
+    {
+        // show error, highlight field red if problem is name:
+        errorLabel.setText(error);
+        JavaFXUtil.setPseudoclass("bj-dialog-error", problemIsName, nameField);
     }
 
     /**
-     * Show this dialog and return true if "OK" was pressed, false if
-     * cancelled.
+     * Sets the OK button of the dialog to be enabled (pass true) or not (pass false)
      */
-    public boolean display()
+    private void setOKEnabled(boolean okEnabled)
     {
-        ok = false;
-        textFld.requestFocus();
-        setVisible(true);  // modal - we sit here until closed
-        return ok;
+        okButton.setDisable(!okEnabled);
     }
 
-    public String getClassName()
-    {
-        return newClassName;
-    }
-
-    public String getTemplateName()
-    {
-        return templateButtons.getSelection().getActionCommand() + (languageSelectionBox.getSelectedItem() == SourceType.Stride ? "Stride" : "");
-    }
-
-    /**
-     * Close action when OK is pressed.
-     */
-    public void doOK()
-    {
-        newClassName = textFld.getText().trim();
-        initialiseRestrictedWordList();
-        if (JavaNames.isIdentifier(newClassName) && 
-                !(isWindowsRestrictedWord(newClassName))) {
-            ok = true;
-            setVisible(false);
-        }
-        else 
-        {
-            if (isWindowsRestrictedWord(newClassName)) {
-                DialogManager.showError(this.getParent(), "windows-reserved-class-name");
-            }
-            else {
-                DialogManager.showError(this.getParent(), "invalid-class-name");
-            }
-            textFld.selectAll();
-            textFld.requestFocus();
-        }
-    }
-
-    /**
-     * Close action when Cancel is pressed.
-     */
-    public void doCancel()
-    {
-        ok = false;
-        setVisible(false);
-    }
     
     /**
      * Tests for restricted class names (case insensitive)
@@ -340,6 +342,7 @@ class NewClassDialog extends EscapeDialog
      */
     private boolean isWindowsRestrictedWord(String fileName)
     {
+        initialiseRestrictedWordList();
         if (windowsRestrictedWords.contains(fileName.toUpperCase())){
             return true;
         }

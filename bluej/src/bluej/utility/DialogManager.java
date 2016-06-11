@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,10 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.stage.Modality;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -173,6 +177,18 @@ public class DialogManager
     }
 
     /**
+     * Show an error dialog with message and "OK" button.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static void showErrorFX(javafx.stage.Window parent, String msgID)
+    {
+        String message = getMessage(msgID);
+        if (message != null) {
+            showErrorTextFX(parent, message);
+        }
+    }
+
+    /**
      * Show an error dialog with an already-localized message and "OK" button.
      * 
      * @param parent   The component to position the dialog over
@@ -184,6 +200,23 @@ public class DialogManager
                 Config.getApplicationName() + ":  " +
                 Config.getString("dialogmgr.error"),
                 JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * Show an error dialog with an already-localized message and "OK" button.
+     *
+     * @param parent   The component to position the dialog over
+     * @param message  The message text to display (should be localized)
+     */
+    @OnThread(Tag.FXPlatform)
+    public static void showErrorTextFX(javafx.stage.Window parent, String message)
+    {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        alert.setTitle(Config.getApplicationName() + ":  " +
+            Config.getString("dialogmgr.error"));
+        alert.initOwner(parent);
+        alert.initModality(Modality.WINDOW_MODAL);
+        alert.showAndWait();
     }
     
 

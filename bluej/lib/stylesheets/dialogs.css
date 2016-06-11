@@ -77,3 +77,16 @@
 .library-call-methods {
     -fx-pref-height: 300;
 }
+
+
+/* New class dialog */
+.new-class-dialog {
+    -fx-spacing: 1em;
+    -fx-padding: 1em;
+}
+.new-class-dialog .new-class-dialog-hbox {
+    -fx-spacing: 2em;
+}
+.new-class-dialog .radio-button {
+    -fx-padding: 0 0 0 3em; /* Indent the radio buttons */
+}
