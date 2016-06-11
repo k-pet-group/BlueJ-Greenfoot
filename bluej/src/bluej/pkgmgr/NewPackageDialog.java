@@ -44,17 +44,18 @@ class NewPackageDialog extends InputDialog<String>
 {
     public NewPackageDialog(Window parent)
     {
-        super(Config.getString("pkgmgr.newPackage.title"), Config.getString("pkgmgr.newPackage.label"), "new-package-dialog");
+        super(Config.getString("pkgmgr.newPackage.title"), Config.getString("pkgmgr.newPackage.label"), Config.getString("pkgmgr.newPackage.prompt"), "new-package-dialog");
         initOwner(parent);
     }
     
     public String convert(String fieldText)
     {
-        return fieldText; // Validation is done in convert
+        return fieldText.trim(); // Validation is done in convert
     }
     
     public boolean validate(String oldInput, String newInput)
     {
+        newInput = newInput.trim();
         if (newInput.equals(""))
         {
             setErrorText("");
@@ -70,7 +71,7 @@ class NewPackageDialog extends InputDialog<String>
         }
         else
         {
-            setErrorText(Config.getString("invalid-package-name"));
+            setErrorText(Config.getString("pkgmgr.newPackage.error"));
             setOKEnabled(false);
             return true; // Let it be invalid, but show error
         }

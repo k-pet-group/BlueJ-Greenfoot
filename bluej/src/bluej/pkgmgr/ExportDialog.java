@@ -151,6 +151,7 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
 
             {
                 HBox mainClassPanel = new HBox();
+                JavaFXUtil.addStyleClass(mainClassPanel, "export-dialog-main-row");
                 mainClassPanel.setAlignment(Pos.CENTER);
                 Label classLabel = new Label(classLabelText);
                 mainClassPanel.getChildren().add(classLabel);

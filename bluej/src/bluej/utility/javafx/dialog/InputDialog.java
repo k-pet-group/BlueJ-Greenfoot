@@ -64,21 +64,21 @@ public abstract class InputDialog<R>
     /**
      * Creates an InputDialog.
      * @param title The title of the dialog (shown in window title bar)
-     * @param prompt The prompt shown in the dialog above the text field.
+     * @param label The text shown in the label above the text field.
+     * @param prompt The prompt shown in the text field
      * @param styleClass The style-class to apply to the dialog.
      */
-    public InputDialog(String title, String prompt, String styleClass)
+    public InputDialog(String title, String label, String prompt, String styleClass)
     {
         dialog = new Dialog<>();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle(title);
         VBox content = new VBox();
-        this.prompt = new Label(prompt);
+        this.prompt = new Label(label);
         field = new TextField();
+        field.setPromptText(prompt);
         error = new Label();
-        // By default, error label is not shown:
-        error.setVisible(false);
-        error.setManaged(false);
+        // By default, error label is shown
         content.getChildren().addAll(this.prompt, field, error);
         dialog.getDialogPane().setContent(content);
         // By default, we have an OK and Cancel button:
@@ -90,7 +90,7 @@ public abstract class InputDialog<R>
         JavaFXUtil.addStyleClass(content, "input-dialog-content");
         JavaFXUtil.addStyleClass(this.prompt, "input-dialog-prompt");
         JavaFXUtil.addStyleClass(field, "input-dialog-field");
-        JavaFXUtil.addStyleClass(error, "input-dialog-error");
+        JavaFXUtil.addStyleClass(error, "dialog-error-label");
         
         field.setTextFormatter(new TextFormatter<Object>((TextFormatter.Change change) -> {
             if (!validate(change.getControlText(), change.getControlNewText()))
@@ -116,16 +116,6 @@ public abstract class InputDialog<R>
     public void initOwner(Window parent)
     {
         dialog.initOwner(parent);
-    }
-
-    /**
-     * Adds the field for showing error text.  Since this affects layout,
-     * it should be done before the dialog is shown.
-     */
-    protected void addErrorTextLabel()
-    {
-        error.setVisible(true);
-        error.setManaged(true);
     }
 
     /**
@@ -161,6 +151,7 @@ public abstract class InputDialog<R>
     protected void setErrorText(String errorText)
     {
         error.setText(errorText);
+        JavaFXUtil.setPseudoclass("bj-dialog-error", !errorText.equals(""), field);
     }
     
     /**

@@ -44,8 +44,7 @@ public class GoToLineDialog extends InputDialog<Integer>
 
     public GoToLineDialog(Window parent)
     {
-        super(goToLineTitle, goToLineLabel, "goto-line-dialog");
-        addErrorTextLabel();
+        super(goToLineTitle, goToLineLabel, Config.getString("editor.gotoline.prompt"), "goto-line-dialog");
         initOwner(parent);
     }
 

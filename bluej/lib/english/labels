@@ -220,6 +220,7 @@ editor.toggle-interface-viewLabel = Toggle Documentation View
 editor.go-to-lineLabel = Go to line...
 editor.gotoline.title = Go to line
 editor.gotoline.label = Enter line number
+editor.gotoline.prompt=Line number
 editor.gotoline.notNumericMessage = Input must be numeric
 
 editor.implementationLabel = Source Code
@@ -420,6 +421,7 @@ pkgmgr.codepad.redefinedVar=$ is already defined
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Create New Class
 pkgmgr.newClass.label=Class Name:
+pkgmgr.newClass.prompt=Class Name
 pkgmgr.newClass.lang=Class Language:
 pkgmgr.newClass.classType=Class Type
 pkgmgr.newClass.stdclass=Class
@@ -432,7 +434,9 @@ pkgmgr.newClass.enum=Enum
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Create New Package
 pkgmgr.newPackage.label=Package Name:
+pkgmgr.newPackage.prompt=Package name
 pkgmgr.newPackage.newPackage=Package
+pkgmgr.newPackage.error=Invalid package name
 
 # "Use Library Class" dialog
 callLibraryDialog.title=BlueJ:  Call Library Class

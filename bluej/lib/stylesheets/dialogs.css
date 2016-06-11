@@ -1,9 +1,19 @@
+/* Shared */
+.dialog-error-label {
+    -fx-text-fill: derive(red, -20%);
+}
+.text-field:bj-dialog-error {
+    /*-fx-text-box-border: derive(red, -50%);*/
+    -fx-border-color: derive(red, -20%);
+    -fx-border-width: 3;
+    -fx-border-insets: -3;
+    -fx-border-radius: 3;
+    -fx-border-style: solid;
+}
+
 /* InputDialog helper class */
 .input-dialog-content {
-    -fx-spacing: 10;
-}
-.input-dialog-error {
-    -fx-text-fill: red;
+    -fx-spacing: 1em;
 }
 
 /* About BlueJ/Greenfoot dialog */
@@ -45,6 +55,9 @@
 .export-dialog-content {
     -fx-padding: 1em;
     -fx-spacing: 1em;
+}
+.export-dialog-main-row {
+    -fx-spacing: 2em;
 }
 .export-dialog-userlibs {
     -fx-padding: 0 3em 0 3em;
