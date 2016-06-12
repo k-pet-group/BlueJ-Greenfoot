@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -34,6 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJTheme;
@@ -44,30 +46,22 @@ import bluej.utility.EscapeDialog;
 /**
  * A print dialog with options specific to the editor.
  */
-public class PrintDialog extends EscapeDialog
+public class PrintDialog extends SwingNodeDialog
 {
-    private boolean ok; // result: which button?
+    private boolean ok = false; // result: which button?
     private JCheckBox printLineNumbers;
     private JCheckBox printHighlighting;
     private boolean printLineNumbersSelected;
     private boolean printHighlightingSelected;
 
     /**
-     * Creates a new ProjectPrintDialog object.
-     * 
-     * @param parent the frame that called the print dialog
+     * Creates a new PrintDialog object.
      */
-    public PrintDialog(Frame parent)
+    public PrintDialog()
     {
-        super(parent, Config.getString("editor.printDialog.title"), true);
+        setTitle(Config.getString("editor.printDialog.title"));
+        setModal(true);
 
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent E)
-            {
-                ok = false;
-                setVisible(false);
-            }
-        });
 
         JPanel mainPanel = new JPanel();
 
@@ -86,7 +80,7 @@ public class PrintDialog extends EscapeDialog
         mainPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JButton okButton = BlueJTheme.getOkButton();
         okButton.addActionListener(new ActionListener() {
@@ -103,7 +97,7 @@ public class PrintDialog extends EscapeDialog
 
         DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
 
-        getRootPane().setDefaultButton(okButton);
+        setDefaultButton(okButton);
 
         mainPanel.add(buttonPanel);
 

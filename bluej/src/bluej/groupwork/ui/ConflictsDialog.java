@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,9 @@ import bluej.BlueJTheme;
 import bluej.Config;
 
 import bluej.pkgmgr.Project;
+import bluej.utility.javafx.SwingNodeDialog;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 
@@ -51,7 +53,7 @@ import javax.swing.JScrollPane;
  * 
  * @author fisker
  */
-public class ConflictsDialog extends JDialog
+public class ConflictsDialog extends SwingNodeDialog
 {
     private JLabel heading;
     private List<String> bluejConflicts;
@@ -116,7 +118,7 @@ public class ConflictsDialog extends JDialog
             /*labelPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createTitledBorder("Conflict"),
                     BlueJTheme.generalBorder));*/
-            labelPanel.setAlignmentX(LEFT_ALIGNMENT);
+            labelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             //heading
             heading = new JLabel(headline);
@@ -129,7 +131,7 @@ public class ConflictsDialog extends JDialog
             JPanel conflictsPanel = new JPanel();
             conflictsPanel.setLayout(new BoxLayout(conflictsPanel,
                     BoxLayout.Y_AXIS));
-            conflictsPanel.setAlignmentX(LEFT_ALIGNMENT);
+            conflictsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             //the conflicting files labels
             for (Iterator<String> i = conflicts.iterator(); i.hasNext();) {
@@ -153,7 +155,7 @@ public class ConflictsDialog extends JDialog
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         {
-            buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+            buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             //close button
             JButton closeButton = new JButton(Config.getString("close"));
@@ -176,7 +178,7 @@ public class ConflictsDialog extends JDialog
                     }
                 });
 
-            getRootPane().setDefaultButton(resolveButton);
+            setDefaultButton(resolveButton);
 
             buttonPanel.add(resolveButton);
             buttonPanel.add(closeButton);

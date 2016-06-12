@@ -1803,7 +1803,7 @@ public final class MoeEditor extends JPanel
     public void print()
     {
         if (printDialog == null)
-            printDialog = new PrintDialog(null);
+            printDialog = new PrintDialog();
 
         if (printDialog.display()) {
             // create a printjob
