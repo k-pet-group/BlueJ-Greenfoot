@@ -511,7 +511,7 @@ public class HangingFlowPane extends Pane {
     }
 
     private double computeContentHeight(List<Run> runs) {
-        double vgap = 0;
+        double vgap = rowSpacingProperty.get();
         double cheight = (runs.size()-1)*snapSpace(vgap);
         for (int i=0, max=runs.size(); i<max; i++) {
             Run run = runs.get(i);
