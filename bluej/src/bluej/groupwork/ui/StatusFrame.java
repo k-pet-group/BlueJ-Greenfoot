@@ -22,6 +22,7 @@
 package bluej.groupwork.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -41,6 +42,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import javafx.application.Platform;
+
+import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJTheme;
@@ -63,7 +67,7 @@ import bluej.utility.SwingWorker;
  *
  * @author bquig
  */
-public class StatusFrame extends EscapeDialog
+public class StatusFrame extends SwingNodeDialog
 {
     private Project project;
     private JTable statusTable;
@@ -129,7 +133,7 @@ public class StatusFrame extends EscapeDialog
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         {
-            buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+            buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             buttonPanel.setBorder(BlueJTheme.generalBorder);
             
             // progress bar
@@ -159,7 +163,7 @@ public class StatusFrame extends EscapeDialog
                     }
                 });
 
-            getRootPane().setDefaultButton(refreshButton);
+            setDefaultButton(refreshButton);
 
             buttonPanel.add(refreshButton);
             buttonPanel.add(closeButton);
@@ -253,8 +257,7 @@ public class StatusFrame extends EscapeDialog
             progressBar.setRunning(false);
             if (! aborted) {
                 if (result.isError()) {
-                    TeamUtils.handleServerResponse(result, StatusFrame.this);
-                    setVisible(false);
+                    StatusFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, StatusFrame.this.asWindow()));
                 }
                 else {
                     Collections.sort(resources, new Comparator<TeamStatusInfo>() {

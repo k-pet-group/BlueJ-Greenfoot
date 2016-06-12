@@ -108,9 +108,10 @@ public abstract class TeamAction extends AbstractAction
      * 
      * @param basicServerResponse  The response to handle
      */
+    @OnThread(Tag.FXPlatform)
     protected void handleServerResponse(TeamworkCommandResult result)
     {
-        TeamUtils.handleServerResponse(result, pkgMgrFrame.getWindow());
+        TeamUtils.handleServerResponseFX(result, pkgMgrFrame.getFXWindow());
     }
 
     /**

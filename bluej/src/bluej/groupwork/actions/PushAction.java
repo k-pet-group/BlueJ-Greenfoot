@@ -39,6 +39,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.AbstractAction;
+import javafx.application.Platform;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -182,7 +184,7 @@ public class PushAction extends AbstractAction
                 }
             }
 
-            TeamUtils.handleServerResponse(result, (Window) commitCommentsFrame);
+            Platform.runLater(() -> TeamUtils.handleServerResponseFX(result, commitCommentsFrame.asWindow()));
 
             if (!aborted) {
                 setEnabled(true);

@@ -418,8 +418,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
             stopProgress();
             if (! aborted) {
                 if (result.isError()) {
-                    Platform.runLater(() -> TeamUtils.handleServerResponseFX(result, UpdateFilesFrame.this.asWindow()));
-                    setVisible(false);
+                    UpdateFilesFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, UpdateFilesFrame.this.asWindow()));
                 }
                 else {
                     Set<File> filesToUpdate = new HashSet<File>();
@@ -444,8 +443,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
                         }
 
                         String filesListFinal = filesList;
-                        Platform.runLater(() -> DialogManager.showMessageWithTextFX(UpdateFilesFrame.this.asWindow(), "team-unresolved-conflicts", filesListFinal));
-                        UpdateFilesFrame.this.setVisible(false);
+                        UpdateFilesFrame.this.dialogThenHide(() -> DialogManager.showMessageWithTextFX(UpdateFilesFrame.this.asWindow(), "team-unresolved-conflicts", filesListFinal));
                         return;
                     }
 

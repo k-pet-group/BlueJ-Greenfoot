@@ -23,6 +23,8 @@ package bluej.groupwork.actions;
 
 import java.io.File;
 
+import javafx.application.Platform;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -90,7 +92,7 @@ public class CheckoutAction extends TeamAction
             File projectDir;
             if (!tsc.getRepository(true).isDVCS()) {
                 //if not DVCS, we need to select module.
-                ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame.getWindow(), tsc.getRepository(true));
+                ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame::getFXWindow, tsc.getRepository(true));
                 moduleDialog.setLocationRelativeTo(oldFrame);
                 moduleDialog.setVisible(true);
 
@@ -214,7 +216,7 @@ public class CheckoutAction extends TeamAction
                 newFrame.setEnabled(true);
             }
             else {
-                TeamUtils.handleServerResponse(response, newFrame.getWindow());
+                Platform.runLater(() -> TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow()));
                 cleanup();
             }
         }

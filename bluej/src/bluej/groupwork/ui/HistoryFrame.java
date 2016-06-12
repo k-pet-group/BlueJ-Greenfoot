@@ -42,6 +42,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import javafx.application.Platform;
+
+import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJTheme;
@@ -66,7 +69,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Davin McCall
  */
-public class HistoryFrame extends EscapeDialog
+public class HistoryFrame extends SwingNodeDialog
 {
     Project project;
     ActivityIndicator activityBar;
@@ -88,7 +91,7 @@ public class HistoryFrame extends EscapeDialog
      */
     public HistoryFrame(PkgMgrFrame pmf)
     {
-        super((Frame) null, Config.getString("team.history.title"));
+        setTitle(Config.getString("team.history.title"));
         project = pmf.getProject();
         buildUI();
         pack();
@@ -354,8 +357,7 @@ public class HistoryFrame extends EscapeDialog
                 activityBar.setRunning(false);
                 command = null; // marks the command as finished
                 if (response.isError()) {
-                    TeamUtils.handleServerResponse(response, HistoryFrame.this);
-                    setVisible(false);
+                    HistoryFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(response, HistoryFrame.this.asWindow()));
                 }
                 else {
                     

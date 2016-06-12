@@ -60,20 +60,6 @@ public class TeamUtils
         }
     }
 
-    @OnThread(Tag.Swing)
-    public static void handleServerResponse(TeamworkCommandResult result, final java.awt.Window window)
-    {
-        if (result != null) {
-            if (result.wasAuthFailure()) {
-                DialogManager.showError(window, "team-authentication-problem");
-            }
-            else if (result.isError() && ! result.wasAborted()) {
-                String message = result.getErrorMessage();
-                DialogManager.showErrorText(window, message);
-            }
-        }
-    }
-    
     /**
      * From a set of File objects, remove those files which should be treated as
      * binary files (and put them in a new set). 

@@ -23,6 +23,7 @@ package bluej.groupwork.ui;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.extensions.event.PackageListener;
 import bluej.groupwork.CommitFilter;
 import bluej.groupwork.Repository;
 import bluej.groupwork.StatusHandle;
@@ -71,6 +72,10 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import javafx.application.Platform;
+
+import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -80,7 +85,7 @@ import threadchecker.Tag;
  *
  * @author Fabio Heday
  */
-public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInterface
+public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPushInterface
 {
 
     private final Project project;
@@ -171,7 +176,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             commitFileScrollPane.setViewportView(commitFiles);
             commitFiles.setMaximumSize(commitFiles.getMaximumSize());
             commitFiles.setMinimumSize(commitFiles.getMaximumSize());
-            commitFiles.setBackground(new Color(getBackground().getRGB()));
+            commitFiles.setBackground(new Color(windowPanel.getBackground().getRGB()));
 
             topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
         }
@@ -296,7 +301,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             pushFiles.setEnabled(false);
             pushFiles.setVisibleRowCount(4);
             pushFileScrollPane.setViewportView(pushFiles);
-            pushFiles.setBackground(new Color(getBackground().getRGB()));
+            pushFiles.setBackground(new Color(bottomPanel.getBackground().getRGB()));
 
             bottomPanel.add(pushFileScrollPane, BorderLayout.CENTER);
         }
@@ -347,7 +352,8 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                     String msg = DialogManager.getMessage("team-error-saving-project");
                     if (msg != null) {
                         msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
-                        DialogManager.showErrorText(this, msg);
+                        String msgFinal = msg;
+                        Platform.runLater(() -> DialogManager.showErrorTextFX(this.asWindow(), msgFinal));
                     }
                 }
                 startProgress();
@@ -557,8 +563,7 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
             stopProgress();
             if (!aborted) {
                 if (result.isError()) {
-                    TeamUtils.handleServerResponse(result, CommitAndPushFrame.this);
-                    setVisible(false);
+                    CommitAndPushFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, CommitAndPushFrame.this.asWindow()));
                 } else if (response != null) {
                     //populate files to commit.
                     Set<File> filesToCommit = new HashSet<>();
@@ -703,14 +708,12 @@ public class CommitAndPushFrame extends EscapeDialog implements CommitAndPushInt
                 filesList = buildConflictsList(otherConflicts);
             } else {
                 stopProgress();
-                DialogManager.showMessage(CommitAndPushFrame.this, "team-uptodate-failed");
-                CommitAndPushFrame.this.setVisible(false);
+                CommitAndPushFrame.this.dialogThenHide(() -> DialogManager.showMessageFX(CommitAndPushFrame.this.asWindow(), "team-uptodate-failed"));
                 return;
             }
 
             stopProgress();
-            DialogManager.showMessageWithText(CommitAndPushFrame.this, dlgLabel, filesList);
-            CommitAndPushFrame.this.setVisible(false);
+            CommitAndPushFrame.this.dialogThenHide(() -> DialogManager.showMessageWithTextFX(CommitAndPushFrame.this.asWindow(), dlgLabel, filesList));
         }
 
         /**

@@ -43,6 +43,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.SwingWorker;
 import java.awt.Window;
+import javafx.application.Platform;
 
 
 /**
@@ -214,7 +215,7 @@ public class CommitAction extends AbstractAction
                 }
             }
             
-            TeamUtils.handleServerResponse(result, (Window) commitCommentsFrame);
+            Platform.runLater(() -> TeamUtils.handleServerResponseFX(result, commitCommentsFrame.asWindow()));
             
             if (! aborted) {
                 setEnabled(true);

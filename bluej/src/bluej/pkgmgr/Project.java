@@ -104,6 +104,7 @@ import bluej.utility.FileUtility.WriteCapabilities;
 import bluej.utility.ImportScanner;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.views.View;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -2033,11 +2034,12 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * return the associated status window
      */
-    public StatusFrame getStatusWindow(Window parent)
+    public StatusFrame getStatusWindow(FXPlatformSupplier<javafx.stage.Window> parent)
     {
         if(statusFrame == null) {
             statusFrame = new StatusFrame(this);
-            statusFrame.setLocationRelativeTo(parent);
+            final StatusFrame f = this.statusFrame;
+            Platform.runLater(() -> f.setLocationRelativeTo(parent.get()));
         }
         return statusFrame;
     }

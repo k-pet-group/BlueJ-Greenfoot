@@ -56,7 +56,7 @@ public class StatusAction extends TeamAction
     private void doStatus(PkgMgrFrame pmf)
     {
         if (pmf.getProject().getTeamSettingsController().initRepository()) {
-            StatusFrame status = pmf.getProject().getStatusWindow(pmf.getWindow());
+            StatusFrame status = pmf.getProject().getStatusWindow(pmf::getFXWindow);
             status.setVisible(true);
             status.update();
         }

@@ -23,8 +23,12 @@ package bluej.groupwork.ui;
 
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Project;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.File;
 import java.util.Set;
+import javafx.stage.Window;
 
 /**
  * A Swing based user interface to commit and push.
@@ -67,4 +71,7 @@ public interface CommitAndPushInterface
      * @param msg 
      */
     public default void displayMessage(String msg){ }
+    
+    @OnThread(Tag.FXPlatform)
+    public Window asWindow();
 }

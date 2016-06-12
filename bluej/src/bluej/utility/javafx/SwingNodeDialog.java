@@ -25,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FocusTraversalPolicy;
@@ -65,7 +66,9 @@ public class SwingNodeDialog
     {
         // Provide a content pane by default:
         swingNode = new SwingNode();
-        swingNode.setContent(new JPanel());
+        JPanel content = new JPanel();
+        content.setLayout(new BorderLayout());
+        swingNode.setContent(content);
         
         Platform.runLater(() -> {            
             dialog = new Dialog<>();
@@ -219,4 +222,12 @@ public class SwingNodeDialog
 
     }
     
+    @OnThread(Tag.Swing)
+    protected void dialogThenHide(FXPlatformRunnable action)
+    {
+        Platform.runLater(() -> {
+            action.run();
+            SwingUtilities.invokeLater(() -> setVisible(false));
+        });
+    }
 }

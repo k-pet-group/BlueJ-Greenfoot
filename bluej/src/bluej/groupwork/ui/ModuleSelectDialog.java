@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package bluej.groupwork.ui;
 
 import java.awt.Container;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -46,6 +45,11 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import javafx.application.Platform;
+import javafx.stage.Window;
+
+import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJTheme;
@@ -54,7 +58,6 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
-import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 
 /**
@@ -62,7 +65,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Davin McCall
  */
-public class ModuleSelectDialog extends EscapeDialog implements ListSelectionListener
+public class ModuleSelectDialog extends SwingNodeDialog implements ListSelectionListener
 {
     private Repository repository;
     
@@ -74,11 +77,12 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
     
     private boolean wasOk;
     
-    public ModuleSelectDialog(Frame owner, Repository repository)
+    public ModuleSelectDialog(FXPlatformSupplier<Window> owner, Repository repository)
     {
-        super(owner, Config.getString("team.moduleselect.title"), true);
+        super(owner);
+        setTitle(Config.getString("team.moduleselect.title"));
+        setModal(true);
         this.repository = repository;
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         buildUI();
         pack();
     }
@@ -212,7 +216,7 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
         // Ok button
         buttonBox.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
         okButton = BlueJTheme.getOkButton();
-        getRootPane().setDefaultButton(okButton);
+        setDefaultButton(okButton);
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -289,7 +293,7 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
                     setModuleList(modules);
                 }
                 else {
-                    TeamUtils.handleServerResponse(result, ModuleSelectDialog.this);
+                    Platform.runLater(() -> TeamUtils.handleServerResponseFX(result, ModuleSelectDialog.this.asWindow()));
                 }
             }
         }

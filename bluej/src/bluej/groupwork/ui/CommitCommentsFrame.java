@@ -48,6 +48,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
+import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJTheme;
@@ -71,13 +72,14 @@ import bluej.utility.SwingWorker;
 import bluej.utility.Utility;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javafx.application.Platform;
 
 
 /**
  * A Swing based user interface to add commit comments.
  * @author Bruce Quig
  */
-public class CommitCommentsFrame extends EscapeDialog implements CommitAndPushInterface
+public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPushInterface
 {
     private JList commitFiles;
     private JPanel topPanel;
@@ -133,7 +135,8 @@ public class CommitCommentsFrame extends EscapeDialog implements CommitAndPushIn
                     String msg = DialogManager.getMessage("team-error-saving-project");
                     if (msg != null) {
                         msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
-                        DialogManager.showErrorText(this, msg);
+                        String msgFinal = msg;
+                        Platform.runLater(() -> DialogManager.showErrorTextFX(asWindow(), msgFinal));
                     }
                 }
                 startProgress();
@@ -217,7 +220,7 @@ public class CommitCommentsFrame extends EscapeDialog implements CommitAndPushIn
             commitAction = new CommitAction(this);
             commitButton = BlueJTheme.getOkButton();
             commitButton.setAction(commitAction);
-            getRootPane().setDefaultButton(commitButton);
+            setDefaultButton(commitButton);
             
             JButton closeButton = BlueJTheme.getCancelButton();
             closeButton.addActionListener(new ActionListener()
@@ -452,8 +455,7 @@ public class CommitCommentsFrame extends EscapeDialog implements CommitAndPushIn
             stopProgress();
             if (!aborted) {
                 if (result.isError()) {
-                    TeamUtils.handleServerResponse(result, CommitCommentsFrame.this);
-                    setVisible(false);
+                    CommitCommentsFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, CommitCommentsFrame.this.asWindow()));
                 } else if (response != null) {
                     Set<File> filesToCommit = new HashSet<>();
                     Set<File> filesToAdd = new LinkedHashSet<>();
@@ -510,14 +512,12 @@ public class CommitCommentsFrame extends EscapeDialog implements CommitAndPushIn
                 filesList = buildConflictsList(otherConflicts);
             } else {
                 stopProgress();
-                DialogManager.showMessage(CommitCommentsFrame.this, "team-uptodate-failed");
-                CommitCommentsFrame.this.setVisible(false);
+                CommitCommentsFrame.this.dialogThenHide(() -> DialogManager.showMessageFX(CommitCommentsFrame.this.asWindow(), "team-uptodate-failed"));
                 return;
             }
 
             stopProgress();
-            DialogManager.showMessageWithText(CommitCommentsFrame.this, dlgLabel, filesList);
-            CommitCommentsFrame.this.setVisible(false);
+            CommitCommentsFrame.this.dialogThenHide(() -> DialogManager.showMessageWithTextFX(CommitCommentsFrame.this.asWindow(), dlgLabel, filesList));
         }
 
         /**
