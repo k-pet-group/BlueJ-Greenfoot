@@ -71,12 +71,12 @@ public class GrowableList<T extends Node>
         });
         // There is a case where if you tab out while the mouse is inside, the highlight will go,
         // but we'll live with that:
-        JavaFXUtil.addChangeListener(button.focusedProperty(), focus -> setRemoveHighlight(button, focus));
+        JavaFXUtil.addFocusListener(button, focus -> setRemoveHighlight(button, focus));
         
         HangingFlowPane.setBreakBefore(button, false);
         return button;
     }
-
+    
     private void setRemoveHighlight(Button button, boolean on)
     {
         int index = inclButtons.indexOf(button);
