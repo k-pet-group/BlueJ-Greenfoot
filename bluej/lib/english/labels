@@ -139,13 +139,8 @@ extmgr.systemExtensionShort=System
 extmgr.systemExtensionLong=System extension (active for all projects)
 extmgr.projectExtensionShort=Project
 extmgr.projectExtensionLong=Project extension (for current project only)
-extmgr.statuscolumn=Status
-extmgr.namecolumn=Name
-extmgr.typecolumn=Type
-extmgr.details=Extension Details
 extmgr.details.location=Location:
 extmgr.details.version=version
-extmgr.details.url=More information at:
 
 extmgr.status.notused=not used
 extmgr.status.loaded=loaded

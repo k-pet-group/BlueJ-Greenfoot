@@ -27,8 +27,6 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-import javax.swing.JFrame;
-
 import bluej.*;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.extensions.BClassTarget;
@@ -38,7 +36,11 @@ import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
 import bluej.utility.Debug;
+import bluej.utility.javafx.FXPlatformSupplier;
+
 import javax.swing.*;
+import javafx.application.Platform;
+import javafx.stage.Window;
 
 /**
  * Manages extensions and provides the main interface to them. A
@@ -221,13 +223,14 @@ public class ExtensionsManager
      * here to be sure that the help dialog is called when extension manager is
      * valid.
      */
-    public void showHelp(Frame parentFrame)
+    public void showHelp(FXPlatformSupplier<Window> parentFrame)
     {
         List<ExtensionWrapper> extensionsList = new ArrayList<ExtensionWrapper>();
         synchronized (extensions) {
             extensionsList.addAll(extensions);
         }
-        new HelpDialog(extensionsList, parentFrame);
+        ExtensionsDialog dialog = new ExtensionsDialog(extensionsList, parentFrame);
+        Platform.runLater(dialog::showAndWait);
     }
 
     /**

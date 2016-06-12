@@ -30,7 +30,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * of each one.
  * 
  * @author Davin McCall
- * @version $Id: CheckExtensionsAction.java 15828 2016-05-20 21:44:00Z nccb $
+ * @version $Id: CheckExtensionsAction.java 16018 2016-06-12 16:50:47Z nccb $
  */
 public final class CheckExtensionsAction extends PkgMgrAction {
     
@@ -56,6 +56,6 @@ public final class CheckExtensionsAction extends PkgMgrAction {
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        ExtensionsManager.getInstance().showHelp(pmf.getWindow());
+        ExtensionsManager.getInstance().showHelp(pmf::getFXWindow);
     }
 }

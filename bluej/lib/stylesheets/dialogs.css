@@ -188,3 +188,15 @@
 .formatted-print-flow .formatted-print-line:bj-italic {
     -fx-font-shape: italic;
 }
+
+/* Extensions Dialog */
+.extension-list {
+    -fx-spacing: 1em;
+}
+.extension-info {
+    -fx-fill-width: true;
+    -fx-spacing: 1em;
+}
+.extension-info .label, .extension-info .hyperlink {
+    -fx-wrap-text: true;
+}
