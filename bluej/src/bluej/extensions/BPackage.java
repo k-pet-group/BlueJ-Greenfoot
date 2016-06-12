@@ -159,6 +159,7 @@ public class BPackage
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
+    @Deprecated
     public Frame getFrame() 
     throws ProjectNotOpenException, PackageNotFoundException
     {

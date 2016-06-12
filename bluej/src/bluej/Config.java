@@ -953,6 +953,26 @@ public final class Config
     }
 
     /**
+     * Get a string list from the language dependent definitions file
+     * (eg. "english/labels").  If you pass "mydialog.error" then we look
+     * for "mydialog.error1", then "mydialog.error2".  Every consecutive
+     * found String is added to the list until we can't find one, at which
+     * point we stop.
+     */
+    public static List<String> getStringList(String stem)
+    {
+        List<String> r = new ArrayList<>();
+        for (int i = 1; ;i++)
+        {
+            String s = getString(stem + Integer.toString(i), null);
+            if (s != null)
+                r.add(s);
+            else
+                return r;
+        }
+    }
+
+    /**
      * Get a string from the language dependent definitions file
      * (eg. "english/labels").
      */
@@ -975,16 +995,21 @@ public final class Config
         int index;
         // langProps can be null during testing:
         String str = langProps == null ? def : langProps.getProperty(strname, def);
-        // remove all underscores
-        while( (index = str.indexOf('_')) != -1){
-            str = str.substring(0, index) + str.substring(index+1);
+        if (str != null)
+        {
+            // remove all underscores
+            while ((index = str.indexOf('_')) != -1)
+            {
+                str = str.substring(0, index) + str.substring(index + 1);
+            }
+            if ((index = str.indexOf('@')) != -1)
+            {
+                //remove everything from @
+                str = str.substring(0, index);
+            }
+
+            str = PropParser.parsePropString(str, langVarProps);
         }
-        if ((index = str.indexOf('@')) != -1){ 
-            //remove everything from @
-            str = str.substring(0, index);
-        }
-        
-        str = PropParser.parsePropString(str, langVarProps);
         
         return str;
     }

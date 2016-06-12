@@ -200,3 +200,22 @@
 .extension-info .label, .extension-info .hyperlink {
     -fx-wrap-text: true;
 }
+
+/* Import Problem Dialogs */
+.import-mismatch-content, .import-failed-content {
+    -fx-spacing: 1em;
+    -fx-fill-width: true;
+}
+.import-mismatch-content {
+    -fx-pref-width: 600px;
+}
+.import-failed-content {
+    -fx-pref-width: 450px;
+}
+.import-mismatch-content .scroll-pane, .import-failed-content .scroll-pane {
+    -fx-max-height: 10em;
+    -fx-fit-to-width: true;
+}
+.import-mismatch-content .label, .import-failed-content .label {
+    -fx-wrap-text: true;
+}

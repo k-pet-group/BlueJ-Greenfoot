@@ -202,7 +202,7 @@ public class CheckoutAction extends TeamAction
             if (! failed) {
                 if (! Project.isProject(projDir.toString())) {
                     // Try and convert it to a project
-                    if (! Import.convertNonBlueJ(newFrame.getWindow(), projDir)) {
+                    if (! Import.convertNonBlueJ(newFrame::getFXWindow, projDir)) {
                         cleanup();
                         return;
                     }

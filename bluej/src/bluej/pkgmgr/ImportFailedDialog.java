@@ -25,94 +25,56 @@ import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.*;
+import java.awt.Label;
+import java.awt.List;
+import java.awt.ScrollPane;
 import java.awt.event.*;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.swing.*;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.*;
 
 /**
  * Dialog for showing the user a list of files which failed
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportFailedDialog.java 15828 2016-05-20 21:44:00Z nccb $
+ * @version $Id: ImportFailedDialog.java 16019 2016-06-12 21:43:58Z nccb $
  */
-public class ImportFailedDialog extends EscapeDialog
-    implements ActionListener
+@OnThread(Tag.FXPlatform)
+public class ImportFailedDialog extends javafx.scene.control.Dialog<Void>
 {
-    private static final String cont = Config.getString("continue");
-
     private static final String dialogTitle = Config.getString("pkgmgr.importfailed.title");
-    private static final String helpLine1 = Config.getString("pkgmgr.importfailed.helpLine1");
-    private static final String helpLine2 = Config.getString("pkgmgr.importfailed.helpLine2");
-    private static final String helpLine3 = Config.getString("pkgmgr.importfailed.helpLine3");
+    private final ButtonType CONTINUE;
 
-    public ImportFailedDialog(Frame parent, Object[] objects)
+    public ImportFailedDialog(javafx.stage.Window parent, java.util.List<File> files)
     {
-        super(parent, dialogTitle, true);
+        initOwner(parent);
+        setTitle(dialogTitle);
+        initModality(Modality.WINDOW_MODAL);
+        Config.addDialogStylesheets(getDialogPane());
+        setResizable(true);
 
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        VBox mainPanel = new VBox();
+        JavaFXUtil.addStyleClass(mainPanel, "import-failed-content");
+        mainPanel.getChildren().add(new javafx.scene.control.Label(Config.getStringList("pkgmgr.importfailed.helpLine").stream().collect(Collectors.joining(" "))));
+        mainPanel.getChildren().add(new javafx.scene.control.ScrollPane(new VBox(Utility.mapList(files, f -> new javafx.scene.control.Label(f.toString())).toArray(new Node[0]))));
 
-        JPanel mainPanel = new JPanel();
-        {
-            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(BlueJTheme.dialogBorder);
+        CONTINUE = new ButtonType(BlueJTheme.getContinueLabel(), ButtonBar.ButtonData.OK_DONE);
+        getDialogPane().getButtonTypes().setAll(CONTINUE);
 
-            JLabel helpText1 = new JLabel(helpLine1);
-            helpText1.setAlignmentX(LEFT_ALIGNMENT);
-            mainPanel.add(helpText1);
+        getDialogPane().setContent(mainPanel);
 
-            JLabel helpText2 = new JLabel(helpLine2);
-            helpText2.setAlignmentX(LEFT_ALIGNMENT);
-            mainPanel.add(helpText2);
-
-            JLabel helpText3 = new JLabel(helpLine3);
-            helpText3.setAlignmentX(LEFT_ALIGNMENT);
-            mainPanel.add(helpText3);
-
-            Font smallFont = helpText1.getFont().deriveFont(10);
-            helpText1.setFont(smallFont);
-            helpText2.setFont(smallFont);
-            helpText3.setFont(smallFont);
-
-            mainPanel.add(Box.createVerticalStrut(5));
-
-            JList failedList = new JList(objects);
-            {
-                failedList.setAlignmentX(LEFT_ALIGNMENT);
-            }
-
-            JScrollPane scrolly = new JScrollPane(failedList);
-            scrolly.setAlignmentX(LEFT_ALIGNMENT);
-
-            mainPanel.add(scrolly);
-            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
-
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            {
-                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                JButton contButton = new JButton(cont);
-                {
-                    contButton.addActionListener(this);
-                }
-
-                buttonPanel.add(contButton);
-
-                getRootPane().setDefaultButton(contButton);
-            }
-
-            mainPanel.add(buttonPanel);
-        }
-
-        getContentPane().add(mainPanel);
-        pack();
-
-        DialogManager.centreDialog(this);
-    }
-
-    public void actionPerformed(ActionEvent evt)
-    {
-        dispose();
+        //setOnShown(e -> org.scenicview.ScenicView.show(mainPanel.getScene()));
     }
 }

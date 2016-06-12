@@ -33,6 +33,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,6 +55,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -1289,6 +1293,7 @@ public class PkgMgrFrame extends JPanel
         return false;
     }
 
+    // TODO eventually, remove this, once we have switched to FX
     public Frame getWindow()
     {
         Window windowAncestor = SwingUtilities.getWindowAncestor(this);
@@ -1309,8 +1314,14 @@ public class PkgMgrFrame extends JPanel
 
         // if we have any files which failed the copy, we show them now
         if (fails != null && showFailureDialog) {
-            JDialog importFailedDlg = new ImportFailedDialog(getWindow(), fails);
-            importFailedDlg.setVisible(true);
+            SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+            File[] failsFinal = fails;
+            Platform.runLater(() -> {
+                ImportFailedDialog importFailedDlg = new ImportFailedDialog(getFXWindow(), Arrays.asList(failsFinal));
+                importFailedDlg.showAndWait();
+                loop.exit();
+            });
+            loop.enter();
         }
 
         // add bluej.pkg files through the imported directory structure
@@ -1493,7 +1504,7 @@ public class PkgMgrFrame extends JPanel
             }
             
             // Try and convert it to a project
-            if (! Import.convertNonBlueJ(this.getWindow(), absDirName))
+            if (! Import.convertNonBlueJ(this::getFXWindow, absDirName))
                 return;
             
             // then construct it as a project
@@ -1523,7 +1534,7 @@ public class PkgMgrFrame extends JPanel
         }
         else {
             // Convert to a BlueJ project
-            if (Import.convertNonBlueJ(this.getWindow(), oPath)) {
+            if (Import.convertNonBlueJ(this::getFXWindow, oPath)) {
                 return openProject(oPath.getPath());
             }
             else {
