@@ -3,11 +3,17 @@
     -fx-text-fill: derive(red, -20%);
 }
 .text-field:bj-dialog-error {
-    /*-fx-text-box-border: derive(red, -50%);*/
     -fx-border-color: derive(red, -20%);
     -fx-border-width: 3;
     -fx-border-insets: -3;
     -fx-border-radius: 3;
+    -fx-border-style: solid;
+}
+.combo-box:bj-growable-remove-highlight {
+    -fx-border-color: #404040;
+    -fx-border-width: 2;
+    -fx-border-insets: -2;
+    -fx-border-radius: 2;
     -fx-border-style: solid;
 }
 .radio-check-border {
@@ -17,6 +23,7 @@
     -fx-background-color: null;
 }
 .radio-check-border > .radio > .dot {
+    /* See http://jxnblk.com/paths/?d=M24%2056%20L64%2016%20L56%208%20L24%2042%20L12%2031%20L5%2038.5%20Z */
     -fx-shape: "M24 56 L64 16 L56 8 L24 42 L12 31 L5 38.5 Z"/* Thinner: "M24 56 L64 16 L60 12 L24 50 L10 37 L7 40.5 Z"*/;
     -fx-opacity: 0.0;
     -fx-background-color: black;
@@ -43,6 +50,41 @@
 .radio-check-border.center-pill:focused {
     -fx-background-radius: 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0;
 }
+.growable-remove .growable-remove-graphic {
+     /* http://jxnblk.com/paths/?d=M60%2052%20L40%2032%20L60%2012%20L52%204%20L32%2024%20L12%204%20L4%2012%20L24%2032%20L4%2052%20L12%2060%20L32%2040%20L52%2060%20Z */
+    -fx-shape: "M60 52 L40 32 L60 12 L52 4 L32 24 L12 4 L4 12 L24 32 L4 52 L12 60 L32 40 L52 60 Z";
+}
+.growable-add .growable-add-graphic {
+    /* http://jxnblk.com/paths/?d=M38%2060%20L38%2038%20L60%2038%20L60%2026%20L38%2026%20L38%204%20L26%204%20L26%2026%20L4%2026%20L4%2038%20L26%2038%20L26%2060%20Z */
+    -fx-shape: "M38 60 L38 38 L60 38 L60 26 L38 26 L38 4 L26 4 L26 26 L4 26 L4 38 L26 38 L26 60 Z";
+}
+.growable-remove .growable-remove-graphic, .growable-add .growable-add-graphic {
+    -fx-background-color: #404040;
+    -fx-min-width: 10;
+    -fx-min-height: 10;
+    -fx-pref-width: 10;
+    -fx-pref-height: 10;
+    -fx-max-width: 10;
+    -fx-max-height: 10;
+}
+.growable-remove, .growable-add {
+    -fx-border-radius: 10;
+    -fx-border-style: solid;
+    -fx-border-width: 0px;
+    -fx-border-color: grey;
+    -fx-background-radius: 10 10 9 8;
+    
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-min-width: 20;
+    -fx-min-height: 20;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-max-width: 20;
+    -fx-max-height: 20;
+}
+
+
 /* InputDialog helper class */
 .input-dialog-content {
     -fx-spacing: 1em;
@@ -135,4 +177,14 @@
 }
 .constructor-instance-name-row {
     -fx-spacing: 1em;
+}
+.formatted-print-flow .formatted-print-line {
+    -fx-font-family: "Source Sans Pro";
+    -fx-font-size: 125%;
+}
+.formatted-print-flow .formatted-print-line:bj-bold {
+    -fx-font-weight: bold;
+}
+.formatted-print-flow .formatted-print-line:bj-italic {
+    -fx-font-shape: italic;
 }

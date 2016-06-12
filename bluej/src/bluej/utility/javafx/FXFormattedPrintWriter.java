@@ -50,6 +50,7 @@ public class FXFormattedPrintWriter extends FormattedPrintWriter
         // even if we are going to not actually print to it.
         // We pass it the standard System output stream
         super(System.out);
+        JavaFXUtil.addStyleClass(flow, "formatted-print-flow");
     }
 
     @Override
@@ -73,10 +74,10 @@ public class FXFormattedPrintWriter extends FormattedPrintWriter
     @Override
     public void println(String line)
     {
-        Text t = new Text(line + "\n");
-        // It seems we can't change bold and italic via CSS in TextFlow so we must do it in code:
-        // We use Source Sans Pro so that we get italic, which System font on Mac doesn't support:
-        t.setFont(Font.font("Source Sans Pro", bold ? FontWeight.BOLD : FontWeight.NORMAL, italic ? FontPosture.ITALIC : FontPosture.REGULAR, 16));
+        Text t = new Text((flow.getChildren().isEmpty() ? "" : "\n") + line);
+        JavaFXUtil.addStyleClass(t, "formatted-print-line");
+        JavaFXUtil.setPseudoclass("bj-bold", bold, t);
+        JavaFXUtil.setPseudoclass("bj-italic", italic, t);
         flow.getChildren().add(t);
     }
 

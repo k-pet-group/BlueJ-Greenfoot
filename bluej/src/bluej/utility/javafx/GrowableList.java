@@ -25,8 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -54,13 +57,31 @@ public class GrowableList<T extends Node>
 
     private Node makeCrossButton()
     {
-        Button button = new Button("x");
+        Button button = JavaFXUtil.withStyleClass(new Button(), "growable-remove");
+        button.setGraphic(JavaFXUtil.withStyleClass(new Region(), "growable-remove-graphic"));
         button.setOnAction(e -> {
             int index = inclButtons.indexOf(button);
             removeItem((index - 2) / 3);
         });
+        button.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> {
+            setRemoveHighlight(button, true /*Always turn on*/); 
+        });
+        button.addEventFilter(MouseEvent.MOUSE_EXITED, e -> {
+            setRemoveHighlight(button, button.isFocused() /* Keep only if focused */);
+        });
+        // There is a case where if you tab out while the mouse is inside, the highlight will go,
+        // but we'll live with that:
+        JavaFXUtil.addChangeListener(button.focusedProperty(), focus -> setRemoveHighlight(button, focus));
+        
         HangingFlowPane.setBreakBefore(button, false);
         return button;
+    }
+
+    private void setRemoveHighlight(Button button, boolean on)
+    {
+        int index = inclButtons.indexOf(button);
+        if (index != -1)
+            JavaFXUtil.setPseudoclass("bj-growable-remove-highlight", on, inclButtons.get(index - 1));
     }
 
     private void removeItem(int index)
@@ -74,12 +95,14 @@ public class GrowableList<T extends Node>
 
     private Node makePlusButton()
     {
-        Button button = new Button("+");
+        Button button = JavaFXUtil.withStyleClass(new Button(), "growable-add");
+        button.setGraphic(JavaFXUtil.withStyleClass(new Region(), "growable-add-graphic"));
         button.setOnAction(e -> {
             int index = inclButtons.indexOf(button);
             addNewItem(index / 3);
         });
         HangingFlowPane.setBreakBefore(button, true);
+        HangingFlowPane.setMargin(button, new Insets(0, 0, 0, 8));
         return button;
     }
 
