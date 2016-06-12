@@ -43,7 +43,6 @@
 .radio-check-border.center-pill:focused {
     -fx-background-radius: 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0, 0 0 0 0;
 }
-
 /* InputDialog helper class */
 .input-dialog-content {
     -fx-spacing: 1em;
@@ -122,4 +121,18 @@
 }
 .new-class-dialog .radio-button {
     -fx-padding: 0 0 0 3em; /* Indent the radio buttons */
+}
+
+/* Constructor dialog */
+.call-dialog-content, .constructor-dialog-fields {
+    -fx-spacing: 1em;
+}
+.call-dialog-content .combo-box {
+    -fx-pref-width: 10em;
+}
+.call-dialog-content .hanging-flow-pane {
+    -bj-row-spacing: 0.5em;
+}
+.constructor-instance-name-row {
+    -fx-spacing: 1em;
 }

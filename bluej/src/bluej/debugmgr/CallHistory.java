@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 import bluej.views.TypeParamView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /** 
  * Manages an invocation history of arguments used in a package when objects 
@@ -35,6 +37,7 @@ import bluej.views.TypeParamView;
  *
  * @author Bruce Quig
  */
+@OnThread(Tag.Any)
 public class CallHistory
 {
     private Map<String,List<String>> objectTypes = null;

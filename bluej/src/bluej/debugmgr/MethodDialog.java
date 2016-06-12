@@ -21,25 +21,23 @@
  */
 package bluej.debugmgr;
 
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.utility.JavaNames;
+import bluej.utility.javafx.FXFormattedPrintWriter;
 import bluej.views.CallableView;
-import bluej.views.LabelPrintWriter;
 import bluej.views.MethodView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -51,24 +49,19 @@ import bluej.views.MethodView;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  */
+@OnThread(Tag.FXPlatform)
 public class MethodDialog extends CallDialog
 {
-    private boolean okCalled;
-    private boolean rawObject;
+    private final boolean rawObject;
 
     // Window Titles
     private static final String appName = Config.getApplicationName(); 
     static final String wCallRoutineTitle = appName + ":  " + Config.getString("pkgmgr.methodCall.titleCall");
 
-    static final String commentSlash = "   ";
-
-    private String methodName;
-    private MethodView method;
-    private Map<String,GenTypeParameter> typeParameterMap;
-
-    private JLabel callLabel;
-
-
+    private final String methodName;
+    private final MethodView method;
+    private final Map<String,GenTypeParameter> typeParameterMap;
+    private final Invoker invoker;
 
     /**
      * MethodDialog constructor.
@@ -82,19 +75,45 @@ public class MethodDialog extends CallDialog
      * @param typeMap      The mapping of type parameter names to runtime types
      *                     (a Map of String -> GenType).
      */
-    public MethodDialog(Frame parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
-                        String instanceName, MethodView method, Map<String,GenTypeParameter> typeMap)
+    public MethodDialog(Window parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
+                        String instanceName, MethodView method, Map<String,GenTypeParameter> typeMap, Invoker invoker)
     {
         super(parentFrame, ob, "");
-
+        this.invoker = invoker;
+        
         history = callHistory;
 
         // Find out the type of dialog
         methodName = method.getName();
 
         this.method = method;
-        makeDialog(method.getClassName(), instanceName);
-        setInstanceInfo(instanceName, typeMap);
+        setTitle(wCallRoutineTitle);
+        String callLabel1;
+        if (this.method.isStatic()) {
+            callLabel1 = JavaNames.stripPrefix(method.getClassName()) + "." + methodName;
+        }
+        else {
+            callLabel1 = JavaNames.stripPrefix(instanceName) + "." + methodName;
+        }
+        if (this.method.isMain()) {
+            defaultParamValue = "{ }";
+        }
+
+        makeDialog(createParameterPanel(callLabel1));
+        typeParameterMap = typeMap;
+        rawObject = instanceName != null && typeMap == null;
+        FXFormattedPrintWriter writer = new FXFormattedPrintWriter();
+        this.method.print(writer, typeParameterMap, 0);
+        setDescription(writer.getNode());
+
+        setOnShown(e -> {
+            if (typeParameterList != null) {
+                typeParameterList.getActualParameter(0).getEditor().requestFocus();
+            }
+            else if (parameterList != null) {
+                parameterList.getActualParameter(0).getEditor().requestFocus();
+            }
+        });
     }
 
     /**
@@ -102,157 +121,20 @@ public class MethodDialog extends CallDialog
      * Collects arguments and calls watcher objects (Invoker).
      */
     @Override
-    public void doOk()
+    public void handleOK()
     {
-        if(!okCalled) {
-            if (!parameterFieldsOk()) {
-                setErrorMessage(emptyFieldMsg);            
-            }
-            else if(!typeParameterFieldsOk()) {
-                setErrorMessage(emptyTypeFieldMsg);
-            } 
-            else {
-                setWaitCursor(true);
-                okButton.requestFocus();
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        callWatcher(OK);
-                    }
-                });
-                okCalled = true;
-            }
+        if (!parameterFieldsOk()) {
+            setErrorMessage(emptyFieldMsg);            
         }
-    }
-
-    /**
-     * setInstanceName - set the name of the instance shown in the label
-     * for method call dialogs, or in the text field for construction dialogs,
-     * and the assosciated type parameters.
-     */
-    public void setInstanceInfo(String instanceName, Map<String,GenTypeParameter> typeParams)
-    {
-        typeParameterMap = typeParams;
-        rawObject = instanceName != null && typeParams == null;
-        createDescription();
-        
-        // reset error label message
-        setErrorMessage("");
-
-        clearParameters();
-        startObjectBenchListening();
-
-        // focus requests have been wrapped in invokeLater method to resolve issues 
-        // with focus confusion on Mac OSX (BlueJ 2.0, JDK 1.4.2)
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run()
-            {
-                if (typeParameterList != null) {
-                    typeParameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
-                }
-                else if (parameterList != null) {
-                    parameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
-                }
-            }
-        });
-    }
-    
-    /**
-     * Create the description. This includes the comments for the method
-     * or constructor, together with its signature, and appears at the top
-     * of the dialog.
-     */
-    private void createDescription()
-    {
-        LabelPrintWriter writer = new LabelPrintWriter();
-        method.print(writer, typeParameterMap, 0);
-        setDescription(writer.getLabel());
-        setVisible(true);
-    }
-    
-    /*
-     * @see bluej.debugmgr.CallDialog#makeDialogInternal(java.lang.String, java.lang.String, javax.swing.JPanel)
-     */
-    @Override
-    protected void makeDialogInternal(String className, String instanceName, JPanel centerPanel)
-    {
-        makeCallDialog(className, instanceName, method, centerPanel);
-    }
-
-    /**
-     * makeCallDialog - create a dialog to make a method call
-     */
-    private void makeCallDialog(String className, String instanceName, CallableView method, JPanel panel)
-    {
-        JPanel tmpPanel;
-        setTitle(wCallRoutineTitle);
-        MethodView methView = (MethodView) method;
-        tmpPanel = new JPanel();
-        if (!Config.isRaspberryPi()) tmpPanel.setOpaque(false);
-        GridBagLayout gridBag = new GridBagLayout();
-        tmpPanel.setLayout(gridBag);
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = INSETS;
-        callLabel = new JLabel("", SwingConstants.RIGHT);
-        if (method.isStatic()) {
-            setCallLabel(className);
-        }
+        else if(!typeParameterFieldsOk()) {
+            setErrorMessage(emptyTypeFieldMsg);
+        } 
         else {
-            setCallLabel(instanceName);
-        }
-        if (methView.isMain()) {
-            defaultParamValue = "{ }";
-        }
-
-        setPreferredHeight(callLabel, getComboBoxHeight());
-
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBag.setConstraints(callLabel, constraints);
-        tmpPanel.add(callLabel);
-        JPanel parameterPanel = createParameterPanel();
-        if (!Config.isRaspberryPi()) parameterPanel.setOpaque(false);
-        constraints.gridy++;
-        tmpPanel.add(parameterPanel, constraints);
-        tmpPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        tmpPanel.setAlignmentX(LEFT_ALIGNMENT);
-        panel.add(tmpPanel);
-    }
-
-    /**
-     * Set the text of the label showing the call to be made.
-     */
-    public void setCallLabel(String instanceName)
-    {
-        callLabel.setText(JavaNames.stripPrefix(instanceName) + "." + methodName);
-    }
-    
-    /**
-     * Redefined setEnabled method to ensure that OK button gets disabled.
-     * As ActionListeners are also attached to combo boxes it can trigger 
-     * more than one OK action as the default button also catches an 
-     * action whther it has focus or not.
-     * 
-     * <p>Calling setEnabled on the Dialog alone does not prevent the default button 
-     * from getting action events. We therefore explicitly call setEnabled on the 
-     * default button (OK)
-     * 
-     * <p>The okCalled flag is used to prevent multiple rapid button presses before
-     * the button and dialog are disabled.
-     */
-    @Override
-    public void setEnabled(boolean state)
-    {
-        okButton.setEnabled(state);
-        super.setEnabled(state);
-        if(state) {
-            //reset ok called status when re-enabling dialog
-            okCalled = false;    
+            setWaitCursor(true);
+            SwingUtilities.invokeLater(invoker::callDialogOK);
         }
     }
-    
+
     /*
      * @see bluej.debugmgr.CallDialog#getCallableView()
      */

@@ -230,7 +230,7 @@ public class WorldInvokeListener
                 cs = Charset.forName("UTF-8");
             }
             
-            return new Invoker(frame, callable, watcher, project.getDir(), "", project.getDir().getPath(),
+            return new Invoker(null, callable, watcher, project.getDir(), "", project.getDir().getPath(),
                     ch, objectBenchVars, objectBench, debugger, compiler, instanceName, cs);
         }
         catch (RemoteException re) {

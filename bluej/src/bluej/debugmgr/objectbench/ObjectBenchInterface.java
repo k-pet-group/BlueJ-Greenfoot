@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,9 @@
  */
 package bluej.debugmgr.objectbench;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * An interface for listening for object selection events.
  * 
@@ -32,12 +35,14 @@ public interface ObjectBenchInterface
      * Add a listener for events on this object bench.
      * @param l  The listener to add
      */
+    @OnThread(Tag.Any)
     public void addObjectBenchListener(ObjectBenchListener l);
     
     /**
      * Remove a listener so that it no longer receives events.
      * @param l  The listener to remove
      */
+    @OnThread(Tag.Any)
     public void removeObjectBenchListener(ObjectBenchListener l);
     
     /**

@@ -560,6 +560,7 @@ public class JavaFXUtil
                 ((FXConsumer<Boolean>)listener::accept).accept(newVal));
     }
 
+    @OnThread(Tag.Any)
     public static void runNowOrLater(FXPlatformRunnable action)
     {
         if (Platform.isFxApplicationThread())

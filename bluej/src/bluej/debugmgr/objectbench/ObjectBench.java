@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,6 +40,8 @@ import bluej.debugmgr.ValueCollection;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.JavaNames;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The class responsible for the panel that displays objects
@@ -280,9 +282,13 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
      * Add a listener for object events to this bench.
      * @param l  The listener object.
      */
+    @OnThread(Tag.Any)
     public void addObjectBenchListener(ObjectBenchListener l)
     {
-        listenerList.add(ObjectBenchListener.class, l);
+        synchronized (listenerList)
+        {
+            listenerList.add(ObjectBenchListener.class, l);
+        }
     }
     
 
@@ -290,9 +296,13 @@ public class ObjectBench extends JPanel implements Accessible, ValueCollection,
      * Remove a listener for object events to this bench.
      * @param l  The listener object.
      */
+    @OnThread(Tag.Any)
     public void removeObjectBenchListener(ObjectBenchListener l)
     {
-        listenerList.remove(ObjectBenchListener.class, l);
+        synchronized (listenerList)
+        {
+            listenerList.remove(ObjectBenchListener.class, l);
+        }
     }
     
     

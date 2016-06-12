@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,23 +19,17 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility;
-import javax.swing.JButton;
-import javax.swing.JComponent;
+package bluej.utility.javafx;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-
 /**
- * Interface for a factory to create components for a GrowableBox.
- * 
- * @see bluej.utility.GrowableBox
- * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ComponentFactory.java 12516 2014-10-09 11:40:15Z nccb $
+ * Equivalent to Supplier, but clearer (including to plugin) that it runs on FX thread
  */
-@OnThread(Tag.Swing)
-public interface ComponentFactory
+@FunctionalInterface
+public interface FXPlatformSupplier<T>
 {
-    public JComponent createComponent(JButton addButton, JButton removeButton);
+    @OnThread(Tag.FXPlatform)
+    T get();
 }

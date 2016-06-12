@@ -21,34 +21,31 @@
  */
 package bluej.debugmgr;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.utility.JavaNames;
+import bluej.utility.javafx.FXFormattedPrintWriter;
+import bluej.utility.javafx.HangingFlowPane;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
-import bluej.views.LabelPrintWriter;
 import bluej.views.TypeParamView;
 import bluej.views.View;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
+@OnThread(Tag.FXPlatform)
 public class ConstructorDialog extends CallDialog
 {
     // Window Titles
@@ -61,10 +58,9 @@ public class ConstructorDialog extends CallDialog
     static final String illegalNameMsg = Config.getString("error.methodCall.illegalName");
     static final String duplicateNameMsg = Config.getString("error.methodCall.duplicateName");
 
-    private JTextField instanceNameText;
-    private ConstructorView constructor;
-
-    private boolean okCalled;
+    private final TextField instanceNameText;
+    private final ConstructorView constructor;
+    private final Invoker invoker;
 
     /**
      * MethodDialog constructor.
@@ -77,195 +73,89 @@ public class ConstructorDialog extends CallDialog
      * @param typeMap      The mapping of type parameter names to runtime types
      *                     (a Map of String -> GenType).
      */
-    public ConstructorDialog(Frame parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
-                             String initialName, ConstructorView constructor)
+    public ConstructorDialog(Window parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
+                             String initialName, ConstructorView constructor, Invoker invoker)
     {
         super(parentFrame, ob, "");
+        this.invoker = invoker;
 
         history = callHistory;
 
         this.constructor = constructor;
-        makeDialog(constructor.getClassName(), initialName);
-        setInstanceInfo(initialName);
-    }
-    
-    /*
-     * @see bluej.debugmgr.CallDialog#makeDialogInternal(java.lang.String, java.lang.String, javax.swing.JPanel)
-     */
-    @Override
-    protected void makeDialogInternal(String className, String instanceName, JPanel centerPanel)
-    {
-        makeCreateDialog(className, instanceName, constructor, centerPanel);
-    }
-    
-    /**
-     * makeCreateDialog - create a dialog to create an object (including
-     *  constructor call)
-     */
-    private void makeCreateDialog(String className, String instanceName, CallableView method,
-            JPanel panel)
-    {
         setTitle(wCreateTitle);
 
-        JLabel instName = new JLabel(sNameOfInstance);
-        instanceNameText = new JTextField(instanceName, 16);
+        Label instName = new Label(sNameOfInstance);
+        instName.setAlignment(Pos.BASELINE_LEFT);
+        instanceNameText = new TextField(initialName);
+        instanceNameText.setPrefColumnCount(16);
+        instanceNameText.setAlignment(Pos.BASELINE_LEFT);
         instName.setLabelFor(instanceNameText);
         // treat 'return' in text field as OK
-        instanceNameText.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
-            {
-                doOk();
-            }
-        });
-        instanceNameText.addFocusListener(new FocusListener() {
-            public void focusGained(FocusEvent fe)
-            {
-                ((JTextField) (fe.getComponent())).selectAll();
-            }
+        instanceNameText.setOnAction(e1 -> fireOK());
 
-            public void focusLost(FocusEvent fe)
-            {
-            }
-        });
+        Pane tmpPanel = new VBox();
+        JavaFXUtil.addStyleClass(tmpPanel, "constructor-dialog-fields");
 
-        JPanel tmpPanel = new JPanel();
-        if (!Config.isRaspberryPi()) tmpPanel.setOpaque(false);
-
-        GridBagLayout gridBag = new GridBagLayout();
-        tmpPanel.setLayout(gridBag);
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = INSETS;
-        constraints.gridy = 0;
-        constraints.gridx = 0;
-        gridBag.setConstraints(instName, constraints);
         if(!Config.isGreenfoot()) {
-            tmpPanel.add(instName);
-        }
-        constraints.gridx = 1;
-        constraints.gridwidth = 1;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        gridBag.setConstraints(instanceNameText, constraints);
-        if(!Config.isGreenfoot()) {
-            tmpPanel.add(instanceNameText);
+            HBox hBox = new HBox(instName, instanceNameText);
+            hBox.setAlignment(Pos.BASELINE_LEFT);
+            JavaFXUtil.addStyleClass(hBox, "constructor-instance-name-row");
+            tmpPanel.getChildren().add(hBox);
         }
 
-        View clazz = method.getDeclaringView();
+        View clazz = this.constructor.getDeclaringView();
         if (clazz.isGeneric()) {
-            JLabel name = null;
-            if(getFormalTypeParams(constructor).length > 1) {
-                name = new JLabel(sTypeParameters);
+            String name;
+            if(getFormalTypeParams(this.constructor).length > 1) {
+                name = sTypeParameters + "  ";
             } else {
-                name = new JLabel(sTypeParameter);
+                name = sTypeParameter + "  ";
             }
-            constraints.gridwidth = 1;
-            constraints.gridx = 0;
-            constraints.gridy++;
-            constraints.anchor = GridBagConstraints.NORTHWEST;
-            constraints.fill = GridBagConstraints.NONE;
-            setPreferredHeight(name, getComboBoxHeight());
-            gridBag.setConstraints(name, constraints);
-            tmpPanel.add(name);
 
-            JPanel typeParameterPanel = createTypeParameterPanel();
-            if (!Config.isRaspberryPi()) typeParameterPanel.setOpaque(false);
-            constraints.gridwidth = 1;
-            constraints.gridx = 1;
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            tmpPanel.add(typeParameterPanel, constraints);
+            Pane typeParameterPanel = createTypeParameterPanel(name);
+            tmpPanel.getChildren().add(typeParameterPanel);
         }
 
-        if (method.hasParameters()) {
-            JLabel name = new JLabel("new " + className, JLabel.RIGHT);
-            constraints.gridwidth = 1;
-            constraints.gridx = 0;
-            constraints.gridy++;
-            constraints.anchor = GridBagConstraints.NORTHEAST;
-            constraints.fill = GridBagConstraints.NONE;
-            setPreferredHeight(name, getComboBoxHeight());
-            gridBag.setConstraints(name, constraints);
-            tmpPanel.add(name);
-
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.gridx = 1;
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            JPanel parameterPanel = createParameterPanel();
-            if (!Config.isRaspberryPi()) parameterPanel.setOpaque(false);
-            tmpPanel.add(parameterPanel, constraints);
-
-            constraints.gridx = 3;
-            constraints.gridy = 0;
-            constraints.weightx = 1.0;
-            JPanel filler = new JPanel();
-            if (!Config.isRaspberryPi()) filler.setOpaque(false);
-            gridBag.setConstraints(filler, constraints);
-            tmpPanel.add(filler);
+        if (this.constructor.hasParameters()) {
+            Pane parameterPanel = createParameterPanel("new " + constructor.getClassName());
+            tmpPanel.getChildren().add(parameterPanel);
         }
 
-        tmpPanel.setBorder(BorderFactory.createEmptyBorder(BlueJTheme.generalSpacingWidth, 0,
-                BlueJTheme.generalSpacingWidth, 0));
-        panel.add(tmpPanel, BorderLayout.NORTH);
-    } // makeCreateDialog
+        makeDialog(tmpPanel);
+        instanceNameText.setText(initialName);
+        FXFormattedPrintWriter writer = new FXFormattedPrintWriter();
+        this.constructor.print(writer);
+        setDescription(writer.getNode());
 
-    /**
-     * setInstanceName - set the name of the instance shown in the label
-     * for method call dialogs, or in the text field for construction dialogs,
-     * and the assosciated type parameters.
-     */
-    public void setInstanceInfo(String instanceName)
-    {
-        instanceNameText.setText(instanceName);
-        createDescription();
-        
-        // reset error label message
-        setErrorMessage("");
-
-        clearParameters();
-        startObjectBenchListening();
-
-        // focus requests have been wrapped in invokeLater method to resolve issues 
-        // with focus confusion on Mac OSX (BlueJ 2.0, JDK 1.4.2)
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run()
+        setOnShown(e -> {
+            if (typeParameterList != null)
             {
-                if (typeParameterList != null) {
-                    typeParameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
-                }
-                else if (parameterList != null) {
-                    parameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
-                }
+                typeParameterList.getActualParameter(0).getEditor().requestFocus();
+            }
+            else if (parameterList != null)
+            {
+                parameterList.getActualParameter(0).getEditor().requestFocus();
+            }
+            else
+            {
+                instanceNameText.requestFocus();
             }
         });
-    }
-
-    /**
-     * Create the description. This includes the comments for the method
-     * or constructor, together with its signature, and appears at the top
-     * of the dialog.
-     */
-    private void createDescription()
-    {
-        LabelPrintWriter writer = new LabelPrintWriter();
-        constructor.print(writer);
-        setDescription(writer.getLabel());
-        setVisible(true);
     }
 
     /**
      * Creates a panel of type parameters for a new object
      */
-    private JPanel createTypeParameterPanel()
+    private HangingFlowPane createTypeParameterPanel(String prefix)
     {
         TypeParamView formalTypeParams[] = getFormalTypeParams(constructor);
 
-        typeParameterList = new ParameterList(formalTypeParams.length, defaultParamValue, false);
-        for (int i = 0; i < formalTypeParams.length; i++) {
-            List<String> historyList = history.getHistory(formalTypeParams[i]);            
-            JComboBox component = createComboBox(historyList);
-            typeParameterList.addParameter(i, component, formalTypeParams[i].toString());
+        typeParameterList = new ParameterList(formalTypeParams.length, defaultParamValue, f -> this.focusedTextField = f, this::fireOK);
+        for (TypeParamView formalTypeParam : formalTypeParams)
+        {
+            typeParameterList.addNormalParameter(formalTypeParam.toString(), null, history.getHistory(formalTypeParam));
         }
-        String startString = "<";
+        String startString = prefix + "<";
         String endString = ">";
         ParameterList superParamList = typeParameterList;
         return createParameterPanel(startString, endString, superParamList);
@@ -275,64 +165,47 @@ public class ConstructorDialog extends CallDialog
      * doOk - Process an "Ok" event to invoke a Constructor or Method.
      * Collects arguments and calls watcher objects (Invoker).
      */
-    public void doOk()
+    public void handleOK()
     {
-        if(!okCalled) {
-            if (!JavaNames.isIdentifier(getNewInstanceName())) {
-                setErrorMessage(illegalNameMsg);
-                return;
-            }
-            ObjectBenchInterface ob = getObjectBench();
-            if (ob != null && ob.hasObject(getNewInstanceName())) {
-                setErrorMessage(duplicateNameMsg);
-                return;
-            }
-            
-            if (!parameterFieldsOk()) {
-                setErrorMessage(emptyFieldMsg);            
-            } else if (!typeParameterFieldsOk()) {     
-                setErrorMessage(emptyTypeFieldMsg);
-            } else {
-                setWaitCursor(true);
-                okButton.requestFocus();
-                SwingUtilities.invokeLater(new Runnable()
+        String newInstanceName = getNewInstanceName();
+        if (!JavaNames.isIdentifier(newInstanceName)) {
+            setErrorMessage(illegalNameMsg);
+            JavaFXUtil.setPseudoclass("bj-dialog-error", true, instanceNameText);
+            return;
+        }
+        // Must cross threads to check object bench:
+        SwingUtilities.invokeLater(() -> {
+            boolean alreadyOnBench = bench != null && bench.hasObject(newInstanceName);
+            Platform.runLater(() -> {
+                if (alreadyOnBench)
                 {
-                    public void run()
-                    {
-                        callWatcher(OK);
-                    }
-                });
-                okCalled = true;
-            }
-        }
-    }
+                    setErrorMessage(duplicateNameMsg);
+                    JavaFXUtil.setPseudoclass("bj-dialog-error", true, instanceNameText);
+                    return;
+                }
+                JavaFXUtil.setPseudoclass("bj-dialog-error", false, instanceNameText);
 
-    /**
-     * Redefined setEnabled method to ensure that OK button gets disabled.
-     * As ActionListeners are also attached to combo boxes it can trigger 
-     * more than one OK action as the default button also catches an 
-     * action whther it has focus or not.
-     * 
-     * <p>Calling setEnabled on the Dialog alone does not prevent the default button 
-     * from getting action events. We therefore explicitly call setEnabled on the 
-     * default button (OK)
-     * 
-     * <p>The okCalled flag is used to prevent multiple rapid button presses before
-     * the button and dialog are disabled.
-     */
-    public void setEnabled(boolean state)
-    {
-        okButton.setEnabled(state);
-        super.setEnabled(state);
-        if(state) {
-            //reset ok called status when re-enabling dialog
-            okCalled = false;    
-        }
+                if (!parameterFieldsOk())
+                {
+                    setErrorMessage(emptyFieldMsg);
+                }
+                else if (!typeParameterFieldsOk())
+                {
+                    setErrorMessage(emptyTypeFieldMsg);
+                }
+                else
+                {
+                    setWaitCursor(true);
+                    SwingUtilities.invokeLater(invoker::callDialogOK);
+                }
+            });
+        });
     }
     
     /**
      * getNewInstanceName - get the contents of the instance name field.
      */
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public String getNewInstanceName()
     {
         if (instanceNameText == null) {

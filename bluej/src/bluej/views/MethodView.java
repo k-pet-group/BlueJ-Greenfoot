@@ -289,7 +289,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         return jtReturnType;
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     public void print(FormattedPrintWriter out, Map<String,GenTypeParameter> typeParams, int indents)
     {
         Comment comment = getComment();

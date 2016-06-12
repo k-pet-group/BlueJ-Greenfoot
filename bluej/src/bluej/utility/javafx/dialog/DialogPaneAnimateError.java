@@ -1,6 +1,8 @@
 package bluej.utility.javafx.dialog;
 
 import javafx.animation.RotateTransition;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -16,7 +18,8 @@ import threadchecker.Tag;
 
 /**
  * A custom DialogPane that runs a "jiggle" animation on a given
- * error label whenever the user mouses over the disabled OK button.
+ * error label whenever the user mouses over the disabled OK button,
+ * or clicks an enabled OK button with a non-empty error label.
  */
 @OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class DialogPaneAnimateError extends DialogPane
@@ -70,23 +73,38 @@ public class DialogPaneAnimateError extends DialogPane
             ButtonBar.setButtonUniformSize(okWrapper, true);
             okWrapper.setOnMouseEntered(e -> {
                 extraMouseEnter.run();
-                if (okButton.isDisable() && animation == null)
+                if (okButton.isDisable())
                 {
-                    animation = new RotateTransition(Duration.millis(70), errorLabel);
-                    animation.setByAngle(5);
-                    // Rotate, rotate back, rotate, rotate back:
-                    animation.setAutoReverse(true);
-                    animation.setCycleCount(4);
-                    // When the animation finishes, set reference back to null:
-                    animation.setOnFinished(ev -> {
-                        animation = null;
-                    });
-                    animation.play();
+                    animate();
                 }
+            });
+            okButton.addEventFilter(ActionEvent.ACTION, event -> {
+                // runLater as a hack to run after other event filters:
+                Platform.runLater(() -> {
+                    if (!errorLabel.getText().isEmpty())
+                        animate();
+                });
             });
             return okWrapper;
         }
         return normal;
+    }
+
+    private void animate()
+    {
+        if (animation == null)
+        {
+            animation = new RotateTransition(Duration.millis(70), errorLabel);
+            animation.setByAngle(5);
+            // Rotate, rotate back, rotate, rotate back:
+            animation.setAutoReverse(true);
+            animation.setCycleCount(4);
+            // When the animation finishes, set reference back to null:
+            animation.setOnFinished(ev -> {
+                animation = null;
+            });
+            animation.play();
+        }
     }
 
     /**
