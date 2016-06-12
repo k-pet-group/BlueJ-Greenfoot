@@ -37,6 +37,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 
+import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -69,6 +70,29 @@ public class DialogManager
                                           Config.getApplicationName() + ":  " +
                                           Config.getString("dialogmgr.message"),
                                           JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * Show an information dialog with message and "OK" button. The
+     * message itself is identified by a message ID (a short string)
+     * which is looked up in the language specific dialogue text file
+     * (eg. "dialogues.english"). A text (given in a parameter) is appended
+     * to the message.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static void showMessageWithTextFX(javafx.stage.Window parent, String msgID,
+                                             String text)
+    {
+        String message = getMessage(msgID);
+        if (message != null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, text, ButtonType.OK);
+            alert.setHeaderText(message);
+            alert.setTitle(Config.getApplicationName() + ":  " +
+                Config.getString("dialogmgr.message"));
+            alert.initOwner(parent);
+            alert.initModality(Modality.WINDOW_MODAL);
+            alert.showAndWait();
+        }
     }
 
     /**
@@ -427,6 +451,11 @@ public class DialogManager
     public static void centreDialog(JDialog dialog)
     {
         centreWindow(dialog, (Window)dialog.getParent());
+    }
+
+    public static void centreDialog(SwingNodeDialog dialog)
+    {
+        
     }
 
 

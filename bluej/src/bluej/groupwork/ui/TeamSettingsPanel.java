@@ -93,7 +93,7 @@ public class TeamSettingsPanel extends JPanel
         add(useAsDefault);
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         validateButton = new JButton(new ValidateConnectionAction(
-                Config.getString("team.settings.checkConnection"), this, dialog));
+                Config.getString("team.settings.checkConnection"), this, dialog::asWindow));
         add(validateButton);
         
         DocumentListener changeListener = new DocumentListener() {

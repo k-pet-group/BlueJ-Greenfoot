@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+import javafx.application.Platform;
+import javafx.stage.Window;
+
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
@@ -36,6 +39,8 @@ import bluej.groupwork.TeamworkProvider;
 import bluej.utility.DBox;
 import bluej.utility.EscapeDialog;
 import bluej.utility.MultiWrapLabel;
+import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.SwingNodeDialog;
 
 /**
  * A dialog which displays an activity indicator while connection settings are
@@ -43,7 +48,7 @@ import bluej.utility.MultiWrapLabel;
  * 
  * @author Davin McCall
  */
-public class CheckConnectionDialog extends EscapeDialog
+public class CheckConnectionDialog extends SwingNodeDialog
 {
     private ActivityIndicator activityIndicator;
     private MultiWrapLabel connLabel;
@@ -52,17 +57,18 @@ public class CheckConnectionDialog extends EscapeDialog
     private TeamSettings settings;
     private TeamworkProvider provider;
     
-    public CheckConnectionDialog(Dialog owner, TeamworkProvider provider,
-            TeamSettings settings)
+    public CheckConnectionDialog(FXPlatformSupplier<Window> owner, TeamworkProvider provider,
+                                 TeamSettings settings)
     {
-        super(owner, true);
+        super(owner);
+        setModal(true);
         setTitle(Config.getString("team.settings.checkConnection"));
         
         this.provider = provider;
         this.settings = settings;
         
         buildUI();
-        setLocationRelativeTo(owner);
+        Platform.runLater(() -> setLocationRelativeTo(owner.get()));
     }
     
     private void buildUI()

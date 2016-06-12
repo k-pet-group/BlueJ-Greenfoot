@@ -44,6 +44,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import javafx.application.Platform;
+
+import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJTheme;
@@ -73,7 +76,7 @@ import bluej.utility.Utility;
  * @author Bruce Quig
  * @author Davin McCall
  */
-public class UpdateFilesFrame extends EscapeDialog
+public class UpdateFilesFrame extends SwingNodeDialog
 {
     private JList updateFiles;
     private JPanel topPanel;
@@ -131,7 +134,8 @@ public class UpdateFilesFrame extends EscapeDialog
                     String msg = DialogManager.getMessage("team-error-saving-project");
                     if (msg != null) {
                         msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
-                        DialogManager.showErrorText(this, msg);
+                        String msgFinal = msg;
+                        Platform.runLater(() -> DialogManager.showErrorTextFX(this.asWindow(), msgFinal));
                     }
                 }
                 startProgress();
@@ -201,7 +205,7 @@ public class UpdateFilesFrame extends EscapeDialog
                    includeLayoutCheckbox.setEnabled(false);
                 } 
             });
-            getRootPane().setDefaultButton(updateButton);
+            setDefaultButton(updateButton);
 
             JButton closeButton = BlueJTheme.getCancelButton();
             closeButton.addActionListener(new ActionListener() {
@@ -414,7 +418,7 @@ public class UpdateFilesFrame extends EscapeDialog
             stopProgress();
             if (! aborted) {
                 if (result.isError()) {
-                    TeamUtils.handleServerResponse(result, UpdateFilesFrame.this);
+                    Platform.runLater(() -> TeamUtils.handleServerResponseFX(result, UpdateFilesFrame.this.asWindow()));
                     setVisible(false);
                 }
                 else {
@@ -439,7 +443,8 @@ public class UpdateFilesFrame extends EscapeDialog
                             filesList += "    (and more - check status)";
                         }
 
-                        DialogManager.showMessageWithText(UpdateFilesFrame.this, "team-unresolved-conflicts", filesList);
+                        String filesListFinal = filesList;
+                        Platform.runLater(() -> DialogManager.showMessageWithTextFX(UpdateFilesFrame.this.asWindow(), "team-unresolved-conflicts", filesListFinal));
                         UpdateFilesFrame.this.setVisible(false);
                         return;
                     }

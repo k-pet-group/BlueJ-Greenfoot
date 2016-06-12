@@ -174,6 +174,10 @@ class TCScanner extends TreePathScanner<Void, Void>
         //An override we need:
         methodAnns.add(new MethodRef("java.awt.Window", "dispose", new LocatedTag(Tag.Any, false, false, "<AWT>")));
         methodAnns.add(new MethodRef("javafx.beans.property.ObjectPropertyBase", "get", new LocatedTag(Tag.Any, false, false, "<JavaFX Beans>")));
+
+        methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "<init>", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
+        methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "setContent", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
+        methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "getContent", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
         
         // This one isn't actually true!  But it's used during printing so let's live:
         

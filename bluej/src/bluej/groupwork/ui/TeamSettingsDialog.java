@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.ui;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,15 +36,16 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import bluej.utility.javafx.SwingNodeDialog;
 
 /**
  * A dialog for teamwork settings.
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 7055 2010-01-27 13:58:55Z plcs $
+ * @version $Id: TeamSettingsDialog.java 16015 2016-06-12 14:28:48Z nccb $
  */
-public class TeamSettingsDialog extends EscapeDialog
+public class TeamSettingsDialog extends SwingNodeDialog
 {
     private String title = Config.getString(
             "team.settings.title");
@@ -93,7 +95,7 @@ public class TeamSettingsDialog extends EscapeDialog
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         {
-            buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+            buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             okButton = BlueJTheme.getOkButton();
             okButton.addActionListener(new ActionListener() {
@@ -118,7 +120,7 @@ public class TeamSettingsDialog extends EscapeDialog
                     }
                 });
 
-            getRootPane().setDefaultButton(okButton);
+            setDefaultButton(okButton);
 
             JButton cancelButton = BlueJTheme.getCancelButton();
             cancelButton.addActionListener(new ActionListener() {

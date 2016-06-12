@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,10 +26,13 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import javafx.stage.Window;
+
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.ui.CheckConnectionDialog;
 import bluej.groupwork.ui.TeamSettingsPanel;
+import bluej.utility.javafx.FXPlatformSupplier;
 
 /**
  * Test the username, password, host, etc. settings to make sure they are valid
@@ -39,10 +42,10 @@ import bluej.groupwork.ui.TeamSettingsPanel;
 public class ValidateConnectionAction extends AbstractAction
 {
     private TeamSettingsPanel teamSettingsPanel;
-    private Dialog owner;
+    private FXPlatformSupplier<Window> owner;
     
     public ValidateConnectionAction(String name, TeamSettingsPanel teamSettingsPanel,
-            Dialog owner)
+                                    FXPlatformSupplier<Window> owner)
     {
         super(name);
         this.teamSettingsPanel = teamSettingsPanel;

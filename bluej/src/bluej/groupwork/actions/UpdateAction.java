@@ -36,6 +36,8 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
 
+import javafx.application.Platform;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -466,7 +468,7 @@ public class UpdateAction extends AbstractAction
             }
             else {
                 PkgMgrFrame.displayMessage(project, "");
-                TeamUtils.handleServerResponse(result, updateFrame);
+                Platform.runLater(() -> TeamUtils.handleServerResponseFX(result, updateFrame.asWindow()));
             }
             
             if (! aborted) {
