@@ -54,7 +54,6 @@ import javafx.stage.Window;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;

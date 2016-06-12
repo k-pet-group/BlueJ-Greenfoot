@@ -40,13 +40,12 @@ import threadchecker.Tag;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
 
 
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 16017 2016-06-12 15:21:43Z nccb $
+ * @version $Id: ProjectPrintDialog.java 16020 2016-06-12 21:51:31Z nccb $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends SwingNodeDialog

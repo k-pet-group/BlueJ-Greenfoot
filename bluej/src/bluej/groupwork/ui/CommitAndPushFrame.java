@@ -39,7 +39,6 @@ import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 import bluej.utility.Utility;
 import java.awt.BorderLayout;

@@ -60,7 +60,6 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
-import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 
 /**

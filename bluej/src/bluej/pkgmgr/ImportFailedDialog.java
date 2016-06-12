@@ -24,7 +24,6 @@ package bluej.pkgmgr;
 import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
@@ -49,7 +48,7 @@ import javafx.stage.*;
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportFailedDialog.java 16019 2016-06-12 21:43:58Z nccb $
+ * @version $Id: ImportFailedDialog.java 16020 2016-06-12 21:51:31Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class ImportFailedDialog extends javafx.scene.control.Dialog<Void>

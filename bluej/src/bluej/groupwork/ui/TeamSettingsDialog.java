@@ -35,7 +35,6 @@ import bluej.Config;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
 import bluej.utility.javafx.SwingNodeDialog;
 
 /**
@@ -43,7 +42,7 @@ import bluej.utility.javafx.SwingNodeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 16015 2016-06-12 14:28:48Z nccb $
+ * @version $Id: TeamSettingsDialog.java 16020 2016-06-12 21:51:31Z nccb $
  */
 public class TeamSettingsDialog extends SwingNodeDialog
 {

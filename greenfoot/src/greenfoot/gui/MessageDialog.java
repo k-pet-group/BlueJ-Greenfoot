@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,7 @@ import javax.swing.WindowConstants;
 
 import bluej.BlueJTheme;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
+import greenfoot.util.EscapeDialog;
 
 /**
  * A message dialog presents the user with a message and an optional panel of

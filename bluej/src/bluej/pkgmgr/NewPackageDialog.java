@@ -25,7 +25,6 @@ import javafx.stage.Window;
 
 import bluej.*;
 import bluej.Config;
-import bluej.utility.EscapeDialog;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.dialog.InputDialog;

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009,2010,2014,2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2015,2016  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -62,7 +62,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -75,7 +74,7 @@ import bluej.Config;
 import bluej.extensions.SourceType;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
-import bluej.utility.EscapeDialog;
+import greenfoot.util.EscapeDialog;
 import bluej.utility.FileUtility;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;

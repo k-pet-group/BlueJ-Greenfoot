@@ -37,7 +37,6 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.TeamworkProvider;
 import bluej.utility.DBox;
-import bluej.utility.EscapeDialog;
 import bluej.utility.MultiWrapLabel;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeDialog;

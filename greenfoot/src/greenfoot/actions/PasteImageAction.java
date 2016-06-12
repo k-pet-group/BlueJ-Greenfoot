@@ -34,8 +34,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +52,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
+import greenfoot.util.EscapeDialog;
 
 public class PasteImageAction extends AbstractAction
 {

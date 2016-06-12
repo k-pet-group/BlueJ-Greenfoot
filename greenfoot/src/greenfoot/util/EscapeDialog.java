@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility;
+package greenfoot.util;
 
 import java.awt.Dialog;
 import java.awt.Frame;
@@ -32,10 +32,6 @@ import javax.swing.JDialog;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
-@OnThread(Tag.Swing)
 public class EscapeDialog extends JDialog {
   public EscapeDialog() {
     this((Frame)null, false);

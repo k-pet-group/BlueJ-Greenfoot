@@ -41,7 +41,6 @@ import threadchecker.Tag;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
 
 /**
  * A print dialog with options specific to the editor.

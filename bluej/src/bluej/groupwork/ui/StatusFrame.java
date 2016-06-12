@@ -59,7 +59,6 @@ import bluej.groupwork.TeamViewFilter;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.Project;
-import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 
 /**

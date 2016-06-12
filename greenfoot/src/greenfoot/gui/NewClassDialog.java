@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,19 +31,17 @@ import java.awt.Dimension;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.extensions.SourceType;
-import bluej.utility.EscapeDialog;
+import greenfoot.util.EscapeDialog;
 
 /**
  * Dialog that asks for the name of a new class. This is only used for non Actor

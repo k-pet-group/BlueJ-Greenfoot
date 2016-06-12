@@ -61,7 +61,6 @@ import bluej.Boot;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
 
 /**
  * Dialog implementing version check functionality.
