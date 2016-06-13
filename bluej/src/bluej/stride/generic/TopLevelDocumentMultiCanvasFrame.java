@@ -110,6 +110,8 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     protected final FrameContentRow methodsLabelRow;
 
     protected final FrameContentItem endSpacer;
+    // Local properties
+    private Properties localProperties = new Properties();
 
     public TopLevelDocumentMultiCanvasFrame(InteractionManager editor, EntityResolver projectResolver, String caption,
                                         String stylePrefix, PackageFragment packageName, List<ImportElement> imports,
@@ -275,18 +277,15 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
         //alterImports(editor.getImports());
 
-        // Local properties
-        Properties localProperties = new Properties();
-        localProperties.put("CLASSNAME", paramName.textProperty().get());
-        localProperties.put("CAPTION", caption);
-
         //Parameters
+        localProperties.put("CAPTION", caption);
         paramName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), stylePrefix + "name-");
         paramName.addValueListener(SlotTraversalChars.IDENTIFIER);
         paramName.setPromptText(Config.getString("frame.editor.param.prompt", null, localProperties));
         paramName.setText(topLevelFrameName);
 
         //Documentation
+        localProperties.put("CLASSNAME", paramName.textProperty().get());
         setDocumentation(documentation.toString());
         documentationPromptTextProperty().bind(new SimpleStringProperty(
                 Config.getString("frame.editor.toplevel.doc.prompt", null, localProperties)));
