@@ -231,7 +231,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
                     return 0;
                 }
             };
-            this.packageSlot.setPromptText("package name");
+            this.packageSlot.setPromptText(Config.getString("frame.editor.toplevel.package.prompt"));
             boolean packageNameNotEmpty = packageName != null && !packageName.isEmpty();
             if (packageNameNotEmpty) {
                 this.packageSlot.setText(packageName);
@@ -275,19 +275,21 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
         //alterImports(editor.getImports());
 
+        // Local properties
+        Properties localProperties = new Properties();
+        localProperties.put("CLASSNAME", paramName.textProperty().get());
+        localProperties.put("CAPTION", caption);
+
         //Parameters
         paramName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), stylePrefix + "name-");
         paramName.addValueListener(SlotTraversalChars.IDENTIFIER);
-        paramName.setPromptText(caption + " name");
+        paramName.setPromptText(Config.getString("frame.editor.param.prompt", null, localProperties));
         paramName.setText(topLevelFrameName);
 
         //Documentation
-        Properties properties = new Properties();
-        properties.put("CLASSNAME", paramName.textProperty().get());
-        properties.put("CAPTION", caption);
-        documentationPromptTextProperty().bind(new SimpleStringProperty(
-                Config.getString("stride.editor.toplevel.docprompt", null, properties)));
         setDocumentation(documentation.toString());
+        documentationPromptTextProperty().bind(new SimpleStringProperty(
+                Config.getString("frame.editor.toplevel.doc.prompt", null, localProperties)));
 
         this.fieldsCanvas = new FrameCanvas(editor, this, stylePrefix + "fields-");
         fieldsLabelRow = new FrameContentRow(this, fieldsLabel);

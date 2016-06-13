@@ -82,4 +82,6 @@ convert.to.stride.error.title=Unexpected error
 convert.to.stride.error.message=Unexpected error during Java to Stride conversion.
 
 # Editor
-stride.editor.toplevel.docprompt=Write a description of your $CLASSNAME $CAPTION here...
+frame.editor.toplevel.doc.prompt=Write a description of your $CLASSNAME $CAPTION here...
+frame.editor.toplevel.package.prompt=package name
+frame.editor.param.prompt=$CAPTION name
