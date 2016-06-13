@@ -490,10 +490,10 @@
     -bj-bottom-margin: 0em;
 }
 
-.case-frame-canvas, .default-case-frame-canvas,
-  .foreach-frame-canvas, .inherited-frame-canvas, .class-import-frame-canvas,
-  .if-frame-canvas, .method-frame-canvas, .switch-frame-canvas,
-  .while-frame-canvas, .foreach-frame-canvas, .try-frame-canvas {
+.inherited-frame-canvas, .class-import-frame-canvas, .interface-import-frame-canvas,
+ .method-frame-canvas, .try-frame-canvas,
+ .switch-frame-canvas, .case-frame-canvas, .default-case-frame-canvas,
+ .if-frame-canvas, .while-frame-canvas, .foreach-frame-canvas {
     -bj-min-height: 1.25em;
 }
 .case-frame-canvas:bj-birdseye, .default-case-frame-canvas:bj-birdseye, .foreach-frame-canvas:bj-birdseye,
