@@ -83,7 +83,7 @@ public class DialogManager
     {
         String message = getMessage(msgID);
         if (message != null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "", ButtonType.OK);
             alert.setHeaderText(message);
             alert.setTitle(Config.getApplicationName() + ":  " +
                 Config.getString("dialogmgr.message"));
@@ -106,7 +106,7 @@ public class DialogManager
     {
         String message = getMessage(msgID);
         if (message != null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, text, ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK);
             alert.setHeaderText(message);
             alert.setTitle(Config.getApplicationName() + ":  " +
                 Config.getString("dialogmgr.message"));
@@ -209,6 +209,14 @@ public class DialogManager
         }
     }
 
+    @OnThread(Tag.FXPlatform)
+    public static void showTextFX(javafx.stage.Window parent, String text)
+    {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK);
+        alert.initOwner(parent);
+        alert.initModality(Modality.WINDOW_MODAL);
+        alert.showAndWait();
+    }
 
     /**
      * Show an error dialog with message and "OK" button.
@@ -455,15 +463,6 @@ public class DialogManager
         return message;
     }
 
-    /**
-     * Show a "Not Yet Implemented" message.
-     */
-    public static void NYI(Component frame)
-    {
-        showMessage(frame, "not-yet-implemented");
-    }
-
-
     // --- utility methods to position dialogues and other windows ---
 
     /**
@@ -541,5 +540,4 @@ public class DialogManager
             panel.add(cancelButton);
         }
     }
-
 }

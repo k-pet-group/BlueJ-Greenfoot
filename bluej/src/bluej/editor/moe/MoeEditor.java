@@ -4182,6 +4182,12 @@ public final class MoeEditor extends JPanel
         );
     }
 
+    @OnThread(Tag.FXPlatform)
+    public javafx.stage.Window getWindow()
+    {
+        return fxTabbedEditor.getWindow();
+    }
+
     private static class ErrorDisplay extends JFrame
     {
         private final ErrorDetails details;

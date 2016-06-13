@@ -51,7 +51,6 @@ import java.util.Iterator;
 import javax.swing.Action;
 import javax.swing.InputMap;
 import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.AbstractDocument;
@@ -77,7 +76,11 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.util.stream.Collectors;
+import javafx.application.Platform;
 
 /**
  * A set of actions supported by the Moe editor. This is a singleton: the
@@ -2374,9 +2377,12 @@ public final class MoeActions
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            JOptionPane.showMessageDialog(getEditor(), new String[]{"Moe", "Version " + MoeEditor.versionString, " ",
+            MoeEditor ed = getEditor();
+            Platform.runLater(() ->
+                DialogManager.showTextFX(ed.getWindow(), Arrays.asList("Moe", "Version " + MoeEditor.versionString, " ",
                 "Moe is the editor of the BlueJ programming environment.",
-            "Written by Michael K\u00F6lling (mik@bluej.org)."}, "About Moe", JOptionPane.INFORMATION_MESSAGE);
+                "Written by Michael K\u00F6lling (mik@bluej.org).").stream().collect(Collectors.joining("\n")))
+            );
         }
     }
 
@@ -2408,10 +2414,12 @@ public final class MoeActions
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            JOptionPane.showMessageDialog(getEditor(), new String[]{"Moe Mouse Buttons:", " ", "left button:",
+            MoeEditor ed = getEditor();
+            Platform.runLater(() ->
+                    DialogManager.showTextFX(ed.getWindow(), Arrays.asList("Moe Mouse Buttons:", " ", "left button:",
                 "   click: place cursor", "   double-click: select word", "   triple-click: select line",
-                "   drag: make selection", " ", "right button:", "   (currently unused)",}, "Moe Mouse Buttons",
-                JOptionPane.INFORMATION_MESSAGE);
+                "   drag: make selection", " ", "right button:", "   (currently unused)").stream().collect(Collectors.joining("\n")))
+            );
         }
     }
 

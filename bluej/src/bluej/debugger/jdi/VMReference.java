@@ -39,6 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import bluej.utility.DialogManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Boot;
@@ -92,8 +93,7 @@ import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
-import java.awt.EventQueue;
-import javax.swing.JOptionPane;
+import javafx.application.Platform;
 
 /**
  * A class implementing the execution and debugging primitives needed by BlueJ.
@@ -245,10 +245,8 @@ class VMReference
                 } else {
                     //fail. Don't start with sudo, warn the user and  
                     //set start with sudo to false
-                    EventQueue.invokeLater(() ->
-                            JOptionPane.showMessageDialog(null,Config.getString("raspberrypi.error.sudo")
-                                    ,Config.getString("raspberrypi.error.sudo.title")                                  
-                                    ,JOptionPane.WARNING_MESSAGE)
+                    Platform.runLater(() ->
+                        DialogManager.showTextFX(null, Config.getString("raspberrypi.error.sudo"))
                     );
                     PrefMgr.setFlag(PrefMgr.START_WITH_SUDO, false);
                 }

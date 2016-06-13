@@ -72,7 +72,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -1765,12 +1764,13 @@ public class PkgMgrFrame extends JPanel
      */
     public void showCopyright()
     {
-        JOptionPane.showMessageDialog(this, new String[]{
+        Platform.runLater(() -> 
+            DialogManager.showTextFX(getFXWindow(), Arrays.asList(
                 Config.getString("menu.help.copyright.line0"), " ",
                 Config.getString("menu.help.copyright.line1"), Config.getString("menu.help.copyright.line2"),
-                Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4"),
-                },
-                Config.getString("menu.help.copyright.title"), JOptionPane.INFORMATION_MESSAGE);
+                Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4")
+                ).stream().collect(Collectors.joining("\n")))
+        );
     }
 
     /**
