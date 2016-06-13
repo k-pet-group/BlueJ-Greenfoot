@@ -219,3 +219,20 @@
 .import-mismatch-content .label, .import-failed-content .label {
     -fx-wrap-text: true;
 }
+
+/* Blackbox */
+.blackbox-optin-content {
+    -fx-pref-width: 620px;
+    -fx-fill-width: true;
+    -fx-spacing: 1em;
+    -fx-padding: 1em;
+}
+.blackbox-optin-content .blackbox-optin-header {
+    -fx-spacing: 2em;
+}
+.blackbox-optin-content .blackbox-optin-header .blackbox-optin-header-text {
+    -fx-font-weight: bold;
+}
+.blackbox-optin-content .blackbox-optin-explanation {
+    -fx-font-size: 90%;
+}

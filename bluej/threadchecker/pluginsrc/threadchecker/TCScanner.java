@@ -179,6 +179,8 @@ class TCScanner extends TreePathScanner<Void, Void>
         methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "setContent", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
         methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "getContent", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
         
+        methodAnns.add(new MethodRef("javafx.animation.AnimationTimer", "handle", new LocatedTag(Tag.FXPlatform, false, false, "<AnimationTimer>")));
+        
         // This one isn't actually true!  But it's used during printing so let's live:
         
         methodAnns.add(new MethodRef("javax.swing.JComponent", "paint", new LocatedTag(Tag.Any, false, false, "<Swing paint hack>")));

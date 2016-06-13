@@ -21,12 +21,17 @@
  */
 package bluej.collect;
 
+import javax.swing.SwingUtilities;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
 import java.io.File;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import javafx.application.Platform;
 
 import bluej.Boot;
 import bluej.compiler.CompileInputFile;
@@ -73,18 +78,22 @@ public @OnThread(Tag.Swing) class DataCollector
      * will never become true after startSession() has been called, althoug
      * it may become false if the user opts out mid-session
      */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static boolean recordingThisSession;
 
     /**
      * Session identifier.  Never changes after startSession() has been called:
      */
-    @OnThread(Tag.Any) private static String sessionUuid;
+    @OnThread(value = Tag.Any, requireSynchronized = true) private static String sessionUuid;
     
     /**
      * These three variables can change during the execution:
      */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static String uuid;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static String experimentIdentifier;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static String participantIdentifier;
 
     /**
@@ -117,6 +126,7 @@ public @OnThread(Tag.Swing) class DataCollector
         return (Config.isGreenfoot() && !Boot.isTrialRecording()) || !recordingThisSession;
     }
 
+    @OnThread(Tag.FXPlatform)
     private static synchronized void startSession()
     {
         // Look for an existing UUID:
@@ -149,6 +159,7 @@ public @OnThread(Tag.Swing) class DataCollector
      * will return true, but dontSend() will also return true (because recordingThisSession
      * will be false; it is set once at the very beginning of the session).
      */
+    @OnThread(Tag.Any)
     private static synchronized boolean uuidValidForRecording()
     {
         return uuid != null && !(OPT_OUT.equals(uuid)) && uuid.length() >= 32;
@@ -158,6 +169,7 @@ public @OnThread(Tag.Swing) class DataCollector
      * Show a dialog to ask the user for their opt-in/opt-out preference,
      * and then update the UUID accordingly
      */
+    @OnThread(Tag.FXPlatform)
     public static synchronized void changeOptInOut(boolean forceOptIn)
     {
         boolean optedIn;
@@ -168,9 +180,7 @@ public @OnThread(Tag.Swing) class DataCollector
         else
         {
             DataCollectionDialog dlg = new DataCollectionDialog();
-            dlg.setLocationRelativeTo(null); // Centre on screen
-            dlg.setVisible(true);
-            optedIn = dlg.optedIn();
+            optedIn = dlg.showAndWait().orElse(false);
         }
 
         if (optedIn)
@@ -200,7 +210,7 @@ public @OnThread(Tag.Swing) class DataCollector
     /**
      * Get the experiment identifier.
      */
-    public static String getExperimentIdentifier()
+    public static synchronized String getExperimentIdentifier()
     {
         return experimentIdentifier;
     }
@@ -208,7 +218,7 @@ public @OnThread(Tag.Swing) class DataCollector
     /**
      * Get the participant identifier.
      */
-    public static String getParticipantIdentifier()
+    public static synchronized String getParticipantIdentifier()
     {
         return participantIdentifier;
     };
@@ -217,7 +227,7 @@ public @OnThread(Tag.Swing) class DataCollector
      * Get the session identifier.
      */
     @OnThread(Tag.Any)
-    public static String getSessionUuid()
+    public static synchronized String getSessionUuid()
     {
         return sessionUuid;
     }
@@ -257,7 +267,12 @@ public @OnThread(Tag.Swing) class DataCollector
     public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage, List<ExtensionWrapper> extensions)
     {
         if (Config.isGreenfoot() && !Boot.isTrialRecording()) return;
-        startSession();
+        SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+        Platform.runLater(() -> {
+            startSession();
+            loop.exit();
+        });
+        loop.enter();
         if (dontSend()) return;
         DataCollectorImpl.bluejOpened(osVersion, javaVersion, bluejVersion, interfaceLanguage, extensions);
     }

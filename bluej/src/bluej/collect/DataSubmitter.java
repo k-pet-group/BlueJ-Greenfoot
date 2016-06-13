@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javafx.application.Platform;
+
 import bluej.Boot;
 import bluej.Config;
 import bluej.extensions.event.ApplicationEvent;
@@ -136,7 +138,7 @@ class DataSubmitter
                             // If we just gave up, and we are specifically in a trial, show a dialog
                             // to the user warning them of this:
                             if (!Config.isGreenfoot()) // Greenfoot shows the dialog on the Greenfoot VM, only show if we are BlueJ:
-                                new DataSubmissionFailedDialog().setVisible(true);
+                                Platform.runLater(() -> new DataSubmissionFailedDialog().show());
                             Project.getProjects().forEach(project -> project.setAllEditorStatus(" - NOT RECORDING"));
                         }
                     });

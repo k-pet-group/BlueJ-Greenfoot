@@ -39,6 +39,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import javafx.application.Platform;
+
 import bluej.BlueJTheme;
 import bluej.Boot;
 import bluej.Config;
@@ -119,7 +121,8 @@ public class MiscPrefPanel extends JPanel
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    DataCollector.changeOptInOut(false);
+                    //TODO remove the runLater
+                    Platform.runLater(() -> DataCollector.changeOptInOut(false));
                     statusLabel.setText(DataCollector.getOptInOutStatus());
                 }
             });

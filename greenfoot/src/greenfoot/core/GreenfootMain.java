@@ -50,6 +50,9 @@ import java.util.List;
 
 import javax.swing.*;
 
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RPackage;
@@ -273,7 +276,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             {
                                 if (Boot.isTrialRecording())
                                 {
-                                    SwingUtilities.invokeLater(() -> new DataSubmissionFailedDialog().setVisible(true));
+                                    new JFXPanel();
+                                    Platform.runLater(() -> {
+                                        new DataSubmissionFailedDialog().show();
+                                    });
                                 }
                             }
                         });
@@ -282,7 +288,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     {
                         Debug.reportError(e);
                         // Show the dialog anyway; probably best to restart:
-                        new DataSubmissionFailedDialog().setVisible(true);
+                        new JFXPanel();
+                        Platform.runLater(() -> {
+                            new DataSubmissionFailedDialog().show();
+                        });
                     }
 
                 }

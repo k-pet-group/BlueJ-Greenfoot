@@ -21,78 +21,79 @@
  */
 package bluej.collect;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import javafx.animation.Animation;
+import javafx.animation.AnimationTimer;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.stage.Modality;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
 
 /**
  * A dialog to be shown in the case that you are running a trial, and
  * data collection fails for one of the participants,
  */
-public class DataSubmissionFailedDialog extends JDialog
+public class DataSubmissionFailedDialog extends Dialog<Void>
 {
-    private final Timer timer;
-    private int countdown = 20;
+    private final AnimationTimer timer;
+    private final long countdown = 20;
 
     public DataSubmissionFailedDialog()
     {
         // We'd prefer system modal because then it would block
-        setModalityType(ModalityType.APPLICATION_MODAL);
-        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        initModality(Modality.APPLICATION_MODAL);
         setTitle("Data collection failure");
 
-        JLabel message = new JLabel("<html><div style=\"width:300px;\">Connection to the data recording server has failed.  Please tell an instructor, and then restart " + (Config.isGreenfoot() ? "Greenfoot" : "BlueJ") + " to reconnect and continue working.</div></html>");
-        message.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Label message = new Label("Connection to the data recording server has failed.  Please tell an instructor, and then restart " + (Config.isGreenfoot() ? "Greenfoot" : "BlueJ") + " to reconnect and continue working.");
+        message.setWrapText(true);
+        message.setPrefWidth(300.0);
+        getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+        Button ok = (Button)getDialogPane().lookupButton(ButtonType.OK);
+        ok.setText("Ok (" + countdown + ")");
+        ok.setOnAction(e -> close());
+        ok.setDisable(true);
 
-
-        JButton ok = new JButton("Ok (" + countdown + ")");
-        ok.setAlignmentX(Component.CENTER_ALIGNMENT);
-        ok.setAction(new AbstractAction()
+        timer = new AnimationTimer()
         {
+            long time = -1;
+            long prevRemaining = countdown;
             @Override
-            public void actionPerformed(ActionEvent e)
+            public void handle(long now)
             {
-                DataSubmissionFailedDialog.this.setVisible(false);
+                if (time == -1)
+                    time = now;
+                else
+                {
+                    long remaining = countdown - ((now - time) / 1000000000);
+                    if (prevRemaining == remaining)
+                        return;
+                    prevRemaining = remaining;
+                    if (remaining > 0)
+                        ok.setText("Ok (" + remaining + ")");
+                    else
+                    {
+                        ok.setText("Ok");
+                        ok.setDisable(false);
+                        stop();
+                    }
+                }
             }
+        };
+        // This should work if we set the close request on the dialog
+        // but it seems there is a bug, so we set it on the stage instead:
+        setOnShown(ev -> {
+            timer.start();
+            ok.getScene().getWindow().setOnCloseRequest(e -> {
+                if (ok.isDisable())
+                    e.consume();
+            });
         });
-        ok.setEnabled(false);
 
-        timer = new Timer(1000, event -> {
-            countdown -= 1;
-            if (countdown > 0)
-                ok.setText("Ok (" + countdown + ")");
-            else
-            {
-                ok.setText("Ok");
-                ok.setEnabled(true);
-                DataSubmissionFailedDialog.this.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-                getTimer().stop();
-            }
-        });
-        timer.setCoalesce(false);
-        timer.setRepeats(true);
-        timer.start();
-
-        final JPanel box = new JPanel();
-        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
-        box.add(message);
-        box.add(Box.createRigidArea(new Dimension(1, 10)));
-        box.add(ok);
-        // To make the dialog size correctly:
-        box.add(Box.createRigidArea(new Dimension(1, 15)));
-        box.setBorder(new EmptyBorder(10, 10, 10, 10));
-        setContentPane(box);
-        setLocationRelativeTo(null);
-        pack();
-    }
-
-    public Timer getTimer()
-    {
-        return timer;
+        getDialogPane().setContent(message);
     }
 }
