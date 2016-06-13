@@ -153,7 +153,9 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         });
 
 
-        headerHasKeyboardFocus.bind(BooleanBinding.booleanExpression(paramName.effectivelyFocusedProperty()).or(BooleanBinding.booleanExpression(extendsSlot.effectivelyFocusedProperty())).or(implementsSlot.focusedProperty()));
+        headerHasKeyboardFocus.bind(BooleanBinding.booleanExpression(paramName.effectivelyFocusedProperty())
+                                .or(BooleanBinding.booleanExpression(extendsSlot.effectivelyFocusedProperty()))
+                                .or(implementsSlot.focusedProperty()));
 
         inheritedLabel = new TriangleLabel(editor, t -> extendsInheritedCanvases.forEach(c -> c.grow(t)),
             t -> extendsInheritedCanvases.forEach(c -> c.shrink(t)), new SimpleBooleanProperty(false));

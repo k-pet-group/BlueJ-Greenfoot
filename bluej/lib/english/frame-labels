@@ -80,3 +80,6 @@ convert.to.stride.title=Convert to Stride?
 convert.to.stride.message=This will convert the Java class to Stride.  This operation may not be reversible if the Java code has features unsupported in Stride.  Continue?
 convert.to.stride.error.title=Unexpected error
 convert.to.stride.error.message=Unexpected error during Java to Stride conversion.
+
+# Editor
+stride.editor.toplevel.docprompt=Write a description of your $CLASSNAME $CAPTION here...

@@ -71,6 +71,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 /**
@@ -268,7 +269,8 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         importCanvas = createImportsCanvas(imports);// TODO delete this and uncomment it in saved() if it cause NPE in future
         //importCanvas.addToLeftMargin(10.0);
         importCanvas.getShowingProperty().set(false);
-        importTriangleLabel = new TriangleLabel(editor, t -> importCanvas.growUsing(t.getProgress()), t -> importCanvas.shrinkUsing(t.getOppositeProgress()), importCanvas.getShowingProperty());
+        importTriangleLabel = new TriangleLabel(editor, t -> importCanvas.growUsing(t.getProgress()),
+                t -> importCanvas.shrinkUsing(t.getOppositeProgress()), importCanvas.getShowingProperty());
         JavaFXUtil.addChangeListener(importTriangleLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
         importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
         //alterImports(editor.getImports());
@@ -279,8 +281,13 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         paramName.setPromptText(caption + " name");
         paramName.setText(topLevelFrameName);
 
+        //Documentation
+        Properties properties = new Properties();
+        properties.put("CLASSNAME", paramName.textProperty().get());
+        properties.put("CAPTION", caption);
+        documentationPromptTextProperty().bind(new SimpleStringProperty(
+                Config.getString("stride.editor.toplevel.docprompt", null, properties)));
         setDocumentation(documentation.toString());
-        documentationPromptTextProperty().bind(new SimpleStringProperty("Write a description of your ").concat(paramName.textProperty()).concat(" " + caption + " here..."));
 
         this.fieldsCanvas = new FrameCanvas(editor, this, stylePrefix + "fields-");
         fieldsLabelRow = new FrameContentRow(this, fieldsLabel);
