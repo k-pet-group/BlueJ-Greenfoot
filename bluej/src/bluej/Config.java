@@ -987,11 +987,21 @@ public final class Config
      */
     public static String getString(String strname, String def)
     {
+        return getString(strname, def, null);
+    }
+
+    /**
+     * Get a string from the language dependent definitions file
+     * (eg. "english/labels"), replacing local variables.
+     * If not found, return default.
+     */
+    public static String getString(String strname, String def, Properties variables)
+    {
         if (langVarProps == null) {
             langVarProps = new Properties();
             langVarProps.put("APPNAME", getApplicationName());
         }
-        
+
         int index;
         // langProps can be null during testing:
         String str = langProps == null ? def : langProps.getProperty(strname, def);
@@ -1008,9 +1018,16 @@ public final class Config
                 str = str.substring(0, index);
             }
 
-            str = PropParser.parsePropString(str, langVarProps);
+            if (variables == null) {
+                variables = langVarProps;
+            }
+            else {
+                variables.putAll(langVarProps);
+            }
+
+            str = PropParser.parsePropString(str, variables);
         }
-        
+
         return str;
     }
     
