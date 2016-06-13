@@ -442,7 +442,7 @@
 
 
 .method-frame-canvas, .if-frame-canvas:bj-last-canvas, .while-frame-canvas,
-  .foreach-frame-canvas, .try-frame-canvas 
+  .foreach-frame-canvas, .try-frame-canvas
   {
     -bj-left-margin: 2.2em;
     -bj-bottom-margin: 0.5em;
@@ -525,7 +525,7 @@
     -fx-opacity: 1.0;
 }
 
-.method-documentation-text, .class-documentation-text {
+.method-documentation-text, .class-documentation-text, .interface-documentation-text {
     -fx-font-family: Times;
     -fx-font-style: italic;
 }
@@ -542,7 +542,7 @@
 
 .debug-border {
     -fx-border-color: rgb(0, 255, 255);
-    
+
 }
 
 
@@ -593,8 +593,8 @@
 }
 
 .break-frame-overlay { -fx-border-color: frame-canvas-border; -fx-border-width: 1px 0 1px 0; }
-.break-frame-overlay-rect:bj-break-while { -fx-fill: while-frame; } 
-.break-frame-overlay-rect:bj-break-foreach { -fx-fill: foreach-frame; } 
+.break-frame-overlay-rect:bj-break-while { -fx-fill: while-frame; }
+.break-frame-overlay-rect:bj-break-foreach { -fx-fill: foreach-frame; }
 .break-frame-overlay-rect:bj-break-switch { -fx-fill: switch-frame; }
 
 .break-frame-overlay:bj-java-preview {
