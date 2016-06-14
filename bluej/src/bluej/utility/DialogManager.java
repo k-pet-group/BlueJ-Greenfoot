@@ -27,6 +27,9 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -34,6 +37,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 
@@ -278,24 +282,11 @@ public class DialogManager
      */
     public static int askQuestion(Component parent, String msgID)
     {
-        String message = getMessage(msgID);
-        if (message != null) {
-            int button3Index = message.lastIndexOf("\n");
-            int button2Index = message.lastIndexOf("\n", button3Index-1);
-            int button1Index = message.lastIndexOf("\n", button2Index-1);
-            String button3 = message.substring(button3Index+1);
-            String button2 = message.substring(button2Index+1, button3Index);
-            String button1 = message.substring(button1Index+1, button2Index);
-            message = message.substring(0, button1Index);
-            Object[] options;
-            if ("null".equals(button3)) {
-                options = new Object[] { button1, button2 };
-            }
-            else {
-                options = new Object[] { button1, button2, button3 };
-            }
+        MessageAndButtons messageAndButtons = new MessageAndButtons(getMessage(msgID));
+        if (messageAndButtons.getMessage() != null) {
+            Object[] options = messageAndButtons.getOptions().toArray();
 
-            return JOptionPane.showOptionDialog(parent, message,
+            return JOptionPane.showOptionDialog(parent, messageAndButtons.getMessage(),
                                                 Config.getApplicationName() + ":  " +
                                                 Config.getString("dialogmgr.question"),
                                                 JOptionPane.DEFAULT_OPTION,
@@ -304,7 +295,39 @@ public class DialogManager
         }
         return 0;
     }
-    
+
+    /**
+     * Brings up a two or three button question dialog. The text for the
+     * question and the buttons is read from the dialogues file. If the third
+     * button text is "null", it is not shown. Returns the button index that
+     * was selected (0..2).
+     * 
+     * FX button types/ordering:
+     * With two buttons, the first button is assumed to be a YES button,
+     * the second is assumed to be NO.  With three buttons, the first two
+     * are assumed to be yes, the third is NO.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static int askQuestionFX(javafx.stage.Window parent, String msgID)
+    {
+        MessageAndButtons messageAndButtons = new MessageAndButtons(getMessage(msgID));
+        if (messageAndButtons.getMessage() != null) {
+            List<ButtonType> buttons = new ArrayList<>();
+            for (int i = 0; i < messageAndButtons.getOptions().size(); i++)
+            {
+                buttons.add(new ButtonType(messageAndButtons.getOptions().get(i), i == messageAndButtons.getOptions().size() - 1 ? ButtonBar.ButtonData.NO : ButtonBar.ButtonData.YES));
+            }
+            
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, messageAndButtons.getMessage(), buttons.toArray(new ButtonType[0]));
+            alert.initOwner(parent);
+            alert.initModality(Modality.WINDOW_MODAL);
+            alert.setTitle(Config.getApplicationName() + ":  " +
+                Config.getString("dialogmgr.question"));
+            return alert.showAndWait().map(buttons::indexOf).orElse(buttons.size() - 1);
+        }
+        return 0;
+    }
+
     /**
      * Brings up a two or three button question dialog. The text for the
      * question and the buttons is read from the dialogues file; '$'
@@ -523,6 +546,46 @@ public class DialogManager
         } else {
             panel.add(okButton);
             panel.add(cancelButton);
+        }
+    }
+
+    private static class MessageAndButtons
+    {
+        private final String message;
+        private final List<String> options;
+
+        public MessageAndButtons(String message)
+        {
+            if (message == null)
+            {
+                this.message = null;
+                this.options = null;
+                return;
+            }
+            
+            int button3Index = message.lastIndexOf("\n");
+            int button2Index = message.lastIndexOf("\n", button3Index-1);
+            int button1Index = message.lastIndexOf("\n", button2Index-1);
+            String button3 = message.substring(button3Index+1);
+            String button2 = message.substring(button2Index+1, button3Index);
+            String button1 = message.substring(button1Index+1, button2Index);
+            this.message = message.substring(0, button1Index);
+            if ("null".equals(button3)) {
+                options = Arrays.asList(button1, button2);
+            }
+            else {
+                options = Arrays.asList(button1, button2, button3);
+            }
+        }
+
+        public String getMessage()
+        {
+            return message;
+        }
+
+        public List<String> getOptions()
+        {
+            return options;
         }
     }
 }

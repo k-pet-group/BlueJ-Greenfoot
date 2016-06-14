@@ -175,6 +175,26 @@ public class FileUtility
     }
 
     @OnThread(Tag.FXPlatform)
+    public static File getSaveFileFX(Window parent, String title,
+                                            List<FileChooser.ExtensionFilter> filters,
+                                            boolean rememberDir)
+    {
+        FileChooser newChooser = new FileChooser();
+        if (filters != null)
+            newChooser.getExtensionFilters().setAll(filters);
+        newChooser.setTitle(title);
+        newChooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+
+        File chosen = newChooser.showSaveDialog(parent);
+
+        if (chosen != null && rememberDir)
+        {
+            PrefMgr.setProjectDirectory(chosen.getParentFile().getPath());
+        }
+        return chosen;
+    }
+
+    @OnThread(Tag.FXPlatform)
     public static File getOpenDirFX(Window parent, String title, boolean rememberDir)
     {
         DirectoryChooser newChooser = new DirectoryChooser();

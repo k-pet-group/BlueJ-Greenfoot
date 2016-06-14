@@ -27,6 +27,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -53,11 +54,22 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
+import javafx.application.Platform;
+import javafx.embed.swing.SwingNode;
+import javafx.scene.Scene;
+import javafx.scene.control.MenuBar;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -85,7 +97,7 @@ import bluej.utility.FileUtility;
  * @author  Philip Stevens
  */
 @SuppressWarnings("serial")
-public final class Terminal extends JFrame
+public final class Terminal
     implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
     private static final String WINDOWTITLE = Config.getApplicationName() + ": " + Config.getString("terminal.title");
@@ -106,10 +118,11 @@ public final class Terminal extends JFrame
             TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
     
     private static boolean isMacOs = Config.isMacOS();
+    private final String title;
 
     // -- instance --
 
-    private Project project;
+    private final Project project;
     
     private TermTextArea text;
     private TermTextArea errorText;
@@ -136,14 +149,24 @@ public final class Terminal extends JFrame
     @OnThread(Tag.Any) private final Writer err = new TerminalWriter(true);
 
     /** Used for lazy initialisation  */
-    private boolean initialised = false; 
+    private boolean initialised = false;
+    @OnThread(Tag.FX)
+    private Stage window;
+    private JPanel mainPanel;
+    /**
+     * Since all the decisions to show or hide the window pass through the Swing
+     * thread, we can actually keep track reliably on the Swing thread of whether
+     * the FX window is currently showing:
+     */
+    private boolean isShowing;
 
     /**
      * Create a new terminal window with default specifications.
      */
+    @OnThread(Tag.Swing)
     public Terminal(Project project)
     {
-        super(WINDOWTITLE + " - " + project.getProjectName());
+        this.title = WINDOWTITLE + " - " + project.getProjectName();
         this.project = project;
         initialise();
         BlueJEvent.addListener(this);
@@ -198,11 +221,25 @@ public final class Terminal extends JFrame
     public void showHide(boolean show)
     {
         DataCollector.showHideTerminal(project, show);
-        
-        setVisible(show);
-        if(show) {
-            text.requestFocus();
-        }
+
+        isShowing = show;
+        Platform.runLater(() -> {
+            if (show)
+                window.show();
+            else
+                window.hide();
+            if(show) {
+                SwingUtilities.invokeLater(() -> text.requestFocus());
+            }
+        });
+    }
+    
+    public void dispose()
+    {
+        showHide(false);
+        Platform.runLater(() -> {
+            window = null;
+        });
     }
 
     /**
@@ -210,7 +247,7 @@ public final class Terminal extends JFrame
      */
     public boolean isShown()
     {
-        return isShowing();
+        return isShowing;
     }
 
     /**
@@ -265,25 +302,28 @@ public final class Terminal extends JFrame
      */
     public void save()
     {
-        String fileName = FileUtility.getFileName(this,
-                Config.getString("terminal.save.title"),
-                Config.getString("terminal.save.buttonText"),
-                null, false);
-        if(fileName != null) {
-            File f = new File(fileName);
-            if (f.exists()){
-                if (DialogManager.askQuestion(this, "error-file-exists") != 0)
-                    return;
+        Platform.runLater(() -> {
+            File fileName = FileUtility.getSaveFileFX(window,
+                    Config.getString("terminal.save.title"),
+                    null, false);
+            if(fileName != null) {
+                if (fileName.exists()){
+                    if (DialogManager.askQuestionFX(window, "error-file-exists") != 0)
+                        return;
+                }
+                SwingUtilities.invokeLater(() -> {
+                    try
+                    {
+                        FileWriter writer = new FileWriter(fileName);
+                        text.write(writer);
+                        writer.close();
+                    } catch (IOException ex)
+                    {
+                        Platform.runLater(() -> DialogManager.showErrorFX(window, "error-save-file"));
+                    }
+                });
             }
-            try {
-                FileWriter writer = new FileWriter(fileName);
-                text.write(writer);
-                writer.close();
-            }
-            catch (IOException ex) {
-                DialogManager.showError(this, "error-save-file");
-            }
-        }
+        });
     }
     
     public void print()
@@ -334,7 +374,7 @@ public final class Terminal extends JFrame
         }
         else if (Config.isGreenfoot()) {
             // In greenfoot new output should always show the terminal
-            if (! isVisible()) {
+            if (!isShowing) {
                 showHide(true);
             }
         }
@@ -592,10 +632,6 @@ public final class Terminal extends JFrame
      */
     private void makeWindow(int columns, int rows)
     {
-        Image icon = BlueJTheme.getIconImage();
-        if (icon != null) {
-            setIconImage(icon);
-        }
         text = new TermTextArea(rows, columns, buffer, project, this, false);
         final InputMap origInputMap = text.getInputMap();
         text.setInputMap(JComponent.WHEN_FOCUSED, new InputMap() {
@@ -635,43 +671,43 @@ public final class Terminal extends JFrame
         text.setMargin(new Insets(6, 6, 6, 6));
         text.addKeyListener(this);
 
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        setJMenuBar(makeMenuBar());
-
-        // Close Action when close button is pressed
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent event)
-            {
-                Window win = (Window)event.getSource();
-                
-                // don't allow them to close the window if the debug machine
-                // is running.. tries to stop them from closing down the
-                // input window before finishing off input in the terminal
-                if (project != null) {
-                    if (project.getDebugger().getStatus() == Debugger.RUNNING)
-                        return;
-                }
-                DataCollector.showHideTerminal(project, false);
-                win.setVisible(false);
-            }
-        });
-
-        // save position when window is moved
-        addComponentListener(new ComponentAdapter() {
-            @Override
-                public void componentMoved(ComponentEvent event)
-                {
-                    Config.putLocation("bluej.terminal", getLocation());
-                }
+        SwingNode swingNode = new SwingNode();
+        swingNode.setContent(mainPanel);
+        FXSupplier<MenuBar> makeFXMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), mainPanel);
+        Platform.runLater(() -> {
+            window = new Stage();
+            MenuBar fxMenuBar = makeFXMenuBar.get();
+            fxMenuBar.setUseSystemMenuBar(true);
+            window.setScene(new Scene(new VBox(fxMenuBar, swingNode)));
+    
+            // Close Action when close button is pressed
+            window.setOnCloseRequest(e -> {
+                // We consume the event on the FX thread, then hop to the Swing
+                // thread to decide if we can close:
+                e.consume();
+    
+                SwingUtilities.invokeLater(() -> {
+                    // don't allow them to close the window if the debug machine
+                    // is running.. tries to stop them from closing down the
+                    // input window before finishing off input in the terminal
+                    if (project != null) {
+                        if (project.getDebugger().getStatus() == Debugger.RUNNING)
+                            return;
+                    }
+                    showHide(false);
+                });
             });
-
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        
-        setLocation(Config.getLocation("bluej.terminal"));
-
-        pack();
+            
+            JavaFXUtil.addChangeListener(window.xProperty(), x -> Config.putLocation("bluej.terminal", new Point((int)window.getX(), (int)window.getY())));
+            JavaFXUtil.addChangeListener(window.yProperty(), y -> Config.putLocation("bluej.terminal", new Point((int)window.getX(), (int)window.getY())));
+            
+            window.setX(Config.getLocation("bluej.terminal").x);
+            window.setY(Config.getLocation("bluej.terminal").y);
+        });
     }
 
     /**
@@ -707,7 +743,7 @@ public final class Terminal extends JFrame
             createErrorPane();
         }
      
-        getContentPane().remove(scrollPane);
+        mainPanel.remove(scrollPane);
   
         // We want to know if it is not the first time
         // This means a "clear" has been used to remove the splitpane
@@ -717,15 +753,10 @@ public final class Terminal extends JFrame
         // top component becomes null.
         if(!isFirstShow)
             splitPane.setTopComponent(scrollPane);
-        getContentPane().add(splitPane, BorderLayout.CENTER);       
+        mainPanel.add(splitPane, BorderLayout.CENTER);       
         splitPane.resetToPreferredSizes();
             
-        if(isFirstShow) {
-            pack();
-        }
-        else {
-            validate();
-        }
+        mainPanel.validate();
         
         errorShown = true;
     }
@@ -738,10 +769,10 @@ public final class Terminal extends JFrame
         if(!errorShown) {
             return;
         }
-        getContentPane().remove(splitPane);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);        
+        mainPanel.remove(splitPane);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);        
         errorShown = false; 
-        validate();
+        mainPanel.validate();
     }
     
     /**
