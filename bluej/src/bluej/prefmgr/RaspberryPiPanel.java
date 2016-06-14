@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2015,2016  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,8 @@ package bluej.prefmgr;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -32,12 +34,14 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  * "Raspberry Pi" preferences panel. Shows Raspberry Pi specific options.
  *
  * @author Fabio Hedayioglu
  */
+@OnThread(Tag.Swing)
 public class RaspberryPiPanel extends JPanel implements PrefPanelListener {
 
     private JCheckBox useSudoBox;
@@ -90,17 +94,20 @@ public class RaspberryPiPanel extends JPanel implements PrefPanelListener {
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void beginEditing() {
-        useSudoBox.setSelected(PrefMgr.getFlag(PrefMgr.START_WITH_SUDO));
+        SwingUtilities.invokeLater(() -> useSudoBox.setSelected(PrefMgr.getFlag(PrefMgr.START_WITH_SUDO)));
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void revertEditing() {
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void commitEditing() {
-        PrefMgr.setFlag(PrefMgr.START_WITH_SUDO, useSudoBox.isSelected());
+        SwingUtilities.invokeLater(() -> PrefMgr.setFlag(PrefMgr.START_WITH_SUDO, useSudoBox.isSelected()));
     }
 
 }

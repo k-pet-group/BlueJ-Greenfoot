@@ -46,6 +46,7 @@ import javafx.stage.Window;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -114,7 +115,7 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
                 .collect(Collectors.toList());
 
             // get user specified libs
-            List<URL> libList = PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent();
+            List<URL> libList = ClassMgrPrefPanel.getUserConfigContent();
 
             // also get any libs in userlib directory
             libList.addAll(Project.getUserlibContent());

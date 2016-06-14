@@ -69,9 +69,10 @@ debugger.accessibility.paused=Thread "$" paused.
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Libraries
-classmgr.userlibraries=User Libraries
+classmgr.userlibraries=User Libraries from config
 classmgr.userliblibraries=User Libraries from
-classmgr.add=Add
+classmgr.addFile=Add File
+classmgr.addDir=Add Folder
 classmgr.delete=Delete
 classmgr.statuscolumn=Status
 classmgr.statusgood=Loaded
@@ -101,9 +102,6 @@ prefmgr.misc.optimiseVM=Use optimization (faster execution, but may cause proble
 prefmgr.misc.addLibTitle=Select directory or jar/zip file
 prefmgr.misc.libFileFilter=Library files (*.jar;*.zip) or class directories
 prefmgr.misc.showUnchecked=Show compiler warnings when unsafe collections are used
-prefmgr.misc.wtk.dir.label=Wireless Toolkit directory
-prefmgr.misc.wtk.button=Browse
-prefmgr.misc.filechooser.title=Select Wireless Toolkit directory
 prefmgr.collection.title=Research Participation
 prefmgr.collection.change=Change
 prefmgr.collection.identifier.explanation=You only need to fill in the information below if asked to by a researcher
@@ -112,7 +110,7 @@ prefmgr.collection.identifier.participant=Participant Identifier
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor
-prefmgr.edit.editor.title=Editor settings
+prefmgr.edit.editor.title=Java editor settings
 prefmgr.edit.editorfontsize=Font size
 prefmgr.edit.colortransparency=Scope Highlighting
 prefmgr.edit.usesyntaxhilighting=Use syntax highlighting

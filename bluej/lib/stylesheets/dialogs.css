@@ -236,3 +236,105 @@
 .blackbox-optin-content .blackbox-optin-explanation {
     -fx-font-size: 90%;
 }
+
+/* Preference Manager */
+.prefmgr-titled {
+    -fx-collapsible: false;
+}
+.prefmgr-titled > *.content {
+    -fx-border-width: 0;
+}
+.prefmgr-titled .title, .prefmgr-titled .title:hover {
+    -fx-background-color: derive(cornflowerblue, 50%);
+    -fx-background-radius: 5px;
+}
+/* Don't colour when nested: */
+.prefmgr-titled .prefmgr-titled .title, .prefmgr-titled .prefmgr-titled .title:hover {
+    -fx-background-color: transparent;
+}
+
+.prefmgr-titled .title .text {
+    -fx-font-weight: bold;
+
+}
+.prefmgr-titled-content {
+    -fx-padding: 1em 2em 1em 3em;
+    -fx-spacing: 0.5em;
+    -fx-fill-width: true;
+}
+.prefmgr-label-hbox {
+    -fx-spacing: 1em;
+}
+.prefmgr-label-hbox, .prefmgr-label-hbox .label, .prefmgr-label-hbox .text-field, .prefmgr-label-hbox .button {
+    -fx-alignment: baseline-left;
+}
+.prefmgr-text-wrapped {
+    -fx-fill: -fx-text-background-color;
+}
+.prefmgr-tab-pane {
+    -fx-pref-width: 800px;
+}
+.prefmgr-tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: null;
+}
+.prefmgr-tab-pane > .tab-content-area {
+    -fx-border-width: 1px;
+    -fx-border-color: -fx-outer-border;
+}
+.prefmgr-pref-panel {
+    -fx-spacing: 1em;
+    -fx-padding: 2em 4em 2em 4em;
+    -fx-fill-width: true;
+}
+.prefmgr-experiment-participant {
+    -fx-hgap: 1em;
+    -fx-vgap: 0.5em;
+    -fx-padding: 0.5em 0 0 2em;
+}
+.prefmgr-experiment-participant .text-field {
+    -fx-pref-column-count: 30;
+}
+.prefmgr-jdk-url {
+    -fx-pref-column-count: 35;
+}
+.prefmgr-interface-checkboxes {
+    -fx-spacing: 4em;
+    -fx-alignment: baseline-center;
+}
+.prefmgr-interface-panel {
+    -fx-fill-width: false;
+}
+.prefmgr-scope-colour-container {
+    -fx-background: white;
+    -fx-border-width: 1px;
+    -fx-border-color: -fx-outer-border;
+}
+.prefmgr-scope-colour-rectangles {
+    -fx-padding: 0.5em;
+    -fx-background: white;
+}
+.prefmgr-java-editor-top {
+    -fx-hgap: 4em;
+    -fx-vgap: 1em;
+    -fx-padding: 0 0 2em 0;
+}
+.prefmgr-java-scope-hbox {
+    -fx-spacing: 5em;
+    -fx-alignment: center;
+}
+.prefmgr-library-listview {
+    -fx-min-height: 8em;
+    -fx-pref-height: 8em;
+}
+.prefmgr-library-userlib-buttons {
+    -fx-padding: 1em 1em 0 2em;
+    -fx-spacing: 1em;
+    -fx-fill-width: true;
+    -fx-alignment: top-center;
+}
+.prefmgr-library-userlib-buttons .button {
+    -fx-max-width: 9999.0;
+}
+.prefmgr-library-panel .prefmgr-titled-content {
+    -fx-padding: 1em 0 1em 0;
+}

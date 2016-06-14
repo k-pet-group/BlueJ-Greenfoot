@@ -187,6 +187,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         
         classAnns.put("java.awt.event.InputEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
         classAnns.put("java.awt.event.ComponentEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
+        classAnns.put("java.awt.event.KeyEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
         classAnns.put("java.awt.event.MouseEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
         classAnns.put("java.awt.event.MouseWheelEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
         classAnns.put("javax.swing.SizeRequirements", new LocatedTag(Tag.Any, false, true, "<Swing>"));

@@ -1745,7 +1745,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void showPreferences( )
     {
-        PrefMgrDialog.showDialog();
+        Platform.runLater(() -> PrefMgrDialog.showDialog());
     }
 
     /**

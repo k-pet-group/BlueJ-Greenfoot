@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,15 @@
  */
 package bluej.prefmgr;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * 
  * @author Andrew Patterson
- * @version $Id: PrefPanelListener.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PrefPanelListener.java 16031 2016-06-14 13:32:45Z nccb $
  */
+@OnThread(Tag.FXPlatform)
 public interface PrefPanelListener
 {
     void beginEditing();

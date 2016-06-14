@@ -391,7 +391,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
            public void run()
            {
                PrefMgrDialog.showDialog();
-               Utility.bringToFront(PrefMgrDialog.getInstance());
+               //Utility.bringToFrontFX(PrefMgrDialog.getInstance().getWindow());
            }
         });
     }

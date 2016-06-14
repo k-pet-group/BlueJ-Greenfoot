@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2016  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,19 +21,19 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.util.Hashtable;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javafx.scene.Node;
+import javafx.scene.control.Slider;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.paint.Color;
+import javafx.util.StringConverter;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A manager for the components used to manipulate the scope highlighting strength
@@ -41,24 +41,25 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Marion Zalk
  */
-public class ScopeHighlightingPrefDisplay implements ChangeListener
+@OnThread(Tag.FX)
+public class ScopeHighlightingPrefDisplay
 {
     public static final int MIN=0;
     public static final int MAX=20;
-    JSlider slider;
-    JPanel colorPanel;
-    JPanel greenPanelArea;
-    JPanel yellowPanelArea;
-    JPanel pinkPanelArea;
-    JPanel bluePanelArea;
-    Color greenArea = BlueJSyntaxView.GREEN_BASE;
-    Color pinkArea = BlueJSyntaxView.PINK_BASE;
-    Color yellowArea = BlueJSyntaxView.YELLOW_BASE;
-    Color blueArea = BlueJSyntaxView.BLUE_BASE;
-    Color greenBorder = BlueJSyntaxView.GREEN_OUTER_BASE;
-    Color pinkBorder = BlueJSyntaxView.PINK_OUTER_BASE;
-    Color yellowBorder = BlueJSyntaxView.YELLOW_OUTER_BASE;
-    Color blueBorder = BlueJSyntaxView.BLUE_OUTER_BASE;
+    Slider slider;
+    Pane colorPanel;
+    Rectangle greenPanelArea;
+    Rectangle yellowPanelArea;
+    Rectangle pinkPanelArea;
+    Rectangle bluePanelArea;
+    Color greenArea = toFX(BlueJSyntaxView.GREEN_BASE);
+    Color pinkArea = toFX(BlueJSyntaxView.PINK_BASE);
+    Color yellowArea = toFX(BlueJSyntaxView.YELLOW_BASE);
+    Color blueArea = toFX(BlueJSyntaxView.BLUE_BASE);
+    Color greenBorder = toFX(BlueJSyntaxView.GREEN_OUTER_BASE);
+    Color pinkBorder = toFX(BlueJSyntaxView.PINK_OUTER_BASE);
+    Color yellowBorder = toFX(BlueJSyntaxView.YELLOW_OUTER_BASE);
+    Color blueBorder = toFX(BlueJSyntaxView.BLUE_OUTER_BASE);
     Color greenSetting, greenSettingBorder;
     Color yellowSetting, yellowSettingBorder;
     Color pinkSetting, pinkSettingBorder;
@@ -72,43 +73,63 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
     public ScopeHighlightingPrefDisplay()
     {
         MoeSyntaxDocument.getColors();
-        bg = MoeSyntaxDocument.getBackgroundColor();
+        //bg = MoeSyntaxDocument.getBackgroundColor();
         //initialises the slider functionality
         {
-            slider=new JSlider(MIN, MAX);
             //set the transparency value from the prefMgr
-            slider.setValue(PrefMgr.getScopeHighlightStrength());
+            slider=new Slider(MIN, MAX, PrefMgr.getScopeHighlightStrength());
             //labels
-            Hashtable<Integer, JLabel>labelTable = new Hashtable<Integer, JLabel>();
-            labelTable.put(new Integer(MIN), new JLabel(Config.getString
-                    ("prefmgr.edit.highlightLighter")));
-            labelTable.put(new Integer(MAX), new JLabel(Config.getString
-                    ("prefmgr.edit.highlightDarker")));
-            slider.setLabelTable( labelTable );
-            slider.setPaintLabels(true);
-            slider.addChangeListener(this);
+            slider.setMajorTickUnit(MAX - MIN);
+            slider.setShowTickLabels(true);
+            slider.setShowTickMarks(true);
+            slider.setLabelFormatter(new StringConverter<Double>()
+            {
+                @Override
+                public String toString(Double d)
+                {
+                    if (d == MIN)
+                        return Config.getString("prefmgr.edit.highlightLighter");
+                    else if (d == MAX)
+                        return Config.getString("prefmgr.edit.highlightDarker");
+                    else
+                        return "";
+                }
+
+                @Override
+                public Double fromString(String string)
+                {
+                    return null;
+                }
+            });
+            JavaFXUtil.addChangeListener(slider.valueProperty(), v -> setPaletteValues());
         }
         //initialises the color palette
         {
-            colorPanel=new JPanel(new GridLayout(4,1,0,0));     
-            colorPanel.setBorder(BorderFactory.createLineBorder(bg, 10));
-            colorPanel.setBackground(bg);
-            greenPanelArea=new JPanel();
-            yellowPanelArea=new JPanel();
-            pinkPanelArea=new JPanel();
-            bluePanelArea=new JPanel();
+            colorPanel = new VBox();
+            JavaFXUtil.addStyleClass(colorPanel, "prefmgr-scope-colour-container");
+            VBox inner = JavaFXUtil.withStyleClass(new VBox(), "prefmgr-scope-colour-rectangles");
+            greenPanelArea = makeRectangle();
+            yellowPanelArea = makeRectangle();
+            pinkPanelArea = makeRectangle();
+            bluePanelArea = makeRectangle();
             setPaletteValues();
-            colorPanel.add(greenPanelArea);
-            colorPanel.add(yellowPanelArea);
-            colorPanel.add(pinkPanelArea);  
-            colorPanel.add(bluePanelArea);
+            inner.getChildren().add(greenPanelArea);
+            inner.getChildren().add(yellowPanelArea);
+            inner.getChildren().add(pinkPanelArea);
+            inner.getChildren().add(bluePanelArea);
+            colorPanel.getChildren().add(inner);
         }
+    }
+
+    private Rectangle makeRectangle()
+    {
+        return new Rectangle(100, 20);
     }
 
     /**
      * Returns the highlighter slider
      */
-    protected JSlider getHighlightStrengthSlider()
+    protected Node getHighlightStrengthSlider()
     {  
         return slider;
     }
@@ -116,7 +137,7 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
     /**
      * Returns the color palette
      */
-    protected JPanel getColourPalette()
+    protected Node getColourPalette()
     {
         return colorPanel;
     }
@@ -126,7 +147,7 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
      */
     protected int getStrengthValue()
     {
-        return slider.getValue();   
+        return (int)Math.round(slider.getValue());   
     }
 
     /**
@@ -135,8 +156,8 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
      */
     private Color getReducedColor(Color c)
     {
-        return BlueJSyntaxView.getReducedColor(c.getRed(), c.getGreen(),
-                c.getBlue(), getStrengthValue());
+        return toFX(BlueJSyntaxView.getReducedColor((int)(255.0 * c.getRed()), (int)(255.0 * c.getGreen()),
+            (int)(255.0 * c.getBlue()), getStrengthValue()));
     }
 
     /**
@@ -145,9 +166,9 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
     protected void setGreenPalette()
     {
         greenSetting= getReducedColor(greenArea);
-        greenPanelArea.setBackground(greenSetting);
+        greenPanelArea.setFill(greenSetting);
         greenSettingBorder=getReducedColor(greenBorder);
-        greenPanelArea.setBorder(BorderFactory.createLineBorder(greenSettingBorder));
+        greenPanelArea.setStroke(greenSettingBorder);
     }
 
     /**
@@ -156,9 +177,9 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
     protected void setYellowPalette()
     {
         yellowSetting= getReducedColor(yellowArea);
-        yellowPanelArea.setBackground(yellowSetting);
+        yellowPanelArea.setFill(yellowSetting);
         yellowSettingBorder=getReducedColor(yellowBorder);
-        yellowPanelArea.setBorder(BorderFactory.createLineBorder(yellowSettingBorder));
+        yellowPanelArea.setStroke(yellowSettingBorder);
     }
 
     /**
@@ -167,9 +188,9 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
     protected void setPinkPalette()
     {
         pinkSetting= getReducedColor(pinkArea);
-        pinkPanelArea.setBackground(pinkSetting);
+        pinkPanelArea.setFill(pinkSetting);
         pinkSettingBorder=getReducedColor(pinkBorder);
-        pinkPanelArea.setBorder(BorderFactory.createLineBorder(pinkSettingBorder));
+        pinkPanelArea.setStroke(pinkSettingBorder);
     }
 
     /**
@@ -178,17 +199,9 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
     protected void setBluePalette()
     {
         blueSetting = getReducedColor(blueArea);
-        bluePanelArea.setBackground(blueSetting);
+        bluePanelArea.setFill(blueSetting);
         blueSettingBorder=getReducedColor(blueBorder);
-        bluePanelArea.setBorder(BorderFactory.createLineBorder(blueSettingBorder));
-    }
-
-    /**
-     * When the slider is moved, the color palette updates immediately
-     */
-    public void stateChanged(ChangeEvent e)
-    {
-        setPaletteValues();
+        bluePanelArea.setStroke(blueSettingBorder);
     }
 
     /**
@@ -200,5 +213,16 @@ public class ScopeHighlightingPrefDisplay implements ChangeListener
         setYellowPalette();
         setBluePalette();
         setPinkPalette();
+    }
+    
+    // From http://stackoverflow.com/questions/30466405/java-convert-java-awt-color-to-javafx-scene-paint-color
+    private static Color toFX(java.awt.Color awtColor)
+    {
+        int r = awtColor.getRed();
+        int g = awtColor.getGreen();
+        int b = awtColor.getBlue();
+        int a = awtColor.getAlpha();
+        double opacity = a / 255.0 ;
+        return javafx.scene.paint.Color.rgb(r, g, b, opacity);
     }
 }

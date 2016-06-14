@@ -601,15 +601,7 @@ public final class Config
     {
         return osname.startsWith("Solaris");
     }
-    
-    /**
-     * Tell us whether we are running on a Java VM that supports 1.5 features.
-     */
-    public static boolean isJava15()
-    {
-        return javaVersionNumberAtLeast(1, 5);
-    }
-    
+
     /**
      * Tell us whether we are running on a Java VM that supports Java 6 features.
      */
@@ -643,7 +635,7 @@ public final class Config
     public static boolean usingJava15()
     {
         // for now, always use 1.5 features where available
-        return isJava15();
+        return true;
     }
     
     /**

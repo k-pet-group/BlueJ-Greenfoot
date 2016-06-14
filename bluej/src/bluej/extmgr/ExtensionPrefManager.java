@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,9 +29,12 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import bluej.prefmgr.PrefPanelListener;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This manages the whole preference pane for Extensions
@@ -169,23 +172,26 @@ public class ExtensionPrefManager implements PrefPanelListener
     /*
      * Needed only to satisfy the implements
      */
+    @OnThread(Tag.FXPlatform)
     public void beginEditing()  {  }
     
     
     /*
      * Called by the system when it is time to reload the panel values
      */
+    @OnThread(Tag.FXPlatform)
     public void revertEditing() 
     {
-        doWorkLoop(DO_loadValues);
+        SwingUtilities.invokeLater(() -> doWorkLoop(DO_loadValues));
     }
 
     /*
      * Called by the system when the user has pressed the OK buton
      */
+    @OnThread(Tag.FXPlatform)
     public void commitEditing()
     {
-        doWorkLoop(DO_saveValues);
+        SwingUtilities.invokeLater(() -> doWorkLoop(DO_saveValues));
     }
 
 }

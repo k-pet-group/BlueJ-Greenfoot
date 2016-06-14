@@ -210,6 +210,7 @@ public @OnThread(Tag.Swing) class DataCollector
     /**
      * Get the experiment identifier.
      */
+    @OnThread(Tag.Any)
     public static synchronized String getExperimentIdentifier()
     {
         return experimentIdentifier;
@@ -218,6 +219,7 @@ public @OnThread(Tag.Swing) class DataCollector
     /**
      * Get the participant identifier.
      */
+    @OnThread(Tag.Any)
     public static synchronized String getParticipantIdentifier()
     {
         return participantIdentifier;
@@ -236,6 +238,7 @@ public @OnThread(Tag.Swing) class DataCollector
      * Gets a String to display to the user in the preferences, explaining their
      * current opt-in/recording status
      */
+    @OnThread(Tag.Any)
     public static synchronized String getOptInOutStatus()
     {
         if (recordingThisSession)

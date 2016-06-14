@@ -156,21 +156,6 @@ public class DialogManager
         }
     }
     
-    /**
-     * Show an information dialog with message and "OK" button. The
-     * message itself is identified by a message ID (a short string)
-     * which is looked up in the language specific dialogue text file
-     * (eg. "dialogues.english"). A text (given in a parameter) is appended
-     * as a prefix to the message. Use showMessageWithText in order to
-     * append to the suffix of the message
-     */
-    public static void showMessageWithPrefixText(Component parent, String msgID,
-                                           String text)
-    {
-        String message = getMessage(msgID);
-        if (message != null)
-            JOptionPane.showMessageDialog(parent, text+ "\n"+message);
-    }
     
     /**
      * Show an information dialog with message and "OK" button. The

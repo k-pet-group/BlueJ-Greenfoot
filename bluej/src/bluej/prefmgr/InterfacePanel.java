@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
@@ -46,11 +47,25 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import javafx.collections.FXCollections;
+import javafx.scene.Node;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.filefilter.DirectoryFilter;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+import static java.awt.Component.LEFT_ALIGNMENT;
 
 /**
  * "Interface" preference panel. Settings for what to show (teamwork, testing tools etc)
@@ -58,66 +73,43 @@ import bluej.utility.filefilter.DirectoryFilter;
  * 
  * @author Davin McCall
  */
-public class InterfacePanel extends JPanel
+@OnThread(Tag.FXPlatform)
+public class InterfacePanel extends VBox
         implements PrefPanelListener
 {
     private static final String toolkitDir = "bluej.javame.toolkit.dir";
 
-    private JCheckBox showTestBox;
-    private JCheckBox showTeamBox;
+    private CheckBox showTestBox;
+    private CheckBox showTeamBox;
     
     private ArrayList<String> allLangsInternal;
-    private JComboBox langDropdown;
+    private ComboBox langDropdown;
     
-    private JCheckBox accessibility;
+    private CheckBox accessibility;
     
     public InterfacePanel()
     {
-        JPanel box = new JPanel();
-        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
-        add(box);
+        JavaFXUtil.addStyleClass(this, "prefmgr-pref-panel");
         
-        setBorder(BlueJTheme.generalBorder);
-
-        box.add(Box.createVerticalGlue());
-
         if(!Config.isGreenfoot()) {
-            box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-
-            JPanel testPanel = new JPanel(new GridLayout(0,1,0,0));
+            Pane testPanel = new HBox();
+            JavaFXUtil.addStyleClass(testPanel, "prefmgr-interface-checkboxes");
             {
-                testPanel.setBorder(BorderFactory.createCompoundBorder(
-                                              BorderFactory.createTitledBorder(
-                                                     Config.getString("prefmgr.misc.tools.title")),
-                                              BlueJTheme.generalBorder));
-                testPanel.setAlignmentX(LEFT_ALIGNMENT);
+                showTestBox = new CheckBox(Config.getString("prefmgr.misc.showTesting"));
+                testPanel.getChildren().add(showTestBox);
 
-                showTestBox = new JCheckBox(Config.getString("prefmgr.misc.showTesting"));
-                testPanel.add(showTestBox);
-
-                showTeamBox = new JCheckBox(Config.getString("prefmgr.misc.showTeam"));
-                testPanel.add(showTeamBox);
+                showTeamBox = new CheckBox(Config.getString("prefmgr.misc.showTeam"));
+                testPanel.getChildren().add(showTeamBox);
             }
-            box.add(testPanel);
-
-            box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+            getChildren().add(PrefMgrDialog.headedVBox("prefmgr.misc.tools.title", Arrays.asList(testPanel)));
         }
         
-        JPanel langPanel = new JPanel();
+        List<Node> langPanel = new ArrayList<>();
         {
-            langPanel.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder(
-                            Config.getString("prefmgr.interface.language.title")),
-                            BlueJTheme.generalBorder)
-                    );
-            langPanel.setAlignmentX(LEFT_ALIGNMENT);
-            langPanel.setLayout(new BoxLayout(langPanel, BoxLayout.Y_AXIS));
             
-            Box langSelBox = new Box(BoxLayout.X_AXIS);
             {
-                langSelBox.add(new JLabel(Config.getString("prefmgr.interface.language") + ":"));
-                langSelBox.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
-
+                
+                
                 allLangsInternal = new ArrayList<String>();
                 List<String> allLangsReadable = new ArrayList<String>();
                 
@@ -154,36 +146,17 @@ public class InterfacePanel extends JPanel
                 String [] langs = new String[allLangsReadable.size()];
                 allLangsReadable.toArray(langs);
 
-                langDropdown = new JComboBox(langs);
-                langSelBox.add(langDropdown);
+                langDropdown = new ComboBox(FXCollections.observableArrayList(langs));
             }
-            langSelBox.setAlignmentX(0.0f);
-            langPanel.add(langSelBox);
+            langPanel.add(PrefMgrDialog.labelledItem("prefmgr.interface.language", langDropdown));
             
-            langPanel.add(Box.createVerticalStrut(BlueJTheme.componentSpacingSmall));
-            
-            JLabel t = new JLabel(Config.getString("prefmgr.interface.language.restart"));
-            t.setAlignmentX(0.0f);
+            Label t = new Label(Config.getString("prefmgr.interface.language.restart"));
             langPanel.add(t);
         }
-        box.add(langPanel);        
+        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.interface.language.title", langPanel));        
         
-        JPanel accessibilityPanel = new JPanel();
-        {
-            accessibilityPanel.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder(
-                            Config.getString("prefmgr.accessibility.title")),
-                            BlueJTheme.generalBorder)
-                    );
-            accessibilityPanel.setAlignmentX(LEFT_ALIGNMENT);
-            accessibilityPanel.setLayout(new BoxLayout(accessibilityPanel, BoxLayout.Y_AXIS));
-            
-            accessibility = new JCheckBox(Config.getString("prefmgr.accessibility.support"));
-            accessibilityPanel.add(accessibility);
-            
-            accessibilityPanel.add(Box.createVerticalStrut(BlueJTheme.componentSpacingSmall));
-        }
-        box.add(accessibilityPanel);
+        accessibility = new CheckBox(Config.getString("prefmgr.accessibility.support"));
+        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.accessibility.title", Arrays.asList(accessibility)));
     }
     
     @Override
@@ -199,7 +172,7 @@ public class InterfacePanel extends JPanel
         if (curLangIndex == -1) {
             curLangIndex = 0;
         }
-        langDropdown.setSelectedIndex(curLangIndex);
+        langDropdown.getSelectionModel().select(curLangIndex);
         
         accessibility.setSelected(PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT));
     }
@@ -211,11 +184,13 @@ public class InterfacePanel extends JPanel
             PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
             PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, showTeamBox.isSelected());
 
-            PkgMgrFrame.updateTestingStatus();
-            PkgMgrFrame.updateTeamStatus();
+            SwingUtilities.invokeLater(() -> {
+                PkgMgrFrame.updateTestingStatus();
+                PkgMgrFrame.updateTeamStatus();
+            });
         }
         
-        Config.putPropString("bluej.language", allLangsInternal.get(langDropdown.getSelectedIndex()));
+        Config.putPropString("bluej.language", allLangsInternal.get(langDropdown.getSelectionModel().getSelectedIndex()));
         
         PrefMgr.setFlag(PrefMgr.ACCESSIBILITY_SUPPORT, accessibility.isSelected());
     }

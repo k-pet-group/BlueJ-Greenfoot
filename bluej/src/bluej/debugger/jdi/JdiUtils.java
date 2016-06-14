@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package bluej.debugger.jdi;
 
-import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.utility.JavaUtils;
 
@@ -53,7 +52,7 @@ public abstract class JdiUtils
     {
         if( jutils != null )
             return jutils;
-        if( Config.isJava15() ) {
+        if(true) {
             try {
                 Class<?> J15Class = Class.forName("bluej.debugger.jdi.JdiUtils15");
                 jutils = (JdiUtils)J15Class.newInstance();

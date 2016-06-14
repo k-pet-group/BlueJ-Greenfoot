@@ -32,10 +32,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -148,6 +153,41 @@ public class FileUtility
             DialogManager.showError(parent, "error-no-name");
             return null;
         }
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public static List<File> getOpenFilesFX(Window parent, String title,
+                                            List<FileChooser.ExtensionFilter> filters,
+                                            boolean rememberDir)
+    {
+        FileChooser newChooser = new FileChooser();
+        newChooser.getExtensionFilters().setAll(filters);
+        newChooser.setTitle(title);
+        newChooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+        
+        List<File> chosen = newChooser.showOpenMultipleDialog(parent);
+
+        if (chosen != null && chosen.size() > 0 && rememberDir)
+        {
+            PrefMgr.setProjectDirectory(chosen.get(0).getParentFile().getPath());
+        }
+        return chosen;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public static File getOpenDirFX(Window parent, String title, boolean rememberDir)
+    {
+        DirectoryChooser newChooser = new DirectoryChooser();
+        newChooser.setTitle(title);
+        newChooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+
+        File chosen = newChooser.showDialog(parent);
+
+        if (chosen != null && rememberDir)
+        {
+            PrefMgr.setProjectDirectory(chosen.getParentFile().getPath());
+        }
+        return chosen;
     }
     
     public static String getFileName(Component parent, String title,

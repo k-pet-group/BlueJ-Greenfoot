@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,9 +56,12 @@ import bluej.utility.PersistentMarkDocument;
 @OnThread(value = Tag.Swing, ignoreParent = true)
 public class MoeSyntaxDocument extends PersistentMarkDocument
 {
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Color[] colors = null;
-    
+
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Color defaultColour = null;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Color backgroundColour = null;
     
     /** Maximum amount of document to reparse in one hit (advisory) */
@@ -421,7 +424,7 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     /**
      * Get the default colour for MoeSyntaxDocuments.
      */
-    public static Color getDefaultColor()
+    public static synchronized Color getDefaultColor()
     {
         return defaultColour;
     }
@@ -429,7 +432,8 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     /**
      * Get the background colour for MoeSyntaxDocuments.
      */
-    public static Color getBackgroundColor()
+    @OnThread(Tag.Any)
+    public static synchronized Color getBackgroundColor()
     {
         return backgroundColour;
     }
@@ -438,6 +442,7 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
      * Get an array of colours as specified in the configuration file for different
      * token types. The indexes for each token type are defined in the Token class.
      */
+    @OnThread(Tag.Any)
     public static Color[] getColors()
     {
         return getUserColors();
@@ -452,7 +457,8 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
      * @author This method was added by Jo Wood (jwo@soi.city.ac.uk), 9th March,
      *         2001.
      */
-    private static Color[] getUserColors()
+    @OnThread(Tag.Any)
+    private static synchronized Color[] getUserColors()
     { 
         if(colors == null) {
             // Replace with user-defined colours.
@@ -592,6 +598,7 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
      *                  not parseable as a hexadecimal
      * @return  The value
      */
+    @OnThread(Tag.Any)
     private static int getPropHexInt(String propName, int def)
     {
         String strVal = Config.getPropString(propName, null, Config.moeUserProps);

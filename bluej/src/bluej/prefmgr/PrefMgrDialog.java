@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2015,2016  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,14 +28,36 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.embed.swing.SwingNode;
+import javafx.scene.Node;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -45,6 +67,10 @@ import bluej.editor.moe.KeyBindingsPanel;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionsManager;
 import bluej.utility.DialogManager;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A JDialog subclass to allow the user to interactively edit
@@ -55,53 +81,61 @@ import bluej.utility.DialogManager;
  * @author  Andrew Patterson
  * @author  Michael Kolling
  */
-public class PrefMgrDialog extends JFrame
+public class PrefMgrDialog
 {
     private static PrefMgrDialog dialog = null;
     
+    /**
+     * Creating the preference panes requires thread-hopping.  This property
+     * is set to true (on the FXPlatform thread) once they are ready.
+     */
+    @OnThread(Tag.FXPlatform)
+    private BooleanProperty prefPanesCreated = new SimpleBooleanProperty(false);
+    
     /** Indicates whether the dialog has been prepared for display. */
     private boolean prepared = false;
-    
-    private KeyBindingsPanel kbPanel;
 
     /**
-     * Show the preferences dialog.  The first argument should
-     * be null if you want the dialog to come up in the center
-     * of the screen.  Otherwise, the argument should be the
-     * component on top of which the dialog should appear.
-     *
-     * @param comp the parent component for the dialog.
+     * Show the preferences dialog when ready.  The dialog
+     * may not be visible yet when this method returns.
      */
-    public static void showDialog() {
-        getInstance().prepareDialog();
-        dialog.setVisible(true);
+    public static void showDialog()
+    {
+        getInstance().prepareDialogThen(() -> dialog.window.show());
     }
 
-  /**
-     * Show the preferences dialog.  The first argument should
-     * be null if you want the dialog to come up in the center
-     * of the screen.  Otherwise, the argument should be the
-     * component on top of which the dialog should appear.
-     *
-     * @param comp the parent component for the dialog.
-     * @param actiontable 
-     * @param categories 
-     * @param categoryIndex 
+    /**
+     * Show the preferences dialog when ready.  The dialog
+     * may not be visible yet when this method returns.
+     * 
+     * @param paneNumber The index of the pane to show
      */
     public static void showDialog(int paneNumber) {
-        dialog.prepareDialog();
-        dialog.selectTab(paneNumber);
-        dialog.setVisible(true);
+        dialog.prepareDialogThen(() -> {
+            dialog.selectTab(paneNumber);
+            dialog.window.show();
+        });
     }
     /**
-     * Prepare this dialog for display.
+     * Prepare this dialog for display then run the given action.
      */
-    private synchronized void prepareDialog() {
-        if (!prepared) {
-            makeDialog();
+    @OnThread(Tag.FXPlatform)
+    private void prepareDialogThen(FXPlatformRunnable runnable)
+    {
+        if (!prepared)
+        {
+            if (prefPanesCreated.get())
+                makeDialog();
+            else
+            {
+                // Will only get called when it becomes true:
+                JavaFXUtil.addSelfRemovingListener(prefPanesCreated, b -> JavaFXUtil.runNowOrLater(() -> prepareDialogThen(runnable))); 
+                return;
+            }
             prepared = true;
         }
         dialog.startEditing();
+        runnable.run();
     }
 
     /**
@@ -118,12 +152,12 @@ public class PrefMgrDialog extends JFrame
 
 
     private ArrayList<PrefPanelListener> listeners = new ArrayList<PrefPanelListener>();
-    private ArrayList<JPanel> tabs = new ArrayList<JPanel>();
+    private ArrayList<Node> tabs = new ArrayList<>();
     private ArrayList<String> titles = new ArrayList<String>();
 
-    private JTabbedPane tabbedPane = null;
-
-    private ClassMgrPrefPanel userConfigLibPanel;
+    private Dialog<Void> window;
+    private TabPane tabbedPane = null;
+    
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
      *
@@ -139,38 +173,52 @@ public class PrefMgrDialog extends JFrame
      */
     private void createPrefPanes()
     {
+        // Editor panel is first:
         EditorPrefPanel panel = new EditorPrefPanel();
-        add(panel, Config.getString("prefmgr.edit.prefpaneltitle"), panel); 
-        kbPanel=new KeyBindingsPanel();
-        add(kbPanel.makePanel(), Config.getString("prefmgr.edit.keybindingstitle"), kbPanel);
+        add(0, panel, Config.getString("prefmgr.edit.prefpaneltitle"), panel);
+        // Misc will be third, for now is second:
         MiscPrefPanel panel2 = new MiscPrefPanel();
-        add(panel2, Config.getString("prefmgr.misc.prefpaneltitle"), panel2);
+        add(1, panel2, Config.getString("prefmgr.misc.prefpaneltitle"), panel2);
+        // Interface will be fourth, for now is third:
         InterfacePanel panel3 = new InterfacePanel();
-        add(panel3, Config.getString("prefmgr.interface.title"), panel3);
-        userConfigLibPanel = new ClassMgrPrefPanel();
-        add(userConfigLibPanel, Config.getString("classmgr.prefpaneltitle"), userConfigLibPanel);
-        if(!Config.isGreenfoot()) {
-            ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
-            add(mgr.getPanel(), Config.getString("extmgr.extensions"), mgr);
-            if (Config.isRaspberryPi()){
-                //display the Raspberry Pi specific options
-                RaspberryPiPanel rpp = new RaspberryPiPanel();
-                add(rpp, Config.getString("extmgr.raspberryPi.rpiPanelTitle"),rpp);
+        add(2, panel3, Config.getString("prefmgr.interface.title"), panel3);
+        // Libraries will be fifth, for now is fourth:
+        ClassMgrPrefPanel userConfigLibPanel = new ClassMgrPrefPanel();
+        add(3, userConfigLibPanel, Config.getString("classmgr.prefpaneltitle"), userConfigLibPanel);
+
+        SwingUtilities.invokeLater(() -> {
+            SwingNode kbSwing = new SwingNode();
+            KeyBindingsPanel kbPanel = new KeyBindingsPanel();
+            kbSwing.setContent(kbPanel.makePanel());
+            Platform.runLater(() -> {
+                // Now we can insert the keybindings panel as second:
+                add(1, kbSwing, Config.getString("prefmgr.edit.keybindingstitle"), kbPanel);
+            });
+            if (!Config.isGreenfoot())
+            {
+                SwingNode extSwing = new SwingNode();
+                ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
+                extSwing.setContent(mgr.getPanel());
+                Platform.runLater(() -> {
+                    // Extensions is sixth:
+                    add(5, extSwing, Config.getString("extmgr.extensions"), mgr);
+                });
+                if (Config.isRaspberryPi())
+                {
+                    //display the Raspberry Pi specific options
+                    RaspberryPiPanel rpp = new RaspberryPiPanel();
+                    SwingNode piSwing = new SwingNode();
+                    piSwing.setContent(rpp);
+                    Platform.runLater(() -> {
+                        // Pi is seventh:
+                        add(6, piSwing, Config.getString("extmgr.raspberryPi.rpiPanelTitle"), rpp);
+                    });
+                }
             }
-        }
-
+            Platform.runLater(() -> prefPanesCreated.set(true));
+        });
     }
-
-    /**
-     * Returns the instance of the UserConfigLibPanel.
-     * It is possible to retrieve the current list of libraries from it.
-     * @return a user config lib panel.
-     */
-    public ClassMgrPrefPanel getUserConfigLibPanel ()
-    {
-        return userConfigLibPanel;
-    }
-
+    
     /**
      * Register a panel to be shown in the preferences dialog
      *
@@ -179,11 +227,12 @@ public class PrefMgrDialog extends JFrame
      * @param listener  an object which will be notified of events concerning the
      *                  preferences dialog
      */
-    public void add(JPanel panel, String title, PrefPanelListener listener)
+    public void add(int index, Node panel, String title, PrefPanelListener listener)
     {
-        tabs.add(panel);
-        listeners.add(listener);
-        titles.add(title);
+        tabs.add(index, panel);
+        // Listener order doesn't really matter, but let's go with it anyway:
+        listeners.add(index, listener);
+        titles.add(index, title);
     }
 
     private void startEditing()
@@ -196,78 +245,77 @@ public class PrefMgrDialog extends JFrame
 
     private void selectTab(int tabNumber)
     {
-        tabbedPane.setSelectedIndex(tabNumber);
+        tabbedPane.getSelectionModel().select(tabNumber);
     }
 
     private void makeDialog()
     {
-        Image icon = BlueJTheme.getIconImage();
-        if (icon != null) {
-            setIconImage(icon);
-        }
-        setTitle(Config.getApplicationName() + ": " + Config.getString("prefmgr.title"));
+        window = new Dialog<>();
+        window.setTitle(Config.getApplicationName() + ": " + Config.getString("prefmgr.title"));
+        Config.addDialogStylesheets(window.getDialogPane());
+        JavaFXUtil.addStyleClass(window.getDialogPane(), "prefmgr-dialog-pane");
 
-        tabbedPane = new JTabbedPane();
+        tabbedPane = new TabPane();
+        JavaFXUtil.addStyleClass(tabbedPane, "prefmgr-tab-pane");
 
-        for (ListIterator<JPanel> i = tabs.listIterator(); i.hasNext(); ) {
+        //window.setOnShown(e -> org.scenicview.ScenicView.show(tabbedPane.getScene()));
+
+        for (ListIterator<Node> i = tabs.listIterator(); i.hasNext(); ) {
             int index = i.nextIndex();
-            JPanel p = i.next();
-            tabbedPane.addTab(titles.get(index), null, p);
+            Node p = i.next();
+            Tab tab = new Tab(titles.get(index), p);
+            tab.setClosable(false);
+            tabbedPane.getTabs().add(tab);
         }
 
-        JPanel contentPanel = (JPanel)getContentPane();
-        {
-            contentPanel.setLayout(new BorderLayout());
-            contentPanel.setBorder(BlueJTheme.dialogBorder);
-
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        window.setResultConverter(bt -> {
+            if (bt == ButtonType.OK)
             {
-                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                JButton okButton = BlueJTheme.getOkButton();
+                for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); )
                 {
-                    okButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
-                                PrefPanelListener ppl = i.next();
-                                ppl.commitEditing();
-                            }
-                            setVisible(false);
-                        }
-                    });
+                    PrefPanelListener ppl = i.next();
+                    ppl.commitEditing();
                 }
-
-                getRootPane().setDefaultButton(okButton);
-
-                JButton cancelButton = BlueJTheme.getCancelButton();
-                {
-                    cancelButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
-                                PrefPanelListener ppl = i.next();
-                                ppl.revertEditing();
-                            }
-                            setVisible(false);
-                        }
-                    });
-                }
-
-                DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
+                return null;
             }
-
-            contentPanel.add(tabbedPane, BorderLayout.CENTER);
-            contentPanel.add(buttonPanel, BorderLayout.SOUTH);
-        }
-
-        // save position when window is moved
-        addComponentListener(new ComponentAdapter() {
-            public void componentMoved(ComponentEvent event)
+            else
             {
-                Config.putLocation("bluej.preferences", getLocation());
+                for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
+                    PrefPanelListener ppl = i.next();
+                    ppl.revertEditing();
+                }
             }
+            return null;
         });
+        window.getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+        window.getDialogPane().setContent(tabbedPane);
+    }
+    
+    public static Node headedVBox(String titleID, List<Node> contents)
+    {
+        return headedVBoxTranslated(Config.getString(titleID), contents);
+    }
 
-        setLocation(Config.getLocation("bluej.preferences"));
-        pack();        
+    public static Node headedVBoxTranslated(String title, List<Node> contents)
+    {
+        VBox body = new VBox();
+        body.getChildren().setAll(contents);
+        JavaFXUtil.addStyleClass(body, "prefmgr-titled-content");
+        TitledPane titledPane = new TitledPane(title, body);
+        return JavaFXUtil.withStyleClass(titledPane, "prefmgr-titled");
+    }
+
+    public static Node labelledItem(String labelID, Node item)
+    {
+        return labelledItem(new Label(Config.getString(labelID)), item);
+    }
+    public static Node labelledItem(Label label, Node item)
+    {
+        return JavaFXUtil.withStyleClass(new HBox(label, item), "prefmgr-label-hbox");
+    }
+    
+    public static Node wrappedLabel(String content)
+    {
+        return new TextFlow(JavaFXUtil.withStyleClass(new Text(content), "prefmgr-text-wrapped"));
     }
 }

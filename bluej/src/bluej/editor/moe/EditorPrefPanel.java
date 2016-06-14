@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2015,2016  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,24 +21,29 @@
  */
 package bluej.editor.moe;
 
+import javax.swing.SwingUtilities;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javafx.scene.Node;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.editor.EditorManager;
 import bluej.prefmgr.PrefMgr;
+import bluej.prefmgr.PrefMgrDialog;
 import bluej.prefmgr.PrefPanelListener;
-import bluej.utility.DBox;
-import bluej.utility.DBoxLayout;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
@@ -46,14 +51,15 @@ import bluej.utility.DBoxLayout;
  *
  * @author  Michael Kolling
  */
-public class EditorPrefPanel extends JPanel implements PrefPanelListener
+@OnThread(Tag.FXPlatform)
+public class EditorPrefPanel extends VBox implements PrefPanelListener
 {
-    private JTextField editorFontField;
-    private JCheckBox hilightingBox;
-    private JCheckBox autoIndentBox;
-    private JCheckBox lineNumbersBox;
-    private JCheckBox makeBackupBox;
-    private JCheckBox matchBracketsBox;
+    private TextField editorFontField;
+    private CheckBox highlightingBox;
+    private CheckBox autoIndentBox;
+    private CheckBox lineNumbersBox;
+    private CheckBox makeBackupBox;
+    private CheckBox matchBracketsBox;
     private ScopeHighlightingPrefDisplay scopeHighlightingPrefDisplay;
 
     /**
@@ -61,70 +67,50 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
      */
     public EditorPrefPanel()
     {
+        JavaFXUtil.addStyleClass(this, "prefmgr-pref-panel");
+        
         scopeHighlightingPrefDisplay=new ScopeHighlightingPrefDisplay();
-        setBorder(BlueJTheme.generalBorder);
 
-        JComponent editorPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.componentSpacingSmall, 0.5f);
+        List<Node> editorPanel = new ArrayList<>();
         {
-            String editorTitle = Config.getString("prefmgr.edit.editor.title");
-            editorPanel.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder(editorTitle),
-                    BlueJTheme.generalBorder));
-            editorPanel.setAlignmentX(LEFT_ALIGNMENT);            
-            JPanel topPanel=new JPanel(new GridLayout(3,2,0,0));
+            GridPane topPanel=new GridPane();
+            JavaFXUtil.addStyleClass(topPanel, "prefmgr-java-editor-top");
             
-            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-            {
-                fontPanel.add(new JLabel(Config.getString("prefmgr.edit.editorfontsize")+"  "));
-                editorFontField = new JTextField(4);
-                fontPanel.add(editorFontField);
-            }
-            topPanel.add(fontPanel);
-            autoIndentBox = new JCheckBox(Config.getString("prefmgr.edit.autoindent"));
-            topPanel.add(autoIndentBox);
+            editorFontField = new TextField();
+            editorFontField.setPrefColumnCount(4);
+            topPanel.add(PrefMgrDialog.labelledItem("prefmgr.edit.editorfontsize", editorFontField), 0, 0);
+            autoIndentBox = new CheckBox(Config.getString("prefmgr.edit.autoindent"));
+            topPanel.add(autoIndentBox, 1, 0);
             
-            hilightingBox = new JCheckBox(Config.getString("prefmgr.edit.usesyntaxhilighting"));
-            topPanel.add(hilightingBox);
+            highlightingBox = new CheckBox(Config.getString("prefmgr.edit.usesyntaxhilighting"));
+            topPanel.add(highlightingBox, 0, 1);
             
-            makeBackupBox = new JCheckBox(Config.getString("prefmgr.edit.makeBackup"));
-            topPanel.add(makeBackupBox);
+            makeBackupBox = new CheckBox(Config.getString("prefmgr.edit.makeBackup"));
+            topPanel.add(makeBackupBox, 1, 1);
 
-            lineNumbersBox = new JCheckBox(Config.getString("prefmgr.edit.displaylinenumbers"));
-            topPanel.add(lineNumbersBox);
+            lineNumbersBox = new CheckBox(Config.getString("prefmgr.edit.displaylinenumbers"));
+            topPanel.add(lineNumbersBox, 0, 2);
             
-            matchBracketsBox= new JCheckBox(Config.getString("prefmgr.edit.matchBrackets"));
-            topPanel.add(matchBracketsBox);
+            matchBracketsBox= new CheckBox(Config.getString("prefmgr.edit.matchBrackets"));
+            topPanel.add(matchBracketsBox, 1, 2);
             
-            JPanel bottomPanel=new JPanel(new GridLayout(1,2,0,0));
-            bottomPanel.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder(Config.getString("prefmgr.edit.colortransparency")),
-                    BlueJTheme.generalBorder));
             //colour scope highlighter slider
-            JPanel sliderPanel=new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
-            {               
-                sliderPanel.add(scopeHighlightingPrefDisplay.getHighlightStrengthSlider());
-            }
-              
-            bottomPanel.add(sliderPanel);            
-            bottomPanel.add(scopeHighlightingPrefDisplay.getColourPalette());
+            Pane bottomPanel = new HBox();
+            JavaFXUtil.addStyleClass(bottomPanel, "prefmgr-java-scope-hbox");
+            bottomPanel.getChildren().add(scopeHighlightingPrefDisplay.getHighlightStrengthSlider());            
+            bottomPanel.getChildren().add(scopeHighlightingPrefDisplay.getColourPalette());
                         
             editorPanel.add(topPanel);
-            editorPanel.add(Box.createVerticalGlue());
-            editorPanel.add(bottomPanel);
+            editorPanel.add(PrefMgrDialog.headedVBox("prefmgr.edit.colortransparency", Arrays.asList(bottomPanel)));
         }
-        add(editorPanel);
-
-        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-
-        add(Box.createVerticalGlue());
-        add(Box.createVerticalGlue());
-        add(Box.createVerticalGlue());
+        
+        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.edit.editor.title", editorPanel));
     }
 
     public void beginEditing()
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
-        hilightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HILIGHTING));
+        highlightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HILIGHTING));
         autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         makeBackupBox.setSelected(PrefMgr.getFlag(PrefMgr.MAKE_BACKUP));
@@ -137,21 +123,24 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
 
     public void commitEditing()
     {
-        int newFontSize = 0;
-        try {
-            newFontSize = Integer.parseInt(editorFontField.getText());
-            PrefMgr.setEditorFontSize(newFontSize);
-        }
-        catch (NumberFormatException nfe) { }
+        String fontText = editorFontField.getText();
+        
 
-        PrefMgr.setFlag(PrefMgr.HILIGHTING, hilightingBox.isSelected());
-        MoeSyntaxView.resetSyntaxHighlighting();
+        PrefMgr.setFlag(PrefMgr.HILIGHTING, highlightingBox.isSelected());
         PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
-        PrefMgr.setScopeHighlightStrength(scopeHighlightingPrefDisplay.getStrengthValue());
-        EditorManager.getEditorManager().refreshAll();
+        int strength = scopeHighlightingPrefDisplay.getStrengthValue();
+        SwingUtilities.invokeLater(() -> {
+            try {
+                PrefMgr.setEditorFontSize(Integer.parseInt(fontText));
+            }
+            catch (NumberFormatException nfe) { }
+            PrefMgr.setScopeHighlightStrength(strength);
+            MoeSyntaxView.resetSyntaxHighlighting();
+            EditorManager.getEditorManager().refreshAll();
+        });
     }
 
 }

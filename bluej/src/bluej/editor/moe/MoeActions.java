@@ -2346,7 +2346,7 @@ public final class MoeActions
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            PrefMgrDialog.showDialog(1); // 1 is the index of the key bindings pane in the pref dialog
+            Platform.runLater(() -> PrefMgrDialog.showDialog(1)); // 1 is the index of the key bindings pane in the pref dialog
         }
     }
 
@@ -2360,7 +2360,7 @@ public final class MoeActions
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            PrefMgrDialog.showDialog(0); // 0 is the index of the editor pane in
+            Platform.runLater(() -> PrefMgrDialog.showDialog(0)); // 0 is the index of the editor pane in
             // the pref dialog
         }
     }

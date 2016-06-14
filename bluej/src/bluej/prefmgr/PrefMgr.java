@@ -51,6 +51,7 @@ import bluej.terminal.Terminal;
  *
  * @author  Andrew Patterson
  */
+@OnThread(Tag.Swing)
 public class PrefMgr
 {
     // publicly accessible names for flags
@@ -91,6 +92,7 @@ public class PrefMgr
     private static Font popupMenuFont;
     private static Font italicMenuFont;
     // initialised by a call to setEditorFontSize()
+    @OnThread(Tag.Any)
     private static int editorFontSize;
     private static Font editorStandardFont;
     @OnThread(Tag.FX)
@@ -99,12 +101,14 @@ public class PrefMgr
     // preference variables: (other than fonts)
     
     /** transparency of the scope highlighting */
+    @OnThread(Tag.Any)
     private static int highlightStrength; 
     
     // last value of naviviewExpanded
     private static boolean isNaviviewExpanded=true;
     
     // the current project directory
+    @OnThread(Tag.Any)
     private static String projectDirectory;
 
     // list of recently used projects
@@ -131,6 +135,7 @@ public class PrefMgr
         return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, String.valueOf(!Config.isRaspberryPi())));
     }
     
+    @OnThread(Tag.Any)
     public static String getProjectDirectory()
     {
         return projectDirectory;
@@ -138,6 +143,7 @@ public class PrefMgr
     
     // ----- system interface to read or set prefences: -----
 
+    @OnThread(Tag.Any)
     public static void setProjectDirectory(String newDir)
     {
         projectDirectory = newDir;
@@ -308,11 +314,13 @@ public class PrefMgr
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)
      */
+    @OnThread(Tag.Any)
     public static int getEditorFontSize()
     {
         return editorFontSize;
     }
-    
+
+    @OnThread(Tag.Any)
     public static int getScopeHighlightStrength()
     {
         return highlightStrength;

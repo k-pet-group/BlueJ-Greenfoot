@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,14 +26,15 @@ import java.io.IOException;
 import java.net.*;
 
 import bluej.Config;
+import bluej.utility.Debug;
 
 /**
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 11027 2014-01-20 10:18:56Z nccb $
+ * @version $Id: ClassPathEntry.java 16031 2016-06-14 13:32:45Z nccb $
  */
-public class ClassPathEntry implements Cloneable
+public class ClassPathEntry
 {
     private static final String statusGood = Config.getString("classmgr.statusgood");
     private static final String statusBad = Config.getString("classmgr.statusbad");
@@ -42,17 +43,17 @@ public class ClassPathEntry implements Cloneable
     /**
      * Hold the class path entry location.
      */
-    private File file;
+    private final File file;
 
     /**
      * Hold the class path entry description.
      */
-    private String description;
+    private final String description;
 
     /**
      * Flag to mark entries added after system start (unloaded).
      */
-    private boolean justAdded = false;
+    private final boolean justAdded;
     
     /**
      * Holds a file/directory location in a classpath entry along with a
@@ -64,14 +65,7 @@ public class ClassPathEntry implements Cloneable
      */
     public ClassPathEntry(String location, String description)
     {
-        // we take the decision that all ClassPathEntries should
-        // be absolute (the behaviour of BlueJ should not change
-        // dependant upon what directory the user was in when they
-        // launched it). There may be a good reason why relative
-        // ClassPathEntries are needed.. if so this code will have
-        // to be rethought
-        this.file = new File(location).getAbsoluteFile();
-        this.description = description;
+        this(location, description, false);
     }
 
 
@@ -85,11 +79,19 @@ public class ClassPathEntry implements Cloneable
     {
         this.file = file;
         this.description = description;
+        this.justAdded = false;
     }
 
     public ClassPathEntry(String location, String description, boolean isNew)
     {
-        this(location, description);
+        // we take the decision that all ClassPathEntries should
+        // be absolute (the behaviour of BlueJ should not change
+        // dependant upon what directory the user was in when they
+        // launched it). There may be a good reason why relative
+        // ClassPathEntries are needed.. if so this code will have
+        // to be rethought
+        this.file = new File(location).getAbsoluteFile();
+        this.description = description;
         justAdded = isNew;
     }
 
@@ -105,17 +107,6 @@ public class ClassPathEntry implements Cloneable
                     " (" + file.getPath() + ")";
         else
             return description;
-    }
-
-    /**
-     * Set the description for this class path entry.
-     *
-     * @param description a short description of the classes represented
-     *                    by this classpath entry
-     */
-    protected void setDescription(String d)
-    {
-        this.description = d;
     }
 
     /**
@@ -170,9 +161,17 @@ public class ClassPathEntry implements Cloneable
      *
      * @returns a URL representing this classpath entry
      */
-    public URL getURL() throws MalformedURLException
+    public URL safeGetURL()
     {
-        return file.toURI().toURL();
+        try
+        {
+            return file.toURI().toURL();
+        }
+        catch (MalformedURLException e)
+        {
+            Debug.reportError("Bad class path entry: " + file, e);
+            return null;
+        }
     }
 
     /**
@@ -232,18 +231,6 @@ public class ClassPathEntry implements Cloneable
             (name.endsWith(".zip") || name.endsWith(".jar"));
     }
 
-    /**
-     * Determine if this class path entry represents the root of
-     * a class directory.
-     *
-     * @returns a boolean indicating if this entry is a class
-     *          directory.
-     */
-    public boolean isClassRoot()
-    {
-        return file.isDirectory();
-    }
-
     public String toString()
     {
         return getPath();
@@ -263,10 +250,5 @@ public class ClassPathEntry implements Cloneable
     public int hashCode()
     {
         return file.hashCode();
-    }
-
-    protected Object clone() throws CloneNotSupportedException
-    {
-        return super.clone();
     }
 }

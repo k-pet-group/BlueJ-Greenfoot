@@ -59,6 +59,7 @@ import bluej.BlueJEvent;
 import bluej.Boot;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
+import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileReason;
 import bluej.debugger.Debugger;
@@ -670,6 +671,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param risul where to add the file
      * @param aFile the file to be added.
      */
+    @OnThread(Tag.Any)
     private static final void attemptAddLibrary (List<URL> risul, File aFile) 
     {
         if ( aFile == null ) return;
@@ -695,6 +697,7 @@ public class Project implements DebuggerListener, InspectorManager
      *
      * @return  URLs of the discovered JAR files
      */
+    @OnThread(Tag.Any)
     public static final List<URL> getUserlibContent() 
     {
         List<URL> risul = new ArrayList<URL>();
@@ -1658,7 +1661,7 @@ public class Project implements DebuggerListener, InspectorManager
         List<URL> pathList = new ArrayList<URL>();
         
         // Next part is the libraries that are added trough the config panel.
-        pathList.addAll(PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent());
+        pathList.addAll(ClassMgrPrefPanel.getUserConfigContent());
         
         // Then the libraries that are in the userlib directory
         pathList.addAll(getUserlibContent());
