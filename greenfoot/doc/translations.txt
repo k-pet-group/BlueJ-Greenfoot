@@ -6,6 +6,7 @@ language        last update     next update    comment                  translat
                 (* = after                     including english
                  release)                      rev no sent.
 --------------------------------------------------------------------------------------------------------------
+arabic                           x    labels+dialog+frames, Rev: 16028      Hakim <hakimsi@yahoo.com>
 brazilian                                          tutorial
 chinese			3.0.2                          all Rev: 15091               He Qing <hawking329@sina.com>
 czech			3.0.0			 x             all Rev: 14946               Zdeněk Chalupský <chalzd@gmail.com>
