@@ -151,10 +151,14 @@ public class ParameterList
         if(history == null) {
             history = FXCollections.observableArrayList();
         }
-        ComboBox<String> component = new ComboBox<>(history);
         history.add(0, defaultParamValue);
+        ComboBox<String> component = new ComboBox<>(history);
         component.setEditable(true);
         component.setPromptText(prompt);
+        component.getEditor().setText(defaultParamValue);
+        //TODO can't get this working...
+        //if (!defaultParamValue.isEmpty())
+        //    JavaFXUtil.addSelfRemovingListener(component.getEditor().focusedProperty(), b -> component.getEditor().selectAll());
         HangingFlowPane.setBreakBefore(component, true);
         // Can't do this from CSS:
         HangingFlowPane.setMargin(component, new Insets(0, 8, 0, 8));
