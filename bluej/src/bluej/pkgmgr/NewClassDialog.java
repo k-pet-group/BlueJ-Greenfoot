@@ -293,7 +293,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         else if (!JavaNames.isIdentifier(newClassName))
         {
             if (fieldHasHadContent || force)
-                showError("Not valid Java class name", true);
+                showError("Not valid " + language.selectedProperty().get() + " class name", true);
         }
         else if (isWindowsRestrictedWord(newClassName))
         {
