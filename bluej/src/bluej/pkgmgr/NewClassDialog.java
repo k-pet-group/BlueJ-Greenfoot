@@ -155,9 +155,8 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         mainPanel.getChildren().add(errorLabel);
 
         JavaFXUtil.addChangeListenerPlatform(language.selectedProperty(), language -> {
-            templates.forEach((radio, info) -> {
-                radio.setDisable(!info.sourceTypes.contains(language));
-            });
+            templates.forEach((radio, info) -> radio.setDisable(!info.sourceTypes.contains(language)));
+            hideError();
             updateOKButton(false);
         });
         
