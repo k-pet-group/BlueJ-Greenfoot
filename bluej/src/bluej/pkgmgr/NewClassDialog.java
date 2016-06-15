@@ -159,7 +159,6 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         });
 
         JavaFXUtil.addChangeListenerPlatform(language.selectedProperty(), language -> {
-            templates.forEach((radio, info) -> radio.setDisable(!info.sourceTypes.contains(language)));
             hideError();
             updateOKButton(false);
         });
@@ -300,11 +299,14 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         {
             if (fieldHasHadContent || force)
                 showError("Windows restricted word", true);
-        }else
+        }
+        else
         {
             hideError();
             enable = true;
         }
+
+        templates.forEach((radio, templateInfo) -> radio.setDisable(!templateInfo.sourceTypes.contains(language.selectedProperty().get())));
         setOKEnabled(enable);
     }
     
