@@ -153,6 +153,10 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         templateButtons = new ToggleGroup();
         addClassTypeButtons(parent, mainPanel);
         mainPanel.getChildren().add(errorLabel);
+        JavaFXUtil.addChangeListenerPlatform(templateButtons.selectedToggleProperty(), toggle -> {
+            hideError();
+            updateOKButton(false);
+        });
 
         JavaFXUtil.addChangeListenerPlatform(language.selectedProperty(), language -> {
             templates.forEach((radio, info) -> radio.setDisable(!info.sourceTypes.contains(language)));
