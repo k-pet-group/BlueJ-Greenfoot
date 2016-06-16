@@ -153,6 +153,15 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
+    /**
+     * Creates an interface element with minimum information (when creating new interface from template name)
+     */
+    public InterfaceElement(EntityResolver entityResolver, String interfaceName, String packageName)
+    {
+        this(null, entityResolver, new NameDefSlotFragment(interfaceName), null, Collections.emptyList(),
+                Collections.emptyList(), null, new PackageFragment(packageName), Collections.emptyList(), true);
+    }
+
     @Override
     public CodeSuggestions getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
     {

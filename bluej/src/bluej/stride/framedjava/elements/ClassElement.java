@@ -136,9 +136,10 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
      * Creates a class element from the given frame (when generating code elements for
      * analysis/compilation from the open editor)
      */
-    public ClassElement(ClassFrame frame, EntityResolver projectResolver, boolean abstractModifier, NameDefSlotFragment className, 
-            TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, List<? extends CodeElement> fields, List<? extends CodeElement> constructors, List<? extends CodeElement> methods,
-            JavadocUnit documentation, PackageFragment packageName, List<ImportElement> imports, boolean enabled)
+    public ClassElement(ClassFrame frame, EntityResolver projectResolver, boolean abstractModifier, NameDefSlotFragment className,
+                        TypeSlotFragment extendsName, List<TypeSlotFragment> implementsList, List<? extends CodeElement> fields,
+                        List<? extends CodeElement> constructors, List<? extends CodeElement> methods, JavadocUnit documentation,
+                        PackageFragment packageName, List<ImportElement> imports, boolean enabled)
     {
         this.frame = frame;
         this.openingCurly = new FrameFragment(this.frame, this, "{");
@@ -207,6 +208,16 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         this.projectResolver = projectResolver;
         this.openingCurly = new FrameFragment(null, this, "{");
         this.closingCurly = new FrameFragment(null, this, "}");
+    }
+
+    /**
+     * Creates a class element with minimum information (when creating new class from template name)
+     */
+    public ClassElement(EntityResolver entityResolver, boolean abstractModifier, String className, String packageName)
+    {
+        this(null, entityResolver, abstractModifier, new NameDefSlotFragment(className), null,
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                null, new PackageFragment(packageName), Collections.emptyList(), true);
     }
     
     @Override

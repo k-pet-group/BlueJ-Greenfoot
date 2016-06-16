@@ -125,15 +125,9 @@ public class Loader
     public static TopLevelCodeElement buildTopLevelElement(String template, EntityResolver resolver, String topLevelName, String packageName)
     {
         switch (template) {
-            case "stdclass": return new ClassElement(null, resolver, false, new NameDefSlotFragment(topLevelName), null,
-                    Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-                    null, new PackageFragment(packageName), Collections.emptyList(), true);
-            case "abstract": return new ClassElement(null, resolver, true, new NameDefSlotFragment(topLevelName), null,
-                    Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-                    null, new PackageFragment(packageName), Collections.emptyList(), true);
-            case "interface": return new InterfaceElement(null, resolver, new NameDefSlotFragment(topLevelName), null,
-                    Collections.emptyList(), Collections.emptyList(), null, new PackageFragment(packageName),
-                    Collections.emptyList(), true);
+            case "stdclass": return new ClassElement(resolver, false, topLevelName, packageName);
+            case "abstract": return new ClassElement(resolver, true, topLevelName, packageName);
+            case "interface": return new InterfaceElement(resolver, topLevelName, packageName);
             default: throw new IllegalArgumentException("Unknown template: " + template);
         }
     }
