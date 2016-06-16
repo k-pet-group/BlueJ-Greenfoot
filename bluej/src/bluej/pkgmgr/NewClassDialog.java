@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javafx.application.Platform;
@@ -296,19 +297,24 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         Toggle selectedToggle = templateButtons.getSelectedToggle();
         TemplateInfo info = this.templates.get(selectedToggle);
         boolean enable = false;
+
+        SourceType sourceType = language.selectedProperty().get();
+        Properties localProperties = new Properties();
+        localProperties.put("LANGUAGE", sourceType);
+
         if (info == null)
-            showError("No class type selected", false);
-        else if (((RadioButton)selectedToggle).isDisabled() || !info.sourceTypes.contains(language.selectedProperty().get()))
-            showError("Type not available for " + language.selectedProperty().get(), false);
+            showError(Config.getString("pkgmgr.newClass.error.noType"), false);
+        else if (((RadioButton)selectedToggle).isDisabled() || !info.sourceTypes.contains(sourceType))
+            showError(Config.getString("pkgmgr.newClass.error.typeNotAvailable", null,  localProperties), false);
         else if (!JavaNames.isIdentifier(newClassName))
         {
             if (fieldHasHadContent || force)
-                showError("Not valid " + language.selectedProperty().get() + " class name", true);
+                showError(Config.getString("pkgmgr.newClass.error.notValidClassName", null,  localProperties), true);
         }
         else if (isWindowsRestrictedWord(newClassName))
         {
             if (fieldHasHadContent || force)
-                showError("Windows restricted word", true);
+                showError(Config.getString("pkgmgr.newClass.error.windowsRestricted"), true);
         }
         else
         {
