@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -104,6 +103,7 @@ import bluej.pkgmgr.target.role.EnumClassRole;
 import bluej.pkgmgr.target.role.InterfaceClassRole;
 import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.convert.ConversionWarning;
 import bluej.stride.framedjava.convert.ConvertResultDialog;
@@ -1265,7 +1265,20 @@ public class ClassTarget extends DependentTarget
             return false;
         }
         else {
-            boolean success = role.generateSkeleton(template, getPackage(), getBaseName(), (sourceType == SourceType.Java ? getJavaSourceFile() : getFrameSourceFile()).getPath());
+            boolean success;
+            switch (sourceType) {
+                case Java:
+                    success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
+                    break;
+                case Stride:
+                    addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
+                            getBaseName(), getPackage().getBaseName()));
+                    success = true;
+                    break;
+                default:
+                    success = false;
+            }
+
             if (success) {
                 // skeleton successfully generated
                 setState(S_INVALID);

@@ -24,6 +24,7 @@ package bluej.stride.framedjava.ast;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collections;
 
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -57,15 +58,6 @@ import bluej.utility.Debug;
 
 public class Loader
 {
-    public static TopLevelCodeElement loadTopLevelElement(Element el, EntityResolver resolver)
-    {
-        switch (el.getLocalName()) {
-            case ClassElement.ELEMENT: return new ClassElement(el, resolver);
-            case InterfaceElement.ELEMENT: return new InterfaceElement(el, resolver);
-            default: throw new IllegalArgumentException("Unknown top level element: " + el.getLocalName());
-        }
-    }
-    
     public static CodeElement loadElement(Element el)
     {
         switch (el.getLocalName())
@@ -119,5 +111,30 @@ public class Loader
             Debug.reportError(e);
         }
         return null;
+    }
+
+    public static TopLevelCodeElement loadTopLevelElement(Element el, EntityResolver resolver)
+    {
+        switch (el.getLocalName()) {
+            case ClassElement.ELEMENT: return new ClassElement(el, resolver);
+            case InterfaceElement.ELEMENT: return new InterfaceElement(el, resolver);
+            default: throw new IllegalArgumentException("Unknown top level element: " + el.getLocalName());
+        }
+    }
+
+    public static TopLevelCodeElement buildTopLevelElement(String template, EntityResolver resolver, String topLevelName, String packageName)
+    {
+        switch (template) {
+            case "stdclass": return new ClassElement(null, resolver, false, new NameDefSlotFragment(topLevelName), null,
+                    Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                    null, new PackageFragment(packageName), Collections.emptyList(), true);
+            case "abstract": return new ClassElement(null, resolver, true, new NameDefSlotFragment(topLevelName), null,
+                    Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                    null, new PackageFragment(packageName), Collections.emptyList(), true);
+            case "interface": return new InterfaceElement(null, resolver, new NameDefSlotFragment(topLevelName), null,
+                    Collections.emptyList(), Collections.emptyList(), null, new PackageFragment(packageName),
+                    Collections.emptyList(), true);
+            default: throw new IllegalArgumentException("Unknown template: " + template);
+        }
     }
 }
