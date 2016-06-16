@@ -24,6 +24,7 @@ package bluej.stride.framedjava.ast;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.Collections;
 
 import nu.xom.Builder;
@@ -125,8 +126,8 @@ public class Loader
     public static TopLevelCodeElement buildTopLevelElement(String template, EntityResolver resolver, String topLevelName, String packageName)
     {
         switch (template) {
-            case "stdclass": return new ClassElement(resolver, false, topLevelName, packageName);
-            case "abstract": return new ClassElement(resolver, true, topLevelName, packageName);
+            case "stdclass": return  new ClassElement(resolver, false, topLevelName, packageName, Arrays.asList(new ConstructorElement("Constructor for objects of class " + topLevelName)));
+            case "abstract": return new ClassElement(resolver, true, topLevelName, packageName, Collections.emptyList());
             case "interface": return new InterfaceElement(resolver, topLevelName, packageName);
             default: throw new IllegalArgumentException("Unknown template: " + template);
         }

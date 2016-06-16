@@ -213,10 +213,11 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     /**
      * Creates a class element with minimum information (when creating new class from template name)
      */
-    public ClassElement(EntityResolver entityResolver, boolean abstractModifier, String className, String packageName)
+    public ClassElement(EntityResolver entityResolver, boolean abstractModifier, String className, String packageName,
+                        List<? extends CodeElement> constructors)
     {
         this(null, entityResolver, abstractModifier, new NameDefSlotFragment(className), null,
-                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), constructors, Collections.emptyList(),
                 null, new PackageFragment(packageName), Collections.emptyList(), true);
     }
     

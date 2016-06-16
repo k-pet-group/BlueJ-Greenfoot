@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -96,9 +95,9 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
     public MethodWithBodyElement(Element el)
     {
         access = new AccessPermissionFragment(AccessPermission.fromString(el.getAttributeValue("access")));
-        params = new ArrayList<ParamFragment>();
+        params = new ArrayList<>();
         this.throwsTypes = new ArrayList<>();
-        contents = new ArrayList<CodeElement>();
+        contents = new ArrayList<>();
         for (int i = 0; i < el.getChildElements().size(); i++) {
             final Element child = el.getChildElements().get(i);
             switch (child.getLocalName()) {
@@ -144,8 +143,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         
         this.params = new ArrayList<>();
         if (params != null ) {
-            for (int i = 0; i < params.size(); i++) {
-                Entry<String, String> entry = params.get(i);
+            for (Entry<String, String> entry : params) {
                 this.params.add(new ParamFragment(new TypeSlotFragment(entry.getKey(), entry.getKey()), new NameDefSlotFragment(entry.getValue())));
             }
         }

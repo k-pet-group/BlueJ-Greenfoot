@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Element;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
@@ -49,13 +50,20 @@ public class ConstructorElement extends MethodWithBodyElement
     private final SuperThisFragment delegate;
     private final SuperThisParamsExpressionFragment delegateParams;
     
-    public ConstructorElement(ConstructorFrame frame, AccessPermissionFragment access, List<ParamFragment> params, List<ThrowsTypeFragment> throwsTypes,
-            SuperThisFragment delegate, SuperThisParamsExpressionFragment delegateParams, List<CodeElement> contents, 
-            JavadocUnit documentation, boolean enabled)
+    public ConstructorElement(ConstructorFrame frame, AccessPermissionFragment access, List<ParamFragment> params,
+                              List<ThrowsTypeFragment> throwsTypes, SuperThisFragment delegate,
+                              SuperThisParamsExpressionFragment delegateParams, List<CodeElement> contents,
+                              JavadocUnit documentation, boolean enabled)
     {
         super(frame, access, params, throwsTypes, contents, documentation, enabled);
         this.delegate = delegate;
         this.delegateParams = delegateParams;
+    }
+
+    public ConstructorElement(String javaDoc)
+    {
+        this(null, new AccessPermissionFragment(AccessPermission.PUBLIC), Collections.emptyList(), Collections.emptyList(),
+                null, null, Collections.emptyList(), new JavadocUnit(javaDoc), true);
     }
     
     public ConstructorElement(Element el)
@@ -95,7 +103,7 @@ public class ConstructorElement extends MethodWithBodyElement
 
         header.addAll(throwsToJava());
         
-        List<JavaSource> effectiveContents = new ArrayList<JavaSource>();
+        List<JavaSource> effectiveContents = new ArrayList<>();
         
         if (delegate != null) {
             effectiveContents.add(new JavaSource(this, delegate, f(frame, "("), delegateParams, f(frame, ");")));
@@ -118,7 +126,7 @@ public class ConstructorElement extends MethodWithBodyElement
         paramsToXML(methodEl);
         throwsToXML(methodEl);
         
-        LocatableElement delegateEl = null;
+        LocatableElement delegateEl;
         if (delegate != null) {
             delegateEl = new LocatableElement(null, "delegate");
             delegateEl.addAttributeSuperThis("target", delegate);
