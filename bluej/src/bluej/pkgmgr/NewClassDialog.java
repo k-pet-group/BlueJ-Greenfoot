@@ -200,18 +200,44 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     }
 
     /**
+     * A list of Templates guarantee uniqueness and order
+     */
+    @OnThread(Tag.Any)
+    private static class TemplatesList
+    {
+        private final List<TemplateInfo> templates = new ArrayList<>();
+
+        public void addTemplate(String name, SourceType sourceType)
+        {
+            TemplateInfo template = templates.stream().filter(t -> t.name.equals(name)).findFirst().orElse(null);
+            if (template != null) {
+                template.sourceTypes.add(sourceType);
+            }
+            else {
+                templates.add(new TemplateInfo(name, sourceType));
+            }
+        }
+
+        public List<TemplateInfo> getTemplates()
+        {
+            return templates;
+        }
+    }
+
+
+    /**
      * Add the class type buttons (defining the class template to be used
      * to the panel. The templates are defined in the "defs" file.
      */
     private void addClassTypeButtons(Window parent, Pane panel)
     {
-        List<TemplateInfo> templates = new ArrayList<>();
+        TemplatesList templates = new TemplatesList();
         addJavaTemplates(templates, parent);
         addStrideTemplates(templates);
 
         // Create a radio button for each template found
         boolean first = true;
-        for (TemplateInfo template : templates)
+        for (TemplateInfo template : templates.getTemplates())
         {
             String label = Config.getString("pkgmgr.newClass." + template.name, template.name);
             RadioButton button = new RadioButton(label);
@@ -226,7 +252,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         JavaFXUtil.addChangeListenerPlatform(templateButtons.selectedToggleProperty(), selected -> updateOKButton(false));
     }
 
-    private void addJavaTemplates(List<TemplateInfo> templates, Window parent)
+    private void addJavaTemplates(TemplatesList templates, Window parent)
     {
         String templateSuffix = ".tmpl";
         int suffixLength = templateSuffix.length();
@@ -238,7 +264,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         String templateString = Config.getPropString("bluej.classTemplates.java");
         StringTokenizer tokenizer = new StringTokenizer(templateString);
         while (tokenizer.hasMoreTokens()) {
-            templates.add(new TemplateInfo(tokenizer.nextToken()));
+            templates.addTemplate(tokenizer.nextToken(), sourceType);
         }
 
         // next, get templates from files in template directory and merge them in
@@ -250,21 +276,13 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             Arrays.asList(templateDir.list()).forEach(file -> {
                 if(file.endsWith(templateSuffix)) {
                     String templateName = file.substring(0, file.length() - suffixLength);
-                    if (!templateName.endsWith("Stride")) {
-                        TemplateInfo template = templates.stream().filter(t -> t.name.equals(templateName)).findFirst().orElse(null);
-                        if (template != null) {
-                            template.sourceTypes.add(sourceType);
-                        }
-                        else {
-                            templates.add(new TemplateInfo(templateName, sourceType));
-                        }
-                    }
+                    templates.addTemplate(templateName, sourceType);
                 }
             });
         }
     }
 
-    private void addStrideTemplates(List<TemplateInfo> templates)
+    private void addStrideTemplates(TemplatesList templates)
     {
         SourceType sourceType = SourceType.Stride;
 
@@ -272,14 +290,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         String templateString = Config.getPropString("bluej.classTemplates.stride");
         StringTokenizer tokenizer = new StringTokenizer(templateString);
         while (tokenizer.hasMoreTokens()) {
-            String templateName = tokenizer.nextToken();
-            TemplateInfo template = templates.stream().filter(t -> t.name.equals(templateName)).findFirst().orElse(null);
-            if (template != null) {
-                template.sourceTypes.add(sourceType);
-            }
-            else {
-                templates.add(new TemplateInfo(templateName, sourceType));
-            }
+            templates.addTemplate(tokenizer.nextToken(), sourceType);
         }
     }
 
