@@ -311,7 +311,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         SourceType sourceType = language.selectedProperty().get();
         Properties localProperties = new Properties();
-        localProperties.put("LANGUAGE", sourceType);
+        localProperties.put("LANGUAGE", sourceType.toString());
 
         if (info == null)
             showError(Config.getString("pkgmgr.newClass.error.noType"), false);
