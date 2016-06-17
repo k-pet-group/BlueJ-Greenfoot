@@ -327,11 +327,16 @@ public class PkgMgrFrame extends JPanel
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
             new JFXPanel();
+            swingNode = new SwingNode();
+            swingNode.setContent(PkgMgrFrame.this);
+            Dimension preferredSize = swingNode.getContent().getPreferredSize();
+            swingNode.getContent().setPreferredSize(preferredSize);
+            swingNode.getContent().validate();
             Platform.runLater(() -> {
                 Stage stage = new Stage();
-                swingNode = new SwingNode();
-                swingNode.setContent(PkgMgrFrame.this);
                 BorderPane root = new BorderPane(swingNode);
+                root.setPrefWidth(preferredSize.getWidth());
+                root.setPrefHeight(preferredSize.getHeight());
                 stage.setScene(new Scene(root));
                 stage.show();
                 stageProperty.setValue(stage);
