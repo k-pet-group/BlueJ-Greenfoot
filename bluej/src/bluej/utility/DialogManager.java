@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Modality;
 
 import bluej.utility.javafx.SwingNodeDialog;
@@ -401,6 +402,30 @@ public class DialogManager
         return response;
     }
 
+    @OnThread(Tag.FXPlatform)
+    public static String askStringFX(javafx.stage.Window parent, String msgID)
+    {
+        String response = "";
+        String message = getMessage(msgID);
+        if (message != null) {
+            int defaultTextIndex = message.lastIndexOf("\n");
+            int titleIndex = message.lastIndexOf("\n", defaultTextIndex-1);
+            String defaultText = message.substring(defaultTextIndex+1);
+            String title = message.substring(titleIndex+1, defaultTextIndex);
+            message = message.substring(0, titleIndex);
+            if ("null".equals(defaultText)) {
+                defaultText = null;
+            }
+            TextInputDialog dialog = new TextInputDialog(defaultText);
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(parent);
+            dialog.setTitle(title);
+            dialog.setHeaderText(message);
+            return dialog.showAndWait().orElse(null);
+        }
+        return response;
+    }
+
     /**
      * Bring up a dialog which asks the user for a response in the form of a string,
      * using a specified default response.
@@ -428,6 +453,26 @@ public class DialogManager
                                                             null,
                                                             null,
                                                             defaultText);
+        }
+        return response;
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    public static String askStringFX(javafx.stage.Window parent, String msgID, String defaultText)
+    {
+        String response = "";
+        String message = getMessage(msgID);
+        if (message != null) {
+            int defaultTextIndex = message.lastIndexOf("\n");
+            int titleIndex = message.lastIndexOf("\n", defaultTextIndex - 1);
+            String title = message.substring(titleIndex + 1, defaultTextIndex);
+            message = message.substring(0, titleIndex);
+            TextInputDialog dialog = new TextInputDialog(defaultText);
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(parent);
+            dialog.setTitle(title);
+            dialog.setHeaderText(message);
+            return dialog.showAndWait().orElse(null);
         }
         return response;
     }

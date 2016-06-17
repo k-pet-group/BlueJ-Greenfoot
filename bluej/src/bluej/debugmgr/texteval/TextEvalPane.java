@@ -49,6 +49,8 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
 import javax.swing.text.SimpleAttributeSet;
 
+import javafx.application.Platform;
+
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -65,11 +67,14 @@ import bluej.debugmgr.ValueCollection;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
 import bluej.parser.TextAnalyzer;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
 
 /**
  * A modified editor pane for the text evaluation area.
@@ -90,7 +95,7 @@ public class TextEvalPane extends JEditorPane
     
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
     
-    private PkgMgrFrame frame;
+    private final PkgMgrFrame frame;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
     private String currentCommand = "";
     private IndexHistory history;
@@ -259,8 +264,8 @@ public class TextEvalPane extends JEditorPane
     public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
     {
         frame.getObjectBench().addInteraction(ir);
-        frame.getPackage().getProject().updateInspectors();
-        
+        updateInspectors();
+
         // Newly declared variables are now initialized
         if (newlyDeclareds != null) {
             Iterator<CodepadVar> i = newlyDeclareds.iterator();
@@ -335,7 +340,13 @@ public class TextEvalPane extends JEditorPane
         setEditable(true);    // allow next input
         busy = false;
     }
-    
+
+    private void updateInspectors()
+    {
+        Project proj = frame.getPackage().getProject();
+        Platform.runLater(() -> proj.updateInspectors());
+    }
+
     /**
      * An invocation has failed - here is the error message
      */
@@ -392,8 +403,8 @@ public class TextEvalPane extends JEditorPane
         executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
         executionEvent.setException(exception);
         BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-        frame.getPackage().getProject().updateInspectors();
-        
+        updateInspectors();
+
         if (autoInitializedVars != null) {
             autoInitializedVars.clear();
         }
@@ -498,12 +509,9 @@ public class TextEvalPane extends JEditorPane
      */
     private void inspectObject(TextEvalPane.ObjectInfo objInfo)
     {
-        final TextEvalPane.ObjectInfo oi = objInfo;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                frame.getProject().getInspectorInstance(oi.obj, null, frame.getPackage(), oi.ir, frame.getWindow());
-            }
-        });
+        Project proj = frame.getProject();
+        Package pkg = frame.getPackage();
+        Platform.runLater(() -> proj.getInspectorInstance(objInfo.obj, null, pkg, objInfo.ir, frame.getFXWindow()));
     }
 
     /**

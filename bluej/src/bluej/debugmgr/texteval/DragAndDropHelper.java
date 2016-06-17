@@ -25,11 +25,14 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import javafx.stage.Stage;
+
 import bluej.Config;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.utility.Utility;
 
 /**
  * This class manages the dragging of object icons, and the drop onto
@@ -113,7 +116,9 @@ public class DragAndDropHelper
         
         if(pointInTarget(x, y)) {
             // POLLE Create invoker record for this that allows "Get"?
-            frame.getPackage().getEditor().raisePutOnBenchEvent(target, object, object.getGenType(), invokerRecord);
+            // Hack to get Window off FX thread without thread checker complaining, will be replaced once we sort out PkgMgrFrame:
+            Stage window = ((Utility.SwingSupplier<Stage>)frame::getFXWindow).get();;
+            frame.getPackage().getEditor().raisePutOnBenchEvent(window, object, object.getGenType(), invokerRecord);
         }
         target.showFocusHiLight(false);
     }

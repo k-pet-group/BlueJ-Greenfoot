@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Window;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -39,32 +40,27 @@ import bluej.pkgmgr.Package;
 public class ReferenceDebugVarInfo implements DebugVarInfo
 {
     private Package pkg;
-    private JFrame editorFrame;
+    private Window editorFrame;
     private DebuggerField field;
     
     @OnThread(Tag.Any)
-    public ReferenceDebugVarInfo(Package pkg, JFrame editorFrame, DebuggerField field)
+    public ReferenceDebugVarInfo(Package pkg, Window editorFrame, DebuggerField field)
     {
         this.pkg = pkg;
         this.editorFrame = editorFrame;
         this.field = field;
     }
-
+    
     @Override
+    @OnThread(Tag.FXPlatform)
     public Node getDisplay(DebugVarInfo prev)
     {
         Image img = Config.getImageAsFXImage("image.eval.object");
         ImageView view = new ImageView(img);
-        view.setOnMouseClicked(new EventHandler<Event>() {
-            @Override
-            public void handle(Event e)
-            {
-                SwingUtilities.invokeLater(() ->
-                    pkg.getProject().getInspectorInstance(field.getValueObject(null), null, pkg, null, editorFrame)
-                );
-                // Stop event being passed through to canvas:
-                e.consume();
-            }
+        view.setOnMouseClicked(e -> {
+            pkg.getProject().getInspectorInstance(field.getValueObject(null), null, pkg, null, editorFrame);
+            // Stop event being passed through to canvas:
+            e.consume();
         });
         return view;
     }

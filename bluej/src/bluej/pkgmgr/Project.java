@@ -53,6 +53,7 @@ import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import bluej.BlueJEvent;
@@ -172,7 +173,9 @@ public class Project implements DebuggerListener, InspectorManager
         for a project. It should only hold object inspectors that
         have a wrapper on the object bench. Inspectors of fields of
         object inspectors should be handled at the object wrapper level */
+    @OnThread(Tag.FXPlatform)
     private Map<Object,Inspector> inspectors;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean inTestMode = false;
     private BPClassLoader currentClassLoader;
     private List<URL> libraryUrls;
@@ -543,7 +546,7 @@ public class Project implements DebuggerListener, InspectorManager
             project.statusFrame.dispose();
         }
 
-        project.removeAllInspectors();
+        Platform.runLater(() -> project.removeAllInspectors());
         project.getDebugger().removeDebuggerListener(project);
         project.getDebugger().close(false);
 
@@ -772,10 +775,11 @@ public class Project implements DebuggerListener, InspectorManager
      * 
      * @param inspector  The inspector to update and show
      */
+    @OnThread(Tag.FXPlatform)
     private void updateInspector(final Inspector inspector)
     {
         inspector.update();
-        inspector.setVisible(true);
+        inspector.show();
         inspector.bringToFront();
     }
 
@@ -795,15 +799,16 @@ public class Project implements DebuggerListener, InspectorManager
      *            The parent frame of this frame
      * @return The Viewer value
      */
+    @OnThread(Tag.FXPlatform)
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-        String name, Package pkg, InvokerRecord ir, Frame parent)
+        String name, Package pkg, InvokerRecord ir, javafx.stage.Window parent)
     {
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
 
         if (inspector == null) {
             inspector = new ObjectInspector(obj, this, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
-            inspector.setVisible(true);
+            inspector.show();
         }
         else {
             updateInspector(inspector);
@@ -812,18 +817,22 @@ public class Project implements DebuggerListener, InspectorManager
         // See if it is on the bench:
         // (Also check pkg != null since the data collection mechanism can't deal with null pkg).
         if (! Config.isGreenfoot() && pkg != null) {
-            String benchName = null;
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-            if (pmf != null) {
-                for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
+            ObjectInspector inspectorFinal = inspector;            
+            SwingUtilities.invokeLater(() -> {
+                String benchName = null;
+                PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+                if (pmf != null)
                 {
-                    if (ow.getObject().equals(obj)){
-                        benchName = ow.getName();
+                    for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
+                    {
+                        if (ow.getObject().equals(obj))
+                        {
+                            benchName = ow.getName();
+                        }
                     }
                 }
-            }
-
-            DataCollector.inspectorObjectShow(pkg, inspector, benchName, obj.getClassName(), name);
+                DataCollector.inspectorObjectShow(pkg, inspectorFinal, benchName, obj.getClassName(), name);
+            });
         }
 
         return inspector;
@@ -836,6 +845,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param obj  The object whose inspector to retrieve
      * @return the inspector, or null if no inspector is open
      */
+    @OnThread(Tag.FXPlatform)
     public Inspector getInspector(Object obj) 
     {
         return inspectors.get(obj);
@@ -845,20 +855,22 @@ public class Project implements DebuggerListener, InspectorManager
      * Remove an inspector from the list of inspectors for this project
      * @param obj the inspector.
      */
+    @OnThread(Tag.FXPlatform)
     public void removeInspector(DebuggerObject obj) 
     {
         Inspector inspector = inspectors.remove(obj);
-        DataCollector.inspectorHide(this, inspector);
+        SwingUtilities.invokeLater(() -> DataCollector.inspectorHide(this, inspector));
     }
 
     /**
      * Remove an inspector from the list of inspectors for this project
      * @param obj the inspector. 
      */
+    @OnThread(Tag.FXPlatform)
     public void removeInspector(DebuggerClass cls) 
     {
         Inspector inspector = inspectors.remove(cls.getName());
-        DataCollector.inspectorHide(this, inspector);
+        SwingUtilities.invokeLater(() -> DataCollector.inspectorHide(this, inspector));
     }
 
     /**
@@ -867,6 +879,7 @@ public class Project implements DebuggerListener, InspectorManager
      * then calls its doClose method.
      * @param obj
      */
+    @OnThread(Tag.FXPlatform)
     public void removeInspectorInstance(Object obj) 
     {
         Inspector inspect = getInspector(obj);
@@ -881,12 +894,12 @@ public class Project implements DebuggerListener, InspectorManager
      * This is used when VM is reset or the project is recompiled.
      *
      */
+    @OnThread(Tag.FXPlatform)
     public void removeAllInspectors() 
     {
         for (Inspector inspector : inspectors.values()) {
-            inspector.setVisible(false);
-            inspector.dispose();
-            DataCollector.inspectorHide(this, inspector);
+            inspector.hide();
+            SwingUtilities.invokeLater(() -> DataCollector.inspectorHide(this, inspector));
         }
 
         inspectors.clear();
@@ -908,8 +921,9 @@ public class Project implements DebuggerListener, InspectorManager
      *            The parent frame of this frame
      * @return The Viewer value
      */
+    @OnThread(Tag.FXPlatform)
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-        Package pkg, Frame parent)
+        Package pkg, javafx.stage.Window parent)
     {
         ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
 
@@ -917,13 +931,14 @@ public class Project implements DebuggerListener, InspectorManager
             ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
             inspector = new ClassInspector(clss, this, pkg, ir, parent);
             inspectors.put(clss.getName(), inspector);
-            inspector.setVisible(true);
+            inspector.show();
         }
         else {
             updateInspector(inspector);
         }
-        
-        DataCollector.inspectorClassShow(pkg, inspector, clss.getName());
+
+        ClassInspector inspectorFinal = inspector;
+        SwingUtilities.invokeLater(() -> DataCollector.inspectorClassShow(pkg, inspectorFinal, clss.getName()));
 
         return inspector;
     }
@@ -946,15 +961,16 @@ public class Project implements DebuggerListener, InspectorManager
      *            The parent frame of this frame
      * @return The Viewer value
      */
+    @OnThread(Tag.FXPlatform)
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-        Frame parent)
+        javafx.stage.Window parent)
     {
         final ResultInspector inspector = new ResultInspector(obj, this, name, pkg, ir, info);
         inspectors.put(obj, inspector);
 
-        DialogManager.centreWindow(inspector, parent);
-        inspector.setVisible(true);
+        //DialogManager.centreWindow(inspector, parent);
+        inspector.show();
         inspector.bringToFront();
 
         return inspector;
@@ -964,6 +980,7 @@ public class Project implements DebuggerListener, InspectorManager
      * Iterates through all inspectors and updates them
      *
      */
+    @OnThread(Tag.FXPlatform)
     public void updateInspectors() 
     {
         for (Iterator<Inspector> it = inspectors.values().iterator(); it.hasNext();) {
@@ -1467,7 +1484,7 @@ public class Project implements DebuggerListener, InspectorManager
 
         // get rid of any inspectors that are open that were not cleaned up
         // as part of removing objects from the bench
-        removeAllInspectors();
+        Platform.runLater(() -> removeAllInspectors());
 
         // remove views for classes loaded by this classloader
         View.removeAll(currentClassLoader);
@@ -1569,13 +1586,14 @@ public class Project implements DebuggerListener, InspectorManager
             return null;
         }
     }
-  
-    public boolean inTestMode()
+    
+    @OnThread(value = Tag.Any, ignoreParent = true)
+    public synchronized boolean inTestMode()
     {
         return inTestMode;
     }
         
-    public void setTestMode(boolean mode)
+    public synchronized void setTestMode(boolean mode)
     {
         inTestMode = mode;
     }

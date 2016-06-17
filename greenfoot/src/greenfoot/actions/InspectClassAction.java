@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,6 +53,6 @@ public class InspectClassAction extends AbstractAction
     
     public void actionPerformed(ActionEvent e)
     {
-        inspectorManager.getClassInspectorInstance(cls, pkg, frame);
+        inspectorManager.getClassInspectorInstance(cls, pkg, null);
     }
 }

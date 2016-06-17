@@ -1225,23 +1225,32 @@ public class PkgMgrFrame extends JPanel
                 // "Get" object from object inspector
                 DebuggerObject gotObj = e.getDebuggerObject();
 
-                boolean tryAgain = true;
-                do {
-                    String newObjectName = DialogManager.askString((Component) e.getSource(), "getobject-new-name",
-                            getProject().getDebugger().guessNewName(gotObj));
+                String name = getProject().getDebugger().guessNewName(gotObj);
+                Platform.runLater(() -> {
+                    boolean tryAgain = true;
+                    do
+                    {
+                        String newObjectName = DialogManager.askStringFX((javafx.stage.Window)e.getSource(), "getobject-new-name",
+                            name);
 
-                    if (newObjectName == null) {
-                        tryAgain = false; // cancelled
-                    }
-                    else if (JavaNames.isIdentifier(newObjectName)) {
-                        DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
-                        putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord());
-                        tryAgain = false;
-                    }
-                    else {
-                        DialogManager.showError((Component) e.getSource(), "must-be-identifier");
-                    }
-                } while (tryAgain);
+                        if (newObjectName == null)
+                        {
+                            tryAgain = false; // cancelled
+                        }
+                        else if (JavaNames.isIdentifier(newObjectName))
+                        {
+                            SwingUtilities.invokeLater(() -> {
+                                DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
+                                putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord());
+                            });
+                            tryAgain = false;
+                        }
+                        else
+                        {
+                            DialogManager.showErrorFX((javafx.stage.Window)e.getSource(), "must-be-identifier");
+                        }
+                    } while (tryAgain);
+                });
                 break;
         }
     }
@@ -1807,8 +1816,9 @@ public class PkgMgrFrame extends JPanel
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                     executionEvent.setResultObject(result);
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-                    
-                    getPackage().getProject().updateInspectors();
+
+                    Project proj = getPackage().getProject();
+                    Platform.runLater(() -> proj.updateInspectors());
                     setStatus(Config.getString("pkgmgr.createDone"));
                     
                     // this shouldn't ever happen!! (ajp 5/12/02)
@@ -1847,7 +1857,8 @@ public class PkgMgrFrame extends JPanel
                     
                     setStatus("");
                     getPackage().exceptionMessage(exception);
-                    getPackage().getProject().updateInspectors();
+                    Project proj = getPackage().getProject();
+                    Platform.runLater(() -> proj.updateInspectors());
                 }
                 
                 @Override
@@ -1897,8 +1908,9 @@ public class PkgMgrFrame extends JPanel
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                     executionEvent.setResultObject(result);
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-                    
-                    getPackage().getProject().updateInspectors();
+
+                    Project proj = getPackage().getProject();
+                    Platform.runLater(() -> proj.updateInspectors());
                     expressionInformation.setArgumentValues(ir.getArgumentValues());
                     getObjectBench().addInteraction(ir);
 
@@ -1911,8 +1923,12 @@ public class PkgMgrFrame extends JPanel
                     if (result == null)
                         return;
 
-                    getProject().getResultInspectorInstance(result, name, getPackage(), ir,
-                            expressionInformation, PkgMgrFrame.this.getWindow());
+                    Project project = getProject();
+                    Package pkg = getPackage();
+                    Platform.runLater(() -> {
+                        project.getResultInspectorInstance(result, name, pkg, ir,
+                            expressionInformation, PkgMgrFrame.this.getFXWindow());
+                    });
                 }
 
                 @Override
@@ -1929,8 +1945,9 @@ public class PkgMgrFrame extends JPanel
                     executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                     executionEvent.setException(exception);
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-                    
-                    getPackage().getProject().updateInspectors();
+
+                    Project proj = getPackage().getProject();
+                    Platform.runLater(() -> proj.updateInspectors());
                     getPackage().exceptionMessage(exception);
                 }
                 

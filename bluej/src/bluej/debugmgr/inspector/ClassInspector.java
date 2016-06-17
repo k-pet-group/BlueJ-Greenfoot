@@ -45,6 +45,16 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
+import javafx.geometry.Orientation;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Window;
+
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
@@ -55,14 +65,17 @@ import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A window that displays the static fields in an class.
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 15828 2016-05-20 21:44:00Z nccb $
+ * @version $Id: ClassInspector.java 16047 2016-06-17 14:29:12Z nccb $
  */
+@OnThread(Tag.FXPlatform)
 public class ClassInspector extends Inspector
 {
     // === static variables ===
@@ -89,9 +102,9 @@ public class ClassInspector extends Inspector
      * Note: 'pkg' may be null if getEnabled is false.
      *  
      */
-    public ClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir, final Frame parent)
+    public ClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir, final Window parent)
     {
-        super(inspectorManager, pkg, ir, new Color(249,230,207));
+        super(inspectorManager, pkg, ir);
 
         myClass = clss;
 
@@ -99,15 +112,14 @@ public class ClassInspector extends Inspector
 
         makeFrame();
         update();
-        updateLayout();
-        pack();
-        
+        /*
         if (parent instanceof Inspector) {
             DialogManager.tileWindow(insp, parent);
         }
         else {
             DialogManager.centreWindow(insp, parent);
         }
+        */
         installListenersForMoveDrag();
     }
 
@@ -116,8 +128,6 @@ public class ClassInspector extends Inspector
      */
     protected void makeFrame()
     {
-        setUndecorated(true);
-        
         String className = JavaNames.stripPrefix(myClass.getName());
         String headerString = null;
         String suffix = " " + numFields + " " + getListData().size();
@@ -133,61 +143,29 @@ public class ClassInspector extends Inspector
         }
         
         // Create the header
-        JComponent header = new JPanel();
-        if (!Config.isRaspberryPi()) header.setOpaque(false);
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));        
-        JLabel headerLabel = new JLabel(headerString);
+        Pane header = new VBox();
+        Label headerLabel = new Label(headerString);
 
-        headerLabel.setAlignmentX(0.5f);
-        header.add(headerLabel);
-        header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        JSeparator sep = new JSeparator();
-        sep.setForeground(new Color(217, 175, 150));
-        if (!Config.isRaspberryPi()) {
-            sep.setBackground(new Color(0, 0, 0, 0));
-        }else{
-            sep.setBackground(new Color(0, 0, 0));
-        }
-        header.add(sep);
-
+        header.getChildren().add(headerLabel);
+        header.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        
         // Create the main panel (field list, Get/Inspect buttons)
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        if (!Config.isRaspberryPi()) mainPanel.setOpaque(false);
+        BorderPane mainPanel = new BorderPane();
 
-        if (getListData().size() != 0) {
-            JScrollPane scrollPane = createFieldListScrollPane();
-            mainPanel.add(scrollPane, BorderLayout.CENTER);
-        } else {
-            JLabel lab = new JLabel("  " + noFieldsMsg);
-            lab.setPreferredSize(new Dimension(200, 30));
-            lab.setFont(PrefMgr.getStandardFont().deriveFont(20.0f));
-            lab.setForeground(new Color(160, 120, 77));
-            mainPanel.add(lab);
-        }
+        mainPanel.setCenter(fieldList);
+        Label lab = new Label("  " + noFieldsMsg);
+        fieldList.setPlaceholder(lab);
 
-        JPanel inspectAndGetButtons = createInspectAndGetButtons();
-        mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);
-
-        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
-        mainPanel.setBorder(new EmptyBorder(insets));
+        mainPanel.setRight(createInspectAndGetButtons());
 
         // create bottom button pane with "Close" button
-
-        JPanel bottomPanel = new JPanel();
-        if (!Config.isRaspberryPi()) bottomPanel.setOpaque(false);
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-
-        JPanel buttonPanel;
-        buttonPanel = new JPanel(new BorderLayout());
-        if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
-        JButton button = createCloseButton();
-        buttonPanel.add(button, BorderLayout.EAST);
-
-        bottomPanel.add(buttonPanel);
+        BorderPane buttonPanel = new BorderPane();
+        Button button = createCloseButton();
+        buttonPanel.setRight(button);
 
         // add the components
+        /*
         JPanel contentPane = new JPanel() {
             protected void paintComponent(Graphics g)
             {
@@ -199,14 +177,14 @@ public class ClassInspector extends Inspector
                 g2d.drawRect(0, 0, getWidth()-1, getHeight()-1);
             }
         };
-        setContentPane(contentPane);
-        contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        contentPane.setLayout(new BorderLayout());
-        contentPane.add(header, BorderLayout.NORTH);
-        contentPane.add(mainPanel, BorderLayout.CENTER);
-        contentPane.add(bottomPanel, BorderLayout.SOUTH);
+        */
+        BorderPane contentPane = new BorderPane();
+        contentPane.setTop(header);
+        contentPane.setCenter(mainPanel);
+        contentPane.setBottom(buttonPanel);
 
-        getRootPane().setDefaultButton(button);
+        button.setDefaultButton(true);
+        setScene(new Scene(contentPane));
     }
 
     /**
@@ -220,6 +198,8 @@ public class ClassInspector extends Inspector
     /**
      * True if this inspector is used to display a method call result.
      */
+    @Override
+    @OnThread(Tag.FXPlatform)
     protected List<FieldInfo> getListData()
     {
         List<DebuggerField> fields = myClass.getStaticFields();

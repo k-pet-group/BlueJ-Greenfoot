@@ -73,6 +73,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import javafx.stage.Stage;
+import javafx.stage.Window;
+
 import bluej.Boot;
 import bluej.Config;
 import bluej.utility.Utility;
@@ -668,14 +671,14 @@ public class GreenfootUtil
     /**
      * Replaces all occurrences of BlueJ with Greenfoot in the title of the frame.
      * <p>
-     * Should be called from event thread.
+     * Should be called from FX thread.
      */
-    public static void makeGreenfootTitle(Frame frame)
+    public static void makeGreenfootTitle(Stage frame)
     {
         String title = frame.getTitle();
         String newTitle = title.replaceAll("BlueJ", "Greenfoot");
         frame.setTitle(newTitle);
-    }    
+    }
     
     /**
      * Returns a set of the third party libraries used by Greenfoot.

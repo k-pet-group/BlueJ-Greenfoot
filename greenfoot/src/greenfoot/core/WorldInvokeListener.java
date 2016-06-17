@@ -36,6 +36,8 @@ import java.rmi.RemoteException;
 
 import javax.swing.JFrame;
 
+import javafx.application.Platform;
+
 import rmiextension.wrappers.RObject;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
@@ -173,10 +175,11 @@ public class WorldInvokeListener
                                 // Display a result inspector for the method result
                                 ExpressionInformation ei = new ExpressionInformation((MethodView) callable, instanceName);
                                 ei.setArgumentValues(ir.getArgumentValues());
-                                ResultInspector ri = inspectorManager.getResultInspectorInstance(result,
-                                        instanceName, null, null, ei, GreenfootMain
-                                        .getInstance().getFrame());
-                                ri.setVisible(true);
+                                Platform.runLater(() -> {
+                                    ResultInspector ri = inspectorManager.getResultInspectorInstance(result,
+                                            instanceName, null, null, ei, null);
+                                    ri.show();
+                                });
                             }
                         }
                         else {
@@ -196,8 +199,7 @@ public class WorldInvokeListener
                                 }
                             }
                             else {
-                                inspectorManager.getInspectorInstance(result, "result", null, null,
-                                        GreenfootMain.getInstance().getFrame());
+                                inspectorManager.getInspectorInstance(result, "result", null, null, null);
                             }
                         }
                     }

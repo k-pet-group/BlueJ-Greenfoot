@@ -53,7 +53,18 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+
+import javafx.geometry.Orientation;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -70,6 +81,8 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A window that displays the fields in an object or a method return value.
@@ -78,6 +91,7 @@ import bluej.utility.JavaNames;
  * @author Poul Henriksen
  * @author Bruce Quig
  */
+@OnThread(Tag.FXPlatform)
 public class ObjectInspector extends Inspector
 {
     // === static variables ===
@@ -127,9 +141,9 @@ public class ObjectInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    public ObjectInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, final Frame parent)
+    public ObjectInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, final Window parent)
     {
-        super(inspectorManager, pkg, ir, new Color(244, 158, 158));
+        super(inspectorManager, pkg, ir);
 
         this.obj = obj;
         this.objName = name;
@@ -138,25 +152,17 @@ public class ObjectInspector extends Inspector
 
         makeFrame();
         update();
-        updateLayout();
-        pack();
         
+        /*
         if (parent instanceof Inspector) {
             DialogManager.tileWindow(thisInspector, parent);
         }
         else {
             DialogManager.centreWindow(thisInspector, parent);
         }
+        */
 
-        // Set translucent background (shaped window):
-        setBackground(new Color(0,0,0,0));
-        
-        if ( !Config.isMacOS() || Config.isJava17() ) {
-            // Java 1.6 on MacOS automatically makes transparent windows
-            // draggable by their content - no need to do it ourselves.
-            // It has to be done on Java 1.7
-            thisInspector.installListenersForMoveDrag();
-        }
+        thisInspector.installListenersForMoveDrag();
     }
 
     /**
@@ -164,16 +170,9 @@ public class ObjectInspector extends Inspector
      */
     protected void makeFrame()
     {
-        setUndecorated(true);
-        setLayout(new BorderLayout());
-        setBackground(new Color(232,230,218));
-
         // Create the header
 
-        JComponent header = new JPanel();
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-        header.setOpaque(false);
-        header.setDoubleBuffered(false);
+        Pane header = new VBox();
         GenTypeClass objType = obj.getGenType();
         String className = objType != null ? objType.toString(true) : "";
 
@@ -186,73 +185,35 @@ public class ObjectInspector extends Inspector
             fullTitle = " : " + className;
             setTitle(inspectTitle);
         }
-        JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER);
-        Font font = headerLabel.getFont();
-        headerLabel.setFont(font.deriveFont(Font.BOLD));
-        headerLabel.setOpaque(false);
-        headerLabel.setAlignmentX(0.5f);
-        headerLabel.setForeground(Color.white);
-        header.add(headerLabel);
-        header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        JSeparator sep = new JSeparator();
-        sep.setForeground(new Color(214, 92, 92));
-        if (!Config.isRaspberryPi()) {
-            sep.setBackground(new Color(0, 0, 0, 0));
-        }else{
-            sep.setBackground(new Color (0,0,0));
-        }
-        header.add(sep);
+        Label headerLabel = new Label(fullTitle);
+        header.getChildren().add(headerLabel);
+        header.getChildren().add(new Separator(Orientation.HORIZONTAL));
 
         // Create the main panel (field list, Get/Inspect buttons)
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setOpaque(false);
-        mainPanel.setDoubleBuffered(false);
+        BorderPane mainPanel = new BorderPane();
+        mainPanel.setCenter(fieldList);
+        
+        Label lab = new Label("  " + noFieldsMsg);
+        fieldList.setPlaceholder(lab);
 
-        if (!getListData().isEmpty()) {
-            JScrollPane scrollPane = createFieldListScrollPane();
-            mainPanel.add(scrollPane, BorderLayout.CENTER);
-        } else {
-            JLabel lab = new JLabel("  " + noFieldsMsg);
-            lab.setPreferredSize(new Dimension(200, 30));
-            lab.setFont(PrefMgr.getStandardFont().deriveFont(20.0f));
-            lab.setForeground(new Color(250, 160, 160));
-            mainPanel.add(lab);
-        }
-
-        JPanel inspectAndGetButtons = createInspectAndGetButtons();
-        mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);
-
-        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
-        mainPanel.setBorder(new EmptyBorder(insets));
+        mainPanel.setRight(createInspectAndGetButtons());
 
         // create bottom button pane with "Close" button
 
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setOpaque(false);
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-
-        JPanel buttonPanel;
-        buttonPanel = new JPanel(new BorderLayout());
-        buttonPanel.setOpaque(false);
-        JButton button = createCloseButton();
-        buttonPanel.add(button, BorderLayout.EAST);
-        JButton classButton = new JButton(showClassLabel);
-        classButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                showClass();
-            }
-        });
-        buttonPanel.add(classButton, BorderLayout.WEST);
-        if (!Config.isRaspberryPi()) buttonPanel.setDoubleBuffered(false);
-
-        bottomPanel.add(buttonPanel);
-        if (!Config.isRaspberryPi()) bottomPanel.setDoubleBuffered(false);
-
+        Pane bottomPanel = new VBox();
+        
+        BorderPane buttonPanel = new BorderPane();
+        Button button = createCloseButton();
+        buttonPanel.setRight(button);
+        Button classButton = new Button(showClassLabel);
+        classButton.setOnAction(e -> showClass());
+        buttonPanel.setLeft(classButton);
+        
+        bottomPanel.getChildren().add(buttonPanel);
+        
         // add the components
-
+/*
         JPanel contentPane = new JPanel() {
 
             @Override
@@ -308,23 +269,22 @@ public class ObjectInspector extends Inspector
                 g2d.dispose();
             }
         };
-        add(contentPane);
+        */
+        BorderPane contentPane = new BorderPane();
 
-        contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        contentPane.setOpaque(false);
-        contentPane.setDoubleBuffered(false);
-        contentPane.setLayout(new BorderLayout());
-        contentPane.add(header, BorderLayout.NORTH);
-        contentPane.add(mainPanel, BorderLayout.CENTER);
-        contentPane.add(bottomPanel, BorderLayout.SOUTH);
+        contentPane.setTop(header);
+        contentPane.setCenter(mainPanel);
+        contentPane.setBottom(bottomPanel);
 
-        getRootPane().setDefaultButton(button);
+        button.setDefaultButton(true);
+        setScene(new Scene(contentPane));
     }
 
     /**
      * True if this inspector is used to display a method call result.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     protected List<FieldInfo> getListData()
     {
         // if is an array (we potentially will compress the array if it is
@@ -435,7 +395,7 @@ public class ObjectInspector extends Inspector
             selectArrayElement();
         }
         else if (selectedField != null) {
-            boolean isPublic = getButton.isEnabled();
+            boolean isPublic = !getButton.isDisable();
             
             if (! obj.isArray()) {
                 InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, ir);
@@ -459,10 +419,14 @@ public class ObjectInspector extends Inspector
             else {
                 getIr = new ArrayElementGetRecord(selectedFieldType, selectedIndex, ir);
             }
-                
-            PackageEditor pkgEd = pkg.getEditor();
-            pkgEd.recordInteraction(getIr);
-            pkgEd.raisePutOnBenchEvent(this, selectedField, selectedField.getGenType(), getIr);
+
+            DebuggerObject selField = this.selectedField;
+            SwingUtilities.invokeLater(() -> {
+                PackageEditor pkgEd = pkg.getEditor();
+                pkgEd.recordInteraction(getIr);
+
+                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr);
+            });
         }
     }
     
@@ -481,7 +445,7 @@ public class ObjectInspector extends Inspector
      */
     private void selectArrayElement()
     {
-        String response = DialogManager.askString(this, "ask-index");
+        String response = DialogManager.askStringFX(this, "ask-index");
 
         if (response != null) {
             try {
@@ -490,7 +454,7 @@ public class ObjectInspector extends Inspector
                 if (slot >= 0 && slot < obj.getElementCount()) {
                     // if its an object set as current object
                     if (! obj.getElementType().isPrimitive() && ! obj.getElementObject(slot).isNullObject()) {
-                        boolean isPublic = getButton.isEnabled();
+                        boolean isPublic = !getButton.isDisable();
                         InvokerRecord newIr = new ArrayElementInspectorRecord(ir, slot);
                         setCurrentObj(obj.getElementObject(slot), "[" + slot + "]", obj.getElementType().toString());
                         inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg,
@@ -507,13 +471,13 @@ public class ObjectInspector extends Inspector
                     }
                 }
                 else { // not within array bounds
-                    DialogManager.showError(this, "out-of-bounds");
+                    DialogManager.showErrorFX(this, "out-of-bounds");
                 }
             }
             catch (NumberFormatException e) {
                 // input could not be parsed, eg. non integer value
                 setCurrentObj(null, null, null);
-                DialogManager.showError(this, "cannot-access-element");
+                DialogManager.showErrorFX(this, "cannot-access-element");
             }
         }
         else {

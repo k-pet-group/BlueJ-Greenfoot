@@ -79,6 +79,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import javafx.application.Platform;
+
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -94,6 +96,8 @@ import bluej.debugmgr.inspector.Inspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Window for controlling the debugger
@@ -147,7 +151,7 @@ public class ExecControls extends JFrame
     private JCheckBoxMenuItem systemThreadItem;
 
     // the Project that owns this debugger
-    private Project project;
+    private final Project project;
 
     // the debug machine this control is looking at
     private Debugger debugger = null;
@@ -541,7 +545,7 @@ public class ExecControls extends JFrame
     {
         DebuggerField field = currentClass.getStaticField(index);
         if(field.isReferenceType() && ! field.isNull()) {
-            project.getInspectorInstance(field.getValueObject(null), null, null, null, this);
+            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, getFXWindow()));
         }
     }
 
@@ -551,7 +555,7 @@ public class ExecControls extends JFrame
     private void viewInstanceField(DebuggerField field)
     {
         if(field.isReferenceType() && ! field.isNull()) {
-            project.getInspectorInstance(field.getValueObject(null), null, null, null, this);
+            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, getFXWindow()));
         }
     }
 
@@ -561,9 +565,17 @@ public class ExecControls extends JFrame
     private void viewLocalVar(int index)
     {
         if(selectedThread.varIsObject(currentFrame, index)) {
-            project.getInspectorInstance(selectedThread.getStackObject(currentFrame, index),
-                           null, null, null, this);
+            DebuggerObject obj = selectedThread.getStackObject(currentFrame, index);
+            Platform.runLater(() -> project.getInspectorInstance(obj,
+                           null, null, null, getFXWindow()));
         }
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    private javafx.stage.Window getFXWindow()
+    {
+        //TODO implement (and inline?) this once we change execcontrols over to FX:
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -877,7 +889,7 @@ public class ExecControls extends JFrame
             if (selectedThread.isSuspended()) {
                 selectedThread.step();
             }
-            project.updateInspectors();
+            Platform.runLater(() -> project.updateInspectors());
         }
     }
     

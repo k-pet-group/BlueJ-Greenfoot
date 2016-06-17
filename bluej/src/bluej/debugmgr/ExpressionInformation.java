@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.views.CallableView;
 import bluej.views.Comment;
 import bluej.views.MethodView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class stores information about an expression. This could be from an
@@ -34,6 +36,7 @@ import bluej.views.MethodView;
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
+@OnThread(Tag.Any)
 public class ExpressionInformation
 {
     private Comment comment;
@@ -103,8 +106,8 @@ public class ExpressionInformation
      * @param args the argument values
      */
     public void setArgumentValues(String[] args)
-    {	
-        this.args = args;	    
+    {
+        this.args = args;    
     }
 
     /**
@@ -180,11 +183,11 @@ public class ExpressionInformation
         StringBuffer s = new StringBuffer();
 
         s.append(newline);
-        s.append(getComment());		
+        s.append(getComment());
         s.append(newline);
         s.append(getSignature());
         s.append(newline);
-        s.append(getExpression());	
+        s.append(getExpression());
 
         return s.toString();
     }

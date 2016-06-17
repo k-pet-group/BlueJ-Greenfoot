@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014,2016  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,10 @@ import java.awt.event.WindowListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javafx.application.Platform;
+
 import bluej.debugmgr.inspector.Inspector;
+import bluej.utility.javafx.JavaFXUtil;
 
 /**
  * Updater that will call update on an inspector with fixed time intervals. <br>
@@ -36,7 +39,6 @@ import bluej.debugmgr.inspector.Inspector;
  * @author Poul Henriksen
  */
 public class InspectorUpdater
-    implements WindowListener
 {
     private Inspector inspector;
     private Timer timer;
@@ -51,8 +53,15 @@ public class InspectorUpdater
     public InspectorUpdater(Inspector inspector)
     {
         this.inspector = inspector;
-        inspector.addWindowListener(this);
-        if (inspector.isVisible()) {
+        inspector.addEventHandler(javafx.stage.WindowEvent.WINDOW_SHOWN, e -> start());
+        inspector.addEventHandler(javafx.stage.WindowEvent.WINDOW_HIDDEN, e -> stop());
+        JavaFXUtil.addChangeListener(inspector.iconifiedProperty(), minimised -> {
+            if (minimised)
+                stop();
+            else
+                start();
+        });
+        if (inspector.isShowing()) {
             start();
         }
 
@@ -69,7 +78,7 @@ public class InspectorUpdater
         }
         timer = new Timer();
         timer.schedule(new TimerTask() { public void run() {
-            EventQueue.invokeLater(() -> inspector.update());
+            Platform.runLater(() -> inspector.update());
         }}, PERIOD, PERIOD);
     }
 
@@ -82,41 +91,6 @@ public class InspectorUpdater
         if (timer != null) {
             timer.cancel();
         }
-    }
-
-    public void windowActivated(WindowEvent e)
-    {
-    // Nothing to do
-    }
-
-    public void windowDeactivated(WindowEvent e)
-    {
-    // Nothing to do
-    }
-
-    public void windowOpened(WindowEvent e)
-    {
-        start();
-    }
-
-    public void windowClosed(WindowEvent e)
-    {
-        stop();
-    }
-
-    public void windowClosing(WindowEvent e)
-    {
-    // Nothing to do
-    }
-
-    public void windowDeiconified(WindowEvent e)
-    {
-        start();
-    }
-
-    public void windowIconified(WindowEvent e)
-    {
-        stop();
     }
 
 }

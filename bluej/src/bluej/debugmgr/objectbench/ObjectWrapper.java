@@ -56,6 +56,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import javafx.application.Platform;
+
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
@@ -74,6 +76,7 @@ import bluej.extmgr.MenuManager;
 import bluej.extmgr.ObjectExtensionMenu;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
@@ -85,6 +88,8 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A wrapper around a Java object that handles calling methods, inspecting, etc.
@@ -130,18 +135,20 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
     private static int itemsOnScreen;
 
     /** The Java object that this wraps */
-    protected DebuggerObject obj;
+    @OnThread(Tag.Any)
+    protected final DebuggerObject obj;
     protected GenTypeClass iType;
 
     /** Fully qualified type this object represents, including type parameters */
     private String className;
-    private String instanceName;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    private String objInstanceName;
     protected String displayClassName;
     protected JPopupMenu menu;
 
     // back references to the containers that we live in
-    private Package pkg;
-    private PkgMgrFrame pmf;
+    private final Package pkg;
+    private final PkgMgrFrame pmf;
     private ObjectBench ob;
 
     private boolean isSelected = false;
@@ -275,7 +282,8 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
      */
     public void prepareRemove()
     {
-        pkg.getProject().removeInspectorInstance(obj);
+        Project proj = pkg.getProject();
+        Platform.runLater(() -> proj.removeInspectorInstance(obj));
     }
 
     /**
@@ -352,7 +360,7 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
         item.addActionListener(
             new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) { inspectObject(); }
+                public void actionPerformed(ActionEvent e) { Platform.runLater(() -> inspectObject()); }
             });
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
@@ -595,15 +603,16 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
     }
 
     @Override
-    public String getName()
+    @OnThread(value = Tag.Any, ignoreParent = true)
+    public synchronized String getName()
     {
-        return instanceName;
+        return objInstanceName;
     }
 
     @Override
-    public void setName(String newName)
+    public synchronized void setName(String newName)
     {
-        instanceName = newName;
+        objInstanceName = newName;
     }
 
     public DebuggerObject getObject()
@@ -689,7 +698,7 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
         }
         else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
             if (evt.getClickCount() > 1) // double click
-                inspectObject();
+                Platform.runLater(() -> inspectObject());
             else { //single click
                 ob.fireObjectEvent(this);
             }
@@ -747,12 +756,13 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
     /**
      * Open this object for inspection.
      */
+    @OnThread(Tag.FXPlatform)
     protected void inspectObject()
     {
         InvokerRecord ir = new ObjectInspectInvokerRecord(getName());
-        pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf.getWindow());  // shows the inspector
+        pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf.getFXWindow());  // shows the inspector
     }
-
+    
     protected void removeObject()
     {
         ob.removeObject(this, pkg.getId());
@@ -789,21 +799,21 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
             @Override
             public void putResult(DebuggerObject result, String name, InvokerRecord ir)
             {
-                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
+                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
                 executionEvent.setMethodName(method.getName());
                 executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
                 executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                 executionEvent.setResultObject(result);
                 BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
                 
-                pkg.getProject().updateInspectors();
+                Platform.runLater(() -> pkg.getProject().updateInspectors());
                 expressionInformation.setArgumentValues(ir.getArgumentValues());
                 ob.addInteraction(ir);
                 
                 // a void result returns a name of null
                 if (result != null && ! result.isNullObject()) {
-                    pkg.getProject().getResultInspectorInstance(result, name, pkg,
-                            ir, expressionInformation, pmf.getWindow());
+                    Platform.runLater(() -> pkg.getProject().getResultInspectorInstance(result, name, pkg,
+                            ir, expressionInformation, pmf.getFXWindow()));
                 }
             }
             
@@ -816,20 +826,20 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
             @Override
             public void putException(ExceptionDescription exception, InvokerRecord ir)
             {
-                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
+                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
                 executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
                 executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                 executionEvent.setException(exception);
                 BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-                
-                pkg.getProject().updateInspectors();
+
+                Platform.runLater(() -> pkg.getProject().updateInspectors());
                 pkg.exceptionMessage(exception);
             }
             
             @Override
             public void putVMTerminated(InvokerRecord ir)
             {
-                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), instanceName);
+                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
                 executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
                 executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                 BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);

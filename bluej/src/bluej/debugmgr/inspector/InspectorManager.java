@@ -21,15 +21,13 @@
  */
 package bluej.debugmgr.inspector;
 
-import javax.swing.JFrame;
-
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 
-import java.awt.Frame;
+import javafx.stage.Window;
 
 
 /**
@@ -75,7 +73,7 @@ public interface InspectorManager
      * @return The Viewer value
      */
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-            String name, Package pkg, InvokerRecord ir, Frame parent);
+            String name, Package pkg, InvokerRecord ir, Window parent);
     
     /**
      * Return a ClassInspector for a class. The inspector is visible.
@@ -94,7 +92,7 @@ public interface InspectorManager
      * @return The Viewer value
      */
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-            Package pkg, Frame parent);
+            Package pkg, Window parent);
 
     /**
      * Return an ObjectInspector for an object. The inspector is visible.
@@ -111,7 +109,7 @@ public interface InspectorManager
      */
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-        Frame parent);
+        Window parent);
     
     /**
      * Whether we are in testing mode. If true, the inspectors should show testing stuff.

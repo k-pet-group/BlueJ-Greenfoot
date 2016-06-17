@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,8 +47,20 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -64,15 +76,19 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaUtils;
 import bluej.utility.MultiLineLabel;
+import bluej.utility.javafx.FXFormattedPrintWriter;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.Comment;
-import bluej.views.LabelPrintWriter;
 import bluej.views.MethodView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.FXPlatform)
 public class ResultInspector extends Inspector
 {
 
@@ -111,7 +127,7 @@ public class ResultInspector extends Inspector
     public ResultInspector(DebuggerObject obj, InspectorManager inspectorManager, String name,
             Package pkg, InvokerRecord ir, ExpressionInformation info)
     {
-        super(inspectorManager, pkg, ir, new Color(226, 224, 220));
+        super(inspectorManager, pkg, ir);
 
         expressionInformation = info;
         this.obj = obj;
@@ -121,7 +137,6 @@ public class ResultInspector extends Inspector
 
         makeFrame();
         update();
-        updateLayout();
     }
 
     /**
@@ -173,6 +188,7 @@ public class ResultInspector extends Inspector
      * Returns a single string representing the return value.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     protected List<FieldInfo> getListData()
     {
         String fieldString;
@@ -207,40 +223,26 @@ public class ResultInspector extends Inspector
 
         // Create the header
 
-        JComponent header = new JPanel();
-        if (!Config.isRaspberryPi()) header.setOpaque(false);
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-
+        Pane header = new VBox();
+        
         Comment comment = expressionInformation.getComment();
-        LabelPrintWriter commentLabelPrintWriter = new LabelPrintWriter();
+        FXFormattedPrintWriter commentLabelPrintWriter = new FXFormattedPrintWriter();
         comment.print(commentLabelPrintWriter);
-        MultiLineLabel commentLabel = commentLabelPrintWriter.getLabel();
-        if (!Config.isRaspberryPi()) commentLabel.setOpaque(false);
-        header.add(commentLabel);
-        JLabel sig = new JLabel(expressionInformation.getSignature());
-        sig.setForeground(Color.BLACK);
+        Node commentLabel = commentLabelPrintWriter.getNode();
+        header.getChildren().add(commentLabel);
+        Label sig = new Label(expressionInformation.getSignature());
 
-        header.add(sig);
-        header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        JSeparator sep = new JSeparator();
-        sep.setForeground(new Color(191,190,187));
-        if (!Config.isRaspberryPi()) sep.setBackground(new Color(0,0,0,0));
-        header.add(sep);
+        header.getChildren().add(sig);
+        header.getChildren().add(new Separator(Orientation.HORIZONTAL));
 
         // Create the main part that shows the expression and the result
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        if (!Config.isRaspberryPi()) mainPanel.setOpaque(false);
-
-        Box result = Box.createVerticalBox();
-        if (!Config.isRaspberryPi()) result.setOpaque(false);
-
-        final JLabel expression = new JLabel(expressionInformation.getExpression(), JLabel.LEFT);
-        expression.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        JPopupMenu copyPopup = new JPopupMenu();
-        copyPopup.add(new AbstractAction(Config.getString("editor.copyLabel")) {
-            @Override
-            public void actionPerformed(ActionEvent e)
+        BorderPane mainPanel = new BorderPane();
+        VBox result = new VBox();
+        
+        final Label expression = new Label(expressionInformation.getExpression());
+        ContextMenu copyPopup = new ContextMenu();
+        copyPopup.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"),() ->
             {
                 try {
                     StringSelection ss = new StringSelection(expression.getText());
@@ -250,23 +252,15 @@ public class ResultInspector extends Inspector
                     Debug.log("Copy: clipboard unavailable.");
                 }
             }
-        });
-        expression.setComponentPopupMenu(copyPopup);
+        , null));
+        expression.setContextMenu(copyPopup);
 
-        result.add(expression);
-        result.add(Box.createVerticalStrut(5));
-
-        JLabel returnedLabel = new JLabel("  " + returnedString, JLabel.LEADING);
-        returnedLabel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        result.add(returnedLabel);
-        result.add(Box.createVerticalStrut(5));
-
-        JScrollPane scrollPane = createFieldListScrollPane();
-        scrollPane.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        result.add(scrollPane);
-        result.add(Box.createVerticalStrut(5));
-
+        result.getChildren().add(expression);
+        
+        Label returnedLabel = new Label("  " + returnedString);
+        result.getChildren().add(returnedLabel);
+        result.getChildren().add(fieldList);
+        /*
         Box resultPanel = new Box(BoxLayout.Y_AXIS) {
             protected void paintComponent(Graphics g)
             {
@@ -286,49 +280,22 @@ public class ResultInspector extends Inspector
                 g2d.fillRect(0, 0, width, height);
             }
         };
+        */
         
-        result.setAlignmentX(CENTER_ALIGNMENT);
-        result.setAlignmentY(TOP_ALIGNMENT);
-        resultPanel.add(result);
-        
-        Border lineBorder = BorderFactory.createLineBorder(new Color(101, 101, 101), 1);
-        Border emptyBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
-        Border resultPanelBorder = BorderFactory.createCompoundBorder(lineBorder, emptyBorder);
-        
-        resultPanel.setBorder(resultPanelBorder);
-        mainPanel.add(resultPanel, BorderLayout.CENTER);
+        mainPanel.setCenter(result);
 
-        JPanel inspectAndGetButtons = createInspectAndGetButtons();
-        mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);
-
-        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
-        mainPanel.setBorder(new EmptyBorder(insets));
-
+        mainPanel.setRight(createInspectAndGetButtons());
         // create bottom button pane with "Close" button
-
-        JPanel bottomPanel = new JPanel();
-        if (!Config.isRaspberryPi()) bottomPanel.setOpaque(false);
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-
+        BorderPane buttonPanel = new BorderPane();
         if (inspectorManager != null && inspectorManager.inTestMode()) {
-            assertPanel = new AssertPanel();
-            {
-                assertPanel.setAlignmentX(LEFT_ALIGNMENT);
-                assertPanel.setResultType(resultType);
-                bottomPanel.add(assertPanel);
-            }
+            assertPanel = new AssertPanel(resultType);
+            buttonPanel.setBottom(assertPanel);
         }
-        
-        JPanel buttonPanel;
-        buttonPanel = new JPanel(new BorderLayout());
-        if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
-        JButton button = createCloseButton();
-        buttonPanel.add(button, BorderLayout.EAST);
+        Button button = createCloseButton();
+        buttonPanel.setRight(button);
 
-        bottomPanel.add(buttonPanel);
-        
         // add the components
+        /*
         JPanel contentPane = new JPanel() {
             protected void paintComponent(Graphics g)
             {
@@ -348,14 +315,14 @@ public class ResultInspector extends Inspector
                 g2d.fillRect(0, 0, width, height);
             }
         };
-        setContentPane(contentPane);
-        contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        contentPane.setLayout(new BorderLayout());
-        contentPane.add(header, BorderLayout.NORTH);
-        contentPane.add(mainPanel, BorderLayout.CENTER);
-        contentPane.add(bottomPanel, BorderLayout.SOUTH);
+        */
+        BorderPane contentPane = new BorderPane();
+        contentPane.setTop(header);
+        contentPane.setCenter(mainPanel);
+        contentPane.setBottom(buttonPanel);
 
-        getRootPane().setDefaultButton(button);
+        button.setDefaultButton(true);
+        setScene(new Scene(contentPane));
     }
 
     /**
@@ -379,7 +346,7 @@ public class ResultInspector extends Inspector
     protected void doInspect()
     {
         if (selectedField != null) {
-            boolean isPublic = getButton.isEnabled();
+            boolean isPublic = !getButton.isDisable();
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? ir : null, this);
         }
     }
@@ -415,7 +382,8 @@ public class ResultInspector extends Inspector
     protected void doGet()
     {
         if (selectedField != null) {
-            pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultType.asClass(), ir);
+            GenTypeClass resultClass = resultType.asClass();
+            SwingUtilities.invokeLater(() -> pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultClass, ir));
         }
     }
 }

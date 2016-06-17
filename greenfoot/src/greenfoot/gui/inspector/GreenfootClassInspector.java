@@ -32,6 +32,7 @@ import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 
 import java.awt.Frame;
+import javafx.stage.Window;
 
 /**
  * Inspector that updates the values in the inspector with a fixed timer
@@ -46,7 +47,7 @@ public class GreenfootClassInspector extends ClassInspector
      * Construct a new class inspector.
      */
     public GreenfootClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir,
-            Frame parent)
+            Window parent)
     {
         super(clss, inspectorManager, pkg, ir, parent);
         new InspectorUpdater(this);

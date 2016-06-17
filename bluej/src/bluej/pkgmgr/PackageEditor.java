@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,8 @@ import java.awt.Component;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+
+import javafx.stage.Window;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
@@ -118,7 +120,7 @@ public final class PackageEditor extends GraphEditor
      *               fallback if the runtime type is not accessible)
      * @param ir   The invoker record for the invocation used to create this object
      */
-    public void raisePutOnBenchEvent(Component src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir)
+    public void raisePutOnBenchEvent(Window src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir)
     {
         fireTargetEvent(
             new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir));

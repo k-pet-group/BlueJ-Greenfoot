@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,8 +43,14 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableView;
+
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A graphical representation of a list of fields from a class or object.
@@ -52,7 +58,8 @@ import bluej.debugger.DebuggerObject;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  *  
  */
-public class FieldList extends JTable
+@OnThread(Tag.FXPlatform)
+public class FieldList extends TableView<FieldInfo>
 {
     private int preferredWidth;
 
@@ -65,43 +72,17 @@ public class FieldList extends JTable
      * @param valueFieldColor
      *            background color of the value field.
      */
-    public FieldList(int preferredWidth, Color valueFieldColor)
+    public FieldList(int preferredWidth)
     {
-        super(new ListTableModel());
-
         this.preferredWidth = preferredWidth;
-        this.setShowGrid(false);
-        this.setRowSelectionAllowed(true);
-        this.setColumnSelectionAllowed(false);
-        this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.setIntercellSpacing(new Dimension());
-        this.setDefaultRenderer(Object.class, new ListTableCellRenderer(valueFieldColor));
+        this.getSelectionModel().setCellSelectionEnabled(false);
+        this.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-        this.setRowHeight(25);
-        this.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        this.getTableHeader().setVisible(false);
-        
-        // Allow tab/shift-tab to leave the component.  From:
-        // http://stackoverflow.com/questions/12154734/change-focus-to-next-component-in-jtable-using-tab
-        Set<AWTKeyStroke> forward = new HashSet<AWTKeyStroke>(
-                getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
-        forward.add(KeyStroke.getKeyStroke("TAB"));
-        setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forward);
-        Set<AWTKeyStroke> backward = new HashSet<AWTKeyStroke>(
-                getFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS));
-        backward.add(KeyStroke.getKeyStroke("shift TAB"));
-        setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backward);
-    }
-
-    /**
-     * Notify that the component has been added as a child of a container.
-     */
-    public void addNotify()
-    {
-        // The table header gets added to the enclosing scrollpane from
-        // JTable.addNotify(). Remove it again immediately.
-        super.addNotify();
-        removeHeader();
+        javafx.scene.control.TableColumn<FieldInfo, String> description = new javafx.scene.control.TableColumn<FieldInfo, String>();
+        description.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().getDescription()));
+        javafx.scene.control.TableColumn<FieldInfo, String> value = new javafx.scene.control.TableColumn<FieldInfo, String>();
+        value.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().getValue()));
+        getColumns().setAll(description, value);
     }
 
     /**
@@ -112,11 +93,9 @@ public class FieldList extends JTable
      */
     public void setData(List<FieldInfo> listData)
     {
-        ((ListTableModel) getModel()).setData(listData);
+        getItems().setAll(listData);
 
-        setColumnWidths(listData);
-        
-        revalidate();        
+        setColumnWidths(listData);        
     }
 
     /**
@@ -124,6 +103,7 @@ public class FieldList extends JTable
      */
     private void setColumnWidths(List<FieldInfo> listData)
     {
+        /*
         int colPrefWidth = preferredWidth/2;
 
         for (int column = 0; column < 2; column++) {
@@ -142,11 +122,12 @@ public class FieldList extends JTable
             
             tableColumn.setPreferredWidth(contentsMaxWidth);
         }
+        */
     }
 
     /**
      * Finds the maximum width among all the elements in the given column in the data.
-     */
+     *//*
     private int getMaxWidth(List<FieldInfo> listData, int column)
     {
         TableCellRenderer ltcr = getDefaultRenderer(Object.class);
@@ -159,78 +140,14 @@ public class FieldList extends JTable
         }
         return contentsMaxWidth;
     }
-
-    /**
-     * Ensures that the header of the table is not shown at all!
-     */
-    private void removeHeader()
-    {
-        this.unconfigureEnclosingScrollPane();
-    }
-
-    static class ListTableModel extends AbstractTableModel
-    {
-        private String[][] cells;
-
-        public ListTableModel()
-        {
-            super();
-        }
-
-        public ListTableModel(List<FieldInfo> rows)
-        {
-            setData(rows);
-        }
-        
-        @Override
-        public String getValueAt(int row, int col)
-        {
-            return cells[row][col];
-        }
-
-        @Override
-        public int getColumnCount()
-        {
-            return 2;
-        }
-
-        @Override
-        public int getRowCount()
-        {
-            if (cells != null) {
-                return cells.length;
-            }
-            else {
-                return 0;
-            }
-        }
-
-        /**
-         * Set the field list data.
-         */
-        public void setData(List<FieldInfo> rows)
-        {
-            cells = new String[rows.size()][2];
-            Iterator<FieldInfo> f = rows.iterator();
-            for (int i = 0; i < rows.size(); i++) {
-                FieldInfo field = f.next();
-                cells[i][0] = field.getDescription();
-                cells[i][1] = field.getValue();
-            }
-        }
-
-        @Override
-        public boolean isCellEditable(int row, int column)
-        {
-            return false;
-        }
-    }
-
+*/
+  
     /**
      * Cell renderer that makes a two column table look like a list.
      * 
      * @author Poul Henriksen
      */
+    /*
     public static class ListTableCellRenderer extends DefaultTableCellRenderer
     {
         final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
@@ -296,5 +213,6 @@ public class FieldList extends JTable
             return this;
         }
     }
+    */
 }
 

@@ -21,37 +21,20 @@
  */
 package bluej.debugmgr.inspector;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.swing.SwingUtilities;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JRootPane;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -64,6 +47,10 @@ import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
+import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * 
@@ -75,8 +62,8 @@ import bluej.utility.DialogManager;
  * @author Poul Henriksen
  * @author Bruce Quig
  */
-public abstract class Inspector extends JFrame
-    implements ListSelectionListener
+@OnThread(Tag.FXPlatform)
+public abstract class Inspector extends Stage
 {
     // === static variables ===
 
@@ -86,13 +73,11 @@ public abstract class Inspector extends JFrame
     protected final static String close = Config.getString("close");
  
     // === instance variables ===
-
-    protected JScrollPane fieldListScrollPane = null;
+    
     protected FieldList fieldList = null;
-    private Color fieldListBackgroundColor;
 
-    protected JButton inspectButton;
-    protected JButton getButton;
+    protected Button inspectButton;
+    protected Button getButton;
     protected AssertPanel assertPanel;
 
     protected DebuggerObject selectedField; // the object currently selected in
@@ -103,10 +88,11 @@ public abstract class Inspector extends JFrame
     protected InvokerRecord selectedInvokerRecord; // an InvokerRecord for the
                                                    // selected object (if possible, else null)
 
-    protected Package pkg;
-    protected InspectorManager inspectorManager;
-    protected InvokerRecord ir;
-    protected Point initialClick;
+    protected final Package pkg;
+    protected final InspectorManager inspectorManager;
+    protected final InvokerRecord ir;
+    private double initialClickX;
+    private double initialClickY;
     
     // Each inspector is uniquely numbered in a session, for the purposes
     // of data collection:
@@ -120,6 +106,7 @@ public abstract class Inspector extends JFrame
     /**
      * Convert a field to a string representation, used to display the field in the inspector value list.
      */
+    @OnThread(Tag.Any)
     public static String fieldToString(DebuggerField field)
     {
         int mods = field.getModifiers();
@@ -151,14 +138,10 @@ public abstract class Inspector extends JFrame
      * @param ir
      *            the InvokerRecord for this inspector (or null)
      */
-    protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir, Color valueFieldColor)
+    protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir)
     {
         if(inspectorManager == null) {
             throw new NullPointerException("An inspector must have an InspectorManager.");
-        }
-        Image icon = BlueJTheme.getIconImage();
-        if (icon != null) {
-            setIconImage(icon);
         }
 
         if (pkg == null && ir != null) {
@@ -171,34 +154,15 @@ public abstract class Inspector extends JFrame
         this.uniqueId = nextUniqueId.incrementAndGet();
 
         // We want to be able to veto a close
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent E)
-            {
+        setOnCloseRequest(e -> { e.consume(); doClose(true); });
+        addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE)
                 doClose(true);
-            }
         });
 
-        fieldListBackgroundColor = valueFieldColor;
         initFieldList();
     }
     
-    @Override
-    protected JRootPane createRootPane()
-    {
-        // Close the dialog if escape is pressed.
-        ActionListener actionListener = new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-              doClose(true);
-            }
-        };
-        JRootPane rootPane = super.createRootPane();
-        KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-        rootPane.registerKeyboardAction(actionListener, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-        return rootPane;
-    }
-
     /**
      * Initializes the list of fields. This creates the component that shows the
      * fields.
@@ -206,26 +170,20 @@ public abstract class Inspector extends JFrame
      */
     private void initFieldList()
     {
-        fieldList = new FieldList(MAX_LIST_WIDTH, fieldListBackgroundColor);
-        fieldList.setBackground(this.getBackground());
-        if (!Config.isRaspberryPi()) fieldList.setOpaque(true);
-        fieldList.setSelectionBackground(Config.getSelectionColour());
-        fieldList.getSelectionModel().addListSelectionListener(this);
+        fieldList = new FieldList(MAX_LIST_WIDTH);
+        JavaFXUtil.addChangeListener(fieldList.getSelectionModel().selectedIndexProperty(), index -> listElementSelected(index.intValue()));
+        
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected
         // object on first click
-        MouseListener mouseListener = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e)
+        fieldList.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY)
             {
-                // monitor for double clicks
-                if (e.getClickCount() == 2) {
-                    doInspect();
-                }
+                doInspect();
             }
-        };
-        fieldList.addMouseListener(mouseListener);
+        });
         
+        /*TODO
         //to make it possible to close dialogs with the keyboard (ENTER or ESCAPE), we
         // grab the key event from the fieldlist. 
         fieldList.addKeyListener(new KeyListener() {            
@@ -247,7 +205,8 @@ public abstract class Inspector extends JFrame
                     e.consume();
                 }    
             }
-        });        
+        });   
+             */
     }
 
     protected boolean isGetEnabled()
@@ -255,22 +214,12 @@ public abstract class Inspector extends JFrame
         return ir != null;
     }
 
-    @Override
-    public void setVisible(boolean visible)
-    {
-        super.setVisible(visible);
-        if (visible)
-            fieldList.requestFocus(); // doesn't seem to work
-        // requestFocus seems to work only of the
-        // component is already visible
-    }
-
     /**
      * De-iconify the window (if necessary) and bring it to the front.
      */
     public void bringToFront()
     {
-        setState(Frame.NORMAL); // de-iconify
+        setIconified(false); // de-iconify
         toFront(); // window to front
     }
 
@@ -310,97 +259,25 @@ public abstract class Inspector extends JFrame
         final List<FieldInfo> listData = getListData();
         
         fieldList.setData(listData);
-        fieldList.setTableHeader(null);
+        //fieldList.setTableHeader(null);
         
         // Ensures that an element (if any exist) is always selected
-        if (fieldList.getSelectedRow() == -1 && listData.size() > 0) {
-            fieldList.setRowSelectionInterval(0, 0);
+        if (fieldList.getSelectionModel().getSelectedIndex() == -1 && listData.size() > 0) {
+            fieldList.getSelectionModel().select(0);
         }
                 
         // if (assertPanel != null) {
         //    assertPanel.updateWithResultData((String) listData[0]);
         // }
         
-        int slot = fieldList.getSelectedRow();
+        int slot = fieldList.getSelectionModel().getSelectedIndex();
         
         // occurs if valueChanged picked up a clearSelection event from
         // the list
         if (slot != -1) {
             listElementSelected(slot);
         }
-        
-        repaint();
     }
-
-    /**
-     * Call this method when you want the inspector to resize to its preferred
-     * size as calculated from the elements in the inspector.
-     */
-    public void updateLayout()
-    {
-        recalculateFieldlistSize();
-        
-        // limit the preferred size of the field list scrollpane
-        if (fieldListScrollPane != null) {
-            fieldListScrollPane.setPreferredSize(null);
-            Dimension d = fieldListScrollPane.getPreferredSize();
-            fieldListScrollPane.setMaximumSize(d);
-            d = new Dimension(d);
-            d.width = Math.min(d.width, MAX_LIST_WIDTH);
-            fieldListScrollPane.setPreferredSize(d);
-        }
-        
-        pack();
-        repaint();
-    }
-    
-    /**
-     * Re-calculate the preferred field list size according to the data in the list.
-     */
-    protected void recalculateFieldlistSize()
-    {
-        final List<FieldInfo> listData = getListData();
-        int height = fieldList.getPreferredSize().height;
-        int rows = listData.size();
-        int scrollBarWidth = 0;
-        if (rows > getPreferredRows()) {
-            height = fieldList.getRowHeight() * getPreferredRows();
-            scrollBarWidth = 32; // add some space for a scrollbar
-        }
-        
-        int width = fieldList.getPreferredSize().width;
-        width = Math.max(width, MIN_LIST_WIDTH);
-        
-        fieldList.setPreferredScrollableViewportSize(new Dimension(width + scrollBarWidth, height));
-    }
-
-    // ----- ListSelectionListener interface -----
-
-    /**
-     * The value of the list selection has changed. Update the selected object.
-     * 
-     * @param e
-     *            The event object describing the event
-     */
-    public void valueChanged(ListSelectionEvent e)
-    {
-        // ignore mouse down, dragging, etc.
-        if (e.getValueIsAdjusting()) {
-            return;
-        }
-
-        int slot = fieldList.getSelectedRow();
-
-        // occurs if valueChanged picked up a clearSelection event from
-        // the list
-        if (slot == -1) {
-            return;
-        }
-
-        listElementSelected(slot);
-    }
-
-    // ----- end of ListSelectionListener interface -----
 
     /**
      * Store the object currently selected in the list.
@@ -429,8 +306,8 @@ public abstract class Inspector extends JFrame
      */
     protected void setButtonsEnabled(boolean inspect, boolean get)
     {
-        inspectButton.setEnabled(inspect);
-        getButton.setEnabled(get && isGetEnabled());
+        inspectButton.setDisable(!inspect);
+        getButton.setDisable(!(get && isGetEnabled()));
     }
 
     /**
@@ -439,7 +316,7 @@ public abstract class Inspector extends JFrame
     protected void doInspect()
     {
         if (selectedField != null) {
-            boolean isPublic = getButton.isEnabled();
+            boolean isPublic = !getButton.isDisable();
             
             InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, ir);
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
@@ -454,9 +331,12 @@ public abstract class Inspector extends JFrame
     {
         if (selectedField != null) {
             GetInvokerRecord getIr = new GetInvokerRecord(selectedFieldType, selectedFieldName, ir);
-            PackageEditor pkgEd = pkg.getEditor();
-            pkgEd.recordInteraction(getIr);
-            pkgEd.raisePutOnBenchEvent(this, selectedField, selectedField.getGenType(), getIr);
+            DebuggerObject selField = this.selectedField;
+            SwingUtilities.invokeLater(() -> {
+                PackageEditor pkgEd = pkg.getEditor();
+                pkgEd.recordInteraction(getIr);
+                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr);
+            });
         }
     }
 
@@ -478,9 +358,8 @@ public abstract class Inspector extends JFrame
         }
 
         if (closeOk) {
-            setVisible(false);
+            hide();
             remove();
-            dispose();
         }
     }
 
@@ -489,7 +368,7 @@ public abstract class Inspector extends JFrame
         if (assertPanel != null && assertPanel.isAssertEnabled()) {
             
             if (! assertPanel.isAssertComplete()) {
-                int choice = DialogManager.askQuestion(this, "empty-assertion-text");
+                int choice = DialogManager.askQuestionFX(this, "empty-assertion-text");
                 
                 if (choice == 0) {
                     return false;
@@ -497,25 +376,16 @@ public abstract class Inspector extends JFrame
             }
             
             ir.addAssertion(assertPanel.getAssertStatement());
-            
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-            if (pmf != null)
-            {
-                assertPanel.recordAssertion(pkg, pmf.getTestIdentifier(), ir.getUniqueIdentifier());
-            }
+
+            assertPanel.recordAssertion(pkg, () -> Optional.ofNullable(PkgMgrFrame.findFrame(pkg)).map(PkgMgrFrame::getTestIdentifier), ir.getUniqueIdentifier());
         }
         return true;
     }
 
-    protected JButton createCloseButton()
+    protected Button createCloseButton()
     {
-        JButton button = new JButton(close);
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                doClose(true);
-            }
-        });
+        Button button = new Button(close);
+        button.setOnAction(e -> doClose(true));
         return button;
     }
 
@@ -524,50 +394,21 @@ public abstract class Inspector extends JFrame
      * 
      * @return A panel with two buttons
      */
-    protected JPanel createInspectAndGetButtons()
+    protected Node createInspectAndGetButtons()
     {
         // Create panel with "inspect" and "get" buttons
-        JPanel buttonPanel = new JPanel();
-        if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
-        if (!Config.isRaspberryPi()) buttonPanel.setDoubleBuffered(false);
-        buttonPanel.setLayout(new GridLayout(0, 1));
-        inspectButton = new JButton(inspectLabel);
-        inspectButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                doInspect();
-            }
-        });
-        inspectButton.setEnabled(false);
-        buttonPanel.add(inspectButton);
+        Pane buttonPanel = new VBox();
+        inspectButton = new Button(inspectLabel);
+        inspectButton.setOnAction(e -> doInspect());
+        inspectButton.setDisable(true);
+        buttonPanel.getChildren().add(inspectButton);
 
-        getButton = new JButton(getLabel);
-        getButton.setEnabled(false);
-        getButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                doGet();
-            }
-        });
-        buttonPanel.add(getButton);
+        getButton = new Button(getLabel);
+        getButton.setDisable(true);
+        getButton.setOnAction(e -> doGet());
+        buttonPanel.getChildren().add(getButton);
 
-        JPanel buttonFramePanel = new JPanel();
-        if (!Config.isRaspberryPi()) buttonFramePanel.setOpaque(false);
-        if (!Config.isRaspberryPi()) buttonFramePanel.setDoubleBuffered(false);
-        buttonFramePanel.setLayout(new BorderLayout(0, 0));
-        buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
-        return buttonFramePanel;
-    }
-
-    /**
-     * Creates a ScrollPane for the fieldList
-     */
-    protected JScrollPane createFieldListScrollPane()
-    {
-        fieldListScrollPane = new JScrollPane(fieldList);
-        fieldListScrollPane.setBorder(BorderFactory.createLineBorder(fieldListBackgroundColor, 10));
-        fieldListScrollPane.getViewport().setBackground(fieldListBackgroundColor);
-        return fieldListScrollPane;
+        return buttonPanel;
     }
     
     // Allow movement of the window by dragging
@@ -575,42 +416,15 @@ public abstract class Inspector extends JFrame
     // (with improvements).
     protected void installListenersForMoveDrag()
     {
-        addMouseListener( new MouseAdapter()
-        {
-            @Override
-            public void mousePressed( MouseEvent e )
-            {
-                initialClick = e.getPoint();
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e)
-            {
-                initialClick = null;
-            }
-        });
-     
-        // Move window when mouse is dragged
-        addMouseMotionListener( new MouseMotionAdapter()
-        {
-            @Override
-            public void mouseDragged( MouseEvent e )
-            {
-                if (initialClick == null) {
-                    initialClick = e.getPoint();
-                    return;
-                }
-
-                // Determine how much the mouse moved since the initial click
-                int newXPos = e.getXOnScreen() - initialClick.x;
-                int newYPos = e.getYOnScreen() - initialClick.y;
-                
-                // Move window to this position
-                setLocation(newXPos, newYPos);
-            }
+        addEventHandler(MouseEvent.MOUSE_PRESSED, e -> { initialClickX = e.getScreenX(); initialClickY = e.getScreenY(); });
+        //addEventHandler(MouseEvent.MOUSE_RELEASED,e -> { initialClick = null;});
+        addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
+            setX(e.getScreenX() + initialClickX);
+            setY(e.getScreenY() + initialClickY);
         });
     }
     
+    @OnThread(Tag.Any)
     public int getUniqueId()
     {
         return uniqueId;

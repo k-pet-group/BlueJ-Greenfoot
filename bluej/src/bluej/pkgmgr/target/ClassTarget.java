@@ -399,7 +399,9 @@ public class ClassTarget extends DependentTarget
     {
         if (state != newState) {
             boolean oldKnownError = knownError;
-            getPackage().getProject().removeInspectorInstance(getQualifiedName());
+            String qualifiedName = getQualifiedName();
+            @OnThread(Tag.Any) Project proj = getPackage().getProject();
+            Platform.runLater(() -> proj.removeInspectorInstance(qualifiedName));
             
             if (newState == S_COMPILING)
             {
@@ -1070,27 +1072,20 @@ public class ClassTarget extends DependentTarget
     {
         new Thread() {
             
-            int state = 0;
             DebuggerClass clss;
             
-            @SuppressWarnings("incomplete-switch")
             @Override
             public void run() {
-                switch (state) {
-                    // This is the intial state. Try and load the class.
-                    case 0:
-                        try {
-                            clss = getPackage().getDebugger().getClass(getQualifiedName(), true);
-                            state = 1;
-                            EventQueue.invokeLater(this);
-                        }
-                        catch (ClassNotFoundException cnfe) {}
-                        break;
-                
-                    // Once this state is reached, we're running on the Swing event queue.
-                    case 1:
-                        getPackage().getProject().getClassInspectorInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()).getWindow());
+                // Try and load the class.
+                try {
+                    DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName(), true);
+                    PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+                    Project proj = getPackage().getProject();
+                    Platform.runLater(() -> {
+                        proj.getClassInspectorInstance(clss, getPackage(), pmf.getFXWindow());
+                    });
                 }
+                catch (ClassNotFoundException cnfe) {}
             }
         }.start();
     }

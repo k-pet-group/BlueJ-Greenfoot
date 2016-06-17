@@ -32,6 +32,8 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
+import javafx.stage.Window;
+
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
@@ -71,19 +73,18 @@ public class GreenfootInspectorManager implements InspectorManager
 
     @Override
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-            String name, Package pkg, InvokerRecord ir, Frame parent)
+            String name, Package pkg, InvokerRecord ir, Window parent)
     {
         ObjectInspector inspector = (ObjectInspector) objectInspectors.get(obj);
         
         if (inspector == null) {
             inspector = new GreenfootObjectInspector(obj, this, name, pkg, ir, parent);
             objectInspectors.put(obj, inspector);
-            inspector.setVisible(true);
+            inspector.show();
         }
         else {
             inspector.update();
-            inspector.updateLayout();
-            inspector.setVisible(true);
+            inspector.show();
             inspector.bringToFront();
         }
         
@@ -92,7 +93,7 @@ public class GreenfootInspectorManager implements InspectorManager
 
     @Override
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-            Package pkg, Frame parent)
+            Package pkg, Window parent)
     {
         ClassInspector inspector = (ClassInspector) classInspectors.get(clss.getName());
 
@@ -102,10 +103,9 @@ public class GreenfootInspectorManager implements InspectorManager
             classInspectors.put(clss.getName(), inspector);
         } else {
             inspector.update();
-            inspector.updateLayout();
         }
         
-        inspector.setVisible(true);
+        inspector.show();
         inspector.bringToFront();
 
         return inspector;
@@ -114,20 +114,19 @@ public class GreenfootInspectorManager implements InspectorManager
     @Override
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
             String name, Package pkg, InvokerRecord ir,
-            ExpressionInformation info, Frame parent)
+            ExpressionInformation info, Window parent)
     {
         ResultInspector inspector = (ResultInspector) objectInspectors.get(obj);
         
         if (inspector == null) {
             inspector = new GreenfootResultInspector(obj, this, name, pkg, ir, info);
             objectInspectors.put(obj, inspector);
-            DialogManager.centreWindow(inspector, parent);
-            inspector.setVisible(true);
+            //DialogManager.centreWindow(inspector, parent);
+            inspector.show();
         }
         else {
             inspector.update();
-            inspector.updateLayout();
-            inspector.setVisible(true);
+            inspector.show();
             inspector.bringToFront();
         }
 
@@ -149,15 +148,13 @@ public class GreenfootInspectorManager implements InspectorManager
     {
         for (Iterator<Inspector> it = objectInspectors.values().iterator(); it.hasNext();) {
             Inspector inspector = it.next();
-            inspector.setVisible(false);
-            inspector.dispose();
+            inspector.hide();
         }
         objectInspectors.clear();
         
         for (Iterator<Inspector> it = classInspectors.values().iterator(); it.hasNext();) {
             Inspector inspector = it.next();
-            inspector.setVisible(false);
-            inspector.dispose();
+            inspector.hide();
         }
         classInspectors.clear();
     }
