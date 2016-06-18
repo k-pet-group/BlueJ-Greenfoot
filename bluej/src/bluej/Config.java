@@ -1899,6 +1899,19 @@ public final class Config
             //scene.getStylesheets().add("file:///Users/mik/Development/frames/bluej/lib/stylesheets/" + stem + ".css");
         }
     }
+
+    @OnThread(Tag.FX)
+    public static void addInspectorStylesheets(Scene scene)
+    {
+        try
+        {
+            scene.getStylesheets().add(new File (bluejLibDir + "/stylesheets", "inspectors.css").toURI().toURL().toString());
+        }
+        catch (MalformedURLException e)
+        {
+            Debug.reportError(e);
+        }
+    }
     
     @OnThread(Tag.FX)
     public static void addDialogStylesheets(DialogPane dialogPane)

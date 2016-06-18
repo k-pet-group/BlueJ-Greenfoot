@@ -47,7 +47,10 @@ import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringExpression;
@@ -1589,5 +1592,15 @@ public class JavaFXUtil
 
         }
         return null;
+    }
+
+    public static <T,R> ObjectBinding<R> of(ObservableValue<T> t, FXFunction<T, R> accessor)
+    {
+        return Bindings.createObjectBinding(() -> accessor.apply(t.getValue()), t);
+    }
+
+    public static <T> DoubleBinding ofD(ObservableValue<T> t, FXFunction<T, Double> accessor)
+    {
+        return Bindings.createDoubleBinding(() -> accessor.apply(t.getValue()), t);
     }
 }

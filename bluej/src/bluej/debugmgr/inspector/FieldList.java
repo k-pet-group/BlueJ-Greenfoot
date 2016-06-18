@@ -43,14 +43,25 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.geometry.Insets;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.util.StringConverter;
 
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.utility.Debug;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+import static bluej.debugger.DebuggerObject.OBJECT_REFERENCE;
 
 /**
  * A graphical representation of a list of fields from a class or object.
@@ -61,28 +72,86 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class FieldList extends TableView<FieldInfo>
 {
-    private int preferredWidth;
+    final static private Image objectrefIcon = Config.getImageAsFXImage("image.inspector.objectref");
+    private static class StringOrRef
+    {
+        private String string; // null if reference
+
+        public StringOrRef(String string)
+        {
+            this.string = OBJECT_REFERENCE.equals(string) ? null : string;
+        }
+    }
 
     /**
      * Creates a new fieldlist with no data.
-     * 
-     * @param preferredWidth
-     *            Used to determine the width of the columns. This will be the
-     *            default width of the list when the inspector is first shown.
-     * @param valueFieldColor
-     *            background color of the value field.
      */
-    public FieldList(int preferredWidth)
+    public FieldList()
     {
-        this.preferredWidth = preferredWidth;
         this.getSelectionModel().setCellSelectionEnabled(false);
         this.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        this.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
+        int rowHeight = 25;
+        this.setFixedCellSize(rowHeight);
+        prefHeightProperty().bind(fixedCellSizeProperty().multiply(Bindings.size(getItems())).add(JavaFXUtil.ofD(paddingProperty(), Insets::getTop)).add(JavaFXUtil.ofD(paddingProperty(), Insets::getBottom)));
+        setMinHeight(3 * rowHeight);
+        setMaxHeight(400.0);
+        JavaFXUtil.addStyleClass(this, "field-list");
 
         javafx.scene.control.TableColumn<FieldInfo, String> description = new javafx.scene.control.TableColumn<FieldInfo, String>();
+        JavaFXUtil.addStyleClass(description, "inspector-field-description");
         description.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().getDescription()));
-        javafx.scene.control.TableColumn<FieldInfo, String> value = new javafx.scene.control.TableColumn<FieldInfo, String>();
-        value.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().getValue()));
+        javafx.scene.control.TableColumn<FieldInfo, StringOrRef> value = new javafx.scene.control.TableColumn<>();
+        JavaFXUtil.addStyleClass(value, "inspector-field-value");
+        value.setCellValueFactory(v -> new ReadOnlyObjectWrapper(new StringOrRef(v.getValue().getValue())));
+        value.setCellFactory(col -> {
+            TextFieldTableCell<FieldInfo, StringOrRef> cell = new TextFieldTableCell<>();
+            cell.setConverter(new StringConverter<StringOrRef>()
+            {
+                @Override
+                public String toString(StringOrRef object)
+                {
+                    return (object == null || object.string == null) ? "" : object.string;
+                }
+
+                @Override
+                public StringOrRef fromString(String string)
+                {
+                    return new StringOrRef(string);
+                }
+            });
+            // By default, the table cell sets a null graphic when updating the text,
+            // so we must listen and override this:
+            JavaFXUtil.addChangeListener(cell.graphicProperty(), g -> {
+                StringOrRef v = cell.getItem();
+                if (g == null && v != null && v.string == null)
+                {
+                    cell.setGraphic(new ImageView(objectrefIcon));
+                }
+            });
+            JavaFXUtil.addChangeListener(cell.itemProperty(), v -> {
+                if (v != null && v.string == null)
+                {
+                    cell.setGraphic(new ImageView(objectrefIcon));
+                }
+                else
+                    cell.setGraphic(null);
+            });
+            return cell;
+        });
         getColumns().setAll(description, value);
+        
+        // Turn off header, from https://community.oracle.com/thread/2321823
+        JavaFXUtil.addChangeListener(widthProperty(), ignore -> {
+            //Don't show header
+            Pane header = (Pane) lookup("TableHeaderRow");
+            if (header.isVisible()){
+                header.setMaxHeight(0);
+                header.setMinHeight(0);
+                header.setPrefHeight(0);
+                header.setVisible(false);
+            }
+        });
     }
 
     /**
@@ -93,126 +162,7 @@ public class FieldList extends TableView<FieldInfo>
      */
     public void setData(List<FieldInfo> listData)
     {
-        getItems().setAll(listData);
-
-        setColumnWidths(listData);        
+        getItems().setAll(listData);        
     }
-
-    /**
-     * Calculate column widths based on the data.
-     */
-    private void setColumnWidths(List<FieldInfo> listData)
-    {
-        /*
-        int colPrefWidth = preferredWidth/2;
-
-        for (int column = 0; column < 2; column++) {
-            TableColumn tableColumn = getColumnModel().getColumn(column);
-
-            int contentsMaxWidth = getMaxWidth(listData, column);
-            
-            // Make the minimum width look nice. A minimum width is always
-            // needed so short columns doesn't get squeezed by long columns.
-            if (contentsMaxWidth < colPrefWidth) {
-                tableColumn.setMinWidth(contentsMaxWidth);
-            }
-            else {
-                tableColumn.setMinWidth(colPrefWidth);
-            }
-            
-            tableColumn.setPreferredWidth(contentsMaxWidth);
-        }
-        */
-    }
-
-    /**
-     * Finds the maximum width among all the elements in the given column in the data.
-     *//*
-    private int getMaxWidth(List<FieldInfo> listData, int column)
-    {
-        TableCellRenderer ltcr = getDefaultRenderer(Object.class);
-        TableColumn tableColumn = getColumnModel().getColumn(column);
-        int contentsMaxWidth = tableColumn.getPreferredWidth();
-        for (int row = 0; row < listData.size(); row++) {
-            Component n = ltcr.getTableCellRendererComponent(this, dataModel.getValueAt(row, column),
-                    false, false, row, column);
-            contentsMaxWidth = Math.max(contentsMaxWidth, n.getPreferredSize().width);
-        }
-        return contentsMaxWidth;
-    }
-*/
-  
-    /**
-     * Cell renderer that makes a two column table look like a list.
-     * 
-     * @author Poul Henriksen
-     */
-    /*
-    public static class ListTableCellRenderer extends DefaultTableCellRenderer
-    {
-        final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
-        final private static Border valueBorder = BorderFactory.createLineBorder(Color.gray);
-        private Color bkColor;
-
-
-        public ListTableCellRenderer(Color bkColor)
-        {
-            this.bkColor = bkColor;
-            this.setOpaque(true);
-        }
-
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column)
-        {
-            String valueString = (String) value;
-
-            // It seems the JRE can pass in null in certain situations. Specifically,
-            // turning the Voiceover utility on in Mac OS X (10.6.2, Java 1.6.0_17)
-            // causes this method to be called with a null value every time the list
-            // selection changes.
-            if (valueString == null) {
-                return this;
-            }
-
-            if (valueString.equals(DebuggerObject.OBJECT_REFERENCE)) {
-                this.setIcon(objectrefIcon);
-                this.setText("");
-            }
-            else {
-                this.setIcon(null);
-                this.setText(valueString);
-                if (valueString.startsWith("\"")) {
-                    this.setToolTipText(valueString);
-                }
-                else {
-                    this.setToolTipText(null);
-                }
-            }
-
-            Color rowBackground = isSelected ? table.getSelectionBackground() : bkColor;
-            this.setBackground(rowBackground);
-            
-            Border b = BorderFactory.createLineBorder(rowBackground, 3);
-
-            super.setBorder(b);
-
-            // depending in which column we are in, we have to do some different
-            // things
-            if (column == 1) {
-                this.setBackground(new Color(255,255,255));
-                this.setHorizontalAlignment(JLabel.CENTER);
-                Border compoundBorder = BorderFactory.createCompoundBorder(getBorder(), valueBorder);
-                super.setBorder(compoundBorder);
-            }
-            else {
-                this.setHorizontalAlignment(JLabel.LEADING);
-            }
-            
-            getAccessibleContext().setAccessibleName(table.getModel().getValueAt(row, 0) + " = " + table.getModel().getValueAt(row, 1));
-            
-            return this;
-        }
-    }
-    */
 }
 

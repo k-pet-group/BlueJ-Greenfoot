@@ -35,6 +35,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -148,6 +149,8 @@ public abstract class Inspector extends Stage
             // Get button cannot be enabled when pkg==null
             ir = null;
         }
+        JavaFXUtil.addSelfRemovingListener(sceneProperty(), Config::addInspectorStylesheets);
+        initStyle(StageStyle.TRANSPARENT);
         this.inspectorManager = inspectorManager;
         this.pkg = pkg;
         this.ir = ir;
@@ -159,6 +162,8 @@ public abstract class Inspector extends Stage
             if (e.getCode() == KeyCode.ESCAPE)
                 doClose(true);
         });
+        
+        //setOnShown(e -> org.scenicview.ScenicView.show(getScene()));
 
         initFieldList();
     }
@@ -170,7 +175,7 @@ public abstract class Inspector extends Stage
      */
     private void initFieldList()
     {
-        fieldList = new FieldList(MAX_LIST_WIDTH);
+        fieldList = new FieldList();
         JavaFXUtil.addChangeListener(fieldList.getSelectionModel().selectedIndexProperty(), index -> listElementSelected(index.intValue()));
         
         // add mouse listener to monitor for double clicks to inspect list
@@ -408,6 +413,7 @@ public abstract class Inspector extends Stage
         getButton.setOnAction(e -> doGet());
         buttonPanel.getChildren().add(getButton);
 
+        JavaFXUtil.addStyleClass(buttonPanel, "inspector-side-buttons");
         return buttonPanel;
     }
     

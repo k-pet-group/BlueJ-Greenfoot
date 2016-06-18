@@ -21,49 +21,29 @@
  */
 package bluej.debugmgr.inspector;
 
-import java.awt.AlphaComposite;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.Insets;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Paint;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Window;
 
 import bluej.BlueJTheme;
@@ -79,8 +59,11 @@ import bluej.testmgr.record.ArrayElementInspectorRecord;
 import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.ResizableCanvas;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -187,7 +170,7 @@ public class ObjectInspector extends Inspector
         }
         Label headerLabel = new Label(fullTitle);
         header.getChildren().add(headerLabel);
-        header.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        //header.getChildren().add(new Separator(Orientation.HORIZONTAL));
 
         // Create the main panel (field list, Get/Inspect buttons)
 
@@ -213,71 +196,57 @@ public class ObjectInspector extends Inspector
         bottomPanel.getChildren().add(buttonPanel);
         
         // add the components
-/*
-        JPanel contentPane = new JPanel() {
+        Pane contentPane = new VBox();
+        contentPane.setBackground(null);
 
-            @Override
-            protected void paintComponent(Graphics g)
-            {               
-                Graphics2D g2d = (Graphics2D)g.create();
-                {
-                    GraphicsConfiguration gc = g2d.getDeviceConfiguration();
-                    BufferedImage img;
-                    if (!Config.isRaspberryPi()) {
-                        img = gc.createCompatibleImage(getWidth(),
-                              getHeight(),
-                              Transparency.TRANSLUCENT);
-                    }else{
-                        img = gc.createCompatibleImage(getWidth(),
-                                getHeight());
-                    }
-                    Graphics2D imgG = img.createGraphics();
+        contentPane.getChildren().addAll(header, mainPanel, bottomPanel);
 
-                    if (!Config.isRaspberryPi()) imgG.setComposite(AlphaComposite.Clear);
-                    imgG.fillRect(0, 0, getWidth(), getHeight());
-    
-                    if (!Config.isRaspberryPi()) imgG.setComposite(AlphaComposite.Src);
-                    if (!Config.isRaspberryPi()) {
-                        imgG.setRenderingHint(
-                             RenderingHints.KEY_ANTIALIASING,
-                             RenderingHints.VALUE_ANTIALIAS_ON);
-                    }
-                    imgG.setColor(Color.WHITE);
-                    imgG.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
-                    
-                    if (!Config.isRaspberryPi()){
-                        imgG.setComposite(AlphaComposite.SrcAtop);
-                        imgG.setPaint(new GradientPaint(getWidth() / 2, getHeight() / 2, new Color(227, 71, 71)
-                                                       ,getWidth() / 2, getHeight(), new Color(205, 39, 39)));
-                        imgG.fillRect(0, 0, getWidth(), getHeight());
-                        
-                        imgG.setPaint(new GradientPaint(getWidth() / 2, 0, new Color(248, 120, 120)
-                                                       ,getWidth() / 2, getHeight() / 2, new Color(231, 96, 96)));
-                    }else{
-                        imgG.setPaint(new Color(216, 95, 83));
-                        imgG.fillRect(0, 0, getWidth(), getHeight());
-                        imgG.setPaint(new Color(239, 108, 67));
-                    }
-                    imgG.fill(new Ellipse2D.Float(-2*getWidth(),-5*getHeight()/2,5*getWidth(),3*getHeight()));
+        JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-object");
+        JavaFXUtil.addStyleClass(header, "inspector-object-header");
 
-                    imgG.setColor(Color.BLACK);
-                    imgG.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);                    
-                    
-                    imgG.dispose();
-                    g2d.drawImage(img, 0, 0, this);
-                }
-                g2d.dispose();
-            }
-        };
-        */
-        BorderPane contentPane = new BorderPane();
-
-        contentPane.setTop(header);
-        contentPane.setCenter(mainPanel);
-        contentPane.setBottom(bottomPanel);
 
         button.setDefaultButton(true);
-        setScene(new Scene(contentPane));
+        StackPane stackPane = new StackPane(new Background(), contentPane);
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(widthProperty());
+        clip.heightProperty().bind(heightProperty());
+        clip.setArcWidth(40);
+        clip.setArcHeight(40);
+        stackPane.setClip(clip);
+        stackPane.setBackground(null);
+        Scene scene = new Scene(stackPane);
+        scene.setFill(null);
+        setScene(scene);
+    }
+    
+    private class Background extends ResizableCanvas
+    {
+        public Background()
+        {
+            JavaFXUtil.addChangeListener(widthProperty(), w -> redraw());
+            JavaFXUtil.addChangeListener(heightProperty(), h -> redraw());
+        }
+        
+        private void redraw()
+        {
+            GraphicsContext gc = getGraphicsContext2D();
+            double w = getWidth();
+            double h = getHeight();
+
+            final Paint bottomColor =
+                new LinearGradient(w/2, h/2, w/2, h, false, CycleMethod.NO_CYCLE,
+                    new Stop(0.0, new javafx.scene.paint.Color(227.0/255.0, 71.0/255.0, 71.0/255.0, 1.0)),
+                    new Stop(1.0, new javafx.scene.paint.Color(205.0/255.0, 39.0/255.0, 39.0/255.0, 1.0)));
+            final Paint topColor =
+                new LinearGradient(w/2, 0, w/2, h/2, false, CycleMethod.NO_CYCLE,
+                    new Stop(0.0, new javafx.scene.paint.Color(248.0/255.0, 120.0/255.0, 120.0/255.0, 1.0)),
+                    new Stop(1.0, new javafx.scene.paint.Color(231.0/255.0, 96.0/255.0, 96.0/255.0, 1.0)));
+
+            gc.setFill(bottomColor);
+            gc.fillRect(0, 0, w, h);
+            gc.setFill(topColor);
+            gc.fillOval(-2.0*w, -2.5*h, 5.0*w, 3.0*h);
+        }
     }
 
     /**
@@ -356,7 +325,7 @@ public class ObjectInspector extends Inspector
 
         // Non-array
         DebuggerField field = obj.getInstanceField(slot);
-        if (field.isReferenceType() && ! field.isNull()) {
+        if (field != null && field.isReferenceType() && ! field.isNull()) {
             setCurrentObj(field.getValueObject(null), field.getName(), field.getType().toString());
 
             if (Modifier.isPublic(field.getModifiers())) {
