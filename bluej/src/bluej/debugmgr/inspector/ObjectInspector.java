@@ -39,6 +39,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
@@ -82,6 +83,7 @@ public class ObjectInspector extends Inspector
     protected final static String inspectTitle = Config.getString("debugger.inspector.object.title");
     protected final static String noFieldsMsg = Config.getString("debugger.inspector.object.noFields");
     protected final static String numFields = Config.getString("debugger.inspector.numFields");
+    public static final int CORNER_SIZE = 40;
 
     // === instance variables ===
     
@@ -210,8 +212,8 @@ public class ObjectInspector extends Inspector
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(widthProperty());
         clip.heightProperty().bind(heightProperty());
-        clip.setArcWidth(40);
-        clip.setArcHeight(40);
+        clip.setArcWidth(CORNER_SIZE);
+        clip.setArcHeight(CORNER_SIZE);
         stackPane.setClip(clip);
         stackPane.setBackground(null);
         Scene scene = new Scene(stackPane);
@@ -246,6 +248,10 @@ public class ObjectInspector extends Inspector
             gc.fillRect(0, 0, w, h);
             gc.setFill(topColor);
             gc.fillOval(-2.0*w, -2.5*h, 5.0*w, 3.0*h);
+            
+            gc.setStroke(Color.BLACK);
+            gc.setLineWidth(3);
+            gc.strokeRoundRect(0, 0, w, h, CORNER_SIZE, CORNER_SIZE);
         }
     }
 
