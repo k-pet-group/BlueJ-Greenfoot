@@ -13,18 +13,26 @@
     -fx-background-color: transparent;
     /*-fx-padding: 0.2em;*/
 }
+.field-list .inspector-field-description, .field-list .inspector-field-value {
+    -fx-border-color: transparent;
+}
 .field-list .inspector-field-description {
     -fx-alignment: baseline-left;
     -fx-background-color: transparent;
     -fx-text-fill: black !important;
 }
-.field-list .inspector-field-value {
+.field-list .inspector-field-value-label {
+    -fx-alignment: baseline-center;
+    -fx-background-color: white;
+    -fx-text-fill: black !important;
+}
+.field-list .inspector-field-value-wrapper {
+    -fx-padding: 2px;
     -fx-alignment: baseline-center;
     -fx-background-color: white;
     -fx-border-width: 1px;
     -fx-border-color: black;
     -fx-border-style: solid;
-    -fx-text-fill: black !important;
 }
 
 .inspector-object {

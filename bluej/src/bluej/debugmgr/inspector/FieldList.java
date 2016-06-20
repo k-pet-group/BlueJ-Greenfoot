@@ -46,13 +46,18 @@ import javax.swing.table.TableColumn;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
 import bluej.Config;
@@ -91,7 +96,7 @@ public class FieldList extends TableView<FieldInfo>
         this.getSelectionModel().setCellSelectionEnabled(false);
         this.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         this.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
-        int rowHeight = 25;
+        int rowHeight = 30;
         this.setFixedCellSize(rowHeight);
         prefHeightProperty().bind(fixedCellSizeProperty().multiply(Bindings.size(getItems())).add(JavaFXUtil.ofD(paddingProperty(), Insets::getTop)).add(JavaFXUtil.ofD(paddingProperty(), Insets::getBottom)));
         setMinHeight(3 * rowHeight);
@@ -104,41 +109,7 @@ public class FieldList extends TableView<FieldInfo>
         javafx.scene.control.TableColumn<FieldInfo, StringOrRef> value = new javafx.scene.control.TableColumn<>();
         JavaFXUtil.addStyleClass(value, "inspector-field-value");
         value.setCellValueFactory(v -> new ReadOnlyObjectWrapper(new StringOrRef(v.getValue().getValue())));
-        value.setCellFactory(col -> {
-            TextFieldTableCell<FieldInfo, StringOrRef> cell = new TextFieldTableCell<>();
-            cell.setConverter(new StringConverter<StringOrRef>()
-            {
-                @Override
-                public String toString(StringOrRef object)
-                {
-                    return (object == null || object.string == null) ? "" : object.string;
-                }
-
-                @Override
-                public StringOrRef fromString(String string)
-                {
-                    return new StringOrRef(string);
-                }
-            });
-            // By default, the table cell sets a null graphic when updating the text,
-            // so we must listen and override this:
-            JavaFXUtil.addChangeListener(cell.graphicProperty(), g -> {
-                StringOrRef v = cell.getItem();
-                if (g == null && v != null && v.string == null)
-                {
-                    cell.setGraphic(new ImageView(objectrefIcon));
-                }
-            });
-            JavaFXUtil.addChangeListener(cell.itemProperty(), v -> {
-                if (v != null && v.string == null)
-                {
-                    cell.setGraphic(new ImageView(objectrefIcon));
-                }
-                else
-                    cell.setGraphic(null);
-            });
-            return cell;
-        });
+        value.setCellFactory(col -> new ValueCell());
         getColumns().setAll(description, value);
         
         // Turn off header, from https://community.oracle.com/thread/2321823
@@ -163,6 +134,47 @@ public class FieldList extends TableView<FieldInfo>
     public void setData(List<FieldInfo> listData)
     {
         getItems().setAll(listData);        
+    }
+
+    /**
+     * A TableCell which either shows a label or a graphic.  They are wrapped
+     * in a container to allow a border with padding to be applied.
+     */
+    private static class ValueCell extends TableCell<FieldInfo, StringOrRef>
+    {
+        private HBox container = new HBox(); // HBox so that we can use baseline-alignment
+        private Label label = new Label();
+        private ImageView objRefPic;
+        private SimpleBooleanProperty showingLabel = new SimpleBooleanProperty(true);
+
+        public ValueCell()
+        {
+            objRefPic = new ImageView(objectrefIcon);
+            container.getChildren().addAll(label, objRefPic);
+            JavaFXUtil.addStyleClass(container, "inspector-field-value-wrapper");
+            JavaFXUtil.addStyleClass(label, "inspector-field-value-label");
+            objRefPic.managedProperty().bind(showingLabel.not());
+            objRefPic.visibleProperty().bind(showingLabel.not());
+            label.managedProperty().bind(showingLabel);
+            label.visibleProperty().bind(showingLabel);
+            setText("");
+            setGraphic(container);
+        }
+
+        @Override
+        protected void updateItem(StringOrRef v, boolean empty)
+        {
+            super.updateItem(v, empty);
+            if (v != null && v.string == null)
+            {
+                showingLabel.set(false);
+            }
+            else
+            {
+                label.setText(v == null || empty ? "" : v.string);
+                showingLabel.set(true);
+            }
+        }
     }
 }
 
