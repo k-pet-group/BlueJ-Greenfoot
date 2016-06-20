@@ -164,6 +164,7 @@ public class FieldList extends TableView<FieldInfo>
         }
 
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         protected void updateItem(StringOrRef v, boolean empty)
         {
             super.updateItem(v, empty);

@@ -21,53 +21,25 @@
  */
 package bluej.debugmgr.inspector;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
-
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerField;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.target.role.StdClassRole;
-import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
-import org.fxconnector.helper.FXUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -76,7 +48,7 @@ import threadchecker.Tag;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 16055 2016-06-20 10:58:27Z nccb $
+ * @version $Id: ClassInspector.java 16057 2016-06-20 11:32:08Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class ClassInspector extends Inspector
@@ -258,14 +230,6 @@ public class ClassInspector extends Inspector
         if(inspectorManager != null) {
             inspectorManager.removeInspector(myClass);
         }
-    }
-
-    /**
-     * Intialise additional inspector panels.
-     */
-    protected void initInspectors(JTabbedPane inspTabs)
-    {
-    // not supported for class inspectors.
     }
 
     protected int getPreferredRows()

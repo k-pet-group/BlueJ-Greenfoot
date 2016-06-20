@@ -176,7 +176,7 @@ public abstract class Inspector extends Stage
     private void initFieldList()
     {
         fieldList = new FieldList();
-        JavaFXUtil.addChangeListener(fieldList.getSelectionModel().selectedIndexProperty(), index -> listElementSelected(index.intValue()));
+        JavaFXUtil.addChangeListenerPlatform(fieldList.getSelectionModel().selectedIndexProperty(), index -> listElementSelected(index.intValue()));
         
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected

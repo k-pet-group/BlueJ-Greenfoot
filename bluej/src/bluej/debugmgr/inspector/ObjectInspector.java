@@ -222,15 +222,16 @@ public class ObjectInspector extends Inspector
         setScene(scene);
     }
     
+    @OnThread(Tag.FXPlatform)
     private class Background extends ResizableCanvas
     {
         public Background()
         {
-            JavaFXUtil.addChangeListener(widthProperty(), w -> redraw());
-            JavaFXUtil.addChangeListener(heightProperty(), h -> redraw());
+            JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> redrawContent());
+            JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> redrawContent());
         }
         
-        private void redraw()
+        private void redrawContent()
         {
             GraphicsContext gc = getGraphicsContext2D();
             double w = getWidth();
