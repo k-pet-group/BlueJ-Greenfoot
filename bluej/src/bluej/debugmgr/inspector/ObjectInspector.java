@@ -204,7 +204,7 @@ public class ObjectInspector extends Inspector
         contentPane.getChildren().addAll(header, mainPanel, bottomPanel);
 
         JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-object");
-        JavaFXUtil.addStyleClass(header, "inspector-object-header");
+        JavaFXUtil.addStyleClass(header, "inspector-object-header", "inspector-header");
 
 
         button.setDefaultButton(true);

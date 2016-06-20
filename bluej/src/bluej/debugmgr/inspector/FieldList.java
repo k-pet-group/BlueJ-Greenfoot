@@ -146,6 +146,7 @@ public class FieldList extends TableView<FieldInfo>
         private Label label = new Label();
         private ImageView objRefPic;
         private SimpleBooleanProperty showingLabel = new SimpleBooleanProperty(true);
+        private SimpleBooleanProperty occupied = new SimpleBooleanProperty(true);
 
         public ValueCell()
         {
@@ -157,6 +158,7 @@ public class FieldList extends TableView<FieldInfo>
             objRefPic.visibleProperty().bind(showingLabel.not());
             label.managedProperty().bind(showingLabel);
             label.visibleProperty().bind(showingLabel);
+            container.visibleProperty().bind(occupied);
             setText("");
             setGraphic(container);
         }
@@ -165,6 +167,7 @@ public class FieldList extends TableView<FieldInfo>
         protected void updateItem(StringOrRef v, boolean empty)
         {
             super.updateItem(v, empty);
+            occupied.set(!empty);
             if (v != null && v.string == null)
             {
                 showingLabel.set(false);

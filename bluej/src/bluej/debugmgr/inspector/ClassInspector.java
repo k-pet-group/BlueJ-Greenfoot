@@ -65,6 +65,8 @@ import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
+import bluej.utility.javafx.JavaFXUtil;
+import org.fxconnector.helper.FXUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -73,7 +75,7 @@ import threadchecker.Tag;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 16047 2016-06-17 14:29:12Z nccb $
+ * @version $Id: ClassInspector.java 16053 2016-06-20 08:13:05Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class ClassInspector extends Inspector
@@ -107,8 +109,6 @@ public class ClassInspector extends Inspector
         super(inspectorManager, pkg, ir);
 
         myClass = clss;
-
-        final ClassInspector insp = this;
 
         makeFrame();
         update();
@@ -145,9 +145,9 @@ public class ClassInspector extends Inspector
         // Create the header
         Pane header = new VBox();
         Label headerLabel = new Label(headerString);
-
+        
         header.getChildren().add(headerLabel);
-        header.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        JavaFXUtil.addStyleClass(header, "inspector-header", "inspector-class-header");
         
         // Create the main panel (field list, Get/Inspect buttons)
 
@@ -178,10 +178,9 @@ public class ClassInspector extends Inspector
             }
         };
         */
-        BorderPane contentPane = new BorderPane();
-        contentPane.setTop(header);
-        contentPane.setCenter(mainPanel);
-        contentPane.setBottom(buttonPanel);
+        VBox contentPane = new VBox();
+        contentPane.getChildren().addAll(header, mainPanel, buttonPanel);
+        JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-class");
 
         button.setDefaultButton(true);
         setScene(new Scene(contentPane));
@@ -217,8 +216,8 @@ public class ClassInspector extends Inspector
      */
     protected void listElementSelected(int slot)
     {
-        DebuggerField field = myClass.getStaticField(slot);
-        if (field.isReferenceType() && ! field.isNull()) {
+        DebuggerField field = slot == -1 ? null : myClass.getStaticField(slot);
+        if (field != null && field.isReferenceType() && ! field.isNull()) {
             setCurrentObj(field.getValueObject(null), field.getName(), field.getType().toString());
 
             if (Modifier.isPublic(field.getModifiers())) {
