@@ -348,4 +348,11 @@ public abstract class ClassRole
         
         return rlist;
     }
+
+    /**
+     * True if this can be converted to Stride (assuming Java source is available;
+     * this method does not need to check for that).  Returns false for unsupported
+     * class types, like enums or unit tests.
+     */
+    public abstract boolean canConvertToStride();
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -76,6 +76,12 @@ public class StdClassRole extends ClassRole
                 addMenuItem(menu, ct.new CreateTestAction(), true);
             }
         }
+        return true;
+    }
+
+    @Override
+    public boolean canConvertToStride()
+    {
         return true;
     }
 }

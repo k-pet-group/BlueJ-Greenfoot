@@ -1821,7 +1821,7 @@ public class ClassTarget extends DependentTarget
         role.addMenuItem(menu, new RemoveAction(), true);
         if (sourceAvailable == SourceType.Stride)
             role.addMenuItem(menu, new ConvertToJavaAction(), true);
-        else if (sourceAvailable == SourceType.Java)
+        else if (sourceAvailable == SourceType.Java && role.canConvertToStride())
             role.addMenuItem(menu, new ConvertToStrideAction(), true);
 
         // call on role object to add any options needed at bottom

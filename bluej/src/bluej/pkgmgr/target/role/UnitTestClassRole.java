@@ -273,6 +273,12 @@ public class UnitTestClassRole extends ClassRole
     }
 
     @Override
+    public boolean canConvertToStride()
+    {
+        return false; // annotations needed for JUnit are not supported
+    }
+
+    @Override
     public void run(final PkgMgrFrame pmf, final ClassTarget ct, final String param)
     {
         if (param != null) {

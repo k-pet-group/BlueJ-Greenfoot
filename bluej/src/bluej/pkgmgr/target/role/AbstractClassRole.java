@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,7 +31,6 @@ import bluej.pkgmgr.target.*;
  * A role object to represent the behaviour of abstract classes.
  *
  * @author  Andrew Patterson 
- * @version $Id: AbstractClassRole.java 8123 2010-08-20 04:29:01Z davmac $
  */
 public class AbstractClassRole extends ClassRole
 {
@@ -79,5 +78,11 @@ public class AbstractClassRole extends ClassRole
     public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         return false;
+    }
+
+    @Override
+    public boolean canConvertToStride()
+    {
+        return true;
     }
 }
