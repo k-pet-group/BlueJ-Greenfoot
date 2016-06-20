@@ -232,8 +232,14 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     private void addClassTypeButtons(Window parent, Pane panel)
     {
         TemplatesList templates = new TemplatesList();
-        addJavaTemplates(templates, parent);
-        addStrideTemplates(templates);
+
+        // first, get templates out of defined templates from bluej.defs
+        // (we do this rather than using the directory only to be able to force an order on the templates.)
+        addDEFsTemplates(templates, SourceType.Java);
+        addDEFsTemplates(templates, SourceType.Stride);
+
+        // next, get templates from files in template directory and merge them in
+        addDirectoryTemplates(templates, SourceType.Java, parent);
 
         // Create a radio button for each template found
         boolean first = true;
@@ -248,49 +254,34 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             panel.getChildren().add(button);
             first = false;
         }
-
         JavaFXUtil.addChangeListenerPlatform(templateButtons.selectedToggleProperty(), selected -> updateOKButton(false));
     }
 
-    private void addJavaTemplates(TemplatesList templates, Window parent)
+    private void addDEFsTemplates(TemplatesList templates, SourceType sourceType)
     {
-        String templateSuffix = ".tmpl";
-        int suffixLength = templateSuffix.length();
-        SourceType sourceType = SourceType.Java;
-
-        // first, get templates out of defined templates from bluej.defs
-        // (we do this rather than using the directory only to be able to
-        // force an order on the templates.)
-        String templateString = Config.getPropString("bluej.classTemplates.java");
+        String templateString = Config.getPropString("bluej.classTemplates." + sourceType.toString().toLowerCase());
         StringTokenizer tokenizer = new StringTokenizer(templateString);
         while (tokenizer.hasMoreTokens()) {
             templates.addTemplate(tokenizer.nextToken(), sourceType);
         }
+    }
 
-        // next, get templates from files in template directory and merge them in
+    private void addDirectoryTemplates(TemplatesList templates, SourceType sourceType, Window parent)
+    {
         File templateDir = Config.getClassTemplateDir();
-        if(!templateDir.exists()) {
+        if ( !templateDir.exists() ) {
             DialogManager.showErrorFX(parent, "error-no-templates");
         }
         else {
+            String templateSuffix = ".tmpl";
+            int suffixLength = templateSuffix.length();
+
             Arrays.asList(templateDir.list()).forEach(file -> {
                 if(file.endsWith(templateSuffix)) {
                     String templateName = file.substring(0, file.length() - suffixLength);
                     templates.addTemplate(templateName, sourceType);
                 }
             });
-        }
-    }
-
-    private void addStrideTemplates(TemplatesList templates)
-    {
-        SourceType sourceType = SourceType.Stride;
-
-        // first, get templates out of defined templates from bluej.defs
-        String templateString = Config.getPropString("bluej.classTemplates.stride");
-        StringTokenizer tokenizer = new StringTokenizer(templateString);
-        while (tokenizer.hasMoreTokens()) {
-            templates.addTemplate(tokenizer.nextToken(), sourceType);
         }
     }
 
