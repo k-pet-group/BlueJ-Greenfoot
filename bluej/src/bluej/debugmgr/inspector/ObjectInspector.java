@@ -45,6 +45,7 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
 import bluej.BlueJTheme;
@@ -128,7 +129,7 @@ public class ObjectInspector extends Inspector
      */
     public ObjectInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, final Window parent)
     {
-        super(inspectorManager, pkg, ir);
+        super(inspectorManager, pkg, ir, StageStyle.TRANSPARENT);
 
         this.obj = obj;
         this.objName = name;

@@ -53,6 +53,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
 import bluej.BlueJTheme;
@@ -75,7 +76,7 @@ import threadchecker.Tag;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 16053 2016-06-20 08:13:05Z nccb $
+ * @version $Id: ClassInspector.java 16055 2016-06-20 10:58:27Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class ClassInspector extends Inspector
@@ -106,7 +107,7 @@ public class ClassInspector extends Inspector
      */
     public ClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir, final Window parent)
     {
-        super(inspectorManager, pkg, ir);
+        super(inspectorManager, pkg, ir, StageStyle.TRANSPARENT);
 
         myClass = clss;
 

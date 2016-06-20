@@ -61,6 +61,9 @@ import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.StageStyle;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -127,7 +130,7 @@ public class ResultInspector extends Inspector
     public ResultInspector(DebuggerObject obj, InspectorManager inspectorManager, String name,
             Package pkg, InvokerRecord ir, ExpressionInformation info)
     {
-        super(inspectorManager, pkg, ir);
+        super(inspectorManager, pkg, ir, StageStyle.DECORATED);
 
         expressionInformation = info;
         this.obj = obj;
@@ -233,19 +236,23 @@ public class ResultInspector extends Inspector
         Label sig = new Label(expressionInformation.getSignature());
 
         header.getChildren().add(sig);
-        header.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        JavaFXUtil.addStyleClass(sig, "inspector-header", "inspector-result-header");
+        //header.getChildren().add(new Separator(Orientation.HORIZONTAL));
 
         // Create the main part that shows the expression and the result
 
         BorderPane mainPanel = new BorderPane();
         VBox result = new VBox();
-        
-        final Label expression = new Label(expressionInformation.getExpression());
+        JavaFXUtil.addStyleClass(result, "inspector-result-details");
+
+        String expressionDisplay = expressionInformation.getExpression();
+        final Node expression = new TextFlow(new Text(expressionDisplay + " " + returnedString));
+        JavaFXUtil.addStyleClass(expression, "inspector-result-details-header");
         ContextMenu copyPopup = new ContextMenu();
         copyPopup.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"),() ->
             {
                 try {
-                    StringSelection ss = new StringSelection(expression.getText());
+                    StringSelection ss = new StringSelection(expressionDisplay);
                     Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, ss);
                 }
                 catch (IllegalStateException ise) {
@@ -253,12 +260,10 @@ public class ResultInspector extends Inspector
                 }
             }
         , null));
-        expression.setContextMenu(copyPopup);
+        expression.setOnContextMenuRequested(e -> copyPopup.show(expression, e.getScreenX(), e.getScreenY()));
 
         result.getChildren().add(expression);
         
-        Label returnedLabel = new Label("  " + returnedString);
-        result.getChildren().add(returnedLabel);
         result.getChildren().add(fieldList);
         /*
         Box resultPanel = new Box(BoxLayout.Y_AXIS) {
@@ -316,10 +321,8 @@ public class ResultInspector extends Inspector
             }
         };
         */
-        BorderPane contentPane = new BorderPane();
-        contentPane.setTop(header);
-        contentPane.setCenter(mainPanel);
-        contentPane.setBottom(buttonPanel);
+        VBox contentPane = new VBox(header, mainPanel, buttonPanel);
+        JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-result");
 
         button.setDefaultButton(true);
         setScene(new Scene(contentPane));

@@ -139,7 +139,7 @@ public abstract class Inspector extends Stage
      * @param ir
      *            the InvokerRecord for this inspector (or null)
      */
-    protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir)
+    protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir, StageStyle stageStyle)
     {
         if(inspectorManager == null) {
             throw new NullPointerException("An inspector must have an InspectorManager.");
@@ -150,7 +150,7 @@ public abstract class Inspector extends Stage
             ir = null;
         }
         JavaFXUtil.addSelfRemovingListener(sceneProperty(), Config::addInspectorStylesheets);
-        initStyle(StageStyle.TRANSPARENT);
+        initStyle(stageStyle);
         this.inspectorManager = inspectorManager;
         this.pkg = pkg;
         this.ir = ir;
