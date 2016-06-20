@@ -422,11 +422,11 @@ public abstract class Inspector extends Stage
     // (with improvements).
     protected void installListenersForMoveDrag()
     {
-        addEventHandler(MouseEvent.MOUSE_PRESSED, e -> { initialClickX = e.getScreenX(); initialClickY = e.getScreenY(); });
+        addEventHandler(MouseEvent.MOUSE_PRESSED, e -> { initialClickX = e.getScreenX() - getX(); initialClickY = e.getScreenY() - getY(); });
         //addEventHandler(MouseEvent.MOUSE_RELEASED,e -> { initialClick = null;});
         addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
-            setX(e.getScreenX() + initialClickX);
-            setY(e.getScreenY() + initialClickY);
+            setX(e.getScreenX() - initialClickX);
+            setY(e.getScreenY() - initialClickY);
         });
     }
     
