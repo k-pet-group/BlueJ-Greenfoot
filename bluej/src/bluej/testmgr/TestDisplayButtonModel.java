@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.testmgr;
 
 import javax.swing.JToggleButton.ToggleButtonModel;
+import javafx.application.Platform;
 
 /**
  * ButtonModel for the "Show Test Runner" checkBoxItem in the menu.
@@ -29,7 +30,7 @@ import javax.swing.JToggleButton.ToggleButtonModel;
  * is shown or changed.
  *
  * @author  Michael Kolling
- * @version $Id: TestDisplayButtonModel.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TestDisplayButtonModel.java 16063 2016-06-21 13:31:14Z nccb $
  */
 public class TestDisplayButtonModel extends ToggleButtonModel
 {
@@ -43,7 +44,7 @@ public class TestDisplayButtonModel extends ToggleButtonModel
     public void setSelected(boolean b)
     {
         super.setSelected(b);
-        TestDisplayFrame.getTestDisplay().showTestDisplay(b);
+        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().showTestDisplay(b));
     }
 }
 

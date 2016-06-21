@@ -140,6 +140,13 @@ public class BlueJTheme extends DefaultMetalTheme
         String appName = Config.getApplicationName().toLowerCase();
         return getApplicationIcon (appName);
     }
+
+    @OnThread(Tag.FX)
+    public static javafx.scene.image.Image getIconImageFX()
+    {
+        String appName = Config.getApplicationName().toLowerCase();
+        return getApplicationFxIcon(appName, false);
+    }
     
     @OnThread(Tag.Any)
     public static String getApplicationIconFileName(String baseName, boolean getStrideEditorIcon)

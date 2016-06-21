@@ -94,15 +94,7 @@ public class ConflictsDialog extends SwingNodeDialog
         mainPanel.add(buttonPanel);
         getContentPane().add(mainPanel);
 
-        // save position when window is moved
-        addComponentListener(new ComponentAdapter() {
-                public void componentMoved(ComponentEvent event)
-                {
-                    Config.putLocation("bluej.teamwork.conflicts", getLocation());
-                }
-            });
-
-        setLocation(Config.getLocation("bluej.teamwork.conflicts"));
+        rememberPosition("bluej.teamwork.conflicts");
         pack();
     }
 

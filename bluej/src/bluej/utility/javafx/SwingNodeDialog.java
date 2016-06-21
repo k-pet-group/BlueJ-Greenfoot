@@ -40,6 +40,7 @@ import javafx.scene.control.Dialog;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
+import bluej.Config;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -93,6 +94,12 @@ public class SwingNodeDialog
     {
         this.modal = makeModal;
         Platform.runLater(() -> dialog.initModality(makeModal ? Modality.APPLICATION_MODAL : Modality.NONE));
+    }
+
+    @OnThread(Tag.Swing)
+    protected void rememberPosition(String locationPrefix)
+    {
+        Platform.runLater(() -> dialog.setOnShown(e -> Config.rememberPosition(asWindow(), locationPrefix)));
     }
     
     @OnThread(Tag.Swing)
@@ -173,29 +180,6 @@ public class SwingNodeDialog
     protected void setDefaultButton(JButton button)
     {
         
-    }
-    
-    @OnThread(Tag.Swing)
-    public void setLocation(Point p)
-    {
-        Platform.runLater(() -> {
-            if (asWindow() == null)
-                return;
-            asWindow().setX(p.x);
-            asWindow().setY(p.y);
-        });
-    }
-    
-    @OnThread(Tag.Swing)
-    public Point getLocation()
-    {
-        return new Point(0, 0); // Can't easily access this from Swing thread
-    }
-
-    @OnThread(Tag.Swing)
-    public void addComponentListener(ComponentListener l)
-    {
-        // Will get replaced anyway
     }
 
     @OnThread(Tag.Swing)

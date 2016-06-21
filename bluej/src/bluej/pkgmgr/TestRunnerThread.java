@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,20 @@
  */
 package bluej.pkgmgr;
 
+import javax.swing.*;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
+import javafx.application.Platform;
+
+import bluej.utility.Debug;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -47,16 +55,12 @@ import bluej.testmgr.TestDisplayFrame;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.Any)
 public class TestRunnerThread extends Thread
 {
-    private Iterator<ClassTarget> testIterator;
-    private DebuggerTestResult lastResult = null;
-    private PkgMgrFrame pmf;
+    private final Iterator<ClassTarget> testIterator;
+    private final PkgMgrFrame pmf;
 
-    private ClassTarget ct;
-    private String[] allMethods;
-    private String methodName; // Name of the test method; null to run all tests.
+    private final String methodName; // Name of the test method; null to run all tests.
     
     private int state;
     
@@ -66,6 +70,7 @@ public class TestRunnerThread extends Thread
     public TestRunnerThread(PkgMgrFrame pmf, Iterator<ClassTarget> i)
     {
         this.pmf = pmf;
+        this.methodName = null;
         testIterator = i;
         state = 0;
     }
@@ -82,93 +87,83 @@ public class TestRunnerThread extends Thread
         this.methodName = methodName;
         state = 0;
     }
-    
-    /**
-     * Set the methods to be tested. The UnitTestClassRole calls this after determining
-     * which methods should be run.
-     * 
-     * @param methods  An array of method names
-     */
-    public void setMethods(String [] methods)
-    {
-        allMethods = methods;
-    }
-    
-    // This is not 100% true, but it's the best way to tag this class:
-    @OnThread(value = Tag.Swing, ignoreParent = true)
+
     public void run()
     {
-        // This implements a state machine. State 0 is the first state, and consists of
-        // the primary loop from which the other states are executed
-        // (via EventQueue.invokeAndWait).
-        
-        switch (state) {
-            case 0:
-                try {
-                    while (testIterator.hasNext()) {
-                        
-                        ct = (ClassTarget) testIterator.next();
-                        
-                        if (methodName == null) {
-                            // Run all tests for a target.
-                            state = 1;
-                            EventQueue.invokeAndWait(this);
-                        }
-                        else {
-                            // Run only a single test.
-                            allMethods = new String [] { methodName };
-                        }
-                        
-                        // State 1 has given us the tests we need to run. Now run them:
-                        for (int i = 0; i < allMethods.length; i++) {
-                            lastResult = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), allMethods[i]);
-                            
-                            // Add the test result to the test display frame in state 2:
-                            state = 2;
-                            EventQueue.invokeAndWait(this);
-                        }
-                    }
-                    
-                    // Finally, tell the PkgMgrFrame that we're done:
-                    state = 3;
-                    EventQueue.invokeAndWait(this);
-                }
-                catch (InvocationTargetException ite) { ite.printStackTrace(); }
-                catch (InterruptedException ie) {}
-                break;
-                
-            // State 1 is where we confirm that we really do have an executable unit
-            // test class, and we delegate to the unit test role to gives us some
-            // test methods to executed.
-            case 1:
-                if (ct.isCompiled() && ct.isUnitTest() && ! ct.isAbstract()) {
-                    UnitTestClassRole utcr = (UnitTestClassRole) ct.getRole();
+        while (testIterator.hasNext()) {
 
-                    utcr.doRunTest(pmf, ct, TestRunnerThread.this);
-                }
-                else {
-                    allMethods = new String[0];
-                }
-                break;
-                
-            // Here we add a test result to the test display frame.
-            case 2:
-                boolean quiet = methodName != null && lastResult.isSuccess();
-                TestDisplayFrame.getTestDisplay().addResult(lastResult, quiet);
-                
-                if (quiet)
-                    pmf.setStatus(methodName + " " + Config.getString("pkgmgr.test.succeeded"));
+            ClassTarget ct = testIterator.next();
 
-                DataCollector.testResult(pmf.getPackage(), lastResult);
-                
-                break;
+            List<String> allMethods;
+            if (methodName == null) {
+                // Run all tests for a target, so find out what they are:
+                CompletableFuture<List<String>> methodsFuture = new CompletableFuture<>();
+                SwingUtilities.invokeLater(() -> startTestFindMethods(ct, methodsFuture));
+                try
+                {
+                    allMethods = methodsFuture.get();
+                }
+                catch (InterruptedException | ExecutionException e)
+                {
+                    Debug.reportError(e);
+                    allMethods = Collections.emptyList();
+                }
+            }
+            else {
+                // Run only a single test.
+                allMethods = Arrays.asList(methodName);
+            }
 
-            // Now we are finished.
-            case 3:
-                if (methodName == null)
-                    pmf.endTestRun();
-                
-                break;
+            // State 1 has given us the tests we need to run. Now run them:
+            for (String methodName : allMethods)
+            {
+                DebuggerTestResult lastResult = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), methodName);
+
+                // Add the test result to the test display frame:
+                Platform.runLater(() -> showNextResult(lastResult));
+            }
+        }
+
+        // Finally, tell the PkgMgrFrame that we're done:
+        SwingUtilities.invokeLater(() -> {
+            if (methodName == null)
+                pmf.endTestRun();
+        });
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void showNextResult(DebuggerTestResult lastResult)
+    {
+        // Here we add a test result to the test display frame.
+        boolean quiet = methodName != null && lastResult.isSuccess();
+        TestDisplayFrame.getTestDisplay().addResult(lastResult, quiet);
+
+        SwingUtilities.invokeLater(() -> {
+            if (quiet)
+                pmf.setStatus(methodName + " " + Config.getString("pkgmgr.test.succeeded"));
+
+            DataCollector.testResult(pmf.getPackage(), lastResult);
+        });
+    }
+
+    @OnThread(Tag.Swing)
+    private void startTestFindMethods(ClassTarget ct, CompletableFuture<List<String>> methodsFuture)
+    {
+        // State 1 is where we confirm that we really do have an executable unit
+        // test class, and we delegate to the unit test role to gives us some
+        // test methods to executed.
+
+        if (ct.isCompiled() && ct.isUnitTest() && ! ct.isAbstract()) {
+            UnitTestClassRole utcr = (UnitTestClassRole) ct.getRole();
+
+            List<String> allMethods = utcr.startRunTest(pmf, ct, TestRunnerThread.this);
+            if (allMethods == null)
+                methodsFuture.complete(Collections.emptyList());
+            else
+                methodsFuture.complete(allMethods);
+        }
+        else {
+            methodsFuture.complete(Collections.emptyList());
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,23 +25,27 @@ import java.awt.Color;
 
 import javax.swing.JProgressBar;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A progress bar showing the green/red status.
  * 
  * @author Andrew Patterson (derived from JUnit src)
- * @version $Id: ProgressBar.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ProgressBar.java 16063 2016-06-21 13:31:14Z nccb $
  */
-class ProgressBar extends JProgressBar
+@OnThread(Tag.FXPlatform)
+class ProgressBar extends javafx.scene.control.ProgressBar
 {
     public static final Color redBarColour = new Color(208, 16, 16);
     public static final Color greenBarColour = new Color(32, 192, 32);
 
     private boolean fError = false;
+    private float maximum = 1;
 
     public ProgressBar() 
     {
-        super();
-        setForeground(getStatusColor());
+        //setForeground(getStatusColor());
     }
 
     private Color getStatusColor()
@@ -54,16 +58,21 @@ class ProgressBar extends JProgressBar
     public void reset()
     {
         fError = false;
-        setForeground(getStatusColor());
-        setValue(0);
+        //setForeground(getStatusColor());
+        setProgress(0);
     }
 
     public void step(int value, boolean successful)
     {
-        setValue(value);
+        setProgress((float)value / maximum);
         if(!fError && !successful) {
             fError = true;
-            setForeground(getStatusColor());
+            //setForeground(getStatusColor());
         }
+    }
+
+    public void setMaximum(int maximum)
+    {
+        this.maximum = maximum;
     }
 }

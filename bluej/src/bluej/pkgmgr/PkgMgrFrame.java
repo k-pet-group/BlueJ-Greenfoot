@@ -2210,7 +2210,8 @@ public class PkgMgrFrame extends JPanel
         }
         
         Iterator<ClassTarget> it = l.iterator();
-        TestDisplayFrame.getTestDisplay().startMultipleTests(numTests);
+        int numTestsFinal = numTests;
+        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startMultipleTests(numTestsFinal));
 
         TestRunnerThread trt = new TestRunnerThread(this, it);
         trt.start();
@@ -2222,7 +2223,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void endTestRun()
     {
-        TestDisplayFrame.getTestDisplay().endMultipleTests();
+        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().endMultipleTests());
         runButton.setEnabled(true);
     }
 

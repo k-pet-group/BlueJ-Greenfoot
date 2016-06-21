@@ -35,10 +35,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -49,6 +51,7 @@ import javax.swing.SwingUtilities;
 import javafx.application.Platform;
 
 import bluej.compiler.CompileReason;
+import bluej.pkgmgr.Project;
 import bluej.utility.javafx.dialog.InputDialog;
 import org.junit.Test;
 
@@ -289,7 +292,8 @@ public class UnitTestClassRole extends ClassRole
     {
         if (param != null) {
             // Only running a single test
-            TestDisplayFrame.getTestDisplay().startTest(pmf.getProject(), 1);
+            Project proj = pmf.getProject();
+            Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(proj, 1));
         }
         
         new TestRunnerThread(pmf, ct, param).start();
@@ -302,31 +306,21 @@ public class UnitTestClassRole extends ClassRole
      * @param pmf   The package manager frame
      * @param ct    The class target
      * @param trt   The test runner thread
+     * @return The list of test methods in the class, or null if we could not find out
      */
-    public void doRunTest(PkgMgrFrame pmf, ClassTarget ct, TestRunnerThread trt)
+    public List<String> startRunTest(PkgMgrFrame pmf, ClassTarget ct, TestRunnerThread trt)
     {
         Class<?> cl = pmf.getPackage().loadClass(ct.getQualifiedName());
         
         if (cl == null)
-            return;
+            return null;
         
-        // Test the whole class
-        Method[] allMethods = cl.getMethods();
-        
-        ArrayList<String> testMethods = new ArrayList<String>();
-        
-        int testCount = 0;
-        
-        for (int i=0; i < allMethods.length; i++) {
-            if (isJUnitTestMethod(allMethods[i])) {
-                testCount++;
-                testMethods.add(allMethods[i].getName());
-            }
-        }
-        
-        String [] testMethodsArr = (String []) testMethods.toArray(new String[testCount]);
-        trt.setMethods(testMethodsArr);
-        TestDisplayFrame.getTestDisplay().startTest(pmf.getProject(), testCount);
+        // Test the whole class:
+        List<String> testMethods = Arrays.stream(cl.getMethods()).filter(this::isJUnitTestMethod).map(Method::getName).collect(Collectors.toList());
+
+        Project proj = pmf.getProject();
+        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(proj, testMethods.size()));
+        return testMethods;
     }
     
     /**

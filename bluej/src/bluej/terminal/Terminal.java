@@ -40,7 +40,6 @@ import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -691,12 +690,8 @@ public final class Terminal
                     showHide(false);
                 });
             });
-            
-            JavaFXUtil.addChangeListener(window.xProperty(), x -> Config.putLocation("bluej.terminal", new Point((int)window.getX(), (int)window.getY())));
-            JavaFXUtil.addChangeListener(window.yProperty(), y -> Config.putLocation("bluej.terminal", new Point((int)window.getX(), (int)window.getY())));
-            
-            window.setX(Config.getLocation("bluej.terminal").x);
-            window.setY(Config.getLocation("bluej.terminal").y);
+
+            Config.rememberPosition(window, "bluej.terminal");
         });
     }
 

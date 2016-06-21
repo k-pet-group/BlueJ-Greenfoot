@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,101 +21,56 @@
  */
 package bluej.testmgr;
 
-import java.awt.*;
-
-import javax.swing.*;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
 import bluej.Config;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A panel with test run counters.
  *
  * @author  Andrew Patterson (derived from JUnit src)
  */
-public class CounterPanel extends JPanel
+@OnThread(Tag.FXPlatform)
+public class CounterPanel extends HBox
 {
-    private JLabel fNumberOfErrors;
-    private JLabel fNumberOfFailures;
-    private JLabel fTotalTime;
-    private JLabel fNumberOfRuns;
-    final static Icon fFailureIcon = Config.getFixedImageAsIcon("failure.gif");
-    final static Icon fErrorIcon = Config.getFixedImageAsIcon("error.gif");
+    private Label fNumberOfErrors;
+    private Label fNumberOfFailures;
+    private Label fTotalTime;
+    private Label fNumberOfRuns;
+    final static Image fFailureIcon = Config.getFixedImageAsFXImage("failure.gif");
+    final static Image fErrorIcon = Config.getFixedImageAsFXImage("error.gif");
 
     private int fTotal;
 
     public CounterPanel()
     {
-        super(new GridBagLayout());
         fNumberOfErrors= createOutputField(5);
         fNumberOfFailures= createOutputField(5);
         fNumberOfRuns= createOutputField(9);
         fTotalTime = createOutputField(9);
 
-        addToGrid(new JLabel(Config.getString("testdisplay.counter.runs"), JLabel.CENTER),
-                0, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(0, 0, 0, 0));
-        addToGrid(fNumberOfRuns,
-                1, 0, 1, 1, 0.33, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 8, 0, 0));
-
-        addToGrid(new JLabel(Config.getString("testdisplay.counter.errors"), fErrorIcon, SwingConstants.LEFT),
-                2, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(0, 8, 0, 0));
-        addToGrid(fNumberOfErrors,
-                3, 0, 1, 1, 0.33, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 8, 0, 0));
-
-        addToGrid(new JLabel(Config.getString("testdisplay.counter.failures"), fFailureIcon, SwingConstants.LEFT),
-                4, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(0, 8, 0, 0));
-        addToGrid(fNumberOfFailures,
-                5, 0, 1, 1, 0.33, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 8, 0, 0));
-
-        addToGrid(new JLabel(Config.getString("testdisplay.counter.totalTime"), SwingConstants.LEFT),
-                6, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(0, 8, 0, 0));
-        addToGrid(fTotalTime,
-                7, 0, 1, 1, 0.33, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 8, 0, 0));
-
-        setMaximumSize(new Dimension(getMaximumSize().width, getPreferredSize().height));
+        getChildren().addAll(
+                new Label(Config.getString("testdisplay.counter.runs")),
+                fNumberOfRuns,
+                new Label(Config.getString("testdisplay.counter.errors")),
+                new ImageView(fErrorIcon),
+                fNumberOfErrors,
+                new Label(Config.getString("testdisplay.counter.failures")),
+                new ImageView(fFailureIcon),
+                fNumberOfFailures,
+                new Label(Config.getString("testdisplay.counter.totalTime")),
+                fTotalTime
+        );
     }
 
-    private JLabel createOutputField(int width) {
-        JLabel field= new JLabel("0");
-        Dimension size = field.getMinimumSize();
-        size.width *= width;
-        field.setMinimumSize(size);
-
-        return field;
-    }
-
-    public void addToGrid(Component comp,
-            int gridx, int gridy, int gridwidth, int gridheight,
-            double weightx, double weighty,
-            int anchor, int fill,
-            Insets insets) {
-
-        GridBagConstraints constraints= new GridBagConstraints();
-        constraints.gridx= gridx;
-        constraints.gridy= gridy;
-        constraints.gridwidth= gridwidth;
-        constraints.gridheight= gridheight;
-        constraints.weightx= weightx;
-        constraints.weighty= weighty;
-        constraints.anchor= anchor;
-        constraints.fill= fill;
-        constraints.insets= insets;
-        add(comp, constraints);
+    private Label createOutputField(int width) {
+        //TODO add CSS class as param
+        return new Label("0");
     }
 
     public void reset() {
@@ -146,7 +101,7 @@ public class CounterPanel extends JPanel
         fTotalTime.setText(Integer.toString(value)+"ms");
     }
 
-    private void setLabelValue(JLabel label, int value) {
+    private void setLabelValue(Label label, int value) {
         label.setText(Integer.toString(value));
     }
 }

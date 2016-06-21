@@ -156,15 +156,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
         updateListModel = new DefaultListModel();
         
         //setIconImage(BlueJTheme.getIconImage());
-        setLocation(Config.getLocation("bluej.updatedisplay"));
-
-        // save position when window is moved
-        addComponentListener(new ComponentAdapter() {
-                public void componentMoved(ComponentEvent event)
-                {
-                    Config.putLocation("bluej.updatedisplay", getLocation());
-                }
-            });
+        rememberPosition("bluej.updatedisplay");
 
         topPanel = new JPanel();
 

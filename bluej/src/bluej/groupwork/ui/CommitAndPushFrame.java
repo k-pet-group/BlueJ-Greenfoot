@@ -139,17 +139,7 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
         commitListModel = new DefaultListModel();
         pushListModel = new DefaultListModel();
 
-        setLocation(Config.getLocation("bluej.commitdisplay"));
-
-        // save position when window is moved
-        addComponentListener(new ComponentAdapter()
-        {
-            @Override
-            public void componentMoved(ComponentEvent event)
-            {
-                Config.putLocation("bluej.commitdisplay", getLocation());
-            }
-        });
+        rememberPosition("bluej.commitdisplay");
         
         topPanel = new JPanel();
         topPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));

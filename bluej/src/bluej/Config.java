@@ -51,6 +51,8 @@ import java.util.Scanner;
 
 import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
@@ -64,6 +66,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.utility.Debug;
@@ -1999,6 +2002,16 @@ public final class Config
                 }
             }
         }
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public static void rememberPosition(Window window, String locationPrefix)
+    {
+        JavaFXUtil.addChangeListener(window.xProperty(), x -> putLocation(locationPrefix, new Point((int) window.getX(), (int) window.getY())));
+        JavaFXUtil.addChangeListener(window.yProperty(), y -> putLocation(locationPrefix, new Point((int) window.getX(), (int) window.getY())));
+
+        window.setX(getLocation(locationPrefix).x);
+        window.setY(getLocation(locationPrefix).y);
     }
 
     /**

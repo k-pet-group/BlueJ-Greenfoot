@@ -157,16 +157,7 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
         commitListModel = new DefaultListModel();
         
         //setIconImage(BlueJTheme.getIconImage());
-        setLocation(Config.getLocation("bluej.commitdisplay"));
-
-        // save position when window is moved
-        addComponentListener(new ComponentAdapter()
-        {
-            public void componentMoved(ComponentEvent event)
-            {
-                Config.putLocation("bluej.commitdisplay", getLocation());
-            }
-        });
+        rememberPosition("bluej.commitdisplay");
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setBorder(BlueJTheme.generalBorderWithStatusBar);
