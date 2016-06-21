@@ -181,12 +181,6 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         }
         return frameAfter instanceof VarFrame;
     }
-    
-    @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
 
     @Override
     public void setElementEnabled(boolean enabled)

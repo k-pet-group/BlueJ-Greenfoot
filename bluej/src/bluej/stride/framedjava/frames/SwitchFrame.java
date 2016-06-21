@@ -150,12 +150,6 @@ public class SwitchFrame extends MultiCanvasFrame
     }
     
     @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
-
-    @Override
     public void pullUpContents()
     {
         // casesCanvas

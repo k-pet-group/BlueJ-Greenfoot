@@ -204,12 +204,6 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
             }
         };
     }
-    
-    @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
 
     public String getImport()
     {

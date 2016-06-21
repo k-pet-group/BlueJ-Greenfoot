@@ -231,12 +231,6 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         return element;
     }
 
-    @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
-
     public JavaCanvas getFirstCanvas()
     {
         return firstCanvas;

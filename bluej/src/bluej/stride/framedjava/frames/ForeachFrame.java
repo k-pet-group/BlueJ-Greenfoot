@@ -137,12 +137,6 @@ public class ForeachFrame extends SingleCanvasFrame
     }
     
     @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
-    
-    @Override
     public FrameCanvas createCanvas(InteractionManager editor, String stylePrefix)
     {
         return new JavaCanvas(editor, this, stylePrefix, false);

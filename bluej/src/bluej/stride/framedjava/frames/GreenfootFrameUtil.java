@@ -52,11 +52,6 @@ import threadchecker.Tag;
 
 public class GreenfootFrameUtil
 {
-    public static List<FrameOperation> cutCopyPasteOperations(InteractionManager editor)
-    {
-        return Arrays.asList(new CutFrameOperation(editor), new CopyFrameOperation(editor));
-    }
-    
     private static class XMLParseResult
     {
         public final List<CodeElement> elements; // null if error

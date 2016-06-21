@@ -171,12 +171,6 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     }
 
     @Override
-    protected List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
-
-    @Override
     public MethodProtoElement getCode()
     {
         return element;

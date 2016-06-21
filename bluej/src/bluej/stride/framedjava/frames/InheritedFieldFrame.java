@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,8 +45,8 @@ public class InheritedFieldFrame extends SingleLineFrame
     }
 
     @Override
-    protected List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor) {
-        // Can't cut copy or paste:
+    public List<FrameOperation> getContextOperations()
+    {
         return Collections.emptyList();
     }
 }

@@ -140,12 +140,6 @@ public class BreakFrame extends SingleLineFrame
         element = new BreakElement(this, frameEnabledProperty.get());
     }
     
-    @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
-    
 
     @Override
     public HighlightedBreakpoint showDebugBefore(DebugInfo debug)

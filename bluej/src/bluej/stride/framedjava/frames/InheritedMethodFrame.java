@@ -204,12 +204,6 @@ public class InheritedMethodFrame extends SingleLineFrame
         return operations;
     }
 
-    @Override
-    protected List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor) {
-        // Can't cut copy or paste:
-        return Collections.emptyList();
-    }
-
     // This is a slot so that it can have a hyperlink:
     private class InheritedMethodSlot implements HeaderItem, ErrorUnderlineCanvas.UnderlineInfo, UnderlineContainer
     {

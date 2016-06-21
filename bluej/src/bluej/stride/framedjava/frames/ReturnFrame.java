@@ -154,12 +154,6 @@ public class ReturnFrame extends SingleLineFrame
             }
         };
     }
-    
-    @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
 
     @Override
     public HighlightedBreakpoint showDebugBefore(DebugInfo debug)

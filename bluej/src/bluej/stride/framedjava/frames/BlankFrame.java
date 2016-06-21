@@ -54,12 +54,6 @@ public class BlankFrame extends SingleLineFrame implements CodeFrame<BlankElemen
     }
 
     @Override
-    protected List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor); 
-    }
-
-    @Override
     public void setElementEnabled(boolean enabled)
     {
         // Ignore

@@ -64,6 +64,8 @@ import bluej.stride.framedjava.errors.ErrorShower;
 import bluej.stride.framedjava.frames.BlankFrame;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.FrameHelper;
+import bluej.stride.operations.CopyFrameOperation;
+import bluej.stride.operations.CutFrameOperation;
 import bluej.stride.operations.DeleteFrameOperation;
 import bluej.stride.operations.DisableFrameOperation;
 import bluej.stride.operations.EnableFrameOperation;
@@ -456,12 +458,20 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * This is called when the context menu is about to be shown, so you can dynamically decide
      * which operations to include based on the current state at the time of this call, rather
      * than trying to do complex bindings to update the operations in future.
+     * 
+     * By default this is cut, copy, disable/enable, and delete operations.  Override this method in sub-classes
+     * if you want different behaviour (e.g. if the frame doesn't support cut or delete).
      *
      * Overridden by subclasses.
      */
     public List<FrameOperation> getContextOperations()
     {
-        return getStandardOperations();
+        List<FrameOperation> ops = new ArrayList<FrameOperation>();
+        ops.add(new CutFrameOperation(editor));
+        ops.add(new CopyFrameOperation(editor));
+        ops.add(isFrameEnabled() ? new DisableFrameOperation(editor) : new EnableFrameOperation(editor));
+        ops.add(new DeleteFrameOperation(editor));
+        return ops;
     }
 
     /**
@@ -568,23 +578,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         frameDragSourceProperty.set(on);
     }
-
-    /**
-     * Default set of operations available: cut, copy, paste, enable, disable, delete.
-     */
-    private List<FrameOperation> getStandardOperations()
-    {
-        List<FrameOperation> ops = new ArrayList<FrameOperation>();
-        ops.addAll(getCutCopyPasteOperations(editor));
-        ops.add(isFrameEnabled() ? new DisableFrameOperation(editor) : new EnableFrameOperation(editor));
-        ops.add(new DeleteFrameOperation(editor));
-        return ops;
-    }
     
-    // TODO almost all implementations of this operation are identical.
-    // We should provide that as default here, and only override when we want to change it
-    protected abstract List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor);
-
     /**
      * Returns whether the frame is currently enabled.
      */

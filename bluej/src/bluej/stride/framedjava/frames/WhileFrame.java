@@ -199,12 +199,6 @@ public class WhileFrame extends SingleCanvasFrame
         };
     }
     
-    @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
-    
     private List<CodeElement> getContents()
     {
         List<CodeElement> contents = new ArrayList<CodeElement>();

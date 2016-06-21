@@ -332,12 +332,6 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         return members;
     }
 
-    @Override
-    protected List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return new ArrayList<>();
-    }
-
     private FrameCanvas createImportsCanvas(final List<ImportElement> imports)
     {
         FrameCanvas importCanvas = new FrameCanvas(editor, new CanvasParent() {

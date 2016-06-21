@@ -342,12 +342,6 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     }
 
     @Override
-    public List<FrameOperation> getCutCopyPasteOperations(InteractionManager editor)
-    {
-        return GreenfootFrameUtil.cutCopyPasteOperations(editor);
-    }
-    
-    @Override
     public FrameCanvas createCanvas(InteractionManager editor, String stylePrefix)
     {
         return new JavaCanvas(editor, this, stylePrefix, true);
