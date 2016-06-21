@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -252,6 +252,22 @@ public abstract class World
         return backgroundImage.getColorAt(xPixel, yPixel);
     }
 
+    /**
+     * Return the color at the centre of the cell. To paint a color, you need to
+     * get the background image for the world and paint on that.
+     *
+     * @param x The x coordinate of the cell.
+     * @param y The y coordinate of the cell.
+     * @see #getBackground()
+     * @throws IndexOutOfBoundsException If the location is not within the world
+     *             bounds. If there is no background image at the location it
+     *             will return Color.WHITE.
+     */
+    public greenfoot.Color getGreenfootColorAt(int x, int y)
+    {
+        return new greenfoot.Color(getColorAt(x, y));
+    }
+    
     /**
      * Return the width of the world (in number of cells).
      */

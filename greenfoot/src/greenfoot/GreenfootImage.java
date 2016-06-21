@@ -64,7 +64,7 @@ public class GreenfootImage
     private BufferedImage image;
     private static MediaTracker tracker;
     
-    private GreenfootColor currentColor = new GreenfootColor(DEFAULT_FOREGROUND);
+    private Color currentColor = DEFAULT_FOREGROUND;
     private Font currentFont;
     
     /**
@@ -177,11 +177,11 @@ public class GreenfootImage
      * 
      * @param string the string to be drawn
      * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
-     * @param foreground the GreenfootColor of the text.  Since Greenfoot 3.0.4, passing null will use black.
-     * @param background the GreenfootColor of the image behind the text.  Since Greenfoot 3.0.4, passing null with leave the background transparent.
+     * @param foreground the color of the text.  Since Greenfoot 3.0.4, passing null will use black.
+     * @param background the color of the image behind the text.  Since Greenfoot 3.0.4, passing null with leave the background transparent.
      * @since 3.0.4
      */
-    public GreenfootImage(String string, int size, GreenfootColor foreground, GreenfootColor background)
+    public GreenfootImage(String string, int size, greenfoot.Color foreground, greenfoot.Color background)
     {
         this(string, size, foreground.getColorObject(), background.getColorObject(), null);
     }
@@ -217,12 +217,12 @@ public class GreenfootImage
      * 
      * @param string the string to be drawn
      * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
-     * @param foreground the GreenfootColor of the text.  Since Greenfoot 3.0.4, passing null will use black.
-     * @param background the GreenfootColor of the image behind the text.  Since Greenfoot 3.0.4, passing null with leave the background transparent.
+     * @param foreground the color of the text.  Since Greenfoot 3.0.4, passing null will use black.
+     * @param background the color of the image behind the text.  Since Greenfoot 3.0.4, passing null with leave the background transparent.
      * @param outline the colour of the outline that will be drawn around the text.  Passing null will draw no outline.
      * @since 3.0.4
      */
-    public GreenfootImage(String string, int size, GreenfootColor foreground, GreenfootColor background, GreenfootColor outline)
+    public GreenfootImage(String string, int size, greenfoot.Color foreground, greenfoot.Color background, greenfoot.Color outline)
     {
         this(string, size, foreground.getColorObject(), background.getColorObject(), outline.getColorObject());
     }
@@ -366,7 +366,7 @@ public class GreenfootImage
     {
         if(graphics != null) {
             graphics.setBackground(DEFAULT_BACKGROUND);
-            graphics.setColor(currentColor.getColorObject());
+            graphics.setColor(currentColor);
             if(currentFont != null) {
                 graphics.setFont(currentFont);
             }
@@ -532,18 +532,18 @@ public class GreenfootImage
      */
     public void setColor(Color color)
     {
-        currentColor = new GreenfootColor(color);
+        currentColor = color;
     }
     
     /**
-     * Set the current drawing GreenfootColor. This color will be used for subsequent
+     * Set the current drawing color. This color will be used for subsequent
      * drawing operations.
      * 
-     * @param color The GreenfootColor to be used.
+     * @param color The color to be used.
      */
-    public void setColor(GreenfootColor color)
+    public void setColor(greenfoot.Color color)
     {
-        currentColor = color;
+        currentColor = color.getColorObject();
     }
 
     /**
@@ -551,9 +551,9 @@ public class GreenfootImage
      * 
      * @return The current color.
      */
-    public Color getColor()
+    public java.awt.Color getColor()
     {
-        return currentColor.getColorObject();
+        return currentColor;
     }
     
     /**
@@ -561,7 +561,7 @@ public class GreenfootImage
      *
      * @return The current GreenfootColor.
      */
-    public GreenfootColor getGreenfootColor()
+    public Color getGreenfootColor()
     {
         return currentColor;
     }
@@ -598,7 +598,7 @@ public class GreenfootImage
      * @param y The vertical coordinate of the pixel.
      * @param color The GreenfootColor to be assigned at the specific pixel.
      */
-    public void setColorAt(int x, int y, GreenfootColor color)
+    public void setColorAt(int x, int y, greenfoot.Color color)
     {
         setColorAt(x, y, color.getColorObject());
     }

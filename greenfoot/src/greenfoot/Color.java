@@ -21,7 +21,6 @@
  */
 package greenfoot;
 
-import java.awt.Color;
 
 /**
  * A representation of a Color. The Color can be used to draw or fill shapes on
@@ -29,230 +28,151 @@ import java.awt.Color;
  *
  * @author Fabio Heday
  */
-public class GreenfootColor
+public class Color
 {
 
     /**
-     * The color white. In the default sRGB space.
+     * The color white. In the default RGB space.
      */
     public final static Color white = new Color(255, 255, 255);
 
     /**
-     * The color white. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color white. In the default RGB space.
      */
     public final static Color WHITE = white;
 
     /**
-     * The color light gray. In the default sRGB space.
+     * The color light gray. In the default RGB space.
      */
     public final static Color lightGray = new Color(192, 192, 192);
 
     /**
-     * The color light gray. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color light gray. In the default RGB space.
      */
     public final static Color LIGHT_GRAY = lightGray;
 
     /**
-     * The color gray. In the default sRGB space.
+     * The color gray. In the default RGB space.
      */
     public final static Color gray = new Color(128, 128, 128);
 
     /**
-     * The color gray. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color gray. In the default RGB space.
      */
     public final static Color GRAY = gray;
 
     /**
-     * The color dark gray. In the default sRGB space.
+     * The color dark gray. In the default RGB space.
      */
     public final static Color darkGray = new Color(64, 64, 64);
 
     /**
-     * The color dark gray. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color dark gray. In the default RGB space.
      */
     public final static Color DARK_GRAY = darkGray;
 
     /**
-     * The color black. In the default sRGB space.
+     * The color black. In the default RGB space.
      */
     public final static Color black = new Color(0, 0, 0);
 
     /**
-     * The color black. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color black. In the default RGB space.
      */
     public final static Color BLACK = black;
 
     /**
-     * The color red. In the default sRGB space.
+     * The color red. In the default RGB space.
      */
     public final static Color red = new Color(255, 0, 0);
 
     /**
-     * The color red. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color red. In the default RGB space.
      */
     public final static Color RED = red;
 
     /**
-     * The color pink. In the default sRGB space.
+     * The color pink. In the default RGB space.
      */
     public final static Color pink = new Color(255, 175, 175);
 
     /**
-     * The color pink. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color pink. In the default RGB space.
      */
     public final static Color PINK = pink;
 
     /**
-     * The color orange. In the default sRGB space.
+     * The color orange. In the default RGB space.
      */
     public final static Color orange = new Color(255, 200, 0);
 
     /**
-     * The color orange. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color orange. In the default RGB space.
      */
     public final static Color ORANGE = orange;
 
     /**
-     * The color yellow. In the default sRGB space.
+     * The color yellow. In the default RGB space.
      */
     public final static Color yellow = new Color(255, 255, 0);
 
     /**
-     * The color yellow. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color yellow. In the default RGB space.
      */
     public final static Color YELLOW = yellow;
 
     /**
-     * The color green. In the default sRGB space.
+     * The color green. In the default RGB space.
      */
     public final static Color green = new Color(0, 255, 0);
 
     /**
-     * The color green. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color green. In the default RGB space.
      */
     public final static Color GREEN = green;
 
     /**
-     * The color magenta. In the default sRGB space.
+     * The color magenta. In the default RGB space.
      */
     public final static Color magenta = new Color(255, 0, 255);
 
     /**
-     * The color magenta. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color magenta. In the default RGB space.
      */
     public final static Color MAGENTA = magenta;
 
     /**
-     * The color cyan. In the default sRGB space.
+     * The color cyan. In the default RGB space.
      */
     public final static Color cyan = new Color(0, 255, 255);
 
     /**
-     * The color cyan. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color cyan. In the default RGB space.
      */
     public final static Color CYAN = cyan;
 
     /**
-     * The color blue. In the default sRGB space.
+     * The color blue. In the default RGB space.
      */
     public final static Color blue = new Color(0, 0, 255);
 
     /**
-     * The color blue. In the default sRGB space.
-     *
-     * @since 1.4
+     * The color blue. In the default RGB space.
      */
     public final static Color BLUE = blue;
 
-    private final Color color;
-
-    /**
-     * Creates an opaque RGB color with the specified red, green and blue values
-     * in the range (0.0 - 1.0)
-     *
-     * @param r the red component
-     * @param g the green component
-     * @param b the blue component
-     */
-    public GreenfootColor(float r, float g, float b)
-    {
-        this.color = new Color(r, g, b);
-    }
+    private final java.awt.Color color;
 
     /**
      * Creates a GreenfootColor based on a java.awt.Color
      *
      * @param c the java.awt.Color
      */
-    public GreenfootColor(Color c)
+    protected Color(java.awt.Color c)
     {
         this.color = c;
     }
-
-    /**
-     * Creates a RGB color with the specified red, green, blue, and alpha values
-     * in the range (0.0 - 1.0).
-     *
-     * @param r the red component
-     * @param g the green component
-     * @param b the blue component
-     * @param a the aplha component
-     */
-    public GreenfootColor(float r, float g, float b, float a)
-    {
-        this.color = new Color(r, g, b, a);
-    }
-
-    /**
-     * Creates an opaque RGB color with the specified combined RGB value
-     * consisting of the red component in bits 16-23, the green component in
-     * bits 8-15, and the blue component in bits 0-7.
-     *
-     * @param rgb the combined RGB component
-     */
-    public GreenfootColor(int rgb)
-    {
-        this.color = new Color(rgb);
-    }
-
-    /**
-     * Creates a RGB color with the specified combined RGBA value consisting of
-     * the alpha component in bits 24-31, the red component in bits 16-23, the
-     * green component in bits 8-15, and the blue component in bits 0-7. If the
-     * hasalpha argument is false, alpha is defaulted to 255.
-     *
-     * @param rgba the combined RGBA component
-     * @param hasalpha true if alpha bits are valid; false otherwise
-     */
-    public GreenfootColor(int rgba, boolean hasalpha)
-    {
-        this.color = new Color(rgba, hasalpha);
-    }
-
+    
     /**
      * Creates a RGB color with the specified red, green, blue values in the
      * range (0 - 255).
@@ -261,9 +181,9 @@ public class GreenfootColor
      * @param g the green component
      * @param b the blue component
      */
-    public GreenfootColor(int r, int g, int b)
+    public Color(int r, int g, int b)
     {
-        this.color = new Color(r, g, b);
+        this.color = new java.awt.Color(r, g, b);
     }
 
     /**
@@ -275,9 +195,9 @@ public class GreenfootColor
      * @param b the blue component
      * @param a the alpha component
      */
-    public GreenfootColor(int r, int g, int b, int a)
+    public Color(int r, int g, int b, int a)
     {
-        this.color = new Color(r, g, b, a);
+        this.color = new java.awt.Color(r, g, b, a);
     }
 
     /**
@@ -292,9 +212,9 @@ public class GreenfootColor
      * @return a new GreenfootColor object that is a brighter version of this
      * GreenfootColor with the same alpha value.
      */
-    public GreenfootColor brighter()
+    public Color brighter()
     {
-        return new GreenfootColor(this.color.brighter());
+        return new Color(this.color.brighter());
     }
 
     /**
@@ -310,9 +230,9 @@ public class GreenfootColor
      * @return a new GreenfootColor object that is a darker version of this
      * GreenfootColor with the same alpha value.
      */
-    public GreenfootColor darker()
+    public Color darker()
     {
-        return new GreenfootColor(this.color.darker());
+        return new Color(this.color.darker());
     }
 
     /**
@@ -325,9 +245,10 @@ public class GreenfootColor
      * @param obj the object to test for equality with this GreenfootColor
      * @return true if the objects are the same; false otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
-        return obj instanceof GreenfootColor && ((GreenfootColor) obj).getRGB() == this.getRGB();
+        return obj instanceof Color && ((Color) obj).getColorObject().getRGB() == this.color.getRGB();
     }
 
     /**
@@ -370,22 +291,13 @@ public class GreenfootColor
         return this.color.getBlue();
     }
     
-    /**
-     * Returns the RGB value representing the color in the default RGB.
-     * (Bits 24-31 are alpha, 16-23 are red, 8-15 are green, 0-7 are
-     * blue).
-     * @return the RGB value of the color.
-     */
-    public int getRGB() {
-        return this.color.getRGB();
-    }
-
+    
     /**
      * return the internal Color object representing the GreenfootColor
      *
      * @return the Color object.
      */
-    protected Color getColorObject()
+    protected java.awt.Color getColorObject()
     {
         return this.color;
     }
