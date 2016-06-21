@@ -1617,17 +1617,17 @@ public final class Config
      * Store a point in the config files. The config properties
      * are formed by adding ".x" and ".y" to the itemPrefix.
      */
-    public static void putLocation(String itemPrefix, Point p)
+    private static void putLocation(String itemPrefix, int x, int y)
     {
-        putPropInteger(itemPrefix + ".x", p.x);
-        putPropInteger(itemPrefix + ".y", p.y);
+        putPropInteger(itemPrefix + ".x", x);
+        putPropInteger(itemPrefix + ".y", y);
     }
 
     /**
      * Return a point, read from the config files. The config properties
      * are formed by adding ".x" and ".y" to the itemPrefix.
      */
-    public static Point getLocation(String itemPrefix)
+    private static Point getLocation(String itemPrefix)
     {
         int x = getPropInteger(itemPrefix + ".x", 16);
         int y = getPropInteger(itemPrefix + ".y", 16);
@@ -2007,11 +2007,12 @@ public final class Config
     @OnThread(Tag.FXPlatform)
     public static void rememberPosition(Window window, String locationPrefix)
     {
-        JavaFXUtil.addChangeListener(window.xProperty(), x -> putLocation(locationPrefix, new Point((int) window.getX(), (int) window.getY())));
-        JavaFXUtil.addChangeListener(window.yProperty(), y -> putLocation(locationPrefix, new Point((int) window.getX(), (int) window.getY())));
+        JavaFXUtil.addChangeListener(window.xProperty(), x -> putLocation(locationPrefix, (int)window.getX(), (int)window.getY()));
+        JavaFXUtil.addChangeListener(window.yProperty(), y -> putLocation(locationPrefix, (int)window.getX(), (int)window.getY()));
 
-        window.setX(getLocation(locationPrefix).x);
-        window.setY(getLocation(locationPrefix).y);
+        Point location = getLocation(locationPrefix);
+        window.setX(location.x);
+        window.setY(location.y);
     }
 
     /**

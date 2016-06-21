@@ -2435,16 +2435,6 @@ public class PkgMgrFrame extends JPanel
     }
 
     /**
-     * Show the debugger controls for the VM associated with this project.
-     */
-    public void showDebugger()
-    {
-        if (!isEmptyFrame()) {
-            getProject().getExecControls().setVisible(true);
-        }
-    }
-
-    /**
      * Restart the debugger VM associated with this project.
      */
     public void restartDebugger()

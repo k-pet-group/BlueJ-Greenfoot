@@ -2177,7 +2177,7 @@ public final class Package extends Graph
         }
         
         showSource(thread, thread.getClassSourceName(0), thread.getLineNumber(0), ShowSourceReason.BREAKPOINT_HIT, msg);
-        getProject().getExecControls().setVisible(true);
+        getProject().getExecControls().show();
         getProject().getExecControls().makeSureThreadIsSelected(thread);
     }
 
@@ -2197,7 +2197,7 @@ public final class Package extends Graph
         int frame = thread.getSelectedFrame();
         ShowSourceReason reason = breakpoint ? ShowSourceReason.BREAKPOINT_HIT : ShowSourceReason.STEP_OR_HALT;
         showSource(thread, thread.getClassSourceName(frame), thread.getLineNumber(frame), reason, msg);
-        getProject().getExecControls().setVisible(true);
+        getProject().getExecControls().show();
         getProject().getExecControls().makeSureThreadIsSelected(thread);
     }
 

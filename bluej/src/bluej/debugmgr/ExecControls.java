@@ -25,9 +25,9 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -48,6 +48,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -56,7 +57,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -69,6 +69,7 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeModelEvent;
@@ -80,6 +81,13 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.embed.swing.SwingNode;
+import javafx.scene.Scene;
+import javafx.scene.control.MenuBar;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -96,6 +104,8 @@ import bluej.debugmgr.inspector.Inspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
+import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -104,7 +114,7 @@ import threadchecker.Tag;
  *
  * @author  Michael Kolling
  */
-public class ExecControls extends JFrame
+public class ExecControls
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
 {
     private static final String stackTitle =
@@ -134,8 +144,15 @@ public class ExecControls extends JFrame
 
 
     private static String[] empty = new String[0];
-
+    
     // === instance ===
+
+    @OnThread(Tag.FX)
+    private Stage window;
+    @OnThread(Tag.Any)
+    private SwingNode swingNode;
+    @OnThread(Tag.FXPlatform)
+    private VBox fxContent;
 
     // the display for the list of active threads
     private JTree threadTree; 
@@ -173,8 +190,12 @@ public class ExecControls extends JFrame
      * Fields from these classes (key from map) are only shown if they are in the corresponding whitelist
      * of fields (corresponding value from map)
      */
-    private Map<String, Set<String>> restrictedClasses = Collections.emptyMap(); 
-    
+    private Map<String, Set<String>> restrictedClasses = Collections.emptyMap();
+    @OnThread(Tag.Any)
+    private final AtomicBoolean visible = new AtomicBoolean(false);
+    @OnThread(Tag.FXPlatform)
+    private SimpleBooleanProperty readyToShow;
+
 
     /**
      * Create a window to view and interact with a debug VM.
@@ -182,10 +203,9 @@ public class ExecControls extends JFrame
      * @param project  the project this window is associated with
      * @param debugger the debugger this window is debugging
      */
+    @OnThread(Tag.Swing)
     public ExecControls(Project project, Debugger debugger)
     {
-        super(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
-
         if (project == null || debugger == null) {
             throw new NullPointerException("project or debugger null in ExecControls");
         }
@@ -193,7 +213,26 @@ public class ExecControls extends JFrame
         this.project = project;
         this.debugger = debugger;
 
-        createWindow();
+        Platform.runLater(() -> {
+            this.readyToShow = new SimpleBooleanProperty(false);
+            this.window = new Stage();
+            window.setTitle(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
+            BlueJTheme.setWindowIconFX(window);
+            this.swingNode = new SwingNode();
+            this.fxContent = new VBox(swingNode);
+            // Menu bar will be added later:
+            window.setScene(new Scene(fxContent));
+            Config.rememberPosition(window, "bluej.debugger");
+            window.setOnShown(e -> {
+                SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, true));
+                visible.set(true);
+            });
+            window.setOnHidden(e -> {
+                SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, false));
+                visible.set(false);
+            });
+            SwingUtilities.invokeLater(() -> createWindowContent());
+        });
     }
 
     /**
@@ -581,22 +620,17 @@ public class ExecControls extends JFrame
     /**
      * Create and arrange the GUI components.
      */
-    private void createWindow()
+    @OnThread(Tag.Swing)
+    private void createWindowContent()
     {
-        Image icon = BlueJTheme.getIconImage();
-        if (icon != null) {
-            setIconImage(icon);
-        }
-    
-        setJMenuBar(makeMenuBar());
+        FXSupplier<MenuBar> fxMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), this);
+        Platform.runLater(() -> {
+            MenuBar bar = fxMenuBar.get();
+            bar.setUseSystemMenuBar(true);
+            fxContent.getChildren().add(0, bar);
+        });
 
-        JPanel contentPane;
-        if (!Config.isRaspberryPi()) {
-            contentPane = new GradientFillPanel(new BorderLayout(6,6));
-        }else{
-            contentPane = new JPanel(new BorderLayout(6,6));
-        }
-        setContentPane(contentPane);
+        JPanel contentPane = new JPanel(new BorderLayout(6,6));
         contentPane.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 
         // Create the control button panel
@@ -786,26 +820,14 @@ public class ExecControls extends JFrame
         }
         
         contentPane.add(mainPanel, BorderLayout.CENTER);
-
-        // Close Action when close button is pressed
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent event) {
-                Window win = (Window)event.getSource();
-                win.setVisible(false);
-            }
-            
+        swingNode.setContent(contentPane);
+        contentPane.validate();
+        Dimension preferredSize = contentPane.getPreferredSize();
+        Platform.runLater(() -> {
+            fxContent.setPrefWidth(preferredSize.getWidth());
+            fxContent.setPrefHeight(preferredSize.getHeight());
+            readyToShow.set(true);
         });
-
-        // save position when window is moved
-        addComponentListener(new ComponentAdapter() {
-            public void componentMoved(ComponentEvent event){
-                Config.putLocation("bluej.debugger", getLocation());
-            }
-        });
-
-        setLocation(Config.getLocation("bluej.debugger"));
-
-        pack();
     }
 
     /**
@@ -831,6 +853,26 @@ public class ExecControls extends JFrame
         return menubar;
     }
     
+    @OnThread(Tag.Any)
+    public void show()
+    {
+        JavaFXUtil.runNowOrLater(() -> {
+            if (readyToShow.get())
+            {
+                window.show();
+                window.toFront();
+            }
+            else
+                JavaFXUtil.addSelfRemovingListener(readyToShow, t -> show());
+        });
+    }
+
+    @OnThread(Tag.Any)
+    public void hide()
+    {
+        JavaFXUtil.runNowOrLater(() -> window.hide());
+    }
+    
     /**
      * Create a text & image button and add it to a panel.
      * 
@@ -848,7 +890,24 @@ public class ExecControls extends JFrame
         panel.add(button);
         return button;
     }
-    
+
+    @OnThread(Tag.Any)
+    public boolean isVisible()
+    {
+        return visible.get();
+    }
+
+    @OnThread(Tag.Any)
+    public void toggleVisible()
+    {
+        Platform.runLater(() -> {
+            if (window.isShowing())
+                window.hide();
+            else
+                show();
+        });
+    }
+
     /**
      * Action to halt the selected thread.
      */
@@ -973,7 +1032,7 @@ public class ExecControls extends JFrame
         }
 
         public void actionPerformed(ActionEvent e) {
-            setVisible(false);
+            hide();
         }
     }
     
@@ -991,16 +1050,6 @@ public class ExecControls extends JFrame
         public void actionPerformed(ActionEvent e) {
             debugger.hideSystemThreads(systemThreadItem.isSelected());
         }
-    }
-
-    @Override
-    public void setVisible(boolean b)
-    {
-        if (b != isVisible())
-        {
-            DataCollector.debuggerChangeVisible(project, b);
-        }
-        super.setVisible(b);
     }
     
     

@@ -30,6 +30,8 @@ import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 
+import javafx.stage.Stage;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.prefmgr.PrefMgr;
@@ -101,7 +103,16 @@ public class BlueJTheme extends DefaultMetalTheme
     {
         
     }
-    
+
+    @OnThread(Tag.FX)
+    public static void setWindowIconFX(Stage frame)
+    {
+        javafx.scene.image.Image icon = getIconImageFX();
+        if (icon != null) {
+            frame.getIcons().add(getIconImageFX());
+        }
+    }
+
     /**
      * Name of theme
      */

@@ -30,7 +30,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -39,10 +38,7 @@ import javafx.stage.Stage;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerTestResult;
-import bluej.debugger.SourceLocation;
-import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
-import bluej.utility.JavaNames;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -140,10 +136,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         frame.setOnShown(e -> {frameShowing.set(true);});
         frame.setOnHidden(e -> {frameShowing.set(false);});
 
-        Image icon = BlueJTheme.getIconImageFX();
-        if (icon != null) {
-            frame.getIcons().add(BlueJTheme.getIconImageFX());
-        }
+        BlueJTheme.setWindowIconFX(frame);
 
         Config.rememberPosition(frame, "bluej.testdisplay");
 

@@ -534,7 +534,7 @@ public class Project implements DebuggerListener, InspectorManager
         DataCollector.projectClosed(project);
         
         if (project.hasExecControls()) {
-            project.getExecControls().dispose();
+            project.getExecControls().hide();
         }
 
         if (project.terminal != null) {
