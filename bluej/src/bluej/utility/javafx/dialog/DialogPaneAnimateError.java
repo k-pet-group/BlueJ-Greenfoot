@@ -2,6 +2,7 @@ package bluej.utility.javafx.dialog;
 
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -10,6 +11,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -29,7 +31,9 @@ public class DialogPaneAnimateError extends DialogPane
     /** The jiggle animation.  Null when not running */
     private RotateTransition animation = null;
     /** The error label to animate */
-    private Label errorLabel;
+    private Node errorLabel;
+    /** Whether the error label is empty */
+    private SimpleBooleanProperty errorLabelEmpty = new SimpleBooleanProperty(true);
     /** The actual OK button */
     private Button okButton;
 
@@ -46,6 +50,14 @@ public class DialogPaneAnimateError extends DialogPane
     public DialogPaneAnimateError(Label errorLabel, FXPlatformRunnable extraMouseEnter)
     {
         this.errorLabel = errorLabel;
+        this.errorLabelEmpty.bind(errorLabel.textProperty().isEmpty());
+        this.extraMouseEnter = extraMouseEnter;
+    }
+
+    public DialogPaneAnimateError(Text errorText, FXPlatformRunnable extraMouseEnter)
+    {
+        this.errorLabel = errorText;
+        this.errorLabelEmpty.bind(errorText.textProperty().isEmpty());
         this.extraMouseEnter = extraMouseEnter;
     }
 
@@ -81,7 +93,7 @@ public class DialogPaneAnimateError extends DialogPane
             okButton.addEventFilter(ActionEvent.ACTION, event -> {
                 // runLater as a hack to run after other event filters:
                 Platform.runLater(() -> {
-                    if (!errorLabel.getText().isEmpty())
+                    if (!errorLabelEmpty.get())
                         animate();
                 });
             });

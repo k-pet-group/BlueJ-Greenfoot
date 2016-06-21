@@ -44,8 +44,12 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+
+import javafx.application.Platform;
 
 import bluej.compiler.CompileReason;
+import bluej.utility.javafx.dialog.InputDialog;
 import org.junit.Test;
 
 import bluej.Config;
@@ -69,6 +73,8 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A role object for Junit unit tests.
@@ -361,60 +367,64 @@ public class UnitTestClassRole extends ClassRole
      * @param pmf  the PkgMgrFrame this is all occurring in
      * @param ct   the ClassTarget of the unit test class
      */
+    @OnThread(Tag.FXPlatform)
     public void doMakeTestCase(final PkgMgrFrame pmf, final ClassTarget ct)
     {
         // prompt for a new test name
-        String newTestName = DialogManager.askString(pmf, "unittest-new-test-method");
-
-        if (newTestName == null) {
+        String newTestName = new TestNameDialog("unittest-new-test-method", "").showAndWait().orElse(null);
+        if (newTestName == null)
             return;
-        }
 
-        if (newTestName.length() == 0) {
-            pmf.setStatus(Config.getString("pkgmgr.test.noTestName"));
-            return;
-        }
-
-        // Junit 3 test methods must start with the word "test"
-        if(!isJunit4 && !newTestName.startsWith("test")) {
-            newTestName = "test" + Character.toTitleCase(newTestName.charAt(0)) + newTestName.substring(1);
-        }
-
-        // and they must be a valid Java identifier
-        if (!JavaNames.isIdentifier(newTestName)) {
-            pmf.setStatus(Config.getString("pkgmgr.test.invalidTestName"));
-            return;
-        }
-
-        // find out if the method already exists in the unit test src
-        try {
-            Charset charset = pmf.getProject().getProjectCharset();
-            UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
-
-            SourceSpan existingSpan = uta.getMethodBlockSpan(newTestName);
-
-            if (existingSpan != null) {
-                if (DialogManager.askQuestion(null, "unittest-method-present") == 1) {
-                    return;
+        SwingUtilities.invokeLater(() -> {
+            // find out if the method already exists in the unit test src
+            try {
+                Charset charset = pmf.getProject().getProjectCharset();
+                UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
+    
+                SourceSpan existingSpan = uta.getMethodBlockSpan(newTestName);
+    
+                if (existingSpan != null)
+                {
+                    Platform.runLater(() -> {
+                        if (DialogManager.askQuestionFX(pmf.getFXWindow(), "unittest-method-present") == 1)
+                        {
+                            // Don't do anything
+                        }
+                        else
+                        {
+                            SwingUtilities.invokeLater(() -> finishTestCase(pmf, ct, newTestName));
+                        }
+                    });
+                }
+                else
+                {
+                    finishTestCase(pmf, ct, newTestName);
                 }
             }
-        }
-        catch (IOException ioe) { 
-            DialogManager.showErrorWithText(null, "unittest-io-error", ioe.getLocalizedMessage());
-            Debug.reportError("Error reading unit test source", ioe);
-        }
+            catch (IOException ioe) { 
+                Platform.runLater(() -> {
+                    DialogManager.showErrorWithTextFX(pmf.getFXWindow(), "unittest-io-error", ioe.getLocalizedMessage());
+                    Debug.reportError("Error reading unit test source", ioe);
+                    SwingUtilities.invokeLater(() -> finishTestCase(pmf, ct, newTestName));
+                });
+            }
+        });
+    }
 
+    @OnThread(Tag.Swing)
+    private void finishTestCase(PkgMgrFrame pmf, ClassTarget ct, String newTestName)
+    {
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
                 + ct.getBaseName() + "." + newTestName + "()");
 
         pmf.getProject().removeClassLoader();
 
         runTestSetup(pmf, ct, false);
-        
+
         pmf.getObjectBench().resetRecordingInteractions();
         pmf.setTestInfo(newTestName, ct);
     }
-    
+
     /**
      * Analyze a unit test file.
      * @param ct  The classtarget representing the unit test class to analyze
@@ -791,4 +801,45 @@ public class UnitTestClassRole extends ClassRole
         }
     }
 
+    @OnThread(Tag.FXPlatform)
+    private class TestNameDialog extends InputDialog<String>
+    {
+        public TestNameDialog(String dialogLabel, String prompt)
+        {
+            super(dialogLabel, prompt, "test-name-dialog");
+        }
+
+        @Override
+        protected String convert(String newTestName)
+        {
+            // Junit 3 test methods must start with the word "test"
+            if(!isJunit4 && !newTestName.startsWith("test"))
+            {
+                return "test" + Character.toTitleCase(newTestName.charAt(0)) + newTestName.substring(1);
+            }
+            else
+                return newTestName;
+        }
+
+        @Override
+        protected boolean validate(String oldInput, String newTestName)
+        {
+            if (newTestName.length() == 0) {
+                setErrorText(Config.getString("pkgmgr.test.noTestName"));
+                setOKEnabled(false);
+            }
+            // Must be a valid Java identifier:
+            else if (!JavaNames.isIdentifier(convert(newTestName)))
+            {
+                setErrorText(Config.getString("pkgmgr.test.invalidTestName"));
+                setOKEnabled(false);
+            }
+            else
+            {
+                setErrorText("");
+                setOKEnabled(true);
+            }
+            return true; //always allow
+        }
+    }
 }

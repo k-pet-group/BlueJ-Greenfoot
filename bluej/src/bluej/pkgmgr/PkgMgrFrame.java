@@ -2022,7 +2022,7 @@ public class PkgMgrFrame extends JPanel
             UnitTestClassRole utcr = (UnitTestClassRole) target.getRole();
             if (!testToolsShown)
                 showTestingTools(true);
-            utcr.doMakeTestCase(this, target);
+            Platform.runLater(() -> utcr.doMakeTestCase(this, target));
         }
     }
 

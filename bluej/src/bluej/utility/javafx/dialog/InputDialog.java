@@ -35,6 +35,7 @@ import javafx.stage.Modality;
 import javafx.stage.Window;
 
 import bluej.Config;
+import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -70,7 +71,7 @@ public abstract class InputDialog<R>
      * @param prompt The prompt shown in the text field
      * @param styleClass The style-class to apply to the dialog.
      */
-    public InputDialog(String title, String label, String prompt, String styleClass)
+    protected InputDialog(String title, String label, String prompt, String styleClass)
     {
         dialog = new Dialog<>();
         dialog.initModality(Modality.APPLICATION_MODAL);
@@ -82,7 +83,7 @@ public abstract class InputDialog<R>
         error = new Label();
         // By default, error label is shown
         content.getChildren().addAll(this.prompt, field, error);
-        dialogPane = new DialogPaneAnimateError(error, () -> validate("", ""));
+        dialogPane = new DialogPaneAnimateError(error, () -> validate(field.getText(), field.getText()));
         dialog.setDialogPane(dialogPane);
         dialog.getDialogPane().setContent(content);
         // By default, we have an OK and Cancel button:
@@ -96,6 +97,10 @@ public abstract class InputDialog<R>
         JavaFXUtil.addStyleClass(field, "input-dialog-field");
         JavaFXUtil.addStyleClass(error, "dialog-error-label");
         
+        /* Scenic view:
+        dialog.initModality(Modality.NONE);
+        dialog.setOnShown(e -> org.scenicview.ScenicView.show(dialogPane));
+        */
         field.setTextFormatter(new TextFormatter<Object>((TextFormatter.Change change) -> {
             if (!change.getControlText().equals(change.getControlNewText()) && !validate(change.getControlText(), change.getControlNewText()))
             {
@@ -112,6 +117,37 @@ public abstract class InputDialog<R>
             else
                 return null; // This will turn into Optional.empty in the showAndWait return.
         });
+    }
+
+    /**
+     * Gets either the title (pass true) or message (pass false) for a dialog
+     * from the DialogManager.
+     */
+    private static String getDetail(String msgID, boolean getTitle)
+    {
+        String message = DialogManager.getMessage(msgID);
+        if (message != null)
+        {
+            int defaultTextIndex = message.lastIndexOf("\n");
+            int titleIndex = message.lastIndexOf("\n", defaultTextIndex - 1);
+            String defaultText = message.substring(defaultTextIndex + 1);
+            String title = message.substring(titleIndex + 1, defaultTextIndex);
+            message = message.substring(0, titleIndex);
+            if ("null".equals(defaultText))
+            {
+                defaultText = null;
+            }
+            return getTitle ? title : message;
+        }
+        return "";
+    }
+    
+    protected InputDialog(String dialogMsgID, String prompt, String styleClass)
+    {
+        // Calling same method twice is messy, but no easy way I can see in Java
+        // of getting one object and passing to two different parameters of
+        // delegate constructor:
+        this(getDetail(dialogMsgID, true), getDetail(dialogMsgID, false).replace("\n", " "), prompt, styleClass);
     }
 
     /**
@@ -176,17 +212,18 @@ public abstract class InputDialog<R>
     protected abstract R convert(String input);
 
     /**
-     * Given a new input, checks whether to allow it.  Note that you should always allow blank input,
+     * Given a new input, checks whether to allow it as text in the text field
+     * (disallowing pressing OK is another matter, which should be handled by setOKEnabled).
+     * Note that you should always allow blank input, and new input which is identical to old output,
      * so make sure to return true when newInput is the empty String.
      * 
      * You may also want to call setErrorText or setOKEnabled during your implementation of this method,
      * to show an error or disable the OK button if the input is invalid.  (But if you do, make
      * sure to blank the error and enable the OK button when the input becomes valid again.) 
      * 
-     * This method gets called with "" for oldInput and newInput if the user hovers over
+     * This method gets called with the current content for oldInput and newInput if the user hovers over
      * the OK button while the field is blank, to allow you to set the error text (which
-     * will then be animated).  As per previous instruction, you should return true here
-     * because the newInput is the empty String.
+     * will then be animated).
      * 
      * @param oldInput The previous text
      * @param newInput The potential new input

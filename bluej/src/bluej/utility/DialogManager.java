@@ -274,6 +274,15 @@ public class DialogManager
             showErrorText(parent, message + "\n" + text);
         }
     }
+    @OnThread(Tag.FXPlatform)
+    public static void showErrorWithTextFX(javafx.stage.Window parent, String msgID,
+                                           String text)
+    {
+        String message = getMessage(msgID);
+        if (message != null) {
+            showErrorTextFX(parent, message + "\n" + text);
+        }
+    }
 
     /**
      * Brings up a two or three button question dialog. The text for the
@@ -378,30 +387,6 @@ public class DialogManager
      * 
      * @return The string supplied by the user, or null if the dialog was cancelled.
      */
-    public static String askString(Component parent, String msgID)
-    {
-        String response = "";
-        String message = getMessage(msgID);
-        if (message != null) {
-            int defaultTextIndex = message.lastIndexOf("\n");
-            int titleIndex = message.lastIndexOf("\n", defaultTextIndex-1);
-            String defaultText = message.substring(defaultTextIndex+1);
-            String title = message.substring(titleIndex+1, defaultTextIndex);
-            message = message.substring(0, titleIndex);
-            if ("null".equals(defaultText)) {
-                defaultText = null;
-            }
-            response = (String)JOptionPane.showInputDialog(parent,
-                                                           message,
-                                                           title,
-                                                           JOptionPane.PLAIN_MESSAGE,
-                                                           null,
-                                                           null,
-                                                           defaultText);
-        }
-        return response;
-    }
-
     @OnThread(Tag.FXPlatform)
     public static String askStringFX(javafx.stage.Window parent, String msgID)
     {
@@ -437,26 +422,6 @@ public class DialogManager
      * 
      * @return The string supplied by the user, or null if the dialog was cancelled.
      */
-    public static String askString(Component parent, String msgID, String defaultText)
-    {
-        String response = "";
-        String message = getMessage(msgID);
-        if (message != null) {
-            int defaultTextIndex = message.lastIndexOf("\n");
-            int titleIndex = message.lastIndexOf("\n", defaultTextIndex - 1);
-            String title = message.substring(titleIndex + 1, defaultTextIndex);
-            message = message.substring(0, titleIndex);
-            response = (String) JOptionPane.showInputDialog(parent,
-                                                            message,
-                                                            title,
-                                                            JOptionPane.PLAIN_MESSAGE,
-                                                            null,
-                                                            null,
-                                                            defaultText);
-        }
-        return response;
-    }
-    
     @OnThread(Tag.FXPlatform)
     public static String askStringFX(javafx.stage.Window parent, String msgID, String defaultText)
     {
