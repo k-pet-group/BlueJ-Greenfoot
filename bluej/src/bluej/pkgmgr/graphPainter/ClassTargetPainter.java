@@ -60,7 +60,6 @@ public class ClassTargetPainter
     private static final Color borderColor = Color.BLACK;
     private static final Color stripeColor = new Color(158,139,116);
     private static final Color errorStripeColor = new Color(180,50,20);
-    private static final Image brokenImage = Config.getFixedImageAsIcon("broken-symbol.png").getImage();
     private static final Font targetFont = PrefMgr.getTargetFont();
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
@@ -197,10 +196,6 @@ public class ClassTargetPainter
             g.setFont(targetFont.deriveFont((float) (targetFont.getSize() - 2)));
             Utility.drawCentredText(g, "(no source)", TEXT_BORDER, height - 18, width
                     - 2 * TEXT_BORDER, TEXT_HEIGHT);
-        }
-        // if the sourcecode is invalid, display the "broken" image in diagram
-        else if (!classTarget.getSourceInfo().isValid()) {
-            g.drawImage(brokenImage, TEXT_BORDER, height - 22, null);
         }
     }
 

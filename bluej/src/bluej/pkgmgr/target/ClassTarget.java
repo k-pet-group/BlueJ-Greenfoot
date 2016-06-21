@@ -2343,11 +2343,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public String getTooltipText()
     {
-        if (!getSourceInfo().isValid()) {
-            return Config.getString("graph.tooltip.classBroken");
-        } else {
-            return null;
-        }
+        return null;
     }
     
     @Override
