@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javafx.application.Platform;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -263,11 +265,7 @@ public class DocuGenerator
                 });
             }
             catch (IOException exc) {
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
-                        DialogManager.showMessage(null,"severe-doc-trouble");
-                    }
-                });
+                Platform.runLater(() -> DialogManager.showMessageFX(null, "severe-doc-trouble"));
             }
             finally {
                 if (logWriter != null) {

@@ -669,7 +669,9 @@ public class PkgMgrFrame extends JPanel
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            DialogManager.showMessage(pmf, msgId);
+        {
+            Platform.runLater(() -> DialogManager.showMessageFX(pmf.getFXWindow(), msgId));
+        }
     }
 
     /**

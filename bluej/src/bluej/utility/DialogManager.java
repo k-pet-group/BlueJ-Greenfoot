@@ -518,36 +518,6 @@ public class DialogManager
         }
     }
     
-    /**
-     * Allows the user to specify the number of buttons in question dialog. 
-     * The text for the question and the buttons is read from the dialogues file. 
-     */
-    public static int askQuestion(Component parent, String msgID, int numOptions)
-    {
-        String message = getMessage(msgID);
-        if(message != null) {
-            String buttonName;
-            int btnIndex=message.length()+1;
-            int prevBtnIndex=message.length(); 
-            String[] options=new String[numOptions];
-            for (int i=0; i < numOptions; i++) {
-                btnIndex=message.lastIndexOf("\n", btnIndex-1);
-                buttonName=message.substring(btnIndex+1, prevBtnIndex);
-                options[numOptions-i-1]=buttonName; //just to ensure they go in, in the correct order
-                prevBtnIndex=btnIndex;
-            }
-            message = message.substring(0, btnIndex);
-
-            return JOptionPane.showOptionDialog(parent, message,
-                    Config.getApplicationName() + ":  " +
-                    Config.getString("dialogmgr.question"),
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.WARNING_MESSAGE,
-                    null, options, options[0]);
-        }
-        return 0;
-    }
-
     public static void addOKCancelButtons(JPanel panel, JButton okButton, JButton cancelButton) 
     {
         if (Config.isMacOS()) {
