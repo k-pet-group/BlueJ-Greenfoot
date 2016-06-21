@@ -21,7 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.Frame;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.io.File;
@@ -32,10 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
 import javafx.application.Platform;
 import javafx.stage.Window;
 

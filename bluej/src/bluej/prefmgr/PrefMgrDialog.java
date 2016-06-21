@@ -21,25 +21,11 @@
  */
 package bluej.prefmgr;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.net.URL;
+import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -50,23 +36,18 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.editor.moe.EditorPrefPanel;
 import bluej.editor.moe.KeyBindingsPanel;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionsManager;
-import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;

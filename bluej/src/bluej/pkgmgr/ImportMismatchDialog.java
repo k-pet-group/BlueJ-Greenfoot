@@ -21,27 +21,10 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.WindowConstants;
-
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -53,7 +36,6 @@ import javafx.stage.Window;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;

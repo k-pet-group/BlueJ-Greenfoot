@@ -21,21 +21,16 @@
  */
 package bluej.stride.framedjava.frames;
 
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Window;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.debugger.DebuggerField;
 import bluej.pkgmgr.Package;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class ReferenceDebugVarInfo implements DebugVarInfo
 {

@@ -21,8 +21,8 @@
  */
 package bluej.debugmgr;
 
+import javax.swing.SwingUtilities;
 import java.awt.EventQueue;
-import java.awt.Frame;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,28 +30,19 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
 import javafx.application.Platform;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
-import bluej.compiler.CompileInputFile;
-import bluej.compiler.CompileReason;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollector;
+import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.CompileReason;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.EDTCompileObserver;
 import bluej.compiler.EventqueueCompileObserverAdapter;
@@ -82,6 +73,8 @@ import bluej.utility.Utility;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Debugger class that arranges invocation of constructors or methods. This

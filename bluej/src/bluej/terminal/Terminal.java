@@ -21,36 +21,11 @@
  */
 package bluej.terminal;
 
-import java.awt.BorderLayout;
-import java.awt.Event;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.print.PrinterJob;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -60,7 +35,23 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-
+import java.awt.BorderLayout;
+import java.awt.Event;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.print.PrinterJob;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
@@ -68,13 +59,8 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import bluej.utility.javafx.FXSupplier;
-import bluej.utility.javafx.JavaFXUtil;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.debugger.Debugger;
@@ -88,6 +74,10 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
