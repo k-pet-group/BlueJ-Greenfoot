@@ -294,7 +294,7 @@ public class ResultInspector extends Inspector
         BorderPane buttonPanel = new BorderPane();
         if (inspectorManager != null && inspectorManager.inTestMode()) {
             assertPanel = new AssertPanel(resultType);
-            buttonPanel.setBottom(assertPanel);
+            buttonPanel.setTop(assertPanel);
         }
         Button button = createCloseButton();
         buttonPanel.setRight(button);

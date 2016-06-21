@@ -51,6 +51,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -139,20 +140,27 @@ public class AssertPanel extends VBox
      */
     public AssertPanel(JavaType type)
     {
+        JavaFXUtil.addStyleClass(this, "assert-panel");
+        
+        boolean isFloat = type.typeIs(JavaType.JT_FLOAT) || type.typeIs(JavaType.JT_DOUBLE);
+        
         // a checkbox which enables/disables all the assertion UI
 
         assertCheckbox = new CheckBox(Config.getString("debugger.assert.assertThat"));
 
         standardPanel = new HBox();
         {
+            JavaFXUtil.addStyleClass(standardPanel, "assert-row");
             assertLabel = new Label(Config.getString("debugger.assert.resultIs"));
             standardPanel.getChildren().add(assertLabel);
 
             assertCombo = new ComboBox<>();                 
             
             assertData = new TextField();
+            JavaFXUtil.addStyleClass(assertData, "assert-field-data");
 
             deltaData = new TextField("0.1");
+            JavaFXUtil.addStyleClass(deltaData, "assert-field-delta");
 
             standardPanel.getChildren().add(assertCombo);
 
@@ -174,31 +182,35 @@ public class AssertPanel extends VBox
             assertCheckbox.selectedProperty()
                 // And the given assert selection needs a first field
                 .and(ofB(assertCombo.getSelectionModel().selectedItemProperty(),
-                    AssertInfo::needsFirstField))
+                    ai -> ai == null ? false : ai.needsFirstField()))
                 // Now flip the enable calculation to disable:
                 .not());
+        BooleanBinding secondFieldExp = ofB(assertCombo.getSelectionModel().selectedItemProperty(),
+            ai -> ai == null ? false : ai.needsSecondField());
         deltaData.disableProperty().bind(
             // We calculate enabled.  This is if assertCheckBox is selected
             assertCheckbox.selectedProperty()
                 // And the given assert selection needs a first field
-                .and(ofB(assertCombo.getSelectionModel().selectedItemProperty(),
-                    AssertInfo::needsSecondField))
+                .and(secondFieldExp)
                 // Now flip the enable calculation to disable:
                 .not());
         // if the second field is needed, we _always_ make it visible
         // (but perhaps not enabled)
-        deltaData.visibleProperty().bind(ofB(assertCombo.getSelectionModel().selectedItemProperty(), AssertInfo::needsSecondField).not());
+        deltaData.visibleProperty().set(isFloat);
+        deltaData.managedProperty().bind(deltaData.visibleProperty());
         deltaLabel.visibleProperty().bind(deltaData.visibleProperty());
+        deltaLabel.managedProperty().bind(deltaData.visibleProperty());
         assertCheckbox.setSelected(true);
         
         assertCombo.setItems(asserts.filtered(a -> {
-            if (type.typeIs(JavaType.JT_FLOAT) || type.typeIs(JavaType.JT_DOUBLE))
+            if (isFloat)
                 return a.supportsFloatingPoint;
             else if (type.isPrimitive())
                 return a.supportsPrimitive;
             else
                 return a.supportsObject;
         }));
+        assertCombo.getSelectionModel().select(0);
     }
     
     private static <T> BooleanBinding ofB(ObservableValue<T> t, Function<T, Boolean> accessor)
