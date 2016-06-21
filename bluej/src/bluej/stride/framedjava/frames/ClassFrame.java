@@ -46,6 +46,9 @@ import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.generic.TopLevelDocumentMultiCanvasFrame;
+import bluej.stride.operations.CopyFrameAsImageOperation;
+import bluej.stride.operations.CopyFrameAsJavaOperation;
+import bluej.stride.operations.CopyFrameAsStrideOperation;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
@@ -214,6 +217,9 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     public List<FrameOperation> getContextOperations()
     {
         ArrayList<FrameOperation> ops = new ArrayList<>();
+        ops.add(new CopyFrameAsStrideOperation(editor));
+        ops.add(new CopyFrameAsImageOperation(editor));
+        ops.add(new CopyFrameAsJavaOperation(editor));
         ops.add(new CustomFrameOperation(getEditor(), "addRemoveAbstract", Arrays.asList("Toggle abstract"),
                 MenuItemOrder.TOGGLE_ABSTRACT, this, () ->  abstractModifier.set(!abstractModifier.get())));
 

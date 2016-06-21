@@ -39,6 +39,9 @@ import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.TopLevelDocumentMultiCanvasFrame;
+import bluej.stride.operations.CopyFrameAsImageOperation;
+import bluej.stride.operations.CopyFrameAsJavaOperation;
+import bluej.stride.operations.CopyFrameAsStrideOperation;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot;
@@ -119,7 +122,9 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     public List<FrameOperation> getContextOperations()
     {
         ArrayList<FrameOperation> ops = new ArrayList<>();
-
+        ops.add(new CopyFrameAsStrideOperation(editor));
+        ops.add(new CopyFrameAsImageOperation(editor));
+        ops.add(new CopyFrameAsJavaOperation(editor));
         ops.add(new CustomFrameOperation(getEditor(), "addExtends", Arrays.asList("Add 'extends'"),
                 EditableSlot.MenuItemOrder.TOGGLE_EXTENDS, this, () -> extendsList.addTypeSlotAtEnd("", true)));
 
