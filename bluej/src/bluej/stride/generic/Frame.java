@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.Config;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
@@ -56,6 +57,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.transform.Transform;
 
 import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -394,6 +396,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             boolean dr = f.disabledRoot.get();
             f.disabledRoot.set(true);
             JavaFXUtil.setPseudoclass("bj-hide-caret", true, f.getNode());
+            if (Config.isRetinaDisplay())
+            {
+                // Take Retina resolution screenshot:
+                p.setTransform(Transform.scale(2, 2));
+            }
             f.getNode().snapshot(p, image);
             f.disabledRoot.set(dr);
             JavaFXUtil.setPseudoclass("bj-hide-caret", false, f.getNode());
