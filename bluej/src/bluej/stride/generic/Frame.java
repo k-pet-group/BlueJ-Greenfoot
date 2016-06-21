@@ -64,7 +64,9 @@ import bluej.stride.framedjava.errors.ErrorShower;
 import bluej.stride.framedjava.frames.BlankFrame;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.FrameHelper;
-import bluej.stride.operations.CopyFrameOperation;
+import bluej.stride.operations.CopyFrameAsImageOperation;
+import bluej.stride.operations.CopyFrameAsJavaOperation;
+import bluej.stride.operations.CopyFrameAsStrideOperation;
 import bluej.stride.operations.CutFrameOperation;
 import bluej.stride.operations.DeleteFrameOperation;
 import bluej.stride.operations.DisableFrameOperation;
@@ -468,7 +470,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         List<FrameOperation> ops = new ArrayList<FrameOperation>();
         ops.add(new CutFrameOperation(editor));
-        ops.add(new CopyFrameOperation(editor));
+        ops.add(new CopyFrameAsStrideOperation(editor));
+        ops.add(new CopyFrameAsImageOperation(editor));
+        ops.add(new CopyFrameAsJavaOperation(editor));
         ops.add(isFrameEnabled() ? new DisableFrameOperation(editor) : new EnableFrameOperation(editor));
         ops.add(new DeleteFrameOperation(editor));
         return ops;

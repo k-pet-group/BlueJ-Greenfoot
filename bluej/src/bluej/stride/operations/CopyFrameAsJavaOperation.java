@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,33 +23,31 @@ package bluej.stride.operations;
 
 import java.util.Arrays;
 import java.util.List;
-
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import javafx.beans.value.ObservableValue;
-import bluej.stride.framedjava.frames.GreenfootFrameUtil;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.InteractionManager;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 
-public class CopyFrameOperation extends FrameOperation
-{
+import bluej.stride.framedjava.frames.GreenfootFrameUtil;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.InteractionManager;
+import bluej.stride.slots.EditableSlot.MenuItemOrder;
 
-    public CopyFrameOperation(InteractionManager editor)
+public class CopyFrameAsJavaOperation extends FrameOperation
+{
+    public CopyFrameAsJavaOperation(InteractionManager editor)
     {
-        super(editor, "COPY", Combine.ALL, new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
+        super(editor, "COPY-JAVA", Combine.ALL);
     }
     
     @Override
     protected void execute(List<Frame> frames)
     {
-        GreenfootFrameUtil.doCopy(frames);
+        GreenfootFrameUtil.doCopyAsJava(frames);
     }
 
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(l("Copy", MenuItemOrder.COPY));
+        return Arrays.asList(l("Copy As Java", MenuItemOrder.COPY));
     }
 }

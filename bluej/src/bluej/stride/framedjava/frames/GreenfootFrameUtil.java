@@ -23,9 +23,7 @@ package bluej.stride.framedjava.frames;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javafx.scene.input.Clipboard;
@@ -42,10 +40,6 @@ import nu.xom.ParsingException;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.generic.Frame;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.operations.CopyFrameOperation;
-import bluej.stride.operations.CutFrameOperation;
-import bluej.stride.operations.FrameOperation;
 import bluej.utility.Debug;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -139,21 +133,53 @@ public class GreenfootFrameUtil
         return framesEl.toXML();
     }
 
+    private static String getJavaForMultipleFrames(List<Frame> frames)
+    {
+        StringBuilder java = new StringBuilder();
+        for (Frame f : frames) {
+            if (f instanceof CodeFrame) {
+                CodeElement c = ((CodeFrame<?>) f).getCode();
+                java.append(c.toJavaSource().toTemporaryJavaCodeString());
+            }
+        }
+        return java.toString();
+    }
+
     public static List<CodeElement> getElementsForMultipleFrames(List<Frame> frames)
     {
         return getElements(getXmlForMultipleFrames(frames)).elements;
     }
 
-    public static void doCopy(List<Frame> frames)
+    public static void doCopyAsStride(List<Frame> frames)
     {
         // Nothing to copy if nothing selected:
         if (frames.size() == 0)
             return;
 
-        final Clipboard clipboard = Clipboard.getSystemClipboard();
         final ClipboardContent content = new ClipboardContent();
         content.putString(getXmlForMultipleFrames(frames));
+        Clipboard.getSystemClipboard().setContent(content);
+    }
+
+    public static void doCopyAsImage(List<Frame> frames)
+    {
+        // Nothing to copy if nothing selected:
+        if (frames.size() == 0)
+            return;
+
+        final ClipboardContent content = new ClipboardContent();
         content.putImage(Frame.takeShot(frames, null));
-        clipboard.setContent(content);
+        Clipboard.getSystemClipboard().setContent(content);
+    }
+
+    public static void doCopyAsJava(List<Frame> frames)
+    {
+        // Nothing to copy if nothing selected:
+        if (frames.size() == 0)
+            return;
+
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(getJavaForMultipleFrames(frames));
+        Clipboard.getSystemClipboard().setContent(content);
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,42 +23,31 @@ package bluej.stride.operations;
 
 import java.util.Arrays;
 import java.util.List;
-
-import bluej.collect.StrideEditReason;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.InteractionManager;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 
-public class CutFrameOperation extends FrameOperation
+import bluej.stride.framedjava.frames.GreenfootFrameUtil;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.InteractionManager;
+import bluej.stride.slots.EditableSlot.MenuItemOrder;
+
+public class CopyFrameAsImageOperation extends FrameOperation
 {
-
-    public CutFrameOperation(InteractionManager editor)
+    public CopyFrameAsImageOperation(InteractionManager editor)
     {
-        super(editor, "CUT", Combine.ALL, new KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN));
+        super(editor, "COPY-IMAGE", Combine.ALL, new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN));
     }
-
+    
     @Override
-    @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
-        if (frames.size() > 0)
-        {
-            editor.recordEdits(StrideEditReason.FLUSH);
-            new CopyFrameAsStrideOperation(editor).execute(frames);
-            DeleteFrameOperation.deleteFrames(frames, editor);
-            editor.recordEdits(StrideEditReason.CUT_FRAMES);
-        }
+        GreenfootFrameUtil.doCopyAsImage(frames);
     }
 
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(l("Cut", MenuItemOrder.CUT));
+        return Arrays.asList(l("Copy As Image", MenuItemOrder.COPY));
     }
 }
