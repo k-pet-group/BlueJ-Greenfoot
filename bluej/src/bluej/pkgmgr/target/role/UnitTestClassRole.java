@@ -292,8 +292,7 @@ public class UnitTestClassRole extends ClassRole
     {
         if (param != null) {
             // Only running a single test
-            Project proj = pmf.getProject();
-            Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(proj, 1));
+            Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(1));
         }
         
         new TestRunnerThread(pmf, ct, param).start();
@@ -318,8 +317,7 @@ public class UnitTestClassRole extends ClassRole
         // Test the whole class:
         List<String> testMethods = Arrays.stream(cl.getMethods()).filter(this::isJUnitTestMethod).map(Method::getName).collect(Collectors.toList());
 
-        Project proj = pmf.getProject();
-        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(proj, testMethods.size()));
+        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(testMethods.size()));
         return testMethods;
     }
     

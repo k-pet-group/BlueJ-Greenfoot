@@ -8,7 +8,7 @@
     -fx-spacing: 0.5em;
 }
 .test-results .counter-panel .error-panel {
-    -fx-alignment: baseline-left;
+    -fx-alignment: center-left;
     -fx-padding: 0 1em 0 1em;
 }
 /*

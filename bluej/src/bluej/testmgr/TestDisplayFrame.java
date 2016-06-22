@@ -83,8 +83,9 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         }
     }
 
-    private final Image fFailureIcon = Config.getFixedImageAsFXImage("failure.gif");
-    private final Image fErrorIcon = Config.getFixedImageAsFXImage("error.gif");
+    private final Image failureIcon = Config.getFixedImageAsFXImage("failure.gif");
+    private final Image errorIcon = Config.getFixedImageAsFXImage("error.gif");
+    private final Image okIcon = Config.getFixedImageAsFXImage("ok.gif");
 
     private Stage frame;
 
@@ -128,7 +129,11 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     public void showTestDisplay(boolean doShow)
     {
         if (doShow)
-            frame.show();
+        {
+            if (!frame.isShowing())
+                frame.show();
+            frame.toFront();
+        }
         else
             frame.hide();
     }
@@ -162,6 +167,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         testNames = new ListView();
         JavaFXUtil.addStyleClass(testNames, "test-names");
         testNames.setItems(testEntries);
+        testNames.setCellFactory(col -> new TestResultCell());
         //testNames.setCellRenderer(new MyCellRenderer());
         //testNames.addListSelectionListener(new MyListSelectionListener());
         //testNames.addMouseListener(new ShowSourceListener());
@@ -190,13 +196,13 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         fNumberOfRuns.textProperty().bind(Bindings.size(testEntries).asString().concat("/").concat(testTotal.asString()));
         fTotalTime.textProperty().bind(totalTimeMs.asString().concat("ms"));
 
-        HBox errorPanel = new HBox(new Label(Config.getString("testdisplay.counter.errors")), fNumberOfErrors);
+        HBox errorPanel = new HBox(new ImageView(errorIcon), new Label(Config.getString("testdisplay.counter.errors")), fNumberOfErrors);
         JavaFXUtil.addStyleClass(errorPanel, "error-panel");
         hasErrors = Bindings.greaterThan(errorCount, 0);
         JavaFXUtil.bindPseudoclass(errorPanel, "bj-non-zero", hasErrors);
         HBox.setHgrow(errorPanel, Priority.ALWAYS);
 
-        HBox failurePanel = new HBox(new Label(Config.getString("testdisplay.counter.failures")), fNumberOfFailures);
+        HBox failurePanel = new HBox(new ImageView(failureIcon), new Label(Config.getString("testdisplay.counter.failures")), fNumberOfFailures);
         JavaFXUtil.addStyleClass(failurePanel, "error-panel");
         // Need to keep a reference to avoid GC:
         hasFailures = Bindings.greaterThan(failureCount, 0);
@@ -278,7 +284,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
      * 
      * @param num   the number of tests we will run
      */
-    public void startTest(Project project, int num)
+    public void startTest(int num)
     {
         if (! doingMultiple) {
             reset();
@@ -319,6 +325,39 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         totalTimeMs.set(totalTimeMs.get() + dtr.getRunTimeMs());
         testEntries.add(dtr);
+    }
+
+    private class TestResultCell extends javafx.scene.control.ListCell<DebuggerTestResult>
+    {
+        private final ImageView imageView;
+
+        public TestResultCell()
+        {
+            setText("");
+            imageView = new ImageView();
+            setGraphic(imageView);
+        }
+
+        @Override
+        protected void updateItem(DebuggerTestResult item, boolean empty)
+        {
+            if (item == null)
+            {
+                imageView.setImage(null);
+                setText("");
+            }
+            else
+            {
+                if (item.isSuccess())
+                    imageView.setImage(okIcon);
+                else if (item.isFailure())
+                    imageView.setImage(failureIcon);
+                else
+                    imageView.setImage(errorIcon);
+
+                setText(item.getName() + " (" + item.getRunTimeMs() + "ms)");
+            }
+        }
     }
     /*
     class MyListSelectionListener implements ListSelectionListener
