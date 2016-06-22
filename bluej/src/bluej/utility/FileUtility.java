@@ -471,8 +471,9 @@ public class FileUtility
     public static void copyStream(InputStream in, OutputStream out)
         throws IOException
     {
-        for(int c; (c = in.read()) != -1; )
-            out.write(c);
+        byte[] buffer = new byte[4096];
+        for(int c; (c = in.read(buffer)) != -1; )
+            out.write(buffer, 0, c);
     }
 
 
