@@ -23,6 +23,7 @@ package bluej.testmgr;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,6 +31,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -60,7 +62,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     // -- static singleton factory method --
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private static TestDisplayFrame singleton = null;
-
+    
     @OnThread(Tag.FXPlatform)
     public synchronized static TestDisplayFrame getTestDisplay()
     {
@@ -95,6 +97,12 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     private final SimpleIntegerProperty totalTimeMs;
     private final SimpleIntegerProperty testTotal;
     private boolean doingMultiple;
+
+    // Bindings passed to bindPseudoclass can get GCed, so we need to keep track
+    // in a field even though they are trivial manipulations of the earlier properties:
+    private BooleanBinding hasErrors;
+    private BooleanBinding hasFailures;
+    private BooleanBinding hasFailuresOrErrors;
         
     // private FailureDetailView fdv;
     private TextArea exceptionMessageField;
@@ -103,8 +111,6 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     @OnThread(Tag.Any)
     private final AtomicBoolean frameShowing = new AtomicBoolean(false);
 
-    private Project lastProject;
-    
     public TestDisplayFrame()
     {
         testTotal = new SimpleIntegerProperty(0);
@@ -163,6 +169,10 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         content.getChildren().add(testNames);
 
         progressBar = new ProgressBar();
+        JavaFXUtil.addStyleClass(progressBar, "test-progress-bar");
+        progressBar.progressProperty().bind(Bindings.add(0.0, Bindings.size(testEntries)).divide(Bindings.max(1, testTotal)));
+        hasFailuresOrErrors = Bindings.greaterThan(failureCount.add(errorCount), 0);
+        JavaFXUtil.bindPseudoclass(progressBar, "bj-error", hasFailuresOrErrors);
         content.getChildren().add(progressBar);
 
         HBox counterPanel = new HBox();
@@ -172,8 +182,6 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         Label fNumberOfRuns = new Label();
         Label fTotalTime = new Label();
 
-        HBox.setHgrow(fNumberOfErrors, Priority.ALWAYS);
-        HBox.setHgrow(fNumberOfFailures, Priority.ALWAYS);
         HBox.setHgrow(fNumberOfRuns, Priority.ALWAYS);
         HBox.setHgrow(fTotalTime, Priority.ALWAYS);
 
@@ -182,15 +190,24 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         fNumberOfRuns.textProperty().bind(Bindings.size(testEntries).asString().concat("/").concat(testTotal.asString()));
         fTotalTime.textProperty().bind(totalTimeMs.asString().concat("ms"));
 
+        HBox errorPanel = new HBox(new Label(Config.getString("testdisplay.counter.errors")), fNumberOfErrors);
+        JavaFXUtil.addStyleClass(errorPanel, "error-panel");
+        hasErrors = Bindings.greaterThan(errorCount, 0);
+        JavaFXUtil.bindPseudoclass(errorPanel, "bj-non-zero", hasErrors);
+        HBox.setHgrow(errorPanel, Priority.ALWAYS);
+
+        HBox failurePanel = new HBox(new Label(Config.getString("testdisplay.counter.failures")), fNumberOfFailures);
+        JavaFXUtil.addStyleClass(failurePanel, "error-panel");
+        // Need to keep a reference to avoid GC:
+        hasFailures = Bindings.greaterThan(failureCount, 0);
+        JavaFXUtil.bindPseudoclass(failurePanel, "bj-non-zero", hasFailures);
+        HBox.setHgrow(failurePanel, Priority.ALWAYS);
+        
         counterPanel.getChildren().addAll(
                 new Label(Config.getString("testdisplay.counter.runs")),
                 fNumberOfRuns,
-                new Label(Config.getString("testdisplay.counter.errors")),
-                new ImageView(fErrorIcon),
-                fNumberOfErrors,
-                new Label(Config.getString("testdisplay.counter.failures")),
-                new ImageView(fFailureIcon),
-                fNumberOfFailures,
+                errorPanel,
+                failurePanel,
                 new Label(Config.getString("testdisplay.counter.totalTime")),
                 fTotalTime
         );
@@ -235,7 +252,6 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         exceptionMessageField.setText("");
         showSourceButton.setDisable(true);
-        progressBar.reset();
     }
     
     /**
@@ -249,7 +265,6 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         
         reset();
         testTotal.set(num);
-        progressBar.setMaximum(testTotal.get());
         showTestDisplay(true);
     }
     
@@ -265,12 +280,9 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
      */
     public void startTest(Project project, int num)
     {
-        lastProject = project;
-
         if (! doingMultiple) {
             reset();
             testTotal.set(num);
-            progressBar.setMaximum(testTotal.get());
         }
     }
 
@@ -306,9 +318,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         }
 
         totalTimeMs.set(totalTimeMs.get() + dtr.getRunTimeMs());
-        
         testEntries.add(dtr);
-        progressBar.step(testEntries.size(), dtr.isSuccess());
     }
     /*
     class MyListSelectionListener implements ListSelectionListener
@@ -423,53 +433,4 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     }
     */
 
-    /**
-     * A progress bar showing the green/red status.
-     *
-     * @author Andrew Patterson (derived from JUnit src)
-     * @version $Id: TestDisplayFrame.java 16073 2016-06-22 10:35:07Z nccb $
-     */
-    @OnThread(Tag.FXPlatform)
-    static class ProgressBar extends javafx.scene.control.ProgressBar
-    {
-        public static final Color redBarColour = Color.rgb(208, 16, 16);
-        public static final Color greenBarColour = Color.rgb(32, 192, 32);
-
-        private boolean fError = false;
-        private float maximum = 1;
-
-        public ProgressBar()
-        {
-            JavaFXUtil.addStyleClass(this, "test-progress-bar");
-            //setForeground(getStatusColor());
-        }
-
-        private Color getStatusColor()
-        {
-            if(fError)
-                return redBarColour;
-            return greenBarColour;
-        }
-
-        public void reset()
-        {
-            fError = false;
-            //setForeground(getStatusColor());
-            setProgress(0);
-        }
-
-        public void step(int value, boolean successful)
-        {
-            setProgress((float)value / maximum);
-            if(!fError && !successful) {
-                fError = true;
-                //setForeground(getStatusColor());
-            }
-        }
-
-        public void setMaximum(int maximum)
-        {
-            this.maximum = maximum;
-        }
-    }
 }

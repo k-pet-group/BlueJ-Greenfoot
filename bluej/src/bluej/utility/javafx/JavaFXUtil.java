@@ -119,6 +119,7 @@ import javafx.util.Duration;
 
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.WindowOverlayPane;
+import bluej.testmgr.TestDisplayFrame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -602,6 +603,23 @@ public class JavaFXUtil
         alert.setTitle(Config.getString(titleLabel));
         alert.setHeaderText(alert.getTitle());
         alert.showAndWait();
+    }
+
+    /**
+     * Binds the on/off state of a pseudo-class to the given binding (true = pseudo-class present).
+     * 
+     * Note that if no reference is maintained to the BooleanBinding, it can get GC-ed,
+     * in which case this method will no longer update the pseudo-class.  This is unlikely
+     * to be what you want, so you should retain a reference to the exact binding passed
+     * to this method for as long as you want the update to occur.
+     * 
+     * @param node
+     * @param pseudoClass
+     * @param on
+     */
+    public static void bindPseudoclass(Node node, String pseudoClass, BooleanBinding on)
+    {
+        addChangeListener(on, b -> setPseudoclass(pseudoClass, b, node));
     }
 
     /**
