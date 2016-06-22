@@ -33,7 +33,10 @@ import java.util.Properties;
 import java.util.UUID;
 import java.io.IOException;
 
+import javafx.application.Platform;
+
 import bluej.extensions.SourceType;
+import bluej.extmgr.ExtensionWrapper;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import threadchecker.OnThread;
@@ -93,6 +96,7 @@ public class Main
      * Entry point to starting up the system. Initialise the system and start
      * the first package manager frame.
      */
+    @OnThread(Tag.Any)
     public Main()
     {
         Boot boot = Boot.getInstance();
@@ -118,9 +122,13 @@ public class Main
         }
         
         // process command line arguments, start BlueJ!
-        EventQueue.invokeLater(() -> {
-            DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), ExtensionsManager.getInstance().getLoadedExtensions(null));
-            processArgs(args);
+        SwingUtilities.invokeLater(() -> {
+            List<ExtensionWrapper> loadedExtensions = ExtensionsManager.getInstance().getLoadedExtensions(null);
+            Platform.runLater(() -> {
+
+                DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
+                SwingUtilities.invokeLater(() -> processArgs(args));
+            });
         });
         
         // Send usage data back to bluej.org

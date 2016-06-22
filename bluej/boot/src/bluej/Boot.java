@@ -37,6 +37,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This class is the BlueJ boot loader. bluej.Boot is the class that should be 
  * started to execute BlueJ. No other external classpath settings are necessary. 
@@ -140,14 +143,14 @@ public class Boot
      * 
      * @param props the properties (created from the args)
      */
-    private Boot(Properties props, final SplashLabel image)
+    private Boot(Properties props, final SwingSupplier<SplashLabel> image)
     {
         // Display the splash window, and wait until it's been painted before
         // proceeding. Otherwise, the event thread may be occupied by BlueJ
         // starting up and the window might *never* be painted.
         
         try {
-            EventQueue.invokeAndWait(() -> splashWindow = new SplashWindow(image));
+            EventQueue.invokeAndWait(() -> splashWindow = new SplashWindow(image.get()));
 
             // I removed this for now [mik]. We are using invokeAndWait, so we already wait anyway.
             // The following call adds 3 secs to startup time (for no reason, I think). Avoid.
@@ -176,20 +179,28 @@ public class Boot
         return macInitialProjects;
     }
 
+    @FunctionalInterface
+    private static interface SwingSupplier<T>
+    {
+        @OnThread(Tag.Swing)
+        public T get();
+    }
+
+    @OnThread(Tag.Any)
     public static void subMain()
     {
         Properties commandLineProps = processCommandLineProperties(cmdLineArgs);
         isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
         
-        SplashLabel image;
+        SwingSupplier<SplashLabel> image;
         if(isGreenfoot) {
-            image = new GreenfootLabel();
+            image = GreenfootLabel::new;
             runtimeJars = greenfootUserJars;
             userJars = greenfootUserJars;
             numBuildJars = greenfootUserBuildJars;
             numUserBuildJars = greenfootUserBuildJars;
         } else {
-            image = new BlueJLabel();
+            image = BlueJLabel::new;
         }
 
         jfxrtJar = commandLineProps.getProperty("jfxrt.jarpath");
@@ -425,6 +436,7 @@ public class Boot
      * ensure that the singleton instance is valid by the time
      * bluej.Main is run.
      */
+    @OnThread(Tag.Any)
     private void bootBluej()
     {
         initializeBoot();
@@ -619,6 +631,7 @@ public class Boot
         }
         
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void start(Stage s) throws Exception {
             Platform.setImplicitExit(false);
             s.setTitle("BlueJ");

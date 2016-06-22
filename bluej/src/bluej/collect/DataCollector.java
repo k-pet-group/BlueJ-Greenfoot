@@ -121,6 +121,7 @@ public @OnThread(Tag.Swing) class DataCollector
      * are in Greenfoot, and opt-in status.  It doesn't check whether we have stopped
      * sending due to connection problems -- DataSubmitter keeps track of that.
      */
+    @OnThread(Tag.Any)
     private static synchronized boolean dontSend()
     {
         return (Config.isGreenfoot() && !Boot.isTrialRecording()) || !recordingThisSession;
@@ -266,18 +267,14 @@ public @OnThread(Tag.Swing) class DataCollector
         DataCollector.participantIdentifier = participantIdentifier;
         Config.putPropString(PROPERTY_PARTICIPANT, participantIdentifier);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public static void bluejOpened(String osVersion, String javaVersion, String bluejVersion, String interfaceLanguage, List<ExtensionWrapper> extensions)
     {
         if (Config.isGreenfoot() && !Boot.isTrialRecording()) return;
-        SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
-        Platform.runLater(() -> {
-            startSession();
-            loop.exit();
-        });
-        loop.enter();
+        startSession();
         if (dontSend()) return;
-        DataCollectorImpl.bluejOpened(osVersion, javaVersion, bluejVersion, interfaceLanguage, extensions);
+        SwingUtilities.invokeLater(() -> DataCollectorImpl.bluejOpened(osVersion, javaVersion, bluejVersion, interfaceLanguage, extensions));
     }
     
     public static void bluejClosed()

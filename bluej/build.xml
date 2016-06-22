@@ -83,7 +83,7 @@
     <!--
       -  Compile the boot strap loader
      -->
-    <target name="compile-boot">
+    <target name="compile-boot" depends="compile-threadchecker">
         <mkdir dir="${boot.build}"/>
         <!-- Compile the java code from ${boot.src} into ${boot.build} -->
         <!-- Boot should not need any other jars or classes other than standard JDK -->
@@ -99,8 +99,12 @@
                 encoding="utf-8"
         >
             <classpath>
+                <pathelement location="${threadchecker.build}"/>
+                <pathelement location="${threadchecker.pluginbuild}"/>
                 <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
             </classpath>
+            <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
+            <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
         </javac>
 
     </target>

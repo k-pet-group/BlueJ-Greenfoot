@@ -22,9 +22,13 @@
         <javac srcdir="${src}" destdir="${build}">
             <classpath>
                 <pathelement path="${classpath}" />
+                <pathelement location="${threadchecker.build}"/>
+                <pathelement location="${threadchecker.pluginbuild}"/>
                 <!-- path to existing bluej's lib bluejcore.jar -->
                 <pathelement location="${bluej_home}\lib\bluejcore.jar" />
             </classpath>
+            <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
+            <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
             <!-- exclude the standalone Moe editor class -->
             <exclude name="**/Moe.java" /> 
         </javac>
