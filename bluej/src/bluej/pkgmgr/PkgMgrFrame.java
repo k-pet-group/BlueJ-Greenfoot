@@ -2213,7 +2213,8 @@ public class PkgMgrFrame extends JPanel
         
         Iterator<ClassTarget> it = l.iterator();
         int numTestsFinal = numTests;
-        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startMultipleTests(numTestsFinal));
+        Project projFinal = getProject();
+        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startMultipleTests(projFinal, numTestsFinal));
 
         TestRunnerThread trt = new TestRunnerThread(this, it);
         trt.start();

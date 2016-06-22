@@ -21,6 +21,7 @@
  */
 package bluej.testmgr;
 
+import javax.swing.SwingUtilities;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -30,24 +31,27 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerTestResult;
+import bluej.debugger.SourceLocation;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -109,6 +113,8 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     private TextArea exceptionMessageField;
     private Button showSourceButton;
 
+    private Project project;
+
     @OnThread(Tag.Any)
     private final AtomicBoolean frameShowing = new AtomicBoolean(false);
 
@@ -165,13 +171,14 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         testEntries = FXCollections.observableArrayList();
         testNames = new ListView();
+        testNames.setEditable(false);
+        testNames.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        JavaFXUtil.addChangeListener(testNames.getSelectionModel().selectedItemProperty(), this::selected);
+        testNames.setDisable(false);
         JavaFXUtil.addStyleClass(testNames, "test-names");
         testNames.setItems(testEntries);
         testNames.setCellFactory(col -> new TestResultCell());
-        //testNames.setCellRenderer(new MyCellRenderer());
-        //testNames.addListSelectionListener(new MyListSelectionListener());
-        //testNames.addMouseListener(new ShowSourceListener());
-
+        
         content.getChildren().add(testNames);
 
         progressBar = new ProgressBar();
@@ -231,7 +238,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         // "show source" and "close" buttons
         showSourceButton = new Button(Config.getString("testdisplay.showsource"));
-        //showSourceButton.setOnAction(new ShowSourceListener());
+        showSourceButton.setOnAction(e -> showSource(testNames.getSelectionModel().getSelectedItem()));
 
         Button closeButton = new Button(Config.getString("close"));
         closeButton.setOnAction(e -> frame.hide());
@@ -265,8 +272,9 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
      * 
      * @param num  The total number of tests to be run
      */
-    public void startMultipleTests(int num)
+    public void startMultipleTests(Project proj, int num)
     {
+        this.project = proj;
         doingMultiple = true;    
         
         reset();
@@ -284,8 +292,9 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
      * 
      * @param num   the number of tests we will run
      */
-    public void startTest(int num)
+    public void startTest(Project proj, int num)
     {
+        this.project = proj;
         if (! doingMultiple) {
             reset();
             testTotal.set(num);
@@ -327,21 +336,29 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         testEntries.add(dtr);
     }
 
-    private class TestResultCell extends javafx.scene.control.ListCell<DebuggerTestResult>
+    @OnThread(Tag.FX)
+    private class TestResultCell extends ListCell<DebuggerTestResult>
     {
         private final ImageView imageView;
 
         public TestResultCell()
         {
+            setEditable(false);
             setText("");
             imageView = new ImageView();
+            imageView.setMouseTransparent(true);
             setGraphic(imageView);
+            setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY)
+                    showSource(getItem());
+            });
         }
 
         @Override
-        protected void updateItem(DebuggerTestResult item, boolean empty)
+        public void updateItem(DebuggerTestResult item, boolean empty)
         {
-            if (item == null)
+            super.updateItem(item, empty);
+            if (item == null || empty)
             {
                 imageView.setImage(null);
                 setText("");
@@ -359,65 +376,41 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
             }
         }
     }
-    /*
-    class MyListSelectionListener implements ListSelectionListener
+    
+    private void selected(DebuggerTestResult dtr)
     {
-        public void valueChanged(ListSelectionEvent e)
-        {
-            if (testnames.getSelectedValue() != null) {
-                DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
+        if (dtr.isError() || dtr.isFailure()) {
+            // fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
+            exceptionMessageField.setText(dtr.getExceptionMessage()
+                + "\n---\n" + dtr.getTrace());
+            exceptionMessageField.positionCaret(0);
 
-                if (dtr.isError() || dtr.isFailure()) {
-                    // fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
-                    exceptionMessageField.setText(dtr.getExceptionMessage()
-                            + "\n---\n" + dtr.getTrace());
-                    exceptionMessageField.setCaretPosition(0);
-
-                    // Set the column count to a small number; the text area
-                    // will use the available space anyway, and this prevents
-                    // unncessary horizontal scrollbar from appearing
-                    exceptionMessageField.setColumns(1);
-                    showSourceButton.setEnabled(dtr.getExceptionLocation() != null);
-                } else {
-                    exceptionMessageField.setText("");
-                    showSourceButton.setEnabled(false);
-                }
-            }
+            showSourceButton.setDisable(dtr.getExceptionLocation() == null);
+        } else {
+            exceptionMessageField.setText("");
+            showSourceButton.setDisable(true);
         }
     }
-    
-    class ShowSourceListener extends MouseAdapter implements ActionListener
+
+    private void showSource(DebuggerTestResult dtr)
     {
-        public void mouseClicked(MouseEvent e)
+        if ((dtr != null) && (dtr.isError() || dtr.isFailure()))
         {
-            int cc = e.getClickCount();
-            if (cc == 2) {
-                showSource();
-            }
-        }
-        
-        public void actionPerformed(ActionEvent e)
-        {
-            showSource();
-        }
-
-        
-        private void showSource()
-        {
-            DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
-
-            if ((dtr != null) && (dtr.isError() || dtr.isFailure())) {
+            Project projFinal = project;
+            SwingUtilities.invokeLater(() -> {
                 SourceLocation exceptionLocation = dtr.getExceptionLocation();
 
-                if (exceptionLocation == null) {
+                if (exceptionLocation == null)
+                {
                     return;
                 }
 
                 String packageName = JavaNames.getPrefix(exceptionLocation.getClassName());
 
-                Package spackage = lastProject.getPackage(packageName);
+                Package spackage = projFinal.getPackage(packageName);
 
-                if (spackage == null) {
+                if (spackage == null)
+                {
                     return;
                 }
 
@@ -427,49 +420,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                 int lineno = exceptionLocation.getLineNumber();
 
                 spackage.showSource(sourceName, lineno);
-            }
+            });
         }
     }
-
-    private static class MyCellRenderer extends JLabel implements ListCellRenderer
-    {
-        final static Icon errorIcon = Config.getFixedImageAsIcon("error.gif");
-        final static Icon failureIcon = Config.getFixedImageAsIcon("failure.gif");
-        final static Icon okIcon = Config.getFixedImageAsIcon("ok.gif");
-    
-        // This is the only method defined by ListCellRenderer.
-        // We just reconfigure the JLabel each time we're called.
-        public Component getListCellRendererComponent(
-                JList list,
-                Object value,            // value to display
-                int index,               // cell index
-                boolean isSelected,      // is the cell selected
-                boolean cellHasFocus)    // the list and the cell have the focus
-        {
-            if (value instanceof DebuggerTestResult) {
-                DebuggerTestResult dtr = (DebuggerTestResult) value;
-                setText(dtr.getName() + " (" + dtr.getRunTimeMs() + "ms)");
-                setIcon((dtr.isSuccess()) ? okIcon : (dtr.isFailure() ? failureIcon : errorIcon));
-            } else {
-                setText(value.toString());
-            }
-    
-            if (isSelected) {
-                setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
-                setOpaque(true);
-            }
-            else {
-                setBackground(list.getBackground());
-                setForeground(list.getForeground());
-                setOpaque(false);
-            }
-            setEnabled(list.isEnabled());
-            setFont(list.getFont());
-    
-            return this;
-        }
-    }
-    */
-
 }
