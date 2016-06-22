@@ -1891,14 +1891,7 @@ public final class Config
         
         for (String stem : stylesheetStems)
         {
-            try
-            {
-                scene.getStylesheets().add(new File(bluejLibDir + "/stylesheets", stem + ".css").toURI().toURL().toString());
-            }
-            catch (MalformedURLException e)
-            {
-                Debug.reportError(e);
-            }
+            addStylesheet(scene, stem);
             //scene.getStylesheets().add("file:///Users/mik/Development/frames/bluej/lib/stylesheets/" + stem + ".css");
         }
     }
@@ -1906,16 +1899,27 @@ public final class Config
     @OnThread(Tag.FX)
     public static void addInspectorStylesheets(Scene scene)
     {
+        addStylesheet(scene, "inspectors");
+    }
+
+    @OnThread(Tag.FX)
+    public static void addTestsStylesheets(Scene scene)
+    {
+        addStylesheet(scene, "tests");
+    }
+
+    @OnThread(Tag.FX)
+    private static void addStylesheet(Scene scene, String stem)
+    {
         try
         {
-            scene.getStylesheets().add(new File (bluejLibDir + "/stylesheets", "inspectors.css").toURI().toURL().toString());
-        }
-        catch (MalformedURLException e)
+            scene.getStylesheets().add(new File(bluejLibDir + "/stylesheets", stem + ".css").toURI().toURL().toString());
+        } catch (MalformedURLException e)
         {
             Debug.reportError(e);
         }
     }
-    
+
     @OnThread(Tag.FX)
     public static void addDialogStylesheets(DialogPane dialogPane)
     {
