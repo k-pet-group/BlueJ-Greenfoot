@@ -126,6 +126,8 @@
         <include name="greenfoot/Greenfoot.java" />
         <include name="greenfoot/MouseInfo.java" />
         <include name="greenfoot/UserInfo.java" />
+        <include name="greenfoot/Color.java" />
+        <include name="greenfoot/Font.java" />
     </fileset>
 
     <!-- scenarios to be included in standard distribution -->

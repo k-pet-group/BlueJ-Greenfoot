@@ -54,8 +54,8 @@ import java.net.URL;
  */
 public class GreenfootImage
 {
-    private static final Color DEFAULT_BACKGROUND = new Color(255,255,255,0);
-    private static final Color DEFAULT_FOREGROUND = Color.BLACK;
+    private static final greenfoot.Color DEFAULT_BACKGROUND = new greenfoot.Color(255,255,255,0);
+    private static final greenfoot.Color DEFAULT_FOREGROUND = greenfoot.Color.BLACK;
     
     /** The image name and url are primarily used for debugging. */
     private String imageFileName;
@@ -64,8 +64,8 @@ public class GreenfootImage
     private BufferedImage image;
     private static MediaTracker tracker;
     
-    private Color currentColor = DEFAULT_FOREGROUND;
-    private Font currentFont;
+    private greenfoot.Color currentColor = DEFAULT_FOREGROUND;
+    private greenfoot.Font currentFont;
     
     /**
      * Copy on write is used for performance reasons. If an image is
@@ -365,10 +365,10 @@ public class GreenfootImage
     private void initGraphics(Graphics2D graphics)
     {
         if(graphics != null) {
-            graphics.setBackground(DEFAULT_BACKGROUND);
-            graphics.setColor(currentColor);
+            graphics.setBackground(DEFAULT_BACKGROUND.getColorObject());
+            graphics.setColor(currentColor.getColorObject());
             if(currentFont != null) {
-                graphics.setFont(currentFont);
+                graphics.setFont(currentFont.getFontObject());
             }
         }
     }
@@ -508,6 +508,16 @@ public class GreenfootImage
      */
     public void setFont(Font f)
     {
+        currentFont = new greenfoot.Font(f);
+    }
+    
+    /**
+     * Set the current font. This font will be used for subsequent text operations.
+     * 
+     * @param f the new Font to be used.
+     */
+    public void setFont(greenfoot.Font f)
+    {
         currentFont = f;
     }
     
@@ -519,7 +529,15 @@ public class GreenfootImage
     public Font getFont()
     {        
         if(currentFont == null) {
-            currentFont = getGraphics().getFont();
+            currentFont = new greenfoot.Font(getGraphics().getFont());
+        }
+        return currentFont.getFontObject();
+    }
+    
+    public greenfoot.Font getGreenfootFont()
+    {
+        if (currentFont == null) {
+            currentFont = new greenfoot.Font(getGraphics().getFont());
         }
         return currentFont;
     }
@@ -532,7 +550,8 @@ public class GreenfootImage
      */
     public void setColor(Color color)
     {
-        currentColor = color;
+        currentColor = new greenfoot.Color(color);
+        
     }
     
     /**
@@ -543,7 +562,7 @@ public class GreenfootImage
      */
     public void setColor(greenfoot.Color color)
     {
-        currentColor = color.getColorObject();
+        currentColor = color;
     }
 
     /**
@@ -551,9 +570,9 @@ public class GreenfootImage
      * 
      * @return The current color.
      */
-    public java.awt.Color getColor()
+    public Color getColor()
     {
-        return currentColor;
+        return currentColor.getColorObject();
     }
     
     /**
@@ -561,7 +580,7 @@ public class GreenfootImage
      *
      * @return The current GreenfootColor.
      */
-    public Color getGreenfootColor()
+    public greenfoot.Color getGreenfootColor()
     {
         return currentColor;
     }
@@ -578,6 +597,11 @@ public class GreenfootImage
     public Color getColorAt(int x, int y)
     {
         return new Color(getRGBAt(x, y), true); 
+    }
+    
+    public greenfoot.Color getGreenfootColorAt(int x, int y)
+    {
+        return new greenfoot.Color(getColorAt(x, y));
     }
     
     /**

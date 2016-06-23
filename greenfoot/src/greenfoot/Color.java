@@ -293,7 +293,7 @@ public class Color
     
     
     /**
-     * return the internal Color object representing the GreenfootColor
+     * Return the internal Color object representing the GreenfootColor
      *
      * @return the Color object.
      */
