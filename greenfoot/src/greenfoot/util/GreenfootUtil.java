@@ -21,11 +21,7 @@
  */
 package greenfoot.util;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.User32;
-import com.sun.jna.platform.win32.WinDef.DWORD;
-import com.sun.jna.win32.W32APIOptions;
+import bluej.utility.Debug;
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
 import greenfoot.core.ImageCache;
@@ -56,15 +52,23 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -72,6 +76,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.text.html.Option;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -942,24 +947,51 @@ public class GreenfootUtil
         new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
     }
 
-    public interface User32Ext extends User32
-    {
-        User32Ext INSTANCE = (User32Ext) Native.loadLibrary("user32.dll",
-            User32Ext.class, W32APIOptions.DEFAULT_OPTIONS);
-
-        public BOOL AllowSetForegroundWindow(DWORD dwProcessId);
-    }
+    private static Set<Long> allowedForeground = new HashSet<>();
 
     // Called from Greenfoot to allow BlueJ windows (the editor window) to take focus.
     public static void allowForeground(long processId)
     {
-        if (Config.isWinOS())
+        if (Config.isWinOS() && !allowedForeground.contains(processId))
         {
-            // We must reference the Kernel32 class in order to load it and perform
-            // the native initialisation:
-            @SuppressWarnings("unused") Kernel32 kernel32 = Kernel32.INSTANCE;
-            User32Ext user32 = User32Ext.INSTANCE;
-            user32.AllowSetForegroundWindow(new DWORD(processId));
+            // We need to use JNA for this call, but we don't want JNA on our classpath
+            // because it can interfere with JARs in the +libs directory using their own
+            // JNA (in particular, the Finch robot does this).  So we play nice and
+            // hide our usage of JNA (since it's only this one method) by making a new
+            // classloader to load and run the JNA-dependent code.  This way, our JNA
+            // doesn't get confused with JNA on the classpath if the user adds it.
+            try
+            {
+                File nativeJAR = new File(Config.getBlueJLibDir(), "greenfoot-native.jar");
+                File jnaJAR = new File(Config.getBlueJLibDir(), "jna-4.2.0.jar");
+                File jnaPlatformJAR = new File(Config.getBlueJLibDir(), "jna-platform-4.2.0.jar");
+                List<URL> urls = Stream.of(nativeJAR, jnaJAR, jnaPlatformJAR).flatMap(f -> {
+                    try
+                    {
+                        return Stream.of(f.toURI().toURL());
+                    }
+                    catch (MalformedURLException e)
+                    {
+                        Debug.reportError(e);
+                        return Stream.empty();
+                    }
+                }).collect(Collectors.toList());
+                ClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]), null);
+                // Thread.currentThread().getContextClassLoader());
+                Class<?> clz = cl.loadClass("greenfoot.util.NativeUtil");
+                Method m = clz.getDeclaredMethod("allowForegroundWindowsOS", long.class);
+                m.invoke(null, processId);
+                // Shouldn't need to do this more than once, and we don't want
+                // to keep incurring the cost of a new class loader:
+                allowedForeground.add(processId);
+                Debug.message("Successfully allowed BlueJ/Greenfoot foreground");
+            }
+            catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
+            {
+                Debug.reportError(e);
+                // Not much else we can do here.  Good news is that only bad outcome is that
+                // window focus won't bring to front correctly.
+            }
         }
     }
 

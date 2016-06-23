@@ -60,7 +60,9 @@
     
     <!-- Name and location of the jlayer jar -->  
     <property name="jlayer.jar.name" value="jl1.0.1.jar"/>  
-    <property name="jlayer.jar.path" value="${bluej.projectdir}/lib/${jlayer.jar.name}"/>        
+    <property name="jlayer.jar.path" value="${bluej.projectdir}/lib/${jlayer.jar.name}"/>
+
+    <property name="greenfoot-native.jar" value="${bluej.projectdir}/lib/greenfoot-native.jar"/>
         
     <!-- The classpath to the bluej classes-->
     <path id="bluej.class.path">
@@ -95,6 +97,9 @@
     
     <!-- Location of the source files for greenfoot -->
     <property name="src" location="src"/>
+
+    <property name="native-src" location="native/src"/>
+    <property name="native-build" location="native/classes"/>
 
     <!-- Location of the build dir for standalone greenfoot -->
     <property name="standalone.build" location="${bluej.lib.greenfoot}/standalone"/>
@@ -217,8 +222,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <path refid="bluej.class.path"/>
                 <pathelement location="${bluej_home}/threadchecker/classes"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
-                <pathelement location="${bluej_home}/lib/jna-4.2.0.jar"/>
-                <pathelement location="${bluej_home}/lib/jna-platform-4.2.0.jar"/>
             </classpath>
             <compilerarg line="-target 1.8" />
             <compilerarg line="-source 1.8" /> <!-- Otherwise Java 8 (and above) complains -->
@@ -236,6 +239,22 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <include name="*.class"/>
             </fileset>
         </copy>
+    </target>
+
+    <target name="make-native" description="Make the JAR with native-calling code" >
+        <mkdir dir="${native-build}"/>
+        <javac executable="${build_java_home}/${java_command_dir_name}/javac"
+               fork="yes"
+               srcdir="${native-src}"
+               destdir="${native-build}"
+               debug="true"
+               includeantruntime="false">
+            <classpath>
+                <pathelement location="${bluej_home}/lib/jna-4.2.0.jar"/>
+                <pathelement location="${bluej_home}/lib/jna-platform-4.2.0.jar"/>
+            </classpath>
+        </javac>
+        <jar jarfile="${greenfoot-native.jar}" basedir="${native-build}"/>
     </target>
 
     <target name="compile-test" depends="compile" description="Compile the test source" >
@@ -309,7 +328,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </fail>
     </target>
 
-    <target name="ready-to-run" depends="check-bluej-compiled, update-images, compile, copy-imagelib, copy-projects, copy-common-classes, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels" description="Builds everything so it is ready to run" >
+    <target name="ready-to-run" depends="check-bluej-compiled, update-images, compile, copy-imagelib, copy-projects, copy-common-classes, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels, make-native" description="Builds everything so it is ready to run" >
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
@@ -565,6 +584,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             </fileset>
         </delete>
         <delete file="${jlayer.jar.path}"/>
+        <delete file="${greenfoot-native.jar}"/>
         
         <!-- Distributables -->
         <delete >
@@ -581,6 +601,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     
         <delete dir="${bluej.lib.greenfoot}"/>
         <delete dir="${bluej.projectdir}/package/scenarios"/>
+        <delete dir="${native-build}"/>
         <delete dir="${build}"/>
 
         <delete includeEmptyDirs="true">
