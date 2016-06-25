@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,13 +27,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * "Compile selected" command. Compiles the selected classes.
  * 
  * @author Davin McCall
- * @version $Id: CompileSelectedAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: CompileSelectedAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 final public class CompileSelectedAction extends PkgMgrAction
 {
-    public CompileSelectedAction()
+    public CompileSelectedAction(PkgMgrFrame pmf)
     {
-        super("menu.tools.compileSelected");
+        super(pmf, "menu.tools.compileSelected");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

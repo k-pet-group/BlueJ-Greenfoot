@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,13 +29,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * been created in this project. Displays the results.
  * 
  * @author Davin McCall
- * @version $Id: RunTestsAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: RunTestsAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 final public class RunTestsAction extends PkgMgrAction
 {
-    public RunTestsAction()
+    public RunTestsAction(PkgMgrFrame pmf)
     {
-        super("menu.tools.run");
+        super(pmf, "menu.tools.run");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test"));
     }
     

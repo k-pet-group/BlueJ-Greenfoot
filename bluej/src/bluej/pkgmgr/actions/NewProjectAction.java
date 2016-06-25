@@ -30,28 +30,15 @@ import bluej.pkgmgr.PkgMgrFrame;
  * project in a new window.
  * 
  * @author Davin McCall
- * @version $Id: NewProjectAction.java 15854 2016-05-24 19:13:08Z nccb $
+ * @version $Id: NewProjectAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 
-final public class NewProjectAction extends PkgMgrAction {
+final public class NewProjectAction extends PkgMgrAction
+{
     
-    static private NewProjectAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public NewProjectAction getInstance()
+    public NewProjectAction(PkgMgrFrame pmf)
     {
-        if(instance == null)
-            instance = new NewProjectAction();
-        return instance;
-    }
-    
-    private NewProjectAction()
-    {
-        super("menu.package.new");
+        super(pmf, "menu.package.new");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

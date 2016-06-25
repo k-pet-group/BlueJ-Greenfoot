@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,14 +28,14 @@ import bluej.pkgmgr.PkgMgrFrame;
  * project a class from another project or an external source.
  * 
  * @author Davin McCall
- * @version $Id: AddClassAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: AddClassAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 
 final public class AddClassAction extends PkgMgrAction
 {
-    public AddClassAction()
+    public AddClassAction(PkgMgrFrame pmf)
     {
-        super("menu.edit.addClass");
+        super(pmf, "menu.edit.addClass");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

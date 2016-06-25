@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,27 +27,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * Show copyright info in a dialog box.
  * 
  * @author Davin McCall
- * @version $Id: ShowCopyrightAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ShowCopyrightAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
-final public class ShowCopyrightAction extends PkgMgrAction {
-    
-    static private ShowCopyrightAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public ShowCopyrightAction getInstance()
+final public class ShowCopyrightAction extends PkgMgrAction
+{
+    public ShowCopyrightAction(PkgMgrFrame pmf)
     {
-        if(instance == null)
-            instance = new ShowCopyrightAction();
-        return instance;
-    }
-    
-    private ShowCopyrightAction()
-    {
-        super("menu.help.copyright");
+        super(pmf, "menu.help.copyright");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

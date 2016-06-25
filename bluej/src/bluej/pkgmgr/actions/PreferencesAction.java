@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,25 +29,12 @@ import bluej.pkgmgr.PkgMgrFrame;
  * 
  * @author Davin McCall
  */
-final public class PreferencesAction extends PkgMgrAction {
+final public class PreferencesAction extends PkgMgrAction
+{
     
-    static private PreferencesAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public PreferencesAction getInstance()
+    public PreferencesAction(PkgMgrFrame pmf)
     {
-        if(instance == null)
-            instance = new PreferencesAction();
-        return instance;
-    }
-    
-    private PreferencesAction()
-    {
-        super("menu.tools.preferences");
+        super(pmf, "menu.tools.preferences");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

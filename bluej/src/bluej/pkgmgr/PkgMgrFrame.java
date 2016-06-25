@@ -56,7 +56,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -84,6 +83,7 @@ import javax.swing.SwingUtilities;
 import bluej.classmgr.BPClassLoader;
 import bluej.compiler.CompileReason;
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.actions.PkgMgrToggleAction;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -139,7 +139,6 @@ import bluej.pkgmgr.actions.NewProjectAction;
 import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.OpenProjectAction;
 import bluej.pkgmgr.actions.PageSetupAction;
-import bluej.pkgmgr.actions.PkgMgrAction;
 import bluej.pkgmgr.actions.PreferencesAction;
 import bluej.pkgmgr.actions.PrintAction;
 import bluej.pkgmgr.actions.QuitAction;
@@ -160,7 +159,6 @@ import bluej.pkgmgr.actions.StandardAPIHelpAction;
 import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
 import bluej.pkgmgr.actions.WebsiteAction;
-import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.print.PackagePrintManager;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
@@ -245,29 +243,29 @@ public class PkgMgrFrame extends JPanel
     private List<JComponent> testItems;
     private MachineIcon machineIcon;
     /* UI actions */
-    private final Action closeProjectAction = new CloseProjectAction();
-    private final Action saveProjectAction = new SaveProjectAction();
-    private final Action saveProjectAsAction = new SaveProjectAsAction();
-    private final Action importProjectAction = new ImportProjectAction();
-    private final Action exportProjectAction = new ExportProjectAction();
-    private final Action pageSetupAction = new PageSetupAction();
-    private final Action printAction = new PrintAction();
-    private final Action newClassAction = new NewClassAction();
-    private final Action newPackageAction = new NewPackageAction();
-    private final Action addClassAction = new AddClassAction();
-    private final Action removeAction = new RemoveAction();
-    private final Action compileAction = new CompileAction();
-    private final Action compileSelectedAction = new CompileSelectedAction();
-    private final Action rebuildAction = new RebuildAction();
-    private final Action restartVMAction = RestartVMAction.getInstance();
-    private final Action useLibraryAction = new UseLibraryAction();
-    private final Action generateDocsAction = new GenerateDocsAction();
-    private final PkgMgrAction showUsesAction = new ShowUsesAction();
-    private final PkgMgrAction showInheritsAction = new ShowInheritsAction();
-    private final PkgMgrAction showDebuggerAction = new ShowDebuggerAction();
-    private final PkgMgrAction showTerminalAction = new ShowTerminalAction();
-    private final PkgMgrAction showTextEvalAction = new ShowTextEvalAction();
-    private final Action runTestsAction = new RunTestsAction();
+    private final Action closeProjectAction = new CloseProjectAction(this);
+    private final Action saveProjectAction = new SaveProjectAction(this);
+    private final Action saveProjectAsAction = new SaveProjectAsAction(this);
+    private final Action importProjectAction = new ImportProjectAction(this);
+    private final Action exportProjectAction = new ExportProjectAction(this);
+    private final Action pageSetupAction = new PageSetupAction(this);
+    private final Action printAction = new PrintAction(this);
+    private final Action newClassAction = new NewClassAction(this);
+    private final Action newPackageAction = new NewPackageAction(this);
+    private final Action addClassAction = new AddClassAction(this);
+    private final Action removeAction = new RemoveAction(this);
+    private final Action compileAction = new CompileAction(this);
+    private final Action compileSelectedAction = new CompileSelectedAction(this);
+    private final Action rebuildAction = new RebuildAction(this);
+    private final Action restartVMAction = new RestartVMAction(this);
+    private final Action useLibraryAction = new UseLibraryAction(this);
+    private final Action generateDocsAction = new GenerateDocsAction(this);
+    private final PkgMgrToggleAction showUsesAction = new ShowUsesAction(this);
+    private final PkgMgrToggleAction showInheritsAction = new ShowInheritsAction(this);
+    private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this);
+    private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
+    private final PkgMgrToggleAction showTextEvalAction = new ShowTextEvalAction(this);
+    private final Action runTestsAction = new RunTestsAction(this);
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
     /*
@@ -319,7 +317,7 @@ public class PkgMgrFrame extends JPanel
         addCtrlTabShortcut(objbench);
         if(!Config.isGreenfoot()) {
             teamActions = new TeamActionGroup(false);
-            teamActions.setAllDisabled();
+            teamActions.setAllDisabled(this);
 
             setupActionDisableSet();
             makeFrame();
@@ -538,7 +536,7 @@ public class PkgMgrFrame extends JPanel
      */
     public static void handleAbout()
     {
-        HelpAboutAction.getInstance().actionPerformed(getMostRecent());
+        new HelpAboutAction(getMostRecent()).actionPerformed(getMostRecent());
     }
     
     /**
@@ -546,7 +544,7 @@ public class PkgMgrFrame extends JPanel
      */
     public static void handlePreferences()
     {
-        PreferencesAction.getInstance().actionPerformed(getMostRecent());
+        new PreferencesAction(getMostRecent()).actionPerformed(getMostRecent());
     }
     
     /**
@@ -554,7 +552,7 @@ public class PkgMgrFrame extends JPanel
      */
     public static void handleQuit()
     {
-        QuitAction.getInstance().actionPerformed(getMostRecent());
+        new QuitAction(getMostRecent()).actionPerformed(getMostRecent());
     }
 
     /**
@@ -821,7 +819,7 @@ public class PkgMgrFrame extends JPanel
         this.pkg = pkg;
 
         if(! Config.isGreenfoot()) {
-            this.editor = new PackageEditor(pkg, this);
+            this.editor = new PackageEditor(this, pkg, this);
             editor.getAccessibleContext().setAccessibleName(Config.getString("pkgmgr.graphEditor.title"));
             editor.setFocusable(true);
             editor.setTransferHandler(new FileTransferHandler(this));
@@ -920,17 +918,17 @@ public class PkgMgrFrame extends JPanel
         // own TeamActionGroup. When a project is opened, the actions from
         // the project then need to be associated with the appropriate controls.
         
-        teamStatusButton.setAction(teamActions.getStatusAction());
-        updateButton.setAction(teamActions.getUpdateAction());
-        teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction());
-        commitButton.setAction(teamActions.getCommitCommentAction());
-        shareProjectMenuItem.setAction(teamActions.getImportAction());
-        statusMenuItem.setAction(teamActions.getStatusAction());
-        commitMenuItem.setAction(teamActions.getCommitCommentAction());
+        teamStatusButton.setAction(teamActions.getStatusAction(this));
+        updateButton.setAction(teamActions.getUpdateAction(this));
+        teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction(this));
+        commitButton.setAction(teamActions.getCommitCommentAction(this));
+        shareProjectMenuItem.setAction(teamActions.getImportAction(this));
+        statusMenuItem.setAction(teamActions.getStatusAction(this));
+        commitMenuItem.setAction(teamActions.getCommitCommentAction(this));
         commitMenuItem.setText(Config.getString("team.menu.commit"));
-        updateMenuItem.setAction(teamActions.getUpdateAction());
+        updateMenuItem.setAction(teamActions.getUpdateAction(this));
         updateMenuItem.setText(Config.getString("team.menu.update"));
-        showLogMenuItem.setAction(teamActions.getShowLogAction());
+        showLogMenuItem.setAction(teamActions.getShowLogAction(this));
     }
 
     /**
@@ -2691,7 +2689,7 @@ public class PkgMgrFrame extends JPanel
         if (!Config.isRaspberryPi()) mainPanel.setOpaque(false);
 
         // Install keystroke to restart the VM
-        Action action = RestartVMAction.getInstance();
+        Action action = new RestartVMAction(this);
         mainPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                 (KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "restartVM");
         mainPanel.getActionMap().put("restartVM", action);
@@ -2738,7 +2736,7 @@ public class PkgMgrFrame extends JPanel
                 testPanel.add(recordingLabel);
                 testPanel.add(Box.createVerticalStrut(3));
 
-                action = EndTestRecordAction.getInstance();
+                action = new EndTestRecordAction(this);
                 endTestButton = createButton(action, false, false, 2, 4);
                 //make the button use a different label than the one from
                 // action
@@ -2748,7 +2746,7 @@ public class PkgMgrFrame extends JPanel
                 testPanel.add(endTestButton);
                 if(!Config.isMacOSLeopard()) testPanel.add(Box.createVerticalStrut(3));
 
-                action = CancelTestRecordAction.getInstance();
+                action = new CancelTestRecordAction(this);
                 cancelTestButton = createButton(action, false, false, 2, 4);
                 //make the button use a different label than the one from
                 // action
@@ -2767,19 +2765,19 @@ public class PkgMgrFrame extends JPanel
                 teamPanel.setLayout(new BoxLayout(teamPanel, BoxLayout.Y_AXIS));
 
                 teamPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 14, 5));
-                updateButton = createButton(teamActions.getUpdateAction(), false, false, 2, 4);                
+                updateButton = createButton(teamActions.getUpdateAction(this), false, false, 2, 4);                
                 updateButton.setAlignmentX(0.15f);
                 teamPanel.add(updateButton);
                 if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
                 
-                commitButton = createButton(teamActions.getCommitCommentAction(), false, false, 2, 4);
+                commitButton = createButton(teamActions.getCommitCommentAction(this), false, false, 2, 4);
                 commitButton.setAlignmentX(0.15f);
                 //make the button use a different label than the one from
                 // action
                 teamPanel.add(commitButton);
                 if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
 
-                teamStatusButton = createButton(teamActions.getStatusAction(), false, false, 2, 4);
+                teamStatusButton = createButton(teamActions.getStatusAction(this), false, false, 2, 4);
                 teamStatusButton.setAlignmentX(0.15f);
                 teamPanel.add(teamStatusButton);
                 if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
@@ -2787,7 +2785,7 @@ public class PkgMgrFrame extends JPanel
             }
             teamItems.add(teamPanel);
 
-            machineIcon = new MachineIcon();
+            machineIcon = new MachineIcon(this);
             machineIcon.setAlignmentX(0.5f);
             itemsToDisable.add(machineIcon);
 
@@ -2958,11 +2956,11 @@ public class PkgMgrFrame extends JPanel
         menu.setMnemonic(mnemonic);
         menubar.add(menu);
         {
-            createMenuItem(NewProjectAction.getInstance(), menu);
-            createMenuItem(OpenProjectAction.getInstance(), menu);
+            createMenuItem(new NewProjectAction(this), menu);
+            createMenuItem(new OpenProjectAction(this), menu);
             recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
             menu.add(recentProjectsMenu);
-            createMenuItem(OpenNonBlueJAction.getInstance(), menu);
+            createMenuItem(new OpenNonBlueJAction(this), menu);
             createMenuItem(closeProjectAction, menu);
             createMenuItem(saveProjectAction, menu);
             createMenuItem(saveProjectAsAction, menu);
@@ -2977,7 +2975,7 @@ public class PkgMgrFrame extends JPanel
 
             if (!Config.usingMacScreenMenubar()) { // no "Quit" here for Mac
                 menu.addSeparator();
-                createMenuItem(QuitAction.getInstance(), menu);
+                createMenuItem(new QuitAction(this), menu);
             }
         }
 
@@ -3008,8 +3006,8 @@ public class PkgMgrFrame extends JPanel
             testingMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
             {
                 createMenuItem(runTestsAction, testingMenu);
-                endTestMenuItem = createMenuItem(EndTestRecordAction.getInstance(), testingMenu);
-                cancelTestMenuItem = createMenuItem(CancelTestRecordAction.getInstance(), testingMenu);
+                endTestMenuItem = createMenuItem(new EndTestRecordAction(this), testingMenu);
+                cancelTestMenuItem = createMenuItem(new CancelTestRecordAction(this), testingMenu);
                 endTestMenuItem.setEnabled(false);
                 cancelTestMenuItem.setEnabled(false);
             }
@@ -3020,22 +3018,22 @@ public class PkgMgrFrame extends JPanel
             teamMenu = new JMenu(Config.getString("menu.tools.teamwork"));
             teamMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
             {
-                Action checkoutAction = CheckoutAction.getInstance();
+                Action checkoutAction = new CheckoutAction(this);
                 createMenuItem(checkoutAction , teamMenu);
-                shareProjectMenuItem = createMenuItem(teamActions.getImportAction(), teamMenu);               
+                shareProjectMenuItem = createMenuItem(teamActions.getImportAction(this), teamMenu);               
                 
                 teamMenu.addSeparator();
                 
-                updateMenuItem = createMenuItem(teamActions.getUpdateAction(), teamMenu);
+                updateMenuItem = createMenuItem(teamActions.getUpdateAction(this), teamMenu);
                 updateMenuItem.setText(Config.getString("team.menu.update"));
-                commitMenuItem = createMenuItem(teamActions.getCommitCommentAction(), teamMenu);
+                commitMenuItem = createMenuItem(teamActions.getCommitCommentAction(this), teamMenu);
                 commitMenuItem.setText(Config.getString("team.menu.commit"));
-                statusMenuItem = createMenuItem(teamActions.getStatusAction(), teamMenu);
-                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
+                statusMenuItem = createMenuItem(teamActions.getStatusAction(this), teamMenu);
+                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(this), teamMenu);
                 
                 teamMenu.addSeparator();
                 
-                teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(), teamMenu);
+                teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(this), teamMenu);
             }
             teamItems.add(teamMenu);
             menu.add(teamMenu);
@@ -3043,7 +3041,7 @@ public class PkgMgrFrame extends JPanel
             if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
                                                    // Mac
                 menu.addSeparator();
-                createMenuItem(PreferencesAction.getInstance(), menu);
+                createMenuItem(new PreferencesAction(this), menu);
             }
 
             // Create the menu manager that looks after extension tools menus
@@ -3072,7 +3070,7 @@ public class PkgMgrFrame extends JPanel
             testItems.add(testSeparator);
             menu.add(testSeparator);
 
-            showTestResultsItem = createCheckboxMenuItem(ShowTestResultsAction.getInstance(), menu, false);
+            showTestResultsItem = createCheckboxMenuItem(new ShowTestResultsAction(this), menu, false);
             testItems.add(showTestResultsItem);
 
             // Create the menu manager that looks after extension view menus
@@ -3090,16 +3088,16 @@ public class PkgMgrFrame extends JPanel
         menubar.add(menu);
         {
             if (!Config.usingMacScreenMenubar()) { // no "About" here for Mac
-                createMenuItem(HelpAboutAction.getInstance(), menu);
+                createMenuItem(new HelpAboutAction(this), menu);
             }
-            createMenuItem(CheckVersionAction.getInstance(), menu);
-            createMenuItem(CheckExtensionsAction.getInstance(), menu);
-            createMenuItem(ShowCopyrightAction.getInstance(), menu);
+            createMenuItem(new CheckVersionAction(this), menu);
+            createMenuItem(new CheckExtensionsAction(this), menu);
+            createMenuItem(new ShowCopyrightAction(this), menu);
             menu.addSeparator();
 
-            createMenuItem(WebsiteAction.getInstance(), menu);
-            createMenuItem(TutorialAction.getInstance(), menu);
-            createMenuItem(StandardAPIHelpAction.getInstance(), menu);
+            createMenuItem(new WebsiteAction(this), menu);
+            createMenuItem(new TutorialAction(this), menu);
+            createMenuItem(new StandardAPIHelpAction(this), menu);
         }
         addUserHelpItems(menu);
         updateRecentProjects();
@@ -3125,13 +3123,13 @@ public class PkgMgrFrame extends JPanel
     /**
      * Add a new menu item to a menu.
      */
-    private JCheckBoxMenuItem createCheckboxMenuItem(PkgMgrAction action, JMenu menu, boolean selected)
+    private JCheckBoxMenuItem createCheckboxMenuItem(PkgMgrToggleAction action, JMenu menu, boolean selected)
     {
-        ButtonModel bmodel = action.getToggleModel(this);
+        ButtonModel bmodel = action.getToggleModel();
 
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
         if (bmodel != null)
-            item.setModel(action.getToggleModel(this));
+            item.setModel(action.getToggleModel());
         else
             item.setState(selected);
         menu.add(item);
@@ -3244,7 +3242,7 @@ public class PkgMgrFrame extends JPanel
     protected void enableFunctions(boolean enable)
     {
         if (! enable) {
-            teamActions.setAllDisabled();
+            teamActions.setAllDisabled(this);
         }
         
         itemsToDisable.stream().forEach((component) -> {

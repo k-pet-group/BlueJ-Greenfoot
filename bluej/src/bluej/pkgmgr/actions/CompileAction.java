@@ -33,9 +33,9 @@ import bluej.pkgmgr.PkgMgrFrame;
  */
 final public class CompileAction extends PkgMgrAction
 {
-    public CompileAction()
+    public CompileAction(PkgMgrFrame pmf)
     {
-        super("menu.tools.compile");
+        super(pmf, "menu.tools.compile");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.compile"));
     }
     

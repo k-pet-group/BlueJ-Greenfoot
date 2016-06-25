@@ -102,8 +102,6 @@ public class TextEvalPane extends JEditorPane
     private boolean wrappedResult;
     private String errorMessage;
     
-    private boolean mouseInTag = false;
-    private boolean mouseOverObject = false;
     private boolean busy = false;
     private Action softReturnAction;
     

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,25 +30,12 @@ import bluej.pkgmgr.PkgMgrFrame;
  * window.
  */
 
-final public class OpenProjectAction extends PkgMgrAction {
+final public class OpenProjectAction extends PkgMgrAction
+{
     
-    static private OpenProjectAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public OpenProjectAction getInstance()
+    public OpenProjectAction(PkgMgrFrame pmf)
     {
-        if(instance == null)
-            instance = new OpenProjectAction();
-        return instance;
-    }
-    
-    private OpenProjectAction()
-    {
-        super("menu.package.open");
+        super(pmf, "menu.package.open");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

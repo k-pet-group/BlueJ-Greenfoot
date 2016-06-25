@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,13 +29,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * An action to show the repository history.
  * 
  * @author Davin McCall
- * @version $Id: ShowLogAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ShowLogAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 public class ShowLogAction extends TeamAction
 {
-    public ShowLogAction()
+    public ShowLogAction(PkgMgrFrame pmf)
     {
-        super(Config.getString("team.history"), false);
+        super(pmf, Config.getString("team.history"), false);
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

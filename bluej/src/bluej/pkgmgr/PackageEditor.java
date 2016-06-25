@@ -48,14 +48,16 @@ import bluej.views.CallableView;
  */
 public final class PackageEditor extends GraphEditor
 {
+    private final PkgMgrFrame pmf;
     private PackageEditorListener listener;
     
     /**
      * Construct a package editor for the given package.
      */
-    public PackageEditor(Package pkg, PackageEditorListener listener)
+    public PackageEditor(PkgMgrFrame pmf, Package pkg, PackageEditorListener listener)
     {
         super(pkg);
+        this.pmf = pmf;
         this.listener = listener;
     }
 
@@ -143,9 +145,9 @@ public final class PackageEditor extends GraphEditor
     private JPopupMenu createMenu()
     {
         JPopupMenu menu = new JPopupMenu();
-        Action newClassAction = new NewClassAction();
+        Action newClassAction = new NewClassAction(pmf);
         addMenuItem(menu, newClassAction);
-        Action newPackageAction = new NewPackageAction();
+        Action newPackageAction = new NewPackageAction(pmf);
         addMenuItem(menu, newPackageAction);
 
         Package bluejPackage = (Package) getGraph();

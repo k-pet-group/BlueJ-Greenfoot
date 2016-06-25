@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,12 +38,12 @@ public class MachineIcon extends JLabel
 
     private JPopupMenu popupMenu;
 
-    public MachineIcon()
+    public MachineIcon(PkgMgrFrame pmf)
     {
         setIcon(notWorkingIcon);
         setDisabledIcon(workingIconDisabled);
         setToolTipText(Config.getString("tooltip.progress"));
-        popupMenu = createMachinePopup();
+        popupMenu = createMachinePopup(pmf);
         enableEvents(AWTEvent.KEY_EVENT_MASK);
     }
 
@@ -87,10 +87,10 @@ public class MachineIcon extends JLabel
         }
     }
 
-    private JPopupMenu createMachinePopup()
+    private static JPopupMenu createMachinePopup(PkgMgrFrame pmf)
     {
         JPopupMenu menu = new JPopupMenu();
-        JMenuItem item = new JMenuItem(RestartVMAction.getInstance());
+        JMenuItem item = new JMenuItem(new RestartVMAction(pmf));
         menu.add(item);
         return menu;
     }

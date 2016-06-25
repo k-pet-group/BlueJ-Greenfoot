@@ -246,7 +246,7 @@ public class Main
                 @Override
                 public void handleAbout(AppEvent.AboutEvent e)
                 {
-                    HelpAboutAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent());
+                    PkgMgrFrame.handleAbout();
                 }
             });
 
@@ -254,7 +254,7 @@ public class Main
                 @Override
                 public void handlePreferences(AppEvent.PreferencesEvent e)
                 {
-                    PreferencesAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent());
+                    PkgMgrFrame.handlePreferences();
                 }
             });
 
@@ -263,7 +263,7 @@ public class Main
                 public void handleQuitRequestWith(AppEvent.QuitEvent e, QuitResponse response)
                 {
                     macEventResponse = response;
-                    QuitAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent());
+                    PkgMgrFrame.handleQuit();
                     // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
                     // response.cancelQuit() is called to cancel (in wantToQuit())
                 }
@@ -286,7 +286,7 @@ public class Main
             });
         }
         
-        Boot.getInstance().setQuitHandler(() -> SwingUtilities.invokeLater(() -> QuitAction.getInstance().actionPerformed(PkgMgrFrame.getMostRecent())));
+        Boot.getInstance().setQuitHandler(() -> SwingUtilities.invokeLater(() -> PkgMgrFrame.handleQuit()));
         
         if (Config.isGreenfoot())
         {

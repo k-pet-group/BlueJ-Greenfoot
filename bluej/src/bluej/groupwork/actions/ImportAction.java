@@ -53,9 +53,9 @@ import bluej.utility.Utility;
  */
 public class ImportAction extends TeamAction 
 {
-    public ImportAction()
+    public ImportAction(PkgMgrFrame pmf)
     {
-        super("team.import");
+        super(pmf, "team.import");
     }
     
     /* (non-Javadoc)

@@ -53,25 +53,9 @@ import bluej.utility.SwingWorker;
  */
 public class CheckoutAction extends TeamAction
 {
-    static private CheckoutAction instance = null;
-
-    public CheckoutAction()
+    public CheckoutAction(PkgMgrFrame pmf)
     {
-        super("team.checkout");
-    }
-
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public CheckoutAction getInstance()
-    {
-        if (instance == null) {
-            instance = new CheckoutAction();
-        }
-
-        return instance;
+        super(pmf, "team.checkout");
     }
 
     /*

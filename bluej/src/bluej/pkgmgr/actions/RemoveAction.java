@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,13 +29,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * relation, modify the source to reflect the change.
  * 
  * @author Davin McCall.
- * @version $Id: RemoveAction.java 10751 2013-07-05 11:11:42Z nccb $
+ * @version $Id: RemoveAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 final public class RemoveAction extends PkgMgrAction
 {
-    public RemoveAction()
+    public RemoveAction(PkgMgrFrame pmf)
     {
-        super("menu.edit.remove");
+        super(pmf, "menu.edit.remove");
     }
 
     // There is a bug on Mac OS X/Java 7 where this remove action

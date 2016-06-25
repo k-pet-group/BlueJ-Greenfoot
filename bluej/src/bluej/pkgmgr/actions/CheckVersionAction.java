@@ -32,27 +32,14 @@ import bluej.pkgmgr.VersionCheckDialog;
  * BlueJ is available.
  * 
  * @author Davin McCall
- * @version $Id: CheckVersionAction.java 15833 2016-05-21 08:57:40Z nccb $
+ * @version $Id: CheckVersionAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
-final public class CheckVersionAction extends PkgMgrAction {
-    
-    static private CheckVersionAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public CheckVersionAction getInstance()
-    {
-        if(instance == null)
-            instance = new CheckVersionAction();
-        return instance;
-    }
+final public class CheckVersionAction extends PkgMgrAction
+{
 
-    private CheckVersionAction()
+    public CheckVersionAction(PkgMgrFrame pmf)
     {
-        super("menu.help.versionCheck");
+        super(pmf, "menu.help.versionCheck");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

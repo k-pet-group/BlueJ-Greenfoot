@@ -30,27 +30,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * of each one.
  * 
  * @author Davin McCall
- * @version $Id: CheckExtensionsAction.java 16018 2016-06-12 16:50:47Z nccb $
+ * @version $Id: CheckExtensionsAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
-public final class CheckExtensionsAction extends PkgMgrAction {
-    
-    static private CheckExtensionsAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public CheckExtensionsAction getInstance()
+public final class CheckExtensionsAction extends PkgMgrAction
+{
+    public CheckExtensionsAction(PkgMgrFrame pmf)
     {
-        if(instance == null)
-            instance = new CheckExtensionsAction();
-        return instance;
-    }
-    
-    private CheckExtensionsAction()
-    {
-        super("menu.help.extensions");
+        super(pmf, "menu.help.extensions");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

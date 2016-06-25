@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,25 +29,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * bluej.defs configuration file.
  */
 
-final public class WebsiteAction extends PkgMgrAction {
-    
-    static private WebsiteAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public WebsiteAction getInstance()
+final public class WebsiteAction extends PkgMgrAction
+{
+    public WebsiteAction(PkgMgrFrame pmf)
     {
-        if(instance == null)
-            instance = new WebsiteAction();
-        return instance;
-    }
-    
-    private WebsiteAction()
-    {
-        super("menu.help.website");
+        super(pmf, "menu.help.website");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

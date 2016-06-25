@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,13 +28,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * from the standard library onto the object bench.
  * 
  * @author Davin McCall
- * @version $Id: UseLibraryAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: UseLibraryAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 public class UseLibraryAction extends PkgMgrAction
 {
-    public UseLibraryAction()
+    public UseLibraryAction(PkgMgrFrame pmf)
     {
-        super("menu.tools.callLibrary");
+        super(pmf, "menu.tools.callLibrary");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

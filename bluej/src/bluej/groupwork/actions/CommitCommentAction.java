@@ -36,9 +36,9 @@ import bluej.pkgmgr.Project;
  */
 public class CommitCommentAction extends TeamAction
 {
-    public CommitCommentAction(String label)
+    public CommitCommentAction(PkgMgrFrame pmf, String label)
     {
-        super(label, true);
+        super(pmf, label, true);
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.commit"));
     }
     

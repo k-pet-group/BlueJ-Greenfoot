@@ -42,16 +42,16 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  */
 public abstract class TeamAction extends AbstractAction
 {
-    private PkgMgrFrame pkgMgrFrame;
+    private final PkgMgrFrame pkgMgrFrame;
 
     /**
      * Constructor for a team action.
      * 
      * @param name  The key for the action name (team.xxx.yyy)
      */
-    public TeamAction(String name)
+    public TeamAction(PkgMgrFrame pmf, String name)
     {
-        this(Config.getString(name), false);
+        this(pmf, Config.getString(name), false);
     }
     
     /**
@@ -61,9 +61,10 @@ public abstract class TeamAction extends AbstractAction
      * @param name   The key for action text
      * @param showsDialog  True if an ellipsis should be appended
      */
-    public TeamAction(String name, boolean showsDialog)
+    public TeamAction(PkgMgrFrame pmf, String name, boolean showsDialog)
     {
         super(showsDialog ? Config.getString(name) + "..." : Config.getString(name));
+        this.pkgMgrFrame = pmf;
         if (!Config.isMacOS()){
             // Mnemonic keys are against the apple gui guidelines.
             putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(name)));
@@ -72,17 +73,6 @@ public abstract class TeamAction extends AbstractAction
             putValue(ACCELERATOR_KEY, Config.getAcceleratorKey(name));
         }
     }
-    
-    /**
-     * Constructor for a team action
-     * 
-     * @param name  The key for the action name
-     * @param icon  The icon for the action
-     */
-    public TeamAction(String name, Icon icon)
-    {
-        super(name, icon);
-    }
 
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
@@ -90,7 +80,6 @@ public abstract class TeamAction extends AbstractAction
     @OnThread(Tag.Swing)
     public void actionPerformed(ActionEvent e)
     {
-        pkgMgrFrame = PkgMgrAction.frameFromEvent(e);
         actionPerformed(pkgMgrFrame);
     }
     

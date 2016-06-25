@@ -22,6 +22,7 @@
 package bluej.groupwork.actions;
 
 import bluej.Config;
+import bluej.pkgmgr.PkgMgrFrame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -35,12 +36,15 @@ import threadchecker.Tag;
 @OnThread(Tag.Swing)
 public class TeamActionGroup
 {
-    private StatusAction statusAction = new StatusAction();
-    private UpdateDialogAction updateAction = new UpdateDialogAction();
-    private TeamSettingsAction teamSettingsAction = new TeamSettingsAction();
+    private final String commitLabel;
+    private final boolean initialTeamMode;
+    private final boolean initialIsDVCS;
+    private StatusAction statusAction;
+    private UpdateDialogAction updateAction;
+    private TeamSettingsAction teamSettingsAction;
     private CommitCommentAction commitCommentAction;
-    private ImportAction importAction = new ImportAction();
-    private ShowLogAction showLogAction = new ShowLogAction();
+    private ImportAction importAction;
+    private ShowLogAction showLogAction;
     
     /**
      * Construct a new team action group, with various actions disabled
@@ -57,45 +61,66 @@ public class TeamActionGroup
      * or enabled depending whether we are in team mode or non-team mode.
      * 
      * @param teamMode should teamMode be enabled
-     * @param isDCVS is this a distributed version control? (e.g. git).
+     * @param isDVCS is this a distributed version control? (e.g. git).
      */
-    public TeamActionGroup(boolean teamMode, boolean isDCVS)
+    public TeamActionGroup(boolean teamMode, boolean isDVCS)
     {
         String label = "team.commit";
-        if (isDCVS){
+        if (isDVCS){
             label = "team.commitPush";
         }
-        commitCommentAction = new CommitCommentAction(label);
-        setTeamMode(teamMode, isDCVS);
+        this.commitLabel = label;
+        this.initialTeamMode = teamMode;
+        this.initialIsDVCS = isDVCS;
     }
     
-    public StatusAction getStatusAction()
+    private void createAll(PkgMgrFrame pmf)
     {
+        if (statusAction == null)
+        {
+            statusAction = new StatusAction(pmf);
+            updateAction = new UpdateDialogAction(pmf);
+            teamSettingsAction = new TeamSettingsAction(pmf);
+            commitCommentAction = new CommitCommentAction(pmf, commitLabel);
+            importAction = new ImportAction(pmf);
+            showLogAction = new ShowLogAction(pmf);
+            setTeamMode(initialTeamMode, initialIsDVCS);
+        }
+    }
+    
+    public StatusAction getStatusAction(PkgMgrFrame pmf)
+    {
+        createAll(pmf);
         return statusAction;
     }
     
-    public UpdateDialogAction getUpdateAction()
+    public UpdateDialogAction getUpdateAction(PkgMgrFrame pmf)
     {
+        createAll(pmf);
         return updateAction;
     }
     
-    public TeamSettingsAction getTeamSettingsAction()
+    public TeamSettingsAction getTeamSettingsAction(PkgMgrFrame pmf)
     {
+        createAll(pmf);
         return teamSettingsAction;
     }
     
-    public CommitCommentAction getCommitCommentAction()
+    public CommitCommentAction getCommitCommentAction(PkgMgrFrame pmf)
     {
+        createAll(pmf);
         return commitCommentAction;
     }
     
-    public ImportAction getImportAction()
+    public ImportAction getImportAction(PkgMgrFrame pmf)
     {
+        createAll(pmf);
         return importAction;
     }
     
-    public ShowLogAction getShowLogAction()
+    public ShowLogAction getShowLogAction(PkgMgrFrame pmf)
     {
+        createAll(pmf);
         return showLogAction;
     }
     
@@ -116,8 +141,9 @@ public class TeamActionGroup
         importAction.setEnabled(!enabled);
     }
     
-    public void setAllDisabled()
+    public void setAllDisabled(PkgMgrFrame pmf)
     {
+        createAll(pmf);
         statusAction.setEnabled(false);
         updateAction.setEnabled(false);
         teamSettingsAction.setEnabled(false);

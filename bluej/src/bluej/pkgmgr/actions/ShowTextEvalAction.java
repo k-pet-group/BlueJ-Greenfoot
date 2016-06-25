@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,14 +29,14 @@ import bluej.pkgmgr.PkgMgrFrame;
  * User wants to see the text evaluation component. Show it.
  */
 
-final public class ShowTextEvalAction extends PkgMgrAction
+final public class ShowTextEvalAction extends PkgMgrToggleAction
 {
-    public ShowTextEvalAction()
+    public ShowTextEvalAction(PkgMgrFrame pmf)
     {
-        super("menu.view.showTextEval");
+        super(pmf, "menu.view.showTextEval");
     }
     
-    public ButtonModel getToggleModel(PkgMgrFrame pmf)
+    public ButtonModel getToggleModel()
     {
         return new bluej.debugmgr.texteval.TextEvalButtonModel(pmf);
     }

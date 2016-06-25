@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,25 +27,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * User chooses "open non-BlueJ". This allows them to choose a directory to
  * open as a project.
  */
-final public class OpenNonBlueJAction extends PkgMgrAction {
-    
-    static private OpenNonBlueJAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public OpenNonBlueJAction getInstance()
+final public class OpenNonBlueJAction extends PkgMgrAction
+{
+    public OpenNonBlueJAction(PkgMgrFrame pmf)
     {
-        if(instance == null)
-            instance = new OpenNonBlueJAction();
-        return instance;
-    }
-    
-    private OpenNonBlueJAction()
-    {
-        super("menu.package.openNonBlueJ");
+        super(pmf, "menu.package.openNonBlueJ");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

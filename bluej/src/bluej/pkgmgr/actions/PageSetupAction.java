@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,13 +27,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * Page setup, for printing. Specify page layout etc via a dialog box.
  * 
  * @author Davin McCall
- * @version $Id: PageSetupAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PageSetupAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 final public class PageSetupAction extends PkgMgrAction
 {
-    public PageSetupAction()
+    public PageSetupAction(PkgMgrFrame pmf)
     {
-        super("menu.package.pageSetup");
+        super(pmf, "menu.package.pageSetup");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

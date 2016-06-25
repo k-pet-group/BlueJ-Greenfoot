@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,27 +27,14 @@ import bluej.pkgmgr.PkgMgrFrame;
  * help...about. Display a brief info dialog on BlueJ.
  * 
  * @author Davin McCall
- * @version $Id: HelpAboutAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: HelpAboutAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
-final public class HelpAboutAction extends PkgMgrAction {
+final public class HelpAboutAction extends PkgMgrAction
+{
     
-    static private HelpAboutAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public HelpAboutAction getInstance()
+    public HelpAboutAction(PkgMgrFrame pmf)
     {
-        if(instance == null)
-            instance = new HelpAboutAction();
-        return instance;
-    }
-    
-    private HelpAboutAction()
-    {
-        super("menu.help.about");
+        super(pmf, "menu.help.about");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

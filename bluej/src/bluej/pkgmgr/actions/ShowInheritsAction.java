@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,24 +21,32 @@
  */
 package bluej.pkgmgr.actions;
 
+import javax.swing.ButtonModel;
+
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * Action to toggle display of "extends" relationships in the graph window.
  * 
  * @author Davin McCall
- * @version $Id: ShowInheritsAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ShowInheritsAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
-final public class ShowInheritsAction extends PkgMgrAction
+final public class ShowInheritsAction extends PkgMgrToggleAction
 {
-    public ShowInheritsAction()
+    public ShowInheritsAction(PkgMgrFrame pmf)
     {
-        super("menu.view.showInherits");
+        super(pmf, "menu.view.showInherits");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
         pmf.updateShowExtendsInPackage();
+    }
+
+    @Override
+    public ButtonModel getToggleModel()
+    {
+        return null;
     }
 }

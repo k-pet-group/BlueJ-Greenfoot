@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,17 +30,17 @@ import bluej.pkgmgr.PkgMgrFrame;
  * which can be tied to a check-box.
  * 
  * @author Davin McCall
- * @version $Id: ShowTerminalAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ShowTerminalAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 
-final public class ShowTerminalAction extends PkgMgrAction
+final public class ShowTerminalAction extends PkgMgrToggleAction
 {
-    public ShowTerminalAction()
+    public ShowTerminalAction(PkgMgrFrame pmf)
     {
-        super("menu.view.showTerminal");
+        super(pmf, "menu.view.showTerminal");
     }
     
-    public ButtonModel getToggleModel(PkgMgrFrame pmf)
+    public ButtonModel getToggleModel()
     {
         return new bluej.terminal.TerminalButtonModel(pmf);
     }
