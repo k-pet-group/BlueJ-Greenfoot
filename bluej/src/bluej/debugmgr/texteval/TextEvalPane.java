@@ -84,13 +84,8 @@ import threadchecker.OnThread;
  * @author Michael Kolling
  */
 public class TextEvalPane extends JEditorPane 
-    implements Accessible, ValueCollection, ResultWatcher, MouseMotionListener
+    implements Accessible, ValueCollection, ResultWatcher
 {
-    // The cursor to use while hovering over object icon
-    private static final Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-    private static final Cursor objectCursor = new Cursor(Cursor.HAND_CURSOR);
-    private static final Cursor textCursor = new Cursor(Cursor.TEXT_CURSOR);
-    
     private static final String nullLabel = "null";
     
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
@@ -127,7 +122,6 @@ public class TextEvalPane extends JEditorPane
         defineKeymap();
         clear();
         history = new IndexHistory(20);
-        addMouseMotionListener(this);
         setCaret(new TextEvalCaret());
         setAutoscrolls(false);          // important - dragging objects from this component
                                         // does not work correctly otherwise
@@ -720,60 +714,6 @@ public class TextEvalPane extends JEditorPane
         return doc.getParagraphElement(pos);
     }
 
-    /**
-     * Check whether a given point on screen is over an object icon.
-     */
-    private boolean pointOverObjectIcon(int x, int y)
-    {
-        int pos = getUI().viewToModel(this, new Point(x, y));
-        ObjectInfo objInfo = objectAtPosition(pos);
-        return objInfo != null;        
-    }
-    
-    // ---- MouseMotionListener interface: ----
-    
-    public void mouseDragged(MouseEvent evt) {}
-
-    /**
-     * When the mouse is moved, check whether we should change the 
-     * mouse cursor.
-     */
-    public void mouseMoved(MouseEvent evt) 
-    {
-        int x = evt.getX();
-        int y = evt.getY();
-        
-        if(mouseInTag) {
-            if(x > TextEvalSyntaxView.TAG_WIDTH) {    // moved out of tag area
-                setCursor(textCursor);
-                mouseInTag = false;
-            }
-            else 
-                setTagAreaCursor(x, y);
-        }
-        else {
-            if(x <= TextEvalSyntaxView.TAG_WIDTH) {   // moved into tag area
-                setCursor(defaultCursor);
-                mouseOverObject = false;
-                setTagAreaCursor(x, y);
-                mouseInTag = true;
-            }
-        }
-    }
-
-    /**
-     * Set the mouse cursor for the tag area. 
-     */
-    private void setTagAreaCursor(int x, int y)
-    {
-        if(pointOverObjectIcon(x, y) != mouseOverObject) {  // entered or left object
-            mouseOverObject = !mouseOverObject;
-            if(mouseOverObject)
-                setCursor(objectCursor);
-            else
-                setCursor(defaultCursor);
-        }        
-    }
 
     // ---- end of MouseMotionListener interface ----
 
