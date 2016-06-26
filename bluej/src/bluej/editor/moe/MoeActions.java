@@ -545,7 +545,10 @@ public final class MoeActions
     // next error.
     public void setNextErrorEnabled(boolean enabled)
     {
-        compileOrNextErrorAction.setEnabled(enabled);
+        // We don't disable the compile button because user needs to always
+        // be able to explicitly trigger compile, even if the latest auto-compile was
+        // successful:
+        //compileOrNextErrorAction.setEnabled(enabled);
     }
 
     // --------------------------------------------------------------------
@@ -2291,7 +2294,6 @@ public final class MoeActions
         public CompileOrNextErrorAction(MoeEditor editor)
         {
             super("compile", editor);
-            setEnabled(false);
         }
 
         @Override

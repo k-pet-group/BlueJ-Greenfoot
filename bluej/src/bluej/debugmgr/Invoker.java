@@ -43,6 +43,7 @@ import bluej.collect.DataCollector;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.EDTCompileObserver;
 import bluej.compiler.EventqueueCompileObserverAdapter;
@@ -292,7 +293,7 @@ public class Invoker
                 Project project = pkg.getProject();
                 List<CompileInputFile> wrapped = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f));
                 JobQueue.getJobQueue().addJob(wrapped.toArray(new CompileInputFile[0]), observer, project.getClassLoader(),
-                        project.getProjectDir(), true, project.getProjectCharset(), CompileReason.INVOKE);
+                        project.getProjectDir(), true, project.getProjectCharset(), CompileReason.INVOKE, CompileType.INTERNAL_COMPILE);
             }
         };
         this.sourceCharset = pmf.getProject().getProjectCharset();
@@ -544,7 +545,7 @@ public class Invoker
                 compileInvocationFile(shell);
             }
             else {
-                endCompile(new CompileInputFile[0], false);
+                endCompile(new CompileInputFile[0], false, CompileType.INTERNAL_COMPILE);
             }
         }
     }
@@ -1024,7 +1025,7 @@ public class Invoker
 
     // not interested in these events:
     @Override
-    public void startCompile(CompileInputFile[] sources, CompileReason reason) { }
+    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type) { }
 
     /*
      * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)
@@ -1064,7 +1065,7 @@ public class Invoker
      * now. Then clean up.
      */
     @Override
-    public synchronized void endCompile(CompileInputFile[] sources, boolean successful)
+    public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
     {
         Platform.runLater(() -> {
             if (dialog != null)

@@ -26,6 +26,7 @@ import java.rmi.RemoteException;
 
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import rmiextension.wrappers.RCompileObserver;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
@@ -46,15 +47,15 @@ public class LocalCompileObserverWrapper extends java.rmi.server.UnicastRemoteOb
     }
     
     @Override
-    public void startCompile(CompileInputFile[] sources, CompileReason reason)
+    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
     {
-        observer.startCompile(sources, reason);
+        observer.startCompile(sources, reason, type);
     }
     
     @Override
-    public void endCompile(CompileInputFile[] sources, boolean succesful)
+    public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type)
     {
-        observer.endCompile(sources, succesful);
+        observer.endCompile(sources, succesful, type);
     }
     
     @Override

@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
@@ -63,6 +64,7 @@ import bluej.classmgr.BPClassLoader;
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerEvent;
@@ -201,10 +203,12 @@ public class Project implements DebuggerListener, InspectorManager
     /** 1 second timer before starting auto-compile */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private Timer compilerTimer;
-    // We don't put a lock on this because we could deadlock with scheduleCompilation
-    // It's not crucial anyway (just for data recording), and volatile should
-    // give us the right semantics regardless:
-    private volatile CompileReason latestCompileReason;
+    // We don't used synchronized here because we could deadlock:
+    @OnThread(Tag.Any)
+    private final AtomicReference<CompileReason> latestCompileReason = new AtomicReference<>(null);
+    // We don't used synchronized here because we could deadlock:
+    @OnThread(Tag.Any)
+    private final AtomicReference<CompileType> latestCompileType = new AtomicReference<>(null);
     /** Packages scheduled for autocompilation */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private Set<Package> scheduledPkgs = new HashSet<>();
@@ -2114,7 +2118,7 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     @OnThread(Tag.Any)
-    public synchronized void scheduleCompilation(boolean immediate, CompileReason reason, Package pkg)
+    public synchronized void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, Package pkg)
     {
         if (immediate)
         {
@@ -2127,21 +2131,21 @@ public class Project implements DebuggerListener, InspectorManager
 
             // We must use invokeLater, even if already on event queue,
             // to make sure all actions are resolved (e.g. auto-indent post-newline)
-            EventQueue.invokeLater(() -> pkg.compileOnceIdle(reason));
+            EventQueue.invokeLater(() -> pkg.compileOnceIdle(reason, type));
         }
         else
         {
             scheduledPkgs.add(pkg);
-            
+
+            latestCompileReason.set(reason);
+            latestCompileType.set(type);
             if (compilerTimer != null)
             {
                 // Re-use existing timer, to avoid lots of reallocation:
-                latestCompileReason = reason;
                 compilerTimer.restart();
             }
             else
             {
-                latestCompileReason = reason;
                 ActionListener listener = new ActionListener()
                 {
                     @Override
@@ -2160,7 +2164,7 @@ public class Project implements DebuggerListener, InspectorManager
                         
                         for (Package p : pkgsToCompile)
                         {
-                            p.compileOnceIdle(latestCompileReason);
+                            p.compileOnceIdle(latestCompileReason.get(), latestCompileType.get());
                         }
                     }
                 };

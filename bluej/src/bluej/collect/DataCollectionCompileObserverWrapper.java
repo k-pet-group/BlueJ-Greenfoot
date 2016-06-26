@@ -30,6 +30,7 @@ import java.util.Set;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.EDTCompileObserver;
 import bluej.extensions.SourceType;
@@ -57,12 +58,12 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     }
 
     @Override
-    public void startCompile(CompileInputFile[] sources, CompileReason reason)
+    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
     {
         diagnostics.clear();
         this.sources = sources;
         this.reason = reason;
-        wrapped.startCompile(sources, reason);
+        wrapped.startCompile(sources, reason, type);
 
     }
 
@@ -87,7 +88,7 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     }
 
     @Override
-    public void endCompile(CompileInputFile[] sources, boolean successful)
+    public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
     {
         // Heuristic: if all files are in the same package, record the compile as being with that package
         // (I'm fairly sure the BlueJ interface doesn't let you do cross-package compile,
@@ -100,7 +101,7 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
         bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
         
         DataCollector.compiled(project, pkg, sources, diagnostics, successful, reason, SourceType.Java);
-        wrapped.endCompile(sources, successful);
+        wrapped.endCompile(sources, successful, type);
     }
 
 }

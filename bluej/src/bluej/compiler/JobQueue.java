@@ -80,14 +80,14 @@ public class JobQueue
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
     public void addJob(CompileInputFile[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
-            boolean suppressUnchecked, Charset fileCharset, CompileReason reason)
+            boolean suppressUnchecked, Charset fileCharset, CompileReason reason, CompileType type)
     {
         List<String> options = new ArrayList<String>();
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
         
         thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
-                destDir, suppressUnchecked, options, fileCharset, reason));
+                destDir, suppressUnchecked, options, fileCharset, type, reason));
     }
 
     /**

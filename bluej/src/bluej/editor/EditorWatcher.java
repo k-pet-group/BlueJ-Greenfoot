@@ -26,6 +26,7 @@ import java.util.List;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.extensions.SourceType;
 
 /**
@@ -63,7 +64,7 @@ public interface EditorWatcher
     /**
      * Called by Editor when a file is to be compiled
      */
-    void compile(Editor editor, CompileReason reason);
+    void compile(Editor editor, CompileReason reason, CompileType type);
     
     /**
      * Called by Editor when documentation is to be compiled
@@ -86,7 +87,7 @@ public interface EditorWatcher
      *                   postponed until the user VM is idle
      * @param reason    Reason for compilation
      */
-    public void scheduleCompilation(boolean immediate, CompileReason reason);
+    public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type);
     
     default void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits)
     {

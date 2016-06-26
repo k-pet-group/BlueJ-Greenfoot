@@ -23,6 +23,7 @@ package bluej.pkgmgr.actions;
 
 import bluej.Config;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -48,7 +49,7 @@ final public class CompileAction extends PkgMgrAction
             pmf.getPackage().showMessage("compile-while-executing");
         }
         else {
-            pmf.getPackage().compile(CompileReason.USER);
+            pmf.getPackage().compile(CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
         }
     }
 }

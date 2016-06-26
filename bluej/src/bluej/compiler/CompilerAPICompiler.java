@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,7 +73,7 @@ public class CompilerAPICompiler extends Compiler
      */
     @Override
     public boolean compile(final File[] sources, final CompileObserver observer,
-            final boolean internal, List<String> userOptions, Charset fileCharset) 
+            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type) 
     {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
@@ -182,7 +183,19 @@ public class CompilerAPICompiler extends Compiler
             // always the same
             sjfm.setLocation(StandardLocation.SOURCE_PATH, outputList);
             sjfm.setLocation(StandardLocation.CLASS_PATH, pathList);
-            sjfm.setLocation(StandardLocation.CLASS_OUTPUT, outputList);
+            File tempDir = null;
+            if (type.keepClasses())
+            {
+                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, outputList);
+            }
+            else
+            {
+                // We could make a new file manager that memory-mapped the output files
+                // and discarded them... but creating a temporary dir is much more
+                // straightforward:
+                tempDir = Files.createTempDirectory("bluej").toFile();
+                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(tempDir));
+            }
             
             //get the source files for compilation  
             Iterable<? extends JavaFileObject> compilationUnits1 =
@@ -204,7 +217,9 @@ public class CompilerAPICompiler extends Compiler
             
             //compile
             result = jc.getTask(null, sjfm, diagListener, optionsList, null, compilationUnits1).call();
-            sjfm.close();            
+            sjfm.close();
+            if (tempDir != null)
+                tempDir.delete();
         }
         catch(IOException e)
         {

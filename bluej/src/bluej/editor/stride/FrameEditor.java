@@ -55,6 +55,7 @@ import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
@@ -1017,7 +1018,7 @@ public class FrameEditor implements Editor
         SwingUtilities.invokeLater(() -> {
             isCompiled = false;
             watcher.modificationEvent(this);
-            watcher.scheduleCompilation(false, CompileReason.MODIFIED);
+            watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
         });
     }
     

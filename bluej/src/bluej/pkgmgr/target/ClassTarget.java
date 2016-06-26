@@ -59,6 +59,7 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.gentype.Reflective;
@@ -1192,17 +1193,17 @@ public class ClassTarget extends DependentTarget
      * @param editor Description of the Parameter
      */
     @Override
-    public void compile(final Editor editor, CompileReason reason)
+    public void compile(final Editor editor, CompileReason reason, CompileType type)
     {
         final CompileObserver compObserver = new CompileObserver()
         {
             @Override
-            public void startCompile(CompileInputFile[] sources, CompileReason reason)
+            public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
             {
             }
 
             @Override
-            public void endCompile(CompileInputFile[] sources, boolean successful)
+            public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
             {
                 editor.compileFinished(successful);
             }
@@ -1221,18 +1222,18 @@ public class ClassTarget extends DependentTarget
             // Even though we do a package compile, we must let the editor know when
             // the compile finishes, so that it updates its status correctly:
 
-            getPackage().compile(compObserver, reason);
+            getPackage().compile(compObserver, reason, type);
         }
         else {
-            getPackage().compile(this, false, compObserver, reason);
+            getPackage().compile(this, false, compObserver, reason, type);
         }
         
     }
 
     @Override
-    public void scheduleCompilation(boolean immediate, CompileReason reason)
+    public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type)
     {
-        getPackage().getProject().scheduleCompilation(false, reason, getPackage());
+        getPackage().getProject().scheduleCompilation(false, reason, type, getPackage());
     }
 
     /**

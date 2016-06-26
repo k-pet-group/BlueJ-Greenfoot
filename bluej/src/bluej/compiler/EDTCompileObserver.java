@@ -42,7 +42,7 @@ public interface EDTCompileObserver
     /**
      * A compilation job has started.
      */
-    void startCompile(CompileInputFile[] sources, CompileReason reason);
+    void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type);
     
     /**
      * An error or warning message occurred during compilation
@@ -54,5 +54,5 @@ public interface EDTCompileObserver
     /**
      * A Compilation job finished.
      */
-    void endCompile(CompileInputFile[] sources, boolean succesful);
+    void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type);
 }

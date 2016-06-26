@@ -30,6 +30,7 @@ import java.util.Arrays;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
@@ -60,10 +61,10 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
     {
         CompileObserver cobserver = new CompileObserver() {
             @Override
-            public void startCompile(CompileInputFile[] sources, CompileReason reason)
+            public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
             {
                 try {
-                    observer.startCompile(sources, reason);
+                    observer.startCompile(sources, reason, type);
                 }
                 catch (ServerError se) {
                     Debug.reportError("Server error in RMI call: " + se.getCause());
@@ -76,10 +77,10 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 }
             }
             @Override
-            public void endCompile(CompileInputFile[] sources, boolean successful)
+            public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
             {
                 try {
-                    observer.endCompile(sources, successful);
+                    observer.endCompile(sources, successful, type);
                 }
                 catch (ServerError se) {
                     Debug.reportError("Server error in RMI call: " + se.getCause());
@@ -111,6 +112,6 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
         CompileInputFile[] ciFiles = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f)).toArray(new CompileInputFile[0]);
 
         queue.addJob(ciFiles, cobserver, pkg.getProject().getClassLoader(), pkg.getPath(), true,
-                pkg.getProject().getProjectCharset(), CompileReason.INVOKE);
+                pkg.getProject().getProjectCharset(), CompileReason.INVOKE, CompileType.INTERNAL_COMPILE);
     }
 }

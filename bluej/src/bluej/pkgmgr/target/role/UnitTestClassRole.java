@@ -51,6 +51,7 @@ import javax.swing.SwingUtilities;
 import javafx.application.Platform;
 
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.pkgmgr.Project;
 import bluej.utility.javafx.dialog.InputDialog;
 import org.junit.Test;
@@ -59,7 +60,6 @@ import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.editor.Editor;
 import bluej.editor.TextEditor;
 import bluej.parser.SourceLocation;
 import bluej.parser.SourceSpan;
@@ -706,7 +706,7 @@ public class UnitTestClassRole extends ClassRole
                     "generic-file-save-error", ioe.getLocalizedMessage());
         }
         
-        pmf.getPackage().compileQuiet(ct, CompileReason.MODIFIED);
+        pmf.getPackage().compileQuiet(ct, CompileReason.MODIFIED, CompileType.INTERNAL_COMPILE);
         
         pmf.getProject().removeClassLoader();
         pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();

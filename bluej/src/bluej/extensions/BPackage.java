@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import threadchecker.OnThread;
 import bluej.compiler.JobQueue;
 import bluej.debugmgr.objectbench.ObjectBench;
@@ -287,7 +288,7 @@ public class BPackage
             throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
 
         // Start compilation
-        bluejPkg.compile(CompileReason.EXTENSION);
+        bluejPkg.compile(CompileReason.EXTENSION, CompileType.EXTENSION);
 
         // if requested wait for the compilation to finish.
         if ( waitCompileEnd ) JobQueue.getJobQueue().waitForEmptyQueue();
@@ -440,7 +441,7 @@ public class BPackage
     {
         Package bjPkg = packageId.getBluejPackage();
         Project bjProject = bjPkg.getProject();
-        bjProject.scheduleCompilation(immediate, CompileReason.EXTENSION, bjPkg);
+        bjProject.scheduleCompilation(immediate, CompileReason.EXTENSION, CompileType.EXTENSION, bjPkg);
     }
 
     //package-visible

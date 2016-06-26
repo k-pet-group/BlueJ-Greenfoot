@@ -47,6 +47,7 @@ class Job
                       // "unchecked" warnings, false otherwise
     private List<String> userCompileOptions;
     private Charset fileCharset;
+    private CompileType type;
     private CompileReason reason;
     
     /**
@@ -54,7 +55,7 @@ class Job
      */
     public Job(CompileInputFile[] sourceFiles, Compiler compiler, CompileObserver observer,
                         BPClassLoader bpClassLoader, File destDir, boolean internal,
-                        List<String> userCompileOptions, Charset fileCharset, CompileReason reason)
+                        List<String> userCompileOptions, Charset fileCharset, CompileType type, CompileReason reason)
     {
         this.sources = sourceFiles;
         this.compiler = compiler;
@@ -64,6 +65,7 @@ class Job
         this.internal = internal;
         this.userCompileOptions = userCompileOptions;
         this.fileCharset = fileCharset;
+        this.type = type;
         this.reason = reason;
     }
     
@@ -74,7 +76,7 @@ class Job
     {
         try {
             if(observer != null) {
-                observer.startCompile(sources, reason);
+                observer.startCompile(sources, reason, type);
             }
 
             if(destDir != null) {
@@ -92,16 +94,16 @@ class Job
             for (int i = 0; i < sources.length; i++)
                 actualSourceFiles[i] = sources[i].getJavaCompileInputFile();
 
-            boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset);
+            boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset, type);
 
             if(observer != null) {
-                observer.endCompile(sources, successful);
+                observer.endCompile(sources, successful, type);
             }
         } catch(Exception e) {
             System.err.println(Config.getString("compileException") + ": " + e);
             e.printStackTrace();
             if (observer != null) {
-                observer.endCompile(sources, false);
+                observer.endCompile(sources, false, type);
             }
         }
     }

@@ -46,10 +46,11 @@ final public class EventqueueCompileObserverAdapter
     // parameters for COMMAND_START/COMMAND_END
     private CompileInputFile [] sources;
     private boolean successful;  // COMMAND_END only
+    private CompileReason reason; // COMMAND_START only
+    private CompileType type;
     
     // parameters for COMMAND_DIAG
     private Diagnostic diagnostic;
-    private CompileReason reason; // COMMAND_START only
 
     /**
      * Constructor for EventqueueCompileObserver. The link parameter is a compiler
@@ -81,19 +82,21 @@ final public class EventqueueCompileObserverAdapter
         runOnEventQueue();
     }
     
-    public synchronized void startCompile(CompileInputFile[] csources, CompileReason reason)
+    public synchronized void startCompile(CompileInputFile[] csources, CompileReason reason, CompileType type)
     {
         command = COMMAND_START;
         this.sources = csources;
         this.reason = reason;
+        this.type = type;
         runOnEventQueue();
     }
 
-    public synchronized void endCompile(CompileInputFile[] sources, boolean successful)
+    public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
     {
         command = COMMAND_END;
         this.sources = sources;
         this.successful = successful;
+        this.type = type;
         runOnEventQueue();
 
     }
@@ -107,13 +110,13 @@ final public class EventqueueCompileObserverAdapter
         
         switch (command) {
             case COMMAND_START:
-                link.startCompile(sources, reason);
+                link.startCompile(sources, reason, type);
                 break;
             case COMMAND_DIAG:
                 link.compilerMessage(diagnostic);
                 break;
             case COMMAND_END:
-                link.endCompile(sources, successful);
+                link.endCompile(sources, successful, type);
                 break;
         }
     }

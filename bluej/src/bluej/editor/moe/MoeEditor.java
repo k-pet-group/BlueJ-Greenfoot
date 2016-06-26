@@ -85,6 +85,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
@@ -307,7 +308,7 @@ public final class MoeEditor extends JPanel
 
         initWindow(parameters.getProjectResolver());
         if (watcher != null) {
-            watcher.scheduleCompilation(false, CompileReason.LOADED);
+            watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE);
         }
         callbackOnOpen = parameters.getCallbackOnOpen();
 
@@ -1631,7 +1632,7 @@ public final class MoeEditor extends JPanel
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
             if (watcher != null) {
-                watcher.scheduleCompilation(true, CompileReason.MODIFIED);
+                watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
             madeChangeOnCurrentLine = false; // Not since last compilation
         }
@@ -1680,7 +1681,7 @@ public final class MoeEditor extends JPanel
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
             if (watcher != null) {
-                watcher.scheduleCompilation(true, CompileReason.MODIFIED);
+                watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
             madeChangeOnCurrentLine = false; // Not since last compilation
         }
@@ -2861,7 +2862,7 @@ public final class MoeEditor extends JPanel
             
             scheduleReparseRunner();
             if (watcher != null) {
-                watcher.scheduleCompilation(false, CompileReason.LOADED);
+                watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE);
             }
         }
         catch (FileNotFoundException ex) {
@@ -3000,7 +3001,7 @@ public final class MoeEditor extends JPanel
 
             if (madeChangeOnCurrentLine && watcher != null)
             {
-                watcher.scheduleCompilation(true, CompileReason.MODIFIED);
+                watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
             madeChangeOnCurrentLine = false;
         }
@@ -3033,7 +3034,7 @@ public final class MoeEditor extends JPanel
         if (madeChangeOnCurrentLine)
         {
             if (fxTabbedEditor != null && watcher != null) {
-                watcher.scheduleCompilation(true, CompileReason.MODIFIED);
+                watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
             madeChangeOnCurrentLine = false;
         }
@@ -4095,7 +4096,7 @@ public final class MoeEditor extends JPanel
         if (watcher != null) {
             if (madeChangeOnCurrentLine)
             {
-                watcher.scheduleCompilation(true, CompileReason.USER);
+                watcher.scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
                 madeChangeOnCurrentLine = false;
             }
             else
@@ -4152,7 +4153,7 @@ public final class MoeEditor extends JPanel
                 // If we are closing, force a compilation in case there are pending changes:
                 if (parent == null)
                 {
-                    watcher.scheduleCompilation(false, CompileReason.MODIFIED);
+                    watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
                 }
             }
         });

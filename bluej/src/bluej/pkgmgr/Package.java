@@ -45,6 +45,7 @@ import javax.swing.SwingUtilities;
 
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -82,8 +83,6 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.dependency.ExtendsDependency;
-import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget;
@@ -1251,7 +1250,7 @@ public final class Package extends Graph
      *                  methods may not be called if the compilation is aborted
      *                  (sources cannot be saved etc).
      */
-    public void compile(CompileObserver compObserver, CompileReason reason)
+    public void compile(CompileObserver compObserver, CompileReason reason, CompileType type)
     {
         Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
 
@@ -1272,11 +1271,11 @@ public final class Package extends Graph
             {
                 project.removeClassLoader();
                 project.newRemoteClassLoaderLeavingBreakpoints();
-                doCompile(toCompile, new PackageCompileObserver(compObserver), reason);
+                doCompile(toCompile, new PackageCompileObserver(compObserver), reason, type);
             }
             else {
                 if (compObserver != null) {
-                    compObserver.endCompile(new CompileInputFile[0], true);
+                    compObserver.endCompile(new CompileInputFile[0], true, type);
                 }
             }
         }
@@ -1287,7 +1286,7 @@ public final class Package extends Graph
                 ct.setQueued(false);
             }
             if (compObserver != null) {
-                compObserver.endCompile(new CompileInputFile[0], false);
+                compObserver.endCompile(new CompileInputFile[0], false, type);
             }
         }
     }
@@ -1300,7 +1299,7 @@ public final class Package extends Graph
      * project classloader will be created which can be used to load the
      * newly compiled classes, once they are ready.
      */
-    public void compile(CompileReason reason)
+    public void compile(CompileReason reason, CompileType type)
     {
         if (! currentlyCompiling) { 
             currentlyCompiling = true;
@@ -1308,19 +1307,19 @@ public final class Package extends Graph
                     @Override
                     public void compilerMessage(Diagnostic diagnostic) {  }
                     @Override
-                    public void startCompile(CompileInputFile[] sources, CompileReason reason) { }
+                    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type) { }
                     @Override
-                    public void endCompile(CompileInputFile[] sources, boolean succesful)
+                    public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type2)
                     {
                         // This will be called on the Swing thread.
                         currentlyCompiling = false;
                         if (queuedCompile) {
                             queuedCompile = false;
-                            compile(queuedReason);
+                            compile(queuedReason, type);
                             queuedReason = null;
                         }
                     }
-                }, reason);
+                }, reason, type);
         }
         else {
             queuedCompile = true;
@@ -1331,15 +1330,15 @@ public final class Package extends Graph
     /**
      * Compile a single class.
      */
-    public void compile(ClassTarget ct, CompileReason reason)
+    public void compile(ClassTarget ct, CompileReason reason, CompileType type)
     {
-        compile(ct, false, null, reason);
+        compile(ct, false, null, reason, type);
     }
     
     /**
      * Compile a single class.
      */
-    public void compile(ClassTarget ct, boolean forceQuiet, CompileObserver compObserver, CompileReason reason)
+    public void compile(ClassTarget ct, boolean forceQuiet, CompileObserver compObserver, CompileReason reason, CompileType type)
     {
         if (!checkCompile()) {
             return;
@@ -1374,11 +1373,11 @@ public final class Package extends Graph
                 } else {
                     observer = new PackageCompileObserver(compObserver);
                 }
-                searchCompile(ct, observer, reason);
+                searchCompile(ct, observer, reason, type);
             }
 
             if (assocTarget != null) {
-                searchCompile(assocTarget, new QuietPackageCompileObserver(null), reason);
+                searchCompile(assocTarget, new QuietPackageCompileObserver(null), reason, type);
             }
         }
     }
@@ -1386,14 +1385,14 @@ public final class Package extends Graph
     /**
      * Compile a single class quietly.
      */
-    public void compileQuiet(ClassTarget ct, CompileReason reason)
+    public void compileQuiet(ClassTarget ct, CompileReason reason, CompileType type)
     {
         if (!isDebuggerIdle()) {
             return;
         }
 
         ct.setInvalidState(); // to force compile
-        searchCompile(ct, new QuietPackageCompileObserver(null), reason);
+        searchCompile(ct, new QuietPackageCompileObserver(null), reason, type);
     }
 
     /**
@@ -1434,7 +1433,7 @@ public final class Package extends Graph
                 project.removeClassLoader();
                 project.newRemoteClassLoader();
 
-                doCompile(compileTargets, new PackageCompileObserver(null), CompileReason.REBUILD);
+                doCompile(compileTargets, new PackageCompileObserver(null), CompileReason.REBUILD, CompileType.EXPLICIT_USER_COMPILE);
             }
         }
         catch (IOException ioe) {
@@ -1466,7 +1465,7 @@ public final class Package extends Graph
     /**
      * Compile a class together with its dependencies, as necessary.
      */
-    private void searchCompile(ClassTarget t, EDTCompileObserver observer, CompileReason reason)
+    private void searchCompile(ClassTarget t, EDTCompileObserver observer, CompileReason reason, CompileType type)
     {
         if (! t.isInvalidState() || t.isQueued()) {
             return;
@@ -1501,7 +1500,7 @@ public final class Package extends Graph
                 }
             }
 
-            doCompile(toCompile, observer, reason);
+            doCompile(toCompile, observer, reason, type);
         }
         catch (IOException ioe) {
             // Failed to save; abort the compile
@@ -1516,7 +1515,7 @@ public final class Package extends Graph
      * Compile every Target in 'targetList'. Every compilation goes through this method.
      * All targets in the list should have been saved beforehand.
      */
-    private void doCompile(Collection<ClassTarget> targetList, EDTCompileObserver edtObserver, CompileReason reason)
+    private void doCompile(Collection<ClassTarget> targetList, EDTCompileObserver edtObserver, CompileReason reason, CompileType type)
     {
         CompileObserver observer = new EventqueueCompileObserverAdapter(new DataCollectionCompileObserverWrapper(project, edtObserver));
         if (targetList.isEmpty()) {
@@ -1528,7 +1527,7 @@ public final class Package extends Graph
         if (srcFiles.size() > 0)
         {
             JobQueue.getJobQueue().addJob(srcFiles.toArray(new CompileInputFile[0]), observer, project.getClassLoader(), project.getProjectDir(),
-                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset(), reason);
+                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset(), reason, type);
         }
     }
 
@@ -1565,12 +1564,12 @@ public final class Package extends Graph
     /**
      * Compile the package, but only when the debugger is in an idle state.
      */
-    public void compileOnceIdle(CompileReason reason)
+    public void compileOnceIdle(CompileReason reason, CompileType type)
     {
         if (! waitingForIdleToCompile) {
             if (isDebuggerIdle())
             {
-                compile(reason);
+                compile(reason, type);
             }
             else {
                 waitingForIdleToCompile = true;
@@ -1588,7 +1587,7 @@ public final class Package extends Graph
                             SwingUtilities.invokeLater(() -> {
                                 if (waitingForIdleToCompile) {
                                     waitingForIdleToCompile = false;
-                                    compileOnceIdle(reason);
+                                    compileOnceIdle(reason, type);
                                 }
                             });
                         }
@@ -1601,7 +1600,7 @@ public final class Package extends Graph
                 // Check for that now:
                 if (isDebuggerIdle()) {
                     waitingForIdleToCompile = false;
-                    compile(reason);
+                    compile(reason, type);
                     getDebugger().removeDebuggerListener(dlistener);
                 }
             }
@@ -2412,7 +2411,7 @@ public final class Package extends Graph
          * currently compiled.
          */
         @Override
-        public void startCompile(CompileInputFile[] sources, CompileReason reason)
+        public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
         {
             // Send a compilation starting event to extensions.
             CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
@@ -2459,7 +2458,7 @@ public final class Package extends Graph
          * again.
          */
         @Override
-        public void endCompile(CompileInputFile[] sources, boolean successful)
+        public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
         {
             for (int i = 0; i < sources.length; i++) {
                 String filename = sources[i].getJavaCompileInputFile().getPath();
@@ -2510,6 +2509,9 @@ public final class Package extends Graph
                     // even though compilation is "successful".
                     newCompiledState &= t.upToDate();
                     newCompiledState &= !t.hasKnownError();
+                    // Only update the status to compiled if we actually
+                    // kept the resulting classes:
+                    newCompiledState &= type.keepClasses();
                 }
 
                 t.setState(newCompiledState ? DependentTarget.S_NORMAL : DependentTarget.S_INVALID);
@@ -2526,7 +2528,7 @@ public final class Package extends Graph
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
             
             if (chainObserver != null) {
-                chainObserver.endCompile(sources, successful);
+                chainObserver.endCompile(sources, successful, type);
             }
         }
     }
@@ -2655,10 +2657,10 @@ public final class Package extends Graph
         }
         
         @Override
-        public void startCompile(CompileInputFile[] sources, CompileReason reason)
+        public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
         {
             numErrors = 0;
-            super.startCompile(sources, reason);
+            super.startCompile(sources, reason, type);
         }
         
         @Override
@@ -2728,9 +2730,9 @@ public final class Package extends Graph
         }
         
         @Override
-        public void endCompile(CompileInputFile[] sources, boolean successful)
+        public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
         {
-            super.endCompile(sources, successful);
+            super.endCompile(sources, successful, type);
             
             // Display status dialog for accessibility. If chainObserver is set, we assume
             // that the chained observer will fulfill this responsibility instead.

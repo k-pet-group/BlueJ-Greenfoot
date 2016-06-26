@@ -39,6 +39,7 @@ import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.extensions.SourceType;
@@ -259,8 +260,8 @@ public class ReadmeTarget extends EditableTarget
     public void recordShowErrorIndicator(int identifier) { }
 
     @Override
-    public void compile(Editor editor, CompileReason reason) {}
+    public void compile(Editor editor, CompileReason reason, CompileType type) {}
     
     @Override
-    public void scheduleCompilation(boolean immediate, CompileReason reason) {}
+    public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type) {}
 }

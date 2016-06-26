@@ -82,6 +82,7 @@ import javax.swing.SwingUtilities;
 
 import bluej.classmgr.BPClassLoader;
 import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
 import bluej.utility.javafx.FXSupplier;
@@ -899,7 +900,7 @@ public class PkgMgrFrame extends JPanel
            
             showTestingTools(wantToSeeTestingTools());
             
-            pkg.getProject().scheduleCompilation(true, CompileReason.LOADED, pkg);
+            pkg.getProject().scheduleCompilation(true, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE, pkg);
         }
         
         DataCollector.packageOpened(pkg);
@@ -1397,11 +1398,11 @@ public class PkgMgrFrame extends JPanel
         }
 
         if (target.getRole() instanceof UnitTestClassRole) {
-            pkg.compileQuiet(target, CompileReason.NEW_CLASS);
+            pkg.compileQuiet(target, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE);
         }
 
         // Schedule compilation of new class:
-        pkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS, pkg);
+        pkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE, pkg);
         
         DataCollector.addClass(pkg, target);
         
@@ -2247,7 +2248,7 @@ public class PkgMgrFrame extends JPanel
             // try to compile the test class we have just changed. Do this before
             // installing the new class loader, because that causes a short machine
             // execution during which compilation fails with an error message
-            getPackage().compileQuiet(testTarget, CompileReason.MODIFIED);
+            getPackage().compileQuiet(testTarget, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
 
             // remove objects from object bench
             getProject().removeClassLoader();
@@ -2368,7 +2369,7 @@ public class PkgMgrFrame extends JPanel
                 if (target instanceof ClassTarget) {
                     ClassTarget t = (ClassTarget) target;
                     if (t.hasSourceCode())
-                        pkg.compile(t, CompileReason.USER);
+                        pkg.compile(t, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
                 }
             }
         }
