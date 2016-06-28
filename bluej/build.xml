@@ -572,6 +572,7 @@
                 <include name="*.jar"/>
                 <exclude name="bluej*.jar"/>
                 <exclude name="bjdoclet.jar"/>
+                <exclude name="greenfoot-native.jar"/>
 
                 <!-- Now we exclude all files for which the license is correctly noted in the
                      THIRDPARTYLICENSE.txt file and for which a copy of the license is in the
