@@ -2418,7 +2418,10 @@ public final class Package extends Graph
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             // Set BlueJ status bar message
-            setStatus(compiling);
+            if (type.keepClasses())
+            {
+                setStatus(compiling);
+            }
 
             // Change view of source classes
             markAsCompiling(sources);
@@ -2519,7 +2522,10 @@ public final class Package extends Graph
                 if (successful && t.editorOpen())
                     t.getEditor().setCompiled(true);
             }
-            setStatus(compileDone);
+            if (type.keepClasses())
+            {
+                setStatus(compileDone);
+            }
             graphChanged();
 
             // Send a compilation done event to extensions.
