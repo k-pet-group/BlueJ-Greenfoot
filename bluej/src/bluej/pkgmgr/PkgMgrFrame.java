@@ -151,11 +151,9 @@ import bluej.pkgmgr.actions.SaveProjectAction;
 import bluej.pkgmgr.actions.SaveProjectAsAction;
 import bluej.pkgmgr.actions.ShowCopyrightAction;
 import bluej.pkgmgr.actions.ShowDebuggerAction;
-import bluej.pkgmgr.actions.ShowInheritsAction;
 import bluej.pkgmgr.actions.ShowTerminalAction;
 import bluej.pkgmgr.actions.ShowTestResultsAction;
 import bluej.pkgmgr.actions.ShowTextEvalAction;
-import bluej.pkgmgr.actions.ShowUsesAction;
 import bluej.pkgmgr.actions.StandardAPIHelpAction;
 import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
@@ -205,8 +203,6 @@ public class PkgMgrFrame extends JPanel
     private JPanel buttonPanel;
     private JPanel testPanel;
     private JPanel teamPanel;
-    private JCheckBoxMenuItem showUsesMenuItem;
-    private JCheckBoxMenuItem showExtendsMenuItem;
     private AbstractButton runButton;
     private JLabel statusbar;
     // Initialised once, effectively final thereafter:
@@ -261,8 +257,6 @@ public class PkgMgrFrame extends JPanel
     private final Action restartVMAction = new RestartVMAction(this);
     private final Action useLibraryAction = new UseLibraryAction(this);
     private final Action generateDocsAction = new GenerateDocsAction(this);
-    private final PkgMgrToggleAction showUsesAction = new ShowUsesAction(this);
-    private final PkgMgrToggleAction showInheritsAction = new ShowInheritsAction(this);
     private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this);
     private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
     private final PkgMgrToggleAction showTextEvalAction = new ShowTextEvalAction(this);
@@ -864,15 +858,6 @@ public class PkgMgrFrame extends JPanel
                 Debug.reportError("Could not read preferred project screen position");
             }
             
-            String uses_str = p.getProperty("package.showUses", "true");
-            String extends_str = p.getProperty("package.showExtends", "true");
-            
-            showUsesMenuItem.setSelected(uses_str.equals("true"));
-            showExtendsMenuItem.setSelected(extends_str.equals("true"));
-            
-            updateShowUsesInPackage();
-            updateShowExtendsInPackage();
-
             editor.revalidate();
             editor.requestFocus();
             
@@ -1631,9 +1616,6 @@ public class PkgMgrFrame extends JPanel
             d = objbench.getSize();
             p.put("objectbench.width", Integer.toString(d.width));
             p.put("objectbench.height", Integer.toString(d.height));
-    
-            p.put("package.showUses", Boolean.toString(isShowUses()));
-            p.put("package.showExtends", Boolean.toString(isShowExtends()));
         }
         pkg.save(p);
     }
@@ -2449,31 +2431,6 @@ public class PkgMgrFrame extends JPanel
     }
 
     /**
-     * Toggle the state of the "show uses arrows" switch.
-     */
-    public void updateShowUsesInPackage()
-    {
-        pkg.setShowUses(isShowUses());
-        editor.repaint();
-    }
-
-    public void updateShowExtendsInPackage()
-    {
-        pkg.setShowExtends(isShowExtends());
-        editor.repaint();
-    }
-    
-    public boolean isShowUses()
-    {
-        return showUsesMenuItem.isSelected();
-    }
-
-    public boolean isShowExtends()
-    {
-        return showExtendsMenuItem.isSelected();
-    }
-    
-    /**
      * Show or hide the testing tools.
      * @param show True to show; false to hide
      */
@@ -3060,10 +3017,6 @@ public class PkgMgrFrame extends JPanel
         menu.setMnemonic(Config.getMnemonicKey("menu.view"));
         menubar.add(menu);
         {
-            showUsesMenuItem = createCheckboxMenuItem(showUsesAction, menu, true);
-            showExtendsMenuItem = createCheckboxMenuItem(showInheritsAction, menu, true);
-            menu.addSeparator();
-
             createCheckboxMenuItem(showDebuggerAction, menu, false);
             createCheckboxMenuItem(showTerminalAction, menu, false);
             createCheckboxMenuItem(showTextEvalAction, menu, false);
@@ -3186,8 +3139,6 @@ public class PkgMgrFrame extends JPanel
         actionsToDisable.add(restartVMAction);
         actionsToDisable.add(useLibraryAction);
         actionsToDisable.add(generateDocsAction);
-        actionsToDisable.add(showUsesAction);
-        actionsToDisable.add(showInheritsAction);
         actionsToDisable.add(showDebuggerAction);
         actionsToDisable.add(showTerminalAction);
         actionsToDisable.add(showTextEvalAction);
