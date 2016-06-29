@@ -63,6 +63,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Duration;
 
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import threadchecker.OnThread;
@@ -467,6 +468,8 @@ public class SuggestionList
         listAndMoreAndTransPane.setBackground(null);
         listAndMoreAndTransPane.setPickOnBounds(false);
         listBox.setMaxHeight(300.0);
+        // This is a heuristic: double the font size for each item, but it seems to work well:
+        listBox.setPrefHeight(2 * PrefMgr.strideFontSizeProperty().get() * choices.size());
         listAndDocBorderPane.setCenter(listAndMoreAndTransPane);
         listAndDocBorderPane.setRight(docPane);
         listAndDocBorderPane.setMaxHeight(300.0);
@@ -691,7 +694,7 @@ public class SuggestionList
         if (window.getOwner() == null)
             window.initOwner(reference.getScene().getWindow());
         window.show();
-        //ScenicView.show(window.getScene());
+        //org.scenicview.ScenicView.show(window.getScene());
         listBox.requestFocus();
     }
 
