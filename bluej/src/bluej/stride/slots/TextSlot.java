@@ -442,8 +442,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             this.textProperty().addListener((observable, oldValue, newValue) -> {
                 slotElement = null;
 
-                //Unless still focused, go transparent
-                if (!isFocused())
+                //Unless still focused (or notionally focused because code completion is showing), go transparent
+                if (!isFocused() && suggestionDisplayProperty.get() == null)
                 {
                     if (newValue.length() > 0)
                     {
