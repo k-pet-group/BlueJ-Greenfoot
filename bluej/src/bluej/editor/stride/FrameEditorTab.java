@@ -72,6 +72,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -95,11 +96,13 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -1828,7 +1831,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private void updateFontSize()
     {
         // We don't bind because topLevelFrame may change
-        getTopLevelFrame().getNode().setStyle("-fx-font-size: " + PrefMgr.strideFontSizeCSS().get() + ";");
+        getTopLevelFrame().getNode().setStyle("-fx-font-size: " + getFontSizeCSS().get() + ";");
     }
 
     //package-visible
@@ -1845,6 +1848,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         final IntegerProperty fontSize = PrefMgr.strideFontSizeProperty();
         int prev = fontSize.get();
         fontSize.set(Math.min(PrefMgr.MAX_STRIDE_FONT_SIZE, prev < 32 ? (prev < 14 ? prev + 1 : prev + 2) : prev + 4));
+    }
+
+    @Override
+    public StringExpression getFontSizeCSS()
+    {
+        return PrefMgr.strideFontSizeProperty().asString().concat("pt");
     }
 
     private void calculateBirdseyeRectangle()
@@ -2282,7 +2291,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         return scrollContent.sceneToLocal(node.localToScene(node.getBoundsInLocal()));
     }
-    
+
     @Override
     public boolean isLoading()
     {

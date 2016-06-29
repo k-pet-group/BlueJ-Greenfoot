@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,8 +28,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
+import javafx.scene.layout.Region;
 
-import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
@@ -188,7 +189,7 @@ public class WrappableSlotLabel implements HeaderItem, CopyableHeaderItem
     @Override
     public Stream<Node> makeDisplayClone(InteractionManager editor)
     {
-        List<Node> copies = Utility.mapList(words, l -> JavaFXUtil.cloneLabel(l, PrefMgr.strideFontSizeCSS()));
+        List<Node> copies = Utility.mapList(words, l -> JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS()));
         copies.forEach(n -> HangingFlowPane.setAlignment(n, alignment));
         return copies.stream();
     }

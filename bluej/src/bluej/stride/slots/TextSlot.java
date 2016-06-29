@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 
 import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
-import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -78,6 +77,7 @@ import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.utility.Debug;
 import bluej.utility.javafx.AnnotatableTextField;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -1063,7 +1063,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         JavaFXUtil.bindList(f.getStyleClass(), field.getStyleClass());
         JavaFXUtil.bindPseudoclasses(f, field.getPseudoClassStates());
         JavaFXUtil.setPseudoclass("bj-pinned", true, f);
-        f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(PrefMgr.strideFontSizeCSS()).concat(";"));
+        f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(editor.getFontSizeCSS()).concat(";"));
         return Stream.of(f);
     }
 

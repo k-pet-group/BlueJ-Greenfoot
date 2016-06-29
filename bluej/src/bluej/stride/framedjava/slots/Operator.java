@@ -28,11 +28,10 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableStringValue;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-
-import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.HangingFlowPane;
@@ -243,7 +242,7 @@ class Operator
 
     public Node makeDisplayClone(InteractionManager editor)
     {
-        return JavaFXUtil.cloneLabel(l, PrefMgr.strideFontSizeCSS());
+        return JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS());
     }
 
     public static enum Precedence

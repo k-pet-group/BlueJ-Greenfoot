@@ -21,11 +21,9 @@
  */
 package bluej.stride.generic;
 
-import bluej.Config;
 import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
-import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
@@ -248,6 +246,8 @@ public interface InteractionManager
      * @return
      */
     public boolean isLoading();
+
+    public StringExpression getFontSizeCSS();
 
     public ReadOnlyObjectProperty<Frame.View> viewProperty();
 
