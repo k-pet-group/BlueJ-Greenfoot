@@ -754,7 +754,11 @@ public class SuggestionList
     protected void setHighlighted(int newHighlight, boolean scrollTo)
     {
         if (highlighted == newHighlight)
+        {
+            if (highlighted != -1 && scrollTo)
+                listBox.scrollTo(Math.max(0, showingItems.indexOf(doubleSuggestions.get(newHighlight)) - 3));
             return;
+        }
 
         if (highlighted != -1)
             doubleSuggestions.get(highlighted).highlighted.set(false);
@@ -931,9 +935,12 @@ public class SuggestionList
 
 
         // If we had a highlight before, but it's no longer eligible, remove the highlight:
-        if (highlighted != -1 && !eligible.containsKey(highlighted))
+        if (highlighted != -1)
         {
-            setHighlighted(getFirstEligible(), true);
+            if (!eligible.containsKey(highlighted))
+                setHighlighted(getFirstEligible(), true);
+            else
+                setHighlighted(highlighted, true);
         }
     }
     
