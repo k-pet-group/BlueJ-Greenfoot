@@ -21,9 +21,6 @@
  */
 package bluej.utility.javafx;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,38 +31,23 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Bounds;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.Debug;
 
 /**
  * This is a class to make sure a TextArea always resizes to fit its content.
@@ -104,8 +86,8 @@ public class ScrollFreeTextArea
             {
                 initialised = true;
 
-                recalculateOneTwoLineHeights(editor.getFontSizeCSS().get());
-                textArea.getStyleClass().addListener((ListChangeListener<String>) c -> recalculateOneTwoLineHeights(editor.getFontSizeCSS().get()));
+                recalculateOneTwoLineHeights(PrefMgr.strideFontSizeCSS().get());
+                textArea.getStyleClass().addListener((ListChangeListener<String>)c -> recalculateOneTwoLineHeights(PrefMgr.strideFontSizeCSS().get()));
 
 
                 // Snapshot to make sure textArea internals are all created:
@@ -185,8 +167,8 @@ public class ScrollFreeTextArea
 
         offScreen.setPrefRowCount(0);
         offScreen.setMinHeight(0);
-        offScreen.styleProperty().bind(new SimpleStringProperty("-fx-font-size: ").concat(editor.getFontSizeCSS()).concat(";"));
-        JavaFXUtil.addChangeListener(editor.getFontSizeCSS(), this::recalculateOneTwoLineHeights);
+        offScreen.styleProperty().bind(new SimpleStringProperty("-fx-font-size: ").concat(PrefMgr.strideFontSizeCSS()).concat(";"));
+        JavaFXUtil.addChangeListener(PrefMgr.strideFontSizeCSS(), this::recalculateOneTwoLineHeights);
         
         // Given the way we are currently doing the sizes, that we bind the preferred height,
         // we run into a problem that the width may change during a layout pass, but the

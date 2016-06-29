@@ -51,6 +51,7 @@ import java.util.Scanner;
 
 import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -66,6 +67,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -2017,6 +2019,16 @@ public final class Config
         Point location = getLocation(locationPrefix);
         window.setX(location.x);
         window.setY(location.y);
+    }
+
+    public static KeyCode getKeyCodeForYesNo(InteractionManager.ShortcutKey keyPurpose)
+    {
+        switch (keyPurpose)
+        {
+            case YES_ANYWHERE: return KeyCode.F2;
+            case NO_ANYWHERE: return KeyCode.F3;
+        }
+        return null;
     }
 
     /**

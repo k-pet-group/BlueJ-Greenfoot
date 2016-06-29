@@ -24,14 +24,13 @@ package bluej.stride.framedjava.slots;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
+
+import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.slots.InfixStructured.CaretPosMap;
 import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.Frame.View;
@@ -284,9 +283,9 @@ class StringLiteralExpression implements StructuredSlotComponent
     public Stream<Node> makeDisplayClone(InteractionManager editor)
     {
         return Utility.concat(
-            Stream.of(JavaFXUtil.cloneLabel(openingQuote, editor.getFontSizeCSS())),
+            Stream.of(JavaFXUtil.cloneLabel(openingQuote, PrefMgr.strideFontSizeCSS())),
             field.makeDisplayClone(editor),
-            Stream.of(JavaFXUtil.cloneLabel(closingQuote, editor.getFontSizeCSS()))
+            Stream.of(JavaFXUtil.cloneLabel(closingQuote, PrefMgr.strideFontSizeCSS()))
         );
     }
 

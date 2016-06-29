@@ -24,8 +24,10 @@ package bluej.stride.slots;
 import java.util.List;
 import java.util.stream.Stream;
 
+import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.ScalableHeightLabel;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -293,7 +295,7 @@ public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
     @Override
     public Stream<Label> makeDisplayClone(InteractionManager editor)
     {
-        Label copy = JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS());
+        Label copy = JavaFXUtil.cloneLabel(l, PrefMgr.strideFontSizeCSS());
         return Stream.of(copy);
     }
 

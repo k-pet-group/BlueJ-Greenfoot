@@ -41,6 +41,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 
+import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.slots.InfixStructured.CaretPosMap;
 import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.Frame;
@@ -502,7 +503,7 @@ class StructuredSlotField implements StructuredSlotComponent
         JavaFXUtil.bindList(f.getStyleClass(), field.getStyleClass());
         JavaFXUtil.bindPseudoclasses(f, field.getPseudoClassStates());
         JavaFXUtil.setPseudoclass("bj-pinned", true, f);
-        f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(editor.getFontSizeCSS()).concat(";"));
+        f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(PrefMgr.strideFontSizeCSS()).concat(";"));
         return Stream.of(f);
     }
 }

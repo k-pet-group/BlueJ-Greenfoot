@@ -23,12 +23,13 @@ package bluej.stride.generic;
 
 import java.util.IdentityHashMap;
 
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import bluej.Config;
 import bluej.editor.stride.CodeOverlayPane;
 import bluej.stride.generic.InteractionManager.ShortcutKey;
 import bluej.utility.javafx.FXRunnable;
@@ -50,11 +51,11 @@ public class SuggestedFollowUpDisplay
         this.editor = editor;
         this.action = action;
         JavaFXUtil.addStyleClass(content, "suggested-followup-pane");
-        
-        Button yes = new Button("Yes (" + editor.getKey(ShortcutKey.YES_ANYWHERE) + ")");
+
+        Button yes = new Button("Yes (" + Config.getKeyCodeForYesNo(ShortcutKey.YES_ANYWHERE) + ")");
         yes.setOnAction(e -> { action.run(); hide(); });
-        
-        Button no = new Button("No (" + editor.getKey(ShortcutKey.NO_ANYWHERE) + ")");
+
+        Button no = new Button("No (" + Config.getKeyCodeForYesNo(ShortcutKey.NO_ANYWHERE) + ")");
         no.setOnAction(e -> hide());
         
         HBox hbox = new HBox(yes, no);

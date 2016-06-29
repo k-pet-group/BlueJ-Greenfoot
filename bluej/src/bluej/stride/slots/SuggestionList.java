@@ -451,7 +451,7 @@ public class SuggestionList
         listBox.setBackground(null);
         listBox.setItems(this.showingItems);
 
-        listBox.setStyle("-fx-font-size: " + editor.getFontSizeCSS().get() + ";");
+        listBox.setStyle("-fx-font-size: " + PrefMgr.strideFontSizeCSS().get() + ";");
 
         this.docPane = new Pane();
         docPane.setMinWidth(400.0);

@@ -21,9 +21,11 @@
  */
 package bluej.stride.generic;
 
+import bluej.Config;
 import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
+import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
@@ -237,21 +239,15 @@ public interface InteractionManager
     default public void scrollTo(Node n, double yOffsetFromTop) { scrollTo(n, yOffsetFromTop, null); }
     
     public FrameSelection getSelection();
-    
-    public Point2D sceneToScreen(Point2D scenePoint);
 
     public void registerStackHighlight(Frame frame);
 
-    public KeyCode getKey(ShortcutKey keyPurpose);
-    
     /**
      * Returns true while frame is initially being loaded, used to mask off
      * unnecessary modification notifications
      * @return
      */
     public boolean isLoading();
-
-    public StringExpression getFontSizeCSS();
 
     public ReadOnlyObjectProperty<Frame.View> viewProperty();
 

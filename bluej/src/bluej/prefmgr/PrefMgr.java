@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
@@ -51,8 +52,7 @@ import bluej.terminal.Terminal;
  *
  * @author  Andrew Patterson
  */
-@OnThread(Tag.Swing)
-public class PrefMgr
+public @OnThread(Tag.Swing) class PrefMgr
 {
     // publicly accessible names for flags
     public static final String HILIGHTING = "bluej.editor.syntaxHilighting";
@@ -373,6 +373,12 @@ public class PrefMgr
         }
         
         return strideFontSize;
+    }
+
+    @OnThread(Tag.FX)
+    public static StringExpression strideFontSizeCSS()
+    {
+        return PrefMgr.strideFontSizeProperty().asString().concat("pt");
     }
 
     /**
