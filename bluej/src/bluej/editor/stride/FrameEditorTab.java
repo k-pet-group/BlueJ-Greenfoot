@@ -87,9 +87,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
-import javafx.css.CssMetaData;
-import javafx.css.SimpleStyleableObjectProperty;
-import javafx.css.Styleable;
 import javafx.event.Event;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -230,7 +227,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     // The debugger controls (currently unused):
     private HBox controlPanel;
     private FrameCursor dragTarget;
-    private ContentBorderPane contentRoot;
+    private BorderPaneWithHighlightColor contentRoot;
     private StackPane scrollAndOverlays;
     private StackPane scrollContent;
     private final ObjectProperty<FXTabbedEditor> parent = new SimpleObjectProperty<>();
@@ -395,7 +392,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         selection.addChangeListener(() -> menuManager.setMenuItems(focusedItem.get() != null ? focusedItem.get().getMenuItems(false) : Collections.emptyMap()));
 
-        contentRoot = new ContentBorderPane();
+        contentRoot = new BorderPaneWithHighlightColor();
         JavaFXUtil.addStyleClass(contentRoot, "frame-editor-tab-content", initialSource.getStylePrefix() + "frame-editor-tab-content");
         scrollAndOverlays = new StackPane();
         windowOverlayPane = new WindowOverlayPane();
@@ -1124,6 +1121,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         getParent().scheduleUpdateCatalogue(this, newView == View.NORMAL ? getFocusedCursor() : null, CodeCompletionState.NOT_POSSIBLE, false, newView, Collections.emptyList(), Collections.emptyList());
     }
 
+    @Override
     public BooleanProperty cheatSheetShowingProperty()
     {
         return getParent().catalogueShowingProperty();
@@ -1183,24 +1181,35 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     void dragEndTab(List<Frame> dragSourceFrames, boolean copying)
     {
         // First, move the blocks:
-        if (dragSourceFrames != null && !dragSourceFrames.isEmpty() && dragTarget != null) {
-            // Check all of them can be dragged to new location:
-            boolean canMove = true;
-            for (Frame src : dragSourceFrames) {
-                src.setDragSourceEffect(false);
-                canMove &= dragTarget.getParentCanvas().acceptsType(src);
+        if (dragSourceFrames != null && !dragSourceFrames.isEmpty())
+        {  
+            if (dragTarget == null)
+            {
+                // No valid target, just turn off highlight:
+                dragSourceFrames.forEach(f -> f.setDragSourceEffect(false));
             }
+            else
+            {
+                // Check all of them can be dragged to new location:
+                boolean canMove = true;
+                for (Frame src : dragSourceFrames)
+                {
+                    src.setDragSourceEffect(false);
+                    canMove &= dragTarget.getParentCanvas().acceptsType(src);
+                }
 
-            if (canMove && !isUselessDrag(dragTarget, dragSourceFrames, copying)) {
-                beginRecordingState(dragTarget);
-                performDrag(dragSourceFrames, copying);
-                endRecordingState(dragTarget);
+                if (canMove && !isUselessDrag(dragTarget, dragSourceFrames, copying))
+                {
+                    beginRecordingState(dragTarget);
+                    performDrag(dragSourceFrames, copying);
+                    endRecordingState(dragTarget);
+                }
+                selection.clear();
+
+                // Then stop showing cursor as drag target:
+                dragTarget.stopShowAsDropTarget();
+                dragTarget = null;
             }
-            selection.clear();
-
-            // Then stop showing cursor as drag target:
-            dragTarget.stopShowAsDropTarget();
-            dragTarget = null;
         }
     }
 
@@ -1245,20 +1254,32 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     //package-visible
     void draggedToTab(List<Frame> dragSourceFrames, double sceneX, double sceneY, boolean copying)
     {
-        FrameCursor newDragTarget = getTopLevelFrame().findCursor(sceneX, sceneY, null, null, dragSourceFrames, true, true);
-
-        if (newDragTarget != null && dragTarget != newDragTarget) {
+        Bounds scrollBounds = scroll.localToScene(scroll.getBoundsInLocal());
+        if (sceneX < scrollBounds.getMinX() || sceneX > scrollBounds.getMaxX())
+        {
+            // Drag has moved out of editor section, don't show any drag target for now:
             if (dragTarget != null) {
                 dragTarget.stopShowAsDropTarget();
                 dragTarget = null;
             }
-            boolean src = isUselessDrag(newDragTarget, dragSourceFrames, copying);
-            boolean acceptsAll = true;
-            for (Frame srcFrame : dragSourceFrames) {
-                acceptsAll &= newDragTarget.getParentCanvas().acceptsType(srcFrame);
+        }
+        else
+        {
+            FrameCursor newDragTarget = getTopLevelFrame().findCursor(sceneX, sceneY, null, null, dragSourceFrames, true, true);
+            if (newDragTarget != null && dragTarget != newDragTarget)
+            {
+                if (dragTarget != null) {
+                    dragTarget.stopShowAsDropTarget();
+                    dragTarget = null;
+                }
+                boolean src = isUselessDrag(newDragTarget, dragSourceFrames, copying);
+                boolean acceptsAll = true;
+                for (Frame srcFrame : dragSourceFrames) {
+                    acceptsAll &= newDragTarget.getParentCanvas().acceptsType(srcFrame);
+                }
+                newDragTarget.showAsDropTarget(src, acceptsAll, copying);
+                dragTarget = newDragTarget;
             }
-            newDragTarget.showAsDropTarget(src, acceptsAll, copying);
-            dragTarget = newDragTarget;
         }
         
         if (dragTarget != null)
@@ -2298,6 +2319,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return loading;
     }
     
+    @Override
     public boolean isEditable()
     {
         return viewProperty.get() != View.JAVA_PREVIEW;
@@ -2459,22 +2481,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return project;
     }
 
-    private class ContentBorderPane extends BorderPane
-    {
-        private final CssMetaData<ContentBorderPane, Color> COLOR_META_DATA =
-                JavaFXUtil.cssColor("-bj-highlight-color", ContentBorderPane::cssHighlightColorProperty);
-        private final SimpleStyleableObjectProperty<Color> cssHighlightColorProperty = new SimpleStyleableObjectProperty<Color>(COLOR_META_DATA);
-        private final List <CssMetaData <? extends Styleable, ? > > cssMetaDataList =
-                JavaFXUtil.extendCss(BorderPane.getClassCssMetaData())
-                        .add(COLOR_META_DATA)
-                        .build();
-
-        public final SimpleStyleableObjectProperty<Color> cssHighlightColorProperty() { return cssHighlightColorProperty; }
-
-        @Override public List<CssMetaData<? extends Styleable, ?>> getCssMetaData() { return cssMetaDataList; }
-
-    }
-
     @Override
     public ObservableStringValue windowTitleProperty()
     {
@@ -2525,6 +2531,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement));
     }
 
+    @Override
     public void recordUnknownCommandKey(Frame enclosingFrame, int cursorIndex, char key)
     {
         if (key < 32 || key == 127)

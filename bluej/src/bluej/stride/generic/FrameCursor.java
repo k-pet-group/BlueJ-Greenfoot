@@ -100,7 +100,7 @@ public class FrameCursor implements RecallableFocus
     private final Button node = new Button();
 
     @OnThread(Tag.FXPlatform)
-    public boolean keyTyped(final FrameEditorTab editor, final FrameCanvas parentCanvas, char key, boolean viaRedirect)
+    public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key, boolean viaRedirect)
     {
         if (!editor.isEditable() || !canInsert())
             return false;
@@ -154,7 +154,7 @@ public class FrameCursor implements RecallableFocus
 
             // Third, check if the canvas we are in supports this block generally:
             if (available.size() > 1) {
-                throw new IllegalStateException("Ambigious keypress: " + key + " in frame: " + parentCanvas.getParent());
+                throw new IllegalStateException("Ambigious keypress: " + key + " in frame: " + parentCanvas.getParent() + " [" + available.stream().map(e -> e.getName()).collect(Collectors.joining(", ")) + "]");
             }
             else if (available.size() == 1) {
                 Entry<?> frameType = available.get(0);
@@ -338,7 +338,7 @@ public class FrameCursor implements RecallableFocus
     /**
      * Constructor
      */
-    public FrameCursor(final FrameEditorTab editor, final FrameCanvas parentCanvas)
+    public FrameCursor(final InteractionManager editor, final FrameCanvas parentCanvas)
     {
         node.getStyleClass().add("frame-cursor");
         node.setMaxWidth(100);

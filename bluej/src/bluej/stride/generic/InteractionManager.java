@@ -34,6 +34,7 @@ import bluej.utility.javafx.FXSupplier;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.geometry.Point2D;
@@ -150,6 +151,12 @@ public interface InteractionManager
     void recordCodeCompletionEnded(SlotFragment position, int index, String stem, String completion);
 
     void recordErrorIndicatorShown(int identifier);
+
+    boolean isEditable();
+
+    BooleanProperty cheatSheetShowingProperty();
+
+    void recordUnknownCommandKey(Frame enclosingFrame, int index, char key);
 
     public static enum ShortcutKey
     {
