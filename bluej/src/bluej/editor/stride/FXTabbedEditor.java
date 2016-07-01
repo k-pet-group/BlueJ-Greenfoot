@@ -667,21 +667,21 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * Notify us that the current frame has reached the given position
      * @param sceneX Scene X position of mouse
      * @param sceneY Scene Y position of mouse
-     * @param copying Whether the copy-drag key is being held (true) or not (false)
+     * @param dragType Whether the copy-drag key is being held (true) or not (false)
      */
     @OnThread(Tag.FXPlatform)
-    public void draggedTo(double sceneX, double sceneY, boolean copying)
+    public void draggedTo(double sceneX, double sceneY, JavaFXUtil.DragType dragType)
     {
         if (!dragSourceFrames.isEmpty()) {
             Point2D p = dragPane.sceneToLocal(sceneX, sceneY);
             mouseDragXProperty.set(p.getX());
             mouseDragYProperty.set(p.getY());
 
-            checkHoverDuringDrag(sceneX, sceneY, copying);
+            checkHoverDuringDrag(sceneX, sceneY, dragType);
             
             if (tabPane.getSelectionModel().getSelectedItem() instanceof FrameEditorTab)
             {
-                ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).draggedToTab(dragSourceFrames, sceneX, sceneY, copying);
+                ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).draggedToTab(dragSourceFrames, sceneX, sceneY, dragType == JavaFXUtil.DragType.FORCE_COPYING);
             }
         }
     }
@@ -699,10 +699,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * (If so, after a little delay, that tab is switched to)
      * @param sceneX The mouse scene X position
      * @param sceneY The mouse scene Y position
-     * @param copying Whether the copy-drag key is being held down
+     * @param dragType Whether the copy-drag key is being held down
      */
     @OnThread(Tag.FXPlatform)
-    private void checkHoverDuringDrag(double sceneX, double sceneY, boolean copying)
+    private void checkHoverDuringDrag(double sceneX, double sceneY, JavaFXUtil.DragType dragType)
     {
         // Check if a tab is underneath:
         for (Tab t : tabPane.getTabs())
@@ -719,8 +719,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                     hoverTabTask = JavaFXUtil.runAfter(Duration.millis(500), () -> {
                         ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).draggedToAnotherTab();
                         tabPane.getSelectionModel().select(t);
-                        ((FrameEditorTab)t).draggedTo(sceneX, sceneY, copying);
-                        //TODO tell the new tab about the drag and make it take over somehow
+                        draggedTo(sceneX, sceneY, dragType);
                     });
                 }
             }
@@ -729,10 +728,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
     /**
      * Notify us that a frame drag has ended
-     * @param copying Whether the copy-drag key was held down as the drag finished
+     * @param dragType Whether the copy-drag key was held down as the drag finished
      */
     @OnThread(Tag.FXPlatform)
-    public void frameDragEnd(boolean copying)
+    public void frameDragEnd(JavaFXUtil.DragType dragType)
     {
         if (hoverTabTask != null)
             hoverTabTask.run();
@@ -746,7 +745,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
             if (tabPane.getSelectionModel().getSelectedItem() instanceof FrameEditorTab)
             {
-                ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).dragEndTab(dragSourceFrames, copying);
+                ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).dragEndTab(dragSourceFrames, dragType == JavaFXUtil.DragType.FORCE_COPYING);
             }
             dragSourceFrames.clear();
             scene.setCursor(Cursor.DEFAULT);

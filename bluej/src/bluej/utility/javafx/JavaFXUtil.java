@@ -1293,15 +1293,33 @@ public class JavaFXUtil
             timeline.stop();
         };
     }
+    
+    public static enum DragType
+    {
+        /** The copy key (Mac: option, Others: Ctrl) was held down */
+        FORCE_COPYING,
+        /** The move key (shift) was held down */
+        FORCE_MOVING,
+        /** No modifier was held down */
+        DEFAULT;
+    }
 
     /**
-     * Checks if the drag-copy shortcut was held down during a particular mouse event.
+     * Checks if the drag-copy or drag-move modifiers was held down during a particular mouse event.
      * 
-     * On Mac this is the option key.  On Windows and Linux, this is the Ctrl key.
+     * Drag-copy: On Mac this is the option key.  On Windows and Linux, this is the Ctrl key.
+     * Drag-move: The shift key.
      */
-    public static boolean isDragCopyKeyPressed(MouseEvent event)
+    public static DragType getDragModifiers(MouseEvent event)
     {
-        return Config.isMacOS() ? event.isAltDown() : event.isShortcutDown();
+        boolean forceCopy = Config.isMacOS() ? event.isAltDown() : event.isShortcutDown();
+        boolean forceMove = event.isShiftDown();
+        if (forceCopy)
+            return DragType.FORCE_COPYING;
+        else if (forceMove)
+            return DragType.FORCE_MOVING;
+        else
+            return DragType.DEFAULT;
     }
 
     /**

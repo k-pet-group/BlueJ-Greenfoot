@@ -93,13 +93,11 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -1137,45 +1135,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         withTopLevelFrame(f -> f.getAllFrames().forEach(Frame::markNonFresh));
     }
 
-    @OnThread(Tag.FXPlatform)
-    public void blockDragBegin(Frame b, double mouseSceneX, double mouseSceneY)
-    {
-        if (dragTarget != null)
-        {
-            throw new IllegalStateException("Drag begun while drag in progress");
-        }
-        
-        if (viewProperty.get() == View.JAVA_PREVIEW)
-        {
-            // No dragging allowed while showing Java preview:
-            return;
-        }
-
-        if (selection.contains(b))
-        {
-            // Drag the whole selection:
-            getParent().frameDragBegin(selection.getSelected(), mouseSceneX, mouseSceneY);
-        }
-        else
-        {
-            getParent().frameDragBegin(Arrays.asList(b), mouseSceneX, mouseSceneY);
-        }
-    }
-
-    public boolean isDragging()
-    {
-        return getParent().isDragging();
-    }
-
-    // Called by mouse events
-    @OnThread(Tag.FXPlatform)
-    public void blockDragEnd(boolean copying)
-    {
-        getParent().frameDragEnd(copying);
-        
-    }
-
-    // Called by TabbedEditor when drag ends on us as selected tab
+    /**
+     * Called by FXTabbedEditor when drag ends on us, at the position of the last
+     * draggedToTab call.
+     */
     // package-visible
     @OnThread(Tag.FXPlatform)
     void dragEndTab(List<Frame> dragSourceFrames, boolean copying)
@@ -1241,16 +1204,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
 
         editor.recordEdits(StrideEditReason.FRAMES_DRAG);
-    }    
-
-    // Called by mouse events
-    @OnThread(Tag.FXPlatform)
-    protected void draggedTo(double sceneX, double sceneY, boolean copying)
-    {
-        getParent().draggedTo(sceneX, sceneY, copying);
     }
 
-    // Called by TabbedEditor when this tab is the selected one during a drag
+    /**
+     * Called by TabbedEditor when the drag location is updated, and we are the
+     * currently active tab.
+     */
     //package-visible
     void draggedToTab(List<Frame> dragSourceFrames, double sceneX, double sceneY, boolean copying)
     {
@@ -1288,7 +1247,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
-    // Called by TabbedEditor when we are no longer the target tab during a drag
+    /**
+     * Called by TabbedEditor when we are no longer the target tab during a drag.
+     * 
+     * We just have to tidy up any display of potential drag targets.
+     */
     //package-visible
     void draggedToAnotherTab()
     {
@@ -1522,22 +1485,42 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         // We use "simple press-drag-release" here, so the events are all delivered to the original cursor:
         
         f.getNode().setOnDragDetected(event -> {
-            blockDragBegin(f, event.getSceneX(), event.getSceneY());
+            double mouseSceneX = event.getSceneX();
+            double mouseSceneY = event.getSceneY();
+            if (dragTarget != null)
+            {
+                throw new IllegalStateException("Drag begun while drag in progress");
+            }
+
+            // No dragging allowed while showing Java preview:
+            if (viewProperty.get() != View.JAVA_PREVIEW)
+            {
+                if (selection.contains(f))
+                {
+                    // Drag the whole selection:
+                    getParent().frameDragBegin(selection.getSelected(), mouseSceneX, mouseSceneY);
+                }
+                else
+                {
+                    getParent().frameDragBegin(Arrays.asList(f), mouseSceneX, mouseSceneY);
+                }
+            }
             event.consume();
         });
         
         f.getNode().setOnMouseDragged(event -> {
-            draggedTo(event.getSceneX(), event.getSceneY(), JavaFXUtil.isDragCopyKeyPressed(event));
+            getParent().draggedTo(event.getSceneX(), event.getSceneY(), JavaFXUtil.getDragModifiers(event));
             event.consume();
         });
         
         f.getNode().setOnMouseReleased(event -> {
-            if (!isDragging())
+            if (!getParent().isDragging())
                 return;
 
             // Make sure we're using the latest position:
-            draggedTo(event.getSceneX(), event.getSceneY(), JavaFXUtil.isDragCopyKeyPressed(event));
-            blockDragEnd(JavaFXUtil.isDragCopyKeyPressed(event));
+            getParent().draggedTo(event.getSceneX(), event.getSceneY(), JavaFXUtil.getDragModifiers(event));
+            getParent().frameDragEnd(JavaFXUtil.getDragModifiers(event));
+
             event.consume();
         });
     }
