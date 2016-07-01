@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -88,6 +89,7 @@ import bluej.Main;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 //import org.scenicview.ScenicView;
+import bluej.utility.javafx.FXSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -743,6 +745,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             getDragPane().getChildren().remove(dragIcon);
             dragIcon = null;
 
+            
+            // Turn off the highlight:
+            dragSourceFrames.forEach(f -> f.setDragSourceEffect(false));
+            
             if (tabPane.getSelectionModel().getSelectedItem() instanceof FrameEditorTab)
             {
                 ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).dragEndTab(dragSourceFrames, dragType == JavaFXUtil.DragType.FORCE_COPYING);
@@ -827,6 +833,44 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     public Window getWindow()
     {
         return stage;
+    }
+
+    public static void setupFrameDrag(Frame f, FXSupplier<FXTabbedEditor> parent, FXSupplier<Boolean> canDrag, FXSupplier<FrameSelection> selection)
+    {
+        f.getNode().setOnDragDetected(event -> {
+            double mouseSceneX = event.getSceneX();
+            double mouseSceneY = event.getSceneY();
+            // No dragging allowed while showing Java preview:
+            if (canDrag.get())
+            {
+                if (selection.get().contains(f))
+                {
+                    // Drag the whole selection:
+                    parent.get().frameDragBegin(selection.get().getSelected(), mouseSceneX, mouseSceneY);
+                }
+                else
+                {
+                    parent.get().frameDragBegin(Arrays.asList(f), mouseSceneX, mouseSceneY);
+                }
+            }
+            event.consume();
+        });
+
+        f.getNode().setOnMouseDragged(event -> {
+            parent.get().draggedTo(event.getSceneX(), event.getSceneY(), JavaFXUtil.getDragModifiers(event));
+            event.consume();
+        });
+
+        f.getNode().setOnMouseReleased(event -> {
+            if (!parent.get().isDragging())
+                return;
+
+            // Make sure we're using the latest position:
+            parent.get().draggedTo(event.getSceneX(), event.getSceneY(), JavaFXUtil.getDragModifiers(event));
+            parent.get().frameDragEnd(JavaFXUtil.getDragModifiers(event));
+
+            event.consume();
+        });
     }
 
     public static enum CodeCompletionState
