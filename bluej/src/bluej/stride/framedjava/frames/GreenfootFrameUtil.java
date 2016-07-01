@@ -126,6 +126,7 @@ public class GreenfootFrameUtil
         Element framesEl = new Element("frames");
         for (Frame f : frames) {
             if (f instanceof CodeFrame) {
+                ((CodeFrame<?>) f).regenerateCode();
                 CodeElement c = ((CodeFrame<?>) f).getCode();
                 framesEl.appendChild(c.toXML());
             }
