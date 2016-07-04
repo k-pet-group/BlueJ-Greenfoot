@@ -35,8 +35,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -64,6 +62,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
@@ -71,6 +70,7 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.control.TitledPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -79,6 +79,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
@@ -87,7 +88,6 @@ import javafx.util.Duration;
 
 import bluej.Main;
 import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
 //import org.scenicview.ScenicView;
 import bluej.utility.javafx.FXSupplier;
 import threadchecker.OnThread;
@@ -162,6 +162,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private final AtomicBoolean stageShowingSwing = new AtomicBoolean(false);
     private StringProperty titleStatus = new SimpleStringProperty("");
     private BorderPane collapsibleCatalogueScrollPane;
+    private FrameShelf shelf;
+    private boolean dragFromShelf;
 
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
@@ -187,6 +189,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         Set<AWTKeyStroke> backwardKeys = new HashSet<AWTKeyStroke>(component.getFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS));
         backwardKeys.remove(ctrlShiftTab);
         component.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardKeys);
+    }
+
+    static boolean isUselessDrag(FrameCursor dragTarget, List<Frame> dragging, boolean copying)
+    {
+        return !copying && (dragging.contains(dragTarget.getFrameAfter()) || dragging.contains(dragTarget.getFrameBefore()));
     }
 
     /**
@@ -231,15 +238,17 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         BorderPane menuAndTabPane = new BorderPane();
         menuAndTabPane.setTop(menuBar);
         overlayPane = new WindowOverlayPane();
-        menuAndTabPane.setCenter(new StackPane(tabPane, dragPane, dragCursorPane));
-        ScrollPane catalogueScrollPane = new ScrollPane(cataloguePane) {
+        menuAndTabPane.setCenter(new StackPane(tabPane));
+        shelf = new FrameShelf(this);
+        // For testing we put shelf on top:
+        Accordion catalogueShelfPane = new Accordion(new TitledPane("Shelf", shelf.getNode()), new TitledPane("Catalogue", cataloguePane));
+        ScrollPane catalogueScrollPane = new ScrollPane(catalogueShelfPane) {
             @Override
             public void requestFocus() {
                 // Do nothing
             }
-
         };
-        catalogueScrollPane.setMaxWidth(200.0);
+        catalogueScrollPane.setMaxWidth(FrameCatalogue.CATALOGUE_FRAME_WIDTH);
         catalogueScrollPane.setMinWidth(0.0);
         catalogueScrollPane.setFitToWidth(true);
         catalogueScrollPane.setFocusTraversable(false);
@@ -264,7 +273,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         collapsibleCatalogueScrollPane.setLeft(collapseControl);
         JavaFXUtil.addStyleClass(collapsibleCatalogueScrollPane, "catalogue-scroll-collapsible");
         menuAndTabPane.setRight(collapsibleCatalogueScrollPane);
-        scene = new Scene(new StackPane(menuAndTabPane, overlayPane.getNode()), 800, 700);
+        scene = new Scene(new StackPane(menuAndTabPane, dragPane, dragCursorPane, overlayPane.getNode()), 800, 700);
         stage.setScene(scene);
         Config.addEditorStylesheets(scene);
 
@@ -506,7 +515,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 Debug.time("Showing");
                 stage.show();
                 Debug.time("Shown");
-                //ScenicView.show(stage.getScene());
+                //org.scenicview.ScenicView.show(stage.getScene());
             }
             if (!tabPane.getTabs().contains(tab))
             {
@@ -621,7 +630,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
     /**
      * The pane on which dragged frame cursor destinations are shown
-     * (so that they appear in front of the dragged frames
+     * (so that they appear in front of the dragged frames)
      */
     public Pane getDragCursorPane()
     {
@@ -631,7 +640,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /**
      * Begin dragging the given list of frames, starting at the given scene position
      */
-    public void frameDragBegin(List<Frame> srcFrames, double mouseSceneX, double mouseSceneY)
+    public void frameDragBegin(List<Frame> srcFrames, boolean fromShelf, double mouseSceneX, double mouseSceneY)
     {
         if (dragIcon != null || !dragSourceFrames.isEmpty())
         {
@@ -657,6 +666,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             icon.layoutYProperty().bind(mouseDragYProperty.subtract(mouseSceneY - srcSceneY));
             getDragPane().getChildren().add(icon);
             dragIcon = icon;
+            dragFromShelf = fromShelf;
             scene.setCursor(Cursor.CLOSED_HAND);
         }
         else
@@ -681,10 +691,38 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
             checkHoverDuringDrag(sceneX, sceneY, dragType);
             
+            // We must notify the tab regardless of whether we're in bounds.
+            // If we're out of bounds, they will need to turn off drag target:
             if (tabPane.getSelectionModel().getSelectedItem() instanceof FrameEditorTab)
             {
-                ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).draggedToTab(dragSourceFrames, sceneX, sceneY, dragType == JavaFXUtil.DragType.FORCE_COPYING);
+                ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).draggedToTab(dragSourceFrames, sceneX, sceneY, calcDragCopy(dragType, false));
             }
+            shelf.draggedTo(dragSourceFrames, sceneX, sceneY, calcDragCopy(dragType, true));
+        }
+    }
+
+    /**
+     * Given the current state of this.dragFromShelf and the two params,
+     * works out if the drag operation would be a copy or a move.
+     * @param toShelf
+     * @return true if copying, false if moving
+     */
+    private boolean calcDragCopy(JavaFXUtil.DragType dragType, boolean toShelf)
+    {
+        switch (dragType)
+        {
+            case FORCE_MOVING:
+                return false;
+            case FORCE_COPYING:
+                return true;
+            default:
+                // Do the default:
+                if (dragFromShelf && toShelf)
+                    return false; // Move within shelf
+                else if (dragFromShelf && !toShelf)
+                    return true; // Copy from shelf to editor
+                else
+                    return false; // Move from editor to shelf, or editor to editor
         }
     }
 
@@ -749,10 +787,12 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             // Turn off the highlight:
             dragSourceFrames.forEach(f -> f.setDragSourceEffect(false));
             
+            // Must notify both tab and shelf:
             if (tabPane.getSelectionModel().getSelectedItem() instanceof FrameEditorTab)
             {
-                ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).dragEndTab(dragSourceFrames, dragType == JavaFXUtil.DragType.FORCE_COPYING);
+                ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).dragEndTab(dragSourceFrames, dragFromShelf, calcDragCopy(dragType, false));
             }
+            shelf.dragEnd(dragSourceFrames, dragFromShelf, calcDragCopy(dragType, true));
             dragSourceFrames.clear();
             scene.setCursor(Cursor.DEFAULT);
         }
@@ -835,7 +875,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         return stage;
     }
 
-    public static void setupFrameDrag(Frame f, FXSupplier<FXTabbedEditor> parent, FXSupplier<Boolean> canDrag, FXSupplier<FrameSelection> selection)
+    public static void setupFrameDrag(Frame f, boolean isShelf, FXSupplier<FXTabbedEditor> parent, FXSupplier<Boolean> canDrag, FXSupplier<FrameSelection> selection)
     {
         f.getNode().setOnDragDetected(event -> {
             double mouseSceneX = event.getSceneX();
@@ -846,11 +886,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 if (selection.get().contains(f))
                 {
                     // Drag the whole selection:
-                    parent.get().frameDragBegin(selection.get().getSelected(), mouseSceneX, mouseSceneY);
+                    parent.get().frameDragBegin(selection.get().getSelected(), isShelf, mouseSceneX, mouseSceneY);
                 }
                 else
                 {
-                    parent.get().frameDragBegin(Arrays.asList(f), mouseSceneX, mouseSceneY);
+                    parent.get().frameDragBegin(Arrays.asList(f), isShelf, mouseSceneX, mouseSceneY);
                 }
             }
             event.consume();

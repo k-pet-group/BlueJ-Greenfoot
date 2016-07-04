@@ -44,6 +44,8 @@ public enum StrideEditReason
 
     // Frames have been moved or copied by dragging:
     FRAMES_DRAG("drag_frames"),
+    // Frames have been moved or copied by dragging from shelf:
+    FRAMES_DRAG_SHELF("drag_frames_shelf"),
 
     // Frame was removed because user pressed escape immediately after inserting a frame:
     ESCAPE_FRESH("escape_fresh"),

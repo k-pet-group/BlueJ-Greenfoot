@@ -123,7 +123,7 @@ public class FrameCatalogue extends VBox
      */
     private boolean filled = false;
 
-    private final static double CATALOGUE_FRAME_WIDTH = 200.0;
+    public final static double CATALOGUE_FRAME_WIDTH = 220.0;
 
 
     // package-visible

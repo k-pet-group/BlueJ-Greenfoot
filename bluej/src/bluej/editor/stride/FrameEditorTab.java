@@ -318,11 +318,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
-    private static boolean isUselessDrag(FrameCursor dragTarget, List<Frame> dragging, boolean copying)
-    {
-        return !copying && (dragging.contains(dragTarget.getFrameAfter()) || dragging.contains(dragTarget.getFrameBefore()));
-    }
-
     // Exception-safe wrapper for Future.get
     @OnThread(Tag.Any)
     private static <T> List<T> getFutureList(Future<List<T>> f)
@@ -1141,7 +1136,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
      */
     // package-visible
     @OnThread(Tag.FXPlatform)
-    void dragEndTab(List<Frame> dragSourceFrames, boolean copying)
+    void dragEndTab(List<Frame> dragSourceFrames, boolean fromShelf, boolean copying)
     {
         // First, move the blocks:
         if (dragSourceFrames != null && !dragSourceFrames.isEmpty())
@@ -1151,10 +1146,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 // Check all of them can be dragged to new location:
                 boolean canMove = dragSourceFrames.stream().allMatch(src -> dragTarget.getParentCanvas().acceptsType(src));
 
-                if (canMove && !isUselessDrag(dragTarget, dragSourceFrames, copying))
+                if (canMove && !FXTabbedEditor.isUselessDrag(dragTarget, dragSourceFrames, copying))
                 {
                     beginRecordingState(dragTarget);
-                    performDrag(dragSourceFrames, copying);
+                    performDrag(dragSourceFrames, fromShelf, copying);
                     endRecordingState(dragTarget);
                 }
                 selection.clear();
@@ -1166,7 +1161,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
-    private void performDrag(List<Frame> dragSourceFrames, boolean copying)
+    private void performDrag(List<Frame> dragSourceFrames, boolean fromShelf, boolean copying)
     {
         boolean shouldDisable = !dragTarget.getParentCanvas().getParent().getFrame().isFrameEnabled();
 
@@ -1174,26 +1169,17 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         // We must add blocks in reverse order after cursor:
         Collections.reverse(dragSourceFrames);
-        if (!copying) {
-            for (Frame src : dragSourceFrames) {
-                src.getParentCanvas().removeBlock(src);
-                dragTarget.insertBlockAfter(src);
-                if (shouldDisable)
-                    src.setFrameEnabled(false);
-                modifiedFrame(src);
-            }
+        List<CodeElement> elements = GreenfootFrameUtil.getElementsForMultipleFrames(dragSourceFrames);
+        for (CodeElement codeElement : elements) {
+            final Frame frame = codeElement.createFrame(this);
+            dragTarget.insertBlockAfter(frame);
+            if (shouldDisable)
+                frame.setFrameEnabled(false);
         }
-        else {
-            List<CodeElement> elements = GreenfootFrameUtil.getElementsForMultipleFrames(dragSourceFrames);
-            for (CodeElement codeElement : elements) {
-                final Frame frame = codeElement.createFrame(this);
-                dragTarget.insertBlockAfter(frame);
-                if (shouldDisable)
-                    frame.setFrameEnabled(false);
-            }
-        }
+        if (!copying)
+            dragSourceFrames.forEach(src -> src.getParentCanvas().removeBlock(src));
 
-        editor.recordEdits(StrideEditReason.FRAMES_DRAG);
+        editor.recordEdits(fromShelf ? StrideEditReason.FRAMES_DRAG_SHELF : StrideEditReason.FRAMES_DRAG);
     }
 
     /**
@@ -1221,7 +1207,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     dragTarget.stopShowAsDropTarget();
                     dragTarget = null;
                 }
-                boolean src = isUselessDrag(newDragTarget, dragSourceFrames, copying);
+                boolean src = FXTabbedEditor.isUselessDrag(newDragTarget, dragSourceFrames, copying);
                 boolean acceptsAll = true;
                 for (Frame srcFrame : dragSourceFrames) {
                     acceptsAll &= newDragTarget.getParentCanvas().acceptsType(srcFrame);
@@ -1474,7 +1460,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         
         // We use "simple press-drag-release" here, so the events are all delivered to the original cursor:
         
-        FXTabbedEditor.setupFrameDrag(f, this::getParent, () -> {
+        FXTabbedEditor.setupFrameDrag(f, false, this::getParent, () -> {
             if (dragTarget != null)
             {
                 throw new IllegalStateException("Drag begun while drag in progress");
