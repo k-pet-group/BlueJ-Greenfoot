@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+@OnThread(Tag.FX)
 public interface InteractionManager
 {
     /**

@@ -123,6 +123,12 @@ public class GreenfootFrameUtil
     
     public static String getXmlForMultipleFrames(List<Frame> frames)
     {
+        Element framesEl = getXmlElementForMultipleFrames(frames);
+        return framesEl.toXML();
+    }
+
+    public static Element getXmlElementForMultipleFrames(List<Frame> frames)
+    {
         Element framesEl = new Element("frames");
         for (Frame f : frames) {
             if (f instanceof CodeFrame) {
@@ -131,7 +137,7 @@ public class GreenfootFrameUtil
                 framesEl.appendChild(c.toXML());
             }
         }
-        return framesEl.toXML();
+        return framesEl;
     }
 
     private static String getJavaForMultipleFrames(List<Frame> frames)

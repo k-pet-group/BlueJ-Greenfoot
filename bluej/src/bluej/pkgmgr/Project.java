@@ -81,6 +81,7 @@ import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.editor.Editor;
 import bluej.editor.stride.FXTabbedEditor;
+import bluej.editor.stride.FrameShelfStorage;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
@@ -221,6 +222,7 @@ public class Project implements DebuggerListener, InspectorManager
     
     /** check if the project is a dvcs project**/
     private boolean isDVCS=false;
+    private final FrameShelfStorage shelfStorage;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -280,6 +282,7 @@ public class Project implements DebuggerListener, InspectorManager
         new JFXPanel();
         // Prevent JavaFX exiting when all JavaFX windows are closed (would prevent re-opening editor):
         Platform.setImplicitExit(false);
+        shelfStorage = new FrameShelfStorage(this.projectDir);
         Platform.runLater(() -> createNewFXTabbedEditor());
 
         // Must do this after the editors have been created:
@@ -2217,6 +2220,7 @@ public class Project implements DebuggerListener, InspectorManager
         // Only remove if we have other windows left, otherwise retain the last window standing:
         if (fXTabbedEditors.size() > 1)
         {
+            fxTabbedEditor.cleanup();
             fXTabbedEditors.remove(fxTabbedEditor);
         }
         // Update the move menus to remove the closed window as a move target:
@@ -2300,5 +2304,11 @@ public class Project implements DebuggerListener, InspectorManager
     private Rectangle recallFxPosition(int index)
     {
         return recallPosition("editor.fx", fxCachedEditorSizes, index);
+    }
+
+    @OnThread(Tag.FX)
+    public FrameShelfStorage getShelfStorage()
+    {
+        return shelfStorage;
     }
 }

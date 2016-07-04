@@ -239,7 +239,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         menuAndTabPane.setTop(menuBar);
         overlayPane = new WindowOverlayPane();
         menuAndTabPane.setCenter(new StackPane(tabPane));
-        shelf = new FrameShelf(this);
+        shelf = new FrameShelf(this, project.getShelfStorage());
         // For testing we put shelf on top:
         Accordion catalogueShelfPane = new Accordion(new TitledPane("Shelf", shelf.getNode()), new TitledPane("Catalogue", cataloguePane));
         ScrollPane catalogueScrollPane = new ScrollPane(catalogueShelfPane) {
@@ -911,6 +911,14 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
             event.consume();
         });
+    }
+
+    /**
+     * Called when this window is no longer going to be used
+     */
+    public void cleanup()
+    {
+        shelf.cleanup();
     }
 
     public static enum CodeCompletionState

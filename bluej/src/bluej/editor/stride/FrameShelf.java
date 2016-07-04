@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program.
+ Copyright (C) 2016  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.editor.stride;
 
 import java.util.ArrayList;
@@ -19,6 +40,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableStringValue;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -29,6 +51,7 @@ import javafx.util.Duration;
 import bluej.collect.StrideEditReason;
 import bluej.parser.AssistContent;
 import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -52,10 +75,14 @@ import bluej.stride.slots.SuggestionList;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
+import nu.xom.Element;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
- * Created by neil on 29/06/2016.
+ * This is the GUI representation of the frame shelf, one per Stride editor window.
  */
+@OnThread(Tag.FX)
 public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCheck
 {
     private final SimpleStringProperty fakeName = new SimpleStringProperty("...");
@@ -65,13 +92,16 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     private final BorderPaneWithHighlightColor shelfPane = new BorderPaneWithHighlightColor();
     private final FrameCanvas canvas = new FrameCanvas(this, this, "shelf-");
     private final FrameSelection selection = new FrameSelection(this);
+    private final FrameShelfStorage centralStorage;
     private FrameCursor dragTarget;
 
-    public FrameShelf(FXTabbedEditor parent)
+    public FrameShelf(FXTabbedEditor parent, FrameShelfStorage storage)
     {
         this.parent = parent;
         shelfPane.setCenter(canvas.getNode());
         shelfPane.setStyle("-fx-font-size: " + getFontSizeCSS().get() + ";");
+        this.centralStorage = storage;
+        storage.registerShelf(this);
     }
 
     @Override
@@ -93,12 +123,14 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
+    @OnThread(Tag.Any)
     public void withTypes(FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         Platform.runLater(() -> handler.accept(Collections.emptyList()));
     }
 
     @Override
+    @OnThread(Tag.Any)
     public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         Platform.runLater(() -> handler.accept(Collections.emptyList()));
@@ -467,6 +499,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public void dragEnd(ArrayList<Frame> dragSourceFrames, boolean fromShelf, boolean copying)
     {
         // First, move the blocks:
@@ -518,5 +551,28 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
 
         if (!fromShelf && !copying)
             editor.recordEdits(StrideEditReason.FRAMES_DRAG_SHELF);
+    }
+
+    public void cleanup()
+    {
+        centralStorage.deregisterShelf(this);
+    }
+
+    /**
+     * Gets the observable list of frames on this graphical shelf interface.
+     *
+     * Do not modify the contents directly under any circumstances!  Only use it for listening.
+     */
+    public ObservableList<Frame> getContent()
+    {
+        return canvas.getBlockContents();
+    }
+
+    public void setContent(Element framesElement)
+    {
+        canvas.clear();
+        for (int i = 0; i < framesElement.getChildElements().size(); i++) {
+            canvas.insertBlockAfter(Loader.loadElement(framesElement.getChildElements().get(i)).createFrame(this), null);
+        }
     }
 }
