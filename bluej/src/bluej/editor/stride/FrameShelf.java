@@ -476,7 +476,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         }
         else
         {
-            FrameCursor newDragTarget = canvas.findClosestCursor(sceneX, sceneY, Collections.emptyList(), true, true);
+            FrameCursor newDragTarget = canvas.findClosestCursor(sceneX, sceneY, dragSourceFrames, true, true);
             if (newDragTarget != null && dragTarget != newDragTarget)
             {
                 if (dragTarget != null) {
