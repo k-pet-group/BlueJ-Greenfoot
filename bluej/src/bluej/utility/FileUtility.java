@@ -41,6 +41,7 @@ import javax.swing.filechooser.FileFilter;
 import bluej.pkgmgr.Package;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
 import threadchecker.OnThread;
@@ -114,34 +115,14 @@ public class FileUtility
         return chooser.getSelectedFile();
     }
 
-    /**
-     *  Get file(s) from the user, using a file selection dialogue.
-     *  If cancelled or an invalid name was specified, return null.
-     *  @return a File array containing the selected files
-     */
-    public static File[] getMultipleFiles(Component parent, String title,
-            String buttonLabel, FileFilter filter)
+    public static List<File> getMultipleFilesFX(Window parent, String title, ExtensionFilter filter)
     {
-        JFileChooser newMultiChooser = getMultipleFileChooser();
-
-        newMultiChooser.setDialogTitle(title);
-
-        if(filter == null)
-            filter = newMultiChooser.getAcceptAllFileFilter();
-        newMultiChooser.setFileFilter(filter);
-        
-        int result = newMultiChooser.showDialog(parent, buttonLabel);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            
-            return newMultiChooser.getSelectedFiles();
-        }
-        else if (result == JFileChooser.CANCEL_OPTION)
-            return null;
-        else {
-            DialogManager.showError(parent, "error-no-name");
-            return null;
-        }
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+        if (filter != null)
+            chooser.getExtensionFilters().setAll(filter);
+        chooser.setTitle(title);
+        return chooser.showOpenMultipleDialog(parent);
     }
 
     @OnThread(Tag.FXPlatform)
@@ -261,25 +242,9 @@ public class FileUtility
         }
     }
 
-
-    public static FileFilter getJavaStrideSourceFilter()
+    public static ExtensionFilter getJavaStrideSourceFilterFX()
     {
-        return new JavaStrideSourceFilter();
-    }
-
-    /**
-     * Return a BlueJ package chooser, i.e. a file chooser which
-     * recognises BlueJ packages and treats them differently.
-     */
-    private static JFileChooser getPackageChooser()
-    {
-        if(pkgChooser == null) {
-            pkgChooser = new PackageChooserStrict(new File(PrefMgr.getProjectDirectory()));
-        }
-        pkgChooser.setDialogTitle(Config.getString("pkgmgr.openPkg.title"));
-        pkgChooser.setApproveButtonText(Config.getString("pkgmgr.openPkg.buttonLabel"));
-
-        return pkgChooser;
+        return new ExtensionFilter("Java/Stride source", "*." + SourceType.Java.getExtension(), "*." + SourceType.Stride.getExtension());
     }
 
     /**
@@ -308,47 +273,6 @@ public class FileUtility
         
         return directoryChooser;
     }
-
-    /**
-     * return a file chooser for choosing any directory (default behaviour)
-     * that is allows selection of multiple files
-     */
-    private static JFileChooser getMultipleFileChooser()
-    {
-        if(multiFileChooser == null) {
-            multiFileChooser = new BlueJFileChooser(PrefMgr.getProjectDirectory());
-            multiFileChooser.setMultiSelectionEnabled(true);
-        }
-
-        return multiFileChooser;
-    }
-    
-
-    private static class JavaStrideSourceFilter extends FileFilter
-    {
-        /**
-         * This method only accepts files that are Java or Stride source files.
-         * Whether a file is a Java/Stride source file is determined by the fact that
-         * its filename ends with ".java" or ".stride".
-         */
-        @Override
-        public boolean accept(File pathname)
-        {
-            if (pathname.isDirectory() ||
-                pathname.getName().endsWith("." + SourceType.Java.getExtension()) ||
-                pathname.getName().endsWith("." + SourceType.Stride.getExtension()))
-                   return true;
-            else
-                return false;
-        }
-
-        @Override
-        public String getDescription()
-        {
-            return "Java/Stride Source";
-        }
-    }
-
 
     /**
      * Copy file 'source' to file 'dest'. The source file must exist,

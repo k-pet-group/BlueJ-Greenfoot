@@ -1651,13 +1651,14 @@ public class PkgMgrFrame extends JPanel
      */
     public void doAddFromFile()
     {
-        // multi selection file dialog that shows .java and .class files
-        File[] classes = FileUtility.getMultipleFiles(this, Config.getString("pkgmgr.addClass.title"), Config
-                .getString("pkgmgr.addClass.buttonLabel"), FileUtility.getJavaStrideSourceFilter());
+        Platform.runLater(() -> {
+            // multi selection file dialog that shows .java and .class files
+            List<File> classes = FileUtility.getMultipleFilesFX(getFXWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
 
-        if (classes == null)
-            return;
-        importFromFile(classes);
+            if (classes == null || classes.isEmpty())
+                return;
+            importFromFile(classes);
+        });
     }
 
     /**
@@ -1666,13 +1667,13 @@ public class PkgMgrFrame extends JPanel
      */
     public void addFiles(List<File> classes)
     {
-        importFromFile(classes.toArray(new File[classes.size()]));
+        importFromFile(classes);
     }
 
     /**
      * Add the given set of Java source files as classes to this package.
      */
-    private void importFromFile(File[] classes)
+    private void importFromFile(List<File> classes)
     {
         // if there are errors this will potentially bring up multiple error
         // dialogs
