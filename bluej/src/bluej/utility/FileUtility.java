@@ -32,12 +32,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import bluej.pkgmgr.Package;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -66,23 +67,41 @@ public class FileUtility
 
     private static JFileChooser pkgChooser = null;
     private static JFileChooser pkgChooserNonBlueJ = null;
-    private static JFileChooser fileChooser = null;
     private static PackageChooser directoryChooser = null;
     private static JFileChooser multiFileChooser = null;
     
 
-
-    public static File getPackageName(Component parent)
+    @OnThread(Tag.FXPlatform)
+    public static File getOpenProjectFX(Window parent)
     {
-        JFileChooser chooser = getPackageChooser();
-
-        if (chooser.showOpenDialog(parent) != JFileChooser.APPROVE_OPTION) {
-            return null;
+        File dir = getOpenDirFX(parent, Config.getString("pkgmgr.openPkg.title"), true);
+        // Navigate up the parents if they are projects too
+        //   We don't need to check if we are currently a package.
+        //   If we aren't, it's good we go to the parent if it is.
+        //   If we are a package, we want to favour the parent.
+        while (dir != null && dir.getParentFile() != null && Package.isPackage(dir.getParentFile()))
+        {
+            dir = dir.getParentFile();
         }
-        PrefMgr.setProjectDirectory(
-                         chooser.getSelectedFile().getParentFile().getPath());
-        
-        return chooser.getSelectedFile();
+        if (!Package.isPackage(dir))
+        {
+            // We are not a package.  See if any child directories are:
+            List<File> subDirs = null;
+            if (dir != null)
+            {
+                subDirs = Arrays.asList(dir.listFiles(f -> f.isDirectory() && Package.isPackage(f)));
+            }
+
+            NotAProjectDialog dlg = new NotAProjectDialog(parent, subDirs);
+            dlg.showAndWait();
+            if (dlg.isCancel())
+                return null;
+            else if (dlg.isRetry())
+                return getOpenProjectFX(parent);
+            else
+                return dlg.getSelectedDir();
+        }
+        return dir;
     }
 
     public static File getNonBlueJDirectoryName(Component parent)

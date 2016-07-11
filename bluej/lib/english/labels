@@ -853,3 +853,10 @@ about.openFolder=Open Folder
 
 # Work Indicator
 workIndicator.resetMachine=Reset Java Virtual Machine@^R
+
+# Not a package
+notAProject.title=Not A Project/Scenario
+notAProject.message=Selected directory does not contain a project/scenario.
+notAProject.subDirs=Some child directories have projects/scenarios.  Did you mean:
+notAProject.subDirButton=Open
+notAProject.button=Choose Again

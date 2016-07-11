@@ -338,3 +338,11 @@
 .prefmgr-library-panel .prefmgr-titled-content {
     -fx-padding: 1em 0 1em 0;
 }
+
+.not-a-project {
+    -fx-spacing: 0.5em;
+}
+.not-a-project .subDirs {
+    -fx-hgap: 1em;
+    -fx-vgap: 0.5em;
+}

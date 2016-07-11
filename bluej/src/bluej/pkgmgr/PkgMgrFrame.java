@@ -1435,8 +1435,10 @@ public class PkgMgrFrame extends JPanel
      */
     public void doOpen()
     {
-        File dirName = FileUtility.getPackageName(this);
-        PkgMgrFrame.doOpen(dirName, this);
+        Platform.runLater(() -> {
+            File dirName = FileUtility.getOpenProjectFX(getFXWindow());
+            SwingUtilities.invokeLater(() -> PkgMgrFrame.doOpen(dirName, this));
+        });
     }
 
     /**
