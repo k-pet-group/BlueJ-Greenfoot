@@ -241,8 +241,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         menuAndTabPane.setCenter(new StackPane(tabPane));
         shelf = new FrameShelf(this, project.getShelfStorage());
         // For testing we put shelf on top:
-        Accordion catalogueShelfPane = new Accordion(new TitledPane("Shelf", shelf.getNode()), new TitledPane("Catalogue", cataloguePane));
-        ScrollPane catalogueScrollPane = new ScrollPane(catalogueShelfPane) {
+        //Accordion catalogueShelfPane = new Accordion(new TitledPane("Shelf", shelf.getNode()), new TitledPane("Catalogue", cataloguePane));
+        ScrollPane catalogueScrollPane = new ScrollPane(cataloguePane) {
             @Override
             public void requestFocus() {
                 // Do nothing
