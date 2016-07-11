@@ -32,6 +32,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 
 import javafx.application.Platform;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
 import bluej.Config;
@@ -95,15 +97,13 @@ final class ExportManager
                 return;
             ExportDialog.ExportInfo info = result.get();
 
+            File fileName = FileUtility.getSaveFileFX(parent, specifyJar, Arrays.asList(new ExtensionFilter("JAR file", "*.jar")), false);
+            if (fileName == null)
+                return;
             SwingUtilities.invokeLater(() -> {
-                String fileName = FileUtility.getFileName(frame, specifyJar, createJarText,
-                    null, false);
-                if (fileName == null)
-                    return;
-
                 String sourceDir = frame.getProject().getProjectDir().getPath();
 
-                createJar(fileName, sourceDir, info.mainClassName, info.selectedFiles,
+                createJar(fileName.getAbsolutePath().toString(), sourceDir, info.mainClassName, info.selectedFiles,
                     info.includeSource, info.includePkgFiles);
             });
         });

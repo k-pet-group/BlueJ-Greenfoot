@@ -124,36 +124,6 @@ public class FileUtility
             return null;
         }
     }
-    
-    /**
-     *  Get a file name from the user, using a file selection dialogue.
-     *  If cancelled or an invalid name was specified, return null.
-     */
-    public static File getFile(Component parent, String title,
-                                   String buttonLabel, FileFilter filter,
-                                   boolean rememberDir)
-    {
-        JFileChooser newChooser = getFileChooser(false, filter);
-        
-        newChooser.setDialogTitle(title);
-
-        int result = newChooser.showDialog(parent, buttonLabel);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            if (rememberDir) {
-                PrefMgr.setProjectDirectory(
-                      newChooser.getSelectedFile().getParentFile().getPath());
-            }
-            return newChooser.getSelectedFile();
-        }
-        else if (result == JFileChooser.CANCEL_OPTION) {
-            return null;
-        }
-        else {
-            DialogManager.showError(parent, "error-no-name");
-            return null;
-        }
-    }
 
     @OnThread(Tag.FXPlatform)
     public static List<File> getOpenFilesFX(Window parent, String title,
@@ -209,18 +179,7 @@ public class FileUtility
         }
         return chosen;
     }
-    
-    public static String getFileName(Component parent, String title,
-            String buttonLabel, FileFilter filter,
-            boolean rememberDir)
-    {
-        File file = getFile(parent, title, buttonLabel, filter, rememberDir);
-        if (file == null)
-            return null;
-        else
-            return file.getPath();
-    }
-    
+
     /**
      *  Get a directory name from the user, using a file selection dialogue.
      *  If cancelled or an invalid name was specified, return null.
@@ -290,40 +249,6 @@ public class FileUtility
     }
 
     /**
-     * Get a file chooser which can be used to select files or directories,
-     * and which knows about BlueJ packages.<p>
-     * 
-     * The caller should use setDialogTitle() to set an appropriate title
-     * for the returned chooser.
-     * 
-     * @param directoriesOnly  True to return a chooser which only allows
-     *                         selecting directories
-     * @param filter  The file filter to use, may be null to allow 'all files'
-     * 
-     * @return  A file chooser
-     */
-    private static JFileChooser getFileChooser(boolean directoriesOnly, FileFilter filter)
-    {
-        JFileChooser newChooser;
-        
-        if (directoriesOnly) {
-            newChooser = getDirectoryChooser();
-        }
-        else {
-            newChooser = getFileChooser();
-            newChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        }
-
-        if(filter == null) {
-            filter = newChooser.getAcceptAllFileFilter();
-        }
-        newChooser.setFileFilter(filter);
-        
-        return newChooser;
-    }
-    
-    
-    /**
      * Return a BlueJ package chooser, i.e. a file chooser which
      * recognises BlueJ packages and treats them differently.
      */
@@ -363,18 +288,6 @@ public class FileUtility
         }
         
         return directoryChooser;
-    }
-
-    /**
-     * return a file chooser for choosing any file (default behaviour)
-     */
-    private static JFileChooser getFileChooser()
-    {
-        if(fileChooser == null) {
-            fileChooser = new BlueJFileChooser(PrefMgr.getProjectDirectory());
-        }
-
-        return fileChooser;
     }
 
     /**
