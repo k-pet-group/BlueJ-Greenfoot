@@ -1627,23 +1627,26 @@ public class PkgMgrFrame extends JPanel
      */
     public void doImport()
     {
-        // prompt for the directory to import from
-        File importDir = FileUtility.getDirName(this, Config.getString("pkgmgr.importPkg.title"), Config
-                .getString("pkgmgr.importPkg.buttonLabel"), true, false);
+        Platform.runLater(() -> {
+            // prompt for the directory to import from
+            File importDir = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.importPkg.title"), false);
 
-        if (importDir == null)
-            return;
+            if (importDir == null)
+                return;
 
-        if (!importDir.isDirectory())
-            return;
+            if (!importDir.isDirectory())
+                return;
 
-        // if we are an empty then we shouldn't go on (we shouldn't get
-        // here)
-        if (isEmptyFrame())
-            return;
+            SwingUtilities.invokeLater(() -> {
+                // if we are an empty then we shouldn't go on (we shouldn't get
+                // here)
+                if (isEmptyFrame())
+                    return;
 
-        // recursively copy files from import directory to package directory
-        importProjectDir(importDir, true);
+                // recursively copy files from import directory to package directory
+                importProjectDir(importDir, true);
+            });
+        });
     }
     
     /**
@@ -1657,7 +1660,8 @@ public class PkgMgrFrame extends JPanel
 
             if (classes == null || classes.isEmpty())
                 return;
-            importFromFile(classes);
+
+            SwingUtilities.invokeLater(() -> importFromFile(classes));
         });
     }
 

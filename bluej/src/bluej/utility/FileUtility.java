@@ -115,6 +115,7 @@ public class FileUtility
         return chooser.getSelectedFile();
     }
 
+    @OnThread(Tag.FXPlatform)
     public static List<File> getMultipleFilesFX(Window parent, String title, ExtensionFilter filter)
     {
         FileChooser chooser = new FileChooser();
@@ -242,6 +243,7 @@ public class FileUtility
         }
     }
 
+    @OnThread(Tag.FX)
     public static ExtensionFilter getJavaStrideSourceFilterFX()
     {
         return new ExtensionFilter("Java/Stride source", "*." + SourceType.Java.getExtension(), "*." + SourceType.Stride.getExtension());

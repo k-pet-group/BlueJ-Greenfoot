@@ -24,9 +24,13 @@ package bluej.extensions;
 // Note: this is not part of the extensions API as such, but because they need to be able
 // to see it, it lives in the extensions package.
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * The type of source that is available.
  */
+@OnThread(Tag.Any)
 public enum SourceType
 {
     NONE, Java, Stride;
