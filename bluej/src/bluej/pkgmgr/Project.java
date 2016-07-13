@@ -25,6 +25,8 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Rectangle;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,6 +53,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JFileChooser;
@@ -445,45 +448,49 @@ public class Project implements DebuggerListener, InspectorManager
             
             // Prompt user to "Save elsewhere"
 
-            boolean done = false;
+            SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+            AtomicReference<File> projDir = new AtomicReference<>(projectDir);
+            Platform.runLater(() -> {
+                boolean done = false;
 
-            while (!done)
-            {
-                // Get a file name to save under
-                File newName = FileUtility.getDirName(null,
-                        Config.getString("pkgmgr.saveAs.title"),
-                        Config.getString("pkgmgr.saveAs.buttonLabel"),
-                        new JFileChooser().getFileSystemView().getDefaultDirectory(),
-                        false, true);
+                while (!done)
+                {
+                    // Get a file name to save under
+                    File newName = FileUtility.getSaveProjectFX(null, Config.getString("pkgmgr.saveAs.title"));
 
-                if (newName != null) {
-                    int result = FileUtility.copyDirectory(projectDir, newName);
+                    if (newName != null) {
+                        int result = FileUtility.copyDirectory(projDir.get(), newName);
 
-                    switch (result) {
-                    case FileUtility.NO_ERROR:
-                        // It worked, use this as the new project:
-                        projectDir = newName;
-                        done = true;
-                        break;
+                        switch (result) {
+                        case FileUtility.NO_ERROR:
+                            // It worked, use this as the new project:
+                            projDir.set(newName);
+                            done = true;
+                            break;
 
-                    case FileUtility.DEST_EXISTS_NOT_DIR:
-                        DialogManager.showError(null, "directory-exists-file");
-                        break;
-                    case FileUtility.DEST_EXISTS_NON_EMPTY:
-                        DialogManager.showError(null, "directory-exists-non-empty");
-                        break;
+                        case FileUtility.DEST_EXISTS_NOT_DIR:
+                            DialogManager.showErrorFX(null, "directory-exists-file");
+                            break;
+                        case FileUtility.DEST_EXISTS_NON_EMPTY:
+                            DialogManager.showErrorFX(null, "directory-exists-non-empty");
+                            break;
 
-                    case FileUtility.SRC_NOT_DIRECTORY:
-                    case FileUtility.COPY_ERROR:
-                        DialogManager.showError(null, "cannot-save-project");
+                        case FileUtility.SRC_NOT_DIRECTORY:
+                        case FileUtility.COPY_ERROR:
+                            DialogManager.showErrorFX(null, "cannot-save-project");
 
-                        break;
+                            break;
+                        }
+                    }
+                    else {
+                        done = true; // if they pressed cancel, just continue with old project
                     }
                 }
-                else {
-                    done = true; // if they pressed cancel, just continue with old project
-                }
-            }
+                loop.exit();
+            });
+
+            loop.enter();
+            projectDir = projDir.get();
         }
 
         // check whether it already exists

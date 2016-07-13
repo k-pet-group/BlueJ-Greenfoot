@@ -399,6 +399,7 @@ public class FileUtility
     public static final int DEST_EXISTS_NOT_DIR = 4;
     public static final int DEST_EXISTS_NON_EMPTY = 5;
 
+    @OnThread(Tag.Any)
     public static int copyDirectory(File srcFile, File destFile)
     {
         if(!srcFile.isDirectory())
