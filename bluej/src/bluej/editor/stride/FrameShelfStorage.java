@@ -68,7 +68,7 @@ public class FrameShelfStorage
         }
         catch (ParsingException | IOException e)
         {
-            Debug.reportError(e);
+            //Debug.reportError(e);
             // If there was a problem, make a frames element with no children:
             contentXML = new Element("frames");
         }
