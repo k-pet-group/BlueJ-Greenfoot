@@ -54,13 +54,6 @@ public class DialogPaneAnimateError extends DialogPane
         this.extraMouseEnter = extraMouseEnter;
     }
 
-    public DialogPaneAnimateError(Text errorText, FXPlatformRunnable extraMouseEnter)
-    {
-        this.errorLabel = errorText;
-        this.errorLabelEmpty.bind(errorText.textProperty().isEmpty());
-        this.extraMouseEnter = extraMouseEnter;
-    }
-
     // We must override createButton to wrap the OK button in a pane.  The problem is that
     // when the OK button is disabled, it receives no mouse events, so we can't listen
     // for a mouse-entered directly on the OK button.  Instead we wrap the OK button

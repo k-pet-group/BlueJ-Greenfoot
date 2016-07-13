@@ -346,3 +346,16 @@
     -fx-hgap: 1em;
     -fx-vgap: 0.5em;
 }
+
+.non-empty-directory {
+    -fx-spacing: 0.5em;
+}
+.non-empty-directory .parent-path {
+    -fx-padding: 0 0 0 4em;
+    -fx-max-width: 400.0;
+    -fx-text-overrun: center-ellipsis;
+    -fx-wrap-text: false;
+}
+.non-empty-directory .subDirRow, .non-empty-directory .subDirRow > * {
+    -fx-alignment: baseline-left;
+}

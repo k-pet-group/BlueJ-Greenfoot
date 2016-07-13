@@ -70,8 +70,25 @@ public class FileUtility
     private static JFileChooser pkgChooserNonBlueJ = null;
     private static PackageChooser directoryChooser = null;
     private static JFileChooser multiFileChooser = null;
-    
 
+    /**
+     * Gets a directory containing a project to open.
+     *
+     * First, the user is shown a directory chooser.  If this is a BlueJ/Greenfoot *package*,
+     * we navigate up the hierarchy to find the uppermost (parent-most?) directory with
+     * a package, i.e. the surrounding project.  (This effectively was done using the Swing chooser, because it was
+     * impossible to navigate into a project to choose a sub-package, and attempting
+     * to paste the path of a sub-package would navigate upwards to find the project.)  We
+     * don't want to let the user select sub-packages, anyway.
+     *
+     * If the user selects a directory which is not a BlueJ/Greenfoot package, we present
+     * a dialog telling them so, and invite them to choose again or cancel.  As an additional
+     * help, if any subdirectories of the chosen item are packages, we offer a handful of them
+     * as options in this dialog.
+     *
+     * @param parent The parent window for the file chooser and dialog
+     * @return A chosen File with a BlueJ/Greenfoot project, or null if the user cancelled.
+     */
     @OnThread(Tag.FXPlatform)
     public static File getOpenProjectFX(Window parent)
     {
@@ -103,6 +120,38 @@ public class FileUtility
                 return dlg.getSelectedDir();
         }
         return dir;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public static File getSaveProjectFX(Window parent, String title)
+    {
+        // JavaFX only has a directory-open dialog, so we use that:
+        File dir = getOpenDirFX(parent, title, false);
+
+        // If they cancelled, just stop:
+        if (dir == null)
+            return null;
+
+        if (!dir.isDirectory())
+            // What the hell?
+            throw new IllegalStateException("Non-directory selected by directory chooser");
+
+        // The rule is: if the user has selected an empty directory,
+        // we use that as the actual destination without checking.
+        // If the user selects a non-empty directory, we ask first
+        // if that's what they wanted, or whether they want to make
+        // a new subdirectory.
+
+        if (dir.list().length == 0)
+            return dir; // Empty
+
+        NonEmptyDirectoryDialog dlg = new NonEmptyDirectoryDialog(parent, dir);
+        File newDir = dlg.showAndWait();
+        if (dir.equals(newDir))
+            // They asked to choose again:
+            return getSaveProjectFX(parent, title);
+        else
+            return newDir;
     }
 
     public static File getNonBlueJDirectoryName(Component parent)

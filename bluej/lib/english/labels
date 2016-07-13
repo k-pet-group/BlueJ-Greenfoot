@@ -860,3 +860,12 @@ notAProject.message=Selected directory does not contain a project/scenario.
 notAProject.subDirs=Some child directories have projects/scenarios.  Did you mean:
 notAProject.subDirButton=Open
 notAProject.button=Choose Again
+
+# Not empty directory
+nonEmptyDirectory.title=Directory Not Empty
+nonEmptyDirectory.message=Selected directory is not empty.
+nonEmptyDirectory.chooseAgain=Choose a different directory
+nonEmptyDirectory.makeSubDir=Create a new subdirectory
+nonEmptyDirectory.blank=Subdirectory name cannot be blank
+nonEmptyDirectory.fileExists=Directory name clashes with existing file name
+nonEmptyDirectory.nonEmptyDirExists=Directory already exists and is not empty

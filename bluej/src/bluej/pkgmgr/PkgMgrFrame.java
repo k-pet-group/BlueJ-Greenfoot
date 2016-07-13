@@ -1396,37 +1396,22 @@ public class PkgMgrFrame extends JPanel
 
     /**
      * Allow the user to select a directory into which we create a project.
-     * @return true if the project was successfully created. False otherwise.
      */
-    public boolean doNewProject()
+    public void doNewProject()
     {
         String title = Config.getString( "pkgmgr.newPkg.title" );
-                    
-        File newnameFile = FileUtility.getDirName( this, title,
-                 Config.getString( "pkgmgr.newPkg.buttonLabel" ), false, true );
 
-        if (newnameFile == null)
-            return false;
-
-        if (newnameFile.exists()) {
-            if (! newnameFile.isDirectory()) {
-                DialogManager.showError(null, "directory-exists-file");
-                return false;
-            }
-            else if (newnameFile.list().length > 0) {
-                Debug.message("Attempt to create project with existing non-empty directory: " + newnameFile.getAbsolutePath());
-                DialogManager.showError(null, "directory-exists-non-empty");
-                return false;
-            }
-            // directory exists but is empty - fall through:
-        }
-        
-        if (! newProject(newnameFile.getAbsolutePath())) {
-            DialogManager.showErrorWithText(null, "cannot-create-directory", newnameFile.getPath());
-            return false;
-        }
-
-        return true;
+        Platform.runLater(() -> {
+            File newnameFile = FileUtility.getSaveProjectFX(getFXWindow(), title);
+            if (newnameFile == null)
+                return;
+            SwingUtilities.invokeLater(() -> {
+                if (! newProject(newnameFile.getAbsolutePath()))
+                {
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(null, "cannot-create-directory", newnameFile.getPath()));
+                }
+            });
+        });
     }
 
     /**
