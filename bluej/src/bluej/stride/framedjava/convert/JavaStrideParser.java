@@ -42,7 +42,6 @@ import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.ParamFragment;
 import bluej.stride.framedjava.ast.SuperThis;
 import bluej.stride.framedjava.ast.SuperThisFragment;
@@ -1692,7 +1691,7 @@ public class JavaStrideParser extends JavaParser
             warnUnsupportedModifiers("interface", modifiers);
             return new InterfaceElement(null, null, new NameDefSlotFragment(name),
                 extendsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields, methods,
-                new JavadocUnit(doc), pkg == null ? null : new PackageFragment(pkg), imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
+                new JavadocUnit(doc), pkg == null ? null : pkg, imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
         }
     }
     
@@ -1781,7 +1780,7 @@ public class JavaStrideParser extends JavaParser
                 toType(extendsType),
                 implementsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields,
                 constructors, methods,
-                new JavadocUnit(doc), pkg == null ? null : new PackageFragment(pkg), imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
+                new JavadocUnit(doc), pkg == null ? null : pkg, imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
         }
     }
 

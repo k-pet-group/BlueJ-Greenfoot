@@ -18,7 +18,6 @@ import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
-import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.ParamFragment;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.ast.Parser.JavaContext;
@@ -474,9 +473,9 @@ public class JavaToStrideTest
         return new ImportElement(oneOf("p.*", "hi.xx", "java.lang.String", "java.util.*"), null, true);
     }
 
-    private static PackageFragment genPackage()
+    private static String genPackage()
     {
-        return new PackageFragment(oneOf("p", "hi.xx", "a0.b1.c2"));
+        return oneOf("p", "hi.xx", "a0.b1.c2");
     }
 
     private static SuperThisParamsExpressionFragment genSuperThisParams()
@@ -706,7 +705,7 @@ public class JavaToStrideTest
     {
         return new ClassElement(null, null, _abstract, name(name), _extends == null ? null : type(_extends),
             _implements.stream().map(t -> type(t)).collect(Collectors.toList()),
-            fields, constructors, methods, new JavadocUnit(javadoc), pkg == null ? null : new PackageFragment(pkg), imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
+            fields, constructors, methods, new JavadocUnit(javadoc), pkg == null ? null : pkg, imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
     }
 
     private CommentElement _comment(String s)

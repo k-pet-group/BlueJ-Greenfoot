@@ -25,8 +25,6 @@ import bluej.Config;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.PackageFragment;
-import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
@@ -35,7 +33,6 @@ import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.ImportFrame;
 import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.stride.framedjava.frames.TopLevelFrame;
-import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.ClassNameDefTextSlot;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.Focus;
@@ -49,18 +46,14 @@ import bluej.utility.javafx.MultiListener;
 import bluej.utility.javafx.SharedTransition;
 import bluej.utility.javafx.binding.DeepListBinding;
 
-import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -89,10 +82,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
 
     // can both be null in Greenfoot, where we don't show the package
     protected FrameContentRow packageRow; // final - after moving initialization to this class
-    protected TextSlot<PackageFragment> packageSlot; // final - after moving initialization to this class
-    protected BooleanProperty showingPackageSlot; // final - after moving initialization to this class
-    // We have to keep a reference to negated version, to prevent it getting GCed:
-    protected BooleanExpression notShowingPackageSlot; // final - after moving initialization to this class
+    protected SlotLabel packageNameLabel; // final ?
 
     protected final FrameContentRow importRow;
     protected final FrameCanvas importCanvas;
@@ -114,7 +104,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     private Properties localProperties = new Properties();
 
     public TopLevelDocumentMultiCanvasFrame(InteractionManager editor, EntityResolver projectResolver, String caption,
-                                        String stylePrefix, PackageFragment packageName, List<ImportElement> imports,
+                                        String stylePrefix, String packageName, List<ImportElement> imports,
                                         JavadocUnit documentation, NameDefSlotFragment topLevelFrameName, boolean enabled)
     {
         //Frame frameParent
@@ -193,74 +183,17 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         if (Config.isGreenfoot())
         {
             this.packageRow = null;
-            this.packageSlot = null;
-            this.showingPackageSlot = null;
-            this.notShowingPackageSlot = null;
+            this.packageNameLabel = null;
         }
         else
         {
-            this.packageRow = new FrameContentRow(this);
-
-            // Spacer to catch the mouse click
-            SlotLabel spacer = new SlotLabel(" ");
-            spacer.setOpacity(0.0);
-            spacer.setCursor(Cursor.TEXT);
-
-            this.packageSlot = new TextSlot<PackageFragment>(editor, this, this, this.packageRow, null, "package-slot-", Collections.emptyList())
-            {
-                @Override
-                protected PackageFragment createFragment(String content)
-                {
-                    return new PackageFragment(content, this);
-                }
-
-                @Override
-                public void valueChangedLostFocus(String oldValue, String newValue)
-                {
-                    // Nothing to do
-                }
-
-                @Override
-                public List<? extends PossibleLink> findLinks()
-                {
-                    return Collections.emptyList();
-                }
-
-                @Override
-                public int getStartOfCurWord()
-                {
-                    // Start of word is always start of slot; don't let the dots in package/class names break the word:
-                    return 0;
-                }
-            };
-            this.packageSlot.setPromptText(Config.getString("frame.editor.toplevel.package.prompt"));
-            boolean packageNameNotEmpty = packageName != null && !packageName.isEmpty();
-            if (packageNameNotEmpty) {
-                this.packageSlot.setText(packageName);
+            if (packageName != null && !packageName.isEmpty()) {
+                this.packageRow = new FrameContentRow(this);
+                this.packageNameLabel = new SlotLabel(packageName, "package-slot-");
+                this.packageRow.bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
+                        FXCollections.observableArrayList(new SlotLabel("package "), this.packageNameLabel)
+                ));
             }
-            this.showingPackageSlot = new SimpleBooleanProperty(packageNameNotEmpty);
-            this.notShowingPackageSlot = showingPackageSlot.not();
-            JavaFXUtil.addChangeListener(showingPackageSlot, showing -> {
-                if (!showing) {
-                    packageSlot.setText("");
-                    packageSlot.cleanup();
-                }
-                editor.modifiedFrame(this);
-            });
-
-            spacer.setOnMouseClicked(e -> {
-                showingPackageSlot.set(true);
-                packageSlot.requestFocus();
-                e.consume();
-            });
-
-            this.packageRow.bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
-                    FXCollections.observableArrayList(new SlotLabel("package ")),
-                    JavaFXUtil.listBool(notShowingPackageSlot, spacer),
-                    JavaFXUtil.listBool(showingPackageSlot, this.packageSlot)
-            ));
-
-            packageSlot.addFocusListener(this);
         }
 
 
@@ -306,13 +239,6 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         SlotLabel l = new SlotLabel(content);
         JavaFXUtil.addStyleClass(l, stylePrefix + "section-label");
         return l;
-    }
-
-    public void checkForEmptySlot()
-    {
-        if ( packageSlot != null && packageSlot.isEmpty() ) {
-            showingPackageSlot.set(packageSlot.isFocused());
-        }
     }
 
     // Can't drag class/interface blocks:
@@ -431,7 +357,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     {
         super.modifyChildren(updatedChildren);
         int n = 0;
-        if (packageSlot != null)
+        if (packageNameLabel != null)
         {
             updatedChildren.add(n, packageRow);
             n += 1;

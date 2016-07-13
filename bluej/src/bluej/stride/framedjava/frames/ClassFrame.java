@@ -25,7 +25,6 @@ import bluej.editor.stride.BirdseyeManager;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.entity.EntityResolver;
-import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.elements.NormalMethodElement;
@@ -116,7 +115,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     private final SlotLabel constructorsLabel;
     private final FrameContentRow constructorsLabelRow;
 
-    public ClassFrame(InteractionManager editor, EntityResolver projectResolver, PackageFragment packageName, List<ImportElement> imports,
+    public ClassFrame(InteractionManager editor, EntityResolver projectResolver, String packageName, List<ImportElement> imports,
                       JavadocUnit documentation, boolean abstractModifierParam, NameDefSlotFragment className, TypeSlotFragment extendsName,
                       List<TypeSlotFragment> implementsList, boolean enabled)
     {
@@ -203,7 +202,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         element = new ClassElement(this, projectResolver, abstractModifier.get(), paramName.getSlotElement(),
                     showingExtends.get() && !extendsSlot.getText().equals("") ? extendsSlot.getSlotElement() : null,
                     implementsSlot.getTypes(), fields, constructors, methods, new JavadocUnit(getDocumentation()),
-                    packageSlot == null ? null : packageSlot.getSlotElement(), imports, frameEnabledProperty.get());
+                    packageNameLabel == null ? null : packageNameLabel.getText(), imports, frameEnabledProperty.get());
     }
 
     @Override

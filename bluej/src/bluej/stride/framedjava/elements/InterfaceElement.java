@@ -38,7 +38,6 @@ import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
 import nu.xom.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -50,7 +49,6 @@ import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.JavaSource;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.frames.InterfaceFrame;
@@ -68,7 +66,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     private JavadocUnit documentation;
 
     /** The package name (will not be null, but package name within may be blank */
-    private final PackageFragment packageName;
+    private final String packageName;
     private final List<ImportElement> imports;
     /** The list of fields in this class */
     private final List<CodeElement> fields;
@@ -102,7 +100,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     private final HashMap<String, DocAndPositions> documentCache = new HashMap<>();
     public InterfaceElement(InterfaceFrame frame, EntityResolver projectResolver, NameDefSlotFragment interfaceName,
                 List<TypeSlotFragment> extendsTypes, List<CodeElement> fields, List<CodeElement> methods,
-                JavadocUnit documentation, PackageFragment packageName, List<ImportElement> imports, boolean enabled)
+                JavadocUnit documentation, String packageName, List<ImportElement> imports, boolean enabled)
     {
         this.frame = frame;
         this.interfaceName = interfaceName;
@@ -110,12 +108,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         this.extendsTypes = extendsTypes == null ? new ArrayList<>() : new ArrayList<>(extendsTypes);
         this.documentation = documentation != null ? documentation : new JavadocUnit("");
 
-        if (packageName != null) {
-            this.packageName = packageName;
-        }
-        else {
-            this.packageName = new PackageFragment("");
-        }
+        this.packageName = (packageName == null) ? "" : packageName;
 
         this.imports = new ArrayList<>(imports);
 
@@ -142,9 +135,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         }
         extendsTypes = TopLevelCodeElement.xmlToTypeList(el, "extends", "extendstype", "type");
 
-        // We allow package to be null
-        Attribute packageAttribute = el.getAttribute("package");
-        packageName = new PackageFragment(packageAttribute == null ? "" : packageAttribute.getValue());
+        packageName = projectResolver.getClass().getPackage().getName();
 
         imports = Utility.mapList(TopLevelCodeElement.fillChildrenElements(this, el, "imports"), e -> (ImportElement)e);
         fields = TopLevelCodeElement.fillChildrenElements(this, el, "fields");
@@ -159,7 +150,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     public InterfaceElement(EntityResolver entityResolver, String interfaceName, String packageName)
     {
         this(null, entityResolver, new NameDefSlotFragment(interfaceName), null, Collections.emptyList(),
-                Collections.emptyList(), null, new PackageFragment(packageName), Collections.emptyList(), true);
+                Collections.emptyList(), null, packageName, Collections.emptyList(), true);
     }
 
     @Override
@@ -187,7 +178,6 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         if (documentation != null) {
             interfaceEl.appendChild(documentation.toXML());
         }
-        interfaceEl.addAttributeCode("package", packageName);
 
         appendCollection(interfaceEl, imports, "imports");
         appendCollection(interfaceEl, fields, "fields");
@@ -229,8 +219,8 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         // TODO What if the import is a specific class which isn't found? pop up imports dialog in this case?
         Utility.backwards(CodeElement.toJavaCodes(imports)).forEach(imp -> java.prepend(imp));
 
-        if (!packageName.getContent().equals(""))
-            java.prependLine(Arrays.asList(f(frame, "package "), packageName, f(frame, ";")), null);
+        if (!packageName.equals(""))
+            java.prependLine(Arrays.asList(f(frame, "package " + packageName + ";")), null);
         
         openingCurly.setFrame(frame);
         java.appendLine(Arrays.asList(openingCurly), null);

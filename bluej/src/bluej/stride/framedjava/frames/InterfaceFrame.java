@@ -25,7 +25,6 @@ import bluej.editor.stride.BirdseyeManager;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.PackageFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -68,7 +67,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
 {
     private final ExtendsList extendsList;
 
-    public InterfaceFrame(InteractionManager editor, EntityResolver projectResolver, PackageFragment packageName,
+    public InterfaceFrame(InteractionManager editor, EntityResolver projectResolver, String packageName,
                           List<ImportElement> imports, JavadocUnit documentation, NameDefSlotFragment interfaceName,
                           List<TypeSlotFragment> extendsTypes, boolean enabled)
     {
@@ -107,7 +106,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         List<CodeElement> methods = getMembers(methodsCanvas);
         List<ImportElement> imports = Utility.mapList(getMembers(importCanvas), e -> (ImportElement)e);
         element = new InterfaceElement(this, projectResolver, paramName.getSlotElement(), extendsList.getTypes(),
-                fields, methods, new JavadocUnit(getDocumentation()), packageSlot == null ? null : packageSlot.getSlotElement(),
+                fields, methods, new JavadocUnit(getDocumentation()), packageNameLabel == null ? null : packageNameLabel.getText(),
                 imports, frameEnabledProperty.get());
     }
 
