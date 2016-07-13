@@ -154,21 +154,6 @@ public class GreenfootImage
         copyStates(image, this);
     }
     
-    /**
-     * Creates an image with the given string drawn as text using the given font size, with the given foreground
-     * color on the given background color.  If the string has newline characters, it
-     * is split into multiple lines which are drawn horizontally-centred.
-     * 
-     * @param string the string to be drawn
-     * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
-     * @param foreground the color of the text.  Since Greenfoot 2.2.0, passing null will use black.
-     * @param background the color of the image behind the text.  Since Greenfoot 2.2.0, passing null with leave the background transparent.
-     * @since 2.0.1
-     */
-    public GreenfootImage(String string, int size, Color foreground, Color background)
-    {
-        this(string, size, foreground, background, null);
-    }
     
     /**
      * Creates an image with the given string drawn as text using the given font size, with the given foreground
@@ -198,7 +183,7 @@ public class GreenfootImage
      * @param outline the colour of the outline that will be drawn around the text.  Passing null will draw no outline.
      * @since 2.4.0
      */
-    public GreenfootImage(String string, int size, Color foreground, Color background, Color outline)
+    GreenfootImage(String string, int size, Color foreground, Color background, Color outline)
     {
         String[] lines = GraphicsUtilities.splitLines(string);
         GraphicsUtilities.MultiLineStringDimensions d = GraphicsUtilities.getMultiLineStringDimensions(lines, Font.BOLD, size);
@@ -506,16 +491,6 @@ public class GreenfootImage
      * 
      * @param f The new Font to be used.
      */
-    public void setFont(Font f)
-    {
-        currentFont = new greenfoot.Font(f);
-    }
-    
-    /**
-     * Set the current font. This font will be used for subsequent text operations.
-     * 
-     * @param f the new Font to be used.
-     */
     public void setFont(greenfoot.Font f)
     {
         currentFont = f;
@@ -526,15 +501,7 @@ public class GreenfootImage
      * 
      * @return The current used font, if none, set it as the Graphics font, then return it.
      */
-    public Font getFont()
-    {        
-        if(currentFont == null) {
-            currentFont = new greenfoot.Font(getGraphics().getFont());
-        }
-        return currentFont.getFontObject();
-    }
-    
-    public greenfoot.Font getGreenfootFont()
+    public greenfoot.Font getFont()
     {
         if (currentFont == null) {
             currentFont = new greenfoot.Font(getGraphics().getFont());
@@ -542,18 +509,6 @@ public class GreenfootImage
         return currentFont;
     }
 
-    /**
-     * Set the current drawing color. This color will be used for subsequent
-     * drawing operations.
-     * 
-     * @param color The color to be used.
-     */
-    public void setColor(Color color)
-    {
-        currentColor = new greenfoot.Color(color);
-        
-    }
-    
     /**
      * Set the current drawing color. This color will be used for subsequent
      * drawing operations.
@@ -570,17 +525,7 @@ public class GreenfootImage
      * 
      * @return The current color.
      */
-    public Color getColor()
-    {
-        return currentColor.getColorObject();
-    }
-    
-    /**
-     * Return the current drawing color.
-     *
-     * @return The current GreenfootColor.
-     */
-    public greenfoot.Color getGreenfootColor()
+    public greenfoot.Color getColor()
     {
         return currentColor;
     }
@@ -594,14 +539,9 @@ public class GreenfootImage
      * @param y The vertical coordinate of the pixel.
      * @return The Color at the specific pixel.
      */
-    public Color getColorAt(int x, int y)
+    public greenfoot.Color getColorAt(int x, int y)
     {
-        return new Color(getRGBAt(x, y), true); 
-    }
-    
-    public greenfoot.Color getGreenfootColorAt(int x, int y)
-    {
-        return new greenfoot.Color(getColorAt(x, y));
+        return new greenfoot.Color(new Color(getRGBAt(x, y), true));
     }
     
     /**
@@ -611,20 +551,9 @@ public class GreenfootImage
      * @param y The vertical coordinate of the pixel.
      * @param color The Color to be assigned at the specific pixel.
      */
-    public void setColorAt(int x, int y, Color color) {
-        setRGBAt(x, y, color.getRGB());
-    }
-    
-    /**
-     * Sets the given pixel to the given GreenfootColor.
-     * 
-     * @param x The horizontal coordinate of the pixel.
-     * @param y The vertical coordinate of the pixel.
-     * @param color The GreenfootColor to be assigned at the specific pixel.
-     */
     public void setColorAt(int x, int y, greenfoot.Color color)
     {
-        setColorAt(x, y, color.getColorObject());
+        setRGBAt(x, y, color.getColorObject().getRGB());
     }
 
     /**
@@ -785,18 +714,6 @@ public class GreenfootImage
         g.dispose();
     }
 
-    /**
-     * Draw a filled shape directly on the image. Shapes are specified by the
-     * <a href="https://docs.oracle.com/javase/8/docs/api/java/awt/Shape.html">shape
-     * interface</a>.
-     * @param shape the shape to be filled.
-     */
-    public void fillShape(Shape shape)
-    {
-        Graphics2D g = getGraphics();
-        g.fill(shape);
-        g.dispose();
-    }
 
     /**
      * Fill an oval bounded by the specified rectangle with the current drawing

@@ -21,7 +21,6 @@
  */
 package greenfoot;
 
-
 /**
  * A representation of a Color. The Color can be used to draw or fill shapes on
  * the screen.
@@ -34,145 +33,80 @@ public class Color
     /**
      * The color white. In the default RGB space.
      */
-    public final static Color white = new Color(255, 255, 255);
-
-    /**
-     * The color white. In the default RGB space.
-     */
-    public final static Color WHITE = white;
+    public final static Color WHITE = new Color(255, 255, 255);
 
     /**
      * The color light gray. In the default RGB space.
      */
-    public final static Color lightGray = new Color(192, 192, 192);
-
-    /**
-     * The color light gray. In the default RGB space.
-     */
-    public final static Color LIGHT_GRAY = lightGray;
+    public final static Color LIGHT_GRAY = new Color(192, 192, 192);
 
     /**
      * The color gray. In the default RGB space.
      */
-    public final static Color gray = new Color(128, 128, 128);
-
-    /**
-     * The color gray. In the default RGB space.
-     */
-    public final static Color GRAY = gray;
+    public final static Color GRAY = new Color(128, 128, 128);
 
     /**
      * The color dark gray. In the default RGB space.
      */
-    public final static Color darkGray = new Color(64, 64, 64);
-
-    /**
-     * The color dark gray. In the default RGB space.
-     */
-    public final static Color DARK_GRAY = darkGray;
+    public final static Color DARK_GRAY = new Color(64, 64, 64);
 
     /**
      * The color black. In the default RGB space.
      */
-    public final static Color black = new Color(0, 0, 0);
-
-    /**
-     * The color black. In the default RGB space.
-     */
-    public final static Color BLACK = black;
+    public final static Color BLACK = new Color(0, 0, 0);
 
     /**
      * The color red. In the default RGB space.
      */
-    public final static Color red = new Color(255, 0, 0);
-
-    /**
-     * The color red. In the default RGB space.
-     */
-    public final static Color RED = red;
+    public final static Color RED = new Color(255, 0, 0);
 
     /**
      * The color pink. In the default RGB space.
      */
-    public final static Color pink = new Color(255, 175, 175);
-
-    /**
-     * The color pink. In the default RGB space.
-     */
-    public final static Color PINK = pink;
+    public final static Color PINK = new Color(255, 175, 175);
 
     /**
      * The color orange. In the default RGB space.
      */
-    public final static Color orange = new Color(255, 200, 0);
-
-    /**
-     * The color orange. In the default RGB space.
-     */
-    public final static Color ORANGE = orange;
+    public final static Color ORANGE = new Color(255, 200, 0);
 
     /**
      * The color yellow. In the default RGB space.
      */
-    public final static Color yellow = new Color(255, 255, 0);
-
-    /**
-     * The color yellow. In the default RGB space.
-     */
-    public final static Color YELLOW = yellow;
+    public final static Color YELLOW = new Color(255, 255, 0);
 
     /**
      * The color green. In the default RGB space.
      */
-    public final static Color green = new Color(0, 255, 0);
-
-    /**
-     * The color green. In the default RGB space.
-     */
-    public final static Color GREEN = green;
+    public final static Color GREEN = new Color(0, 255, 0);
 
     /**
      * The color magenta. In the default RGB space.
      */
-    public final static Color magenta = new Color(255, 0, 255);
-
-    /**
-     * The color magenta. In the default RGB space.
-     */
-    public final static Color MAGENTA = magenta;
+    public final static Color MAGENTA = new Color(255, 0, 255);
 
     /**
      * The color cyan. In the default RGB space.
      */
-    public final static Color cyan = new Color(0, 255, 255);
-
-    /**
-     * The color cyan. In the default RGB space.
-     */
-    public final static Color CYAN = cyan;
+    public final static Color CYAN = new Color(0, 255, 255);
 
     /**
      * The color blue. In the default RGB space.
      */
-    public final static Color blue = new Color(0, 0, 255);
-
-    /**
-     * The color blue. In the default RGB space.
-     */
-    public final static Color BLUE = blue;
+    public final static Color BLUE = new Color(0, 0, 255);
 
     private final java.awt.Color color;
 
     /**
-     * Creates a GreenfootColor based on a java.awt.Color
+     * Creates a color based on a java.awt.Color
      *
      * @param c the java.awt.Color
      */
-    protected Color(java.awt.Color c)
+    Color(java.awt.Color c)
     {
         this.color = c;
     }
-    
+
     /**
      * Creates a RGB color with the specified red, green, blue values in the
      * range (0 - 255).
@@ -201,10 +135,9 @@ public class Color
     }
 
     /**
-     * Creates a new GreenfootColor that is a brighter version of this
-     * GreenfootColor.
+     * Creates a new color that is a brighter version of this GreenfootColor.
      * <p>
-     * This method creates a brighter version of this Color. The alpha value is
+     * This method creates a brighter version of this color. The alpha value is
      * preserved. Although <code>brighter</code> and <code>darker</code> are
      * inverse operations, the results of a series of invocations of these two
      * methods might be inconsistent because of rounding errors.
@@ -221,11 +154,10 @@ public class Color
      * Creates a new GreenfootColor that is a darker version of this
      * GreenfootColor.
      * <p>
-     * This method creates a darker version of this GreenfootColor. The alpha
-     * value is preserved. Although <code>brighter</code> and
-     * <code>darker</code> are inverse operations, the results of a series of
-     * invocations of these two methods might be inconsistent because of
-     * rounding errors.
+     * This method creates a darker version of this color. The alpha value is
+     * preserved. Although <code>brighter</code> and <code>darker</code> are
+     * inverse operations, the results of a series of invocations of these two
+     * methods might be inconsistent because of rounding errors.
      *
      * @return a new GreenfootColor object that is a darker version of this
      * GreenfootColor with the same alpha value.
@@ -236,14 +168,14 @@ public class Color
     }
 
     /**
-     * Determines whether another object is equal to this GreenfootColor.
+     * Determines whether another object is equal to this color.
      * <p>
      * The result is true if and only if the argument is not null and is a
-     * Greenfoot object that has the same red, green, blue, and alpha values as
-     * this object.
+     * greenfoot.Color object that has the same red, green, blue, and alpha
+     * values as this object.
      *
-     * @param obj the object to test for equality with this GreenfootColor
-     * @return true if the objects are the same; false otherwise.
+     * @param obj the object to test for equality with this color
+     * @return true if the colors are the same; false otherwise.
      */
     @Override
     public boolean equals(Object obj)
@@ -290,14 +222,33 @@ public class Color
     {
         return this.color.getBlue();
     }
-    
-    
+
     /**
-     * Return the internal Color object representing the GreenfootColor
+     * Computes the hash code for this <code>Color</code>.
+     *
+     * @return a hash code value for this object.
+     *
+     */
+    public int hashCode()
+    {
+        return this.color.hashCode();
+    }
+
+    /**
+     * Return a text representation of the color.
+     */
+    @Override
+    public String toString()
+    {
+        return "Color{" + "color=" + color + '}';
+    }
+
+    /**
+     * Return the internal color object representing the color
      *
      * @return the Color object.
      */
-    protected java.awt.Color getColorObject()
+    java.awt.Color getColorObject()
     {
         return this.color;
     }

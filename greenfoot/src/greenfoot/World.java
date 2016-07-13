@@ -57,7 +57,7 @@ import java.util.List;
  */
 public abstract class World
 {    
-    private static final Color DEFAULT_BACKGROUND_COLOR = Color.WHITE;
+    private static final greenfoot.Color DEFAULT_BACKGROUND_COLOR = greenfoot.Color.WHITE;
 
     // private CollisionChecker collisionChecker = new GridCollisionChecker();
     // private CollisionChecker collisionChecker = new BVHInsChecker();
@@ -234,9 +234,25 @@ public abstract class World
      *             bounds. If there is no background image at the location it
      *             will return Color.WHITE.
      */
-    public Color getColorAt(int x, int y)
+//    Color getAWTColorAt(int x, int y)
+//    {
+//
+//    }
+
+    /**
+     * Return the color at the centre of the cell. To paint a color, you need to
+     * get the background image for the world and paint on that.
+     *
+     * @param x The x coordinate of the cell.
+     * @param y The y coordinate of the cell.
+     * @see #getBackground()
+     * @throws IndexOutOfBoundsException If the location is not within the world
+     *             bounds. If there is no background image at the location it
+     *             will return Color.WHITE.
+     */
+    public greenfoot.Color getColorAt(int x, int y)
     {
-        ensureWithinXBounds(x);
+                ensureWithinXBounds(x);
         ensureWithinYBounds(y);       
         
         int xPixel = (int) Math.floor(getCellCenter(x));
@@ -250,22 +266,6 @@ public abstract class World
         }        
         
         return backgroundImage.getColorAt(xPixel, yPixel);
-    }
-
-    /**
-     * Return the color at the centre of the cell. To paint a color, you need to
-     * get the background image for the world and paint on that.
-     *
-     * @param x The x coordinate of the cell.
-     * @param y The y coordinate of the cell.
-     * @see #getBackground()
-     * @throws IndexOutOfBoundsException If the location is not within the world
-     *             bounds. If there is no background image at the location it
-     *             will return Color.WHITE.
-     */
-    public greenfoot.Color getGreenfootColorAt(int x, int y)
-    {
-        return new greenfoot.Color(getColorAt(x, y));
     }
     
     /**
