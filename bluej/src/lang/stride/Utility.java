@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,9 @@
  */
 package lang.stride;
 
+import java.util.AbstractList;
+import java.util.List;
+
 public class Utility
 {
     /**
@@ -30,18 +33,26 @@ public class Utility
      * If start == end, range is size 1
      * If start > end, array will be empty
      */
-    public static int[] makeRange(int start, int end)
+    public static List<Integer> makeRange(int start, int end)
     {
-        if (start > end)
-            return new int[0];
-
-        int[] r = new int[end - start + 1];
-        int val = start;
-        for (int index = 0; index < r.length; index++)
+        return new AbstractList<Integer>()
         {
-            r[index] = val;
-            val += 1;
-        }
-        return r;
+            private final boolean empty = start > end;
+
+            @Override
+            public int size()
+            {
+                return empty ? 0 : end - start + 1;
+            }
+
+            @Override
+            public Integer get(int index)
+            {
+                if (!empty && index >= 0 && start + index <= end)
+                    return start + index;
+                else
+                    throw new IndexOutOfBoundsException("Not in bounds: " + index);
+            }
+        };
     }
 }
