@@ -66,10 +66,8 @@ public class FileUtility
      */
     public enum WriteCapabilities {READ_ONLY, NORMAL_WRITE, VIRTUALIZED_WRITE, UNKNOWN}
 
-    private static JFileChooser pkgChooser = null;
     private static JFileChooser pkgChooserNonBlueJ = null;
     private static PackageChooser directoryChooser = null;
-    private static JFileChooser multiFileChooser = null;
 
     /**
      * Gets a directory containing a project to open.
@@ -142,16 +140,24 @@ public class FileUtility
         // if that's what they wanted, or whether they want to make
         // a new subdirectory.
 
+        File chosen;
         if (dir.list().length == 0)
-            return dir; // Empty
-
-        NonEmptyDirectoryDialog dlg = new NonEmptyDirectoryDialog(parent, dir);
-        File newDir = dlg.showAndWait();
-        if (dir.equals(newDir))
-            // They asked to choose again:
-            return getSaveProjectFX(parent, title);
+        {
+            chosen = dir; // Empty
+        }
         else
-            return newDir;
+        {
+            NonEmptyDirectoryDialog dlg = new NonEmptyDirectoryDialog(parent, dir);
+            chosen = dlg.showAndWait();
+            if (dir.equals(chosen))
+                // They asked to choose again:
+                chosen = getSaveProjectFX(parent, title);
+        }
+        if (chosen != null && chosen.getParentFile() != null)
+        {
+            PrefMgr.setProjectDirectory(chosen.getParentFile().getPath());
+        }
+        return chosen;
     }
 
     public static File getNonBlueJDirectoryName(Component parent)
@@ -187,7 +193,7 @@ public class FileUtility
         
         List<File> chosen = newChooser.showOpenMultipleDialog(parent);
 
-        if (chosen != null && chosen.size() > 0 && rememberDir)
+        if (chosen != null && chosen.size() > 0 && chosen.get(0).getParentFile() != null && rememberDir)
         {
             PrefMgr.setProjectDirectory(chosen.get(0).getParentFile().getPath());
         }
@@ -207,7 +213,7 @@ public class FileUtility
 
         File chosen = newChooser.showSaveDialog(parent);
 
-        if (chosen != null && rememberDir)
+        if (chosen != null && chosen.getParentFile() != null &&  rememberDir)
         {
             PrefMgr.setProjectDirectory(chosen.getParentFile().getPath());
         }
@@ -223,7 +229,7 @@ public class FileUtility
 
         File chosen = newChooser.showDialog(parent);
 
-        if (chosen != null && rememberDir)
+        if (chosen != null && chosen.getParentFile() != null &&  rememberDir)
         {
             PrefMgr.setProjectDirectory(chosen.getParentFile().getPath());
         }

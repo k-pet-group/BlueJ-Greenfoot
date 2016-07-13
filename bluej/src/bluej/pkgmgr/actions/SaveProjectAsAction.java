@@ -21,7 +21,10 @@
  */
 package bluej.pkgmgr.actions;
 
+import javax.swing.*;
 import java.io.File;
+
+import javafx.application.Platform;
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
@@ -52,47 +55,53 @@ final public class SaveProjectAsAction extends PkgMgrAction
     
     public void saveAs(PkgMgrFrame frame, Project project)
     {
-        // get a file name to save under
-        File newName = FileUtility.getDirName(frame,
-                Config.getString("pkgmgr.saveAs.title"),
-                Config.getString("pkgmgr.saveAs.buttonLabel"), false, true);
+        Platform.runLater(() -> {
+            // get a file name to save under
+            File newName = FileUtility.getSaveProjectFX(frame.getFXWindow(), Config.getString("pkgmgr.saveAs.title"));
 
-        if (newName != null) {
-            project.saveAll();
+            if (newName != null)
+            {
+                SwingUtilities.invokeLater(() -> {
+                    project.saveAll();
 
-            int result = FileUtility.copyDirectory(project.getProjectDir(),
-                    newName);
+                    int result = FileUtility.copyDirectory(project.getProjectDir(),
+                            newName);
 
-            switch (result) {
-            case FileUtility.NO_ERROR:
-                break;
+                    switch (result)
+                    {
+                        case FileUtility.NO_ERROR:
+                            break;
 
-            case FileUtility.DEST_EXISTS_NOT_DIR:
-                DialogManager.showError(frame, "directory-exists-file");
-                return;
-            case FileUtility.DEST_EXISTS_NON_EMPTY:
-                DialogManager.showError(frame, "directory-exists-non-empty");
-                return;
+                        case FileUtility.DEST_EXISTS_NOT_DIR:
+                            Platform.runLater(() -> DialogManager.showErrorFX(frame.getFXWindow(), "directory-exists-file"));
+                            return;
+                        case FileUtility.DEST_EXISTS_NON_EMPTY:
+                            Platform.runLater(() -> DialogManager.showErrorFX(frame.getFXWindow(), "directory-exists-non-empty"));
+                            return;
 
-            case FileUtility.SRC_NOT_DIRECTORY:
-            case FileUtility.COPY_ERROR:
-                DialogManager.showError(frame, "cannot-save-project");
-                return;
+                        case FileUtility.SRC_NOT_DIRECTORY:
+                        case FileUtility.COPY_ERROR:
+                            Platform.runLater(() -> DialogManager.showErrorFX(frame.getFXWindow(), "cannot-save-project"));
+                            return;
+                    }
+
+                    PkgMgrFrame.closeProject(project);
+
+                    // open new project
+                    Project openProj = Project.openProject(newName.getAbsolutePath(), null);
+
+                    if (openProj != null)
+                    {
+                        Package pkg = openProj.getPackage("");
+                        PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
+                        pmf.setVisible(true);
+                    } else
+                    {
+                        Debug.message("Save as: could not open package under new name");
+                    }
+                });
             }
-
-            PkgMgrFrame.closeProject(project);
-
-            // open new project
-            Project openProj = Project.openProject(newName.getAbsolutePath(), null);
-
-            if (openProj != null) {
-                Package pkg = openProj.getPackage("");
-                PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
-                pmf.setVisible(true);
-            } else {
-                Debug.message("Save as: could not open package under new name");
-            }
-        }
+        });
     }
 
 }

@@ -98,8 +98,8 @@ class NonEmptyDirectoryDialog
         JavaFXUtil.addStyleClass(hBox, "subDirRow");
         content.getChildren().addAll(makeSubDir, hBox, chooseAgain, errorLabel);
         dialog.getDialogPane().setContent(content);
-        JavaFXUtil.addChangeListener(subDirName.textProperty(), t -> updateErrorState(originalChoice, group.getSelectedToggle() == makeSubDir));
-        JavaFXUtil.addChangeListener(group.selectedToggleProperty(), t -> updateErrorState(originalChoice, group.getSelectedToggle() == makeSubDir));
+        JavaFXUtil.addChangeListenerPlatform(subDirName.textProperty(), t -> updateErrorState(originalChoice, group.getSelectedToggle() == makeSubDir));
+        JavaFXUtil.addChangeListenerPlatform(group.selectedToggleProperty(), t -> updateErrorState(originalChoice, group.getSelectedToggle() == makeSubDir));
 
         dialog.setResultConverter(button -> {
             if (button == ButtonType.OK)
