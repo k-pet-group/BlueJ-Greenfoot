@@ -21,25 +21,11 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -56,11 +42,9 @@ import javafx.stage.Window;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.BlueJTheme;
 import bluej.Boot;
 import bluej.Config;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
 
 /**
  * Dialog implementing version check functionality.

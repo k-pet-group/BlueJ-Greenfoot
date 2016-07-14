@@ -188,10 +188,6 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         private final String name;
         private final Set<SourceType> sourceTypes = new HashSet<>();
 
-        public TemplateInfo(String name)
-        {
-            this.name = name;
-        }
         public TemplateInfo(String name, SourceType sourceType)
         {
             this.name = name;
@@ -370,7 +366,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     private void initialiseRestrictedWordList()
     {
         if (windowsRestrictedWords==null){
-            windowsRestrictedWords=new ArrayList<String>();
+            windowsRestrictedWords=new ArrayList<>();
             windowsRestrictedWords.add("CON");
             windowsRestrictedWords.add("PRN");
             windowsRestrictedWords.add("AUX");

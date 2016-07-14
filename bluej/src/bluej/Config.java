@@ -153,7 +153,7 @@ public final class Config
     private static Color selectionColour2;
     private static Color highlightColour;
     private static Color highlightColour2;
-    private static List<String> debugVMArgs = new ArrayList<String>();
+    private static List<String> debugVMArgs = new ArrayList<>();
     /** whether this is the debug vm or not. */
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
     public static final String EDITOR_COUNT_JAVA = "session.numeditors.java";
@@ -608,14 +608,6 @@ public final class Config
     }
 
     /**
-     * Tell us whether we are running on a Java VM that supports Java 6 features.
-     */
-    public static boolean isJava16()
-    {
-        return javaVersionNumberAtLeast(1, 6);
-    }
-    
-    /**
      * Tell us whether we are running on a Java VM that supports Java 7 features.
      */
     public static boolean isJava17()
@@ -629,18 +621,6 @@ public final class Config
     public static boolean isOpenJDK()
     {
         return System.getProperty("java.runtime.name").startsWith("OpenJDK");
-    }
-    
-    /**
-     * Tell use whether java 1.5 features are to be used. This allows
-     * suppressing 1.5 features when running on a 1.5 VM (for instance to
-     * suppress the "unchecked" warnings which occur when compiling legacy
-     * code). 
-     */
-    public static boolean usingJava15()
-    {
-        // for now, always use 1.5 features where available
-        return true;
     }
     
     /**
@@ -1767,9 +1747,9 @@ public final class Config
             
             if (! laf.equals("bluejdefault")) {
                 LookAndFeelInfo [] lafi = UIManager.getInstalledLookAndFeels();
-                for (int i = 0; i < lafi.length; i++) {
-                    if (lafi[i].getName().equals(laf)) {
-                        UIManager.setLookAndFeel(lafi[i].getClassName());
+                for (LookAndFeelInfo aLafi : lafi) {
+                    if (aLafi.getName().equals(laf)) {
+                        UIManager.setLookAndFeel(aLafi.getClassName());
                         return;
                     }
                 }
@@ -2035,8 +2015,9 @@ public final class Config
      * This is almost equivalent to the SourceType in bluej.extensions, but we 
      * don't want Config to depend on that class so we re-create the same idea here.
      */
-    public static enum SourceType
+    public enum SourceType
     {
-        Java, Stride;
+        Java,
+        Stride
     }
 }

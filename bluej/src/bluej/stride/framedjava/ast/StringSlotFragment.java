@@ -21,17 +21,11 @@
  */
 package bluej.stride.framedjava.ast;
 
-import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.ErrorShower;
 import bluej.stride.slots.EditableSlot;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.stride.framedjava.slots.UnderlineContainer;
-import bluej.stride.slots.TextSlot;
-import bluej.utility.javafx.FXRunnable;
-
-import java.util.List;
 
 public abstract class StringSlotFragment extends SlotFragment
 {
