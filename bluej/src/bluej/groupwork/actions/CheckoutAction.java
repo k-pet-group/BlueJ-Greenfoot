@@ -23,6 +23,7 @@ package bluej.groupwork.actions;
 
 import java.io.File;
 
+import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
 
 import threadchecker.OnThread;
@@ -43,6 +44,8 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.SwingWorker;
+
+import javax.swing.SwingUtilities;
 
 /**
  * An action to perform a checkout of a module in CVS. The module is checked
@@ -68,12 +71,33 @@ public class CheckoutAction extends TeamAction
         //TeamSettingsController tsc = new TeamSettingsController(projectDir);
         // Create a TeamSettingsController for the current project directory,
         // switch it to the new one once it's been created
-        TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
+        final TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
         TeamSettingsDialog tsd = tsc.getTeamSettingsDialog();
         tsd.setLocationRelativeTo(oldFrame);
 
         if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
-            File projectDir;
+            FXPlatformConsumer<File> finishCheckout = projectDir -> {
+                if (projectDir.exists()) {
+                    DialogManager.showErrorFX(null, "directory-exists-non-empty");
+                    return;
+                }
+
+                SwingUtilities.invokeLater(() -> {
+                    PkgMgrFrame newFrame;
+                    if (oldFrame.isEmptyFrame())
+                    {
+                        newFrame = oldFrame;
+                    } else
+                    {
+                        newFrame = PkgMgrFrame.createFrame();
+                        newFrame.setVisible(true);
+                        newFrame.setEnabled(false);
+                    }
+
+                    new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
+                });
+            };
+
             if (!tsc.getRepository(true).isDVCS()) {
                 //if not DVCS, we need to select module.
                 ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame::getFXWindow, tsc.getRepository(true));
@@ -82,52 +106,48 @@ public class CheckoutAction extends TeamAction
 
                 String moduleName = moduleDialog.getModuleName();
                 if (moduleName != null) {
-                    File parentDir = FileUtility.getDirName(oldFrame, Config.getString("team.checkout.filechooser.title"),
-                            Config.getString("team.checkout.filechooser.button"), true, true);
-                    
-                    if (Package.isPackage(parentDir)) {
-                        Debug.message("Attempted to checkout a project into an existing project: " + parentDir);
-                        DialogManager.showError(null, "team-cannot-import-into-existing-project");
-                        return;
-                    }
-                    projectDir = new File(parentDir, moduleName);
+                    Platform.runLater(() ->
+                    {
+                        File parentDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.filechooser.title"));
+
+                        if (parentDir == null)
+                            return; // User cancelled
+
+                        if (Package.isPackage(parentDir))
+                        {
+                            Debug.message("Attempted to checkout a project into an existing project: " + parentDir);
+                            DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
+                            return;
+                        }
+                        finishCheckout.accept(new File(parentDir, moduleName));
+                    });
                 } else {
                     //null module.
                     return;
                 }
             } else {
+
                 //it is a DVCS project.
                 //there is no module selection in a DVCS project. Therefore,
                 //the selected file is the project dir.
-                projectDir = FileUtility.getDirName(oldFrame, Config.getString("team.checkout.DVCS.filechooser.title"),
-                        Config.getString("team.checkout.filechooser.button"), true, true);
-                if (projectDir != null) {
-                    if (Package.isPackage(projectDir)) {
-                        Debug.message("Attempted to checkout a project into an existing project: " + projectDir);
-                        DialogManager.showError(null, "team-cannot-import-into-existing-project");
+                Platform.runLater(() -> {
+                    File projectDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.DVCS.filechooser.title"));
+                    if (projectDir != null)
+                    {
+                        if (Package.isPackage(projectDir))
+                        {
+                            Debug.message("Attempted to checkout a project into an existing project: " + projectDir);
+                            DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
+                            return;
+                        }
+                        finishCheckout.accept(projectDir);
+                    } else
+                    {
+                        //no project dir. nothing to do.
                         return;
                     }
-                } else {
-                    //no project dir. nothing to do.
-                    return;
-                }
+                });
             }
-
-            if (projectDir.exists()) {
-                DialogManager.showError(null, "directory-exists-non-empty");
-                return;
-            }
-
-            PkgMgrFrame newFrame;
-            if (oldFrame.isEmptyFrame()) {
-                newFrame = oldFrame;
-            } else {
-                newFrame = PkgMgrFrame.createFrame();
-                newFrame.setVisible(true);
-                newFrame.setEnabled(false);
-            }
-
-            new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
         }
     }
 
