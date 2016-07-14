@@ -84,7 +84,7 @@ public class TeamActionGroup
             commitCommentAction = new CommitCommentAction(pmf, commitLabel);
             importAction = new ImportAction(pmf);
             showLogAction = new ShowLogAction(pmf);
-            setTeamMode(initialTeamMode, initialIsDVCS);
+            setTeamMode(pmf, initialTeamMode, initialIsDVCS);
         }
     }
     
@@ -124,8 +124,9 @@ public class TeamActionGroup
         return showLogAction;
     }
     
-    public void setTeamMode(boolean enabled, boolean isDCVS)
+    public void setTeamMode(PkgMgrFrame pmf, boolean enabled, boolean isDCVS)
     {
+        createAll(pmf);
         statusAction.setEnabled(enabled);
         updateAction.setEnabled(enabled);
         teamSettingsAction.setEnabled(enabled);
