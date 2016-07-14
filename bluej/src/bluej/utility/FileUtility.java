@@ -225,7 +225,8 @@ public class FileUtility
     {
         DirectoryChooser newChooser = new DirectoryChooser();
         newChooser.setTitle(title);
-        newChooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+        if (PrefMgr.getProjectDirectory() != null)
+            newChooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
 
         File chosen = newChooser.showDialog(parent);
 
