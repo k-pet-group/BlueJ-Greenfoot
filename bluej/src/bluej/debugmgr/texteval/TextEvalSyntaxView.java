@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import javax.swing.text.Utilities;
 
 import bluej.Config;
 import bluej.editor.moe.BlueJSyntaxView;
+import bluej.editor.moe.MoeErrorManager;
 import bluej.editor.moe.MoeSyntaxDocument;
 
 /**
@@ -76,8 +77,9 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
     /**
      * Draw a line for the text eval area.
      */
-    public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
-            MoeSyntaxDocument document, Color def, Element line, TabExpander tx) 
+    @Override
+    public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y,
+                                MoeSyntaxDocument document, MoeErrorManager errors, Color def, Element line, TabExpander tx)
     {
         if(hasTag(line, OUTPUT)) {
             g.setColor(outputColor);
