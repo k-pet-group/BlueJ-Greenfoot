@@ -21,25 +21,21 @@
  */
 package bluej.groupwork.ui;
 
-import java.awt.Dialog;
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-
 import javafx.application.Platform;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.Modality;
 import javafx.stage.Window;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.TeamworkProvider;
-import bluej.utility.DBox;
-import bluej.utility.MultiWrapLabel;
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.SwingNodeDialog;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A dialog which displays an activity indicator while connection settings are
@@ -47,89 +43,69 @@ import bluej.utility.javafx.SwingNodeDialog;
  * 
  * @author Davin McCall
  */
-public class CheckConnectionDialog extends SwingNodeDialog
+@OnThread(Tag.FXPlatform)
+public class CheckConnectionDialog extends javafx.scene.control.Dialog<Void>
 {
-    private ActivityIndicator activityIndicator;
-    private MultiWrapLabel connLabel;
-    private JButton closeButton;
+    private ProgressBar activityIndicator;
+    private Text connLabel;
     
     private TeamSettings settings;
     private TeamworkProvider provider;
-    
-    public CheckConnectionDialog(FXPlatformSupplier<Window> owner, TeamworkProvider provider,
+
+    public CheckConnectionDialog(Window owner, TeamworkProvider provider,
                                  TeamSettings settings)
     {
-        super(owner);
-        setModal(true);
+        initOwner(owner);
+        initModality(Modality.WINDOW_MODAL);
         setTitle(Config.getString("team.settings.checkConnection"));
-        
+        setResizable(true);
+
         this.provider = provider;
         this.settings = settings;
         
         buildUI();
-        Platform.runLater(() -> setLocationRelativeTo(owner.get()));
     }
     
     private void buildUI()
     {
-        DBox contentPane = new DBox(DBox.Y_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.0f);
-        contentPane.setBorder(BlueJTheme.dialogBorder);
-        setContentPane(contentPane);
+        VBox contentPane = new VBox();
+        contentPane.setMinHeight(120.0);
+        getDialogPane().setContent(contentPane);
+        getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
         
-        connLabel = new MultiWrapLabel(Config.getString("team.checkconn.checking"));
+        connLabel = new Text(Config.getString("team.checkconn.checking"));
         
-        contentPane.add(connLabel);
+        contentPane.getChildren().add(new TextFlow(connLabel));
         
-        activityIndicator = new ActivityIndicator();
-        activityIndicator.setRunning(true);
-        contentPane.add(activityIndicator);
-        
-        closeButton = BlueJTheme.getCancelButton();
-        closeButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    setVisible(false);
-                }
-            });
-        contentPane.add(closeButton);
-        
-        pack();
+        activityIndicator = new ProgressBar();
+        contentPane.getChildren().add(activityIndicator);
+        activityIndicator.setMaxWidth(9999.0);
+        contentPane.setFillWidth(true);
     }
     
-    public void setVisible(boolean vis)
+    public void showAndCheck()
     {
-        // Must start the thread before calling super.setVisible(), because
-        // we are modal - super.setVisible() will block.
-        if (vis) {
-            new Thread() {
-                public void run()
-                {
-                    final TeamworkCommandResult res = validateConnection();
-                    EventQueue.invokeLater(new Runnable() {
-                        public void run()
-                        {
-                            if (!res.isError()) {
-                                connLabel.setText(Config.getString("team.checkconn.ok"));
-                            }
-                            else {
-                                connLabel.setText(Config.getString("team.checkconn.bad")
-                                        + System.getProperty("line.separator") + System.getProperty("line.separator")
-                                        + res.getErrorMessage());
-                            }
-                            
-                            activityIndicator.setRunning(false);
-                            closeButton.setText(BlueJTheme.getCloseLabel());
-                            pack();
-                        }
-                    });
-                }
-            }.start();
-        }
-        super.setVisible(vis);
+        // Must start the thread before calling showAndWait, because
+        // we are modal - showAndWait will block.
+        new Thread() {
+            public void run()
+            {
+                final TeamworkCommandResult res = provider.checkConnection(settings);
+                Platform.runLater(() -> {
+                    if (!res.isError()) {
+                        connLabel.setText(Config.getString("team.checkconn.ok"));
+                    }
+                    else {
+                        connLabel.setText(Config.getString("team.checkconn.bad")
+                                + System.getProperty("line.separator") + System.getProperty("line.separator")
+                                + res.getErrorMessage());
+                    }
+
+                    activityIndicator.setProgress(1.0);
+                });
+            }
+        }.start();
+        showAndWait();
     }
-    
-    private TeamworkCommandResult validateConnection()
-    {
-        return provider.checkConnection(settings);
-    }   
+
 }

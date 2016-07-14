@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import javafx.application.Platform;
 import javafx.stage.Window;
 
 import bluej.groupwork.TeamSettings;
@@ -59,7 +60,7 @@ public class ValidateConnectionAction extends AbstractAction
     {
         TeamworkProvider provider = teamSettingsPanel.getSelectedProvider();
         TeamSettings settings = teamSettingsPanel.getSettings();
-        
-        new CheckConnectionDialog(owner, provider, settings).setVisible(true);
+
+        Platform.runLater(() -> new CheckConnectionDialog(owner.get(), provider, settings).showAndCheck());
     }
 }
