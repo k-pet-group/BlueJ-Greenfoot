@@ -379,28 +379,29 @@ public class TeamSettingsPanel extends JPanel
         }
         
         String providerName = teamSettingsController.getPropString("bluej.teamsettings.vcs");
-        if (providerName != null) {
-            List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
-            for (int index = 0; index < teamProviders.size(); index++) {
-                TeamworkProvider provider = teamProviders.get(index);
-                if (provider.getProviderName().equalsIgnoreCase(providerName)) {
-                    serverTypeComboBox.setSelectedIndex(index);
-                    //checks if this provider needs your name and your e-mail.
-                    if (provider.needsEmail()){
-                        if (teamSettingsController.getProject() != null){
-                            //settings panel being open within a project. 
-                            //fill the data.
-                            File respositoryRoot = teamSettingsController.getProject().getProjectDir();
-                            yourEmailField.setText(provider.getYourEmailFromRepo(respositoryRoot));
-                            yourEmailField.setEnabled(false);
-                            yourNameField.setText(provider.getYourNameFromRepo(respositoryRoot));
-                            yourNameField.setEnabled(false);
-                            this.useAsDefault.setSelected(true); // on git we always save.
-                        }
-                        
+        // We always go through the providers.  If the user had no preference,
+        // we select the first one, and update the email/name enabled states accordingly:
+        List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
+        for (int index = 0; index < teamProviders.size(); index++) {
+            TeamworkProvider provider = teamProviders.get(index);
+            if (provider.getProviderName().equalsIgnoreCase(providerName)
+                || (providerName == null && index == 0)) { // Select first if no stored preference
+                serverTypeComboBox.setSelectedIndex(index);
+                //checks if this provider needs your name and your e-mail.
+                if (provider.needsEmail()){
+                    if (teamSettingsController.getProject() != null){
+                        //settings panel being open within a project.
+                        //fill the data.
+                        File respositoryRoot = teamSettingsController.getProject().getProjectDir();
+                        yourEmailField.setText(provider.getYourEmailFromRepo(respositoryRoot));
+                        yourEmailField.setEnabled(false);
+                        yourNameField.setText(provider.getYourNameFromRepo(respositoryRoot));
+                        yourNameField.setEnabled(false);
+                        this.useAsDefault.setSelected(true); // on git we always save.
                     }
-                    break;
+
                 }
+                break;
             }
         }
         
@@ -448,7 +449,7 @@ public class TeamSettingsPanel extends JPanel
     private void checkOkEnabled()
     {
         boolean newOkEnabled = (userField.getText().length() != 0);
-        
+
         if (yourEmailField.isEnabled() && yourNameField.isEnabled()){
             newOkEnabled &= (yourEmailField.getText().length() != 0) && (yourEmailField.getText().contains("@"));
             newOkEnabled &= yourNameField.getText().length() != 0;
