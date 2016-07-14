@@ -846,7 +846,8 @@ public final class Package extends Graph
                 else {
                     ct.analyseSource();
                     try {
-                        ct.enforcePackage(getQualifiedName());
+                        if ( !ct.getSourceType().equals(SourceType.Stride))
+                            ct.enforcePackage(getQualifiedName());
                     }
                     catch (IOException ioe) {
                         Debug.message("Error enforcing class package: " + ioe.getLocalizedMessage());
@@ -1244,7 +1245,7 @@ public final class Package extends Graph
      * project classloader will be created which can be used to load the
      * newly compiled classes, once they are ready.
      * 
-     * @param observer  An observer to be notified of compilation progress.
+     * @param compObserver  An observer to be notified of compilation progress.
      *                  The callback methods will be called on the Swing EDT.
      *                  The 'endCompile' method will always be called; other
      *                  methods may not be called if the compilation is aborted
