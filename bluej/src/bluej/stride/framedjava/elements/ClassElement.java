@@ -40,6 +40,7 @@ import javax.swing.text.BadLocationException;
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
+import bluej.parser.entity.PackageResolver;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.errors.CodeError;
@@ -182,7 +183,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         final String extendsAttribute = el.getAttributeValue("extends");
         extendsName = (extendsAttribute != null) ? new TypeSlotFragment(extendsAttribute, el.getAttributeValue("extends-java")) : null;
 
-        packageName = projectResolver.getClass().getPackage().getName();
+        packageName = (projectResolver instanceof PackageResolver) ? ((PackageResolver)projectResolver).getPkg() : "";
 
         Element javadocEL = el.getFirstChildElement("javadoc");
         if (javadocEL != null) {

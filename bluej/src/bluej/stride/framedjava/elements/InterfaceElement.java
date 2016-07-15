@@ -34,6 +34,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import bluej.debugger.gentype.ConstructorReflective;
+import bluej.parser.entity.PackageResolver;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.generic.AssistContentThreadSafe;
@@ -135,7 +136,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         }
         extendsTypes = TopLevelCodeElement.xmlToTypeList(el, "extends", "extendstype", "type");
 
-        packageName = projectResolver.getClass().getPackage().getName();
+        packageName = (projectResolver instanceof PackageResolver) ? ((PackageResolver)projectResolver).getPkg() : "";
 
         imports = Utility.mapList(TopLevelCodeElement.fillChildrenElements(this, el, "imports"), e -> (ImportElement)e);
         fields = TopLevelCodeElement.fillChildrenElements(this, el, "fields");
