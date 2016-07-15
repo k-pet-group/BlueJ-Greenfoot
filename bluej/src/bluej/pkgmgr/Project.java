@@ -1617,6 +1617,7 @@ public class Project implements DebuggerListener, InspectorManager
      * of this project.
      * @return a non null but possibly empty list of URL.
      */
+    @OnThread(Tag.Any)
     protected List<URL> getPlusLibsContent () 
     {
         List<URL> risul = new ArrayList<URL>();

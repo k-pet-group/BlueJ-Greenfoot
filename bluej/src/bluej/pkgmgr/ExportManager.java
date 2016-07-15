@@ -84,7 +84,8 @@ final class ExportManager
      */
     public void export()
     {
-        ExportDialog.ProjectInfo projectInfo = new ExportDialog.ProjectInfo(frame.getProject());
+        Project proj = frame.getProject();
+        ExportDialog.ProjectInfo projectInfo = new ExportDialog.ProjectInfo(proj);
         Platform.runLater(() -> {
             Window parent = frame.getFXWindow();
             if (dialog == null)
@@ -100,26 +101,26 @@ final class ExportManager
             File fileName = FileUtility.getSaveFileFX(parent, specifyJar, Arrays.asList(new ExtensionFilter("JAR file", "*.jar")), false);
             if (fileName == null)
                 return;
-            SwingUtilities.invokeLater(() -> {
-                String sourceDir = frame.getProject().getProjectDir().getPath();
 
-                createJar(fileName.getAbsolutePath().toString(), sourceDir, info.mainClassName, info.selectedFiles,
-                    info.includeSource, info.includePkgFiles);
-            });
+            String sourceDir = proj.getProjectDir().getPath();
+
+            createJar(proj, fileName.getAbsolutePath().toString(), sourceDir, info.mainClassName, info.selectedFiles,
+                info.includeSource, info.includePkgFiles);
         });
     }
 
     /**
      * Export this project to a jar file.
      */
-    private void createJar(String fileName, String sourceDir, String mainClass,
+    @OnThread(Tag.FXPlatform)
+    private void createJar(Project proj, String fileName, String sourceDir, String mainClass,
                            List<File> userLibs, boolean includeSource, boolean includePkgFiles)
     {
         // Construct classpath with used library jars       
         String classpath = "";
         
         // add jar files from +libs to classpath               
-        List<URL> plusLibs = frame.getProject().getPlusLibsContent();
+        List<URL> plusLibs = proj.getPlusLibsContent();
         List<File> plusLibAsFiles = new ArrayList<File>();
         for(Iterator<URL> it = plusLibs.iterator(); it.hasNext();) {
             URL url = it.next();
@@ -150,7 +151,7 @@ final class ExportManager
             jarFile = new File(fileName);
             
             if(jarFile.exists()) {
-                if (DialogManager.askQuestion(frame, "error-file-exists") != 0)
+                if (DialogManager.askQuestionFX(frame.getFXWindow(), "error-file-exists") != 0)
                     return;
             }
         }
@@ -162,7 +163,7 @@ final class ExportManager
             parent = new File(fileName);
 
             if(parent.exists()) {
-                if (DialogManager.askQuestion(frame, "error-file-exists") != 0)
+                if (DialogManager.askQuestionFX(frame.getFXWindow(), "error-file-exists") != 0)
                     return;
             }
             parent.mkdir();
@@ -195,7 +196,7 @@ final class ExportManager
             frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
         catch(IOException exc) {
-            DialogManager.showError(frame, "error-writing-jar");
+            DialogManager.showErrorFX(frame.getFXWindow(), "error-writing-jar");
             Debug.reportError("problem writing jar file: " + exc);
         } finally {
             try {
@@ -211,6 +212,7 @@ final class ExportManager
      * outputFile should be the canonical file representation of the Jar file
      * we are creating (to prevent including itself in the Jar file)
      */
+    @OnThread(Tag.Any)
     private void writeDirToJar(File sourceDir, String pathPrefix,
                                JarOutputStream jStream, boolean includeSource, boolean includePkg, File outputFile)
         throws IOException
@@ -238,6 +240,7 @@ final class ExportManager
     /**
      * Copy all files specified in the given list to the new jar directory.
      */
+    @OnThread(Tag.Any)
     private void copyLibsToJar(List<File> userLibs, File destDir)
         throws IOException
     {
@@ -248,12 +251,14 @@ final class ExportManager
     }
 
     /** array of directory names not to be included in jar file **/
+    @OnThread(Tag.Any)
     private static final String[] skipDirs = { "CVS", ".svn", ".git" };
 
     /**
      * Test whether a given directory should be skipped (not included) in
      * export.
      */
+    @OnThread(Tag.Any)
     private boolean skipDir(File dir, boolean includePkg)
     {
         if (dir.getName().equals(Project.projectLibDirName))
@@ -271,6 +276,7 @@ final class ExportManager
      * BlueJ specific files (bluej.pkg and *.ctxt) and - optionally - Java
      * source files are skipped.
      */
+    @OnThread(Tag.Any)
     private boolean skipFile(String fileName, boolean skipSource, boolean skipPkg)
     {
         if(fileName.equals(packageFileBackup))
@@ -290,6 +296,7 @@ final class ExportManager
      * Note: entryName should always be a path with / seperators
      *       (NOT the platform dependant File.seperator)
      */
+    @OnThread(Tag.Any)
     private void writeJarEntry(File file, JarOutputStream jStream,
                                   String entryName)
         throws IOException
