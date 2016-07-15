@@ -681,7 +681,7 @@ public class PkgMgrFrame extends JPanel
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            DialogManager.showMessageWithText(pmf, msgId, text);
+            Platform.runLater(() -> DialogManager.showMessageWithTextFX(pmf.getFXWindow(), msgId, text));
     }
 
     /**
@@ -2373,7 +2373,7 @@ public class PkgMgrFrame extends JPanel
     {
         String message = pkg.generateDocumentation();
         if (message.length() != 0) {
-            DialogManager.showText(this, message);
+            Platform.runLater(() -> DialogManager.showTextFX(getFXWindow(), message));
         }
     }
 

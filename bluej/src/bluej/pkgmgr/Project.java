@@ -422,7 +422,7 @@ public class Project implements DebuggerListener, InspectorManager
             switch (capabilities) {
             case VIRTUALIZED_WRITE:
                 Utility.bringToFront(null);
-                DialogManager.showMessage(parent, "project-is-virtualized");
+                Platform.runLater(() -> DialogManager.showMessageFX(null, "project-is-virtualized"));
                 break;
             case READ_ONLY:
                 readOnly = true;
@@ -444,13 +444,13 @@ public class Project implements DebuggerListener, InspectorManager
         
         if (readOnly && !isGreenfootStartupProject) {
             Utility.bringToFront(null);
-            DialogManager.showMessageWithText(parent, "project-is-readonly", new String [] {projectDir.toString()});
-            
             // Prompt user to "Save elsewhere"
 
             SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
             AtomicReference<File> projDir = new AtomicReference<>(projectDir);
             Platform.runLater(() -> {
+                DialogManager.showMessageWithTextFX(null, "project-is-readonly", projDir.get().toString());
+
                 boolean done = false;
 
                 while (!done)
@@ -502,7 +502,7 @@ public class Project implements DebuggerListener, InspectorManager
 
             //if is shared project, check for svn working copy version.
             if (proj.isTeamProject() && !proj.getTeamSettingsController().getRepository(false).isDVCS() && proj.getTeamSettingsController().getWorkingCopyVersion() != 1.6) {
-                DialogManager.showMessage(parent, "SVNWorkingCopyNot16");
+                Platform.runLater(() -> DialogManager.showMessageFX(null, "SVNWorkingCopyNot16"));
             }
 
                 projects.put(projectDir, proj);

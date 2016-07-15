@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -2488,7 +2489,8 @@ public final class Package extends Graph
                     if (c!=null){
                         if (! checkClassMatchesFile(c, t.getClassFile())) {
                             String conflict=Package.getResourcePath(c);
-                            DialogManager.showMessageWithPrefixText(null, "compile-class-library-conflict", t.getIdentifierName()+":", conflict);
+                            String ident = t.getIdentifierName()+":";
+                            Platform.runLater(() -> DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict));
                         }
                     }
 
@@ -2746,7 +2748,8 @@ public final class Package extends Graph
             if (successful && chainObserver == null && PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
                 // getEditor can return null in Greenfoot
                 if (getEditor() != null && getEditor().isVisible()) {
-                    DialogManager.showText(getEditor(), Config.getString("pkgmgr.accessibility.compileDone"));
+                    PackageEditor ed = getEditor();
+                    Platform.runLater(() -> DialogManager.showTextFX(ed.getFXWindow(), Config.getString("pkgmgr.accessibility.compileDone")));
                 }
             }
         }

@@ -619,7 +619,7 @@ public final class MoeEditor extends JPanel
                     File backupFile = new File(backupFilename);
                     backupFile.delete();
                     crashFile.renameTo(backupFile);
-                    DialogManager.showMessage(this, "editor-crashed");
+                    Platform.runLater(() -> DialogManager.showMessageFX(fxTabbedEditor.getWindow(), "editor-crashed"));
                 }
 
                 // FileReader reader = new FileReader(filename);

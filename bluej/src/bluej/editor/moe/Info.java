@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Utility;
+import javafx.application.Platform;
 
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
 import java.awt.event.*;        // New Event model
@@ -317,12 +318,17 @@ public final class Info extends JPanel implements ActionListener
         String helpText = BlueJFileReader.readHelpText(fileName, line.trim(),
                                                        false);
 
-        if(helpText == null) {
-            DialogManager.showMessageWithText(null, "no-help",
-                                              "\n" + originalMsg);
-        }
-        else {
-            DialogManager.showText(null, originalMsg + "\n\n" + helpText);
-        }
+        String originalMsgCopy = originalMsg;
+        Platform.runLater(() ->
+        {
+            if (helpText == null)
+            {
+                DialogManager.showMessageWithTextFX(null, "no-help",
+                    "\n" + originalMsgCopy);
+            } else
+            {
+                DialogManager.showTextFX(null, originalMsgCopy + "\n\n" + helpText);
+            }
+        });
     }
 }

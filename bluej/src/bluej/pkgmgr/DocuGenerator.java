@@ -257,9 +257,9 @@ public class DocuGenerator
                         }
                         else {
                             BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
-                            DialogManager.showMessageWithText(null,
+                            Platform.runLater(() -> DialogManager.showMessageWithTextFX(null,
                                     "doctool-error",
-                                    logFile.getPath());
+                                    logFile.getPath()));
                         }
                     }
                 });

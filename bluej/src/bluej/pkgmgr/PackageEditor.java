@@ -40,6 +40,8 @@ import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.views.CallableView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Canvas to allow editing of packages
@@ -176,5 +178,11 @@ public final class PackageEditor extends GraphEditor
         else if (! focus && wasFocussed) {
             listener.pkgEditorLostFocus();
         }
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public Window getFXWindow()
+    {
+        return pmf.getFXWindow();
     }
 }

@@ -126,57 +126,26 @@ public class DialogManager
      * message itself is identified by a message ID (a short string)
      * which is looked up in the language specific dialogue text file
      * (eg. "dialogues.english"). A text (given in a parameter) is appended
-     * to the message.
-     */
-    public static void showMessageWithText(Component parent, String msgID,
-                                           String text)
-    {
-        String message = getMessage(msgID);
-        if (message != null) {
-            JOptionPane.showMessageDialog(parent, message + "\n" + text);
-        }
-    }
-    
-    /**
-     * Show an information dialog with message (including and "OK" button. The
-     * message itself is identified by a message ID (a short string)
-     * which is looked up in the language specific dialogue text file
-     * (eg. "dialogues.english"). A text (given in a parameter) is appended
-     * to the message.
-     */
-    public static void showMessageWithText(Component parent, String msgID, String[] subs)
-    {
-        String message = getMessage(msgID);
-        message = Utility.mergeStrings(message, subs);
-        
-        // Replace single ':' with a blank line:
-        message = message.replace("\n:\n", "\n\n");
-        message = message.replace("\r\n:\r\n", "\r\n\r\n");
-        
-        if (message != null) {
-            JOptionPane.showMessageDialog(parent, message,
-                    Config.getApplicationName() + ":  " +
-                    Config.getString("dialogmgr.message"),
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-    
-    
-    /**
-     * Show an information dialog with message and "OK" button. The
-     * message itself is identified by a message ID (a short string)
-     * which is looked up in the language specific dialogue text file
-     * (eg. "dialogues.english"). A text (given in a parameter) is appended
      * as a prefix to the message. Some text (given as a parameter -
      * innerText) is inserted within the message itself. 
      */
-    public static void showMessageWithPrefixText(Component parent, String msgID,
-                                           String text, String innerText)
+    @OnThread(Tag.FXPlatform)
+    public static void showMessageWithPrefixTextFX(javafx.stage.Window parent, String msgID,
+                                                   String text, String innerText)
     {
         String message = getMessage(msgID);
-        String messageDialog=Utility.mergeStrings(message, innerText);
+        String messageDialog = Utility.mergeStrings(message, innerText);
         if (message != null)
-            JOptionPane.showMessageDialog(parent, text+ "\n"+messageDialog);
+        {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "", ButtonType.OK);
+            alert.setHeaderText("");
+            alert.setTitle(Config.getApplicationName() + ":  " +
+                Config.getString("dialogmgr.message"));
+            alert.initOwner(parent);
+            alert.initModality(Modality.WINDOW_MODAL);
+            alert.setContentText(messageDialog);
+            alert.showAndWait();
+        }
     }
 
 
