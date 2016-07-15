@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -92,8 +93,8 @@ public class ImportAction extends TeamAction
         catch(IOException ioe) {
             String msg = DialogManager.getMessage("team-error-saving-project");
             if (msg != null) {
-                msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
-                DialogManager.showErrorText(pmf, msg);
+                String finalMsg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
+                Platform.runLater(() -> DialogManager.showErrorTextFX(pmf.getFXWindow(), finalMsg));
                 return;
             }
         }

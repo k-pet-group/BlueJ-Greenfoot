@@ -48,9 +48,11 @@ import java.awt.print.PrinterJob;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -649,7 +651,7 @@ public class PkgMgrFrame extends JPanel
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            DialogManager.showError(pmf, msgId);
+            Platform.runLater(() -> DialogManager.showErrorFX(pmf.getFXWindow(), msgId));
     }
 
     /**
@@ -1349,7 +1351,7 @@ public class PkgMgrFrame extends JPanel
     {
         // check whether name is already used
         if (pkg.getTarget(name) != null) {
-            DialogManager.showError(this, "duplicate-name");
+            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "duplicate-name"));
             return false;
         }
 
@@ -1477,14 +1479,14 @@ public class PkgMgrFrame extends JPanel
         // First confirm the chosen file exists
         if (! absDirName.exists()) {
             // file doesn't exist
-            DialogManager.showError(this, "file-does-not-exist");
+            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "file-does-not-exist"));
             return;
         }
         
         if (absDirName.isDirectory()) {
             // Check to make sure it's not already a project
             if (Project.isProject(absDirName.getPath())) {
-                DialogManager.showError(this, "open-non-bluej-already-bluej");
+                Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "open-non-bluej-already-bluej"));
                 return;
             }
             
@@ -1509,7 +1511,7 @@ public class PkgMgrFrame extends JPanel
     private boolean openArchive(File archive)
     {
         // Determine the output path.
-        File oPath = Utility.maybeExtractArchive(archive, this);
+        File oPath = Utility.maybeExtractArchive(archive, this::getFXWindow);
         
         if (oPath == null)
             return false;
@@ -1664,30 +1666,21 @@ public class PkgMgrFrame extends JPanel
      */
     private void importFromFile(List<File> classes)
     {
+        Map<Integer, String> errorNames = new HashMap<>();
+        errorNames.put(Package.FILE_NOT_FOUND, "file-does-not-exist");
+        errorNames.put(Package.ILLEGAL_FORMAT, "cannot-import");
+        errorNames.put(Package.CLASS_EXISTS, "duplicate-name");
+        errorNames.put(Package.COPY_ERROR, "error-in-import");
+
         // if there are errors this will potentially bring up multiple error
         // dialogs
         // these could be aggregated however the error messages may be different
         // for each error
         for (File cls : classes) {
             int result = pkg.importFile(cls);
-            switch (result) {
-                case Package.NO_ERROR :
-                    // Have commented out repaint as it does not seem to be
-                    // needed
-                    //editor.repaint();
-                    break;
-                case Package.FILE_NOT_FOUND:
-                    DialogManager.showErrorWithText(this, "file-does-not-exist", cls.getName());
-                    break;
-                case Package.ILLEGAL_FORMAT:
-                    DialogManager.showErrorWithText(this, "cannot-import", cls.getName());
-                    break;
-                case Package.CLASS_EXISTS:
-                    DialogManager.showErrorWithText(this, "duplicate-name", cls.getName());
-                    break;
-                case Package.COPY_ERROR:
-                    DialogManager.showErrorWithText(this, "error-in-import", cls.getName());
-                    break;
+            if (errorNames.containsKey(result))
+            {
+                Platform.runLater(() -> DialogManager.showErrorWithTextFX(getFXWindow(), errorNames.get(result), cls.getName()));
             }
         }
     }
@@ -2101,7 +2094,7 @@ public class PkgMgrFrame extends JPanel
         if (basePkg != null) {
             if (basePkg.getTarget(base) != null) {
                 if (showErrDialog)
-                    DialogManager.showError(this, "duplicate-name");
+                    Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "duplicate-name"));
                 return false;
             }
         }
@@ -2136,7 +2129,7 @@ public class PkgMgrFrame extends JPanel
         Component permanentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
         if (permanentFocusOwner == editor || Arrays.asList(editor.getComponents()).contains(permanentFocusOwner)) { // focus in diagram
             if (!doRemoveTargets()) {
-                DialogManager.showError(this, "no-class-selected");
+                Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "no-class-selected"));
             }
         }
         else if (permanentFocusOwner == objbench || objbench.getObjects().contains(permanentFocusOwner)) { // focus in object bench
@@ -2321,7 +2314,7 @@ public class PkgMgrFrame extends JPanel
         PkgMgrFrame[] f = getAllProjectFrames(getProject(), name);
 
         if (f != null) {
-            DialogManager.showError(this, "remove-package-open");
+            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "remove-package-open"));
             return false;
         }
 
@@ -2348,7 +2341,7 @@ public class PkgMgrFrame extends JPanel
             }
         }
         else {
-            DialogManager.showError(this, "no-class-selected-compile");
+            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "no-class-selected-compile"));
         }
     }
 
@@ -2398,12 +2391,12 @@ public class PkgMgrFrame extends JPanel
         Debugger debugger = getProject().getDebugger();
         if (debugger.getStatus() == Debugger.SUSPENDED) {
             setVisible(true);
-            DialogManager.showError(this, "stuck-at-breakpoint");
+            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "stuck-at-breakpoint"));
             return false;
         }
         else if (debugger.getStatus() == Debugger.RUNNING) {
             setVisible(true);
-            DialogManager.showError(this, "already-executing");
+            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "already-executing"));
             return false;
         }
         
@@ -2533,7 +2526,7 @@ public class PkgMgrFrame extends JPanel
                 setStatus(Config.getString("pkgmgr.docuAborted"));
                 break;
             case BlueJEvent.CREATE_VM_FAILED :
-                DialogManager.showError(this, "error-create-vm");
+                Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "error-create-vm"));
                 break;
         }
     }

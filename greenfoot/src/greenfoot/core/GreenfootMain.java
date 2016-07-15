@@ -346,7 +346,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 autoIndentAllFiles = true;
             }
             else {
-                projectDirFile = Utility.maybeExtractArchive(projectDirFile, frame);
+                projectDirFile = Utility.maybeExtractArchive(projectDirFile, null);
                 if (projectDirFile == null) {
                     return;
                 }

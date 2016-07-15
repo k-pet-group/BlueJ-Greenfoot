@@ -261,19 +261,7 @@ public class DialogManager
         alert.initModality(Modality.WINDOW_MODAL);
         alert.showAndWait();
     }
-    
 
-    /**
-     * Show an error dialog with a message, some additional text, and "OK" button.
-     */
-    public static void showErrorWithText(Component parent, String msgID,
-                                         String text)
-    {
-        String message = getMessage(msgID);
-        if (message != null) {
-            showErrorText(parent, message + "\n" + text);
-        }
-    }
     @OnThread(Tag.FXPlatform)
     public static void showErrorWithTextFX(javafx.stage.Window parent, String msgID,
                                            String text)

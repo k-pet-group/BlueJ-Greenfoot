@@ -79,6 +79,7 @@ import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.text.TabExpander;
 
+import bluej.utility.javafx.FXPlatformSupplier;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
@@ -883,7 +884,7 @@ public class Utility
      *          an error dialog is displayed).
      */
     @OnThread(Tag.Swing)
-    public static File maybeExtractArchive(File archive, Component parent)
+    public static File maybeExtractArchive(File archive, FXPlatformSupplier<javafx.stage.Window> parent)
     {
         JarInputStream jarInStream = null;
         File oPath = archive.getParentFile();
@@ -909,22 +910,23 @@ public class Utility
                 }
                 oPath = new File(oPath, strippedName);
                 if (oPath.exists()) {
-                    DialogManager.showErrorWithText(parent, "jar-output-dir-exists", oPath.toString());
+                    final File oPathFinal = oPath;
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(), "jar-output-dir-exists", oPathFinal.toString()));
                     return null;
                 }
                 else if (! oPath.mkdir()) {
-                    DialogManager.showErrorWithText(parent, "jar-output-no-write", archive.toString());
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(), "jar-output-no-write", archive.toString()));
                     return null;
                 }
             }
             else {
                 File prefixFolderFile = new File(oPath, prefixFolder);
                 if (prefixFolderFile.exists()) {
-                    DialogManager.showErrorWithText(parent, "jar-output-dir-exists", prefixFolderFile.toString());
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(), "jar-output-dir-exists", prefixFolderFile.toString()));
                     return null;
                 }
                 if (! prefixFolderFile.mkdir()) {
-                    DialogManager.showErrorWithText(parent, "jar-output-no-write", archive.toString());
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(), "jar-output-no-write", archive.toString()));
                     return null;
                 }
             }
@@ -968,7 +970,7 @@ public class Utility
         }
         catch (Exception e) {
             e.printStackTrace();
-            DialogManager.showError(parent, "jar-extraction-error");
+            Platform.runLater(() -> DialogManager.showErrorFX(parent.get(), "jar-extraction-error"));
             return null;
         }
         finally {
