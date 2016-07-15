@@ -54,6 +54,7 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
     public static final String ERROR = "error";
     public static final String CONTINUE = "continue";
     public static final String OBJECT = "object-ref";
+    public static final String OBJECT_HOVER = "object-ref-hover";
 
     static final Image promptImage =
         Config.getImageAsIcon("image.eval.prompt").getImage();
@@ -61,6 +62,8 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
         Config.getImageAsIcon("image.eval.continue").getImage();
     static final Image objectImage =
         Config.getImageAsIcon("image.eval.object.add").getImage();
+    static final Image objectHoverImage =
+        Config.getImageAsIcon("image.eval.object.add.highlight").getImage();
 
     static final Color outputColor = new Color(0, 120, 0);
     static final Color errorColor = new Color(200, 0, 20);
@@ -90,7 +93,7 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
             Utilities.drawTabbedText(lineText, x, y, g, tx, 0);
         }
         else if(hasObject(line, OBJECT)) {
-            g.drawImage(objectImage, x-1-LEFT_MARGIN, y+3-objectImage.getHeight(null), null);
+            g.drawImage(hasObject(line, OBJECT_HOVER) ? objectHoverImage : objectImage, x-1-LEFT_MARGIN, y+3-objectImage.getHeight(null), null);
             g.setColor(outputColor);
             Utilities.drawTabbedText(lineText, x, y, g, tx, 0);
         }

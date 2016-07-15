@@ -30,6 +30,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,13 +41,13 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JEditorPane;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
+import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.Position;
 import javax.swing.text.SimpleAttributeSet;
 
@@ -68,14 +69,12 @@ import bluej.debugmgr.ValueCollection;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
 import bluej.parser.TextAnalyzer;
-import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import threadchecker.OnThread;
 
 /**
  * A modified editor pane for the text evaluation area.
@@ -85,7 +84,7 @@ import threadchecker.OnThread;
  * @author Michael Kolling
  */
 public class TextEvalPane extends JEditorPane 
-    implements Accessible, ValueCollection, ResultWatcher, MouseMotionListener
+    implements Accessible, ValueCollection, ResultWatcher, MouseMotionListener, MouseListener
 {
     private static final String nullLabel = "null";
     
@@ -109,6 +108,8 @@ public class TextEvalPane extends JEditorPane
     private List<CodepadVar> localVars = new ArrayList<CodepadVar>();
     private List<CodepadVar> newlyDeclareds;
     private List<String> autoInitializedVars;
+    // The action which removes the hover state on the object icon
+    private Runnable removeHover;
 
     public TextEvalPane(PkgMgrFrame frame)
     {
@@ -123,6 +124,7 @@ public class TextEvalPane extends JEditorPane
         history = new IndexHistory(20);
         setCaret(new TextEvalCaret());
         addMouseMotionListener(this);
+        addMouseListener(this);
         setAutoscrolls(false);          // important - dragging objects from this component
                                         // does not work correctly otherwise
     }
@@ -761,14 +763,60 @@ public class TextEvalPane extends JEditorPane
         Position.Bias[] biasRet = new Position.Bias[1];
         int pos = getUI().viewToModel(this, pt, biasRet);
 
+        if (removeHover != null)
+        {
+            removeHover.run();
+            removeHover = null;
+        }
+
         if (e.getX() <= TextEvalSyntaxView.TAG_WIDTH && objectAtPosition(pos) != null)
         {
+            SimpleAttributeSet attr = new SimpleAttributeSet();
+            attr.addAttribute(TextEvalSyntaxView.OBJECT_HOVER, Boolean.TRUE);
+            removeHover = doc.setParagraphAttributes(pos, attr);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
         else
         {
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
+        repaint();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e)
+    {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e)
+    {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e)
+    {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e)
+    {
+        if (removeHover != null)
+        {
+            removeHover.run();
+            removeHover = null;
+            repaint();
+        }
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     final class ExecuteCommandAction extends AbstractAction {

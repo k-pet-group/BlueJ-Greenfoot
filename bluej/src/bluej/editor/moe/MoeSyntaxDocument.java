@@ -405,8 +405,10 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
      * @param length the number of characters affected >= 0
      * @param s the attributes
      * @param replace whether to replace existing attributes, or merge them
+     * @return A (Swing-thread) Runnable which will remove all the attributes passed.
+     *         Note: it does just remove them, regardless of whether they were already in there.
      */
-    public void setParagraphAttributes(int offset, AttributeSet s)
+    public Runnable setParagraphAttributes(int offset, AttributeSet s)
     {
         // modified version of method from DefaultStyleDocument
         try {
@@ -416,6 +418,16 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
             MutableAttributeSet attr = 
                     (MutableAttributeSet) paragraph.getAttributes();
             attr.addAttributes(s);
+            return () -> {
+                try {
+                    writeLock();
+                    attr.removeAttributes(s);
+                }
+                finally
+                {
+                    writeUnlock();
+                }
+            };
         } finally {
             writeUnlock();
         }
