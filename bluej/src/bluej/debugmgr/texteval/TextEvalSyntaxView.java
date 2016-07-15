@@ -60,7 +60,7 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
     static final Image continueImage =
         Config.getImageAsIcon("image.eval.continue").getImage();
     static final Image objectImage =
-        Config.getImageAsIcon("image.eval.object").getImage();
+        Config.getImageAsIcon("image.eval.object.add").getImage();
 
     static final Color outputColor = new Color(0, 120, 0);
     static final Color errorColor = new Color(200, 0, 20);

@@ -47,6 +47,7 @@ import javax.swing.text.Caret;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
+import javax.swing.text.Position;
 import javax.swing.text.SimpleAttributeSet;
 
 import javafx.application.Platform;
@@ -84,7 +85,7 @@ import threadchecker.OnThread;
  * @author Michael Kolling
  */
 public class TextEvalPane extends JEditorPane 
-    implements Accessible, ValueCollection, ResultWatcher
+    implements Accessible, ValueCollection, ResultWatcher, MouseMotionListener
 {
     private static final String nullLabel = "null";
     
@@ -121,6 +122,7 @@ public class TextEvalPane extends JEditorPane
         clear();
         history = new IndexHistory(20);
         setCaret(new TextEvalCaret());
+        addMouseMotionListener(this);
         setAutoscrolls(false);          // important - dragging objects from this component
                                         // does not work correctly otherwise
     }
@@ -484,26 +486,8 @@ public class TextEvalPane extends JEditorPane
     {
         ObjectInfo objInfo = objectAtPosition(pos);
         if(objInfo != null) {
-            if(clickCount == 1) {
-                DragAndDropHelper dnd = DragAndDropHelper.getInstance();
-                dnd.startDrag(this, frame, objInfo.obj, objInfo.ir);
-            }
-            else if(clickCount == 2) {   // double click
-                inspectObject(objInfo);
-            }
+            frame.getPackage().getEditor().raisePutOnBenchEvent(frame.getFXWindow(), objInfo.obj, objInfo.obj.getGenType(), objInfo.ir);
         }
-    }
-    
-    /**
-     * Inspect the given object.
-     * This is done with a delay, because we are in the middle of a mouse click,
-     * and focus gets weird otherwise.
-     */
-    private void inspectObject(TextEvalPane.ObjectInfo objInfo)
-    {
-        Project proj = frame.getProject();
-        Package pkg = frame.getPackage();
-        Platform.runLater(() -> proj.getInspectorInstance(objInfo.obj, null, pkg, objInfo.ir, frame.getFXWindow()));
     }
 
     /**
@@ -762,6 +746,29 @@ public class TextEvalPane extends JEditorPane
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), action);
 
         setKeymap(newmap);
+    }
+
+
+    @Override
+    public void mouseDragged(MouseEvent e)
+    {
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e)
+    {
+        Point pt = new Point(e.getX(), e.getY());
+        Position.Bias[] biasRet = new Position.Bias[1];
+        int pos = getUI().viewToModel(this, pt, biasRet);
+
+        if (e.getX() <= TextEvalSyntaxView.TAG_WIDTH && objectAtPosition(pos) != null)
+        {
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        }
+        else
+        {
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
     }
 
     final class ExecuteCommandAction extends AbstractAction {

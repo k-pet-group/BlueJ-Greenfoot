@@ -578,6 +578,7 @@ image.bench.object-selected=object-selected.png
 image.eval.prompt=prompt.gif
 image.eval.continue=prompt-continue.gif
 image.eval.object=small-object.gif
+image.eval.object.add=small-object-add.png
 image.eval.dragobject-plus=drag-object-plus.gif
 image.eval.dragobject-noplus=drag-object-noplus.gif
 
