@@ -41,6 +41,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JEditorPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
@@ -75,6 +76,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import javafx.stage.Stage;
 
 /**
  * A modified editor pane for the text evaluation area.
@@ -488,7 +490,13 @@ public class TextEvalPane extends JEditorPane
     {
         ObjectInfo objInfo = objectAtPosition(pos);
         if(objInfo != null) {
-            frame.getPackage().getEditor().raisePutOnBenchEvent(frame.getFXWindow(), objInfo.obj, objInfo.obj.getGenType(), objInfo.ir);
+            // Eugh: thread-hop just to get the window:
+            Platform.runLater(() -> {
+                Stage fxWindow = frame.getFXWindow();
+                SwingUtilities.invokeLater(() -> {
+                    frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir);
+                });
+            });
         }
     }
 
