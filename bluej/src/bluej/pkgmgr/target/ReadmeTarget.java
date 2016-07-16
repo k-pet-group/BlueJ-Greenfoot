@@ -48,6 +48,8 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.graphPainter.ReadmeTargetPainter;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A parent package
@@ -263,5 +265,6 @@ public class ReadmeTarget extends EditableTarget
     public void compile(Editor editor, CompileReason reason, CompileType type) {}
     
     @Override
+    @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type) {}
 }

@@ -3242,7 +3242,7 @@ public final class MoeEditor extends JPanel
         statusArea.add(saveState);
         //bottomArea.add(statusArea, BorderLayout.EAST);
 
-        info = new Info();
+        info = new Info(() -> fxTabbedEditor.getWindow());
         JPanel commentsPanel=new JPanel(new BorderLayout(6,1));
         if (!Config.isRaspberryPi()) commentsPanel.setOpaque(false);
         commentsPanel.add(info, BorderLayout.CENTER);

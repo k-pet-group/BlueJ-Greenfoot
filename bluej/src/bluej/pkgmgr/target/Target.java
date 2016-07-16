@@ -25,6 +25,8 @@ import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.Properties;
 import java.awt.*;
@@ -52,6 +54,7 @@ public abstract class Target extends Vertex
     // this package (must be unique within this
     // package)
     private String displayName; // displayed name of the target
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private Package pkg; // the package this target belongs to
 
     protected boolean disabled;
@@ -101,7 +104,7 @@ public abstract class Target extends Vertex
     /**
      * This target has been removed from its package.
      */
-    public void setRemoved()
+    public synchronized void setRemoved()
     {
         // This can be used to detect that a class target has been removed.
         pkg = null;
@@ -151,7 +154,8 @@ public abstract class Target extends Vertex
      * Return this target's package (ie the package that this target is
      * currently shown in)
      */
-    public Package getPackage()
+    @OnThread(Tag.Any)
+    public synchronized Package getPackage()
     {
         return pkg;
     }
@@ -252,7 +256,7 @@ public abstract class Target extends Vertex
         return true;
     }
 
-    public void repaint()
+    public synchronized void repaint()
     {
         if (pkg != null && pkg.getEditor() != null) {
             pkg.getEditor().repaint(getX(), getY(), getWidth(), getHeight());

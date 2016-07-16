@@ -1231,9 +1231,10 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
+    @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type)
     {
-        getPackage().getProject().scheduleCompilation(false, reason, type, getPackage());
+        getPackage().getProject().scheduleCompilation(immediate, reason, type, getPackage());
     }
 
     /**

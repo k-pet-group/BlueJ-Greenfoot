@@ -26,9 +26,12 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformSupplier;
+
 import javafx.application.Platform;
 
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
+import java.awt.Window;
 import java.awt.event.*;        // New Event model
 
 import javax.swing.*;           // all the GUI components
@@ -49,6 +52,7 @@ public final class Info extends JPanel implements ActionListener
     static final ImageIcon helpImage = Config.getFixedImageAsIcon("help.png");
 
     private static Font infoFont = new Font("SansSerif", Font.BOLD, PrefMgr.getEditorFontSize() - 1);
+    private final FXPlatformSupplier<javafx.stage.Window> fxParent;
 
     // -------- INSTANCE VARIABLES --------
 
@@ -64,9 +68,10 @@ public final class Info extends JPanel implements ActionListener
     /**
      * Construct a new Info instance.
      */
-    public Info()
+    public Info(FXPlatformSupplier<javafx.stage.Window> fxParent)
     {
         super();
+        this.fxParent = fxParent;
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -137,7 +142,7 @@ public final class Info extends JPanel implements ActionListener
         if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
         {
             // Pop up in a dialog:
-            DialogManager.showTextWithCopyButton(this.getTopLevelAncestor(), msg, "BlueJ");
+            Platform.runLater(() -> DialogManager.showTextWithCopyButtonFX(fxParent.get(), msg, "BlueJ"));
         }
     }
     

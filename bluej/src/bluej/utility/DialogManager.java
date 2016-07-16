@@ -37,6 +37,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
@@ -159,10 +160,16 @@ public class DialogManager
     {
         JOptionPane.showMessageDialog(parent, text);
     }
-    
-    public static void showTextWithCopyButton(Component parent, String text, String title)
+
+    @OnThread(Tag.FXPlatform)
+    public static void showTextWithCopyButtonFX(javafx.stage.Window parent, String text, String title)
     {
-        if (JOptionPane.showOptionDialog(parent, text, title, 0, 0, null, new String [] {Config.getString("okay"), Config.getString("editor.copy-to-clipboardLabel")}, null) == 1)
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK, ButtonType.APPLY);
+        ((Button)alert.getDialogPane().lookupButton(ButtonType.APPLY)).setText(Config.getString("editor.copy-to-clipboardLabel"));
+        alert.setTitle(title);
+        alert.initOwner(parent);
+        alert.initModality(Modality.WINDOW_MODAL);
+        if (alert.showAndWait().orElse(ButtonType.OK) == ButtonType.APPLY)
         {
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
         }

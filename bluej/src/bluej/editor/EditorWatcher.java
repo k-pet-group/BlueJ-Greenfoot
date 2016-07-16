@@ -28,6 +28,8 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.extensions.SourceType;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Interface between the editor and the rest of BlueJ
@@ -87,6 +89,7 @@ public interface EditorWatcher
      *                   postponed until the user VM is idle
      * @param reason    Reason for compilation
      */
+    @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type);
     
     default void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits)
