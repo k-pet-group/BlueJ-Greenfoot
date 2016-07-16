@@ -47,6 +47,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.collect.StrideEditReason;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameCatalogue.Hint;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
@@ -2007,6 +2009,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         if (errors == null || !errors.hasNext())
         {
             errors = getAllErrors().iterator();
+        }
+        
+        if (!errors.hasNext())
+        {
+            // If there are no errors, we perform a real compilation, keeping class files:
+            editor.getWatcher().scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
+            return;
         }
         
         // Still might be no errors, if the whole file is error free:
