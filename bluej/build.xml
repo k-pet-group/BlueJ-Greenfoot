@@ -51,6 +51,7 @@
     <property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
     <property name="editor.jar" value="${bluej_home}/lib/bluejeditor.jar"/>
     <property name="extension.jar" value="${bluej_home}/lib/bluejext.jar"/>
+    <property name="lang-stride.jar" value="${bluej_home}/lib/lang-stride.jar"/>
 
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
@@ -236,9 +237,20 @@
                 <exclude name="bluej/extensions/**" />
                 <exclude name="bluej/editor/**" />
                 <exclude name="org/**" />
+                <exclude name="lang/**" />
             </fileset>
             <fileset dir="lib">
                 <include name="stylesheets/**"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="jar-stride">
+        <!-- delete the old jar first. To make sure it gets recreated -->
+        <delete quiet="true" file="${lang-stride.jar}"/>
+        <jar compress="yes" jarfile="${lang-stride.jar}">
+            <fileset dir="${core.build}">
+                <include name="lang/stride/**" />
             </fileset>
         </jar>
     </target>
@@ -266,7 +278,7 @@
         </jar>
     </target>
 
-    <target name="ready-to-run" depends="jar-core, jar-editor, jar-extension">
+    <target name="ready-to-run" depends="jar-core, jar-editor, jar-extension, jar-stride">
     </target>
 
     <target name="ready-to-run-greenfoot" description="prepare to run Greenfoot">
@@ -530,7 +542,7 @@
         <delete quiet="true" file="${core.jar}" />
         <delete quiet="true" file="${editor.jar}" />
         <delete quiet="true" file="${extension.jar}" />
-
+        <delete quiet="true" file="${lang-stride.jar}" />
     </target>
 
     <target name="clean" depends="clean-boot, clean-core, clean-greenfoot">
@@ -571,6 +583,7 @@
                 <!-- (Ideally we'd separate BlueJ and Greenfoot JARs, but never mind: -->
                 <include name="*.jar"/>
                 <exclude name="bluej*.jar"/>
+                <exclude name="lang-stride.jar"/>
                 <exclude name="bjdoclet.jar"/>
                 <exclude name="greenfoot-native.jar"/>
 

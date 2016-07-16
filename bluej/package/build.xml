@@ -19,6 +19,7 @@
         <include name="lib/bluejcore.jar" />
         <include name="lib/bluejeditor.jar" />
         <include name="lib/bluejext.jar" />
+        <include name="lib/lang-stride.jar" />
         <include name="lib/junit-4.11.jar" />
     	<include name="lib/hamcrest-core-1.3.jar" />
         <include name="lib/AppleJavaExtensions.jar" />
@@ -683,6 +684,7 @@
 	            <exclude name="lib/bluejcore.jar"/>
 	            <exclude name="lib/bluejeditor.jar"/>
 		        <exclude name="lib/bluejext.jar"/>
+                <exclude name="lib/lang-stride.jar"/>
 		        <exclude name="lib/extensions/greenfoot.jar"/>
 		        <exclude name="lib/greenfoot/"/>
             	

@@ -33,14 +33,19 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.Attributes;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import javafx.application.Platform;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -86,6 +91,11 @@ final class ExportManager
     {
         Project proj = frame.getProject();
         ExportDialog.ProjectInfo projectInfo = new ExportDialog.ProjectInfo(proj);
+
+        boolean hasStride = proj.getPackageNames().stream().map(proj::getPackage)
+            .flatMap(p -> p.getClassTargets().stream())
+            .anyMatch(ct -> ct.getSourceType() == SourceType.Stride);
+
         Platform.runLater(() -> {
             Window parent = frame.getFXWindow();
             if (dialog == null)
@@ -105,7 +115,7 @@ final class ExportManager
             String sourceDir = proj.getProjectDir().getPath();
 
             createJar(proj, fileName.getAbsolutePath().toString(), sourceDir, info.mainClassName, info.selectedFiles,
-                info.includeSource, info.includePkgFiles);
+                info.includeSource, info.includePkgFiles, hasStride);
         });
     }
 
@@ -114,7 +124,7 @@ final class ExportManager
      */
     @OnThread(Tag.FXPlatform)
     private void createJar(Project proj, String fileName, String sourceDir, String mainClass,
-                           List<File> userLibs, boolean includeSource, boolean includePkgFiles)
+                           List<File> userLibs, boolean includeSource, boolean includePkgFiles, boolean includeStrideLang)
     {
         // Construct classpath with used library jars       
         String classpath = "";
@@ -184,10 +194,15 @@ final class ExportManager
             // create jar file
             oStream = new FileOutputStream(jarFile);
             jStream = new JarOutputStream(oStream, manifest);
+            JarOutput jarOutput = new JarOutput(jStream);
 
-            writeDirToJar(new File(sourceDir), "", jStream, includeSource,
+            writeDirToJar(new File(sourceDir), "", jarOutput, includeSource,
                             includePkgFiles,
                             jarFile.getCanonicalFile());
+            if (includeStrideLang)
+            {
+                includeJarContent(new File(Config.getBlueJLibDir(), "lang-stride.jar"), jarOutput);
+            }
             if(parent != null) {
                 copyLibsToJar(plusLibAsFiles, parent);
                 copyLibsToJar(userLibs, parent);
@@ -206,6 +221,19 @@ final class ExportManager
         }
     }
 
+    private void includeJarContent(File srcJarFile, JarOutput jarOutput) throws IOException
+    {
+        ZipFile jar = new ZipFile(srcJarFile);
+        Enumeration<? extends ZipEntry> contents = jar.entries();
+        while (contents.hasMoreElements())
+        {
+            ZipEntry entry = contents.nextElement();
+            if (entry == null)
+                break;
+            jarOutput.writeJarEntry(jar.getInputStream(entry), entry.getName());
+        }
+    }
+
     /**
      * Write the contents of a directory to a jar stream. Recursively called
      * for subdirectories.
@@ -214,7 +242,7 @@ final class ExportManager
      */
     @OnThread(Tag.Any)
     private void writeDirToJar(File sourceDir, String pathPrefix,
-                               JarOutputStream jStream, boolean includeSource, boolean includePkg, File outputFile)
+                               JarOutput jarOutput, boolean includeSource, boolean includePkg, File outputFile)
         throws IOException
     {
         File[] dir = sourceDir.listFiles();
@@ -222,7 +250,7 @@ final class ExportManager
             if(dir[i].isDirectory()) {
                 if(!skipDir(dir[i], includePkg) ) {
                     writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
-                                  jStream, includeSource, includePkg, outputFile);
+                                  jarOutput, includeSource, includePkg, outputFile);
                 }
             }
             else {
@@ -231,7 +259,7 @@ final class ExportManager
                 // (hangs the machine)
                 if(!skipFile(dir[i].getName(), !includeSource, !includePkg) &&
                     !outputFile.equals(dir[i].getCanonicalFile())) {
-                        writeJarEntry(dir[i], jStream, pathPrefix + dir[i].getName());
+                        jarOutput.writeJarEntry(dir[i], pathPrefix + dir[i].getName());
                 }
             }
         }
@@ -292,27 +320,54 @@ final class ExportManager
     }
 
     /**
-     * Write a jar file entry to the jar output stream.
-     * Note: entryName should always be a path with / seperators
-     *       (NOT the platform dependant File.seperator)
+     * A class for writing files to a JAR which does not allow duplicate files.
+     * In the case of duplicates, the file inserted first is kept, with the later
+     * duplicate(s) discarded.
      */
-    @OnThread(Tag.Any)
-    private void writeJarEntry(File file, JarOutputStream jStream,
-                                  String entryName)
-        throws IOException
+    private static class JarOutput
     {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            jStream.putNextEntry(new ZipEntry(entryName));
-            FileUtility.copyStream(in, jStream);
+        private final JarOutputStream jStream;
+        private final HashSet<String> existingNames = new HashSet<>();
+
+        public JarOutput(JarOutputStream jStream)
+        {
+            this.jStream = jStream;
+            // The manifest is already added, so we must put it in our records:
+            existingNames.add("META-INF/MANIFEST.MF");
         }
-        catch(ZipException exc) {
-            Debug.message("warning: " + exc);
+
+        /**
+         * Write a jar file entry to the jar output stream.
+         * Note: entryName should always be a path with / seperators
+         * (NOT the platform dependant File.seperator)
+         */
+        @OnThread(Tag.Any)
+        public void writeJarEntry(File srcFile, String entryName)
+            throws IOException
+        {
+            writeJarEntry(new FileInputStream(srcFile), entryName);
         }
-        finally {
-            if(in != null)
-                in.close();
+
+        @OnThread(Tag.Any)
+        public void writeJarEntry(InputStream src, String entryName)
+            throws IOException
+        {
+            try
+            {
+                if (!existingNames.contains(entryName))
+                {
+                    existingNames.add(entryName);
+                    jStream.putNextEntry(new ZipEntry(entryName));
+                    FileUtility.copyStream(src, jStream);
+                }
+            } catch (ZipException exc)
+            {
+                Debug.message("warning: " + exc);
+            } finally
+            {
+                if (src != null)
+                    src.close();
+            }
         }
     }
 }
