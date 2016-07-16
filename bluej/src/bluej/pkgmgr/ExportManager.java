@@ -42,6 +42,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -126,58 +127,16 @@ final class ExportManager
     private void createJar(Project proj, String fileName, String sourceDir, String mainClass,
                            List<File> userLibs, boolean includeSource, boolean includePkgFiles, boolean includeStrideLang)
     {
-        // Construct classpath with used library jars       
-        String classpath = "";
         
-        // add jar files from +libs to classpath               
-        List<URL> plusLibs = proj.getPlusLibsContent();
-        List<File> plusLibAsFiles = new ArrayList<File>();
-        for(Iterator<URL> it = plusLibs.iterator(); it.hasNext();) {
-            URL url = it.next();
-            try {
-                File file = new File(new URI(url.toString()));
-                plusLibAsFiles.add(file);
-                classpath += " " + file.getName();
-            }
-            catch(URISyntaxException urie) {
-                // nothing at the moment
-            }
-            
-        }
-        
-        // add jar files from userlibs to classpath
-        for(Iterator<File> it = userLibs.iterator(); it.hasNext(); ) {
-            classpath += " " + it.next().getName();
-        }
-        
-        File jarFile = null;
-        File parent = null;
-        
-        if(classpath.length() == 0) {
-            // if we don't have library jars, just create a single jar file
-            if(!fileName.endsWith(".jar"))
-                fileName = fileName + ".jar";
+        // Create a single jar file
+        if(!fileName.endsWith(".jar"))
+            fileName = fileName + ".jar";
 
-            jarFile = new File(fileName);
+        File jarFile = new File(fileName);
             
-            if(jarFile.exists()) {
-                if (DialogManager.askQuestionFX(frame.getFXWindow(), "error-file-exists") != 0)
-                    return;
-            }
-        }
-        else {
-            // if we have library jars, create a directory with the new jar file
-            // and all library jar files in it
-            if(fileName.endsWith(".jar"))
-                fileName = fileName.substring(0, fileName.length() - 4);
-            parent = new File(fileName);
-
-            if(parent.exists()) {
-                if (DialogManager.askQuestionFX(frame.getFXWindow(), "error-file-exists") != 0)
-                    return;
-            }
-            parent.mkdir();
-            jarFile = new File(parent, parent.getName() + ".jar");
+        if(jarFile.exists()) {
+            if (DialogManager.askQuestionFX(frame.getFXWindow(), "error-file-exists") != 0)
+                return;
         }
         
         OutputStream oStream = null;
@@ -189,7 +148,6 @@ final class ExportManager
             Attributes attr = manifest.getMainAttributes();
             attr.put(Attributes.Name.MANIFEST_VERSION, "1.0");
             attr.put(Attributes.Name.MAIN_CLASS, mainClass);
-            attr.put(Attributes.Name.CLASS_PATH, classpath);
 
             // create jar file
             oStream = new FileOutputStream(jarFile);
@@ -203,10 +161,19 @@ final class ExportManager
             {
                 includeJarContent(new File(Config.getBlueJLibDir(), "lang-stride.jar"), jarOutput);
             }
-            if(parent != null) {
-                copyLibsToJar(plusLibAsFiles, parent);
-                copyLibsToJar(userLibs, parent);
+            for (URL url : proj.getPlusLibsContent())
+            {
+                try
+                {
+                    includeJarContent(new File(new URI(url.toString())), jarOutput);
+                }
+                catch (URISyntaxException urie)
+                {
+
+                }
             }
+            for (File f : userLibs)
+                includeJarContent(f, jarOutput);
             
             frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
@@ -221,6 +188,7 @@ final class ExportManager
         }
     }
 
+    @OnThread(Tag.Any)
     private void includeJarContent(File srcJarFile, JarOutput jarOutput) throws IOException
     {
         ZipFile jar = new ZipFile(srcJarFile);
@@ -324,6 +292,7 @@ final class ExportManager
      * In the case of duplicates, the file inserted first is kept, with the later
      * duplicate(s) discarded.
      */
+    @OnThread(Tag.Any)
     private static class JarOutput
     {
         private final JarOutputStream jStream;
