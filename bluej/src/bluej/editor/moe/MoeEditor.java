@@ -267,9 +267,7 @@ public final class MoeEditor extends JPanel
     private ErrorDisplay errorDisplay;
     private boolean madeChangeOnCurrentLine = false;
     /** Manages display of compiler and parse errors */
-    private final MoeErrorManager errorManager = new MoeErrorManager(this, enable ->
-        setNextErrorEnabled(enable || madeChangeOnCurrentLine, madeChangeOnCurrentLine)
-    );
+    private final MoeErrorManager errorManager = new MoeErrorManager(this, enable -> {});
     private Timer mouseHover;
     private int mouseCaretPos = -1;
 
@@ -4094,7 +4092,7 @@ public final class MoeEditor extends JPanel
     public void compileOrShowNextError()
     {
         if (watcher != null) {
-            if (madeChangeOnCurrentLine)
+            if (madeChangeOnCurrentLine || !errorManager.hasErrorHighlights())
             {
                 watcher.scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
                 madeChangeOnCurrentLine = false;
@@ -4106,14 +4104,6 @@ public final class MoeEditor extends JPanel
                     sourcePane.setCaretPosition(pos);
                 }
             }
-        }
-    }
-    
-    private void setNextErrorEnabled(boolean enabled, boolean compile)
-    {
-        if (actions != null)
-        {
-            actions.setNextErrorEnabled(enabled);
         }
     }
 

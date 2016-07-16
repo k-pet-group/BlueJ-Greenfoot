@@ -541,15 +541,6 @@ public final class MoeActions
     // === File: ===
     // --------------------------------------------------------------------
 
-    // If compile is true, set label to compile, otherwise set label to 
-    // next error.
-    public void setNextErrorEnabled(boolean enabled)
-    {
-        // We don't disable the compile button because user needs to always
-        // be able to explicitly trigger compile, even if the latest auto-compile was
-        // successful:
-        //compileOrNextErrorAction.setEnabled(enabled);
-    }
 
     // --------------------------------------------------------------------
 
