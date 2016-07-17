@@ -2146,11 +2146,19 @@ public class PkgMgrFrame extends JPanel
         if (targets.length <= 0) {
             return false;
         }
-        if (askRemoveClass()) {
-            for (Target target : targets) {
-                target.remove();
+        Platform.runLater(() ->
+        {
+            if (askRemoveClass())
+            {
+                SwingUtilities.invokeLater(() ->
+                {
+                    for (Target target : targets)
+                    {
+                        target.remove();
+                    }
+                });
             }
-        }
+        });
         return true;
     }
 
@@ -2294,9 +2302,10 @@ public class PkgMgrFrame extends JPanel
      * 
      * @return zero if the user confirms removal.
      */
+    @OnThread(Tag.FXPlatform)
     public boolean askRemoveClass()
     {
-        int response = DialogManager.askQuestion(this, "really-remove-class");
+        int response = DialogManager.askQuestionFX(getFXWindow(), "really-remove-class");
         return response == 0;
     }
 

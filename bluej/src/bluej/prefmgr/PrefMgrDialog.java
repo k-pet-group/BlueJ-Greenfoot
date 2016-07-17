@@ -169,7 +169,7 @@ public class PrefMgrDialog
 
         SwingUtilities.invokeLater(() -> {
             SwingNode kbSwing = new SwingNode();
-            KeyBindingsPanel kbPanel = new KeyBindingsPanel();
+            KeyBindingsPanel kbPanel = new KeyBindingsPanel(() -> null);
             kbSwing.setContent(kbPanel.makePanel());
             Platform.runLater(() -> {
                 // Now we can insert the keybindings panel as second:

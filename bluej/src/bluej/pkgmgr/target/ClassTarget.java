@@ -1927,9 +1927,12 @@ public class ClassTarget extends DependentTarget
         public void actionPerformed(ActionEvent e)
         {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-            if (pmf.askRemoveClass()) {
-                getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
-            }
+            Platform.runLater(() -> {
+                if (pmf.askRemoveClass())
+                {
+                    SwingUtilities.invokeLater(() -> getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this));
+                }
+            });
         }
     }
 

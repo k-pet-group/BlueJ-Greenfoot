@@ -1547,30 +1547,6 @@ public final class MoeEditor extends JPanel
             item.setEnabled(enable);
         }
     }
-    
-    /**
-     * Check whether the source file has changed on disk. If it has, reload.
-     */
-    private void checkForChangeOnDisk()
-    {
-        if (filename == null) {
-            return;
-        }
-        File file = new File(filename);
-        long modified = file.lastModified();
-        if(modified != lastModified) {
-            if (saveState.isChanged()) {
-                int answer = DialogManager.askQuestion(this, "changed-on-disk");
-                if (answer == 0)
-                    doReload();
-                else
-                    lastModified = modified; // don't ask again for this change
-            }
-            else {
-                doReload();
-            }
-        }
-    }
 
     // --------------------------------------------------------------------
     

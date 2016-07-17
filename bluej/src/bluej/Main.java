@@ -308,18 +308,27 @@ public class Main
     @OnThread(Tag.Swing)
     public static void wantToQuit()
     {
-        int answer = 0;
-        if (Project.getOpenProjectCount() > 1)
-            answer = DialogManager.askQuestion(PkgMgrFrame.getMostRecent(), "quit-all");
-        if (answer == 0) {
-            doQuit();
-        }
-        else {
-            if(macEventResponse != null) {
-                macEventResponse.cancelQuit();
-                macEventResponse = null;
-            }
-        }
+        int projectCount = Project.getOpenProjectCount();
+        PkgMgrFrame recentPMF = PkgMgrFrame.getMostRecent();
+        Platform.runLater(() ->
+        {
+            int answer = projectCount <= 1 ? 0 : DialogManager.askQuestionFX(recentPMF.getFXWindow(), "quit-all");
+            SwingUtilities.invokeLater(() ->
+            {
+                if (answer == 0)
+                {
+                    doQuit();
+                }
+                else
+                {
+                    if (macEventResponse != null)
+                    {
+                        macEventResponse.cancelQuit();
+                        macEventResponse = null;
+                    }
+                }
+            });
+        });
     }
 
 
