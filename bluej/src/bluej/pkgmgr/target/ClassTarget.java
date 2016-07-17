@@ -1706,32 +1706,49 @@ public class ClassTarget extends DependentTarget
 
         Package dstPkg = proj.getPackage(newName);
 
-        if (dstPkg == null) {
-            DialogManager.showError(null, "package-name-invalid");
-        }
-        else {
-            // fix for bug #382. Potentially could clash with a package
-            // in the destination package with the same name
-            if (dstPkg.getTarget(getBaseName()) != null) {
-                DialogManager.showError(null, "package-name-clash");
-                // fall through to enforcePackage, below.
+        boolean packageInvalid = dstPkg == null;
+        boolean packageNameClash = dstPkg != null && dstPkg.getTarget(getBaseName()) != null;
+        
+        Platform.runLater(() -> {
+            
+            if (packageInvalid)
+            {
+                DialogManager.showErrorFX(null, "package-name-invalid");
             }
-            else if (DialogManager.askQuestion(null, "package-name-changed") == 0) {
-                dstPkg.importFile(getSourceFile());
-                prepareForRemoval();
-                getPackage().removeTarget(this);
-                close();
-                return;
+            else
+            {
+                // fix for bug #382. Potentially could clash with a package
+                // in the destination package with the same name
+                if (packageNameClash)
+                {
+                    DialogManager.showErrorFX(null, "package-name-clash");
+                    // fall through to enforcePackage, below.
+                }
+                else if (DialogManager.askQuestionFX(null, "package-name-changed") == 0)
+                {
+                    SwingUtilities.invokeLater(() -> {
+                        dstPkg.importFile(getSourceFile());
+                        prepareForRemoval();
+                        getPackage().removeTarget(this);
+                        close();
+                    });
+                    return;
+                }
             }
-        }
 
-        // all non working paths lead here.. lets fix the package line
-        // up so it is back to what we expect
-        try {
-            enforcePackage(getPackage().getQualifiedName());
-            getEditor().reloadFile();
-        }
-        catch (IOException ioe) {}
+            SwingUtilities.invokeLater(() -> {
+                // all non working paths lead here.. lets fix the package line
+                // up so it is back to what we expect
+                try
+                {
+                    enforcePackage(getPackage().getQualifiedName());
+                    getEditor().reloadFile();
+                }
+                catch (IOException ioe)
+                {
+                }
+            });
+        });
     }
 
     /**

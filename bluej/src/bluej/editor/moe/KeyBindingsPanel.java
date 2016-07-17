@@ -51,6 +51,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import javafx.application.Platform;
+
 import bluej.Config;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.Debug;
@@ -371,7 +373,7 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
     {
         removeKeyListener();
         if(!actions.save())
-            DialogManager.showError(this, "cannot-save-keys");
+            Platform.runLater(() -> DialogManager.showErrorFX(null, "cannot-save-keys"));
         setVisible(false);
     }
     /**
