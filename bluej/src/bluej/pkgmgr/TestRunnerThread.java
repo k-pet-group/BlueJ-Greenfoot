@@ -57,19 +57,23 @@ import bluej.testmgr.TestDisplayFrame;
  */
 public class TestRunnerThread extends Thread
 {
+    @OnThread(Tag.Unique)
     private final Iterator<ClassTarget> testIterator;
     private final PkgMgrFrame pmf;
 
     private final String methodName; // Name of the test method; null to run all tests.
     
     private int state;
-    
+    private final Project project;
+
     /**
      * Construct a test runner thread for running multiple tests.
      */
+    @OnThread(Tag.Swing)
     public TestRunnerThread(PkgMgrFrame pmf, Iterator<ClassTarget> i)
     {
         this.pmf = pmf;
+        this.project = pmf.getProject();
         this.methodName = null;
         testIterator = i;
         state = 0;
@@ -78,9 +82,11 @@ public class TestRunnerThread extends Thread
     /**
      * Construct a test runner thread for running a single test.
      */
+    @OnThread(Tag.Swing)
     public TestRunnerThread(PkgMgrFrame pmf, ClassTarget ct, String methodName)
     {
         this.pmf = pmf;
+        this.project = pmf.getProject();
         List<ClassTarget> l = new ArrayList<ClassTarget>(1);
         l.add(ct);
         testIterator = l.iterator();
@@ -88,6 +94,7 @@ public class TestRunnerThread extends Thread
         state = 0;
     }
 
+    @OnThread(value = Tag.Unique, ignoreParent = true)
     public void run()
     {
         while (testIterator.hasNext()) {
@@ -117,7 +124,8 @@ public class TestRunnerThread extends Thread
             // State 1 has given us the tests we need to run. Now run them:
             for (String methodName : allMethods)
             {
-                DebuggerTestResult lastResult = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), methodName);
+                
+                DebuggerTestResult lastResult = project.getDebugger().runTestMethod(ct.getQualifiedName(), methodName);
 
                 // Add the test result to the test display frame:
                 Platform.runLater(() -> showNextResult(lastResult));

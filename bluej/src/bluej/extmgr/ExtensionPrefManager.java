@@ -159,14 +159,15 @@ public class ExtensionPrefManager implements PrefPanelListener
     /**
      * Start the revalidation of the panels associated to the extensions.
      */
+    @OnThread(Tag.Swing)
     public void panelRevalidate() 
     {
-        if (EventQueue.isDispatchThread()) {
+        //if (EventQueue.isDispatchThread()) {
             doWorkLoop(DO_panelUpdate);
-        }
-        else {
-            EventQueue.invokeLater(() -> doWorkLoop(DO_panelUpdate));
-        }
+        //}
+        //else {
+        //    EventQueue.invokeLater(() -> doWorkLoop(DO_panelUpdate));
+        //}
     }
 
     /*

@@ -1185,6 +1185,7 @@ public final class Package extends Graph
         return target;
     }
 
+    @OnThread(Tag.Any)
     public Debugger getDebugger()
     {
         return getProject().getDebugger();
@@ -1578,6 +1579,7 @@ public final class Package extends Graph
                 // No lambda as we need to also remove:
                 DebuggerListener dlistener = new DebuggerListener() {
                     @Override
+                    @OnThread(Tag.Any)
                     public void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
                     {
                         if (e.getNewState() == Debugger.IDLE)

@@ -955,11 +955,15 @@ class TCScanner extends TreePathScanner<Void, Void>
         if (Arrays.asList("Platform.runLater").contains(call))
         {
             if (calledFrom == Tag.FXPlatform)
-                issueError("Calling runLater from FXPlatform", errorLocation);
+                issueError("Calling runLater from FXPlatform thread", errorLocation);
             return new LocatedTag(Tag.FXPlatform, true, true, "<runLater>");
         }
         else if (Arrays.asList("SwingUtilities.invokeAndWait", "SwingUtilities.invokeLater", "EventQueue.invokeLater", "EventQueue.invokeAndWait").contains(call))
+        {
+            if (calledFrom == Tag.Swing)
+                issueError("Calling " + call + " from Swing thread", errorLocation);
             return new LocatedTag(Tag.Swing, true, true, "<invokeLater>");
+        }
         else if (Arrays.asList("background.execute").contains(call))
             return new LocatedTag(Tag.Worker, true, true, "<Executor.execute>");
         //else if (typeName.startsWith("java.") && call.endsWith("forEach")) // Bit hacky

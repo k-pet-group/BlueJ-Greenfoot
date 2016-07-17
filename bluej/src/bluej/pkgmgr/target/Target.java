@@ -50,6 +50,7 @@ public abstract class Target extends Vertex
     static final int TEXT_BORDER = 4;
     static final int SHAD_SIZE = 4;
 
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private String identifierName; // the name handle for this target within
     // this package (must be unique within this
     // package)
@@ -176,12 +177,13 @@ public abstract class Target extends Vertex
         return displayName;
     }
 
-    public String getIdentifierName()
+    @OnThread(Tag.Any)
+    public synchronized String getIdentifierName()
     {
         return identifierName;
     }
 
-    public void setIdentifierName(String newName)
+    public synchronized void setIdentifierName(String newName)
     {
         identifierName = newName;
     }
@@ -282,7 +284,7 @@ public abstract class Target extends Vertex
         return false;
     }
 
-    public int hashCode()
+    public synchronized int hashCode()
     {
         return identifierName.hashCode();
     }

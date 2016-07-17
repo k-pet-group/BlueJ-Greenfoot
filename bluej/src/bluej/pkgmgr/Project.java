@@ -159,7 +159,8 @@ public class Project implements DebuggerListener, InspectorManager
        can be obtained by retrieving "" from this collection */
     private Map<String, Package> packages;
     /** the debugger for this project */
-    private Debugger debugger;
+    @OnThread(Tag.Any)
+    private final Debugger debugger;
     /** the ExecControls for this project */
     private ExecControls execControls = null;
     /** the Terminal for this project */
@@ -1549,6 +1550,7 @@ public class Project implements DebuggerListener, InspectorManager
         packages.values().forEach(Package::reInitBreakpoints);
     }
 
+    @OnThread(Tag.Any)
     public Debugger getDebugger()
     {
         return debugger;

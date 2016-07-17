@@ -302,6 +302,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The qualifiedName value
      */
+    @OnThread(Tag.Any)
     public String getQualifiedName()
     {
         return getPackage().getQualifiedName(getBaseName());
@@ -313,6 +314,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The baseName value
      */
+    @OnThread(Tag.Any)
     public String getBaseName()
     {
         return getIdentifierName();
