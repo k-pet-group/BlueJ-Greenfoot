@@ -949,11 +949,15 @@ class TCScanner extends TreePathScanner<Void, Void>
     }
     */
     
-    private LocatedTag fromSpecial(String typeName, String call, Optional<LocatedTag> calledFrom_)
+    private LocatedTag fromSpecial(String typeName, String call, Optional<LocatedTag> calledFrom_, Tree errorLocation)
     {
         Tag calledFrom = calledFrom_.map(lt -> lt.tag).orElse(Tag.Any); 
         if (Arrays.asList("Platform.runLater").contains(call))
+        {
+            if (calledFrom == Tag.FXPlatform)
+                issueError("Calling runLater from FXPlatform", errorLocation);
             return new LocatedTag(Tag.FXPlatform, true, true, "<runLater>");
+        }
         else if (Arrays.asList("SwingUtilities.invokeAndWait", "SwingUtilities.invokeLater", "EventQueue.invokeLater", "EventQueue.invokeAndWait").contains(call))
             return new LocatedTag(Tag.Swing, true, true, "<invokeLater>");
         else if (Arrays.asList("background.execute").contains(call))
@@ -1175,7 +1179,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         if (parent instanceof MethodInvocationTree)
         {
             String call = ((MethodInvocationTree)parent).getMethodSelect().toString();
-            lambdaAnn = fromSpecial(lambdaClassType.toString(), call, getCurrentTag(Collections.emptyList(), errorLocation));
+            lambdaAnn = fromSpecial(lambdaClassType.toString(), call, getCurrentTag(Collections.emptyList(), errorLocation), errorLocation);
         }
         if (lambdaAnn != null)
             return Optional.of(lambdaAnn);

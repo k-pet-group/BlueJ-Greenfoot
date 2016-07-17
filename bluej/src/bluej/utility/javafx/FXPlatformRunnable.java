@@ -32,9 +32,4 @@ public interface FXPlatformRunnable
 {
     @OnThread(Tag.FXPlatform)
     public void run();
-
-    public static void runLater(FXPlatformRunnable r)
-    {
-        Platform.runLater(() -> r.run());
-    }
 }

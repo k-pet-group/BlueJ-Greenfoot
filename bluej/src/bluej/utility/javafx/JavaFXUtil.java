@@ -1639,4 +1639,17 @@ public class JavaFXUtil
     {
         return Bindings.createDoubleBinding(() -> accessor.apply(t.getValue()), t);
     }
+
+    /**
+     * A method which runs the given action on the platform thread when it
+     * later becomes available.  A specific way to call Platform.runLater
+     * from the platform thread when you really mean to (thread checker will warn
+     * you otherwise).
+     */
+    @OnThread(Tag.FXPlatform)
+    public static void runAfterCurrent(FXPlatformRunnable r)
+    {
+        // Defeat thread checker:
+        ((FXPlatformConsumer<Runnable>)(Platform::runLater)).accept(r::run);
+    }
 }

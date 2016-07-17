@@ -552,7 +552,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
             if (linkRunnable != null)
             {
                 // We've found an existing underline; run the action:
-                FXPlatformRunnable.runLater(linkRunnable);
+                linkRunnable.run();
             }
             else
             {
@@ -565,7 +565,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     optLink.ifPresent(link -> {
                         FXPlatformRunnable onClick = link.getOnClick();
                         if (onClick != null)
-                            FXPlatformRunnable.runLater(onClick);
+                            onClick.run();
                     })
                 );
             }

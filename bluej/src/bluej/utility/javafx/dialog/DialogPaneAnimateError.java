@@ -15,6 +15,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -85,7 +86,7 @@ public class DialogPaneAnimateError extends DialogPane
             });
             okButton.addEventFilter(ActionEvent.ACTION, event -> {
                 // runLater as a hack to run after other event filters:
-                Platform.runLater(() -> {
+                JavaFXUtil.runAfterCurrent(() -> {
                     if (!errorLabelEmpty.get())
                         animate();
                 });

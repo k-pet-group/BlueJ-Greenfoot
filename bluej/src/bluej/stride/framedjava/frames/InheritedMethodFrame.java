@@ -227,7 +227,7 @@ public class InheritedMethodFrame extends SingleLineFrame
                 });
                 label.setOnMouseClicked(e -> {
                     // check for click on underlined region
-                    Utility.ifNotNull(getHeaderRow().getOverlay().linkFromX(e.getSceneX()), FXPlatformRunnable::runLater);
+                    Utility.ifNotNull(getHeaderRow().getOverlay().linkFromX(e.getSceneX()), FXPlatformRunnable::run);
                 });
             } 
         }

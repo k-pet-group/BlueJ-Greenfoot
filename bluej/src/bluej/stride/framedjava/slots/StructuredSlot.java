@@ -1333,7 +1333,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                 CaretPos updatedLocation = modificationReturnPlatform(token -> topLevel.deletePreviousAtPos(suggestionLocation, token));
                 if (updatedLocation == null || !updatedLocation.init().equals(suggestionLocation.init()))
                 {
-                    Platform.runLater(() -> topLevel.positionCaret(updatedLocation));
+                    JavaFXUtil.runAfterCurrent(() -> topLevel.positionCaret(updatedLocation));
                     return Response.DISMISS;
                 }
                 else

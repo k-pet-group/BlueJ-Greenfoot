@@ -129,7 +129,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
                         if (getCaretPosition() != 0)
                         {
                             final int oldPos = getCaretPosition();
-                            Platform.runLater(() -> {
+                            JavaFXUtil.runAfterCurrent(() -> {
                                 if (getCaretPosition() == oldPos)
                                 {
                                     // So if user pressed up, but caret hasn't moved,
@@ -151,7 +151,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
                         if (getCaretPosition() != getLength())
                         {
                             final int oldPos = getCaretPosition();
-                            Platform.runLater(() -> {
+                            JavaFXUtil.runAfterCurrent(() -> {
                                 if (getCaretPosition() == oldPos)
                                 {
                                     // So if user pressed down, but caret hasn't moved,

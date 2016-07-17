@@ -125,10 +125,10 @@ public abstract class FrameOperation extends AbstractOperation
             item = initializeNormalItem();
         }
 
-        item.setOnAction(e -> Platform.runLater(() -> {
+        item.setOnAction(e -> {
             activate(editor.getSelection().getSelected());
             e.consume();
-        }));
+        });
 
         if (shortcut != null) {
             item.setAccelerator(shortcut);

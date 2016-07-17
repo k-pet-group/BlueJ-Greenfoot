@@ -90,7 +90,7 @@ public class AnnotatableTextField
         });
         field.setOnMouseClicked(e -> {
             // check for click on underlined region
-            Utility.ifNotNull(errorMarker.linkFromX(e.getSceneX()), FXPlatformRunnable::runLater);
+            Utility.ifNotNull(errorMarker.linkFromX(e.getSceneX()), FXPlatformRunnable::run);
         });
         
         errorMarker.addExtraRedraw(g -> {

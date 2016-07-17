@@ -600,7 +600,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             // Use double runLater because some items may lag behind in runLaters:
             // TODO do we still need this double?
             Platform.runLater(() -> {
-                Platform.runLater(() -> {
+                JavaFXUtil.runAfterCurrent(() -> {
                     this.topLevelFrameProperty.setValue(frame);
                     nameProperty.bind(getTopLevelFrame().nameProperty());
                     // Whenever name changes, trigger recompile even without leaving slot:
