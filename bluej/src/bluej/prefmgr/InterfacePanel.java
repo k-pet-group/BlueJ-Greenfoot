@@ -21,34 +21,10 @@
  */
 package bluej.prefmgr;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
+import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
@@ -58,14 +34,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.filefilter.DirectoryFilter;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import static java.awt.Component.LEFT_ALIGNMENT;
 
 /**
  * "Interface" preference panel. Settings for what to show (teamwork, testing tools etc)

@@ -21,13 +21,13 @@
  */
 package bluej.pkgmgr;
 
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -53,12 +53,9 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.swing.JFileChooser;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
 
 import bluej.BlueJEvent;
 import bluej.Boot;
@@ -101,7 +98,6 @@ import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
-import bluej.prefmgr.PrefMgrDialog;
 import bluej.terminal.Terminal;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
@@ -114,8 +110,6 @@ import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.views.View;
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
