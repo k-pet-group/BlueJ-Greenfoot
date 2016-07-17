@@ -1,5 +1,4 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
-import java.awt.Color;
 
 /**
  * Pheromones are dropped by ants when they want to communicate something to
