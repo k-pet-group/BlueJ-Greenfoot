@@ -2310,31 +2310,6 @@ public class PkgMgrFrame extends JPanel
     }
 
     /**
-     * Ask the system and the user to confirm removal of package. The system
-     * prevent the package from being removed if frames holding classes in the
-     * package is open.
-     * 
-     * @param removableTarget
-     * @return true if the package should be removed.
-     */
-    public boolean askRemovePackage(PackageTarget removableTarget)
-    {
-        String name = removableTarget.getQualifiedName();
-        PkgMgrFrame[] f = getAllProjectFrames(getProject(), name);
-
-        if (f != null) {
-            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "remove-package-open"));
-            return false;
-        }
-
-        // Check they realise that this will delete ALL the files.
-        int response = DialogManager.askQuestion(this, "really-remove-package");
-
-        // if they agree
-        return response == 0;
-    }
-
-    /**
      * Compile the currently selected class targets.
      */
     public void compileSelected()

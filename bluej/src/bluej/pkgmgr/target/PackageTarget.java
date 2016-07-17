@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+
+import javafx.application.Platform;
 
 import bluej.Config;
 import bluej.graph.GraphEditor;
@@ -41,6 +44,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 
 /**
  * A sub package (or parent package)
@@ -235,11 +239,32 @@ public class PackageTarget extends Target
     public void remove()
     {
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-        if (pmf.askRemovePackage(this)) {
-            deleteFiles();
-            getPackage().getProject().removePackage(getQualifiedName());
-            getPackage().removeTarget(this);
-        }
+        String name = getQualifiedName();
+        PkgMgrFrame[] f = PkgMgrFrame.getAllProjectFrames(pmf.getProject(), name);
+
+        Platform.runLater(() ->
+        {
+            if (f != null)
+            {
+                DialogManager.showErrorFX(pmf.getFXWindow(), "remove-package-open");
+            }
+            else
+            {
+                // Check they realise that this will delete ALL the files.
+                int response = DialogManager.askQuestionFX(pmf.getFXWindow(), "really-remove-package");
+
+                // if they agree
+                if (response == 0)
+                {
+                    SwingUtilities.invokeLater(() ->
+                    {
+                        deleteFiles();
+                        getPackage().getProject().removePackage(getQualifiedName());
+                        getPackage().removeTarget(this);
+                    });
+                }
+            }
+        });
     }
 
     /**
