@@ -25,6 +25,8 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GradientPaint;
 import java.awt.Paint;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -626,9 +629,17 @@ public class UnitTestClassRole extends ClassRole
             
             // if we already have fields, ask if we are sure we want to get rid of them
             if (variables != null && variables.size() > 0) {
-                if (DialogManager.askQuestion(null, "unittest-fixture-present") == 1) {
+                AtomicBoolean shouldContinue = new AtomicBoolean();
+                SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+                Platform.runLater(() -> {
+                    boolean cont = DialogManager.askQuestionFX(null, "unittest-fixture-present") != 1;
+                    shouldContinue.set(cont);
+                    loop.exit();
+                });
+                loop.enter();
+
+                if (!shouldContinue.get())
                     return;
-                }
             }
 
             // if we have fields, we need to nuke them

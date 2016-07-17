@@ -56,6 +56,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -1361,9 +1362,17 @@ public class PkgMgrFrame extends JPanel
         if (c != null){
             if (! Package.checkClassMatchesFile(c, new File(getPackage().getPath(), name + ".class"))) {
                 conflict[0]=Package.getResourcePath(c);
-                if (DialogManager.askQuestion(this, "class-library-conflict", conflict) == 0) {
+                AtomicBoolean shouldContinue = new AtomicBoolean();
+                SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+                Platform.runLater(() -> {
+                    boolean cont = DialogManager.askQuestionFX(getFXWindow(), "class-library-conflict", conflict) != 0;
+                    shouldContinue.set(cont);
+                    loop.exit();
+                });
+                loop.enter();
+
+                if (!shouldContinue.get())
                     return false;
-                }
             }
         }
 

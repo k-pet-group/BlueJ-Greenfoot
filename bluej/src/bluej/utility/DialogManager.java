@@ -253,28 +253,6 @@ public class DialogManager
      * question and the buttons is read from the dialogues file. If the third
      * button text is "null", it is not shown. Returns the button index that
      * was selected (0..2).
-     */
-    public static int askQuestion(Component parent, String msgID)
-    {
-        MessageAndButtons messageAndButtons = new MessageAndButtons(getMessage(msgID));
-        if (messageAndButtons.getMessage() != null) {
-            Object[] options = messageAndButtons.getOptions().toArray();
-
-            return JOptionPane.showOptionDialog(parent, messageAndButtons.getMessage(),
-                                                Config.getApplicationName() + ":  " +
-                                                Config.getString("dialogmgr.question"),
-                                                JOptionPane.DEFAULT_OPTION,
-                                                JOptionPane.WARNING_MESSAGE,
-                                                null, options, options[0]);
-        }
-        return 0;
-    }
-
-    /**
-     * Brings up a two or three button question dialog. The text for the
-     * question and the buttons is read from the dialogues file. If the third
-     * button text is "null", it is not shown. Returns the button index that
-     * was selected (0..2).
      * 
      * FX button types/ordering:
      * With two buttons, the first button is assumed to be a YES button,
@@ -311,36 +289,6 @@ public class DialogManager
      * <p>If the third button text is "null", it is not shown. Returns the button
      * index that was selected (0..2).
      */
-    public static int askQuestion(Component parent, String msgID, String [] subs)
-    {
-        String message = getMessage(msgID);
-        if (message != null) {
-            int button3Index = message.lastIndexOf("\n");
-            int button2Index = message.lastIndexOf("\n", button3Index-1);
-            int button1Index = message.lastIndexOf("\n", button2Index-1);
-            String button3 = message.substring(button3Index+1);
-            String button2 = message.substring(button2Index+1, button3Index);
-            String button1 = message.substring(button1Index+1, button2Index);
-            message = message.substring(0, button1Index);
-            message = Utility.mergeStrings(message, subs);
-            Object[] options;
-            if ("null".equals(button3)) {
-                options = new Object[] { button1, button2 };
-            }
-            else {
-                options = new Object[] { button1, button2, button3 };
-            }
-
-            return JOptionPane.showOptionDialog(parent, message,
-                Config.getApplicationName() + ":  " +
-                    Config.getString("dialogmgr.question"),
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.WARNING_MESSAGE,
-                null, options, options[0]);
-        }
-        return 0;
-    }
-
     @OnThread(Tag.FXPlatform)
     public static int askQuestionFX(javafx.stage.Window parent, String msgID, String [] subs)
     {
