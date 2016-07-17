@@ -332,11 +332,41 @@ public class DialogManager
             }
 
             return JOptionPane.showOptionDialog(parent, message,
-                                                Config.getApplicationName() + ":  " +
-                                                Config.getString("dialogmgr.question"),
-                                                JOptionPane.DEFAULT_OPTION,
-                                                JOptionPane.WARNING_MESSAGE,
-                                                null, options, options[0]);
+                Config.getApplicationName() + ":  " +
+                    Config.getString("dialogmgr.question"),
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null, options, options[0]);
+        }
+        return 0;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public static int askQuestionFX(javafx.stage.Window parent, String msgID, String [] subs)
+    {
+        String message = getMessage(msgID);
+        if (message != null) {
+            int button3Index = message.lastIndexOf("\n");
+            int button2Index = message.lastIndexOf("\n", button3Index-1);
+            int button1Index = message.lastIndexOf("\n", button2Index-1);
+            String button3 = message.substring(button3Index+1);
+            String button2 = message.substring(button2Index+1, button3Index);
+            String button1 = message.substring(button1Index+1, button2Index);
+            message = message.substring(0, button1Index);
+            message = Utility.mergeStrings(message, subs);
+            List<ButtonType> buttons = new ArrayList<>();
+            boolean hasThirdButton = "null".equals(button3);
+            buttons.add(new ButtonType(button1, hasThirdButton ? ButtonBar.ButtonData.CANCEL_CLOSE : ButtonBar.ButtonData.NO));
+            buttons.add(new ButtonType(button2, hasThirdButton ? ButtonBar.ButtonData.NO : ButtonBar.ButtonData.YES));
+            if (hasThirdButton)
+                buttons.add(new ButtonType(button3, ButtonBar.ButtonData.YES));
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, buttons.toArray(new ButtonType[0]));
+            alert.initOwner(parent);
+            alert.initModality(Modality.WINDOW_MODAL);
+            alert.setTitle(Config.getApplicationName() + ":  " +
+                Config.getString("dialogmgr.question"));
+            return alert.showAndWait().map(buttons::indexOf).orElse(buttons.size() - 1);
         }
         return 0;
     }

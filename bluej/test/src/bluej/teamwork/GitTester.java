@@ -21,6 +21,8 @@
  */
 package bluej.teamwork;
 
+import javax.swing.SwingUtilities;
+
 import bluej.groupwork.CodeFileFilter;
 import bluej.groupwork.Repository;
 import bluej.groupwork.StatusHandle;
@@ -57,6 +59,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
+
 import junit.framework.TestCase;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -676,37 +680,32 @@ public class GitTester
                 return;
             }
 
-            try {
-                EventQueue.invokeAndWait(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        /**
-                         * A list of files to replace with repository version
-                         */
-                        Set<File> filesToOverride = new HashSet<File>();
+                Platform.runLater(() -> {
+                    /**
+                     * A list of files to replace with repository version
+                     */
+                    Set<File> filesToOverride = new HashSet<File>();
 
-                        // Binary conflicts
-                        for (Iterator<File> i = updateServerResponse.getBinaryConflicts().iterator();
-                                i.hasNext();) {
-                            File f = i.next();
+                    // Binary conflicts
+                    for (Iterator<File> i = updateServerResponse.getBinaryConflicts().iterator();
+                            i.hasNext();) {
+                        File f = i.next();
 
-                            if (BlueJPackageFile.isPackageFileName(f.getName())) {
-                                filesToOverride.add(f);
+                        if (BlueJPackageFile.isPackageFileName(f.getName())) {
+                            filesToOverride.add(f);
+                        } else {
+                            // TODO make the displayed file path relative to project
+                            int answer = DialogManager.askQuestionFX(PkgMgrFrame.getMostRecent().getFXWindow(),
+                                    "team-binary-conflict", new String[]{f.getName()});
+                            if (answer == 0) {
+                                // keep local version
                             } else {
-                                // TODO make the displayed file path relative to project
-                                int answer = DialogManager.askQuestion(PkgMgrFrame.getMostRecent(),
-                                        "team-binary-conflict", new String[]{f.getName()});
-                                if (answer == 0) {
-                                    // keep local version
-                                } else {
-                                    // use repository version
-                                    filesToOverride.add(f);
-                                }
+                                // use repository version
+                                filesToOverride.add(f);
                             }
                         }
-
+                    }
+                    SwingUtilities.invokeLater(() -> {
                         //TODO: implement overrideFiles!!!!!!!!!!!!!!!!!
                         //updateServerResponse.overrideFiles(filesToOverride);
                         List<String> blueJconflicts = new LinkedList<String>();
@@ -760,13 +759,8 @@ public class GitTester
 //                                    blueJconflicts, nonBlueJConflicts);
 //                            conflictsDialog.setVisible(true);
                         }
-                    }
+                    });
                 });
-            } catch (InvocationTargetException ite) {
-                throw new Error(ite);
-            } catch (InterruptedException ie) {
-                // Probably indicates an application exit; just ignore it.
-            }
         }
 
     }

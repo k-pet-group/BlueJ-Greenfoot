@@ -357,33 +357,33 @@ public class UpdateAction extends AbstractAction
                 return;
             }
 
-            try {
-                EventQueue.invokeAndWait(() -> {
-                        /** A list of files to replace with repository version */
-                        Set<File> filesToOverride = new HashSet<File>();
+                Platform.runLater(() -> {
+                    /** A list of files to replace with repository version */
+                    Set<File> filesToOverride = new HashSet<File>();
 
-                        // Binary conflicts
-                        for (Iterator<File> i = updateServerResponse.getBinaryConflicts().iterator();
-                                i.hasNext(); ) {
-                            File f = i.next();
+                    // Binary conflicts
+                    for (Iterator<File> i = updateServerResponse.getBinaryConflicts().iterator();
+                            i.hasNext(); ) {
+                        File f = i.next();
 
-                            if (BlueJPackageFile.isPackageFileName(f.getName())) {
-                                filesToOverride.add(f);
+                        if (BlueJPackageFile.isPackageFileName(f.getName())) {
+                            filesToOverride.add(f);
+                        }
+                        else {
+                            // TODO make the displayed file path relative to project
+                            int answer = DialogManager.askQuestionFX(null,
+                                    "team-binary-conflict", new String[] {f.getName()});
+                            if (answer == 0) {
+                                // keep local version
                             }
                             else {
-                                // TODO make the displayed file path relative to project
-                                int answer = DialogManager.askQuestion(PkgMgrFrame.getMostRecent(),
-                                        "team-binary-conflict", new String[] {f.getName()});
-                                if (answer == 0) {
-                                    // keep local version
-                                }
-                                else {
-                                    // use repository version
-                                    filesToOverride.add(f);
-                                }
+                                // use repository version
+                                filesToOverride.add(f);
                             }
                         }
-
+                    }
+                    SwingUtilities.invokeLater(() ->
+                    {
                         updateServerResponse.overrideFiles(filesToOverride);
 
                         List<String> blueJconflicts = new LinkedList<String>();
@@ -391,7 +391,8 @@ public class UpdateAction extends AbstractAction
                         List<Target> targets = new LinkedList<Target>();
 
                         for (Iterator<File> i = updateServerResponse.getConflicts().iterator();
-                                i.hasNext();) {
+                             i.hasNext(); )
+                        {
                             File file = i.next();
 
                             // Calculate the file base name
@@ -399,20 +400,25 @@ public class UpdateAction extends AbstractAction
 
                             // bluej package file may come up as a conflict, but it won't cause a problem,
                             // so it can be ignored.
-                            if (! BlueJPackageFile.isPackageFileName(baseName)) {
+                            if (!BlueJPackageFile.isPackageFileName(baseName))
+                            {
                                 Target target = null;
 
-                                if (baseName.endsWith(".java") || baseName.endsWith(".class")) {
+                                if (baseName.endsWith(".java") || baseName.endsWith(".class"))
+                                {
                                     String pkg = project.getPackageForFile(file);
-                                    if (pkg != null) {
+                                    if (pkg != null)
+                                    {
                                         String targetId = filenameToTargetIdentifier(baseName);
                                         targetId = JavaNames.combineNames(pkg, targetId);
                                         target = project.getTarget(targetId);
                                     }
                                 }
-                                else if (baseName.equals("README.TXT")) {
+                                else if (baseName.equals("README.TXT"))
+                                {
                                     String pkg = project.getPackageForFile(file);
-                                    if (pkg != null) {
+                                    if (pkg != null)
+                                    {
                                         String targetId = ReadmeTarget.README_ID;
                                         targetId = JavaNames.combineNames(pkg, targetId);
                                         target = project.getTarget(targetId);
@@ -420,32 +426,30 @@ public class UpdateAction extends AbstractAction
                                 }
 
                                 String fileName = makeRelativePath(project.getProjectDir(), file);
-                                
-                                if (target == null) {
+
+                                if (target == null)
+                                {
                                     nonBlueJConflicts.add(fileName);
-                                } else {
+                                }
+                                else
+                                {
                                     blueJconflicts.add(fileName);
                                     targets.add(target);
                                 }
                             }
                         }
 
-                        if (! blueJconflicts.isEmpty() || ! nonBlueJConflicts.isEmpty()) {
+                        if (!blueJconflicts.isEmpty() || !nonBlueJConflicts.isEmpty())
+                        {
                             project.clearAllSelections();
                             project.selectTargetsInGraphs(targets);
 
                             ConflictsDialog conflictsDialog = new ConflictsDialog(project,
-                                    blueJconflicts, nonBlueJConflicts);
+                                blueJconflicts, nonBlueJConflicts);
                             conflictsDialog.setVisible(true);
                         }
+                    });
                 });
-            }
-            catch (InvocationTargetException ite) {
-                throw new Error(ite);
-            }
-            catch (InterruptedException ie) {
-                // Probably indicates an application exit; just ignore it.
-            }
         }
         
         public void abort()

@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import javax.swing.SwingUtilities;
 import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,6 +46,8 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class handles documentation generation from inside BlueJ.
@@ -65,7 +68,7 @@ public class DocuGenerator
                                 Config.getPropString("doctool.outputdir");
 
     /** Header for log file when generating documentation for projects. */
-    private static String projectLogHeader =
+    private static final String projectLogHeader =
                                 Config.getPropString("Project documentation");
 
     /** Header for log file when generating documentation for classes. */
@@ -343,58 +346,71 @@ public class DocuGenerator
         File startPage = new File(docDir, "index.html");
         File logFile = new File(docDir, "logfile.txt");
 
-        if(documentationExists(logFile)) {
-            int result = DialogManager.askQuestion(null, "show-or-generate");
-            if(result == 0) {  // show only
-                Utility.openWebBrowser(startPage.getPath());
-                return "";
-            }
-            if(result == 2) {  // cancel
-                return "";
-            }
-        }
-
-        // tool-specific infos for javadoc
-
-        ArrayList<String> call = new ArrayList<String>();
-        call.add(docCommand);
-        call.add("-sourcepath");
-        call.add(projectDirPath);
-        addGeneralOptions(call);
-        call.add("-doctitle");
-        call.add(project.getProjectName());
-        call.add("-windowtitle");
-        call.add(project.getProjectName());
-        call.addAll(Utility.dequoteCommandLine(fixedJavadocParams));
-
-        // get the parameter that enables javadoc to link the generated
-        // documentation to the API documentation
-        addLinkParam(call);
-
-        // add the names of all the targets for the documentation tool.
-        // first: get the names of all packages that contain java sources.
-        List<String> packageNames = project.getPackageNames();
-        for (Iterator<String> names = packageNames.iterator(); names.hasNext(); ) {
-            String packageName = names.next();
-            // as javadoc doesn't like packages with no java-files, we have to
-            // pass only names of packages that really contain java files.
-            Package pack = project.getPackage(packageName);
-            if (FileUtility.containsFile(pack.getPath(),"." + SourceType.Java.toString().toLowerCase())) {
-                if(packageName.length() > 0) {
-                    call.add(packageName);
+        Platform.runLater(() ->
+        {
+            if (documentationExists(logFile))
+            {
+                int result = DialogManager.askQuestionFX(null, "show-or-generate");
+                if (result == 0)
+                {  // show only
+                    Utility.openWebBrowser(startPage.getPath());
+                    return;
+                }
+                if (result == 2)
+                {  // cancel
+                    return;
                 }
             }
-        }
+            SwingUtilities.invokeLater(() ->
+            {
 
-        // second: get class names of classes in unnamed package, if any
-        List<String> classNames = project.getPackage("").getAllClassnamesWithSource();
-        String dirName = project.getProjectDir().getAbsolutePath();
-        for (Iterator<String> names = classNames.iterator();names.hasNext(); ) {
-            call.add(dirName + "/" + names.next() + "." + SourceType.Java.toString().toLowerCase());
-        }
-        String[] javadocCall = call.toArray(new String[0]);
+                // tool-specific infos for javadoc
 
-        generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
+                ArrayList<String> call = new ArrayList<String>();
+                call.add(docCommand);
+                call.add("-sourcepath");
+                call.add(projectDirPath);
+                addGeneralOptions(call);
+                call.add("-doctitle");
+                call.add(project.getProjectName());
+                call.add("-windowtitle");
+                call.add(project.getProjectName());
+                call.addAll(Utility.dequoteCommandLine(fixedJavadocParams));
+
+                // get the parameter that enables javadoc to link the generated
+                // documentation to the API documentation
+                addLinkParam(call);
+
+                // add the names of all the targets for the documentation tool.
+                // first: get the names of all packages that contain java sources.
+                List<String> packageNames = project.getPackageNames();
+                for (Iterator<String> names = packageNames.iterator(); names.hasNext(); )
+                {
+                    String packageName = names.next();
+                    // as javadoc doesn't like packages with no java-files, we have to
+                    // pass only names of packages that really contain java files.
+                    Package pack = project.getPackage(packageName);
+                    if (FileUtility.containsFile(pack.getPath(), "." + SourceType.Java.toString().toLowerCase()))
+                    {
+                        if (packageName.length() > 0)
+                        {
+                            call.add(packageName);
+                        }
+                    }
+                }
+
+                // second: get class names of classes in unnamed package, if any
+                List<String> classNames = project.getPackage("").getAllClassnamesWithSource();
+                String dirName = project.getProjectDir().getAbsolutePath();
+                for (Iterator<String> names = classNames.iterator(); names.hasNext(); )
+                {
+                    call.add(dirName + "/" + names.next() + "." + SourceType.Java.toString().toLowerCase());
+                }
+                String[] javadocCall = call.toArray(new String[0]);
+
+                generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
+            });
+        });
         return "";
     }
 
@@ -496,6 +512,7 @@ public class DocuGenerator
      * Test whether project documentation exists for this project.
      * @param the logfile in the doc directory
      */
+    @OnThread(Tag.Any)
     private static boolean documentationExists(File logFile) 
     {
         if(!logFile.exists())

@@ -1748,9 +1748,12 @@ public final class MoeEditor extends JPanel
                     Config.getString("editor.info.reload"));
         }
         else if (saveState.isChanged()) {
-            int answer = DialogManager.askQuestion(this, "really-reload");
-            if (answer == 0)
-                doReload();
+            Platform.runLater(() ->
+            {
+                int answer = DialogManager.askQuestionFX(fxTabbedEditor.getWindow(), "really-reload");
+                if (answer == 0)
+                    SwingUtilities.invokeLater(() -> doReload());
+            });
         }
         else {
             doReload();
