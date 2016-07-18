@@ -87,6 +87,7 @@ import bluej.classmgr.BPClassLoader;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -140,7 +141,6 @@ import bluej.pkgmgr.actions.ImportProjectAction;
 import bluej.pkgmgr.actions.NewClassAction;
 import bluej.pkgmgr.actions.NewPackageAction;
 import bluej.pkgmgr.actions.NewProjectAction;
-import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.OpenProjectAction;
 import bluej.pkgmgr.actions.PageSetupAction;
 import bluej.pkgmgr.actions.PreferencesAction;
@@ -1434,6 +1434,14 @@ public class PkgMgrFrame extends JPanel
         Platform.runLater(() -> {
             File dirName = FileUtility.getOpenProjectFX(getFXWindow());
             SwingUtilities.invokeLater(() -> PkgMgrFrame.doOpen(dirName, this));
+        });
+    }
+
+    public void doOpenArchive()
+    {
+        Platform.runLater(() -> {
+            File archiveFile = FileUtility.getOpenArchiveFX(getFXWindow(), null, true);
+            SwingUtilities.invokeLater(() -> PkgMgrFrame.doOpen(archiveFile, this));
         });
     }
 
@@ -2896,7 +2904,7 @@ public class PkgMgrFrame extends JPanel
             createMenuItem(new OpenProjectAction(this), menu);
             recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
             menu.add(recentProjectsMenu);
-            createMenuItem(new OpenNonBlueJAction(this), menu);
+            createMenuItem(new OpenArchiveAction(this), menu);
             createMenuItem(closeProjectAction, menu);
             createMenuItem(saveProjectAction, menu);
             createMenuItem(saveProjectAsAction, menu);

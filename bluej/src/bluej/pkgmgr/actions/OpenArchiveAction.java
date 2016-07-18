@@ -21,22 +21,26 @@
  */
 package bluej.pkgmgr.actions;
 
+
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
- * User chooses "open non-BlueJ". This allows them to choose a directory to
- * open as a project.
+ * User chooses "open existing project". Allows for opening a blueJ project
+ * into a new window or (if no project is currently open) into the current
+ * window.
  */
-final public class OpenNonBlueJAction extends PkgMgrAction
+
+final public class OpenArchiveAction extends PkgMgrAction
 {
-    public OpenNonBlueJAction(PkgMgrFrame pmf)
+
+    public OpenArchiveAction(PkgMgrFrame pmf)
     {
-        super(pmf, "menu.package.openNonBlueJ");
+        super(pmf, "menu.package.openArchive");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.doOpenNonBlueJ();
+        pmf.doOpenArchive();
     }
 }

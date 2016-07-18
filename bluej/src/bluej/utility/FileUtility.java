@@ -221,6 +221,24 @@ public class FileUtility
     }
 
     @OnThread(Tag.FXPlatform)
+    public static File getOpenArchiveFX(Window parent, String title, boolean rememberDir)
+    {
+        FileChooser chooser = new FileChooser();
+        chooser.getExtensionFilters().setAll(new ExtensionFilter("ZIP/JAR file", "*.zip", "*.jar"));
+        if (title != null)
+            chooser.setTitle(title);
+        chooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+
+        File chosen = chooser.showOpenDialog(parent);
+
+        if (chosen != null && chosen.getParentFile() != null && rememberDir)
+        {
+            PrefMgr.setProjectDirectory(chosen.getParentFile().getPath());
+        }
+        return chosen;
+    }
+
+    @OnThread(Tag.FXPlatform)
     public static File getOpenDirFX(Window parent, String title, boolean rememberDir)
     {
         DirectoryChooser newChooser = new DirectoryChooser();
