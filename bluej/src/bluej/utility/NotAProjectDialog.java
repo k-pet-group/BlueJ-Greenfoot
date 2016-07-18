@@ -30,7 +30,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
@@ -47,7 +46,7 @@ import java.util.List;
 @OnThread(Tag.FXPlatform)// package-visible
 class NotAProjectDialog
 {
-    private static enum Choice { CANCEL, RETRY, SELECTED_FILE }
+    private static enum Choice { CANCEL, CHOOSE_AGAIN, IMPORT, SELECTED_FILE }
     private static class ChoiceAndFile
     {
         private final Choice choice;
@@ -63,13 +62,14 @@ class NotAProjectDialog
     private final Dialog<ChoiceAndFile> dialog;
     private ChoiceAndFile selected;
 
-    public NotAProjectDialog(Window parent, List<File> possibilities)
+    public NotAProjectDialog(Window parent, File original, List<File> possibilities)
     {
         this.dialog = new Dialog<>();
         dialog.initOwner(parent);
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.setTitle(Config.getString("notAProject.title"));
-        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK, ButtonType.NO);
+        ((Button)dialog.getDialogPane().lookupButton(ButtonType.NO)).setText(Config.getString("notAProject.import"));
         ((Button)dialog.getDialogPane().lookupButton(ButtonType.OK)).setText(Config.getString("notAProject.button"));
         Config.addDialogStylesheets(dialog.getDialogPane());
         VBox content = new VBox(new Label(Config.getString("notAProject.message")));
@@ -99,7 +99,9 @@ class NotAProjectDialog
 
         dialog.setResultConverter(button -> {
             if (button == ButtonType.OK)
-                return new ChoiceAndFile(Choice.RETRY, null);
+                return new ChoiceAndFile(Choice.CHOOSE_AGAIN, null);
+            else if (button == ButtonType.NO)
+                return new ChoiceAndFile(Choice.IMPORT, original);
             else if (button == ButtonType.CANCEL)
                 return new ChoiceAndFile(Choice.CANCEL, null);
             else
@@ -117,9 +119,14 @@ class NotAProjectDialog
         return selected.choice == Choice.CANCEL;
     }
 
-    public boolean isRetry()
+    public boolean isChooseAgain()
     {
-        return selected.choice == Choice.RETRY;
+        return selected.choice == Choice.CHOOSE_AGAIN;
+    }
+
+    public boolean isImport()
+    {
+        return selected.choice == Choice.IMPORT;
     }
 
     public File getSelectedDir()

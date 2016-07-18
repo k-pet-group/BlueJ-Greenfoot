@@ -860,6 +860,7 @@ notAProject.message=Selected directory does not contain a project/scenario.
 notAProject.subDirs=Some child directories have projects/scenarios.  Did you mean:
 notAProject.subDirButton=Open
 notAProject.button=Choose Again
+notAProject.import=Convert to BlueJ
 
 # Not empty directory
 nonEmptyDirectory.title=Directory Not Empty

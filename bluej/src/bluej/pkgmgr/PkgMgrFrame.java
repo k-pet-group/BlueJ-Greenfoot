@@ -1432,8 +1432,13 @@ public class PkgMgrFrame extends JPanel
     public void doOpen()
     {
         Platform.runLater(() -> {
-            File dirName = FileUtility.getOpenProjectFX(getFXWindow());
-            SwingUtilities.invokeLater(() -> PkgMgrFrame.doOpen(dirName, this));
+            FileUtility.ChosenProject choice = FileUtility.getOpenProjectFX(getFXWindow());
+            SwingUtilities.invokeLater(() -> {
+                if (choice.isImport)
+                    PkgMgrFrame.doOpenNonBlueJ(choice.dir, this);
+                else
+                    PkgMgrFrame.doOpen(choice.dir, this);
+            });
         });
     }
 
@@ -1484,39 +1489,46 @@ public class PkgMgrFrame extends JPanel
      * 
      * The project selected is opened in a frame.
      */
-    public void doOpenNonBlueJ()
+    public static void doOpenNonBlueJ(File dirName, PkgMgrFrame pmf)
     {
-        File dirName = FileUtility.getNonBlueJDirectoryName(this);
-
-        if (dirName == null)
-            return;
-
         File absDirName = dirName.getAbsoluteFile();
-        
+        javafx.stage.Window parent = pmf == null ? null : pmf.getFXWindow();
+
         // First confirm the chosen file exists
         if (! absDirName.exists()) {
             // file doesn't exist
-            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "file-does-not-exist"));
+            Platform.runLater(() -> DialogManager.showErrorFX(parent, "file-does-not-exist"));
             return;
         }
         
         if (absDirName.isDirectory()) {
             // Check to make sure it's not already a project
             if (Project.isProject(absDirName.getPath())) {
-                Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "open-non-bluej-already-bluej"));
+                Platform.runLater(() -> DialogManager.showErrorFX(parent, "open-non-bluej-already-bluej"));
                 return;
             }
-            
+
+            boolean createdNewFrame = false;
+            if(pmf == null && PkgMgrFrame.frames.size() > 0) {
+                pmf = PkgMgrFrame.frames.get(0);
+            }
+            else if(pmf == null) {
+                pmf = PkgMgrFrame.createFrame();
+                createdNewFrame = true;
+            }
+
+
             // Try and convert it to a project
-            if (! Import.convertNonBlueJ(this::getFXWindow, absDirName))
+            if (! Import.convertNonBlueJ(pmf::getFXWindow, absDirName))
                 return;
             
             // then construct it as a project
-            openProject(absDirName.getPath());
-        }
-        else {
-            // Presumably it's an archive file
-            openArchive(absDirName);
+            boolean opened = pmf.openProject(absDirName.getPath());
+
+            if(createdNewFrame && !opened) {
+                // Close newly created frame if it was never used.
+                PkgMgrFrame.closeFrame(pmf);
+            }
         }
     }
 

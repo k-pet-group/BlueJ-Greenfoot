@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 
 import bluej.pkgmgr.Package;
 import javafx.stage.DirectoryChooser;
@@ -69,6 +68,18 @@ public class FileUtility
     private static JFileChooser pkgChooserNonBlueJ = null;
     private static PackageChooser directoryChooser = null;
 
+    public static class ChosenProject
+    {
+        public final File dir;
+        public final boolean isImport;
+
+        public ChosenProject(File dir, boolean isImport)
+        {
+            this.dir = dir;
+            this.isImport = isImport;
+        }
+    }
+
     /**
      * Gets a directory containing a project to open.
      *
@@ -88,9 +99,10 @@ public class FileUtility
      * @return A chosen File with a BlueJ/Greenfoot project, or null if the user cancelled.
      */
     @OnThread(Tag.FXPlatform)
-    public static File getOpenProjectFX(Window parent)
+    public static ChosenProject getOpenProjectFX(Window parent)
     {
-        File dir = getOpenDirFX(parent, Config.getString("pkgmgr.openPkg.title"), true);
+        File originalDir = getOpenDirFX(parent, Config.getString("pkgmgr.openPkg.title"), true);
+        File dir = originalDir;
         // Navigate up the parents if they are projects too
         //   We don't need to check if we are currently a package.
         //   If we aren't, it's good we go to the parent if it is.
@@ -108,16 +120,20 @@ public class FileUtility
                 subDirs = Arrays.asList(dir.listFiles(f -> f.isDirectory() && Package.isPackage(f)));
             }
 
-            NotAProjectDialog dlg = new NotAProjectDialog(parent, subDirs);
+            NotAProjectDialog dlg = new NotAProjectDialog(parent, originalDir, subDirs);
             dlg.showAndWait();
             if (dlg.isCancel())
                 return null;
-            else if (dlg.isRetry())
+            else if (dlg.isChooseAgain())
                 return getOpenProjectFX(parent);
             else
-                return dlg.getSelectedDir();
+                return new ChosenProject(dlg.getSelectedDir(), dlg.isImport());
         }
-        return dir;
+        else
+        {
+            // We are a package; all is well:
+            return new ChosenProject(dir, false);
+        }
     }
 
     @OnThread(Tag.FXPlatform)
@@ -158,16 +174,6 @@ public class FileUtility
             PrefMgr.setProjectDirectory(chosen.getParentFile().getPath());
         }
         return chosen;
-    }
-
-    public static File getNonBlueJDirectoryName(Component parent)
-    {
-        JFileChooser chooser = getNonBlueJPackageChooser();
-
-        if (chooser.showOpenDialog(parent) != JFileChooser.APPROVE_OPTION) {
-            return null;
-        }
-        return chooser.getSelectedFile();
     }
 
     @OnThread(Tag.FXPlatform)
@@ -321,21 +327,6 @@ public class FileUtility
     public static ExtensionFilter getJavaStrideSourceFilterFX()
     {
         return new ExtensionFilter("Java/Stride source", "*." + SourceType.Java.getExtension(), "*." + SourceType.Stride.getExtension());
-    }
-
-    /**
-     * Return a BlueJ package chooser, i.e. a file chooser which
-     * recognises BlueJ packages and treats them differently.
-     */
-    private static JFileChooser getNonBlueJPackageChooser()
-    {
-        if(pkgChooserNonBlueJ == null)
-            pkgChooserNonBlueJ = new PackageChooser(new File(PrefMgr.getProjectDirectory()), true, true);
-
-        pkgChooserNonBlueJ.setDialogTitle(Config.getString("pkgmgr.openNonBlueJPkg.title"));
-        pkgChooserNonBlueJ.setApproveButtonText(Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"));
-
-        return pkgChooserNonBlueJ;
     }
 
     /**
