@@ -669,6 +669,19 @@ public final class MoeActions
     // --------------------------------------------------------------------
 
     /**
+     * Make a key binds to a void action in the action table. This is work around a bug:
+     * double execution of action when triggered by a shortcut. This was caused by placing
+     * the Swing editor in JavaFX Pane.
+     */
+    public void setKeyStrokeBindingToDoNothingAction(KeyStroke key, MoeEditor editor)
+    {
+        keymap.removeKeyStrokeBinding(key);
+        keymap.addActionForKeyStroke(key, new DoNothingAction(editor));
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
      * Save the key bindings. Return true if successful.
      */
     public boolean save()
@@ -1284,14 +1297,6 @@ public final class MoeActions
         };
 
         categoryIndex = new int[] { 0, 44, 60, 65, 67, 70, 83 };
-
-        // Workaround a bug: double execution of action when triggered by a shortcut. This was caused
-        // by placing the Swing editor in JavaFX Pane. The workaround is to disable EditActions when
-        // initialized; they are enabled later.
-        Arrays.asList(actionTable).forEach(action -> {
-            if (MoeEditor.isEditAction((String) action.getValue(Action.NAME)))
-                action.setEnabled(false);
-        });
     }
 
     // --------------------------------------------------------------------
@@ -2427,6 +2432,20 @@ public final class MoeActions
         public void actionPerformed(ActionEvent e)
         {
             getEditor().goToLine();
+        }
+    }
+
+    class DoNothingAction extends MoeAbstractAction
+    {
+        public DoNothingAction(MoeEditor editor)
+        {
+            super("", editor);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            // Do Nothing
         }
     }
 

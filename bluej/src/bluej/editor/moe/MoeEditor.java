@@ -422,7 +422,7 @@ public final class MoeEditor extends JPanel
      * @return boolean reflects if it is enabled ie false=disabled
      * @param text  String with button text name
      */
-    protected static boolean isEditAction(String text)
+    private static boolean isEditAction(String text)
     {       
         ArrayList<String> actions = getEditActions();
         return actions.contains(text);
@@ -3447,7 +3447,9 @@ public final class MoeEditor extends JPanel
                     item.setText(label);
                     KeyStroke[] keys = actions.getKeyStrokesForAction(action);
                     if (keys != null) {
-                        item.setAccelerator(chooseKey(keys));
+                        KeyStroke keyStroke = chooseKey(keys);
+                        item.setAccelerator(keyStroke);
+                        actions.setKeyStrokeBindingToDoNothingAction(keyStroke, this);
                     }
                     item.setName(itemKey);
                     if (isNonReadmeAction(itemKey)) {
