@@ -23,10 +23,6 @@ package bluej.pkgmgr;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -45,7 +41,6 @@ import bluej.utility.DialogManager;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 16020 2016-06-12 21:51:31Z nccb $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends SwingNodeDialog
@@ -116,14 +111,10 @@ public class ProjectPrintDialog extends SwingNodeDialog
         buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JButton okButton = BlueJTheme.getOkButton();
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) { doOK(); }                
-        });
+        okButton.addActionListener(event -> doOK());
         
         JButton cancelButton = BlueJTheme.getCancelButton();
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) { doCancel(); }                
-        });
+        cancelButton.addActionListener(event -> doCancel());
 
         DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
 
