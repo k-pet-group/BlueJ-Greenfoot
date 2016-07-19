@@ -3449,6 +3449,9 @@ public final class MoeEditor extends JPanel
                     if (keys != null) {
                         KeyStroke keyStroke = chooseKey(keys);
                         item.setAccelerator(keyStroke);
+                        // This is work around a bug: double execution of action when triggered by a shortcut.
+                        // This was caused by placing the Swing editor in JavaFX Pane.
+                        // Removing the binding is not enough as it makes the handler looking in the super binding tables.
                         actions.setKeyStrokeBindingToDoNothingAction(keyStroke, this);
                     }
                     item.setName(itemKey);
