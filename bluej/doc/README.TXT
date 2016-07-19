@@ -1,5 +1,5 @@
 
-BlueJ version 3.1.6       --        README.TXT
+BlueJ version 4.0.0preview       --        README.TXT
 
 Information about BlueJ
 -----------------------
