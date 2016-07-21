@@ -1492,43 +1492,27 @@ public class PkgMgrFrame extends JPanel
     public static void doOpenNonBlueJ(File dirName, PkgMgrFrame pmf)
     {
         File absDirName = dirName.getAbsoluteFile();
-        javafx.stage.Window parent = pmf == null ? null : pmf.getFXWindow();
 
         // First confirm the chosen file exists
         if (! absDirName.exists()) {
             // file doesn't exist
-            Platform.runLater(() -> DialogManager.showErrorFX(parent, "file-does-not-exist"));
+            Platform.runLater(() -> DialogManager.showErrorFX(pmf.getFXWindow(), "file-does-not-exist"));
             return;
         }
         
         if (absDirName.isDirectory()) {
             // Check to make sure it's not already a project
             if (Project.isProject(absDirName.getPath())) {
-                Platform.runLater(() -> DialogManager.showErrorFX(parent, "open-non-bluej-already-bluej"));
+                Platform.runLater(() -> DialogManager.showErrorFX(pmf.getFXWindow(), "open-non-bluej-already-bluej"));
                 return;
             }
-
-            boolean createdNewFrame = false;
-            if(pmf == null && PkgMgrFrame.frames.size() > 0) {
-                pmf = PkgMgrFrame.frames.get(0);
-            }
-            else if(pmf == null) {
-                pmf = PkgMgrFrame.createFrame();
-                createdNewFrame = true;
-            }
-
 
             // Try and convert it to a project
             if (! Import.convertNonBlueJ(pmf::getFXWindow, absDirName))
                 return;
             
             // then construct it as a project
-            boolean opened = pmf.openProject(absDirName.getPath());
-
-            if(createdNewFrame && !opened) {
-                // Close newly created frame if it was never used.
-                PkgMgrFrame.closeFrame(pmf);
-            }
+            pmf.openProject(absDirName.getPath());
         }
     }
 
