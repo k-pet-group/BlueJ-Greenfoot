@@ -109,12 +109,29 @@ public class Boot
     // The jar files we expect in the BlueJ lib directory
     // The first lot are the ones to run BlueJ itself
     private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-        "AppleJavaExtensions.jar", "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar",
-        "commons-logging-api-1.1.2.jar", "diffutils-1.2.1.jar", "guava-17.0.jar",
-        "svnkit-javahl.jar", "svnkit.jar", "trilead.jar",
-        "antlr-runtime-3.4.jar", "sequence-library-1.0.3.jar",
-        "sqljet-1.1.10.jar", "jsch-0.1.53.jar", "org.eclipse.jgit-4.1.0.jar", 
-        "slf4j-api-1.7.2.jar", "slf4j-jdk14-1.7.2.jar", "xom-1.2.9.jar" };
+        "antlr-runtime-3.4.jar",
+        "AppleJavaExtensions.jar",
+        "commons-logging-api-1.1.2.jar",
+        "commons-vfs2-2.0.jar",
+        "diffutils-1.2.1.jar",
+        "guava-17.0.jar",
+        "hamcrest-core-1.3.jar",
+        "httpclient-4.1.1.jar",
+        "httpcore-4.1.jar",
+        "httpmime-4.1.1.jar",
+        "javassist-3.18.0.jar",
+        "jsch-0.1.53.jar",
+        "junit-4.11.jar",
+        "lang-stride.jar",
+        "org.eclipse.jgit-4.1.0.jar",
+        "sequence-library-1.0.3.jar",
+        "slf4j-api-1.7.2.jar",
+        "slf4j-jdk14-1.7.2.jar",
+        "sqljet-1.1.10.jar",
+        "svnkit.jar",
+        "svnkit-javahl.jar",
+        "trilead.jar",
+        "xom-1.2.9.jar" };
     // The variable form of the above
     private static String [] runtimeJars = bluejJars;
     private static String [] userJars = bluejUserJars;
