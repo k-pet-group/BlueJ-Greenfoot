@@ -63,6 +63,7 @@
         <include name="lib/images/*.png" />
         <include name="lib/images/*.jpg" />
         <include name="lib/images/*.icns" />
+        <include name="lib/fonts/*.ttf" />
         <include name="lib/afrikaans/" />
     	<include name="lib/catalan/" />
         <include name="lib/chinese/" />
@@ -295,7 +296,7 @@
             <!-- Make the files executable that need to be executable -->
             <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files}" />
         </zip>
-    	
+
     	<!-- Bundled JDK build -->
     	<!-- rename BlueJ.app to BlueJ-legacy.app -->
     	<move file="${zip_dir}/BlueJ.app" tofile="${zip_dir}/BlueJ-legacy.app" />
@@ -338,9 +339,9 @@
         <delete dir="mac_tmp" />
 
         <echo level="info" message="----------------------------------------------------------------------------"/>
-        <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>    	
+        <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>
         <echo level="info" message="The legacy mac installer is in: ${basedir}${file.separator}${dist.mac.legacy}"/>
-    
+
     </target>
 
     <!-- To turn Windows path into MinGW path, remove colon and replace
@@ -675,7 +676,7 @@
 	            <include name="examples/**/*" />          
 	            <include name="icons/**/*" />           
 	            <include name="lib/**/*" />
-            	
+
             	<!-- exclude Greenfoot files -->
 	            <exclude name="lib/commons-httpclient-*"/>
 	            <exclude name="lib/commons-codec-*"/>
