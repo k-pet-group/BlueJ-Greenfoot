@@ -2,15 +2,15 @@
 <project name="bluej-package" default="dist">
     
     <!-- Names of the the distributables created by the dist-target -->
-    <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version.nodots}.jar"/>
-    <property name="dist.mac.legacy" value="BlueJ-mac-legacy-${bluej.version.nodots}.zip"/>
-    <property name="dist.mac" value="BlueJ-mac-${bluej.version.nodots}.zip"/>
-    
-    <!-- Don't know how to pass this to the Windows builder -->
-    <property name="dist.win" value="BlueJ-windows-${bluej.version.nodots}"/>
+    <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version.nodots}${bluej.rcsuffix}.jar"/>
+    <property name="dist.mac.legacy" value="BlueJ-mac-legacy-${bluej.version.nodots}${bluej.rcsuffix}.zip"/>
+    <property name="dist.mac" value="BlueJ-mac-${bluej.version.nodots}${bluej.rcsuffix}.zip"/>
+
+    <property name="dist.linux" value="BlueJ-linux-${bluej.version.nodots}${bluej.rcsuffix}"/>
+    <property name="dist.win" value="BlueJ-windows-${bluej.version.nodots}${bluej.rcsuffix}"/>
     <property name="dist.jar" value="bluej-dist.jar"/>        
     
-    <property name="bluej.source.zip" value="BlueJ-source-${bluej.version.nodots}.zip"/>
+    <property name="bluej.source.zip" value="BlueJ-source-${bluej.version.nodots}${bluej.rcsuffix}.zip"/>
     
 	<!-- Library files to be installed as part of BlueJ -->
     <patternset id="bluej.libfiles">
@@ -431,7 +431,7 @@
         </replaceregexp>
 
 
-        <zip destfile="winsetup/bluej-standalone-${bluej.version}.zip">
+        <zip destfile="${dist.win}.zip">
             <zipfileset dir="winsetup/standalone"/>
         </zip>
 
@@ -528,6 +528,7 @@
 		<exec dir="winsetup" executable="${wix_bin}/light.exe">
 			<arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj CheckboxExtrasDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej-${bluej.version}-bundled.msi"/>
 		</exec>
+        <copy file="winsetup/bluej-${bluej.version}-bundled.msi" tofile="${dist.win}.msi"/>
 		<delete dir="winsetup/SourceDir" />
 	</target>
 		
@@ -613,7 +614,7 @@
 		<exec executable="dpkg-deb" searchpath="true">
 			<arg value="-b" />
 			<arg file="bluejdeb" />
-			<arg value="bluej-${bluej.version}.deb" />
+			<arg value="${dist.linux}.deb" />
 		</exec>
 		
 		<delete dir="bluejdeb" />
@@ -711,6 +712,9 @@
             <fileset dir="." includes="BlueJ-generic-*.jar"/>
             <fileset dir="." includes="BlueJ-mac-*.zip"/>
             <fileset dir="." includes="BlueJ-source-*.zip"/>
+            <fileset dir="." includes="BlueJ-windows-*.zip"/>
+            <fileset dir="." includes="BlueJ-windows-*.msi"/>
+            <fileset dir="." includes="BlueJ-linux-*.deb"/>
         </delete>
         <delete file="${dist.jar}"/>       
         <delete file="winsetup/$(dist.win}.exe" />
