@@ -137,8 +137,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         // are problems with focusing the extends slot and then it disappears.
         // We no longer show on mouse hover:
         keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.ZERO, Duration.millis(100));
-        JavaFXUtil.addChangeListener(keyMouseHeader, h -> showingExtends.set(extendsSlot.isEmpty() || keyMouseHeader.get()));
-        extendsSlot.onTextPropertyChange(s -> showingExtends.set(extendsSlot.isEmpty() || keyMouseHeader.get()));
+        JavaFXUtil.addChangeListener(keyMouseHeader, h -> showingExtends.set(!extendsSlot.isEmpty() || keyMouseHeader.get()));
+        extendsSlot.onTextPropertyChange(s -> showingExtends.set(!extendsSlot.isEmpty() || keyMouseHeader.get()));
 
         implementsSlot = new Implements(this, () -> {
             TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.INTERFACE, "class-");
