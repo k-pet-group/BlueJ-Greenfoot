@@ -1492,8 +1492,10 @@ public class JavaFXUtil
         }
         else
         {
+            boolean startsEnabled = swingItem.isEnabled();
             return () -> {
                 MenuItem item = new MenuItem(menuText);
+                item.setDisable(!startsEnabled);
                 item.setOnAction(e -> {
                     SwingUtilities.invokeLater(() -> {
                         if (action != null)
