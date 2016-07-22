@@ -905,28 +905,20 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         
     /**
      * Called when you have clicked on the frame in a stack trace or want to jump to definition.
-     * 
-     * Need Platform.runLater because we will be notified about exception by Swing at the moment.
-     * 
-     * TODO actually this method is now always called on FX thread.  Remove the runLater?
      */
     public void show(ShowReason reason)
     {
         switch (reason)  {
         case EXCEPTION:
-            Platform.runLater(() -> {
-                JavaFXUtil.setPseudoclass("bj-stack-highlight", true, getNode());
-                getParentCanvas().getCursorBefore(this).requestFocus();
-                editor.scrollTo(getNode(), -50.0);
-                editor.registerStackHighlight(this);
-            });
+            JavaFXUtil.setPseudoclass("bj-stack-highlight", true, getNode());
+            getParentCanvas().getCursorBefore(this).requestFocus();
+            editor.scrollTo(getNode(), -50.0);
+            editor.registerStackHighlight(this);
             break;
         case LINK_TARGET:
             // Don't think we need runlater here, but better to be consistent:
-            Platform.runLater(() -> {
-                editor.scrollTo(getNode(), -50.0);
-                focusName();
-            });
+            editor.scrollTo(getNode(), -50.0);
+            focusName();
             break;
         }
     }
@@ -945,7 +937,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      */
     public void removeStackHighlight()
     {
-        Platform.runLater(() -> JavaFXUtil.setPseudoclass("bj-stack-highlight", false, getNode()));
+        JavaFXUtil.setPseudoclass("bj-stack-highlight", false, getNode());
     }
     
     /**
