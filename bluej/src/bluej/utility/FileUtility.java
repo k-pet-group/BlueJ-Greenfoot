@@ -102,6 +102,10 @@ public class FileUtility
     public static ChosenProject getOpenProjectFX(Window parent)
     {
         File originalDir = getOpenDirFX(parent, Config.getString("pkgmgr.openPkg.title"), true);
+        // They cancelled; nothing more to do:
+        if (originalDir == null)
+            return null;
+
         File dir = originalDir;
         // Navigate up the parents if they are projects too
         //   We don't need to check if we are currently a package.
@@ -111,6 +115,7 @@ public class FileUtility
         {
             dir = dir.getParentFile();
         }
+
         if (!Package.isPackage(dir))
         {
             // We are not a package.  See if any child directories are:
