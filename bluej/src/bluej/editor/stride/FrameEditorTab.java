@@ -638,7 +638,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     initialised.set(true);
 
                     loading = false;
-                    Debug.time("Finished loading");
+                    //Debug.time("Finished loading");
                 });
             });
         }).start();

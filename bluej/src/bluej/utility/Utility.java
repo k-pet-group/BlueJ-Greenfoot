@@ -1363,7 +1363,7 @@ public class Utility
             long started = System.currentTimeMillis();
             r.run();
             long ended = System.currentTimeMillis();
-            Debug.time("Queue->start: " + (started - queue) + " start->end:" + (ended - started) + " " + r);
+            //Debug.time("Queue->start: " + (started - queue) + " start->end:" + (ended - started) + " " + r);
         });
     }
 

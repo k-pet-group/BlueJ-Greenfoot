@@ -425,7 +425,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         panel.setParent(this, partOfMove);
         // This is ok to call multiple times:
         panel.initialiseFX();
-        Debug.time("initialisedFX");
+        //Debug.time("initialisedFX");
         if (!tabPane.getTabs().contains(panel)) {
             tabPane.getTabs().add(panel);
             if (toFront)
@@ -512,9 +512,9 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                     stage.setWidth(startSize.getWidth());
                     stage.setHeight(startSize.getHeight());
                 }
-                Debug.time("Showing");
+                //Debug.time("Showing");
                 stage.show();
-                Debug.time("Shown");
+                //Debug.time("Shown");
                 //org.scenicview.ScenicView.show(stage.getScene());
             }
             if (!tabPane.getTabs().contains(tab))

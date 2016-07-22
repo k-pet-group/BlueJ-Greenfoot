@@ -550,16 +550,16 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 suggestionDisplayProperty.set(s);
                 updateSuggestions(true);
                 suggestionDisplayProperty.get().highlightFirstEligible();
-                Debug.time("!!! Showing");
+                //Debug.time("!!! Showing");
                 suggestionDisplayProperty.get().show(field.getNode(), suggestionXOffset, field.heightProperty());
-                Debug.time("!!! Shown");
+                //Debug.time("!!! Shown");
                 field.setFakeCaretShowing(true);
             };
-            Debug.time("!!! Requesting suggestion");
+            //Debug.time("!!! Requesting suggestion");
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
             editor.afterRegenerateAndReparse(() -> {
                 final int stringPos = field.getCaretPosition();
-                Debug.time("!!! Calculating suggestions");
+                //Debug.time("!!! Calculating suggestions");
                 completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, handler);
                 editor.recordCodeCompletionStarted(getSlotElement(), stringPos, getCurWord());
             });
