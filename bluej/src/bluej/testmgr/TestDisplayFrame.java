@@ -239,6 +239,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         // "show source" and "close" buttons
         showSourceButton = new Button(Config.getString("testdisplay.showsource"));
         showSourceButton.setOnAction(e -> showSource(testNames.getSelectionModel().getSelectedItem()));
+        showSourceButton.setDisable(true);
 
         Button closeButton = new Button(Config.getString("close"));
         closeButton.setOnAction(e -> frame.hide());
@@ -379,7 +380,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     
     private void selected(DebuggerTestResult dtr)
     {
-        if (dtr.isError() || dtr.isFailure()) {
+        if (dtr != null && (dtr.isError() || dtr.isFailure())) {
             // fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
             exceptionMessageField.setText(dtr.getExceptionMessage()
                 + "\n---\n" + dtr.getTrace());
