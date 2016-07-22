@@ -544,7 +544,7 @@ public class SuggestionList
         }
         listBox.setPlaceholder(noneLabel);
 
-        JavaFXUtil.addChangeListener(window.focusedProperty(), focused -> {
+        JavaFXUtil.addFocusListener(window, focused -> {
             if (!focused)
             {
                 hideDocDisplay();
@@ -552,7 +552,7 @@ public class SuggestionList
                 // We must hide the window during a runLater.  If we hide it straight away
                 // during the focus switching, odd effects happen where the focus returns
                 // to the triggering slot, and the click event gets lost:
-                Platform.runLater(() -> {
+                JavaFXUtil.runAfterCurrent(() -> {
                     window.hide();
                     if (!expectingToLoseFocus)
                         listener.suggestionListFocusStolen(getHighlighted());
@@ -634,7 +634,8 @@ public class SuggestionList
             e.consume();
         });
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void show(final Node reference, final DoubleExpression xOffset, final DoubleExpression yOffset)
     {
         // If there's only one option, don't bother showing, just choose it right off the bat:
@@ -658,7 +659,7 @@ public class SuggestionList
             {
                 int choice = getFirstEligible();
                 // runLater because our caller won't expect us to call back before show has finished:
-                Platform.runLater(() -> {
+                JavaFXUtil.runAfterCurrent(() -> {
                     listener.hidden();
                     listener.suggestionListChoiceClicked(choice);
                 });

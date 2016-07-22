@@ -131,13 +131,13 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             }
         });
 
-        dummyField.focusedProperty().addListener((observable, oldValue, focused) -> {
+        JavaFXUtil.addFocusListener(dummyField, focused -> {
             if (focused)
             {
                 // We must show the dropdown in a runLater, as otherwise we get into weird
                 // loops as focus notifications are sent across the windows when the user
                 // clicks somewhere while the dropdown is displaying.
-                Platform.runLater(() -> {
+                JavaFXUtil.runAfterCurrent(() -> {
                     if (dummyField.isFocused())
                     {
                         editor.beginRecordingState(ChoiceSlot.this);
