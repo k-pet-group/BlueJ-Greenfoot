@@ -744,7 +744,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     public FrameTypeCheck check(FrameCanvas canvas)
     {
         if (canvas == fieldsCanvas)
-            return StrideDictionary.checkField();
+            return StrideDictionary.checkClassField();
         else if (canvas == methodsCanvas)
             return StrideDictionary.checkClassMethod();
         else if (canvas == constructorsCanvas)

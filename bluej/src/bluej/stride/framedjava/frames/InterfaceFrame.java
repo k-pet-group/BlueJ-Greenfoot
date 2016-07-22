@@ -207,7 +207,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     public FrameTypeCheck check(FrameCanvas canvas)
     {
         if (canvas == fieldsCanvas)
-            return StrideDictionary.checkField();
+            return StrideDictionary.checkInterfaceField();
         else if (canvas == methodsCanvas)
             return StrideDictionary.checkInterfaceMethod();
         else

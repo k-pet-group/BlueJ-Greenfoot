@@ -142,10 +142,18 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
                 StrideCategory.RETURN);
     }
     
-    public static FrameTypeCheck checkField()
+    public static FrameTypeCheck checkClassField()
     {
         return checkCategories( 
                 StrideCategory.VAR,
+                StrideCategory.VAR_FIELD,
+                StrideCategory.BLANK,
+                StrideCategory.COMMENT);
+    }
+
+    public static FrameTypeCheck checkInterfaceField()
+    {
+        return checkCategories(
                 StrideCategory.VAR_FIELD,
                 StrideCategory.BLANK,
                 StrideCategory.COMMENT);
