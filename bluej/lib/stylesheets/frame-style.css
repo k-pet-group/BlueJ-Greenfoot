@@ -7,10 +7,18 @@
     class-comment-focus: hsb(103, 8%, 85%);
     class-comment-text: hsb(103, 50%, 50%);
 
+
     interface-frame: hsb(198, 14%, 96%);
     interface-frame-java: hsb(198, 10%, 96%);
-    interface-comment-focus: hsb(198, 50%, 85%);
-    interface-comment-text: hsb(198, 80%, 43%);
+    interface-comment-focus: hsb(198, 5%, 96%);
+    interface-comment-text: hsb(198, 50%, 60%);
+/*
+    interface-frame: hsb(198, 8%, 78%);
+    interface-frame-java: hsb(198, 4%, 85%);
+    interface-comment-focus: hsb(198, 8%, 85%);
+    interface-comment-text: hsb(198, 50%, 50%);
+*/
+
 
     triangle-label: hsb(103, 70%, 30%);
 
