@@ -36,7 +36,6 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 
 import bluej.stride.framedjava.ast.AccessPermission;
@@ -68,7 +67,6 @@ import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.SlotValueListener;
-import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.stride.slots.VariableNameDefTextSlot;
 
 import bluej.utility.javafx.FXRunnable;
@@ -102,6 +100,7 @@ public class VarFrame extends SingleLineFrame
     private VarElement element;
 
     private final BooleanProperty hasKeyboardFocus = new SimpleBooleanProperty(false);
+    private final BooleanProperty inInterfaceProperty = new SimpleBooleanProperty(false);
 
     /**
      * Default constructor.
@@ -200,7 +199,7 @@ public class VarFrame extends SingleLineFrame
         // We must make the showing immediate when you get keyboard focus, as otherwise there
         // are problems with focusing the slot and then it disappears:
         ReadOnlyBooleanProperty keyFocusDelayed = JavaFXUtil.delay(hasKeyboardFocus, Duration.ZERO, Duration.millis(100));
-        showingValue.bind(keyFocusDelayed.or(slotValueBlank.not()));
+        showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
     }
     
     // If varValue is null, that means the slot is not shown
@@ -299,9 +298,10 @@ public class VarFrame extends SingleLineFrame
             // When deleting the frame or remove old copy due to drag.
             return;
         }
-        
+
+        inInterfaceProperty.setValue(isInInterface(parentCanvas));
         if (isField(parentCanvas)) {
-            if (isInInterface(parentCanvas)) {
+            if (inInterfaceProperty.getValue()) {
                 addStyleClass("interface-var-frame");
             }
             else {
