@@ -158,7 +158,8 @@ public class FormalParameters
             newFormal.getName().setText(before);
             paramType.setText(after);
             // Keep focus in type slot, at start:
-            Platform.runLater(() -> paramType.requestFocus(Focus.LEFT));
+            if (Platform.isFxApplicationThread())
+                JavaFXUtil.runNowOrLater(() -> paramType.requestFocus(Focus.LEFT));
         });
         TextSlot<NameDefSlotFragment> paramName = initialiseTextSlot("paramName", name, nameSlot);
         
@@ -174,7 +175,8 @@ public class FormalParameters
             {
                 if (newValue.contains(",")) {
                     FormalParameter newFormal = addNewAfter(findFormal(slot));
-                    Platform.runLater(() -> newFormal.requestFocus(Focus.LEFT));
+                    if (Platform.isFxApplicationThread())
+                        JavaFXUtil.runNowOrLater(() -> newFormal.requestFocus(Focus.LEFT));
                     return false;
                 }
 

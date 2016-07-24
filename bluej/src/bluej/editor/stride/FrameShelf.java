@@ -179,9 +179,10 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void searchLink(PossibleLink link, FXPlatformConsumer<Optional<LinkedIdentifier>> callback)
     {
-        Platform.runLater(() -> callback.accept(Optional.empty()));
+        JavaFXUtil.runAfterCurrent(() -> callback.accept(Optional.empty()));
     }
 
     @Override

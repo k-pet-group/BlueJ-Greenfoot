@@ -601,56 +601,52 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 frame.regenerateCode();
                 TopLevelCodeElement el = frame.getCode();
                 el.updateSourcePositions();
-                // Use double runLater because some items may lag behind in runLaters:
-                // TODO do we still need this double?
-                Platform.runLater(() ->
+                // Finish on the platform thread:
+                JavaFXUtil.runPlatformLater(() ->
                 {
-                    JavaFXUtil.runAfterCurrent(() ->
+                    FrameEditorTab.this.topLevelFrameProperty.setValue(frame);
+                    nameProperty.bind(getTopLevelFrame().nameProperty());
+                    // Whenever name changes, trigger recompile even without leaving slot:
+                    JavaFXUtil.addChangeListener(getTopLevelFrame().nameProperty(), n ->
                     {
-                        FrameEditorTab.this.topLevelFrameProperty.setValue(frame);
-                        nameProperty.bind(getTopLevelFrame().nameProperty());
-                        // Whenever name changes, trigger recompile even without leaving slot:
-                        JavaFXUtil.addChangeListener(getTopLevelFrame().nameProperty(), n ->
+                        editor.codeModified();
+                        EventQueue.invokeLater(() ->
                         {
-                            editor.codeModified();
-                            EventQueue.invokeLater(() ->
+                            try
                             {
-                                try
-                                {
-                                    editor.save();
-                                } catch (IOException e)
-                                {
-                                    Debug.reportError("Problem saving after name change", e);
-                                }
-                            });
+                                editor.save();
+                            } catch (IOException e)
+                            {
+                                Debug.reportError("Problem saving after name change", e);
+                            }
                         });
-                        // Make class at least as high as scroll view:
-                        getTopLevelFrame().bindMinHeight(viewportHeight);
-                        scrollContent.getChildren().add(0, getTopLevelFrame().getNode());
-
-                        updateFontSize();
-
-                        // When imports change, we provide a new future to calculate the types:
-                        JavaFXUtil.bindMap(FrameEditorTab.this.importedTypes, getTopLevelFrame().getImports(), FrameEditorTab.this::importsUpdated, change ->
-                        {
-                            importedTypesLock.writeLock().lock();
-                            change.run();
-                            importedTypesLock.writeLock().unlock();
-                        });
-
-                        if (getTopLevelFrame() != null)
-                        {
-                            saved();
-                            // Force generation of early errors on load:
-                            editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors());
-                            Platform.runLater(FrameEditorTab.this::updateDisplays);
-                        }
-
-                        initialised.set(true);
-
-                        loading = false;
-                        //Debug.time("Finished loading");
                     });
+                    // Make class at least as high as scroll view:
+                    getTopLevelFrame().bindMinHeight(viewportHeight);
+                    scrollContent.getChildren().add(0, getTopLevelFrame().getNode());
+
+                    updateFontSize();
+
+                    // When imports change, we provide a new future to calculate the types:
+                    JavaFXUtil.bindMap(FrameEditorTab.this.importedTypes, getTopLevelFrame().getImports(), FrameEditorTab.this::importsUpdated, change ->
+                    {
+                        importedTypesLock.writeLock().lock();
+                        change.run();
+                        importedTypesLock.writeLock().unlock();
+                    });
+
+                    if (getTopLevelFrame() != null)
+                    {
+                        saved();
+                        // Force generation of early errors on load:
+                        editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors());
+                        Platform.runLater(FrameEditorTab.this::updateDisplays);
+                    }
+
+                    initialised.set(true);
+
+                    loading = false;
+                    //Debug.time("Finished loading");
                 });
             }
         }.start();
@@ -1895,7 +1891,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after)
     {
         // TODO maybe we have to insert it into the element not the frames.
-        withTopLevelFrame(topLevelFrame -> {
+        withTopLevelFrame(topLevelFrame -> JavaFXUtil.runNowOrLater(() -> {
             for (NormalMethodFrame normalMethodFrame : (List<NormalMethodFrame>) topLevelFrame.getMethods()) {
                 // Check if it already exists
                 if (normalMethodFrame.getName().equals(method.getName())) {
@@ -1906,13 +1902,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             // method not found, create it
             insertMethodElementAtTheEnd(method);
             after.accept(false);
-        });
+        }));
     }
     
     public void insertMethodCallInConstructor(String className, CallElement methodCall, Consumer<Boolean> after)
     {
         // TODO maybe we have to insert it into the element not the frames.
-        withTopLevelFrame(topLevelFrame -> {
+        withTopLevelFrame(topLevelFrame -> JavaFXUtil.runNowOrLater(() -> {
             if (topLevelFrame.getConstructors().isEmpty())
             {
                 topLevelFrame.addDefaultConstructor();
@@ -1934,27 +1930,28 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 insertElementIntoMethod(methodCall, constructorFrame);
             }
             after.accept(false);
-        });
+        }));
     }
 
+    @OnThread(Tag.FXPlatform)
     public void insertElementIntoMethod(CodeElement element, MethodFrameWithBody<? extends MethodWithBodyElement> methodFrame)
     {
-        Platform.runLater(() -> methodFrame.getLastInternalCursor().insertBlockAfter(element.createFrame(this)));
+        methodFrame.getLastInternalCursor().insertBlockAfter(element.createFrame(this));
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void insertMethodContentsIntoMethodFrame(MethodWithBodyElement methodElement, MethodFrameWithBody<? extends MethodWithBodyElement> methodFrame)
     {
-        Platform.runLater(() -> {
-            for (CodeElement element : methodElement.getContents())
-            {
-                methodFrame.getLastInternalCursor().insertBlockAfter(element.createFrame(this));
-            }
-        });
+        for (CodeElement element : methodElement.getContents())
+        {
+            methodFrame.getLastInternalCursor().insertBlockAfter(element.createFrame(this));
+        }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void insertMethodElementAtTheEnd(MethodWithBodyElement method)
     {
-        Platform.runLater(() -> getTopLevelFrame().insertAtEnd(method.createFrame(this)));
+        getTopLevelFrame().insertAtEnd(method.createFrame(this));
     }
 
     @OnThread(Tag.Any)

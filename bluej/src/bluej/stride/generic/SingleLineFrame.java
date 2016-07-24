@@ -30,6 +30,7 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -177,7 +178,7 @@ public abstract class SingleLineFrame extends Frame
         }
         else
         {
-            Platform.runLater(() -> {
+            JavaFXUtil.runAfterCurrent(() -> {
                 Image pic = takeShot(Arrays.asList(this), null);
                 FrameState s = new FrameState(pic, el, xml);
                 // No need to worry about duplicates because we've checked that already
