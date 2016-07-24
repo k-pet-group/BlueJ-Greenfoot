@@ -31,10 +31,6 @@ import threadchecker.Tag;
 @FunctionalInterface
 public interface FXRunnable extends FXPlatformRunnable
 {
+    @OnThread(Tag.FX)
     public void run();
-    
-    public static void runLater(FXRunnable r)
-    {
-        Platform.runLater(() -> r.run());
-    }
 }

@@ -155,6 +155,7 @@ public class InheritedMethodFrame extends SingleLineFrame
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void onMenuShowing(CustomMenuItem item)
             {
                 InheritedMethodFrame.this.editor.searchLink(new PossibleKnownMethodLink(originatingClass, methodName, Utility.mapList(params, pi -> pi.getQualifiedType()), 0, 1, slot),

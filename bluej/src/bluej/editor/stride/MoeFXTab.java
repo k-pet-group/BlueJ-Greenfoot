@@ -52,6 +52,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     private final TabMenuManager menuManager;
     private SwingNode swingNode;
 
+    @OnThread(Tag.FXPlatform)
     public MoeFXTab(MoeEditor moeEditor, String windowTitle)
     {
         super(false);

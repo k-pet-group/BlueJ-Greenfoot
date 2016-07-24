@@ -217,7 +217,7 @@ public class FrameEditor implements Editor
             if (newVal.booleanValue())
             {
                 // runLater so that the panel will have been added:
-                Platform.runLater(() -> {
+                JavaFXUtil.runPlatformLater(() -> {
                     _saveFX();
                     findLateErrors();
                 });
@@ -995,7 +995,7 @@ public class FrameEditor implements Editor
                         for (QueuedError e : queueCopy)
                         {
                             // Use runlater because we might be mid-save, so need to wait for current code to finish:
-                            Platform.runLater(() -> {
+                            JavaFXUtil.runPlatformLater(() -> {
                                 if (!js.handleError((int) e.startLine, (int) e.startColumn,
                                         (int) e.endLine, (int) e.endColumn, e.message, false, e.identifier))
                                 {
@@ -1004,7 +1004,7 @@ public class FrameEditor implements Editor
                             });
                         }
                         // We need to use runLater to account for the fact that adding errors uses a runLater:
-                        Platform.runLater(() -> panel.updateErrorOverviewBar(false));
+                        JavaFXUtil.runPlatformLater(() -> panel.updateErrorOverviewBar(false));
                     });
                 }
             });

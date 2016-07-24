@@ -134,6 +134,7 @@ public interface InteractionManager
                      List<String> paramTypes, int startPosition, int endPosition,
                      UnderlineContainer slot, FXConsumer<List<StringSlotFragment.LinkedIdentifier>> openAction);
 */
+    @OnThread(Tag.FXPlatform)
     public void searchLink(PossibleLink link, FXPlatformConsumer<Optional<LinkedIdentifier>> callback);
 
     Pane getDragTargetCursorPane();

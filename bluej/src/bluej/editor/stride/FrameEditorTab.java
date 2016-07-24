@@ -593,56 +593,67 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         contentRoot.setRight(errorOverviewBar);
 
         loading = true;
-        new Thread(() -> {
-            TopLevelFrame<? extends TopLevelCodeElement> frame = initialSource.createTopLevelFrame(this);
-            frame.regenerateCode();
-            TopLevelCodeElement el = frame.getCode();
-            el.updateSourcePositions();
-            // Use double runLater because some items may lag behind in runLaters:
-            // TODO do we still need this double?
-            Platform.runLater(() -> {
-                JavaFXUtil.runAfterCurrent(() -> {
-                    this.topLevelFrameProperty.setValue(frame);
-                    nameProperty.bind(getTopLevelFrame().nameProperty());
-                    // Whenever name changes, trigger recompile even without leaving slot:
-                    JavaFXUtil.addChangeListener(getTopLevelFrame().nameProperty(), n -> {
-                        editor.codeModified();
-                        EventQueue.invokeLater(() -> {
-                            try {
-                                editor.save();
-                            } catch (IOException e) {
-                                Debug.reportError("Problem saving after name change", e);
-                            }
-                        });
-                    });
-                    // Make class at least as high as scroll view:
-                    getTopLevelFrame().bindMinHeight(viewportHeight);
-                    scrollContent.getChildren().add(0, getTopLevelFrame().getNode());
-
-                    updateFontSize();
-
-                    // When imports change, we provide a new future to calculate the types:
-                    JavaFXUtil.bindMap(this.importedTypes, getTopLevelFrame().getImports(), this::importsUpdated, change -> {
-                        importedTypesLock.writeLock().lock();
-                        change.run();
-                        importedTypesLock.writeLock().unlock();
-                    });
-
-                    if (getTopLevelFrame() != null)
+        new Thread() {
+            @OnThread(value = Tag.FX, ignoreParent = true)
+            public void run()
+            {
+                TopLevelFrame<? extends TopLevelCodeElement> frame = initialSource.createTopLevelFrame(FrameEditorTab.this);
+                frame.regenerateCode();
+                TopLevelCodeElement el = frame.getCode();
+                el.updateSourcePositions();
+                // Use double runLater because some items may lag behind in runLaters:
+                // TODO do we still need this double?
+                Platform.runLater(() ->
+                {
+                    JavaFXUtil.runAfterCurrent(() ->
                     {
-                        saved();
-                        // Force generation of early errors on load:
-                        editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors());
-                        Platform.runLater(this::updateDisplays);
-                    }
+                        FrameEditorTab.this.topLevelFrameProperty.setValue(frame);
+                        nameProperty.bind(getTopLevelFrame().nameProperty());
+                        // Whenever name changes, trigger recompile even without leaving slot:
+                        JavaFXUtil.addChangeListener(getTopLevelFrame().nameProperty(), n ->
+                        {
+                            editor.codeModified();
+                            EventQueue.invokeLater(() ->
+                            {
+                                try
+                                {
+                                    editor.save();
+                                } catch (IOException e)
+                                {
+                                    Debug.reportError("Problem saving after name change", e);
+                                }
+                            });
+                        });
+                        // Make class at least as high as scroll view:
+                        getTopLevelFrame().bindMinHeight(viewportHeight);
+                        scrollContent.getChildren().add(0, getTopLevelFrame().getNode());
 
-                    initialised.set(true);
+                        updateFontSize();
 
-                    loading = false;
-                    //Debug.time("Finished loading");
+                        // When imports change, we provide a new future to calculate the types:
+                        JavaFXUtil.bindMap(FrameEditorTab.this.importedTypes, getTopLevelFrame().getImports(), FrameEditorTab.this::importsUpdated, change ->
+                        {
+                            importedTypesLock.writeLock().lock();
+                            change.run();
+                            importedTypesLock.writeLock().unlock();
+                        });
+
+                        if (getTopLevelFrame() != null)
+                        {
+                            saved();
+                            // Force generation of early errors on load:
+                            editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors());
+                            Platform.runLater(FrameEditorTab.this::updateDisplays);
+                        }
+
+                        initialised.set(true);
+
+                        loading = false;
+                        //Debug.time("Finished loading");
+                    });
                 });
-            });
-        }).start();
+            }
+        }.start();
 
         JavaFXUtil.addChangeListener(viewProperty, menuManager::notifyView);
         birdseyeSelection = new Rectangle();
@@ -824,13 +835,22 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         PrefMgr.strideFontSizeProperty().set(PrefMgr.DEFAULT_STRIDE_FONT_SIZE);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void searchLink(PossibleLink link, FXPlatformConsumer<Optional<LinkedIdentifier>> paramCallback)
     {
 
         // I know instanceof is nasty, but it makes more sense to have the logic here than
         // in the Possible*Link classes.  Doing this in lieu of algebraic data types:
 
-        Consumer<Optional<LinkedIdentifier>> callback = ol -> Platform.runLater(() -> paramCallback.accept(ol));
+        Consumer<Optional<LinkedIdentifier>> callback = new Consumer<Optional<LinkedIdentifier>>()
+        {
+            @Override
+            @OnThread(Tag.Any)
+            public void accept(Optional<LinkedIdentifier> ol)
+            {
+                Platform.runLater(() -> paramCallback.accept(ol));
+            }
+        };
 
         TopLevelFrame<? extends TopLevelCodeElement> topLevelFrame = getTopLevelFrame();
         if (topLevelFrame == null)
@@ -1111,7 +1131,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 scrollTo(finalFixpoint.getNode(), -y);
             });
             // runLater, otherwise we have a step change at the end where we don't keep the cursor in the same spot:
-            animateProgress.addOnStopped(() -> FXRunnable.runLater(remove));
+            animateProgress.addOnStopped(() -> JavaFXUtil.runAfterCurrent(remove));
         }
 
         getParent().scheduleUpdateCatalogue(this, newView == View.NORMAL ? getFocusedCursor() : null, CodeCompletionState.NOT_POSSIBLE, false, newView, Collections.emptyList(), Collections.emptyList());
@@ -2190,15 +2210,20 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             }
         };
 
-        // The bounds will be in the middle of changing, so we use runLater to make sure
-        // we adjust after they have all settled down:
-        node.localToSceneTransformProperty().addListener((ChangeListener) (a, b, c) -> {
-            if (node.isFocused())
-                FXRunnable.runLater(checkPositionChange);
-        });
-        node.boundsInLocalProperty().addListener((ChangeListener) (a, b, c) -> {
-            if (node.isFocused())
-                FXRunnable.runLater(checkPositionChange);
+        JavaFXUtil.runNowOrLater(() ->
+        {
+            // The bounds will be in the middle of changing, so we use runLater to make sure
+            // we adjust after they have all settled down:
+            JavaFXUtil.addChangeListenerPlatform(node.localToSceneTransformProperty(), v ->
+            {
+                if (node.isFocused())
+                    JavaFXUtil.runAfterCurrent(checkPositionChange);
+            });
+            JavaFXUtil.addChangeListenerPlatform(node.boundsInLocalProperty(), v ->
+            {
+                if (node.isFocused())
+                    JavaFXUtil.runAfterCurrent(checkPositionChange);
+            });
         });
     }
 

@@ -33,6 +33,8 @@ import javafx.scene.control.SeparatorMenuItem;
 
 import bluej.Config;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Created by neil on 26/11/15.
@@ -45,6 +47,7 @@ public abstract class TabMenuManager
     protected final Menu mainMoveMenu;
     private final MenuItem mainMoveNew;
 
+    @OnThread(Tag.FXPlatform)
     public TabMenuManager(FXTab tab)
     {
         this.tab = tab;
@@ -54,7 +57,7 @@ public abstract class TabMenuManager
         mainMoveMenu = JavaFXUtil.makeMenu(Config.getString("frame.classmenu.move"));
 
         // We may not have a parent yet, so use runLater:
-        Platform.runLater(() -> {
+        JavaFXUtil.runAfterCurrent(() -> {
             if (tab.getParent() != null)
                 updateMoveMenus();
 

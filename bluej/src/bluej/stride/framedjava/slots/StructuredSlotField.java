@@ -128,16 +128,16 @@ class StructuredSlotField implements StructuredSlotComponent
         });
         
         JavaFXUtil.initializeCustomHelp(parent.getEditor(), field, this::calculateTooltip, true);
-        
-        // Let everything else initialise first:
-        if (parent.getSlot() != null) // Can be null during testing
-        {
-            Platform.runLater(() -> field.setContextMenu(MenuItems.makeContextMenu(parent.getSlot().getMenuItems(true))));
-        }
-        
+
         // Also run it to determine initial size, but must run later after parent has
         // initialised and we are in the scene:
-        JavaFXUtil.onceInScene(field, shrinkGrow::run);
+        JavaFXUtil.onceInScene(field, () -> {
+            shrinkGrow.run();
+            if (parent.getSlot() != null) // Can be null during testing
+            {
+                field.setContextMenu(MenuItems.makeContextMenu(parent.getSlot().getMenuItems(true)));
+            }
+        });
         if (!stringLiteral)
             updateBreaks();
     }

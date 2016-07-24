@@ -55,6 +55,7 @@ public class WebTab extends FXTab
      * Constructs a WebTab with a WebView in it
      * @param url The initial URL to display in the WebView.
      */
+    @OnThread(Tag.FXPlatform)
     public WebTab(String url)
     {
         super(false);

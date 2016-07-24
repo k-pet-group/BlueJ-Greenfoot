@@ -1302,6 +1302,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     //package-visible
+    @OnThread(Tag.FXPlatform)
     void withLinksAtPos(CaretPos caretPos, FXPlatformConsumer<Optional<LinkedIdentifier>> withLink)
     {
         List<? extends PossibleLink> possibleLinks = findLinks();

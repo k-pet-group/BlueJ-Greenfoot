@@ -1103,7 +1103,7 @@ public class JavaFXUtil
      */
     public static <T> void bindFuture(CompletableFuture<T> future, FXPlatformConsumer<T> andThen)
     {
-        future.thenAccept(x -> Platform.runLater(() -> andThen.accept(x)));
+        future.thenAccept(x -> JavaFXUtil.runPlatformLater(() -> andThen.accept(x)));
     }    
     
     /**
@@ -1653,5 +1653,21 @@ public class JavaFXUtil
     {
         // Defeat thread checker:
         ((FXPlatformConsumer<Runnable>)(Platform::runLater)).accept(r::run);
+    }
+
+    /**
+     * Runs the action on the FX platform thread (after the current action,
+     * if called on the platform thread).
+     *
+     * Be very careful using this: race hazards ahoy if you use it from an FX
+     * loading thread, expecting it to nicely take place after the current code.
+     * Instead, it could run alongside the currently executing code.
+     *
+     * @param r
+     */
+    @OnThread(Tag.FX)
+    public static void runPlatformLater(FXPlatformRunnable r)
+    {
+        Platform.runLater(r::run);
     }
 }

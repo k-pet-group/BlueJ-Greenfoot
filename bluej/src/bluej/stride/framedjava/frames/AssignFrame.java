@@ -88,7 +88,7 @@ public class AssignFrame extends SingleLineFrame
         slotRHS.setText(rhs);
         if (Platform.isFxApplicationThread())
         {
-            JavaFXUtil.runNowOrLater(() -> JavaFXUtil.runAfterCurrent(() -> slotRHS.requestFocus(Focus.LEFT)));
+            JavaFXUtil.runPlatformLater(() -> slotRHS.requestFocus(Focus.LEFT));
         }
     }
     

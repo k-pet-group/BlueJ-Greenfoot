@@ -64,7 +64,7 @@ public class SlotTraversalChars implements SlotValueListener
                         {
                             // Proxy for whether the user altered the text; are we on FX thread?
                             if (Platform.isFxApplicationThread())
-                                JavaFXUtil.runNowOrLater(() -> JavaFXUtil.runAfterCurrent(() -> parent.focusRight(slot)));
+                                JavaFXUtil.runPlatformLater(() -> parent.focusRight(slot));
                         }
                     }
                 }

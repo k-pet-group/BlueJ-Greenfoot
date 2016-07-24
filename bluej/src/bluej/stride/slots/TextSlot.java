@@ -468,7 +468,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 } else
                 {
                     // After update has taken effect, update suggestions:
-                    Platform.runLater(() -> {
+                    // It doesn't matter if we run this while loading because
+                    // we won't be showing code completion:
+                    JavaFXUtil.runPlatformLater(() -> {
                         if (suggestionDisplayProperty.get() != null)
                         {
                             String beforeNewPrefix = getText().substring(0, getStartOfCurWord());

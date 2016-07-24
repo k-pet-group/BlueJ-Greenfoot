@@ -303,7 +303,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             {
                 if (!(selTab instanceof FrameEditorTab))
                 {
-                    Platform.runLater(() -> scheduleUpdateCatalogue(null, null, CodeCompletionState.NOT_POSSIBLE, false, Frame.View.NORMAL, Collections.emptyList(), Collections.emptyList()));
+                    JavaFXUtil.runPlatformLater(() -> scheduleUpdateCatalogue(null, null, CodeCompletionState.NOT_POSSIBLE, false, Frame.View.NORMAL, Collections.emptyList(), Collections.emptyList()));
                 }
             }
         });

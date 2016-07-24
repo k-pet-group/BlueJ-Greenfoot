@@ -1826,8 +1826,9 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     
                     // If a dot is entered and code completion was showing, re-trigger it in the new field:
                     // We use runLater to make sure the state is all settled before showing the completion:
+                    // (we must be on FX thread, not loading, because we are modified while showing suggestions)
                     if (wasShowingSuggestions && user && addedDot)
-                        Platform.runLater(() -> slot.showSuggestionDisplay((StructuredSlotField)fields.get(index+1), 0, false));
+                        JavaFXUtil.runPlatformLater(() -> slot.showSuggestionDisplay((StructuredSlotField)fields.get(index+1), 0, false));
                 }
                 
                 if (pos.index > index) // already after split field:
