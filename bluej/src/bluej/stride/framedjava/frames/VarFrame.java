@@ -159,7 +159,7 @@ public class VarFrame extends SingleLineFrame
         slotValue.bindTargetType(slotType.javaProperty());
         slotValue.setSimplePromptText("value");
         slotValue.onLostFocus(this::checkForEmptySlot);
-        onNonFresh(this::checkForEmptySlot);
+        //onNonFresh(this::checkForEmptySlot);
 
         JavaFXUtil.addChangeListener(showingValue, showing -> {
             if (!showing) {

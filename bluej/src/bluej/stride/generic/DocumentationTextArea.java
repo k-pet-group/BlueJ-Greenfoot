@@ -61,6 +61,8 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ScrollFreeTextArea;
 import bluej.utility.javafx.SharedTransition;
 import javafx.scene.layout.BorderPane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A custom text area for documentation comment of a class, method, etc.
@@ -338,17 +340,16 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         return out;
     }
 
+    @OnThread(Tag.FXPlatform)
     public void hackFixSizing()
     {
         // It seems that with a parent FlowPane, ScrollFreeTextArea doesn't set its height correctly on first load.
         // The following is a dirty hack to fix the sizing in this case:
-        Platform.runLater(() -> {
-            hacking = true;
-            String s = getText();
-            setText("");
-            setText(s);
-            hacking = false;
-        });
+        hacking = true;
+        String s = getText();
+        setText("");
+        setText(s);
+        hacking = false;
     }
 
     @Override

@@ -78,7 +78,7 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         comment.setPromptText("Comment...");
         comment.bindPrefMaxWidth(getHeaderRow().flowPaneWidth().subtract(1.0));
         setHeaderRow(comment);
-        comment.hackFixSizing();
+        JavaFXUtil.onceInScene(comment.getNode(), comment::hackFixSizing);
         comment.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             switch (event.getCode())
             {

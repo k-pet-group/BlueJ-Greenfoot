@@ -954,8 +954,8 @@ class TCScanner extends TreePathScanner<Void, Void>
         Tag calledFrom = calledFrom_.map(lt -> lt.tag).orElse(Tag.Any); 
         if (Arrays.asList("Platform.runLater").contains(call))
         {
-            if (calledFrom == Tag.FXPlatform)
-                issueError("Calling runLater from FXPlatform thread", errorLocation);
+            if (calledFrom == Tag.FXPlatform || calledFrom == Tag.FX)
+                issueError("\nCalling runLater from thread " + calledFrom, errorLocation);
             return new LocatedTag(Tag.FXPlatform, true, true, "<runLater>");
         }
         else if (Arrays.asList("SwingUtilities.invokeAndWait", "SwingUtilities.invokeLater", "EventQueue.invokeLater", "EventQueue.invokeAndWait").contains(call))
@@ -1173,7 +1173,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         if (lambdaClassMembers.size() != 1)
         {
             if (issueError && !(lambdaClassType.getKind() == TypeKind.TYPEVAR))
-                trees.printMessage(Kind.ERROR, "\n    Lambda type " + lambdaClassElement.getSimpleName() + " seems to have multiple members: " + lambdaClassMembers.stream().map(Element::getSimpleName).map(Object::toString).collect(Collectors.joining(", ")), errorLocation, cu);
+                trees.printMessage(Kind.ERROR, "\n    Lambda type " + (lambdaClassElement == null ? "Unknown" : lambdaClassElement.getSimpleName()) + " seems to have multiple members: " + lambdaClassMembers.stream().map(Element::getSimpleName).map(Object::toString).collect(Collectors.joining(", ")), errorLocation, cu);
             return null;
         }
         LocatedTag lambdaAnn = null;
