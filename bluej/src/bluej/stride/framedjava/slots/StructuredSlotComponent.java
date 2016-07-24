@@ -32,6 +32,8 @@ import javafx.beans.value.ObservableStringValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An expression slot has a hierarchy of InfixStructured items, starting with
@@ -133,6 +135,7 @@ interface StructuredSlotComponent
      * @param params The parameters to insert in round brackets after the text,
      *               or null if none.  (Empty list inserts empty brackets, null
      */
+    @OnThread(Tag.FXPlatform)
     void insertSuggestion(CaretPos subPos, String name, char opening, List<String> params, StructuredSlot.ModificationToken token);
 
     /**

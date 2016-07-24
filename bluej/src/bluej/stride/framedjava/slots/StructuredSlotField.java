@@ -52,6 +52,8 @@ import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A single text field in an expression slot.  This usually features
@@ -378,7 +380,8 @@ class StructuredSlotField implements StructuredSlotComponent
             throw new IllegalArgumentException();
         setText(getText().substring(0, p.index) + name + getText().substring(p.index), token);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void calculateTooltip(FXConsumer<String> tooltipConsumer)
     {
         // We show empty string for tooltip if the slot is not empty and not focused:

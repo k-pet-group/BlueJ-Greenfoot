@@ -238,6 +238,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         private SuggestionList suggestionDisplay;
 
         @Override
+        @OnThread(Tag.FXPlatform)
         public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl,
                                                  SuggestionListListener listener, FXPlatformConsumer<SuggestionList> handler) {
             

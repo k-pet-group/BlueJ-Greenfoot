@@ -29,6 +29,7 @@ import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.slots.SuggestionList;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
 import javafx.beans.Observable;
@@ -71,25 +72,28 @@ public interface InteractionManager
     /**
      * Gets completions at that point in the file
      */
+    @OnThread(Tag.FXPlatform)
     void withCompletions(JavaFragment.PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
     /**
      * Gets fields for the class.  posInfile is a bit of a workaround to make sure
      * we are in a method in the class.
      */
+    @OnThread(Tag.FXPlatform)
     void withAccessibleMembers(JavaFragment.PosInSourceDoc pos, Set<AssistContent.CompletionKind> kinds, boolean includeOverridden, FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
+    @OnThread(Tag.FXPlatform)
     void withSuperConstructors(FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
     /**
      * Gets a list of available types
      */
-    @OnThread(Tag.Any) void withTypes(FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
+    @OnThread(Tag.FXPlatform) void withTypes(FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
     /**
      * Gets a list of available types that have the given type as a super type (direct or indirect)
      */
-    @OnThread(Tag.Any) void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
+    @OnThread(Tag.FXPlatform) void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXPlatformConsumer<List<AssistContentThreadSafe>> handler);
 
     /**
      * Gets a list of classes that are commonly imported in Java programs,
@@ -147,8 +151,10 @@ public interface InteractionManager
 
     FrameEditor getFrameEditor();
 
+    @OnThread(Tag.FXPlatform)
     void recordCodeCompletionStarted(SlotFragment position, int index, String stem);
 
+    @OnThread(Tag.FXPlatform)
     void recordCodeCompletionEnded(SlotFragment position, int index, String stem, String completion);
 
     void recordErrorIndicatorShown(int identifier);
@@ -157,6 +163,7 @@ public interface InteractionManager
 
     BooleanProperty cheatSheetShowingProperty();
 
+    @OnThread(Tag.FXPlatform)
     void recordUnknownCommandKey(Frame enclosingFrame, int index, char key);
 
     public static enum ShortcutKey
@@ -218,12 +225,14 @@ public interface InteractionManager
 
     public void modifiedFrame(Frame f);
 
+    @OnThread(Tag.FXPlatform)
     public void recordEdits(StrideEditReason reason);
     
     /**
      * Once loading is complete, generates the Java code, parses it, then runs the given action if not-null
      */
-    public void afterRegenerateAndReparse(FXRunnable action);
+    @OnThread(Tag.FXPlatform)
+    public void afterRegenerateAndReparse(FXPlatformRunnable action);
     
     /**
      * Starts recording of the Frame state for Undo / Redo operations

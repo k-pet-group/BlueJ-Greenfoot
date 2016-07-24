@@ -298,6 +298,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     }
 */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void saved()
     {
         if (extendsInheritedCanvases.isEmpty()) {
@@ -328,6 +329,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         };
     }
 
+    @OnThread(Tag.FXPlatform)
     private void updateInheritedItems()
     {
         // Add available frames:
@@ -457,6 +459,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         return true;
     }
 
+    @OnThread(Tag.FXPlatform)
     public void withInheritedItems(Set<CompletionKind> kinds, FXPlatformConsumer<Map<String, List<AssistContentThreadSafe>>> handler)
     {
         // Get all available items
@@ -729,6 +732,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         return Arrays.asList(importsLabel, fieldsLabel, constructorsLabel, methodsLabel);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void compiled()
     {
         updateInheritedItems();

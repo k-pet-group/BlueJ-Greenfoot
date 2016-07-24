@@ -42,6 +42,8 @@ import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import bluej.utility.javafx.binding.ConcatListBinding;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A bracketed subexpression in an expression slot.  This item will have matching
@@ -232,6 +234,7 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void insertSuggestion(CaretPos p, String name, char opening, List<String> params, StructuredSlot.ModificationToken token)
     {
         content.insertSuggestion(p, name, opening, params, token);

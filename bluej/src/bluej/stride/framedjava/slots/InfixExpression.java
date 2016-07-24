@@ -42,6 +42,8 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Created by neil on 22/05/2016.
@@ -151,6 +153,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
 
     // package-visible
     // Called to notify us that we are a set of parameters, and we should update our prompts for those parameters
+    @OnThread(Tag.FXPlatform)
     void treatAsConstructorParams_updatePrompts()
     {
         List<StructuredSlotField> params = getSimpleParameters();
@@ -164,6 +167,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
 
     // package-visible
     // Called to notify us that we are a set of parameters, and we should update our prompts for those parameters
+    @OnThread(Tag.FXPlatform)
     void treatAsParams_updatePrompts(String methodName, CaretPos absPosOfMethodName)
     {
         List<StructuredSlotField> params = getSimpleParameters();
@@ -253,6 +257,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
     }
 
     //package-visible
+    @OnThread(Tag.FXPlatform)
     private void updatePromptsInMethodCalls()
     {
         queuedUpdatePrompts = false;
@@ -287,7 +292,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
      */
     void queueUpdatePromptsInMethodCalls()
     {
-        if (!queuedUpdatePrompts && slot != null)
+        if (!queuedUpdatePrompts && slot != null && Platform.isFxApplicationThread())
         {
             queuedUpdatePrompts = true;
             slot.afterCurrentModification(this::updatePromptsInMethodCalls);
@@ -295,6 +300,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void calculateTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)
     {
         int slotIndex = fields.indexOf(expressionSlotField);
@@ -355,7 +361,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
         }
     }
 
-
+    @OnThread(Tag.FXPlatform)
     public void withTooltipForParam(BracketedStructured bracketedExpression, int paramPos, FXConsumer<String> handler)
     {
         int expIndex = fields.indexOf(bracketedExpression);

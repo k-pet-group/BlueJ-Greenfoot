@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
@@ -105,35 +108,38 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void withCompletions(JavaFragment.PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
-        Platform.runLater(() -> handler.accept(Collections.emptyList()));
+        JavaFXUtil.runAfterCurrent(() -> handler.accept(Collections.emptyList()));
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void withAccessibleMembers(JavaFragment.PosInSourceDoc pos, Set<AssistContent.CompletionKind> kinds, boolean includeOverridden, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
-        Platform.runLater(() -> handler.accept(Collections.emptyList()));
+        JavaFXUtil.runAfterCurrent(() -> handler.accept(Collections.emptyList()));
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void withSuperConstructors(FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
-        Platform.runLater(() -> handler.accept(Collections.emptyList()));
+        JavaFXUtil.runAfterCurrent(() -> handler.accept(Collections.emptyList()));
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void withTypes(FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
-        Platform.runLater(() -> handler.accept(Collections.emptyList()));
+        JavaFXUtil.runAfterCurrent(() -> handler.accept(Collections.emptyList()));
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
-        Platform.runLater(() -> handler.accept(Collections.emptyList()));
+        JavaFXUtil.runAfterCurrent(() -> handler.accept(Collections.emptyList()));
     }
 
     @Override
@@ -319,7 +325,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
-    public void afterRegenerateAndReparse(FXRunnable action)
+    public void afterRegenerateAndReparse(FXPlatformRunnable action)
     {
         // TODO
     }
@@ -525,6 +531,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private void performDrag(List<Frame> dragSourceFrames, boolean fromShelf, boolean copying)
     {
         Frame parentFrame = dragTarget.getParentCanvas().getParent().getFrame();

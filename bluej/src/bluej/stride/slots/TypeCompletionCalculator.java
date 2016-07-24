@@ -40,6 +40,8 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.utility.javafx.FXPlatformConsumer;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class TypeCompletionCalculator implements StructuredCompletionCalculator
 {
@@ -104,6 +106,7 @@ public class TypeCompletionCalculator implements StructuredCompletionCalculator
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing,
                                              CodeElement codeEl, SuggestionListListener listener, String targetType, boolean completingStartOfSlot, FXPlatformConsumer<SuggestionList> handler) {
 

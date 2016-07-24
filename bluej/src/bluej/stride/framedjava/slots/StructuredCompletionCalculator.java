@@ -27,12 +27,15 @@ import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.slots.SuggestionList;
 import bluej.utility.javafx.FXPlatformConsumer;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Created by neil on 25/05/2016.
  */
 public interface StructuredCompletionCalculator
 {
+    @OnThread(Tag.FXPlatform)
     public void withCalculatedSuggestionList(JavaFragment.PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, SuggestionList.SuggestionListListener clickListener, String targetType, boolean completingStartOfSlot, FXPlatformConsumer<SuggestionList> handler);
 
     public String getName(int selected);

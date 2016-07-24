@@ -22,6 +22,7 @@
 package bluej.stride.slots;
 
 import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -60,7 +61,11 @@ public class SlotTraversalChars implements SlotValueListener
                         if (callback != null)
                             callback.run();
                         else
-                            Platform.runLater(() -> parent.focusRight(slot));
+                        {
+                            // Proxy for whether the user altered the text; are we on FX thread?
+                            if (Platform.isFxApplicationThread())
+                                JavaFXUtil.runNowOrLater(() -> JavaFXUtil.runAfterCurrent(() -> parent.focusRight(slot)));
+                        }
                     }
                 }
                 return false;

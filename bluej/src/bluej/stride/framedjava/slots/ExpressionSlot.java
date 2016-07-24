@@ -35,6 +35,8 @@ import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.ChoiceSlot;
 import bluej.utility.javafx.FXConsumer;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Created by neil on 22/05/2016.
@@ -65,8 +67,9 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     {
         return new InfixExpression(editor, this, token);
     }
-    
+
     @Override
+    @OnThread(Tag.FXPlatform)
     public void saved()
     {
         if (getParentFrame().isFrameEnabled())
@@ -91,6 +94,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     // package-visible
+    @OnThread(Tag.FXPlatform)
     void withParamNamesForConstructor(FXConsumer<List<List<String>>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
@@ -99,6 +103,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     // package-visible
+    @OnThread(Tag.FXPlatform)
     void withParamNamesForPos(CaretPos pos, String methodName, FXConsumer<List<List<String>>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
@@ -108,6 +113,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     // package-visible
+    @OnThread(Tag.FXPlatform)
     void withParamHintsForPos(CaretPos pos, String methodName, FXConsumer<List<List<String>>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
@@ -117,6 +123,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     // package-visible
+    @OnThread(Tag.FXPlatform)
     void withParamHintsForConstructor(int totalParams, FXConsumer<List<List<String>>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
@@ -125,6 +132,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     }
 
     // package-visible
+    @OnThread(Tag.FXPlatform)
     void withMethodHint(CaretPos pos, String methodName, FXConsumer<List<String>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {

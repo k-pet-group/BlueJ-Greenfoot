@@ -273,6 +273,7 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void escape(HeaderItem src)
     {
         parentFrame.escape(this, src);

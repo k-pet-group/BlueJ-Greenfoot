@@ -26,6 +26,7 @@
 package bluej.stride.framedjava.frames;
 
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +42,7 @@ import bluej.stride.generic.RecallableFocus;
 import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot;
+import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
@@ -102,7 +104,19 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
     public CommentFrame(InteractionManager editor, String comment)
     {
         this(editor);
-        this.comment.setText(comment);
+        //UncaughtExceptionHandler oldHandler = Thread.currentThread().getUncaughtExceptionHandler();
+        //Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {
+        //    Debug.reportError("Setting text: \"" + comment + "\"", e);
+        //});
+        //try
+        //{
+            this.comment.setText(comment);
+        //}
+        //catch (Exception e)
+        //{
+        //    Debug.reportError("Setting text: \"" + comment + "\"", e);
+        //}
+        //Thread.currentThread().setUncaughtExceptionHandler(oldHandler);
     }
 
     public static FrameFactory<CommentFrame> getFactory()

@@ -199,6 +199,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /**
      * Initialises the FXTabbedEditor.
      */
+    @OnThread(Tag.FXPlatform)
     public void initialise()
     {
         projectTitle = project.getProjectName();
@@ -213,6 +214,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /**
      * The actual initialisation, on the FX thread
      */
+    @OnThread(Tag.FXPlatform)
     private void initialiseFX()
     {
         // See comment in Main class:
@@ -269,7 +271,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         });
         JavaFXUtil.addChangeListener(showingCatalogue, expanded -> PrefMgr.setFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING, expanded));
         // runLater, after it has been put in scene:
-        Platform.runLater(() -> showingCatalogue.set(PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING)));
+        JavaFXUtil.runAfterCurrent(() -> showingCatalogue.set(PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING)));
         collapsibleCatalogueScrollPane.setLeft(collapseControl);
         JavaFXUtil.addStyleClass(collapsibleCatalogueScrollPane, "catalogue-scroll-collapsible");
         menuAndTabPane.setRight(collapsibleCatalogueScrollPane);
@@ -413,13 +415,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * @param visible Whether to make the FXTabbedEditor window visible 
      * @param toFront Whether to bring the tab to the front (i.e. select the tab)
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void addTab(final FXTab panel, boolean visible, boolean toFront)
     {
         addTab(panel, visible, toFront, false);
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void addTab(final FXTab panel, boolean visible, boolean toFront, boolean partOfMove)
     {
         panel.setParent(this, partOfMove);
@@ -444,6 +446,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * If there already exists a tab viewing that page, that page is selected rather than
      * a new tab being opened.
      */
+    @OnThread(Tag.FXPlatform)
     public void openJavaCoreDocTab(String qualifiedClassName)
     {
         openJavaCoreDocTab(qualifiedClassName, "");
@@ -455,6 +458,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      *  If there already exists a tab viewing that page, that page is selected rather than
      * a new tab being opened.
      */
+    @OnThread(Tag.FXPlatform)
     public void openJavaCoreDocTab(String qualifiedClassName, String suffix)
     {
         String target = Utility.getDocURL(qualifiedClassName, suffix);
@@ -468,6 +472,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * If there already exists a tab viewing that page, that page is selected rather than
      * a new tab being opened.
      */
+    @OnThread(Tag.FXPlatform)
     public void openGreenfootDocTab(String qualifiedClassName)
     {
         openGreenfootDocTab(qualifiedClassName, "");
@@ -480,6 +485,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * If there already exists a tab viewing that page, that page is selected rather than
      * a new tab being opened.
      */
+    @OnThread(Tag.FXPlatform)
     public void openGreenfootDocTab(String qualifiedClassName, String suffix)
     {
         try
@@ -583,6 +589,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * If a web view tab already exists which is displaying that URL (sans anchors),
      * that tab is displayed and a new tab is not opened.
      */
+    @OnThread(Tag.FXPlatform)
     public void openWebViewTab(String url)
     {
         // First, check if any tab is already showing that URL:
@@ -1000,12 +1007,14 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public void moveToNewLater(FXTab tab)
     {
         FXTabbedEditor newWindow = project.createNewFXTabbedEditor();
         moveTabTo(tab, newWindow);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void moveTabTo(FXTab tab, FXTabbedEditor destination)
     {
         close(tab, true);

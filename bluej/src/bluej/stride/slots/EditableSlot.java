@@ -107,6 +107,7 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
      * Called when the whole top level frame has been saved, so slots can perform any necessary updates
      * (e.g. method prompts)
      */
+    @OnThread(Tag.FXPlatform)
     public void saved();
 
     // No need for any implementing classes to further override this:

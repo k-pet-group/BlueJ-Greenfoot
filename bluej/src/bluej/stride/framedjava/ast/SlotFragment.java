@@ -26,6 +26,8 @@ import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.generic.InteractionManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.List;
 import java.util.concurrent.Future;
@@ -49,6 +51,7 @@ public abstract class SlotFragment extends JavaFragment
      * @param editor
      * @return Null if no future, otherwise a future to complete for errors
      */
+    @OnThread(Tag.FXPlatform)
     public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, LocationMap rootPathMap)
     {
         return null;

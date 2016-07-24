@@ -520,6 +520,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         }
 
         @Override
+        @OnThread(Tag.FXPlatform)
         public void escape(HeaderItem src)
         {
             if (paramsPane.findFormal(src) != null){

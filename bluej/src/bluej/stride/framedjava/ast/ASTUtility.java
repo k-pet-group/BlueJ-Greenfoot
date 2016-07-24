@@ -89,7 +89,7 @@ public class ASTUtility
     
     // CodeElement is optional; may be null if we don't know where declaration was:
     // includeCurDecl is only needed for a special case with constructors and super/this
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public static void withLocalsParamsAndFields(CodeElement el, InteractionManager editor, PosInSourceDoc pos, boolean includeCurDecl, FXConsumer<Map<String, CodeElement>> handler)
     {
         editor.withAccessibleMembers(pos, Collections.singleton(CompletionKind.FIELD), false,

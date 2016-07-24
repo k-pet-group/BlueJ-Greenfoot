@@ -2292,7 +2292,8 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         anchorPos = start;
         return modificationReturn(token -> insertAtPos(end, "" + c, token));
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void insertSuggestion(CaretPos p, String name, char opening, List<String> params, StructuredSlot.ModificationToken token)
     {
         StructuredSlotComponent f = fields.get(p.index);
@@ -2318,7 +2319,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     // else if there are brackets with content, leave them alone.
 
                     // We use a runLater as we need to request focus after the suggestion window has been hidden:
-                    Platform.runLater(() ->
+                    JavaFXUtil.runAfterCurrent(() ->
                         b.focusAtStart()
                     );
                 }
@@ -2328,7 +2329,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                     // If no parameters, focus after the brackets.  Otherwise, focus first parameter
                     StructuredSlotComponent focusField = fields.get(params.isEmpty() ? p.index + 2 : p.index + 1);
                     // We use a runLater as we need to request focus after the suggestion window has been hidden:
-                    Platform.runLater(() ->
+                    JavaFXUtil.runAfterCurrent(() ->
                         focusField.focusAtStart()
                     );
                 }
@@ -2340,7 +2341,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         }
     }
 
-
+    @OnThread(Tag.FXPlatform)
     public abstract void calculateTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler);
         
     protected CaretPos absolutePos(CaretPos p)

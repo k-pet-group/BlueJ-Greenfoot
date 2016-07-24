@@ -78,7 +78,8 @@ public abstract class CodeElement
             return Stream.empty();
         return toJavaSource().getAllFragments().flatMap(fragment -> fragment.findEarlyErrors().peek(e -> e.recordPath(rootPathMap.locationFor(fragment))));
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public final Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, LocationMap rootPathMap)
     {
         if (!isEnable())

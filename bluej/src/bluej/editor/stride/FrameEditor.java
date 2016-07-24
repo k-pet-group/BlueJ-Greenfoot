@@ -204,7 +204,7 @@ public class FrameEditor implements Editor
         lastSource = Loader.loadTopLevelElement(frameFilename, resolver);
     }
     
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private void createPanel(boolean visible, boolean toFront)
     {
         //Debug.message("&&&&&& Creating panel: " + System.currentTimeMillis());
@@ -315,7 +315,7 @@ public class FrameEditor implements Editor
      * (so it can be re-thrown on the Swing thread).  Otherwise, the saved XML source is returned.
      * Null is never returned
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private SaveResult _saveFX()
     {
         if (!changedSinceLastSave) {
@@ -742,10 +742,10 @@ public class FrameEditor implements Editor
             boolean beep, String help)
     {
         //This is a message from a clickable stack trace following an exception
-        Platform.runLater(() -> JavaFXUtil.onceNotNull(javaSource, js -> {
+        Platform.runLater(() -> JavaFXUtil.onceNotNull(javaSource, js -> JavaFXUtil.runNowOrLater(() -> {
             setVisibleFX(true, true);
             js.handleException(lineNumber);
-        }));
+        })));
     }
 
     @Override
@@ -956,7 +956,7 @@ public class FrameEditor implements Editor
         Platform.runLater(() -> setVisibleFX(vis, true));
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private void setVisibleFX(boolean show, boolean bringToFront)
     {
         if (panel == null && show) // No need to create the panel if we don't want to show it
@@ -974,7 +974,7 @@ public class FrameEditor implements Editor
         {
             // We need this runLater to make sure we only run after we've finished setting up the editor
             // (and it case it uses any runLaters)
-            Platform.runLater(() -> {
+            JavaFXUtil.runAfterCurrent(() -> {
                 // We only need to worry about queued errors from the latest compile:
                 if (!queuedErrors.isEmpty())
                 {
@@ -1270,7 +1270,7 @@ public class FrameEditor implements Editor
         return watcher;
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void recordEdits(StrideEditReason reason)
     {
         SaveResult result = _saveFX();

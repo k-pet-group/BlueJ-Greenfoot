@@ -649,7 +649,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     {
         beenModified = true;
         editor.modifiedFrame(parentFrame);
-        editor.afterRegenerateAndReparse(null);
+        JavaFXUtil.runNowOrLater(() -> editor.afterRegenerateAndReparse(null));
     }
     
     private double overlayToSceneX(double overlayX)
@@ -834,7 +834,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             //lastBeforePrefix = getText().substring(0, getStartOfCurWord());
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void executeSuggestion(int selected, ModificationToken token)
     {
         String name;
@@ -1324,7 +1325,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             case ENTER:
                 if (highlighted != -1)
                 {
-                    modification(token -> executeSuggestion(highlighted, token));
+                    modificationPlatform(token -> executeSuggestion(highlighted, token));
                     return Response.DISMISS;
                 }
             case ESCAPE:
@@ -1356,16 +1357,17 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         return Response.CONTINUE;
     }
 
+    @OnThread(Tag.FXPlatform)
     private void completeIfPossible(int highlighted)
     {
         // Pick a value if one was available to complete:
         if (highlighted != -1)
         {
-            modification(token -> executeSuggestion(highlighted, token));
+            modificationPlatform(token -> executeSuggestion(highlighted, token));
         }
         else if (suggestionDisplay.eligibleCount() == 1  && getText().length() > 0)
         {
-            modification(token -> executeSuggestion(suggestionDisplay.getFirstEligible(), token));
+            modificationPlatform(token -> executeSuggestion(suggestionDisplay.getFirstEligible(), token));
         }
     }
 
@@ -1397,9 +1399,10 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void suggestionListChoiceClicked(int highlighted)
     {
-        modification(token -> executeSuggestion(highlighted, token));
+        modificationPlatform(token -> executeSuggestion(highlighted, token));
     }
     
     
@@ -1586,6 +1589,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     void modification(FXConsumer<ModificationToken> modificationAction)
     {
         modificationReturn(t -> {modificationAction.accept(t);return 0;});
+    }
+
+    //package-visible
+    @OnThread(Tag.FXPlatform)
+    void modificationPlatform(FXPlatformConsumer<ModificationToken> modificationAction)
+    {
+        modificationReturnPlatform(t -> {modificationAction.accept(t);return 0;});
     }
     
     //package-visible

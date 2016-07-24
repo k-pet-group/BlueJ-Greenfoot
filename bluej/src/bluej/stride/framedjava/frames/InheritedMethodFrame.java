@@ -280,6 +280,7 @@ public class InheritedMethodFrame extends SingleLineFrame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void compiled()
     {
         super.compiled();

@@ -67,6 +67,7 @@ import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.slots.SuggestionList;
 import bluej.utility.javafx.CircleCountdown;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -354,7 +355,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     // Must be run on FX thread
     // @Override
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void initialiseFX()
     {
         if (startedInitialising)
@@ -1163,6 +1164,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private void performDrag(List<Frame> dragSourceFrames, boolean fromShelf, boolean copying)
     {
         boolean shouldDisable = !dragTarget.getParentCanvas().getParent().getFrame().isFrameEnabled();
@@ -1561,6 +1563,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         SuggestedFollowUpDisplay.modificationIn(this);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void setWindowVisible(boolean vis, boolean bringToFront)
     {
         if (getParent() == null)
@@ -1631,6 +1634,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return new FrameState(getTopLevelFrame(), getSource(), f);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void undo()
     {
         editor.recordEdits(StrideEditReason.FLUSH);
@@ -1640,6 +1644,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         editor.recordEdits(StrideEditReason.UNDO_GLOBAL);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void redo()
     {
         editor.recordEdits(StrideEditReason.FLUSH);
@@ -1721,6 +1726,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return selection;
     }
 
+    @OnThread(Tag.FXPlatform)
     public void saved()
     {
         getTopLevelFrame().saved();
@@ -1744,7 +1750,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             handler);
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     //package-visible
     void regenerateAndReparse()
     {
@@ -1758,12 +1764,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
-    public void afterRegenerateAndReparse(FXRunnable action)
+    public void afterRegenerateAndReparse(FXPlatformRunnable action)
     {
         withTopLevelFrame(f -> {
-            regenerateAndReparse();
-            if (action != null)
-                action.run();
+            JavaFXUtil.runNowOrLater(() -> {
+                regenerateAndReparse();
+                if (action != null)
+                    action.run();
+            });
         });
     }
 
@@ -1837,7 +1845,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         final List<AssistContentThreadSafe> r = new ArrayList<>();
@@ -1858,7 +1866,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
     
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void withTypes(FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         withTypes(null, true, Kind.all(), handler);
@@ -2445,12 +2453,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void recordEdits(StrideEditReason reason)
     {
         editor.recordEdits(reason);
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void recordCodeCompletionStarted(SlotFragment element, int index, String stem)
     {
         recordEdits(StrideEditReason.FLUSH);
@@ -2461,6 +2471,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void recordCodeCompletionEnded(SlotFragment element, int index, String stem, String replacement)
     {
         recordEdits(StrideEditReason.CODE_COMPLETION);
@@ -2471,6 +2482,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void recordUnknownCommandKey(Frame enclosingFrame, int cursorIndex, char key)
     {
         if (key < 32 || key == 127)

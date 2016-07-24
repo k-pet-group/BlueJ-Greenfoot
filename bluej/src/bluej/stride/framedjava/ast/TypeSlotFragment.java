@@ -41,6 +41,8 @@ import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class TypeSlotFragment extends StructuredSlotFragment
 {
@@ -87,6 +89,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, LocationMap rootPathMap)
     {
         CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();

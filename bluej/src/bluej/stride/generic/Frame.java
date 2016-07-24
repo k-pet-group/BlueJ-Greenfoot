@@ -1285,6 +1285,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * Callback to be called once the frame is compiled.  Put here so subclasses can
      * override it.
      */
+    @OnThread(Tag.FXPlatform)
     public void compiled()
     {
         
@@ -1316,6 +1317,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * @param srcRow The row in which escape was pressed
      * @param src The item in that row in which escape was pressed
      */
+    @OnThread(Tag.FXPlatform)
     public void escape(FrameContentItem srcRow, HeaderItem src)
     {
         if (alwaysBeenBlank && isFresh())

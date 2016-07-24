@@ -39,6 +39,8 @@ import javafx.scene.control.CustomMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import nu.xom.Element;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,6 +118,7 @@ public abstract class SingleLineFrame extends Frame
                 ops.add(new FrameOperation(getEditor(), "revert" + i, Combine.ONE)
                 {
                     @Override
+                    @OnThread(Tag.FXPlatform)
                     protected void execute(List<Frame> frames)
                     {
                         editor.recordEdits(StrideEditReason.FLUSH);
@@ -150,12 +153,14 @@ public abstract class SingleLineFrame extends Frame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void compiled()
     {
         super.compiled();
         saveAsRecent();
     }
 
+    @OnThread(Tag.FXPlatform)
     protected void saveAsRecent()
     {
         if (!(this instanceof CodeFrame))

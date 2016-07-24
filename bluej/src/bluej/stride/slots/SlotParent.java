@@ -38,5 +38,6 @@ public interface SlotParent<T> extends FocusParent<T>
     public boolean backspaceAtStart(T src);
     public boolean deleteAtEnd(T src);
 
+    @OnThread(Tag.FXPlatform)
     public void escape(T src);
 }

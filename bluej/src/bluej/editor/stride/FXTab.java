@@ -52,6 +52,7 @@ abstract class FXTab extends Tab
     /**
      * Initialises any FX items which need to be done on the FX thread.
      */
+    @OnThread(Tag.FXPlatform)
     abstract void initialiseFX();
 
     /**

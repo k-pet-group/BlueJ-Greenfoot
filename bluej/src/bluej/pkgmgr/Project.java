@@ -2195,7 +2195,7 @@ public class Project implements DebuggerListener, InspectorManager
      * Warning: this method executes on Swing thread, and expects to be able
      * to wait for the FX thread.
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public FXTabbedEditor createNewFXTabbedEditor()
     {
         FXTabbedEditor ed = new FXTabbedEditor(Project.this, recallFxPosition(fXTabbedEditors.size()));

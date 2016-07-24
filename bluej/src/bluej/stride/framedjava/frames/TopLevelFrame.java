@@ -47,6 +47,7 @@ public interface TopLevelFrame<T extends CodeElement & TopLevelCodeElement> exte
     public BirdseyeManager prepareBirdsEyeView(SharedTransition animate);
     public static enum BodyFocus { TOP, BOTTOM, BEST_PICK };
     public void focusOnBody(BodyFocus on);
+    @OnThread(Tag.FXPlatform)
     public void saved();
     public boolean canDoBirdseye();
     public void bindMinHeight(DoubleBinding prop);

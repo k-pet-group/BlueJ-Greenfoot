@@ -208,6 +208,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
 
             SuggestionListListener suggestionListener = new SuggestionListListener() {
                 @Override
+                @OnThread(Tag.FXPlatform)
                 public void suggestionListChoiceClicked(int highlighted)
                 {
                     executeSuggestion(highlighted);
@@ -215,6 +216,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 }
 
                 @Override
+                @OnThread(Tag.FXPlatform)
                 public Response suggestionListKeyTyped(KeyEvent event, int highlighted)
                 {
                     // Space completes single selections and moves to next slot:
@@ -227,7 +229,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                         injectEvent(event);
                     return Response.CONTINUE;
                 }
-                
+
+                @OnThread(Tag.FXPlatform)
                 private boolean completeIfPossible(int highlighted)
                 {
                     // Pick a value if one was available to complete:
@@ -243,6 +246,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 }
 
                 @Override
+                @OnThread(Tag.FXPlatform)
                 public Response suggestionListKeyPressed(KeyEvent event, int highlighted)
                 {
                     switch (event.getCode())
@@ -538,7 +542,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             suggestionDisplayProperty.get().updateVisual(prefix, false);
             lastBeforePrefix = getText().substring(0, getStartOfCurWord());
         }
-        
+
+        @OnThread(Tag.FXPlatform)
         private void showSuggestionDisplay(SuggestionListListener listener)
         {
             if (completionCalculator == null)
@@ -833,6 +838,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     }
 
     // Returns true if should be dismissed
+    @OnThread(Tag.FXPlatform)
     private boolean executeSuggestion(int highlighted)
     {
         final int position = getStartOfCurWord();

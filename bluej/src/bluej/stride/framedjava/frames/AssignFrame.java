@@ -30,6 +30,7 @@ import java.util.List;
 
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.generic.FrameContentItem;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -85,7 +86,10 @@ public class AssignFrame extends SingleLineFrame
         this(editor);
         slotLHS.setText(lhs);
         slotRHS.setText(rhs);
-        Platform.runLater(() -> slotRHS.requestFocus(Focus.LEFT));
+        if (Platform.isFxApplicationThread())
+        {
+            JavaFXUtil.runNowOrLater(() -> JavaFXUtil.runAfterCurrent(() -> slotRHS.requestFocus(Focus.LEFT)));
+        }
     }
     
     public AssignFrame(InteractionManager editor, FilledExpressionSlotFragment lhs, FilledExpressionSlotFragment rhs, boolean enabled)
