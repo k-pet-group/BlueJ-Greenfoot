@@ -30,7 +30,6 @@ import java.util.List;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameCursor;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -417,8 +416,10 @@ public class VarFrame extends SingleLineFrame
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
         final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(innerCanvas, cursorInCanvas));
-        getStaticFinalOperations().stream().forEach(op -> extensions.add(new ExtensionDescription(op, this, true,
-                ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION)));
+        if ( !inInterfaceProperty.getValue() ) {
+            getStaticFinalOperations().stream().forEach(op -> extensions.add(new ExtensionDescription(op, this, true,
+                    ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION)));
+        }
         return extensions;
     }
 
