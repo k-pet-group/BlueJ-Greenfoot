@@ -444,7 +444,7 @@ public class Project implements DebuggerListener, InspectorManager
             SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
             AtomicReference<File> projDir = new AtomicReference<>(projectDir);
             Platform.runLater(() -> {
-                DialogManager.showMessageWithTextFX(null, "project-is-readonly", projDir.get().toString());
+                DialogManager.showMessageFX(null, "project-is-readonly", new String[]{projDir.get().toString()});
 
                 boolean done = false;
 

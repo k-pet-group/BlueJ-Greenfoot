@@ -87,8 +87,23 @@ public class DialogManager
     @OnThread(Tag.FXPlatform)
     public static void showMessageFX(javafx.stage.Window parent, String msgID)
     {
+        showMessageFX(parent, msgID, new String[0]);
+    }
+
+    /**
+     * Show an information dialog with message and "OK" button. The
+     * message itself is identified by a message ID (a short string)
+     * which is looked up in the language specific dialogue text file
+     * (eg. "dialogues.english"). Then replacing variables with subs.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static void showMessageFX(javafx.stage.Window parent, String msgID, String[] subs)
+    {
         String message = getMessage(msgID);
         if (message != null) {
+            for (String sub : subs) {
+                message = message.replace("$", sub);
+            }
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "", ButtonType.OK);
             alert.setHeaderText(message);
             alert.setTitle(Config.getApplicationName() + ":  " +
