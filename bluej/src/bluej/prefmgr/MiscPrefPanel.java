@@ -33,6 +33,7 @@ import javax.swing.SwingUtilities;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -104,11 +105,13 @@ public class MiscPrefPanel extends VBox
         List<Node> dataCollectionPanel = new ArrayList<>();
         {
             statusLabel = new Label(DataCollector.getOptInOutStatus());
+            statusLabel.setMinWidth(100.0);
             Button optButton = new Button(Config.getString("prefmgr.collection.change"));
             optButton.setOnAction(e ->{
                 DataCollector.changeOptInOut(false);
                 statusLabel.setText(DataCollector.getOptInOutStatus());
             });
+            optButton.setMinWidth(Control.USE_PREF_SIZE);
             dataCollectionPanel.add(PrefMgrDialog.labelledItem(statusLabel, optButton));
         }
         

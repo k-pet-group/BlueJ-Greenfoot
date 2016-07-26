@@ -292,7 +292,7 @@
     -fx-padding: 0.5em 0 0 2em;
 }
 .prefmgr-experiment-participant .text-field {
-    -fx-pref-column-count: 30;
+    -fx-pref-column-count: 25;
 }
 .prefmgr-jdk-url {
     -fx-pref-column-count: 35;
