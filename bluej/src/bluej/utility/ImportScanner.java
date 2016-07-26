@@ -189,6 +189,15 @@ public class ImportScanner
                     return Collections.emptyList();
             }
         }
+
+        public void addTypes(PackageInfo from)
+        {
+            types.putAll(from.types);
+            from.subPackages.forEach((name, pkg) -> {
+                subPackages.putIfAbsent(name, new PackageInfo());
+                subPackages.get(name).addTypes(pkg);
+            });
+        }
     }
     
     // PackageInfo, but for the root type.
@@ -495,7 +504,8 @@ public class ImportScanner
         }
 
         // Only store if successful:
-        addToParent.subPackages.put(name, loadPkg);
+        addToParent.subPackages.putIfAbsent(name, new PackageInfo());
+        addToParent.subPackages.get(name).addTypes(loadPkg);
     }
 
     /**
