@@ -148,7 +148,7 @@ public class ObjectInspector extends Inspector
         }
         */
 
-        thisInspector.installListenersForMoveDrag();
+        thisInspector.installListenersForMoveDrag(20.0);
     }
 
     /**

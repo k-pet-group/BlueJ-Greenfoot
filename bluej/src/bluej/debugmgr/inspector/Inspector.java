@@ -27,7 +27,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javafx.event.EventHandler;
+import javafx.event.EventType;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -37,7 +41,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
@@ -48,7 +51,6 @@ import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
-import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -103,6 +105,7 @@ public abstract class Inspector extends Stage
     //The width of the list of fields
     private static final int MIN_LIST_WIDTH = 150;
     private static final int MAX_LIST_WIDTH = 400;
+    private final ResizeListener resizeListener;
 
     /**
      * Convert a field to a string representation, used to display the field in the inspector value list.
@@ -162,7 +165,9 @@ public abstract class Inspector extends Stage
             if (e.getCode() == KeyCode.ESCAPE)
                 doClose(true);
         });
-        
+
+        resizeListener = new ResizeListener(this);
+
         //setOnShown(e -> org.scenicview.ScenicView.show(getScene()));
 
         initFieldList();
@@ -416,23 +421,134 @@ public abstract class Inspector extends Stage
         JavaFXUtil.addStyleClass(buttonPanel, "inspector-side-buttons");
         return buttonPanel;
     }
-    
+
     // Allow movement of the window by dragging
     // Adapted from: http://www.stupidjavatricks.com/?p=4
     // (with improvements).
-    protected void installListenersForMoveDrag()
+    protected void installListenersForMoveDrag(double curvedCornersMargin)
     {
-        addEventHandler(MouseEvent.MOUSE_PRESSED, e -> { initialClickX = e.getScreenX() - getX(); initialClickY = e.getScreenY() - getY(); });
+        resizeListener.setCurvedCorners(curvedCornersMargin);
+        addEventHandler(MouseEvent.MOUSE_MOVED, resizeListener);
+        addEventHandler(MouseEvent.MOUSE_PRESSED, resizeListener);
+        // Must be filter to allows us to consume event before next handler for window-move:
+        addEventFilter(MouseEvent.MOUSE_DRAGGED, resizeListener);
+        addEventHandler(MouseEvent.MOUSE_EXITED, resizeListener);
+        addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, resizeListener);
+
+        addEventHandler(MouseEvent.MOUSE_PRESSED, e ->
+        {
+            initialClickX = e.getScreenX() - getX();
+            initialClickY = e.getScreenY() - getY();
+        });
         //addEventHandler(MouseEvent.MOUSE_RELEASED,e -> { initialClick = null;});
-        addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
+        addEventHandler(MouseEvent.MOUSE_DRAGGED, e ->
+        {
             setX(e.getScreenX() - initialClickX);
             setY(e.getScreenY() - initialClickY);
         });
+
+
     }
     
     @OnThread(Tag.Any)
     public int getUniqueId()
     {
         return uniqueId;
+    }
+
+    /**
+     * Adapted from:
+     * http://stackoverflow.com/questions/19455059/allow-user-to-resize-an-undecorated-stage
+     */
+    static class ResizeListener implements EventHandler<MouseEvent>
+    {
+        private Stage stage;
+        private Cursor cursorEvent = Cursor.DEFAULT;
+        private int border = 4;
+        private double startX = 0;
+        private double startY = 0;
+        private double curvedCornersMargin;
+
+        public ResizeListener(Stage stage) {
+            this.stage = stage;
+        }
+
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            EventType<? extends MouseEvent> mouseEventType = mouseEvent.getEventType();
+            Scene scene = stage.getScene();
+
+            double mouseEventX = mouseEvent.getSceneX(),
+                mouseEventY = mouseEvent.getSceneY(),
+                sceneWidth = scene.getWidth(),
+                sceneHeight = scene.getHeight();
+
+            if (MouseEvent.MOUSE_MOVED.equals(mouseEventType) == true) {
+                double cornerBorder = Math.max(curvedCornersMargin, border);
+                if (mouseEventX < cornerBorder && mouseEventY < cornerBorder) {
+                    cursorEvent = Cursor.NW_RESIZE;
+                } else if (mouseEventX < cornerBorder && mouseEventY > sceneHeight - cornerBorder) {
+                    cursorEvent = Cursor.SW_RESIZE;
+                } else if (mouseEventX > sceneWidth - cornerBorder && mouseEventY < cornerBorder) {
+                    cursorEvent = Cursor.NE_RESIZE;
+                } else if (mouseEventX > sceneWidth - cornerBorder && mouseEventY > sceneHeight - cornerBorder) {
+                    cursorEvent = Cursor.SE_RESIZE;
+                } else if (mouseEventX < border) {
+                    cursorEvent = Cursor.W_RESIZE;
+                } else if (mouseEventX > sceneWidth - border) {
+                    cursorEvent = Cursor.E_RESIZE;
+                } else if (mouseEventY < border) {
+                    cursorEvent = Cursor.N_RESIZE;
+                } else if (mouseEventY > sceneHeight - border) {
+                    cursorEvent = Cursor.S_RESIZE;
+                } else {
+                    cursorEvent = Cursor.DEFAULT;
+                }
+                scene.setCursor(cursorEvent);
+            } else if(MouseEvent.MOUSE_EXITED.equals(mouseEventType) || MouseEvent.MOUSE_EXITED_TARGET.equals(mouseEventType)){
+                scene.setCursor(Cursor.DEFAULT);
+            } else if (MouseEvent.MOUSE_PRESSED.equals(mouseEventType) == true) {
+                startX = stage.getWidth() - mouseEventX;
+                startY = stage.getHeight() - mouseEventY;
+            } else if (MouseEvent.MOUSE_DRAGGED.equals(mouseEventType) == true) {
+                if (Cursor.DEFAULT.equals(cursorEvent) == false) {
+                    if (Cursor.W_RESIZE.equals(cursorEvent) == false && Cursor.E_RESIZE.equals(cursorEvent) == false) {
+                        double minHeight = stage.getMinHeight() > (border*2) ? stage.getMinHeight() : (border*2);
+                        if (Cursor.NW_RESIZE.equals(cursorEvent) == true || Cursor.N_RESIZE.equals(cursorEvent) == true || Cursor.NE_RESIZE.equals(cursorEvent) == true) {
+                            if (stage.getHeight() > minHeight || mouseEventY < 0) {
+                                stage.setHeight(stage.getY() - mouseEvent.getScreenY() + stage.getHeight());
+                                stage.setY(mouseEvent.getScreenY());
+                            }
+                        } else {
+                            if (stage.getHeight() > minHeight || mouseEventY + startY - stage.getHeight() > 0) {
+                                stage.setHeight(mouseEventY + startY);
+                            }
+                        }
+                    }
+
+                    if (Cursor.N_RESIZE.equals(cursorEvent) == false && Cursor.S_RESIZE.equals(cursorEvent) == false) {
+                        double minWidth = stage.getMinWidth() > (border*2) ? stage.getMinWidth() : (border*2);
+                        if (Cursor.NW_RESIZE.equals(cursorEvent) == true || Cursor.W_RESIZE.equals(cursorEvent) == true || Cursor.SW_RESIZE.equals(cursorEvent) == true) {
+                            if (stage.getWidth() > minWidth || mouseEventX < 0) {
+                                stage.setWidth(stage.getX() - mouseEvent.getScreenX() + stage.getWidth());
+                                stage.setX(mouseEvent.getScreenX());
+                            }
+                        } else {
+                            if (stage.getWidth() > minWidth || mouseEventX + startX - stage.getWidth() > 0) {
+                                stage.setWidth(mouseEventX + startX);
+                            }
+                        }
+                    }
+
+                    mouseEvent.consume();
+                }
+
+            }
+        }
+
+        public void setCurvedCorners(double curvedCornersMargin)
+        {
+            this.curvedCornersMargin = curvedCornersMargin;
+        }
     }
 }

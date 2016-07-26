@@ -48,7 +48,7 @@ import threadchecker.Tag;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 16057 2016-06-20 11:32:08Z nccb $
+ * @version $Id: ClassInspector.java 16210 2016-07-26 16:34:55Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class ClassInspector extends Inspector
@@ -93,7 +93,7 @@ public class ClassInspector extends Inspector
             DialogManager.centreWindow(insp, parent);
         }
         */
-        installListenersForMoveDrag();
+        installListenersForMoveDrag(8.0);
     }
 
     /**
