@@ -322,7 +322,8 @@ public class ImportScanner
         return new ConfigurationBuilder()
             .setScanners(new SubTypesScanner(false /* don't exclude Object.class */))
             .setUrls(urls)
-            .addClassLoader(cl);
+            .addClassLoader(cl)
+            .useParallelExecutor();
     }
 
     /**
