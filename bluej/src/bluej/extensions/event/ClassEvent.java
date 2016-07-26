@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,7 +64,18 @@ public class ClassEvent implements ExtensionEvent
     private boolean isCompiled;
     private boolean hasError;
     private String oldName;
-    
+
+    /**
+     * Construct a new ClassEvent object for a STATE_CHANGED event.
+     * @param eventId    The event identifier (STATE_CHANGED)
+     * @param isCompiled  Whether the class is compiled or not
+     */
+    public ClassEvent(int eventId, Package bluejPackage, BClass bClass, boolean isCompiled)
+    {
+        this(eventId, bluejPackage, bClass, isCompiled, isCompiled);
+    }
+
+
     /**
      * Construct a new ClassEvent object for a STATE_CHANGED event.
      * @param eventId    The event identifier (STATE_CHANGED)
