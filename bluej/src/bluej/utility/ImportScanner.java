@@ -224,8 +224,14 @@ public class ImportScanner
                 new Thread() { public void run()
                 {
                     RootPackageInfo rootPkg = findAllTypes();
-                    loadCachedImports(rootPkg);
-                    root.complete(rootPkg);
+                    try
+                    {
+                        loadCachedImports(rootPkg);
+                    }
+                    finally
+                    {
+                        root.complete(rootPkg);
+                    }
                 }}.start();
                 return root;
             }
@@ -352,6 +358,13 @@ public class ImportScanner
         }
     }
 
+    /**
+     * Gets a package-tree structure which includes all packages and class-names
+     * on the current class-path (by scanning all JARs and class-files on the path).
+     *
+     * @return A package-tree structure with all class names present, but not any further
+     * details about the classes.
+     */
     @OnThread(Tag.Unique)
     private RootPackageInfo findAllTypes()
     {
