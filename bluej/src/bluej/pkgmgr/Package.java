@@ -1308,7 +1308,7 @@ public final class Package extends Graph
             currentlyCompiling = true;
             compile(new CompileObserver() {
                     @Override
-                    public void compilerMessage(Diagnostic diagnostic) {  }
+                    public void compilerMessage(Diagnostic diagnostic, CompileType type) {  }
                     @Override
                     public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type) { }
                     @Override
@@ -2394,7 +2394,7 @@ public final class Package extends Graph
             }
         }
 
-        private void sendEventToExtensions(String filename, int [] errorPosition, String message, int eventType)
+        private void sendEventToExtensions(String filename, int [] errorPosition, String message, int eventType, CompileType type)
         {
             File [] sources;
             if (filename != null) {
@@ -2404,7 +2404,7 @@ public final class Package extends Graph
             else {
                 sources = new File[0];
             }
-            CompileEvent aCompileEvent = new CompileEvent(eventType, sources);
+            CompileEvent aCompileEvent = new CompileEvent(eventType, type.keepClasses(), sources);
             aCompileEvent.setErrorPosition(errorPosition);
             aCompileEvent.setErrorMessage(message);
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
@@ -2418,7 +2418,7 @@ public final class Package extends Graph
         public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
         {
             // Send a compilation starting event to extensions.
-            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
+            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             // Set BlueJ status bar message
@@ -2432,7 +2432,7 @@ public final class Package extends Graph
         }
 
         @Override
-        public boolean compilerMessage(Diagnostic diagnostic)
+        public boolean compilerMessage(Diagnostic diagnostic, CompileType type)
         {
             int [] errorPosition = new int[4];
             errorPosition[0] = (int) diagnostic.getStartLine();
@@ -2440,24 +2440,24 @@ public final class Package extends Graph
             errorPosition[2] = (int) diagnostic.getEndLine();
             errorPosition[3] = (int) diagnostic.getEndColumn();
             if (diagnostic.getType() == Diagnostic.ERROR) {
-                errorMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage());
+                errorMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage(), type);
             }
             else {
-                warningMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage());
+                warningMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage(), type);
             }
             return false;
         }
         
-        private void errorMessage(String filename, int [] errorPosition, String message)
+        private void errorMessage(String filename, int [] errorPosition, String message, CompileType type)
         {
             // Send a compilation Error event to extensions.
-            sendEventToExtensions(filename, errorPosition, message, CompileEvent.COMPILE_ERROR_EVENT);
+            sendEventToExtensions(filename, errorPosition, message, CompileEvent.COMPILE_ERROR_EVENT, type);
         }
 
-        private void warningMessage(String filename, int [] errorPosition, String message)
+        private void warningMessage(String filename, int [] errorPosition, String message, CompileType type)
         {
             // Send a compilation Error event to extensions.
-            sendEventToExtensions(filename, errorPosition, message, CompileEvent.COMPILE_WARNING_EVENT);
+            sendEventToExtensions(filename, errorPosition, message, CompileEvent.COMPILE_WARNING_EVENT, type);
         }
 
         /**
@@ -2535,7 +2535,7 @@ public final class Package extends Graph
 
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
-            CompileEvent aCompileEvent = new CompileEvent(eventId, Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
+            CompileEvent aCompileEvent = new CompileEvent(eventId, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
             
             if (chainObserver != null) {
@@ -2675,9 +2675,9 @@ public final class Package extends Graph
         }
         
         @Override
-        public boolean compilerMessage(Diagnostic diagnostic)
+        public boolean compilerMessage(Diagnostic diagnostic, CompileType type)
         {
-            super.compilerMessage(diagnostic);
+            super.compilerMessage(diagnostic, type);
             if (diagnostic.getType() == Diagnostic.ERROR) {
                 return errorMessage(diagnostic);
             }

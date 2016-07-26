@@ -123,8 +123,15 @@ public class BClass
         }
         bluejClass.remove();
     }
-    
-    public void removeStrideFile()
+
+    /**
+     * Converts a Stride class to Java, by removing the Stride file and retaining the generated Java.
+     *
+     * @throws ProjectNotOpenException
+     * @throws PackageNotFoundException
+     * @throws ClassNotFoundException
+     */
+    public void convertStrideToJava()
             throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
     {
         ClassTarget bluejClass = classId.getClassTarget();
@@ -194,7 +201,7 @@ public class BClass
     }
     
     /**
-     * Finds out whether this class has source code available.
+     * Finds out whether this class has source code available, and whether it's Java or Stride
      */
     public SourceType getSourceType() throws ProjectNotOpenException, PackageNotFoundException
     {

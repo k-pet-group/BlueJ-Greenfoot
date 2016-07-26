@@ -59,8 +59,8 @@ public class LocalCompileObserverWrapper extends java.rmi.server.UnicastRemoteOb
     }
     
     @Override
-    public void compilerMessage(Diagnostic diagnostic) throws RemoteException
+    public void compilerMessage(Diagnostic diagnostic, CompileType type) throws RemoteException
     {
-        observer.compilerMessage(diagnostic);
+        observer.compilerMessage(diagnostic, type);
     }
 }

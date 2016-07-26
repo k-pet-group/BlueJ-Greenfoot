@@ -68,9 +68,9 @@ public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
     }
 
     @Override
-    public boolean compilerMessage(Diagnostic diagnostic)
+    public boolean compilerMessage(Diagnostic diagnostic, CompileType type)
     {
-        boolean shownToUser = wrapped.compilerMessage(diagnostic);
+        boolean shownToUser = wrapped.compilerMessage(diagnostic, type);
         if (diagnostic.getFileName() != null)
         {
             File userFile = new File(diagnostic.getFileName());

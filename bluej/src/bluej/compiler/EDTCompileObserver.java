@@ -49,7 +49,7 @@ public interface EDTCompileObserver
      * 
      * Returns whether or not the error was shown to the user (for data collection purposes)
      */
-    boolean compilerMessage(Diagnostic diagnostic);
+    boolean compilerMessage(Diagnostic diagnostic, CompileType type);
     
     /**
      * A Compilation job finished.

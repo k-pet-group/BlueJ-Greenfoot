@@ -44,7 +44,7 @@ public interface RCompileObserver extends java.rmi.Remote
     /**
      * An error or warning message occurred during compilation
      */
-    void compilerMessage(Diagnostic diagnostic) throws RemoteException;
+    void compilerMessage(Diagnostic diagnostic, CompileType type) throws RemoteException;
     
     /**
      * A Compilation job finished.

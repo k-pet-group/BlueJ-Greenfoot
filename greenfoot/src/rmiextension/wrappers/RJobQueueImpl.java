@@ -93,10 +93,10 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 }
             }
             @Override
-            public void compilerMessage(Diagnostic diagnostic)
+            public void compilerMessage(Diagnostic diagnostic, CompileType type)
             {
                 try {
-                    observer.compilerMessage(diagnostic);
+                    observer.compilerMessage(diagnostic, type);
                 }
                 catch (ServerError se) {
                     Debug.reportError("Server error in RMI call: " + se.getCause());

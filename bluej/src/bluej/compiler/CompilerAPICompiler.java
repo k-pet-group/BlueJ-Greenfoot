@@ -82,7 +82,7 @@ public class CompilerAPICompiler extends Compiler
         if (jc == null) {
             // We'd expect that this should never happen, but it's been reported once.
             observer.compilerMessage(new bluej.compiler.Diagnostic(bluej.compiler.Diagnostic.ERROR,
-                    "The compiler does not appear to be available."));
+                    "The compiler does not appear to be available."), type);
             return false;
         }
         
@@ -166,7 +166,7 @@ public class CompilerAPICompiler extends Compiler
                     }
                 }
                 
-                observer.compilerMessage(bjDiagnostic);
+                observer.compilerMessage(bjDiagnostic, type);
             }
         };
         

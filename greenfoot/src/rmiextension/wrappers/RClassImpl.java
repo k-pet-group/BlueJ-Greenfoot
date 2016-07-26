@@ -381,7 +381,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
 
     public void removeStrideFile() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
-        bClass.removeStrideFile();
+        bClass.convertStrideToJava();
     }
 
     public void setReadOnly(boolean b) throws RemoteException, ProjectNotOpenException, PackageNotFoundException 

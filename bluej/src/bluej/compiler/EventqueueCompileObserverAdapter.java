@@ -74,14 +74,17 @@ final public class EventqueueCompileObserverAdapter
     }
     
     // ---------------- CompileObserver interface ---------------------
-    
-    public synchronized void compilerMessage(Diagnostic diagnostic)
+
+    @Override
+    public synchronized void compilerMessage(Diagnostic diagnostic, CompileType type)
     {
         command = COMMAND_DIAG;
         this.diagnostic = diagnostic;
+        this.type = type;
         runOnEventQueue();
     }
-    
+
+    @Override
     public synchronized void startCompile(CompileInputFile[] csources, CompileReason reason, CompileType type)
     {
         command = COMMAND_START;
@@ -91,6 +94,7 @@ final public class EventqueueCompileObserverAdapter
         runOnEventQueue();
     }
 
+    @Override
     public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
     {
         command = COMMAND_END;
@@ -113,7 +117,7 @@ final public class EventqueueCompileObserverAdapter
                 link.startCompile(sources, reason, type);
                 break;
             case COMMAND_DIAG:
-                link.compilerMessage(diagnostic);
+                link.compilerMessage(diagnostic, type);
                 break;
             case COMMAND_END:
                 link.endCompile(sources, successful, type);

@@ -1031,7 +1031,7 @@ public class Invoker
      * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)
      */
     @Override
-    public boolean compilerMessage(Diagnostic diagnostic)
+    public boolean compilerMessage(Diagnostic diagnostic, CompileType type)
     {
         if (diagnostic.getType() == Diagnostic.ERROR) {
             if (! gotError) {

@@ -1211,7 +1211,7 @@ public class ClassTarget extends DependentTarget
             }
 
             @Override
-            public void compilerMessage(Diagnostic diagnostic)
+            public void compilerMessage(Diagnostic diagnostic, CompileType type)
             {
             }
         };
@@ -2236,6 +2236,9 @@ public class ClassTarget extends DependentTarget
     
     public void removeStride()
     {
+        if (sourceAvailable != SourceType.Stride)
+            throw new IllegalStateException("Cannot convert non-Stride from Stride to Java");
+
         if(editor != null) {
             editor.close();
             try {

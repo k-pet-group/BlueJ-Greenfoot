@@ -40,7 +40,7 @@ public interface CompileObserver
     /**
      * An error or warning message occurred during compilation
      */
-    void compilerMessage(Diagnostic diagnostic);
+    void compilerMessage(Diagnostic diagnostic, CompileType type);
     
     /**
      * A Compilation job finished.
