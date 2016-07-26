@@ -78,6 +78,11 @@ import javax.swing.*;
 public final class BlueJ
 {
     public static final int SE_PROJECT = 0;
+    /**
+     * This is left here for compatibility with old extensions, but
+     * will never be used.
+     */
+    public static final int ME_PROJECT = 1;
     
     private final ExtensionWrapper myWrapper;
     private final ExtensionPrefManager prefManager;
@@ -167,7 +172,7 @@ public final class BlueJ
      * Creates a new BlueJ project.
      *
      * @param  directory    where you want the project be placed, it must be writable.
-     * @param  projectType  the type of project, currently only SE is available.
+     * @param  projectType  the type of project, currently only SE_PROJECT is available.
      * @return              the newly created BProject if successful, null otherwise.
      */
     public BProject newProject(File directory, int projectType )
