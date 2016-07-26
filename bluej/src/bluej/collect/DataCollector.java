@@ -138,8 +138,9 @@ public @OnThread(Tag.Swing) class DataCollector
         {
             changeOptInOut(Boot.isTrialRecording());
         }
-        
-        recordingThisSession = uuidValidForRecording();
+
+        // Temporarily for 4.0.0-preview, do not send to Blackbox:
+        recordingThisSession = false; //uuidValidForRecording();
         
         if (recordingThisSession)
         {
