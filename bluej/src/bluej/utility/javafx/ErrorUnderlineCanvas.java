@@ -186,6 +186,7 @@ public class ErrorUnderlineCanvas
      * This includes things like drawing on selection in expression slots,
      * or drawing fake carets during code completion.
      */
+    @OnThread(value = Tag.FX, requireSynchronized = true)
     private final List<FXConsumer<GraphicsContext>> extraRedraw = new ArrayList<>();
 
     /**
@@ -296,7 +297,13 @@ public class ErrorUnderlineCanvas
                 gc.strokeLine(start.getX(), start.getY(), end.getX(), end.getY());
             }
         }
-        
+
+        doExtraRedraw(gc);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private synchronized void doExtraRedraw(GraphicsContext gc)
+    {
         extraRedraw.forEach(c -> c.accept(gc));
     }
 
@@ -425,7 +432,8 @@ public class ErrorUnderlineCanvas
      * The action will take place after all errors and hyperlinks are drawn.
      * Extra redraw actions are executed in the order in which they are added.
      */
-    public void addExtraRedraw(FXConsumer<GraphicsContext> redraw)
+    @OnThread(Tag.FX)
+    public synchronized void addExtraRedraw(FXConsumer<GraphicsContext> redraw)
     {
         extraRedraw.add(redraw);        
     }
