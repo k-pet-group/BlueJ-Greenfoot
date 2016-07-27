@@ -59,6 +59,7 @@ import bluej.stride.slots.TriangleLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 
@@ -79,6 +80,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
@@ -97,6 +99,7 @@ import threadchecker.Tag;
 public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
 {
     private final SlotLabel abstractLabel = new SlotLabel("abstract");
+    private final SimpleBooleanProperty focusHasBeenInNameOrExtends;
     private BooleanProperty abstractModifier = new SimpleBooleanProperty(false);
 
     private final TypeSlot extendsSlot;
@@ -107,8 +110,9 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
 
     private final Implements implementsSlot;
 
-    private final ObservableBooleanValue keyMouseHeader;
-    private final SimpleBooleanProperty headerHasKeyboardFocus = new SimpleBooleanProperty(false);
+    private final ReadOnlyBooleanProperty focusInName;
+    private final ReadOnlyBooleanProperty focusInExtends;
+    private final BooleanBinding focusInNameOrExtends;
     private Map<String, List<AssistContentThreadSafe>> curMembersByClass = Collections.emptyMap();
 
     private final FrameCanvas constructorsCanvas;
@@ -133,13 +137,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         if (extendsName != null) {
             extendsSlot.setText(extendsName);
         }
-        // We must make the showing immediate when you get keyboard focus, as otherwise there
-        // are problems with focusing the extends slot and then it disappears.
-        // We no longer show on mouse hover:
-        keyMouseHeader = JavaFXUtil.delay(headerHasKeyboardFocus, Duration.ZERO, Duration.millis(100));
-        JavaFXUtil.addChangeListener(keyMouseHeader, h -> showingExtends.set(!extendsSlot.isEmpty() || keyMouseHeader.get()));
-        extendsSlot.onTextPropertyChange(s -> showingExtends.set(!extendsSlot.isEmpty() || keyMouseHeader.get()));
-
+        
         implementsSlot = new Implements(this, () -> {
             TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.INTERFACE, "class-");
             s.setSimplePromptText("interface type");
@@ -147,17 +145,31 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         }, () -> getCanvases().findFirst().ifPresent(c -> c.getFirstCursor().requestFocus()), editor);
         implementsList.forEach(t -> implementsSlot.addTypeSlotAtEnd(t.getContent(), false));
 
-        JavaFXUtil.addChangeListener(keyMouseHeader, keyMouse -> {
-            if (keyMouse)
+        // We must make the showing immediate when you get keyboard focus, as otherwise there
+        // are problems with focusing the extends slot and then it disappears.
+        // We no longer show on mouse hover:
+        focusInName = JavaFXUtil.delay(paramName.effectivelyFocusedProperty(), Duration.ZERO, Duration.millis(100));
+        focusInExtends = JavaFXUtil.delay(extendsSlot.effectivelyFocusedProperty(), Duration.ZERO, Duration.millis(100));
+        focusInNameOrExtends = BooleanBinding.booleanExpression(focusInName).or(focusInExtends);
+        focusHasBeenInNameOrExtends = new SimpleBooleanProperty(false);
+        FXRunnable updateFocus = () ->
+        {
+            if (focusInNameOrExtends.get())
+            {
                 implementsSlot.ensureAtLeastOneSlot();
+                focusHasBeenInNameOrExtends.set(true);
+            }
             else
-                implementsSlot.clearIfSingleEmpty();
-        });
-
-
-        headerHasKeyboardFocus.bind(BooleanBinding.booleanExpression(paramName.effectivelyFocusedProperty())
-                                .or(BooleanBinding.booleanExpression(extendsSlot.effectivelyFocusedProperty()))
-                                .or(implementsSlot.focusedProperty()));
+            {
+                if (!implementsSlot.focusedProperty().get())
+                    implementsSlot.clearIfSingleEmpty();
+                focusHasBeenInNameOrExtends.set(focusHasBeenInNameOrExtends.get() && implementsSlot.focusedProperty().get());
+            }
+        };
+        JavaFXUtil.addChangeListener(focusInNameOrExtends, f -> updateFocus.run());
+        JavaFXUtil.addChangeListener(implementsSlot.focusedProperty(), f -> updateFocus.run());
+        JavaFXUtil.addChangeListener(focusHasBeenInNameOrExtends, h -> showingExtends.set(!extendsSlot.isEmpty() || focusHasBeenInNameOrExtends.get()));
+        extendsSlot.onTextPropertyChange(s -> showingExtends.set(!extendsSlot.isEmpty() || focusHasBeenInNameOrExtends.get()));
 
         inheritedLabel = new TriangleLabel(editor, t -> extendsInheritedCanvases.forEach(c -> c.grow(t)),
             t -> extendsInheritedCanvases.forEach(c -> c.shrink(t)), new SimpleBooleanProperty(false));
@@ -803,6 +815,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             @Override
             public boolean focusRightEndFromNext()
             {
+                // Show extends too, if we enter the header like this:
+                focusHasBeenInNameOrExtends.set(true);
                 implementsSlot.ensureAtLeastOneSlot();
                 Utility.findLast(implementsSlot.getTypeSlots()).get().requestFocus(Focus.RIGHT);
                 return true;
