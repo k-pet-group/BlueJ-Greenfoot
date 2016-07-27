@@ -1059,9 +1059,14 @@ public class ClassTarget extends DependentTarget
     @Override
     public void ensureSaved() throws IOException
     {
-        if(editor != null) {
-            editor.save();
+        // getEditor() is added to solve bugs caused when compile happens before saving,
+        // e.g. when creating a new class, it will be marked with red strips.
+        // If it causes a problem, move it to compile(CompileObserver, CompileReason, CompileType)
+        // @ Package class.
+        if(editor == null) {
+            getEditor();
         }
+        editor.save();
     }
     
     // --- end of EditableTarget interface ---

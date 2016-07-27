@@ -1263,6 +1263,11 @@ public final class Package extends Graph
                 if (target instanceof ClassTarget) {
                     ClassTarget ct = (ClassTarget) target;
                     if (ct.isInvalidState() && ! ct.isQueued()) {
+                        // Next line is to solve bugs caused when compile happens before saving,
+                        // e.g. when creating a new class, it will be marked with red strips.
+                        // It is commented out as it is added to ensureSaved() @ ClassTarget.
+                        // if it causes a problem there, delete it and uncomment it here.
+//                      ct.getEditor();
                         ct.ensureSaved();
                         toCompile.add(ct);
                         ct.setQueued(true);
