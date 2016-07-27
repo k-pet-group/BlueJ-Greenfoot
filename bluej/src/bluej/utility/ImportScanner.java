@@ -425,10 +425,13 @@ public class ImportScanner
             try
             {
                 PackageInfo javaPkg = getRoot().get().subPackages.get("java");
-                cache.appendChild(toXML(javaPkg, "java"));
-                FileOutputStream os = new FileOutputStream(getImportCachePath());
-                Utility.serialiseCodeTo(cache, os);
-                os.close();
+                if (javaPkg != null)
+                {
+                    cache.appendChild(toXML(javaPkg, "java"));
+                    FileOutputStream os = new FileOutputStream(getImportCachePath());
+                    Utility.serialiseCodeTo(cache, os);
+                    os.close();
+                }
             }
             catch (InterruptedException | ExecutionException | IOException e)
             {
