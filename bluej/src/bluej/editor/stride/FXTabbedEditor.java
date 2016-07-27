@@ -205,7 +205,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         projectTitle = project.getProjectName();
         stage = new Stage();
         //add the greenfoot icon to the Stride editor.
-        stage.getIcons().add(BlueJTheme.getIconImageFX());
+        BlueJTheme.setWindowIconFX(stage);
 
         JavaFXUtil.addChangeListener(stage.showingProperty(), stageShowingSwing::set);
         initialiseFX();
