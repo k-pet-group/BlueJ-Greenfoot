@@ -288,6 +288,23 @@ public class VarFrame extends SingleLineFrame
             }
         };
     }
+
+    public static FrameFactory<VarFrame> getInterfaceConstantFactory()
+    {
+        return new FrameFactory<VarFrame>() {
+            @Override
+            public VarFrame createBlock(InteractionManager editor)
+            {
+                return new VarFrame(editor, false, false);
+            }
+
+            @Override
+            public Class<VarFrame> getBlockClass()
+            {
+                return VarFrame.class;
+            }
+        };
+    }
     
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)

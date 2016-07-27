@@ -63,7 +63,8 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
             new Entry<>('c', ConstructorFrame.getFactory(), false, StrideCategory.CONSTRUCTOR, "Constructor", "A constructor of a class"),
             new Entry<>('c', CaseFrame.getFactory(), false, StrideCategory.CASE, "Case (Switch)", "Handles specific value"),
             new Entry<>('c', VarFrame.getLocalConstantFactory(), false, StrideCategory.VAR_LOCAL, "Constant declaration", "Declares constant"),
-            new Entry<>('c', VarFrame.getClassConstantFactory(), false, StrideCategory.VAR_FIELD, "Constant declaration", "Declares constant"),
+            new Entry<>('c', VarFrame.getClassConstantFactory(), false, StrideCategory.CONSTANT_CLASS_FIELD, "Constant declaration", "Declares constant"),
+            new Entry<>('c', VarFrame.getInterfaceConstantFactory(), false, StrideCategory.CONSTANT_INTERFACE_FIELD, "Constant declaration", "Declares constant"),
             //case 'f': return new ForBlock(editor);
             new Entry<>('f', ForeachFrame.getFactory(), true, StrideCategory.LOOP, "For-each loop", "Loop over a collection"),
             new Entry<>('i', IfFrame.getFactory(), true, StrideCategory.CONDITIONAL, "If", "Conditional execution"),
@@ -146,7 +147,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
     {
         return checkCategories( 
                 StrideCategory.VAR,
-                StrideCategory.VAR_FIELD,
+                StrideCategory.CONSTANT_CLASS_FIELD,
                 StrideCategory.BLANK,
                 StrideCategory.COMMENT);
     }
@@ -154,7 +155,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
     public static FrameTypeCheck checkInterfaceField()
     {
         return checkCategories(
-                StrideCategory.VAR_FIELD,
+                StrideCategory.CONSTANT_INTERFACE_FIELD,
                 StrideCategory.BLANK,
                 StrideCategory.COMMENT);
     }
