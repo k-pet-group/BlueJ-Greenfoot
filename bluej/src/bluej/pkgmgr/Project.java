@@ -2153,26 +2153,21 @@ public class Project implements DebuggerListener, InspectorManager
             }
             else
             {
-                ActionListener listener = new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
+                ActionListener listener = e -> {
+                    Set<Package> pkgsToCompile;
+
+                    synchronized (Project.this)
                     {
-                        Set<Package> pkgsToCompile;
-                        
-                        synchronized (Project.this)
-                        {
-                            // Avoid holding Project lock for too long by making a copy of the
-                            // lock-protected set now:
-                            pkgsToCompile = scheduledPkgs;
-                            scheduledPkgs = new HashSet<>();
-                            scheduledPkgs.clear();
-                        }
-                        
-                        for (Package p : pkgsToCompile)
-                        {
-                            p.compileOnceIdle(latestCompileReason.get(), latestCompileType.get());
-                        }
+                        // Avoid holding Project lock for too long by making a copy of the
+                        // lock-protected set now:
+                        pkgsToCompile = scheduledPkgs;
+                        scheduledPkgs = new HashSet<>();
+                        scheduledPkgs.clear();
+                    }
+
+                    for (Package p : pkgsToCompile)
+                    {
+                        p.compileOnceIdle(latestCompileReason.get(), latestCompileType.get());
                     }
                 };
                 compilerTimer = new Timer(1000, listener);
