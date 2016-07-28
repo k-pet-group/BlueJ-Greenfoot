@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import javax.swing.*;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -118,7 +119,7 @@ class AboutBlue extends Dialog<Void>
         bottom.getChildren().add(new Label(Config.getString("about.javahome") + " " + System.getProperty("java.home")));
 
         Button debugLogShow = new Button(Config.getString("about.openFolder"));
-        debugLogShow.setOnAction(e -> {
+        debugLogShow.setOnAction(e -> SwingUtilities.invokeLater(() -> {
             try
             {
                 Desktop.getDesktop().open(Config.getUserConfigDir());
@@ -127,7 +128,7 @@ class AboutBlue extends Dialog<Void>
             {
                 Debug.reportError(ex);
             }
-        });
+        }));
         HBox debugLog = new HBox(new Label(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName)), debugLogShow);
         JavaFXUtil.addStyleClass(debugLog, "about-debuglog");
         debugLog.setAlignment(Pos.BASELINE_LEFT);
