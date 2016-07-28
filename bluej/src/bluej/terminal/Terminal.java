@@ -669,10 +669,11 @@ public final class Terminal
         FXSupplier<MenuBar> makeFXMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), mainPanel);
         Platform.runLater(() -> {
             window = new Stage();
+            window.setTitle(title);
             MenuBar fxMenuBar = makeFXMenuBar.get();
             fxMenuBar.setUseSystemMenuBar(true);
             window.setScene(new Scene(new VBox(fxMenuBar, swingNode)));
-    
+
             // Close Action when close button is pressed
             window.setOnCloseRequest(e -> {
                 // We consume the event on the FX thread, then hop to the Swing
