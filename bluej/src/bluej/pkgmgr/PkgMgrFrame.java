@@ -335,6 +335,7 @@ public class PkgMgrFrame extends JPanel
                 root.setPrefHeight(preferredSize.getHeight());
                 stage.setScene(new Scene(root));
                 stage.show();
+                //org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
                 paneProperty.setValue(root);
             });
