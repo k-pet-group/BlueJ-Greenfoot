@@ -1449,7 +1449,7 @@ public class Project implements DebuggerListener, InspectorManager
         BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
         
         packages.values().forEach(Package::reInitBreakpoints);
-        PkgMgrFrame frame = PkgMgrFrame.getMostRecent();
+        PkgMgrFrame frame = PkgMgrFrame.findFrame(getUnnamedPackage());
         if (frame != null) {
             frame.bringToFront();
         }        
