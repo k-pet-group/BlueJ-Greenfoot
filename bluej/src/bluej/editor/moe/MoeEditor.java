@@ -3707,9 +3707,7 @@ public final class MoeEditor extends JPanel
              info.warning("No completions available.");
              CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, watcher,
                             null, new AssistContent[0], null);
-            codeCompletionDlg.setLocation(xpos, ypos);
-            codeCompletionDlg.setVisible(true);
-            codeCompletionDlg.requestFocus();
+            initialiseContentAssist(codeCompletionDlg, xpos, ypos);
         }
     }
  
@@ -4157,6 +4155,30 @@ public final class MoeEditor extends JPanel
         );
     }
 
+    @OnThread(Tag.Swing)
+    private static void initialiseContentAssist(CodeCompletionDisplay codeCompletionDlg, int xpos, int ypos)
+    {
+        codeCompletionDlg.setLocation(xpos, ypos);
+        codeCompletionDlg.setReady(false);
+        codeCompletionDlg.setVisible(true);
+        codeCompletionDlg.toFront();
+        // Seems we must wait after toFront before requesting focus:
+        new Thread(() ->
+        {
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch (InterruptedException e) {}
+            SwingUtilities.invokeLater(() ->
+            {
+                codeCompletionDlg.requestFocus();
+                codeCompletionDlg.setReady(true);
+
+            });
+        }).start();
+    }
+
     @OnThread(Tag.FXPlatform)
     public javafx.stage.Window getWindow()
     {
@@ -4415,9 +4437,7 @@ public final class MoeEditor extends JPanel
                     codeCompletionDlg = new CodeCompletionDisplay(MoeEditor.this, watcher,
                             suggests.getSuggestionType().toString(false),
                             initialElements, suggestToken);
-                    codeCompletionDlg.setLocation(xpos, ypos);
-                    codeCompletionDlg.setVisible(true);
-                    codeCompletionDlg.requestFocus();
+                    initialiseContentAssist(codeCompletionDlg, xpos, ypos);
                 } else
                 {
                     //component was already created. update it.

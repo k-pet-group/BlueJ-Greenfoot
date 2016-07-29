@@ -110,6 +110,11 @@ public class CodeCompletionDisplay extends JFrame
     private TreeSet<AssistContent> jListData;
     
     private ThreadPoolExecutor threadpool;
+    /**
+     * We only worry about losing focus after we've been explicitly marked
+     * as ready.
+     */
+    private boolean ready;
 
     /**
      * Construct a code completion display panel, for the given editor and with the given
@@ -157,7 +162,8 @@ public class CodeCompletionDisplay extends JFrame
             @Override
             public void windowLostFocus(WindowEvent e)
             {
-                doClose();
+                if (ready)
+                    doClose();
             }
         });
 
@@ -564,6 +570,11 @@ public class CodeCompletionDisplay extends JFrame
 
         methodDescription.setText(jdHtml);
         methodDescription.setCaretPosition(0); // scroll to top
+    }
+
+    public void setReady(boolean ready)
+    {
+        this.ready = ready;
     }
 
     /**
