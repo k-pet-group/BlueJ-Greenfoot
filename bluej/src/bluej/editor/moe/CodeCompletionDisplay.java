@@ -184,7 +184,8 @@ public class CodeCompletionDisplay extends JFrame
         //TODO adapt the window listener to the new tabbed arrangement
 
         this.watcher = watcher;
-        watcher.recordCodeCompletionStarted(prefixBegin.getLine(), prefixBegin.getColumn(), null, null, prefix);
+        if (watcher != null)
+            watcher.recordCodeCompletionStarted(prefixBegin.getLine(), prefixBegin.getColumn(), null, null, prefix);
     }
 
     /**

@@ -3681,7 +3681,8 @@ public final class MoeEditor extends JPanel
     protected void createContentAssist()
     {
         //need to recreate the dialog each time it is pressed as the values may be different 
-        CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(sourcePane.getCaretPosition(),
+        ParsedCUNode parser = sourceDocument.getParser();
+        CodeSuggestions suggests = parser == null ? null : parser.getExpressionType(sourcePane.getCaretPosition(),
                 sourceDocument);
         LocatableToken suggestToken;
         int cpos;
