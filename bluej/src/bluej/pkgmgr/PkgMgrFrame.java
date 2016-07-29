@@ -89,6 +89,7 @@ import bluej.compiler.CompileType;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -203,6 +204,8 @@ public class PkgMgrFrame extends JPanel
     private static PageFormat pageFormat = null;
     private static final List<PkgMgrFrame> frames = new ArrayList<>(); // of PkgMgrFrames
     private static final ExtensionsManager extMgr = ExtensionsManager.getInstance();
+    @OnThread(Tag.FXPlatform)
+    private FXPlatformConsumer<Dimension> updateFXSize;
     private JPanel buttonPanel;
     private JPanel testPanel;
     private JPanel teamPanel;
@@ -326,13 +329,17 @@ public class PkgMgrFrame extends JPanel
             swingNode = new SwingNode();
             swingNode.setContent(PkgMgrFrame.this);
             Dimension preferredSize = swingNode.getContent().getPreferredSize();
-            swingNode.getContent().setPreferredSize(preferredSize);
             swingNode.getContent().validate();
             Platform.runLater(() -> {
                 Stage stage = new Stage();
                 BorderPane root = new BorderPane(swingNode);
                 root.setPrefWidth(preferredSize.getWidth());
                 root.setPrefHeight(preferredSize.getHeight());
+                updateFXSize = pref -> {
+                    root.setPrefWidth(pref.getWidth());
+                    root.setPrefHeight(pref.getHeight());
+                    stage.sizeToScene();
+                };
                 stage.setScene(new Scene(root));
                 stage.show();
                 //org.scenicview.ScenicView.show(stage.getScene());
@@ -837,13 +844,12 @@ public class PkgMgrFrame extends JPanel
                 String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
                 
                 classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
-                
-                String objectBench_height_str = p.getProperty("objectbench.height");
-                String objectBench_width_str = p.getProperty("objectbench.width");
-                if (objectBench_height_str != null && objectBench_width_str != null) {
-                    objbench.setPreferredSize(new Dimension(Integer.parseInt(objectBench_width_str),
-                            Integer.parseInt(objectBench_height_str)));
-                }
+
+                Dimension prefSize = getPreferredSize();
+                Platform.runLater(() -> {
+                    if (updateFXSize != null) updateFXSize.accept(prefSize);
+                    SwingUtilities.invokeLater(() -> objectBenchSplitPane.resetToPreferredSizes());
+                });
                 
                 String x_str = p.getProperty("package.editor.x", "30");
                 String y_str = p.getProperty("package.editor.y", "30");
@@ -2820,7 +2826,7 @@ public class PkgMgrFrame extends JPanel
             textEvaluator = new TextEvalArea(this, pkgMgrFont);
             objectBenchSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objbench, textEvaluator);
             objectBenchSplitPane.setBorder(null);
-            objectBenchSplitPane.setResizeWeight(1.0);
+            objectBenchSplitPane.setResizeWeight(0.9);
             objectBenchSplitPane.setDividerSize(5);
             if (!Config.isRaspberryPi()) objectBenchSplitPane.setOpaque(false);
             itemsToDisable.add(textEvaluator);
