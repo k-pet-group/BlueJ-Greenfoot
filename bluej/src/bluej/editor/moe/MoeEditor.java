@@ -4164,20 +4164,27 @@ public final class MoeEditor extends JPanel
         codeCompletionDlg.setVisible(true);
         codeCompletionDlg.toFront();
         // Seems we must wait after toFront before requesting focus:
-        new Thread(() ->
+        new Thread()
         {
-            try
+            @OnThread(Tag.Unique)
+            public void run()
             {
-                Thread.sleep(100);
-            }
-            catch (InterruptedException e) {}
-            SwingUtilities.invokeLater(() ->
-            {
-                codeCompletionDlg.requestFocus();
-                codeCompletionDlg.setReady(true);
+                try
+                {
+                    Thread.sleep(100);
+                }
+                catch (InterruptedException e)
+                {
+                }
 
-            });
-        }).start();
+                SwingUtilities.invokeLater(() ->
+                {
+                    codeCompletionDlg.requestFocus();
+                    codeCompletionDlg.setReady(true);
+
+                });
+            }
+        }.start();
     }
 
     @OnThread(Tag.FXPlatform)
