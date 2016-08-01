@@ -1111,6 +1111,7 @@ public class Invoker
         if (dialog != null) {
             dialog.setWaitCursor(false);
             dialog.close();
+            dialog.saveCallHistory();
             dialog = null;
         }
     }

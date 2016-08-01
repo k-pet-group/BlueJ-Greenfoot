@@ -385,6 +385,34 @@ public abstract class CallDialog extends Dialog<Void>
             }
         }
     }
+
+    @OnThread(Tag.FXPlatform)
+    public void saveCallHistory()
+    {
+        if (parameterList != null) {
+            Class<?>[] paramClasses = getArgTypes(true);
+            //First we add all the current items into the historylist
+            for (int i = 0; i < parameterList.actualCount(); i++) {
+                history.addCall(paramClasses[i], (String) parameterList.getActualParameter(i).getEditor()
+                    .getText());
+            }
+        }
+
+        if (typeParameterList != null) {
+            CallableView callable = getCallableView();
+            TypeParamView[] formalTypeParams = getFormalTypeParams(callable);
+            String[] typeParams = getTypeParams();
+            //First we add all the current items into the historylist
+            for (int i = 0; i < typeParams.length; i++) {
+                history.addCall(formalTypeParams[i], typeParams[i]);
+            }
+            //Then we update all the comboboxes
+            for (int i = 0; i < typeParams.length; i++) {
+                List<String> historyList = history.getHistory(formalTypeParams[i]);
+                typeParameterList.setHistory(i, historyList);
+            }
+        }
+    }
     
     /**
      * For a generic class this will return the type parameters if any has been
