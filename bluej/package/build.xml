@@ -45,10 +45,10 @@
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/userlib/README.TXT" />
-        <include name="jsch-0.1.53.jar"/>
-        <include name="org.eclipse.jgit-4.1.0.jar"/>
-        <include name="slf4j-api-1.7.2.jar"/>
-        <include name="slf4j-jdk14-1.7.2.jar"/>
+        <include name="lib/jsch-0.1.53.jar"/>
+        <include name="lib/org.eclipse.jgit-4.1.0.jar"/>
+        <include name="lib/slf4j-api-1.7.2.jar"/>
+        <include name="lib/slf4j-jdk14-1.7.2.jar"/>
         <!-- Pi4J -->
         <include name="lib/userlib/pi4j-device.jar" />
         <include name="lib/userlib/pi4j-gpio-extension.jar" />
