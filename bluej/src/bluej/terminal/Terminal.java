@@ -473,9 +473,7 @@ public final class Terminal
     @Override
     public void keyPressed(KeyEvent event)
     {
-        if (isMacOs) {
-            handleFontsizeKeys(event, event.getKeyCode());
-        }        
+        handleFontsizeKeys(event, event.getKeyCode());
     }
     
     @Override
@@ -525,13 +523,7 @@ public final class Terminal
         // most other unwanted actions (but allows copy/paste).
 
         char ch = event.getKeyChar();
-        
-        if ((! isMacOs) && handleFontsizeKeys(event, ch)) {
-            // Note: On Mac OS with Java 7+, we don't see command+= / command+- as a
-            // key-typed event and so we handle it in keyReleased instead.
-            return;
-        }
-        
+
         if ((event.getModifiers() & Event.META_MASK) != 0) {
             return; // return without consuming the event
         }
