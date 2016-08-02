@@ -294,6 +294,12 @@ public class TestExpressionSlot
         
         // Adding quote later:
         testMultiInsert("abc{\"}def", "{abc$def}", "{abc}_\"$\"_{def}");
+        testMultiInsert("abc{\"}", "{abc$}", "{abc}_\"$\"_{}");
+        testMultiInsert("{\"}def", "{$def}", "{}_\"$\"_{def}");
+        testMultiInsert("abc{\"}.def", "{abc$}.{def}", "{abc}_\"$\"_{}.{def}");
+        testMultiInsert("abc{\"}*def", "{abc$}*{def}", "{abc}_\"$\"_{}*{def}");
+        testMultiInsert("abc{\"}def()", "{abc$def}_({})_{}", "{abc}_\"$\"_{def}_({})_{}");
+        testMultiInsert("abc{\"}()", "{abc$}_({})_{}", "{abc}_\"$\"_{}_({})_{}");
 
         // Adding string adjacent to String:
         // First, before:

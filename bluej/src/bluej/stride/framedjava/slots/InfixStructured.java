@@ -1656,7 +1656,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 f.setText(f.getText().substring(0, posInField), token);
                 operators.add(pos.index, null, token);
                 fields.add(pos.index + 1, new StringLiteralExpression(c, makeNewField("", true), this), token);
-                if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null || fields.get(pos.index + 2) instanceof StringLiteralExpression)
+                if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null || fields.get(pos.index + 2) instanceof StringLiteralExpression || fields.get(pos.index + 2) instanceof BracketedStructured)
                 {
                     // Used to be operator directly after this field (or we are at end), must add another field to pad
                     // RHS (not allowed to have operator after compound with no field inbetween)
