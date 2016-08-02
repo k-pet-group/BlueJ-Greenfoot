@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
+import bluej.BlueJTheme;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -232,6 +234,7 @@ public class PrefMgrDialog
     private void makeDialog()
     {
         window = new Dialog<>();
+        BlueJTheme.setWindowIconFX(window);
         window.setTitle(Config.getApplicationName() + ": " + Config.getString("prefmgr.title"));
         Config.addDialogStylesheets(window.getDialogPane());
         JavaFXUtil.addStyleClass(window.getDialogPane(), "prefmgr-dialog-pane");

@@ -51,6 +51,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
+
+import bluej.BlueJTheme;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
@@ -661,6 +663,7 @@ public final class Terminal
         FXSupplier<MenuBar> makeFXMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), mainPanel);
         Platform.runLater(() -> {
             window = new Stage();
+            BlueJTheme.setWindowIconFX(window);
             window.setTitle(title);
             MenuBar fxMenuBar = makeFXMenuBar.get();
             fxMenuBar.setUseSystemMenuBar(true);

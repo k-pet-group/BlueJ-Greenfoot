@@ -33,6 +33,8 @@ import java.awt.Point;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.event.ComponentListener;
+
+import bluej.BlueJTheme;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
@@ -73,6 +75,7 @@ public class SwingNodeDialog
         
         Platform.runLater(() -> {            
             dialog = new Dialog<>();
+            BlueJTheme.setWindowIconFX(dialog);
             // We must return non-null result to allow the dialog
             // to be closed even though we have no FX buttons
             dialog.setResultConverter(bt -> new Object());

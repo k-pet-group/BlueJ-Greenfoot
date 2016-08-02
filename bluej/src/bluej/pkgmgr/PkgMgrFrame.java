@@ -332,6 +332,7 @@ public class PkgMgrFrame extends JPanel
             swingNode.getContent().validate();
             Platform.runLater(() -> {
                 Stage stage = new Stage();
+                BlueJTheme.setWindowIconFX(stage);
                 BorderPane root = new BorderPane(swingNode);
                 root.setPrefWidth(preferredSize.getWidth());
                 root.setPrefHeight(preferredSize.getHeight());
