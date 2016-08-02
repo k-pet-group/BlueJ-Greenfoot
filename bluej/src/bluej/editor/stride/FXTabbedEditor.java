@@ -438,6 +438,19 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         //Debug.time("initialisedFX");
         if (!tabPane.getTabs().contains(panel)) {
             tabPane.getTabs().add(panel);
+            // Do a size up and down for Moe tabs because SwingNode seems to
+            // have problems painting initially on some Windows systems.
+            if (panel instanceof MoeFXTab && !stage.isMaximized() && !stage.isIconified())
+            {
+                // We must delay, otherwise the resizing happens before the SwingNode is shown:
+                JavaFXUtil.runAfter(Duration.seconds(0.5),() -> {
+                    // Up and down one pixel:
+                    final double width = stage.getWidth();
+                    stage.setWidth(width + 1);
+                    // Must wait before reversing, so that SwingNode sees change:
+                    JavaFXUtil.runAfterCurrent(() -> stage.setWidth(width));
+                });
+            }
             if (toFront)
             {
                 setWindowVisible(visible, panel);
