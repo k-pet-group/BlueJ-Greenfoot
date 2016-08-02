@@ -927,6 +927,7 @@ public final class MoeEditor extends JPanel
                 }
             }
             errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
+            repaint();
         }
 
         // display the message

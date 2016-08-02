@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -126,8 +126,16 @@ public class MoeSyntaxView extends BlueJSyntaxView
      * Paint the line markers such as breakpoint, step mark
      */
     protected void paintLineMarkers(int lineIndex, Graphics g, int x, int y,
-            MoeSyntaxDocument document, Element line)
+            MoeSyntaxDocument document, MoeErrorManager errors, Element line)
     {
+        if (errors.getErrorOnLine(lineIndex) != null)
+        {
+            Color c = g.getColor();
+            g.setColor(Color.RED);
+            g.fillRect(x, y-50, TAG_WIDTH, 100);
+            g.setColor(c);
+        }
+
         if(PrefMgr.getFlag(PrefMgr.LINENUMBERS))
             drawLineNumber(g, lineIndex+1, x, y);
    
@@ -154,7 +162,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
     public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, MoeErrorManager errorMgr, Color def, Element line, TabExpander tx) 
     {
-        paintLineMarkers(lineIndex, g, x - LEFT_MARGIN, y, document, line);
+        paintLineMarkers(lineIndex, g, x - LEFT_MARGIN, y, document, errorMgr, line);
         if (document.getParsedNode() != null && syntaxHighlighting) {
             paintSyntaxLine(lineText, lineIndex, x, y, g, document, def, tx);
         }
