@@ -416,9 +416,11 @@ public class PkgMgrFrame extends JPanel
         BlueJEvent.removeListener(frame);
         PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEvaluator);
 
-        // frame should be garbage collected but we will speed it
-        // on its way
-        //frame.dispose();
+        Platform.runLater(() ->
+        {
+            javafx.stage.Window window = frame.getFXWindow();
+            window.hide();
+        });
     }
 
     /**
