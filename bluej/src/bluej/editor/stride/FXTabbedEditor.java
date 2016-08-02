@@ -332,6 +332,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 ((FXTab)tabPane.getSelectionModel().getSelectedItem()).notifySelected();
         });
 
+        JavaFXUtil.addChangeListenerPlatform(stage.iconifiedProperty(), minimised -> {
+            if (minimised)
+                ((FXTab)tabPane.getSelectionModel().getSelectedItem()).notifyUnselected();
+        });
+
         JavaFXUtil.addChangeListener(tabPane.focusedProperty(), focused -> {
             // Very specific work around for Moe editor inside JavaFX SwingNode on Linux:
             if (focused && Config.isLinux())

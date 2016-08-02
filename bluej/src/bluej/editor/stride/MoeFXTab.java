@@ -160,6 +160,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     {
         this.parent = parent;
         moeEditor.setParent(parent, partOfMove);
+        SwingUtilities.invokeLater(() -> moeEditor.notifyVisibleTab(false));
     }
 
     @Override
