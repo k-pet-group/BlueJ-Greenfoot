@@ -322,6 +322,12 @@ public class TestExpressionSlot
         // Example found while pasting from BlueJ (double escaped here)
         testInsert("c == '\\\\' || c == '\"' || c == '\\''",
             "{c}=={}_\'\\\\\'_{}||{c}=={}_'\"'_{}||{c}=={}_'\\''_{$}");
+
+        // Deletion:
+        testBackspace("\"a\bb\"", "{}_\"$b\"_{}");
+        testBackspace("\"\bab\"", "{$ab}");
+        testBackspace("\"ab\b\"", "{}_\"a$\"_{}");
+        testBackspace("\"ab\"\b", "{ab$}");
     }
     
     @Test

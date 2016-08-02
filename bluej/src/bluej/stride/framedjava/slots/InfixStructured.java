@@ -1374,7 +1374,8 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
                 {
                     // No operator, must be opening bracket/quote after
                     // In this case, we want to get rid of the brackets/quotes, and fold the contents into the slots adjacent to the brackets
-                    return flattenCompound(index + 1, false, token);
+                    boolean inString = fields.get(index) instanceof StringLiteralExpression;
+                    return flattenCompound(inString ? index : index + 1, inString, token);
                 }
                 else
                 {
