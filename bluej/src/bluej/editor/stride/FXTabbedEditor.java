@@ -164,6 +164,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private BorderPane collapsibleCatalogueScrollPane;
     private FrameShelf shelf;
     private boolean dragFromShelf;
+    @OnThread(Tag.FXPlatform)
+    private FXPlatformRunnable cancelWiggle;
 
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
@@ -400,8 +402,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
         JavaFXUtil.addChangeListener(stage.xProperty(), x -> locationX.set(x.intValue()));
         JavaFXUtil.addChangeListener(stage.yProperty(), y -> locationY.set(y.intValue()));
-        JavaFXUtil.addChangeListener(stage.widthProperty(), w -> locationWidth.set(w.intValue()));
-        JavaFXUtil.addChangeListener(stage.heightProperty(), h -> locationHeight.set(h.intValue()));
+        JavaFXUtil.addChangeListenerPlatform(stage.widthProperty(), w -> {
+            locationWidth.set(w.intValue());
+            if (Config.isWinOS() && tabPane.getSelectionModel().getSelectedItem() instanceof MoeFXTab)
+                scheduleWindowWiggle();
+        });
+        JavaFXUtil.addChangeListenerPlatform(stage.heightProperty(), h -> {
+            locationHeight.set(h.intValue());
+            if (Config.isWinOS() && tabPane.getSelectionModel().getSelectedItem() instanceof MoeFXTab)
+                scheduleWindowWiggle();
+        });
     }
 
     private void updateMenusForTab(FXTab selTab)
@@ -440,16 +450,9 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             tabPane.getTabs().add(panel);
             // Do a size up and down for Moe tabs because SwingNode seems to
             // have problems painting initially on some Windows systems.
-            if (panel instanceof MoeFXTab && !stage.isMaximized() && !stage.isIconified())
+            if (panel instanceof MoeFXTab && !stage.isMaximized() && !stage.isIconified() && Config.isWinOS())
             {
-                // We must delay, otherwise the resizing happens before the SwingNode is shown:
-                JavaFXUtil.runAfter(Duration.seconds(0.5),() -> {
-                    // Up and down one pixel:
-                    final double width = stage.getWidth();
-                    stage.setWidth(width + 1);
-                    // Must wait before reversing, so that SwingNode sees change:
-                    JavaFXUtil.runAfterCurrent(() -> stage.setWidth(width));
-                });
+                scheduleWindowWiggle();
             }
             if (toFront)
             {
@@ -458,6 +461,25 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 Platform.runLater(panel::focusWhenShown);
             }
         }
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void scheduleWindowWiggle()
+    {
+        if (cancelWiggle != null)
+        {
+            cancelWiggle.run();
+        }
+        cancelWiggle = JavaFXUtil.runAfter(Duration.seconds(0.5),() -> {
+            if (!stage.isMaximized() && !stage.isIconified())
+            {
+                // Left and right one pixel:
+                final double x = stage.getX();
+                stage.setX(x + 1);
+                // Must wait before reversing, so that SwingNode sees change:
+                JavaFXUtil.runAfterCurrent(() -> stage.setX(x));
+            }
+        });
     }
 
     /** 
