@@ -281,9 +281,12 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
         tabPane.getStyleClass().add("tabbed-editor");
 
-        tabPane.getSelectionModel().selectedItemProperty().addListener((a, b, selTab) -> {
+        tabPane.getSelectionModel().selectedItemProperty().addListener((a, prevSel, selTab) -> {
             if (selTab != null)
                 updateMenusForTab((FXTab)selTab);
+
+            if (prevSel != null && prevSel != selTab)
+                ((FXTab)prevSel).notifyUnselected();
 
             if (selTab != null && stage.isFocused())
                 ((FXTab)selTab).notifySelected();

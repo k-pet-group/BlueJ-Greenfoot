@@ -150,6 +150,12 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     }
 
     @Override
+    public void notifyUnselected()
+    {
+        SwingUtilities.invokeLater(() -> moeEditor.notifyVisibleTab(false));
+    }
+
+    @Override
     void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
         this.parent = parent;

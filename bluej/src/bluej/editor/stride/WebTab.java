@@ -140,4 +140,10 @@ public class WebTab extends FXTab
     {
         // Nothing to do
     }
+
+    @Override
+    public void notifyUnselected()
+    {
+        // Nothing to do
+    }
 }

@@ -98,6 +98,11 @@ abstract class FXTab extends Tab
     public abstract void notifySelected();
 
     /**
+     * Called when the tab was selected, but now is no longer selected.
+     */
+    public abstract void notifyUnselected();
+
+    /**
      * Specifies whether the tab should show the frame catalogue.
      * Will not change over a tab's lifetime.
      */
