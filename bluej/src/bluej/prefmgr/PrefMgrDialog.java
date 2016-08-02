@@ -94,7 +94,7 @@ public class PrefMgrDialog
      * @param paneNumber The index of the pane to show
      */
     public static void showDialog(int paneNumber) {
-        dialog.prepareDialogThen(() -> {
+        getInstance().prepareDialogThen(() -> {
             dialog.selectTab(paneNumber);
             dialog.window.show();
         });
