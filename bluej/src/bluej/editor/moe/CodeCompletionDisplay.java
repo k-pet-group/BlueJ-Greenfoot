@@ -124,13 +124,13 @@ public class CodeCompletionDisplay extends JFrame
     public CodeCompletionDisplay(MoeEditor ed, EditorWatcher watcher, String suggestionType,
                                  AssistContent[] assistContents, LocatableToken location)
     {
-        this.values= new TreeSet<AssistContent>(new TreeComparator());
+        this.values= new TreeSet<AssistContent>(getComparator());
 
         //creates the ThreadPoolExecutor for javadocHtml completion.
         //always discard the oldest task.
         threadpool = new ThreadPoolExecutor(1, 1, 500L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(1), new ThreadPoolExecutor.DiscardOldestPolicy());
 
-        Arrays.sort(assistContents, new TreeComparator());
+        Arrays.sort(assistContents, getComparator());
         this.values.addAll(Arrays.asList(assistContents));
 
         this.suggestionType = suggestionType;
@@ -394,7 +394,7 @@ public class CodeCompletionDisplay extends JFrame
      */
     private void updatePrefix()
     {
-        jListData = new TreeSet<AssistContent>(new TreeComparator());
+        jListData = new TreeSet<AssistContent>(getComparator());
         Iterator<AssistContent> i = values.iterator();
         AssistContent value;
         while (i.hasNext()) {
@@ -739,13 +739,12 @@ public class CodeCompletionDisplay extends JFrame
         }
     }
 
-    class TreeComparator implements Comparator<AssistContent>
+    private Comparator<AssistContent> getComparator()
     {
-
-        @Override
-        public int compare(AssistContent o1, AssistContent o2)
-        {
-            return o1.getName().compareTo(o2.getName());
-        }
+        return Comparator.comparing(AssistContent::getName)
+                .thenComparing(AssistContent::getKind)
+                .thenComparing(AssistContent::getParams,
+                    Utility.listComparator(Comparator.comparing(ParamInfo::getQualifiedType)));
     }
+
 }

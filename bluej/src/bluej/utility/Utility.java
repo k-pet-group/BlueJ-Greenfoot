@@ -608,6 +608,20 @@ public class Utility
             return 0;
         });
     }
+
+    public static <T> Comparator<List<T>> listComparator(Comparator<T> itemComparator)
+    {
+        return Comparator.<List<T>>comparingInt(List::size).thenComparing((a, b) -> {
+            // We know lists are same size because we have reached here:
+            for (int i = 0; i < a.size(); i++)
+            {
+                int cmp = itemComparator.compare(a.get(i), b.get(i));
+                if (cmp != 0)
+                    return cmp;
+            }
+            return 0;
+        });
+    }
     
     /**
      * Get the process ID of this process.
