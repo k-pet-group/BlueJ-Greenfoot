@@ -1452,7 +1452,6 @@ public class JavaFXUtil
     private static FXSupplier<MenuItemAndShow> swingMenuItemToFX(JMenuItem swingItem, Object source)
     {
         String menuText = swingItem.getText();
-        Action action = swingItem.getAction();
         ActionListener[] actionListeners = swingItem.getActionListeners();
         AWTKeyStroke shortcut = swingItem.getAccelerator();
         if (swingItem instanceof JCheckBoxMenuItem)
@@ -1493,11 +1492,30 @@ public class JavaFXUtil
         else
         {
             boolean startsEnabled = swingItem.isEnabled();
+            // Circumvent thread-checker; it is ok to make an FX menu item on this
+            // thread as long as we don't try to add it to scene graph:
+            MenuItem item = ((BiFunction<String, Boolean, MenuItem>)JavaFXUtil::makeFXMenuItem).apply(menuText, startsEnabled);
+            // Must add listeners now, because if change occurs between us returning an FX action,
+            // and the action actually being run, we could miss it.
+            swingItem.addPropertyChangeListener("enabled", e2 -> {
+                boolean enabled = swingItem.isEnabled();
+                Platform.runLater(() -> item.setDisable(!enabled));
+            });
+            swingItem.addPropertyChangeListener("action", e2 -> {
+                boolean enabled = swingItem.isEnabled();
+                String label = swingItem.getText();
+                Platform.runLater(() -> {
+                    item.setDisable(!enabled);
+                    item.setText(label);
+                });
+            });
+            
             return () -> {
-                MenuItem item = new MenuItem(menuText);
-                item.setDisable(!startsEnabled);
                 item.setOnAction(e -> {
                     SwingUtilities.invokeLater(() -> {
+                        // Important we fetch action here not cache it earlier because
+                        // it may change after we make the menu item:
+                        Action action = swingItem.getAction();
                         if (action != null)
                             action.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText));
                         else
@@ -1506,15 +1524,16 @@ public class JavaFXUtil
                     });
                 });
                 item.setAccelerator(swingKeyStrokeToFX(shortcut));
-                SwingUtilities.invokeLater(() -> {
-                    swingItem.addPropertyChangeListener("enabled", e2 -> {
-                        boolean enabled = swingItem.isEnabled();
-                        Platform.runLater(() -> item.setDisable(!enabled));
-                    });
-                });
                 return new MenuItemAndShow(item);
             };
         }
+    }
+
+    private static MenuItem makeFXMenuItem(String menuText, boolean startsEnabled)
+    {
+        MenuItem item = new MenuItem(menuText);
+        item.setDisable(!startsEnabled);
+        return item;
     }
 
     /**
