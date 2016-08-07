@@ -38,6 +38,8 @@ import bluej.BlueJTheme;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.stage.Modality;
 import javafx.stage.Window;
@@ -63,7 +65,8 @@ public class SwingNodeDialog
     private boolean modal = false;
     @OnThread(Tag.FXPlatform)
     private Dialog<Object> dialog;
-    
+    private boolean clickedSwingClose = false;
+
     @OnThread(Tag.Swing)
     protected SwingNodeDialog()
     {
@@ -215,6 +218,33 @@ public class SwingNodeDialog
         Platform.runLater(() -> {
             action.run();
             SwingUtilities.invokeLater(() -> setVisible(false));
+        });
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    protected void setCloseIsButton(JButton button)
+    {
+        // JavaFX windows only let themselves be closed through the
+        // window controls if they have one button, or a cancel button among
+        // multiple buttons.  So we add a single cancel button, but make sure
+        // it is not visible.  JavaFX doesn't check for visibility so still
+        // allows the close, and we don't have to show the button (the cancel
+        // button in a SwingNodeDialog will be Swing, not JavaFX).
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL);
+        Button dummy = (Button)dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        dummy.setVisible(false);
+        dummy.setManaged(false);
+        
+        dialog.setOnHiding(e -> {
+            // We need to remember if we've already clicked close,
+            // because the button probably tries to hide the window,
+            // and we can end up in an infinite loop with the close
+            // handler clicking the button closing the window, etc....
+            if (!clickedSwingClose)
+            {
+                SwingUtilities.invokeLater(() -> button.doClick());
+                clickedSwingClose = true;
+            }
         });
     }
 }

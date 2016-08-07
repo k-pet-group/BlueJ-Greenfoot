@@ -29,6 +29,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javafx.application.Platform;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -42,7 +43,6 @@ import bluej.utility.javafx.SwingNodeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 16020 2016-06-12 21:51:31Z nccb $
  */
 public class TeamSettingsDialog extends SwingNodeDialog
 {
@@ -130,6 +130,8 @@ public class TeamSettingsDialog extends SwingNodeDialog
                     }
                 });
 
+            Platform.runLater(() -> setCloseIsButton(cancelButton));
+            
             DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
         }
 
