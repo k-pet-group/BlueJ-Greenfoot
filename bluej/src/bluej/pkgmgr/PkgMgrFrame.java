@@ -851,7 +851,10 @@ public class PkgMgrFrame extends JPanel
                 Dimension prefSize = getPreferredSize();
                 Platform.runLater(() -> {
                     if (updateFXSize != null) updateFXSize.accept(prefSize);
-                    SwingUtilities.invokeLater(() -> objectBenchSplitPane.resetToPreferredSizes());
+                    SwingUtilities.invokeLater(() -> {
+                        if (objectBenchSplitPane != null)
+                            objectBenchSplitPane.resetToPreferredSizes();
+                    });
                 });
                 
                 String x_str = p.getProperty("package.editor.x", "30");
