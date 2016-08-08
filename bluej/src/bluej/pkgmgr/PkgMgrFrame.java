@@ -2068,6 +2068,11 @@ public class PkgMgrFrame extends JPanel
             NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
             Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
+            // Workaround BLUEJ-714: Creating a new class forces editor window to the front.
+            // The bug used to happen because the stageProperty value used to change to the
+            // editor window during the process.
+            this.bringToFront();
+
             result.ifPresent(info -> 
                 SwingUtilities.invokeLater(() ->
                     createNewClass(info.className, info.templateName, info.sourceType, true)
