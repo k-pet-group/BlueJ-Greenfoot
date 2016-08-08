@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -744,8 +744,9 @@ public abstract class JavaUtils
     private static String convertBlockTag(String block)
     {
         int k = block.indexOf(' ');
-        String r = "<b>" + block.substring(0, k) + "</b> - " + makeCommentColour(block.substring(k));
-        return r;
+        String tagName = k < 0 ? block : block.substring(0, k);
+        String description = k < 0 ? "" : block.substring(k);
+        return "<b>" + tagName + "</b> - " + makeCommentColour(description);
     }
 
     public static String escapeAngleBrackets(String sig)
