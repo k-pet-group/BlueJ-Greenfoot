@@ -701,7 +701,9 @@ public abstract class JavaUtils
                 params.append("</td></tr>");
                 hasParamDoc = true;
             } else {
-                rest.append(convertBlockTag(block)).append("<br>");
+                String blockTag = convertBlockTag(block);
+                if (!blockTag.isEmpty())
+                    rest.append(blockTag).append("<br>");
             }
         }
 
@@ -743,10 +745,13 @@ public abstract class JavaUtils
 
     private static String convertBlockTag(String block)
     {
-        int k = block.indexOf(' ');
-        String tagName = k < 0 ? block : block.substring(0, k);
-        String description = k < 0 ? "" : block.substring(k);
-        return "<b>" + tagName + "</b> - " + makeCommentColour(description);
+        int spaceIndex = block.indexOf(' ');
+        if (spaceIndex < 0) {
+            return "";
+        }
+        // block.substring(0, spaceIndex) returns the Tag Name
+        // block.substring(spaceIndex) returns the Description
+        return "<b>" + block.substring(0, spaceIndex) + "</b> - " + makeCommentColour(block.substring(spaceIndex));
     }
 
     public static String escapeAngleBrackets(String sig)
