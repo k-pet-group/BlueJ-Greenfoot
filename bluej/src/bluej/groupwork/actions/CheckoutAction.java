@@ -77,10 +77,6 @@ public class CheckoutAction extends TeamAction
 
         if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
             FXPlatformConsumer<File> finishCheckout = projectDir -> {
-                if (projectDir.exists()) {
-                    DialogManager.showErrorFX(null, "directory-exists-non-empty");
-                    return;
-                }
 
                 SwingUtilities.invokeLater(() -> {
                     PkgMgrFrame newFrame;
