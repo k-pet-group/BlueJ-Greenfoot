@@ -125,7 +125,6 @@ public class TeamSettingsDialog extends SwingNodeDialog
             cancelButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
-                        event = CANCEL;
                         setVisible(false);
                     }
                 });
