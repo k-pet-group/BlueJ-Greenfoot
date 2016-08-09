@@ -74,7 +74,7 @@ public class GitProvider implements TeamworkProvider
     @Override
     public String[] getProtocols() 
     {
-        return new String[]{"https", "http", "ssh", "git"};
+        return new String[]{"https", "http", "ssh", "git", "file"};
     }
 
     @Override
@@ -187,7 +187,7 @@ public class GitProvider implements TeamworkProvider
         }
         
         String server = settings.getServer();
-        if (server == null || server.isEmpty()){
+        if ((server == null || server.isEmpty()) && !protocol.equals("file")){
             throw new UnsupportedSettingException(Config.getString("team.error.cannotParseServer"));
         }
         
@@ -204,8 +204,9 @@ public class GitProvider implements TeamworkProvider
         if (protocol.contains("ssh")){
             gitUrl += settings.getUserName()+"@";
         }
-        
-        gitUrl += server;
+
+        if (server != null)
+            gitUrl += server;
         if (prefix.length() != 0 && !prefix.startsWith("/")) {
             gitUrl += "/";
         }

@@ -515,7 +515,8 @@ public class TeamSettingsController
                 + providerName + ".";
         String serverKey = keyBase + "server";
         String serverValue = settings.getServer();
-        setPropString(serverKey, serverValue);
+        if (serverValue != null)
+            setPropString(serverKey, serverValue);
 
         String prefixKey = keyBase + "repositoryPrefix";
         String prefixValue = settings.getPrefix();
