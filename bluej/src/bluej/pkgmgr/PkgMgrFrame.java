@@ -90,6 +90,7 @@ import bluej.extensions.SourceType;
 import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -101,6 +102,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -300,6 +303,8 @@ public class PkgMgrFrame extends JPanel
     private Property<Stage> stageProperty;
     @OnThread(Tag.FX)
     private Property<BorderPane> paneProperty;
+    @OnThread(Tag.FXPlatform)
+    private FXPlatformRunnable cancelWiggle;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -341,6 +346,15 @@ public class PkgMgrFrame extends JPanel
                     root.setPrefHeight(pref.getHeight());
                     stage.sizeToScene();
                 };
+                JavaFXUtil.addChangeListenerPlatform(stage.widthProperty(), w -> {
+                    if (Config.isWinOS())
+                        scheduleWindowWiggle(stage);
+                });
+                JavaFXUtil.addChangeListenerPlatform(stage.heightProperty(), h -> {
+                    if (Config.isWinOS())
+                        scheduleWindowWiggle(stage);
+                });
+
                 stage.setScene(new Scene(root));
                 stage.show();
                 //org.scenicview.ScenicView.show(stage.getScene());
@@ -2071,7 +2085,8 @@ public class PkgMgrFrame extends JPanel
             // Workaround BLUEJ-714: Creating a new class forces editor window to the front.
             // The bug used to happen because the stageProperty value used to change to the
             // editor window during the process.
-            this.bringToFront();
+            Utility.bringToFrontFX(getFXWindow());
+
 
             result.ifPresent(info -> 
                 SwingUtilities.invokeLater(() ->
@@ -3277,6 +3292,26 @@ public class PkgMgrFrame extends JPanel
     void bringToFront()
     {
         Platform.runLater(() -> Utility.bringToFrontFX(getFXWindow()));
+    }
+
+    // Copied from FXTabbedEditor, only needed until we swap to FX for the whole window:
+    @OnThread(Tag.FXPlatform)
+    private void scheduleWindowWiggle(Stage stage)
+    {
+        if (cancelWiggle != null)
+        {
+            cancelWiggle.run();
+        }
+        cancelWiggle = JavaFXUtil.runAfter(Duration.seconds(0.5),() -> {
+            if (!stage.isMaximized() && !stage.isIconified())
+            {
+                // Left and right one pixel:
+                final double x = stage.getX();
+                stage.setX(x + 1);
+                // Must wait before reversing, so that SwingNode sees change:
+                JavaFXUtil.runAfterCurrent(() -> stage.setX(x));
+            }
+        });
     }
 
     class URLDisplayer
