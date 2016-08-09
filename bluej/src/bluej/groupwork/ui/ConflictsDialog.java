@@ -96,6 +96,7 @@ public class ConflictsDialog extends SwingNodeDialog
 
         rememberPosition("bluej.teamwork.conflicts");
         pack();
+        setResizable(true);
     }
 
     private JPanel makeConflictsPanel(String headline, List<String> conflicts)

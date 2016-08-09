@@ -258,4 +258,11 @@ public class SwingNodeDialog
             }
         });
     }
+
+
+    @OnThread(Tag.Swing)
+    protected void setResizable(boolean resizable)
+    {
+        Platform.runLater(() -> dialog.setResizable(resizable));
+    }
 }
