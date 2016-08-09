@@ -41,6 +41,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
@@ -85,6 +86,8 @@ public class SwingNodeDialog
             dialog.setResult(new Object());
             dialog.getDialogPane().setContent(swingNode);
             dialog.initModality(Modality.NONE);
+
+            dialog.setOnShown(e -> SwingUtilities.invokeLater(() -> pack()));
         });
     }
 
@@ -105,7 +108,10 @@ public class SwingNodeDialog
     @OnThread(Tag.Swing)
     protected void rememberPosition(String locationPrefix)
     {
-        Platform.runLater(() -> dialog.setOnShown(e -> Config.rememberPosition(asWindow(), locationPrefix)));
+        Platform.runLater(() -> dialog.setOnShown(e -> {
+            Config.rememberPosition(asWindow(), locationPrefix);
+            SwingUtilities.invokeLater(() -> pack());
+        }));
     }
     
     @OnThread(Tag.Swing)
@@ -144,13 +150,18 @@ public class SwingNodeDialog
     @OnThread(Tag.Swing)
     public void pack()
     {
-        // Not applicable
         Dimension preferredSize = swingNode.getContent().getPreferredSize();
-        swingNode.getContent().setPreferredSize(preferredSize);
+        // Adjust for extra space needed for button bar
+        // Better too big than too small:
+        preferredSize.setSize(preferredSize.getWidth(), preferredSize.getHeight() + 22);
         swingNode.getContent().validate();
         Platform.runLater(() -> {
             dialog.getDialogPane().setPrefWidth(preferredSize.getWidth());
             dialog.getDialogPane().setPrefHeight(preferredSize.getHeight());
+            dialog.getDialogPane().setMinWidth(Region.USE_PREF_SIZE);
+            dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            if (asWindow() != null && asWindow().getHeight() < preferredSize.getHeight())
+                asWindow().setHeight(preferredSize.getHeight());
         });
     }
     
