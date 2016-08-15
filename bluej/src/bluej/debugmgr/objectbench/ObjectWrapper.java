@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
@@ -476,6 +477,17 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
                     menu.insert(subMenu, 0);
                 }
             }
+            // Create submenus for interfaces which have default methods:
+            for (Class<?> iface : getInterfacesWithDefaultMethods(cl))
+            {
+                view = View.getView(iface);
+                declaredMethods = view.getDeclaredMethods();
+                JMenu subMenu = new JMenu(inheritedFrom + " "
+                        + JavaNames.stripPrefix(iface.getName()));
+                subMenu.setFont(PrefMgr.getStandoutMenuFont());
+                createMenuItems(subMenu, declaredMethods, il, filter, (itemsOnScreen / 2), curType.getMap(), actions, methodsUsed);
+                menu.insert(subMenu, 0);
+            }
 
             menu.addSeparator();
         }
@@ -573,7 +585,7 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
      * @param   derivedClass    the class whose hierarchy is mapped (including self)
      * @return                  the List containng the classes in the inheritance hierarchy
      */
-    public static List<Class<?>> getClassHierarchy(Class<?> derivedClass)
+    private static List<Class<?>> getClassHierarchy(Class<?> derivedClass)
     {
         Class<?> currentClass = derivedClass;
         List<Class<?>> classVector = new ArrayList<Class<?>>();
@@ -582,6 +594,27 @@ public class ObjectWrapper extends JComponent implements Accessible, FocusListen
             currentClass = currentClass.getSuperclass();
         }
         return classVector;
+    }
+
+    /**
+     * Gets a list containing interfaces implemented by the given class, anywhere
+     * in its parent hierarchy, which have default methods (regardless of whether
+     * the methods are overridden elsewhere in the hierarchy).
+     *
+     * So if you have interface I with default method getI, and interface J with no
+     * default methods, and: class A implements I, class B extends A implements J,
+     * and class C extends B, then calling getInterfacesWithDefaultMethods for
+     * A, B or C will return a singleton list with I in it.
+     *
+     * @param cls The class whose implements interfaces are to be searched.
+     * @return The list containing the implemented interfaces which have default methods.
+     */
+    private static List<Class<?>> getInterfacesWithDefaultMethods(Class<?> cls)
+    {
+        return getClassHierarchy(cls).stream()
+                .flatMap(c -> Arrays.stream(c.getInterfaces()))
+                .filter(i -> Arrays.stream(i.getDeclaredMethods()).anyMatch(m -> m.isDefault()))
+                .collect(Collectors.toList());
     }
 
     @Override
