@@ -363,3 +363,10 @@ centrePanel.message.missingWorldConstructor2=have a public constructor without p
 
 executionDisplay.openDebugger=Open debugger
 executionDisplay.restart=Restart Greenfoot
+
+# Not a package
+notAProject.greenfoot.title=Not A Greenfoot Scenario
+notAProject.greenfoot.message=The selected folder does not contain a Greenfoot scenario:
+notAProject.greenfoot.subDirs=Some child folders contain Greenfoot scenarios.  Did you mean:
+notAProject.greenfoot.subDirButton=Open
+notAProject.greenfoot.button=Choose Again

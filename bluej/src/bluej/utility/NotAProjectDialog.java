@@ -67,24 +67,24 @@ class NotAProjectDialog
         this.dialog = new Dialog<>();
         dialog.initOwner(parent);
         dialog.initModality(Modality.WINDOW_MODAL);
-        dialog.setTitle(Config.getString("notAProject.title"));
-        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK, ButtonType.NO);
-        ((Button)dialog.getDialogPane().lookupButton(ButtonType.NO)).setText(Config.getString("notAProject.import"));
-        ((Button)dialog.getDialogPane().lookupButton(ButtonType.OK)).setText(Config.getString("notAProject.button"));
+        final String labelRoot = "notAProject." + (Config.isGreenfoot() ? "greenfoot" : "bluej");
+        dialog.setTitle(Config.getString(labelRoot + ".title"));
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK);
+        ((Button)dialog.getDialogPane().lookupButton(ButtonType.OK)).setText(Config.getString(labelRoot + ".button"));
         Config.addDialogStylesheets(dialog.getDialogPane());
-        VBox content = new VBox(new Label(Config.getString("notAProject.message")));
+        VBox content = new VBox(new Label(Config.getString(labelRoot + ".message") + "\n    " + original.getAbsolutePath()));
         JavaFXUtil.addStyleClass(content, "not-a-project");
         content.setFillWidth(true);
         if (possibilities != null && !possibilities.isEmpty())
         {
-            content.getChildren().add(new Label(Config.getString("notAProject.subDirs")));
+            content.getChildren().add(new Label(Config.getString(labelRoot + ".subDirs")));
             GridPane subDirPanel = new GridPane();
             JavaFXUtil.addStyleClass(subDirPanel, "subDirs");
             int row = 0;
             for (File f : possibilities)
             {
                 subDirPanel.add(new Label(f.getAbsolutePath()), 0, row);
-                Button button = new Button(Config.getString("notAProject.subDirButton"));
+                Button button = new Button(Config.getString(labelRoot + ".subDirButton"));
                 button.setOnAction(e -> {
                     dialog.setResult(new ChoiceAndFile(Choice.SELECTED_FILE, f));
                     dialog.close();
