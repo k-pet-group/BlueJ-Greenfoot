@@ -341,10 +341,7 @@
 
 .not-a-project {
     -fx-spacing: 0.5em;
-}
-.not-a-project .subDirs {
-    -fx-hgap: 1em;
-    -fx-vgap: 0.5em;
+    -fx-min-width: 500.0;
 }
 
 .non-empty-directory {

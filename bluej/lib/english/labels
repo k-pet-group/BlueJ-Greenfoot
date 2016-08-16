@@ -858,7 +858,7 @@ workIndicator.resetMachine=Reset Java Virtual Machine@^R
 notAProject.bluej.title=Not A BlueJ Project
 notAProject.bluej.message=The selected folder does not contain a BlueJ project:
 notAProject.bluej.subDirs=Some child folders have BlueJ projects.  Did you mean:
-notAProject.bluej.subDirButton=Open
+notAProject.bluej.subDirButton=Open Selected
 notAProject.bluej.button=Choose Again
 
 # Not empty directory
