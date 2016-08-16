@@ -88,6 +88,7 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.actions.OpenArchiveAction;
+import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -1464,6 +1465,19 @@ public class PkgMgrFrame extends JPanel
             {
                 SwingUtilities.invokeLater(() -> {
                     PkgMgrFrame.doOpen(choice, this);
+                });
+            }
+        });
+    }
+
+    public void doOpenNonBlueJ()
+    {
+        Platform.runLater(() -> {
+            File choice = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.openNonBlueJPkg.title"), true);
+            if (choice != null)
+            {
+                SwingUtilities.invokeLater(() -> {
+                    PkgMgrFrame.doOpenNonBlueJ(choice, this);
                 });
             }
         });
@@ -2933,6 +2947,7 @@ public class PkgMgrFrame extends JPanel
             createMenuItem(new OpenProjectAction(this), menu);
             recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
             menu.add(recentProjectsMenu);
+            createMenuItem(new OpenNonBlueJAction(this), menu);
             createMenuItem(new OpenArchiveAction(this), menu);
             createMenuItem(closeProjectAction, menu);
             createMenuItem(saveProjectAction, menu);

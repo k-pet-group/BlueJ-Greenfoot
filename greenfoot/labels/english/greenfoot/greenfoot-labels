@@ -368,5 +368,5 @@ executionDisplay.restart=Restart Greenfoot
 notAProject.greenfoot.title=Not A Greenfoot Scenario
 notAProject.greenfoot.message=The selected folder does not contain a Greenfoot scenario:
 notAProject.greenfoot.subDirs=Some child folders contain Greenfoot scenarios.  Did you mean:
-notAProject.greenfoot.subDirButton=Open
-notAProject.greenfoot.button=Choose Again
+notAProject.greenfoot.subDirButton=Open Selected
+notAProject.greenfoot.button=Choose Again...
