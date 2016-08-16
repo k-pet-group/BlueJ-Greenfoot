@@ -55,7 +55,7 @@ class NotAProjectDialog
     private static final ButtonType OPEN_BUTTON = ButtonType.NEXT;
     private final ListView<File> subDirList;
 
-    private static enum Choice { CANCEL, CHOOSE_AGAIN, IMPORT, SELECTED_FILE }
+    private static enum Choice { CANCEL, CHOOSE_AGAIN, SELECTED_FILE }
     private static class ChoiceAndFile
     {
         private final Choice choice;
@@ -156,11 +156,6 @@ class NotAProjectDialog
     public boolean isChooseAgain()
     {
         return selected.choice == Choice.CHOOSE_AGAIN;
-    }
-
-    public boolean isImport()
-    {
-        return selected.choice == Choice.IMPORT;
     }
 
     public File getSelectedDir()

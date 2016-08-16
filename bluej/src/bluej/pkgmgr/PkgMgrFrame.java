@@ -1459,14 +1459,11 @@ public class PkgMgrFrame extends JPanel
     public void doOpen()
     {
         Platform.runLater(() -> {
-            FileUtility.ChosenProject choice = FileUtility.getOpenProjectFX(getFXWindow());
+            File choice = FileUtility.getOpenProjectFX(getFXWindow());
             if (choice != null)
             {
                 SwingUtilities.invokeLater(() -> {
-                    if (choice.isImport)
-                        PkgMgrFrame.doOpenNonBlueJ(choice.dir, this);
-                    else
-                        PkgMgrFrame.doOpen(choice.dir, this);
+                    PkgMgrFrame.doOpen(choice, this);
                 });
             }
         });

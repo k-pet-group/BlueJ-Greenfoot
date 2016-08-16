@@ -68,18 +68,6 @@ public class FileUtility
     private static JFileChooser pkgChooserNonBlueJ = null;
     private static PackageChooser directoryChooser = null;
 
-    public static class ChosenProject
-    {
-        public final File dir;
-        public final boolean isImport;
-
-        public ChosenProject(File dir, boolean isImport)
-        {
-            this.dir = dir;
-            this.isImport = isImport;
-        }
-    }
-
     /**
      * Gets a directory containing a project to open.
      *
@@ -99,7 +87,7 @@ public class FileUtility
      * @return A chosen File with a BlueJ/Greenfoot project, or null if the user cancelled.
      */
     @OnThread(Tag.FXPlatform)
-    public static ChosenProject getOpenProjectFX(Window parent)
+    public static File getOpenProjectFX(Window parent)
     {
         File originalDir = getOpenDirFX(parent, Config.getString("pkgmgr.openPkg.title"), true);
         // They cancelled; nothing more to do:
@@ -132,12 +120,12 @@ public class FileUtility
             else if (dlg.isChooseAgain())
                 return getOpenProjectFX(parent);
             else
-                return new ChosenProject(dlg.getSelectedDir(), dlg.isImport());
+                return dlg.getSelectedDir();
         }
         else
         {
             // We are a package; all is well:
-            return new ChosenProject(dir, false);
+            return dir;
         }
     }
 
