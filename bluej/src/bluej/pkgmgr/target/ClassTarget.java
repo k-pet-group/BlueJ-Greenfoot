@@ -1843,6 +1843,7 @@ public class ClassTarget extends DependentTarget
         }
         boolean sourceOrDocExists = sourceAvailable != SourceType.NONE || getDocumentationFile().exists();
         role.addMenuItem(menu, new EditAction(), sourceOrDocExists);
+        role.addMenuItem(menu, new CompileAction(), sourceAvailable != SourceType.NONE);
         role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);
         if (sourceAvailable == SourceType.Stride)
@@ -1915,6 +1916,23 @@ public class ClassTarget extends DependentTarget
         public void actionPerformed(ActionEvent e)
         {
             open();
+        }
+    }
+
+    /**
+     * Action to compile a classtarget
+     */
+    private class CompileAction extends AbstractAction
+    {
+        public CompileAction()
+        {
+            putValue(NAME, compileStr);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            getPackage().compile(ClassTarget.this, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
         }
     }
 
