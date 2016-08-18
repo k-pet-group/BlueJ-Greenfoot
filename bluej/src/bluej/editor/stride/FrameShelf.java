@@ -133,16 +133,16 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void withTypes(BackgroundConsumer<List<AssistContentThreadSafe>> handler)
+    public void withTypes(BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler)
     {
-        Utility.runBackground(() -> handler.accept(Collections.emptyList()));
+        Utility.runBackground(() -> handler.accept(Collections.emptyMap()));
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<List<AssistContentThreadSafe>> handler)
+    public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler)
     {
-        Utility.runBackground(() -> handler.accept(Collections.emptyList()));
+        Utility.runBackground(() -> handler.accept(Collections.emptyMap()));
     }
 
     @Override

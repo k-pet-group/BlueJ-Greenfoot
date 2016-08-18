@@ -249,20 +249,16 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                 // Only look at single ident types:
                 Stream<DirectSlotError> unknownTypeErrors = types.stream().filter(t -> t.size() == 1).map(t -> t.get(0)).map(token -> {
                     String typeName = token.getText();
-                    // TODO this is horribly inefficient...
-                    for (AssistContentThreadSafe t : availableTypes)
+                    if (availableTypes.containsKey(typeName))
                     {
-                        if (t.getName().equals(typeName))
-                        {
-                            // Match -- no error
-                            return null;
-                        }
+                        // Match -- no error
+                        return null;
                     }
                     int startPosInSlot = token.getColumn() - 1;
                     int endPosInSlot = token.getColumn() - 1 + token.getLength();
                     FXPlatformConsumer<String> replace =
                         s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
-                    return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream)) {
+                    return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream)) {
                         @Override
                         public int getStartPosition()
                         {

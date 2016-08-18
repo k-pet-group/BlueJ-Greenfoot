@@ -95,8 +95,8 @@ public class TypeSlotFragment extends StructuredSlotFragment
         CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
         
         // No point looking for a type that isn't syntactically valid:
-        // Also, don't mess with arrays or generics:
-        if (findEarlyErrors().count() > 0 || content.contains("[") || content.contains("<"))
+        // Also, don't mess with arrays or generics or qualified types:
+        if (findEarlyErrors().count() > 0 || content.contains("[") || content.contains("<") || content.contains("."))
         {
             f.complete(Collections.emptyList());
             return f;
@@ -104,17 +104,14 @@ public class TypeSlotFragment extends StructuredSlotFragment
         
         editor.withTypes(types -> {
             
-            for (AssistContentThreadSafe t : types)
+            if (types.containsKey(content))
             {
-                if (t.getName().equals(content) || (t.getPackage() + "." + t.getName()).equals(content))
-                {
-                    // Match -- no error
-                    f.complete(Collections.emptyList());
-                    return;
-                }
+                // Match -- no error
+                f.complete(Collections.emptyList());
+                return;
             }
             // Otherwise, give error and suggest corrections 
-            final UnknownTypeError error = new UnknownTypeError(this, content, slot::setText, editor, types.stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream)) {};
+            final UnknownTypeError error = new UnknownTypeError(this, content, slot::setText, editor, types.values().stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream)) {};
             error.recordPath(rootPathMap.locationFor(this));
             f.complete(Arrays.asList(error));
         });

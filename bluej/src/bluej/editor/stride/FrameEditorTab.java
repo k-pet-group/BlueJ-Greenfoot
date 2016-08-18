@@ -1865,28 +1865,30 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<List<AssistContentThreadSafe>> handler)
+    public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler)
     {
-        final List<AssistContentThreadSafe> r = new ArrayList<>();
+        final Map<String, AssistContentThreadSafe> r = new HashMap<>();
 
         SwingUtilities.invokeLater(() -> {
             if (kinds.contains(Kind.PRIMITIVE))
-                r.addAll(getPrimitiveTypes());
-            r.addAll(editor.getLocalTypes(superType, includeSelf, kinds));
+                addAllToMap(r, getPrimitiveTypes());
+            addAllToMap(r, editor.getLocalTypes(superType, includeSelf, kinds));
             Utility.runBackground(() -> {
-                r.addAll(getImportedTypes(superType, includeSelf, kinds)
-                    .stream()
-                    .sorted(Comparator.comparing(AssistContentThreadSafe::getName))
-                    .distinct()
-                    .collect(Collectors.toList()));
+                addAllToMap(r, getImportedTypes(superType, includeSelf, kinds));
                 handler.accept(r);
             });
         });
     }
+
+    private static void addAllToMap(Map<String, AssistContentThreadSafe> r, List<AssistContentThreadSafe> acs)
+    {
+        for (AssistContentThreadSafe ac : acs)
+            r.put(ac.getName(), ac);
+    }
     
     @Override
     @OnThread(Tag.FXPlatform)
-    public void withTypes(BackgroundConsumer<List<AssistContentThreadSafe>> handler)
+    public void withTypes(BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler)
     {
         withTypes(null, true, Kind.all(), handler);
     }

@@ -90,12 +90,12 @@ public interface InteractionManager
     /**
      * Gets a list of available types
      */
-    @OnThread(Tag.FXPlatform) void withTypes(BackgroundConsumer<List<AssistContentThreadSafe>> handler);
+    @OnThread(Tag.FXPlatform) void withTypes(BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler);
 
     /**
      * Gets a list of available types that have the given type as a super type (direct or indirect)
      */
-    @OnThread(Tag.FXPlatform) void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<List<AssistContentThreadSafe>> handler);
+    @OnThread(Tag.FXPlatform) void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler);
 
     /**
      * Gets a list of classes that are commonly imported in Java programs,

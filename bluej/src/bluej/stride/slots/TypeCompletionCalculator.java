@@ -23,6 +23,7 @@ package bluej.stride.slots;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -119,8 +120,9 @@ public class TypeCompletionCalculator implements StructuredCompletionCalculator
         editor.withTypes(superType, true, curKinds, acs -> {
             Platform.runLater(() ->
             {
-                this.acs = new ArrayList<>(acs);
+                this.acs = new ArrayList<>(acs.values());
                 this.acs.removeIf(ac -> !ac.accessibleFromPackage(""));
+                this.acs.sort(Comparator.comparing(AssistContentThreadSafe::getName));
                 List<SuggestionDetailsWithHTMLDoc> suggestions = Utility.mapList(this.acs, ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), getRarity(ac, !completingStartOfSlot), ac.getDocHTML()));
                 SuggestionList suggestionDisplay = new SuggestionList(editor, suggestions, null, SuggestionList.SuggestionShown.COMMON, null, listener);
                 handler.accept(suggestionDisplay);
