@@ -65,6 +65,7 @@ import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.slots.SuggestionList;
+import bluej.utility.BackgroundConsumer;
 import bluej.utility.javafx.CircleCountdown;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -185,7 +186,9 @@ import bluej.utility.javafx.JavaFXUtil;
  */
 public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements InteractionManager
 {
+    @OnThread(Tag.Any)
     private final static List<Future<List<AssistContentThreadSafe>>> popularImports = new ArrayList<>();
+    @OnThread(Tag.Any)
     private final static List<Future<List<AssistContentThreadSafe>>> rarerImports = new ArrayList<>();
     // This static field can be accessed by any thread from an instance, but is initialised once
     // in the FrameEditorTab constructor by the first constructed instance, so is thread safe:
@@ -1862,7 +1865,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
+    public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<List<AssistContentThreadSafe>> handler)
     {
         final List<AssistContentThreadSafe> r = new ArrayList<>();
 
@@ -1876,14 +1879,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     .sorted(Comparator.comparing(AssistContentThreadSafe::getName))
                     .distinct()
                     .collect(Collectors.toList()));
-                Platform.runLater(() -> handler.accept(r));
+                handler.accept(r);
             });
         });
     }
     
     @Override
     @OnThread(Tag.FXPlatform)
-    public void withTypes(FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
+    public void withTypes(BackgroundConsumer<List<AssistContentThreadSafe>> handler)
     {
         withTypes(null, true, Kind.all(), handler);
     }
@@ -1978,6 +1981,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.Any)
     public Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions()
     {
         HashMap<String, Pair<SuggestionList.SuggestionShown, AssistContentThreadSafe>> imports = new HashMap();

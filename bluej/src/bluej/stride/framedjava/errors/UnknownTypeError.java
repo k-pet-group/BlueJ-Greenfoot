@@ -31,6 +31,7 @@ import bluej.stride.framedjava.errors.Correction.CorrectionInfo;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.Debug;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -38,8 +39,9 @@ public class UnknownTypeError extends DirectSlotError
 {
     private final String typeName;
     private final InteractionManager editor;
-    private List<FixSuggestion> corrections;
-    
+    private final List<FixSuggestion> corrections;
+
+    @OnThread(Tag.Any)
     public UnknownTypeError(TypeSlotFragment slotFragment, String typeName, TypeSlot slot, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
     {
         super(slotFragment);
@@ -52,7 +54,8 @@ public class UnknownTypeError extends DirectSlotError
                 .flatMap(ac -> Stream.of(new ImportSingleFix(ac), new ImportPackageFix(ac)))
                 .collect(Collectors.toList()));
     }
-    
+
+    @OnThread(Tag.Any)
     private static class TypeCorrectionInfo implements CorrectionInfo
     {
         private AssistContentThreadSafe ac;
@@ -71,7 +74,8 @@ public class UnknownTypeError extends DirectSlotError
     private class ImportSingleFix extends FixSuggestion
     {
         private final AssistContentThreadSafe classInfo;
-        
+
+        @OnThread(Tag.Any)
         public ImportSingleFix(AssistContentThreadSafe ac) { this.classInfo = ac; }
 
         @Override
@@ -90,7 +94,8 @@ public class UnknownTypeError extends DirectSlotError
     private class ImportPackageFix extends FixSuggestion
     {
         private final AssistContentThreadSafe classInfo;
-        
+
+        @OnThread(Tag.Any)
         public ImportPackageFix(AssistContentThreadSafe ac) { this.classInfo = ac; }
 
         @Override

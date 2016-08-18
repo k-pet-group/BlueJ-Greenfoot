@@ -40,6 +40,7 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -116,11 +117,14 @@ public class TypeCompletionCalculator implements StructuredCompletionCalculator
         if (!completingStartOfSlot)
             curKinds.remove(InteractionManager.Kind.PRIMITIVE);
         editor.withTypes(superType, true, curKinds, acs -> {
-            this.acs = new ArrayList<>(acs);
-            this.acs.removeIf(ac -> !ac.accessibleFromPackage(""));
-            List<SuggestionDetailsWithHTMLDoc> suggestions = Utility.mapList(this.acs, ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), getRarity(ac, !completingStartOfSlot), ac.getDocHTML()));
-            SuggestionList suggestionDisplay = new SuggestionList(editor, suggestions, null, SuggestionList.SuggestionShown.COMMON, null, listener);
-            handler.accept(suggestionDisplay);
+            Platform.runLater(() ->
+            {
+                this.acs = new ArrayList<>(acs);
+                this.acs.removeIf(ac -> !ac.accessibleFromPackage(""));
+                List<SuggestionDetailsWithHTMLDoc> suggestions = Utility.mapList(this.acs, ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), getRarity(ac, !completingStartOfSlot), ac.getDocHTML()));
+                SuggestionList suggestionDisplay = new SuggestionList(editor, suggestions, null, SuggestionList.SuggestionShown.COMMON, null, listener);
+                handler.accept(suggestionDisplay);
+            });
         });
     }
     

@@ -28,7 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
+import bluej.utility.BackgroundConsumer;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -130,19 +133,20 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void withTypes(FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
+    public void withTypes(BackgroundConsumer<List<AssistContentThreadSafe>> handler)
     {
-        JavaFXUtil.runAfterCurrent(() -> handler.accept(Collections.emptyList()));
+        Utility.runBackground(() -> handler.accept(Collections.emptyList()));
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
+    public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<List<AssistContentThreadSafe>> handler)
     {
-        JavaFXUtil.runAfterCurrent(() -> handler.accept(Collections.emptyList()));
+        Utility.runBackground(() -> handler.accept(Collections.emptyList()));
     }
 
     @Override
+    @OnThread(Tag.Any)
     public Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions()
     {
         return Collections.emptyMap();
