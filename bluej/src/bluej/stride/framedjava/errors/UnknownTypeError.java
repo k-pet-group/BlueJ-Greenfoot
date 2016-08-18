@@ -39,7 +39,7 @@ public class UnknownTypeError extends DirectSlotError
 {
     private final String typeName;
     private final InteractionManager editor;
-    private final List<FixSuggestion> corrections;
+    private final List<FixSuggestion> corrections = new ArrayList<>();
 
     @OnThread(Tag.Any)
     public UnknownTypeError(TypeSlotFragment slotFragment, String typeName, TypeSlot slot, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
@@ -48,7 +48,7 @@ public class UnknownTypeError extends DirectSlotError
         this.typeName = typeName;
         this.editor = editor;
         
-        corrections = new ArrayList<>(Correction.winnowAndCreateCorrections(typeName, possibleCorrections.map(TypeCorrectionInfo::new), s -> slot.setText(s)));
+        corrections.addAll(Correction.winnowAndCreateCorrections(typeName, possibleCorrections.map(TypeCorrectionInfo::new), s -> slot.setText(s)));
         corrections.addAll(possibleImports
                 .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
                 .flatMap(ac -> Stream.of(new ImportSingleFix(ac), new ImportPackageFix(ac)))

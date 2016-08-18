@@ -43,14 +43,14 @@ import threadchecker.Tag;
 public class UndeclaredVariableLvalueError extends DirectSlotError
 {
     private final AssignFrame assignFrame;
-    private final List<Correction> corrections;
+    private final List<Correction> corrections = new ArrayList<>();
     private final String varName;
 
     public UndeclaredVariableLvalueError(StringSlotFragment slotFragment, AssignFrame assignFrame, Set<String> possibleCorrections)
     {
         super(slotFragment);
         this.assignFrame = assignFrame;
-        this.corrections = Correction.winnowAndCreateCorrections(assignFrame.getLHS().getText(), possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> assignFrame.getLHS().setText(s));
+        this.corrections.addAll(Correction.winnowAndCreateCorrections(assignFrame.getLHS().getText(), possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> assignFrame.getLHS().setText(s)));
         this.varName = assignFrame.getLHS().getText();
     }
     

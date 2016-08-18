@@ -21,6 +21,7 @@
  */
 package bluej.stride.framedjava.errors;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
     private final String varName;
     private final int startPosInSlot;
     private final int endPosInSlot;
-    private List<? extends FixSuggestion> corrections;
+    private List<FixSuggestion> corrections = new ArrayList<>();
     
     public UndeclaredVariableInExpressionError(StringSlotFragment slotFragment, String varName, int startPosInSlot, int endPosInSlot, ExpressionSlot slot, Set<String> possibleCorrections)
     {
@@ -44,7 +45,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
         this.startPosInSlot = startPosInSlot;
         this.endPosInSlot = endPosInSlot;
 
-        corrections = Correction.winnowAndCreateCorrections(varName, possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> slot.replace(startPosInSlot, endPosInSlot, isJavaPos(), s));
+        corrections.addAll(Correction.winnowAndCreateCorrections(varName, possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> slot.replace(startPosInSlot, endPosInSlot, isJavaPos(), s)));
     }
 
     @Override
