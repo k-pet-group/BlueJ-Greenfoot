@@ -94,6 +94,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -332,7 +333,7 @@ public class PkgMgrFrame extends JPanel
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
             new JFXPanel();
-            swingNode = new SwingNode();
+            swingNode = new SwingNodeFixed();
             swingNode.setContent(PkgMgrFrame.this);
             Dimension preferredSize = swingNode.getContent().getPreferredSize();
             swingNode.getContent().validate();

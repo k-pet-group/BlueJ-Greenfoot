@@ -23,6 +23,7 @@ package bluej.editor.stride;
 
 import bluej.editor.moe.MoeEditor;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SwingNodeFixed;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
@@ -120,7 +121,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     {
         if (!initialised)
             initialised = true;
-        swingNode = new SwingNode();
+        swingNode = new SwingNodeFixed();
         //JPanel panel = new JPanel();
         //panel.add(moeEditor);
         swingNode.setContent(moeEditor);

@@ -22,24 +22,20 @@
 package bluej.editor.stride;
 
 import bluej.BlueJTheme;
-
-import java.awt.AWTKeyStroke;
-import java.awt.KeyboardFocusManager;
-import java.awt.Rectangle;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import bluej.Config;
+import bluej.Main;
 import bluej.editor.stride.FrameCatalogue.Hint;
+import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCursor;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -62,7 +58,6 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
@@ -70,7 +65,6 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
-import javafx.scene.control.TitledPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -79,31 +73,32 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
-import bluej.Main;
-import bluej.utility.javafx.FXPlatformRunnable;
-//import org.scenicview.ScenicView;
-import bluej.utility.javafx.FXSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.Config;
-import bluej.pkgmgr.Project;
-import bluej.prefmgr.PrefMgr;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCursor;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.JavaFXUtil;
 
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
+import java.awt.AWTKeyStroke;
+import java.awt.KeyboardFocusManager;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+//import org.scenicview.ScenicView;
 
 
 /**

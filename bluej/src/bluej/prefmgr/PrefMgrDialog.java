@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import bluej.BlueJTheme;
+import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -170,7 +171,7 @@ public class PrefMgrDialog
         add(3, userConfigLibPanel, Config.getString("classmgr.prefpaneltitle"), userConfigLibPanel);
 
         SwingUtilities.invokeLater(() -> {
-            SwingNode kbSwing = new SwingNode();
+            SwingNode kbSwing = new SwingNodeFixed();
             KeyBindingsPanel kbPanel = new KeyBindingsPanel(() -> null);
             kbSwing.setContent(kbPanel.makePanel());
             Platform.runLater(() -> {
@@ -179,7 +180,7 @@ public class PrefMgrDialog
             });
             if (!Config.isGreenfoot())
             {
-                SwingNode extSwing = new SwingNode();
+                SwingNode extSwing = new SwingNodeFixed();
                 ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
                 extSwing.setContent(mgr.getPanel());
                 Platform.runLater(() -> {
@@ -190,7 +191,7 @@ public class PrefMgrDialog
                 {
                     //display the Raspberry Pi specific options
                     RaspberryPiPanel rpp = new RaspberryPiPanel();
-                    SwingNode piSwing = new SwingNode();
+                    SwingNode piSwing = new SwingNodeFixed();
                     piSwing.setContent(rpp);
                     Platform.runLater(() -> {
                         // Pi is seventh:

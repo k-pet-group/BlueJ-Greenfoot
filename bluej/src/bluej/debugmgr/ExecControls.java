@@ -80,6 +80,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingNode;
@@ -218,7 +219,7 @@ public class ExecControls
             this.window = new Stage();
             window.setTitle(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
             BlueJTheme.setWindowIconFX(window);
-            this.swingNode = new SwingNode();
+            this.swingNode = new SwingNodeFixed();
             this.fxContent = new VBox(swingNode);
             // Menu bar will be added later:
             window.setScene(new Scene(fxContent));

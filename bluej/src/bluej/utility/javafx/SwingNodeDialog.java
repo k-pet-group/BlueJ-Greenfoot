@@ -72,7 +72,7 @@ public class SwingNodeDialog
     protected SwingNodeDialog()
     {
         // Provide a content pane by default:
-        swingNode = new SwingNode();
+        swingNode = new SwingNodeFixed();
         JPanel content = new JPanel();
         content.setLayout(new BorderLayout());
         swingNode.setContent(content);
