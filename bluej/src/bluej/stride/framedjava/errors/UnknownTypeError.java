@@ -26,12 +26,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.errors.Correction.CorrectionInfo;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Debug;
+import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -42,13 +44,13 @@ public class UnknownTypeError extends DirectSlotError
     private final List<FixSuggestion> corrections = new ArrayList<>();
 
     @OnThread(Tag.Any)
-    public UnknownTypeError(TypeSlotFragment slotFragment, String typeName, TypeSlot slot, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
+    public UnknownTypeError(SlotFragment slotFragment, String typeName, FXPlatformConsumer<String> replace, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
     {
         super(slotFragment);
         this.typeName = typeName;
         this.editor = editor;
         
-        corrections.addAll(Correction.winnowAndCreateCorrections(typeName, possibleCorrections.map(TypeCorrectionInfo::new), s -> slot.setText(s)));
+        corrections.addAll(Correction.winnowAndCreateCorrections(typeName, possibleCorrections.map(TypeCorrectionInfo::new), replace));
         corrections.addAll(possibleImports
                 .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
                 .flatMap(ac -> Stream.of(new ImportSingleFix(ac), new ImportPackageFix(ac)))

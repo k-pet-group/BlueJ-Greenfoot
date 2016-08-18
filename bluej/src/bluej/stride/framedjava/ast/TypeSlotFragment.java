@@ -114,7 +114,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
                 }
             }
             // Otherwise, give error and suggest corrections 
-            final UnknownTypeError error = new UnknownTypeError(this, content, slot, editor, types.stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream));
+            final UnknownTypeError error = new UnknownTypeError(this, content, slot::setText, editor, types.stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream)) {};
             error.recordPath(rootPathMap.locationFor(this));
             f.complete(Arrays.asList(error));
         });

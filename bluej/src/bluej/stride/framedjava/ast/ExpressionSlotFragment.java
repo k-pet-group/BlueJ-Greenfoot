@@ -23,6 +23,9 @@ package bluej.stride.framedjava.ast;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +34,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
+import bluej.stride.framedjava.errors.UnknownTypeError;
+import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
 import bluej.parser.JavaParser;
 import bluej.parser.lexer.LocatableToken;
@@ -223,18 +229,57 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
             //Debug.message("Plains: " + plains.stream().map(t -> t.getText()).collect(Collectors.joining(", ")));
             
             //Debug.message("Assign LHS: " + assignmentLHSParent + " Java: \"" + getJavaCode() + "\"");
-            
-            f.complete(plains.stream().map(identToken -> {
-                if (!vars.containsKey(identToken.getText())) {
-                    if (assignmentLHSParent != null && identToken.getText().equals(getJavaCode())) {
+
+            Stream<DirectSlotError> undeclaredVarErrors = plains.stream().map(identToken ->
+            {
+                if (!vars.containsKey(identToken.getText()))
+                {
+                    if (assignmentLHSParent != null && identToken.getText().equals(getJavaCode()))
+                    {
                         return new UndeclaredVariableLvalueError(this, assignmentLHSParent, vars.keySet());
                     }
-                    return new UndeclaredVariableInExpressionError(this, identToken.getText(), identToken.getColumn() - 1, 
-                            identToken.getColumn() - 1 + identToken.getLength(), slot, vars.keySet());
+                    return new UndeclaredVariableInExpressionError(this, identToken.getText(), identToken.getColumn() - 1,
+                        identToken.getColumn() - 1 + identToken.getLength(), slot, vars.keySet());
                 }
                 return null;
-            }).filter(x -> x != null).peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
-            // TODO errors for compounds and types
+            }).filter(x -> x != null);
+
+            editor.withTypes(availableTypes -> {
+
+                // Only look at single ident types:
+                Stream<DirectSlotError> unknownTypeErrors = types.stream().filter(t -> t.size() == 1).map(t -> t.get(0)).map(token -> {
+                    String typeName = token.getText();
+                    // TODO this is horribly inefficient...
+                    for (AssistContentThreadSafe t : availableTypes)
+                    {
+                        if (t.getName().equals(typeName))
+                        {
+                            // Match -- no error
+                            return null;
+                        }
+                    }
+                    int startPosInSlot = token.getColumn() - 1;
+                    int endPosInSlot = token.getColumn() - 1 + token.getLength();
+                    FXPlatformConsumer<String> replace =
+                        s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
+                    return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream)) {
+                        @Override
+                        public int getStartPosition()
+                        {
+                            return startPosInSlot;
+                        }
+
+                        @Override
+                        public int getEndPosition()
+                        {
+                            return endPosInSlot;
+                        }
+                    };
+                }).filter(x -> x != null);
+
+                f.complete(Stream.concat(undeclaredVarErrors, unknownTypeErrors).peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
+            });
+            // TODO errors for compounds
         }));
         return f;
     }
