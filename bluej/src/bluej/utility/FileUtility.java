@@ -133,7 +133,7 @@ public class FileUtility
     public static File getSaveProjectFX(Window parent, String title)
     {
         // JavaFX only has a directory-open dialog, so we use that:
-        File chosen = new NewProjectDialog(parent, title).showAndWait();
+        File chosen = new ProjectLocationDialog(parent, title).showAndWait();
 
         // If they cancelled, just stop:
         if (chosen == null)

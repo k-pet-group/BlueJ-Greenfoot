@@ -18,15 +18,19 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.io.File;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
 /**
- * Created by neil on 18/08/2016.
+ * A dialog shown when choosing a location to save a project to,
+ * e.g. for new projects, save as or checkout.
  */
-class NewProjectDialog
+@OnThread(Tag.FXPlatform)
+class ProjectLocationDialog
 {
     private final Dialog<File> dialog;
     private final TextField nameField;
@@ -36,7 +40,7 @@ class NewProjectDialog
     private final DialogPaneAnimateError dialogPane;
     private boolean dialogHasBeenEdited = false;
 
-    public NewProjectDialog(Window owner, String title)
+    public ProjectLocationDialog(Window owner, String title)
     {
         dialog = new Dialog<>();
         dialog.initOwner(owner);
