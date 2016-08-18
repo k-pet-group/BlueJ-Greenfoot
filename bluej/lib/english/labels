@@ -862,11 +862,12 @@ notAProject.bluej.subDirs=Some child folders have BlueJ projects.  Did you mean:
 notAProject.bluej.subDirButton=Open Selected
 notAProject.bluej.button=Choose Again...
 
-# Not empty directory
-nonEmptyDirectory.title=Directory Not Empty
-nonEmptyDirectory.message=Selected directory is not empty.
-nonEmptyDirectory.chooseAgain=Choose a different directory
-nonEmptyDirectory.makeSubDir=Create a new subdirectory
-nonEmptyDirectory.blank=Subdirectory name cannot be blank
-nonEmptyDirectory.fileExists=Directory name clashes with existing file name
-nonEmptyDirectory.nonEmptyDirExists=Directory already exists and is not empty
+# New project
+newProject.name=Name
+newProject.parent=Location
+newProject.path=Path
+newProject.parent.choose=Choose...
+newProject.error.parentNotExist=Location does not exist
+newProject.error.nameEmpty=Name cannot be empty
+newProject.error.compoundExist=Path already exists
+newProject.error.pathInvalid=Path is invalid

@@ -403,7 +403,7 @@ public class PrefMgr
         highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
         isNaviviewExpanded=initializeisNavivewExpanded();
         
-        projectDirectory = Config.getPropString("bluej.projectPath", null);
+        projectDirectory = Config.getPropString("bluej.projectPath", System.getProperty("user.home"));
         recentProjects = readRecentProjects();
         
         flags.put(HILIGHTING, Config.getPropString(HILIGHTING, "true"));

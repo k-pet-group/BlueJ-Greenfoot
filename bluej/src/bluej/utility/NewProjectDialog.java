@@ -1,0 +1,197 @@
+package bluej.utility;
+
+import bluej.Config;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.dialog.DialogPaneAnimateError;
+import javafx.application.Platform;
+import javafx.beans.binding.StringBinding;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
+import javafx.stage.Window;
+
+import java.io.File;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
+
+/**
+ * Created by neil on 18/08/2016.
+ */
+class NewProjectDialog
+{
+    private final Dialog<File> dialog;
+    private final TextField nameField;
+    private final TextField parentField;
+    private final Label compoundPath;
+    private final Label errorLabel = new Label();
+    private final DialogPaneAnimateError dialogPane;
+    private boolean dialogHasBeenEdited = false;
+
+    public NewProjectDialog(Window owner, String title)
+    {
+        dialog = new Dialog<>();
+        dialog.initOwner(owner);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.setTitle(title);
+        dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton(true));
+        dialog.setDialogPane(dialogPane);
+        Config.addDialogStylesheets(dialog.getDialogPane());
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+
+        JavaFXUtil.addStyleClass(errorLabel, "dialog-error-label");
+        GridPane gridPane = new GridPane();
+        JavaFXUtil.addStyleClass(gridPane, "proj-grid");
+        gridPane.add(makeLabel(Config.getString("newProject.name")), 0, 0);
+        gridPane.add(makeLabel(Config.getString("newProject.parent")), 0, 1);
+        gridPane.add(makeLabel(Config.getString("newProject.path")), 0, 2);
+        nameField = new TextField("");
+        gridPane.add(nameField, 1, 0);
+        JavaFXUtil.addChangeListenerPlatform(nameField.textProperty(), s -> {dialogHasBeenEdited = true;});
+        parentField = new TextField(PrefMgr.getProjectDirectory());
+        JavaFXUtil.addChangeListenerPlatform(parentField.textProperty(), s -> {dialogHasBeenEdited = true;});
+        gridPane.add(parentField, 1, 1);
+        Button chooseParent = new Button(Config.getString("newProject.parent.choose"));
+        chooseParent.setOnAction(e -> {
+            DirectoryChooser newChooser = new DirectoryChooser();
+            newChooser.setTitle(title);
+            newChooser.setInitialDirectory(new File(parentField.getText()));
+            File chosen = newChooser.showDialog(dialogPane.getScene().getWindow());
+            if (chosen != null)
+                parentField.setText(chosen.getAbsolutePath());
+        });
+        gridPane.add(chooseParent, 2, 1);
+        compoundPath = new Label();
+        compoundPath.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
+        JavaFXUtil.addStyleClass(compoundPath, "compound-path");
+        compoundPath.textProperty().bind(new StringBinding()
+        {
+            {
+                super.bind(nameField.textProperty());
+                super.bind(parentField.textProperty());
+            }
+            @Override
+            protected String computeValue()
+            {
+                return new File(parentField.getText(), nameField.getText()).getAbsolutePath();
+            }
+        });
+        JavaFXUtil.addChangeListenerPlatform(compoundPath.textProperty(), x -> updateOKButton(false));
+        gridPane.add(compoundPath, 1, 2);
+
+        VBox content = new VBox(gridPane, errorLabel);
+        JavaFXUtil.addStyleClass(content, "new-project-dialog");
+        dialogPane.setContent(content);
+        dialog.setResultConverter(button -> {
+            if (button == ButtonType.OK)
+            {
+                return new File(compoundPath.getText());
+            }
+            else
+                return null;
+        });
+        dialog.setResizable(true);
+        updateOKButton(false);
+    }
+
+    private Label makeLabel(String string)
+    {
+        Label label = new Label(string);
+        label.setMinWidth(Region.USE_PREF_SIZE);
+        return label;
+    }
+
+    public File showAndWait()
+    {
+        return dialog.showAndWait().orElse(null);
+    }
+
+    /**
+     * Enable/disable the OK button, and set the error label
+     *
+     * @param force True if we want to display a message for the blank class name,
+     *              even if it has been blank since the dialog was shown (we do
+     *              this when the user mouses over OK).
+     */
+    private void updateOKButton(boolean force)
+    {
+        boolean enable = false;
+        // First check that the parent doesn't exist:
+        try
+        {
+            if (!Paths.get(parentField.getText()).toFile().exists())
+            {
+                showError(Config.getString("newProject.error.parentNotExist"), false);
+            }
+            else if (dialogHasBeenEdited || force)
+            {
+                // Name cannot be empty (we check separately for this, because
+                // empty name would just check parent directory, but that's not a valid choice)
+                if (nameField.getText().isEmpty())
+                {
+                    showError(Config.getString("newProject.error.nameEmpty"), true);
+                }
+                else
+                {
+                    // Check if the compound path is valid:
+                    File compound = Paths.get(compoundPath.getText()).toFile();
+
+                    // Check if it exists:
+                    if (compound.exists())
+                    {
+                        showError(Config.getString("newProject.error.compoundExist"), false);
+                    }
+                    else
+                    {
+                        hideError();
+                        enable = true;
+                    }
+                }
+            }
+            else
+            {
+                hideError();
+                enable = true;
+            }
+        }
+        catch (InvalidPathException e)
+        {
+            showError(Config.getString("newProject.error.pathInvalid"), true);
+        }
+
+        setOKEnabled(enable);
+        dialog.setOnShown(e -> Platform.runLater(nameField::requestFocus));
+    }
+
+    private void hideError()
+    {
+        errorLabel.setText("");
+        JavaFXUtil.setPseudoclass("bj-dialog-error", false, nameField);
+        JavaFXUtil.setPseudoclass("bj-dialog-error", false, parentField);
+    }
+
+    private void showError(String error, boolean problemIsName)
+    {
+        // show error, highlight field red if problem is name:
+        errorLabel.setText(error);
+        JavaFXUtil.setPseudoclass("bj-dialog-error", problemIsName, nameField);
+        JavaFXUtil.setPseudoclass("bj-dialog-error", !problemIsName, parentField);
+    }
+
+    /**
+     * Sets the OK button of the dialog to be enabled (pass true) or not (pass false)
+     */
+    private void setOKEnabled(boolean okEnabled)
+    {
+        dialogPane.getOKButton().setDisable(!okEnabled);
+    }
+
+}

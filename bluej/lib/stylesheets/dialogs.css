@@ -165,6 +165,19 @@
     -fx-padding: 0 0 0 3em; /* Indent the radio buttons */
 }
 
+/* New project dialog */
+.new-project-dialog {
+    -fx-spacing: 1em;
+    -fx-padding: 1em;
+}
+.new-project-dialog .proj-grid {
+    -fx-hgap: 0.5em;
+    -fx-vgap: 0.5em;
+}
+.new-project-dialog .compound-path {
+    -fx-label-padding: 0 0 0 0.65em;
+}
+
 /* Constructor dialog */
 .call-dialog-content, .constructor-dialog-fields {
     -fx-spacing: 1em;

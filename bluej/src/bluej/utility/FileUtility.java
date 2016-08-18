@@ -133,35 +133,12 @@ public class FileUtility
     public static File getSaveProjectFX(Window parent, String title)
     {
         // JavaFX only has a directory-open dialog, so we use that:
-        File dir = getOpenDirFX(parent, title, false);
+        File chosen = new NewProjectDialog(parent, title).showAndWait();
 
         // If they cancelled, just stop:
-        if (dir == null)
+        if (chosen == null)
             return null;
 
-        if (!dir.isDirectory())
-            // What the hell?
-            throw new IllegalStateException("Non-directory selected by directory chooser");
-
-        // The rule is: if the user has selected an empty directory,
-        // we use that as the actual destination without checking.
-        // If the user selects a non-empty directory, we ask first
-        // if that's what they wanted, or whether they want to make
-        // a new subdirectory.
-
-        File chosen;
-        if (dir.list().length == 0)
-        {
-            chosen = dir; // Empty
-        }
-        else
-        {
-            NonEmptyDirectoryDialog dlg = new NonEmptyDirectoryDialog(parent, dir);
-            chosen = dlg.showAndWait();
-            if (dir.equals(chosen))
-                // They asked to choose again:
-                chosen = getSaveProjectFX(parent, title);
-        }
         if (chosen != null && chosen.getParentFile() != null)
         {
             PrefMgr.setProjectDirectory(chosen.getParentFile().getPath());
