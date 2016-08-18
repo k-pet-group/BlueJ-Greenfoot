@@ -2365,7 +2365,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
         return editor;
     }
 
-    // List is as long as there are parameters, but returns null if the parameter is non-simple,
+    // List is as long as there are parameters, but contains null if the parameter is non-simple,
     // i.e. does not consist of a single field
     public List<StructuredSlotField> getSimpleParameters()
     {

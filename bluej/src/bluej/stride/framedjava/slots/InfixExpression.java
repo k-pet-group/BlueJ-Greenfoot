@@ -199,7 +199,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
         int curArity;
         // There is a special case if we have a single empty parameter; this looks
         // like arity 1, but actually because it's empty, it's arity 0:
-        if (curParams.size() == 1 && curParams.get(0).isEmpty())
+        if (curParams.size() == 1 && curParams.get(0) != null && curParams.get(0).isEmpty())
             curArity = 0;
         else
             curArity = curParams.size();
