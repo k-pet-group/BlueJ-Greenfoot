@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,22 +21,18 @@
  */
 package bluej.stride.generic;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
-import bluej.Config;
 import bluej.utility.javafx.BetterVBox;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableDoubleProperty;
 import javafx.css.SimpleStyleableObjectProperty;
@@ -44,9 +40,6 @@ import javafx.css.Styleable;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.PerspectiveTransform;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -55,16 +48,13 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
-import javafx.util.Duration;
 
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.Debug;
 import bluej.utility.javafx.SharedTransition;
 
 // Package-visible
@@ -168,15 +158,16 @@ class CanvasVBox extends BetterVBox
     // This one is only used by imports canvas at the moment, to animate left border:
     private final DoubleProperty leftMarginScale = new SimpleDoubleProperty(1.0);
     
-    private final Collection<Frame> frames; // read-only, for doing margins
+    private final HashSet<Node> frameNodes = new HashSet<>(); // read-only, for doing margins
 
-    /**
-     * The given frames collection parameter is held by reference, not copied.
-     */
-    public CanvasVBox(double minWidth, Collection<Frame> frames)
+    public CanvasVBox(double minWidth, ObservableList<Frame> frames)
     {
         super(minWidth);
-        this.frames = frames;
+        frames.addListener((ListChangeListener<? super Frame>) change -> {
+            frameNodes.clear();
+            for (Frame f : frames)
+                frameNodes.add(f.getNode());
+        });
         
         minHeightProperty().bind(cssMinHeightProperty);
         
@@ -304,22 +295,16 @@ class CanvasVBox extends BetterVBox
     @Override
     public double getTopMarginFor(Node n)
     {
-        for (Frame f : frames)
-        {
-            if (f.getNode() == n)
-                return frameMarginTopProperty.get();
-        }
+        if (frameNodes.contains(n))
+            return frameMarginTopProperty.get();
         return super.getTopMarginFor(n);
     }
 
     @Override
     public double getBottomMarginFor(Node n)
     {
-        for (Frame f : frames)
-        {
-            if (f.getNode() == n)
-                return frameMarginBottomProperty.get();
-        }
+        if (frameNodes.contains(n))
+            return frameMarginBottomProperty.get();
         return super.getBottomMarginFor(n);
     }
 
