@@ -22,6 +22,7 @@
 package bluej.prefmgr;
 
 import java.awt.Font;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -136,9 +137,13 @@ public class PrefMgr
     }
     
     @OnThread(Tag.Any)
-    public static String getProjectDirectory()
+    public static File getProjectDirectory()
     {
-        return projectDirectory;
+        File dir = new File(projectDirectory);
+        if (dir.exists() && dir.isDirectory())
+            return dir;
+        else
+            return new File(System.getProperty("user.home"));
     }
     
     // ----- system interface to read or set prefences: -----

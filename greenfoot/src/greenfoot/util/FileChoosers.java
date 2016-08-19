@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -71,7 +71,7 @@ public class FileChoosers
     public static File getScenario(Component parent)
     {
         if(scenarioFileChooser == null) {
-            scenarioFileChooser = new PackageChooserStrict(new File(PrefMgr.getProjectDirectory()));
+            scenarioFileChooser = new PackageChooserStrict(PrefMgr.getProjectDirectory());
             scenarioFileChooser.setDialogTitle(Config.getString("chooser.scenario.title"));
         }
         int result = scenarioFileChooser.showDialog(parent, Config.getString("chooser.scenario.button"));

@@ -60,7 +60,7 @@ class ProjectLocationDialog
         nameField = new TextField("");
         gridPane.add(nameField, 1, 0);
         JavaFXUtil.addChangeListenerPlatform(nameField.textProperty(), s -> {dialogHasBeenEdited = true;});
-        parentField = new TextField(PrefMgr.getProjectDirectory());
+        parentField = new TextField(PrefMgr.getProjectDirectory().getAbsolutePath());
         JavaFXUtil.addChangeListenerPlatform(parentField.textProperty(), s -> {dialogHasBeenEdited = true;});
         gridPane.add(parentField, 1, 1);
         Button chooseParent = new Button(Config.getString("newProject.parent.choose"));

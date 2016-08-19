@@ -150,7 +150,7 @@ public class FileUtility
     public static List<File> getMultipleFilesFX(Window parent, String title, ExtensionFilter filter)
     {
         FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+        chooser.setInitialDirectory(PrefMgr.getProjectDirectory());
         if (filter != null)
             chooser.getExtensionFilters().setAll(filter);
         chooser.setTitle(title);
@@ -165,7 +165,7 @@ public class FileUtility
         FileChooser newChooser = new FileChooser();
         newChooser.getExtensionFilters().setAll(filters);
         newChooser.setTitle(title);
-        newChooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+        newChooser.setInitialDirectory(PrefMgr.getProjectDirectory());
         
         List<File> chosen = newChooser.showOpenMultipleDialog(parent);
 
@@ -185,7 +185,7 @@ public class FileUtility
         if (filters != null)
             newChooser.getExtensionFilters().setAll(filters);
         newChooser.setTitle(title);
-        newChooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+        newChooser.setInitialDirectory(PrefMgr.getProjectDirectory());
 
         File chosen = newChooser.showSaveDialog(parent);
 
@@ -203,7 +203,7 @@ public class FileUtility
         chooser.getExtensionFilters().setAll(new ExtensionFilter("ZIP/JAR file", "*.zip", "*.jar"));
         if (title != null)
             chooser.setTitle(title);
-        chooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+        chooser.setInitialDirectory(PrefMgr.getProjectDirectory());
 
         File chosen = chooser.showOpenDialog(parent);
 
@@ -220,7 +220,7 @@ public class FileUtility
         DirectoryChooser newChooser = new DirectoryChooser();
         newChooser.setTitle(title);
         if (PrefMgr.getProjectDirectory() != null)
-            newChooser.setInitialDirectory(new File(PrefMgr.getProjectDirectory()));
+            newChooser.setInitialDirectory(PrefMgr.getProjectDirectory());
 
         File chosen = newChooser.showDialog(parent);
 
@@ -305,7 +305,7 @@ public class FileUtility
     private static PackageChooser getDirectoryChooser()
     {
         if (directoryChooser == null) {
-            directoryChooser = new PackageChooser(new File(PrefMgr.getProjectDirectory()), false, false);
+            directoryChooser = new PackageChooser(PrefMgr.getProjectDirectory(), false, false);
         }
         
         return directoryChooser;
