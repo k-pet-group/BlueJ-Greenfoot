@@ -175,8 +175,6 @@ public class HangingFlowPane extends Pane {
         return FlowPane.getMargin(child);
     }
 
-    private static final Callback<Node, Insets> marginAccessor = n -> getMargin(n);
-
     /**
      * Removes all flowpane constraints from the child node.
      * @param child the child node
@@ -496,9 +494,9 @@ public class HangingFlowPane extends Pane {
             run.width += lrect.width;
             lrect.y = runOffset;
         }
-        run.height = computeMaxPrefAreaHeight(rownodes, marginAccessor, getRowValignment());
+        run.height = computeMaxPrefAreaHeight(rownodes, getRowValignment());
         run.baselineOffset = getRowValignment() == VPos.BASELINE?
-            getAreaBaselineOffset(rownodes, marginAccessor, i -> run.rects.get(i).width, run.height, true) : 0;
+            getAreaBaselineOffset(rownodes, run.rects, run.height, true) : 0;
     }
 
     private double computeContentWidth(List<Run> runs) {
@@ -712,23 +710,17 @@ public class HangingFlowPane extends Pane {
         }
     }
 
-    double getAreaBaselineOffset(List<Node> children, Callback<Node, Insets> margins,
-                                 Function<Integer, Double> positionToWidth,
+    double getAreaBaselineOffset(List<Node> children,
+                                 ArrayList<LayoutRect> positionToWidth,
                                  double areaHeight, boolean fillHeight) {
-        return getAreaBaselineOffset(children, margins, positionToWidth, areaHeight, fillHeight, isSnapToPixel());
+        return getAreaBaselineOffset(children, positionToWidth, areaHeight, fillHeight, isSnapToPixel());
     }
 
-    static double getAreaBaselineOffset(List<Node> children, Callback<Node, Insets> margins,
-                                        Function<Integer, Double> positionToWidth,
+    static double getAreaBaselineOffset(List<Node> children,
+                                        ArrayList<LayoutRect> positionToWidth,
                                         double areaHeight, boolean fillHeight, boolean snapToPixel) {
-        return getAreaBaselineOffset(children, margins, positionToWidth, areaHeight, fillHeight,
+        return getAreaBaselineOffset(children, positionToWidth, areaHeight, fillHeight,
             getMinBaselineComplement(children), snapToPixel);
-    }
-
-    static double getAreaBaselineOffset(List<Node> children, Callback<Node, Insets> margins,
-                                        Function<Integer, Double> positionToWidth,
-                                        double areaHeight, final boolean fillHeight, double minComplement, boolean snapToPixel) {
-        return getAreaBaselineOffset(children, margins, positionToWidth, areaHeight, t -> fillHeight, minComplement, snapToPixel);
     }
 
     /**
@@ -741,22 +733,22 @@ public class HangingFlowPane extends Pane {
      * @param fillHeight callback to specify children that has fillHeight constraint
      * @param minComplement minimum complement
      */
-    static double getAreaBaselineOffset(List<Node> children, Callback<Node, Insets> margins,
-                                        Function<Integer, Double> positionToWidth,
-                                        double areaHeight, Function<Integer, Boolean> fillHeight, double minComplement, boolean snapToPixel) {
+    static double getAreaBaselineOffset(List<Node> children,
+                                        ArrayList<LayoutRect> positionToWidth,
+                                        double areaHeight, boolean fillHeight, double minComplement, boolean snapToPixel) {
         double b = 0;
         for (int i = 0;i < children.size(); ++i) {
             Node n = children.get(i);
-            Insets margin = margins.call(n);
+            Insets margin = getMargin(n);
             double top = margin != null? snapSpace(margin.getTop(), snapToPixel) : 0;
             double bottom = (margin != null? snapSpace(margin.getBottom(), snapToPixel) : 0);
             final double bo = n.getBaselineOffset();
             if (bo == BASELINE_OFFSET_SAME_AS_HEIGHT) {
                 double alt = -1;
                 if (n.getContentBias() == Orientation.HORIZONTAL) {
-                    alt = positionToWidth.apply(i);
+                    alt = positionToWidth.get(i).width;
                 }
-                if (fillHeight.apply(i)) {
+                if (fillHeight) {
                     // If the children fills it's height, than it's "preferred" height is the area without the complement and insets
                     b = Math.max(b, top + boundedSize(n.minHeight(alt), areaHeight - minComplement - top - bottom,
                         n.maxHeight(alt)));
@@ -884,12 +876,12 @@ public class HangingFlowPane extends Pane {
         }
     }
 
-    double computeMaxPrefAreaHeight(List<Node>children, Callback<Node, Insets> margins, VPos valignment) {
-        return getMaxAreaHeight(children, margins, null, valignment, false);
+    double computeMaxPrefAreaHeight(List<Node>children, VPos valignment) {
+        return getMaxAreaHeight(children, null, valignment, false);
     }
 
     /* utility method for computing the max of children's min or pref heights, taking into account baseline alignment */
-    private double getMaxAreaHeight(List<Node> children, Callback<Node,Insets> childMargins,  double childWidths[], VPos valignment, boolean minimum) {
+    private double getMaxAreaHeight(List<Node> children, double childWidths[], VPos valignment, boolean minimum) {
         final double singleChildWidth = childWidths == null ? -1 : childWidths.length == 1 ? childWidths[0] : Double.NaN;
         if (valignment == VPos.BASELINE) {
             double maxAbove = 0;
@@ -897,7 +889,7 @@ public class HangingFlowPane extends Pane {
             for (int i = 0, maxPos = children.size(); i < maxPos; i++) {
                 final Node child = children.get(i);
                 final double childWidth = Double.isNaN(singleChildWidth) ? childWidths[i] : singleChildWidth;
-                Insets margin = childMargins.call(child);
+                Insets margin = getMargin(child);
                 final double top = margin != null? snapSpace(margin.getTop()) : 0;
                 final double bottom = margin != null? snapSpace(margin.getBottom()) : 0;
                 final double baseline = child.getBaselineOffset();
@@ -917,7 +909,7 @@ public class HangingFlowPane extends Pane {
             double max = 0;
             for (int i = 0, maxPos = children.size(); i < maxPos; i++) {
                 final Node child = children.get(i);
-                Insets margin = childMargins.call(child);
+                Insets margin = getMargin(child);
                 final double childWidth = Double.isNaN(singleChildWidth) ? childWidths[i] : singleChildWidth;
                 max = Math.max(max, minimum?
                     computeChildMinAreaHeight(child, -1, margin, childWidth) :
