@@ -1006,10 +1006,7 @@ public class HangingFlowPane extends Pane {
 
     private static Object getConstraint(Node node, Object key) {
         if (node.hasProperties()) {
-            Object value = node.getProperties().get(key);
-            if (value != null) {
-                return value;
-            }
+            return node.getProperties().get(key);
         }
         return null;
     }
