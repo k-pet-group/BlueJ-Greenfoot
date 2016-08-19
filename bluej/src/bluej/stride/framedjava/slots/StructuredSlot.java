@@ -1116,11 +1116,12 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                 recentValues.remove(3);
 
             editor.endRecordingState(this);
+
+            topLevel.getAllExpressions().forEach(InfixStructured::deselect);
+            notifyLostFocusExcept(null);
+            lostFocusActions.forEach(FXRunnable::run);
         }
         focusedProperty.set(false);
-        topLevel.getAllExpressions().forEach(InfixStructured::deselect);
-        notifyLostFocusExcept(null);
-        lostFocusActions.forEach(FXRunnable::run);
     }
 
     void notifyGainFocus(StructuredSlotField focus)
