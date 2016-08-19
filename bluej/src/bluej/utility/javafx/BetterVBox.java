@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -116,7 +116,13 @@ public class BetterVBox extends Pane
         final Insets padding = getPadding();
         final double contentWidth = width - (int)padding.getLeft() - (int)padding.getRight();
         double reqMin = (getMinHeight() == Region.USE_COMPUTED_SIZE || getMinHeight() == Region.USE_PREF_SIZE) ? 0 : getMinHeight();
-        return Math.max(reqMin, getManagedChildren().stream().mapToDouble(n -> getTopMarginFor(n) + getBottomMarginFor(n) + n.prefHeight(contentWidth - getLeftMarginFor(n) - getRightMarginFor(n))).sum()) + (int)padding.getTop() + (int)padding.getBottom();
+        // Note: this deliberately does not use streams because it is performance-critical:
+        double contentHeight = 0;
+        for (Node n : getManagedChildren())
+        {
+            contentHeight += getTopMarginFor(n) + getBottomMarginFor(n) + n.prefHeight(contentWidth - getLeftMarginFor(n) - getRightMarginFor(n));
+        }
+        return Math.max(reqMin, contentHeight) + (int)padding.getTop() + (int)padding.getBottom();
     }
 
     @Override
