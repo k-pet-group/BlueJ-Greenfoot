@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -248,6 +248,8 @@ public abstract class Debugger
      */
     public abstract DebuggerClass getClass(String className, boolean initialize)
         throws ClassNotFoundException;
+
+    public abstract void launchFXApp(String className);
 
     /**
      * Get a reference to a string in the remote machine whose value is the

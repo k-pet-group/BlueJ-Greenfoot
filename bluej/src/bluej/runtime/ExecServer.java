@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,6 +44,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javafx.application.Application;
+import javafx.application.Platform;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
@@ -93,7 +95,7 @@ public class ExecServer
     public static final String METHOD_RETURN_NAME = "methodReturn";
     public static final String EXCEPTION_NAME = "exception";
     public static final String EXECUTED_CLASS_NAME = "executedClass";
-    
+
     // Possible actions for the main thread
     public static final int EXEC_SHELL = 0;  // Execute a shell class
     public static final int TEST_SETUP = 1;
@@ -104,7 +106,9 @@ public class ExecServer
     public static final int INSTANTIATE_CLASS = 6; // use default constructor
     public static final int INSTANTIATE_CLASS_ARGS = 7; // use constructor
         // with specified parameter types and arguments
-    
+    public static final int LAUNCH_FX_APP = 8;
+
+
     // Parameter for worker thread actions
     public static int workerAction = EXIT_VM;
     public static String objectName;
@@ -773,6 +777,12 @@ public class ExecServer
                             }
                             break;
                         }
+                        case LAUNCH_FX_APP:
+                            new Thread(() -> {
+                                Application.launch((Class<? extends Application>)loadAndInitClass(classToRun));
+                                System.exit(0);
+                            }).start();
+                            break;
                         case TEST_SETUP:
                             methodReturn = runTestSetUp(classToRun);
                             break;

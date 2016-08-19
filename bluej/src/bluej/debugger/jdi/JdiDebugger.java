@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -639,6 +639,16 @@ public class JdiDebugger extends Debugger
             }
             else {
                 return null;
+            }
+        }
+    }
+
+    public void launchFXApp(String className)
+    {
+        VMReference vmr = getVM();
+        if (vmr != null) {
+            synchronized (serverThreadLock) {
+                vmr.launchFXApp(className);
             }
         }
     }

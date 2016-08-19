@@ -380,6 +380,7 @@ pkgmgr.classmenu.remove=Remove
 pkgmgr.classmenu.convertToJava=Convert to Java
 pkgmgr.classmenu.convertToStride=Convert to Stride
 pkgmgr.classmenu.createTest=Create Test Class
+pkgmgr.classmenu.launchFX=Run JavaFX Application
 
 pkgmgr.test.label=Testing
 pkgmgr.test.record=recording

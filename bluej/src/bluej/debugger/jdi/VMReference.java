@@ -1719,7 +1719,22 @@ class VMReference
         }
         catch(InterruptedException ie) {}
     }
-    
+
+    public void launchFXApp(String className)
+    {
+        // Calls to this method are serialized via serverThreadLock in JdiDebugger
+        serverThreadStartWait();
+
+        // Store the class and method to call
+        setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
+        setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.LAUNCH_FX_APP));
+
+        // Resume the thread, wait for it to finish and the new thread to start
+        serverThreadStarted = false;
+        resumeServerThread();
+        serverThreadStartWait();
+    }
+
     /**
      * Invoke the default constructor for the given class and return a reference
      * to the generated instance.
@@ -1729,7 +1744,7 @@ class VMReference
         // Calls to this method are serialized via serverThreadLock in JdiDebugger
         
         serverThreadStartWait();
-        
+
         // Store the class and method to call
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.INSTANTIATE_CLASS));

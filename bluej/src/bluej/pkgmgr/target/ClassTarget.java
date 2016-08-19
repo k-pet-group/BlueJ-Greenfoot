@@ -121,6 +121,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import javafx.application.Application;
 import javafx.application.Platform;
 
 import threadchecker.OnThread;
@@ -146,6 +147,7 @@ public class ClassTarget extends DependentTarget
     private final static String convertToJavaStr = Config.getString("pkgmgr.classmenu.convertToJava");
     private final static String convertToStrideStr = Config.getString("pkgmgr.classmenu.convertToStride");
     private final static String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
+    private final static String launchFXStr = Config.getString("pkgmgr.classmenu.launchFX");
 
     // Define Background Colours
     private final static Color compbg = new Color(200,150,100);
@@ -1829,6 +1831,21 @@ public class ClassTarget extends DependentTarget
 
         // call on role object to add any options needed at top
         role.createRoleMenu(menu, this, cl, state);
+
+        if (cl != null)
+        {
+            if (Application.class.isAssignableFrom(cl))
+            {
+                role.addMenuItem(menu, new AbstractAction(launchFXStr)
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        getPackage().getDebugger().launchFXApp(cl.getName());
+                    }
+                }, true);
+            }
+        }
 
         if (cl != null) {
             if (role.createClassConstructorMenu(menu, this, cl)) {
