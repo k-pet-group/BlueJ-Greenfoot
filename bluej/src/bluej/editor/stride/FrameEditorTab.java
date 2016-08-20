@@ -2127,11 +2127,43 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     
     private void setupFocusable(CursorOrSlot parent, Node node)
     {
+        FXRunnable checkPositionChange = new FXRunnable() {
+            Bounds lastBounds = boundsInScrollContent(node);
+            @Override
+            public void run()
+            {
+                if (node.isFocused())
+                {
+                    Bounds boundsInScroll = boundsInScrollContent(node);
+                    // Only scroll if our vertical position relative to scroll has changed:
+                    if (Math.abs(boundsInScroll.getMinY() - lastBounds.getMinY()) >= 1.0
+                        || Math.abs(boundsInScroll.getMaxY() - lastBounds.getMaxY()) >= 1.0)
+                    {
+                        //Debug.message("Position changed from " + lastBounds + " to " + boundsInScroll);
+                        // Must change before calling ensureNodeVisible, as we may get re-triggered by
+                        // consequent changes, and need to prevent infinite loop:
+                        lastBounds = boundsInScroll;
+                        if (!anyButtonsPressed)
+                            ensureNodeVisible(node);
+                    }
+                    else
+                    {
+                        lastBounds = boundsInScroll;
+                    }
+                }
+            }
+        };
+
+        ChangeListener<Object> listener = (a, b, c) -> JavaFXUtil.runAfterCurrent(checkPositionChange);
+
         // When we detect focus gain, or whenever the size/position changes and node is focused,
         // make sure we remain visible:
         node.focusedProperty().addListener((a, b, focused) -> {
             if (focused)
             {
+                node.localToSceneTransformProperty().addListener(listener);
+                node.boundsInLocalProperty().addListener(listener);
+
                 focusedItem.set(parent);
 
                 if (menu != null)
@@ -2182,51 +2214,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             }
             else
             {
+                node.localToSceneTransformProperty().removeListener(listener);
+                node.boundsInLocalProperty().removeListener(listener);
                 if (parent.equals(focusedItem.get()))
                     focusedItem.set(null);
             }
-        });
-        FXRunnable checkPositionChange = new FXRunnable() {
-            Bounds lastBounds = boundsInScrollContent(node);
-            @Override
-            public void run()
-            {
-                if (node.isFocused())
-                {
-                    Bounds boundsInScroll = boundsInScrollContent(node);
-                    // Only scroll if our vertical position relative to scroll has changed:
-                    if (Math.abs(boundsInScroll.getMinY() - lastBounds.getMinY()) >= 1.0
-                            || Math.abs(boundsInScroll.getMaxY() - lastBounds.getMaxY()) >= 1.0)
-                    {
-                        //Debug.message("Position changed from " + lastBounds + " to " + boundsInScroll);
-                        // Must change before calling ensureNodeVisible, as we may get re-triggered by
-                        // consequent changes, and need to prevent infinite loop:
-                        lastBounds = boundsInScroll;
-                        if (!anyButtonsPressed)
-                            ensureNodeVisible(node);
-                    }
-                    else
-                    {
-                        lastBounds = boundsInScroll;
-                    }
-                }
-            }
-        };
-
-        JavaFXUtil.runNowOrLater(() ->
-        {
-            // The bounds will be in the middle of changing, so we use runLater to make sure
-            // we adjust after they have all settled down:
-            JavaFXUtil.addChangeListenerPlatform(node.localToSceneTransformProperty(), v ->
-            {
-                if (node.isFocused())
-                    JavaFXUtil.runAfterCurrent(checkPositionChange);
-            });
-            JavaFXUtil.addChangeListenerPlatform(node.boundsInLocalProperty(), v ->
-            {
-                if (node.isFocused())
-                    JavaFXUtil.runAfterCurrent(checkPositionChange);
-            });
         });
     }
 
