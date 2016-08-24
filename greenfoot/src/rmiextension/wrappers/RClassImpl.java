@@ -379,7 +379,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         bClass.remove();
     }
 
-    public void removeStrideFile() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
+    public void convertStrideToJava() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
         bClass.convertStrideToJava();
     }

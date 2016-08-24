@@ -130,7 +130,7 @@ public interface RClass
     void autoIndent()
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 
-    void removeStrideFile()
+    void convertStrideToJava()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
     void cancelFreshState()

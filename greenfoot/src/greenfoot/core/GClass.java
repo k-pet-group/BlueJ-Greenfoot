@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -341,10 +341,10 @@ public class GClass
         }
     }
     
-    public void removeStrideFile()
+    public void convertStrideToJava()
     {
         try {
-            rmiClass.removeStrideFile();
+            rmiClass.convertStrideToJava();
         }
         catch (ProjectNotOpenException e) {
             Debug.reportError("Could not remove class", e);

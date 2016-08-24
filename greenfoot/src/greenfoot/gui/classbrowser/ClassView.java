@@ -460,8 +460,8 @@ public class ClassView extends ClassButton
      * <br>
      * Must be called from the event thread.
      */
-    public void removeStrideFileOnly()
+    public void convertStrideToJava()
     {
-        gClass.removeStrideFile();
+        gClass.convertStrideToJava();
     }
 }
