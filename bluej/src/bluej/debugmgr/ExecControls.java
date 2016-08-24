@@ -380,6 +380,14 @@ public class ExecControls
      */
     public void makeSureThreadIsSelected(final DebuggerThread dt)
     {
+        if (threadModel == null)
+        {
+            // Still initialising; come back later.
+            // This should not be necessary once debugger window becomes JavaFX
+            EventQueue.invokeLater(() -> makeSureThreadIsSelected(dt));
+            return;
+        }
+
         TreePath tp = threadModel.findNodeForThread(dt);
 
         if (tp != null) {
