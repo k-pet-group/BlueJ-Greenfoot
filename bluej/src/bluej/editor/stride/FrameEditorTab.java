@@ -1880,6 +1880,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         });
     }
 
+    @OnThread(Tag.Any)
     private static void addAllToMap(Map<String, AssistContentThreadSafe> r, List<AssistContentThreadSafe> acs)
     {
         for (AssistContentThreadSafe ac : acs)
@@ -2154,7 +2155,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             }
         };
 
-        ChangeListener<Object> listener = (a, b, c) -> JavaFXUtil.runAfterCurrent(checkPositionChange);
+        ChangeListener<Object> listener = (a, b, c) -> JavaFXUtil.runPlatformLater(checkPositionChange);
 
         // When we detect focus gain, or whenever the size/position changes and node is focused,
         // make sure we remain visible:
