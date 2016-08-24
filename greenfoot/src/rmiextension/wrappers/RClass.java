@@ -133,6 +133,9 @@ public interface RClass
     void convertStrideToJava()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
+    void convertJavaToStride()
+        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
+
     void cancelFreshState()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 }

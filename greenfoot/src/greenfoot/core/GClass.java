@@ -340,6 +340,25 @@ public class GClass
             Debug.reportError("Could not remove class", e);
         }
     }
+
+    public void convertJavaToStride()
+    {
+        try {
+            rmiClass.convertJavaToStride();
+        }
+        catch (ProjectNotOpenException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (PackageNotFoundException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (ClassNotFoundException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not remove class", e);
+        }
+    }
     
     public void convertStrideToJava()
     {

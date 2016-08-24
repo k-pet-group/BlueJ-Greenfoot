@@ -464,4 +464,9 @@ public class ClassView extends ClassButton
     {
         gClass.convertStrideToJava();
     }
+
+    public void convertJavaToStride()
+    {
+        gClass.convertJavaToStride();
+    }
 }

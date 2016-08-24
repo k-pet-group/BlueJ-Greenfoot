@@ -23,8 +23,11 @@ package bluej.extensions;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.stream.Collectors;
 
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -36,11 +39,16 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.stride.framedjava.ast.Parser;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.utility.JavaNames;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.FieldView;
 import bluej.views.MethodView;
 import bluej.views.View;
+import javafx.application.Platform;
 
 /**
  * A wrapper for a class. This is used to represent both classes which have a representation
@@ -139,6 +147,17 @@ public class BClass
             throw new ClassNotFoundException("Can't find class: " + classId.getClassName());
         }
         bluejClass.removeStride();
+    }
+
+    public void convertJavaToStride()
+        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
+    {
+        ClassTarget bluejClass = classId.getClassTarget();
+        if (bluejClass == null) {
+            throw new ClassNotFoundException("Can't find class: " + classId.getClassName());
+        }
+
+        bluejClass.new ConvertToStrideAction().actionPerformed(null);
     }
 
 

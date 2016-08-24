@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package greenfoot.gui.classbrowser.role;
 
 import greenfoot.actions.ConvertToJavaClassAction;
+import greenfoot.actions.ConvertToStrideClassAction;
 import greenfoot.actions.DuplicateClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.InspectClassAction;
@@ -193,8 +194,12 @@ public abstract class ClassRole implements WorldListener
                 popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null,
                         classBrowser.getFrame().getInspectorManager(), classBrowser.getFrame())));
             }
-            if (srcType != null && srcType == SourceType.Stride ) {
-                popupMenu.add(createMenuItem(new ConvertToJavaClassAction(classView, classBrowser.getFrame())));
+            if (srcType != null)
+            {
+                if (srcType == SourceType.Stride )
+                    popupMenu.add(createMenuItem(new ConvertToJavaClassAction(classView, classBrowser.getFrame())));
+                else if (srcType == SourceType.Java )
+                    popupMenu.add(createMenuItem(new ConvertToStrideClassAction(classView, classBrowser.getFrame())));
             }
 
             popupMenu.addSeparator();

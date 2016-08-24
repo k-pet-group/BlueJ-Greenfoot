@@ -2014,7 +2014,7 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    private class ConvertToStrideAction extends AbstractAction
+    public class ConvertToStrideAction extends AbstractAction
     {
         public ConvertToStrideAction()
         {
