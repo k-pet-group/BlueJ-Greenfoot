@@ -384,7 +384,8 @@ public class ExecControls
         {
             // Still initialising; come back later.
             // This should not be necessary once debugger window becomes JavaFX
-            EventQueue.invokeLater(() -> makeSureThreadIsSelected(dt));
+            // Double thread hop to pacify thread checker
+            Platform.runLater(() -> EventQueue.invokeLater(() -> makeSureThreadIsSelected(dt)));
             return;
         }
 
