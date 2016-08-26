@@ -151,8 +151,9 @@ public class FrameEditor implements Editor
     private final bluej.pkgmgr.Package pkg;
     @OnThread(Tag.FX) private FrameEditorTab panel;
     private final DebugInfo debugInfo = new DebugInfo();
-    @OnThread(Tag.FX) private HighlightedBreakpoint curBreakpoint;
-    
+    @OnThread(Tag.FXPlatform) private HighlightedBreakpoint curBreakpoint;
+    @OnThread(Tag.FXPlatform) private final List<HighlightedBreakpoint> execHistory = new ArrayList<>();
+
     /** Stride source at last save. Assigned on FX thread only, readable on any thread. */
     private volatile TopLevelCodeElement lastSource;
     
@@ -819,6 +820,7 @@ public class FrameEditor implements Editor
                 Platform.runLater(() -> {
                     if (curBreakpoint != null) {
                         curBreakpoint.removeHighlight();
+                        curBreakpoint = null;
                     }
                     try {
                         JavaSource js = javaSource.get();
@@ -826,6 +828,8 @@ public class FrameEditor implements Editor
                             js = saveJava(lastSource, true).javaSource;
                         }
                         curBreakpoint = js.handleStop(lineNumber, debugInfo);
+                        execHistory.add(curBreakpoint);
+                        panel.redrawExecHistory(execHistory);
                     }
                     catch (IOException ioe) {
                         Debug.reportError("Exception attempting to save Java source for Stride class", ioe);

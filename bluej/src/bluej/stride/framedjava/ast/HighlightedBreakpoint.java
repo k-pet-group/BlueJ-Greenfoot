@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.stride.framedjava.ast;
 
+import javafx.scene.Node;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -28,4 +30,7 @@ public interface HighlightedBreakpoint
 {
     @OnThread(Tag.FX)
     public void removeHighlight();
+
+    @OnThread(Tag.FXPlatform)
+    Node getNode();
 }

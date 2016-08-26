@@ -54,6 +54,7 @@ import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ConstructorCompletion;
 import bluej.prefmgr.PrefMgr;
+import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.ast.links.PossibleKnownMethodLink;
@@ -97,6 +98,8 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -258,7 +261,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private SharedTransition viewChange;
     private ErrorAndFixDisplay cursorErrorDisplay;
     private boolean inScrollTo = false;
-    
+    private Canvas execHistoryCanvas;
+    private final Set<Node> execNodesListenedTo = new HashSet<>();
+
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
         super(true);
@@ -787,6 +792,53 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private void withTopLevelFrame(FXConsumer<TopLevelFrame<? extends TopLevelCodeElement>> action)
     {
         JavaFXUtil.onceNotNull(topLevelFrameProperty, action);
+    }
+
+    public void redrawExecHistory(List<HighlightedBreakpoint> execHistory)
+    {
+        CodeOverlayPane overlay = getCodeOverlayPane();
+        if (execHistoryCanvas != null)
+            overlay.removeOverlay(execHistoryCanvas);
+
+        execHistoryCanvas = overlay.addFullSizeCanvas();
+        GraphicsContext g = execHistoryCanvas.getGraphicsContext2D();
+
+        double prevTargetX = 0, prevTargetY = 0;
+        for (int i = 0; i < execHistory.size(); i++)
+        {
+            HighlightedBreakpoint b = execHistory.get(i);
+            if (b.getNode() != null)
+            {
+                Bounds bounds = b.getNode().localToScene(b.getNode().getBoundsInLocal());
+                if (!execNodesListenedTo.contains(b.getNode()))
+                {
+                    JavaFXUtil.addChangeListenerPlatform(b.getNode().localToSceneTransformProperty(), t -> {
+                        redrawExecHistory(execHistory);
+                    });
+                    // TODO remove the listener when done
+                    execNodesListenedTo.add(b.getNode());
+                }
+                double targetX = execHistoryCanvas.getWidth()/2.0; //bounds.getMinX() + 100;
+                double targetY = overlay.sceneYToCodeOverlayY(bounds.getMinY());
+                if (i == 0)
+                {
+                    prevTargetX = targetX;
+                    prevTargetY = targetY - 10;
+                }
+                g.setStroke(Color.WHITE);
+                g.setLineWidth(4.0);
+                for (int k = 0; k < 2; k++)
+                {
+                    g.strokeLine(prevTargetX, prevTargetY, targetX, targetY);
+                    g.strokeLine(targetX - 10, targetY - 10, targetX, targetY);
+                    g.strokeLine(targetX + 10, targetY - 10, targetX, targetY);
+                    g.setStroke(Color.BLUE);
+                    g.setLineWidth(2.0);
+                }
+                prevTargetX = targetX;
+                prevTargetY = targetY + 5;
+            }
+        }
     }
 
     /**

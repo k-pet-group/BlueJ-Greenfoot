@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javafx.animation.ScaleTransition;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -36,11 +35,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import threadchecker.OnThread;
-import threadchecker.Tag;
+
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.generic.FrameCursor;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class DebugInfo
 {
@@ -62,7 +62,7 @@ public class DebugInfo
     }
     
     
-    public synchronized Display getInfoDisplay(FrameCursor f)
+    public synchronized Display getInfoDisplay(FrameCursor f, Node justExecuted)
     {
         if (displays.containsKey(f))
         {
@@ -71,7 +71,7 @@ public class DebugInfo
         }
         else
         {
-            Display d = new Display(prevState, state);
+            Display d = new Display(prevState, state, justExecuted);
             displays.put(f, d);
             return d;
         }
@@ -100,11 +100,13 @@ public class DebugInfo
     public class Display extends AnchorPane implements HighlightedBreakpoint
     {
         private final ArrayList<VBox> varDisplay = new ArrayList<>();
+        private final Node node;
         private int curDisplay = -1;
         private Label curCounter;
         
-        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars)
+        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node node)
         {
+            this.node = node;
             HBox controls = new HBox();
             curCounter = new Label("1/1");
             //controls.getChildren().addAll(new Label("<"), curCounter, new Label(">"));
@@ -118,8 +120,6 @@ public class DebugInfo
         private VBox makeDisplay(Map<String, DebugVarInfo> prevVars,
                 Map<String, DebugVarInfo> vars) {
             VBox disp = new VBox();
-            // TEMPORARILY DISABLED until more work on debugger is done:
-            /*
             for (Map.Entry<String, DebugVarInfo> var : vars.entrySet())
             {
                 DebugVarInfo prev = prevVars == null ? null : prevVars.get(var.getKey());
@@ -132,7 +132,6 @@ public class DebugInfo
                 disp.getChildren().add(row);
                 row.getStyleClass().add("debug-info");
             }
-            */
             return disp;
         }
         
@@ -168,6 +167,12 @@ public class DebugInfo
         {
             JavaFXUtil.removeStyleClass(this, "debug-info-highlight");
             JavaFXUtil.addStyleClass(this, "debug-info");
-        }           
+        }
+
+        @Override
+        public Node getNode()
+        {
+            return node;
+        }
     }
 }

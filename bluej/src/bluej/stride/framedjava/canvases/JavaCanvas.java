@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,13 +54,13 @@ public class JavaCanvas extends FrameCanvas
         Display disp;
         VBox special;
         if (f != null) {
-            disp  = info.getInfoDisplay(f.getCursorBefore());
+            disp  = info.getInfoDisplay(f.getCursorBefore(), f.getNode());
             removeSpecialsAfter(info, f.getCursorBefore());
             special = getSpecialBefore(f.getCursorBefore());
         }
         else {
             // Add at very end of canvas:
-            disp = info.getInfoDisplay(getLastCursor());
+            disp = info.getInfoDisplay(getLastCursor(), null);
             special = getSpecialAfter(null);
             removeSpecialsAfter(info, null);
         }
