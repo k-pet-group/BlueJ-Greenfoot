@@ -435,7 +435,8 @@ public class PkgMgrFrame extends JPanel
         Platform.runLater(() ->
         {
             javafx.stage.Window window = frame.getFXWindow();
-            window.hide();
+            if (window != null)
+                window.hide();
         });
     }
 
