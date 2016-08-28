@@ -277,13 +277,16 @@ public class JavaSource
     }
 
     @OnThread(Tag.Swing)
-    public void registerBreakpoints(Editor editor, EditorWatcher watcher)
+    public List<Integer> registerBreakpoints(Editor editor, EditorWatcher watcher)
     {
+        List<Integer> breakpoints = new ArrayList<>();
         for (int i = 0;i < lines.size(); i++) {
             if (lines.get(i).breakpoint) {
-                watcher.breakpointToggleEvent(editor, i + 1, true);
+                watcher.breakpointToggleEvent(i + 1, true);
+                breakpoints.add(i + 1);
             }
         }
+        return breakpoints;
     }
 
     // Header line should have no curly brackets

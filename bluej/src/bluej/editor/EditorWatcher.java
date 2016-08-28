@@ -61,7 +61,7 @@ public interface EditorWatcher
      * @param set    whether the breakpoint is set (true) or cleared
      * @return             An error message or null if okay.
      */
-    String breakpointToggleEvent(Editor editor, int lineNo, boolean set);
+    String breakpointToggleEvent(int lineNo, boolean set);
 
     /**
      * Called by Editor when a file is to be compiled

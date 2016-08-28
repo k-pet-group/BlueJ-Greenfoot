@@ -1130,7 +1130,7 @@ public final class MoeEditor extends JPanel
             for (int i = 1; i <= numberOfLines(); i++) {
                 if (lineHasBreakpoint(i)) {
                     if (watcher != null)
-                        watcher.breakpointToggleEvent(this, i, true);
+                        watcher.breakpointToggleEvent(i, true);
                     mayHaveBreakpoints = true;
                 }
             }
@@ -2689,7 +2689,7 @@ public final class MoeEditor extends JPanel
     {
         if (watcher != null) {
             int line = getLineNumberAt(pos);
-            String result = watcher.breakpointToggleEvent(this, line, set);
+            String result = watcher.breakpointToggleEvent(line, set);
 
             if (result == null) {
                 // no problem, go ahead

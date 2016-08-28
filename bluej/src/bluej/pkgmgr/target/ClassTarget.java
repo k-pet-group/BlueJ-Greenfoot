@@ -23,7 +23,6 @@ package bluej.pkgmgr.target;
 
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -181,7 +180,9 @@ public class ClassTarget extends DependentTarget
     
     // a flag indicating whether an editor should have the naviview expanded/collapsed
     private Boolean isNaviviewExpanded=null;
-
+    
+    private final List<Integer> cachedBreakpoints = new ArrayList<>();
+    
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
 
@@ -657,6 +658,25 @@ public class ClassTarget extends DependentTarget
         else {
             typeParameters = typeParams;
         }
+        
+        cachedBreakpoints.clear();
+        try
+        {
+            for (int i = 0; ; i++)
+            {
+                String s = props.getProperty(prefix + ".breakpoint." + Integer.toString(i), "");
+                if (s != null && !s.isEmpty())
+                {
+                    cachedBreakpoints.add(Integer.parseInt(s));
+                }
+                else
+                    break;
+            }
+        }
+        catch (NumberFormatException e)
+        {
+            Debug.reportError("Error parsing breakpoint line number", e);
+        }
     }
 
     /**
@@ -692,6 +712,20 @@ public class ClassTarget extends DependentTarget
         props.put(prefix + ".showInterface", Boolean.valueOf(openWithInterface).toString());
         props.put(prefix + ".typeParameters", getTypeParameters());
 
+        List<Integer> breakpoints;
+        if (editor != null && editor instanceof FrameEditor)
+        {
+            breakpoints = ((FrameEditor)editor).getBreakpoints();
+        }
+        else
+        {
+            breakpoints = cachedBreakpoints;
+        }
+        for (int i = 0; i < breakpoints.size(); i++)
+        {
+            props.put(prefix + ".breakpoint." + i, breakpoints.get(i).toString());
+        }
+        
         getRole().save(props, 0, prefix);
     }
 
@@ -1128,7 +1162,7 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
+    public String breakpointToggleEvent(int lineNo, boolean set)
     {
         if (isCompiled() || ! modifiedSinceCompile) {
             String possibleError = getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set, null);
@@ -1172,6 +1206,17 @@ public class ClassTarget extends DependentTarget
     {
         if (editor != null && isCompiled()) {
             editor.reInitBreakpoints();
+        }
+        else if (isCompiled() && sourceAvailable == SourceType.Stride)
+        {
+            // In Stride, breakpoints persist with the saved source,
+            // and we should set them even if the editor is not open.
+            // So we cache them as properties and use that here if
+            // the editor has not been opened yet:
+            for (Integer line : cachedBreakpoints)
+            {
+                breakpointToggleEvent(line, true);
+            }
         }
     }
     

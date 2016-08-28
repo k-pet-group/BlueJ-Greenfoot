@@ -134,7 +134,7 @@ public abstract class EditableTarget extends Target
     /*
      * Called by Editor when a breakpoint is been set/cleared
      */
-    public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
+    public String breakpointToggleEvent(int lineNo, boolean set)
     { return null; }
 
     public void clearAllBreakpoints() { }

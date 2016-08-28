@@ -169,6 +169,15 @@ public class FrameEditor implements Editor
      * be passed to SwingUtilities.invokeLater
      */
     @OnThread(Tag.Any) private final Runnable callbackOnOpen;
+    
+    @OnThread(Tag.Swing)
+    private List<Integer> latestBreakpoints = Collections.emptyList();
+
+    @OnThread(Tag.Swing)
+    public List<Integer> getBreakpoints()
+    {
+        return latestBreakpoints;
+    }
 
     /**
      * A javac compile error.
@@ -887,7 +896,7 @@ public class FrameEditor implements Editor
             if (javaSource.get() != null)
             {
                 JavaSource latestSource = this.javaSource.get();
-                SwingUtilities.invokeLater(() -> latestSource.registerBreakpoints(this, watcher));
+                SwingUtilities.invokeLater(() -> {latestBreakpoints = latestSource.registerBreakpoints(this, watcher);});
             }
         });
     }
