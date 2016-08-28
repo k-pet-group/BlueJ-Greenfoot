@@ -818,6 +818,7 @@ public class FrameEditor implements Editor
                 }
                 debugInfo.addVarState(vars);
                 Platform.runLater(() -> {
+                    panel.showDebuggerControls(thread);
                     if (curBreakpoint != null) {
                         curBreakpoint.removeHighlight();
                         curBreakpoint = null;

@@ -49,6 +49,7 @@ import java.util.stream.Stream;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.debugger.DebuggerThread;
 import bluej.editor.stride.FrameCatalogue.Hint;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
@@ -105,6 +106,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -840,6 +842,26 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 prevTargetY = targetY + 5;
             }
         }
+    }
+
+    //package-visible
+    void showDebuggerControls(DebuggerThread thread)
+    {
+        HBox buttons = new HBox();
+        JavaFXUtil.addStyleClass(buttons, "debugger-buttons");
+        Button stepButton = new Button("Step", new ImageView(Config.getFixedImageAsFXImage("step.gif")));
+        stepButton.setOnAction(e -> thread.step());
+        Button continueButton = new Button("Continue", new ImageView(Config.getFixedImageAsFXImage("continue.gif")));
+        continueButton.setOnAction(e -> {thread.cont(); hideDebuggerControls(); });
+        Button haltButton = new Button("Halt", new ImageView(Config.getFixedImageAsFXImage("stop.gif")));
+        // Halt does nothing at the moment
+        buttons.getChildren().addAll(stepButton, continueButton, haltButton);
+        contentRoot.setBottom(buttons);
+    }
+    
+    private void hideDebuggerControls()
+    {
+        contentRoot.setBottom(null);
     }
 
     /**

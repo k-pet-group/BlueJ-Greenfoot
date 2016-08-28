@@ -848,6 +848,17 @@
 .debug-info-text {
     -fx-text-fill: debug-info-text;
 }
+.debugger-buttons{
+    -fx-padding: 10;
+    -fx-spacing: 10;
+    -fx-background-color: hsb(103, 3%, 91%);
+    -fx-border-width: 2 0 0 0;
+    -fx-border-color: black;
+}
+.debugger-buttons > .button {
+    -fx-padding: 5;
+    -fx-label-padding: 5;
+}
 
 /* This is a dodge to make expression slots look the same as other text fields;
    draw highlighted text in black in both */
