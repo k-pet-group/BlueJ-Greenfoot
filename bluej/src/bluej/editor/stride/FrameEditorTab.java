@@ -794,6 +794,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         JavaFXUtil.onceNotNull(topLevelFrameProperty, action);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void redrawExecHistory(List<HighlightedBreakpoint> execHistory)
     {
         CodeOverlayPane overlay = getCodeOverlayPane();

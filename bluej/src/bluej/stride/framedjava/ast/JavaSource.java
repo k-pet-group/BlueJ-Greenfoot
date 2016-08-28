@@ -248,7 +248,7 @@ public class JavaSource
         }
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public HighlightedBreakpoint handleStop(int line, DebugInfo debug)
     {
         JavaSingleLineDebugHandler handler = lines.get(line - 1).debugHandler; // Lines start at 1
@@ -261,7 +261,7 @@ public class JavaSource
         }
     }
     
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void handleException(int lineNumber)
     {
         Debug.message("Handling " + lineNumber);

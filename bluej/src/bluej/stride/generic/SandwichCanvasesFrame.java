@@ -241,26 +241,28 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         return tailCanvas;
     }
 
-    @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);
-    }
-
     public DebuggableParentFrame getFirstCanvasDebug()
     {
         return new DebuggableParentFrame() {
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
             {
                 return ((JavaCanvas) getParentCanvas()).showDebugBefore(SandwichCanvasesFrame.this, debug);
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugAtEnd(DebugInfo debug)
             {
                 return getFirstCanvas().showDebugBefore(null, debug);
+            }
+
+            @Override
+            public FrameCanvas getParentCanvas()
+            {
+                return getFirstCanvas();
             }
         };
     }
@@ -270,15 +272,23 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         return new DebuggableParentFrame() {
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
             {
                 return ((JavaCanvas)getParentCanvas()).showDebugBefore(SandwichCanvasesFrame.this, debug);
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugAtEnd(DebugInfo debug)
             {
                 return intermediateCanvases.get(intermediateCanvasIndex).showDebugBefore(null, debug);
+            }
+
+            @Override
+            public FrameCanvas getParentCanvas()
+            {
+                return intermediateCanvases.get(intermediateCanvasIndex);
             }
         };
     }
@@ -288,15 +298,23 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         return new DebuggableParentFrame() {
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
             {
                 return ((JavaCanvas)getParentCanvas()).showDebugBefore(SandwichCanvasesFrame.this, debug);
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugAtEnd(DebugInfo debug)
             {
                 return getTailCanvas().showDebugBefore(null, debug);
+            }
+
+            @Override
+            public FrameCanvas getParentCanvas()
+            {
+                return getTailCanvas();
             }
         };
     }

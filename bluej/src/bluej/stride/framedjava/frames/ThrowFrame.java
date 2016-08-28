@@ -101,10 +101,4 @@ public class ThrowFrame extends SingleLineFrame
             }
         };
     }
-    
-    @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas) getParentCanvas()).showDebugBefore(this, debug);
-    }
 }

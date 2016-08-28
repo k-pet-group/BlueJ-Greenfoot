@@ -113,12 +113,6 @@ public class CallFrame extends SingleLineFrame
             }
         };
     }
-    
-    @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);        
-    }
 
     private void checkForTopLevelEquals()
     {

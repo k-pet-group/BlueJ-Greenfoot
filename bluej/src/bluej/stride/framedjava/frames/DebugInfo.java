@@ -61,7 +61,7 @@ public class DebugInfo
         this.state = state;
     }
     
-    
+    @OnThread(Tag.FXPlatform)
     public synchronized Display getInfoDisplay(FrameCursor f, Node justExecuted)
     {
         if (displays.containsKey(f))
@@ -104,6 +104,7 @@ public class DebugInfo
         private int curDisplay = -1;
         private Label curCounter;
         
+        @OnThread(Tag.FXPlatform)
         public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node node)
         {
             this.node = node;
@@ -117,6 +118,7 @@ public class DebugInfo
             addState(prevVars, vars);
         }
 
+        @OnThread(Tag.FXPlatform)
         private VBox makeDisplay(Map<String, DebugVarInfo> prevVars,
                 Map<String, DebugVarInfo> vars) {
             VBox disp = new VBox();
@@ -135,6 +137,7 @@ public class DebugInfo
             return disp;
         }
         
+        @OnThread(Tag.FXPlatform)
         public void addState(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars)
         {
             VBox disp = makeDisplay(prevVars, vars);

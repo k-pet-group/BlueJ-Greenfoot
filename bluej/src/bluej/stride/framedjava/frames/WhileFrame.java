@@ -216,12 +216,7 @@ public class WhileFrame extends SingleCanvasFrame
     }
 
     @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);
-    }
-
-    @Override
+    @OnThread(Tag.FXPlatform)
     public HighlightedBreakpoint showDebugAtEnd(DebugInfo debug)
     {
         return ((JavaCanvas) getCanvas()).showDebugBefore(null, debug);

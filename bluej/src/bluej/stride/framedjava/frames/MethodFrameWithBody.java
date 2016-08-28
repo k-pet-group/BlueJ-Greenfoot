@@ -348,6 +348,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
     {
         return ((JavaCanvas)getCanvas()).showDebugBefore(null, debug);        

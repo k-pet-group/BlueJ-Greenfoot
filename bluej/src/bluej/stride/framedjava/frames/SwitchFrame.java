@@ -228,12 +228,7 @@ public class SwitchFrame extends MultiCanvasFrame
     }
 
     @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);
-    }
-
-    @Override
+    @OnThread(Tag.FXPlatform)
     public HighlightedBreakpoint showDebugAtEnd(DebugInfo debug)
     {
         return getCasesCanvas().showDebugBefore(null, debug);
@@ -286,15 +281,24 @@ public class SwitchFrame extends MultiCanvasFrame
         return new DebuggableParentFrame() {
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
             {
                 return ((JavaCanvas) getParentCanvas()).showDebugBefore(SwitchFrame.this, debug);
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugAtEnd(DebugInfo debug)
             {
                 return getCasesCanvas().showDebugBefore(null, debug);
+            }
+            
+            @Override
+            public FrameCanvas getParentCanvas()
+            {
+                //TODO is this right?
+                return SwitchFrame.this.getParentCanvas();
             }
         };
     }
@@ -304,6 +308,7 @@ public class SwitchFrame extends MultiCanvasFrame
         return new DebuggableParentFrame() {
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
             {
                 // TODO check it
@@ -311,10 +316,18 @@ public class SwitchFrame extends MultiCanvasFrame
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public HighlightedBreakpoint showDebugAtEnd(DebugInfo debug)
             {
                 // TODO check it
                 return getDefaultCanvas().showDebugBefore(null, debug);
+            }
+
+            @Override
+            public FrameCanvas getParentCanvas()
+            {
+                //TODO is this right?
+                return SwitchFrame.this.getParentCanvas();
             }
         };
     }

@@ -139,13 +139,6 @@ public class BreakFrame extends SingleLineFrame
     {
         element = new BreakElement(this, frameEnabledProperty.get());
     }
-    
-
-    @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);        
-    }
 
     private void adjustOverlayBounds()
     {

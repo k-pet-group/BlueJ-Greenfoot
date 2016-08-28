@@ -49,6 +49,7 @@ public class JavaCanvas extends FrameCanvas
         this.methodCanvas = methodCanvas;
     }
 
+    @OnThread(Tag.FXPlatform)
     public HighlightedBreakpoint showDebugBefore(Frame f, DebugInfo info)
     {
         Display disp;

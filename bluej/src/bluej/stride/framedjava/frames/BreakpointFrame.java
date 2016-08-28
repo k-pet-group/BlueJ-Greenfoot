@@ -74,12 +74,4 @@ public class BreakpointFrame extends SingleLineFrame implements CodeFrame<Breakp
     {
         element = new BreakpointElement(this, frameEnabledProperty.get());
     }
-    
-
-    @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);        
-    }
-
 }

@@ -156,12 +156,6 @@ public class ReturnFrame extends SingleLineFrame
     }
 
     @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);        
-    }
-
-    @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
         super.updateAppearance(parentCanvas);

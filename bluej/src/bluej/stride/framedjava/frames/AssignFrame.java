@@ -129,13 +129,7 @@ public class AssignFrame extends SingleLineFrame
             }
         };
     }
-
-    @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);        
-    }
-
+    
     public ExpressionSlot<? extends ExpressionSlotFragment> getLHS()
     {
         return slotLHS;

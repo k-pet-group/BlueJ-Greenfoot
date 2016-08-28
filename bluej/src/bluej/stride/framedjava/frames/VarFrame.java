@@ -358,12 +358,6 @@ public class VarFrame extends SingleLineFrame
     }
 
     @Override
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
-    {
-        return ((JavaCanvas)getParentCanvas()).showDebugBefore(this, debug);        
-    }
-
-    @Override
     public List<FrameOperation> getContextOperations()
     {
         //final

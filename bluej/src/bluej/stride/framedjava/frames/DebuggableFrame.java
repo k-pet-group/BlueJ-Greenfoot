@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,9 +22,20 @@
 package bluej.stride.framedjava.frames;
 
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
+import bluej.stride.framedjava.canvases.JavaCanvas;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 public interface DebuggableFrame
 {
-    public HighlightedBreakpoint showDebugBefore(DebugInfo debug);
+    @OnThread(Tag.FXPlatform)
+    public default HighlightedBreakpoint showDebugBefore(DebugInfo debug)
+    {
+        return ((JavaCanvas)getParentCanvas()).showDebugBefore((Frame)this, debug);
+    }
+
+    FrameCanvas getParentCanvas();
 }

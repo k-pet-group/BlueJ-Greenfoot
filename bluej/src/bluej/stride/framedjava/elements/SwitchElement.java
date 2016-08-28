@@ -40,6 +40,8 @@ import bluej.stride.framedjava.frames.DebugInfo;
 import bluej.stride.framedjava.frames.SwitchFrame;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.ShowReason;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class SwitchElement extends ContainerCodeElement implements JavaSingleLineDebugHandler
 {
