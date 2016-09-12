@@ -31,6 +31,8 @@ import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.operations.FrameOperation;
+import javafx.scene.Node;
+import threadchecker.OnThread;
 
 public class BreakpointFrame extends SingleLineFrame implements CodeFrame<BreakpointElement>, DebuggableFrame
 {
@@ -73,5 +75,29 @@ public class BreakpointFrame extends SingleLineFrame implements CodeFrame<Breakp
     public void regenerateCode()
     {
         element = new BreakpointElement(this, frameEnabledProperty.get());
+    }
+
+    @Override
+    public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
+    {
+        return new HighlightedBreakpoint()
+        {
+            @Override
+            public void removeHighlight()
+            {
+            }
+
+            @Override
+            public Node getNode()
+            {
+                return null;
+            }
+
+            @Override
+            public boolean isBreakpointFrame()
+            {
+                return true;
+            }
+        };
     }
 }
