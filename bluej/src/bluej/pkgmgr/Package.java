@@ -1985,7 +1985,7 @@ public final class Package extends Graph
      * A thread has hit a breakpoint, done a step or selected a frame in the debugger. Display the source
      * code with the relevant line highlighted.
      */
-    private boolean showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
+    private void showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
     {
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
@@ -1998,8 +1998,6 @@ public final class Package extends Graph
         else if (reason == ShowSourceReason.BREAKPOINT_HIT) {
             showMessageWithText("break-no-source", sourcename);
         }
-        
-        return bringToFront;
     }
 
     /**
