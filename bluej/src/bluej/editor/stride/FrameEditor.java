@@ -838,7 +838,8 @@ public class FrameEditor implements Editor
                             js = saveJava(lastSource, true).javaSource;
                         }
                         curBreakpoint = js.handleStop(lineNumber, debugInfo);
-                        execHistory.add(curBreakpoint);
+                        if (execHistory.isEmpty() || execHistory.get(execHistory.size() - 1) != curBreakpoint)
+                            execHistory.add(curBreakpoint);
                         panel.redrawExecHistory(execHistory);
                     }
                     catch (IOException ioe) {

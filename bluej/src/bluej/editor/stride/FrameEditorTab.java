@@ -830,6 +830,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 }
                 g.setStroke(Color.WHITE);
                 g.setLineWidth(4.0);
+                // Draw twice; first white, then smaller blue line over the top:
                 for (int k = 0; k < 2; k++)
                 {
                     g.strokeLine(prevTargetX, prevTargetY, targetX, targetY);
