@@ -866,10 +866,12 @@ public class FrameEditor implements Editor
     @Override
     public void removeStepMark()
     {
+        /*
         Platform.runLater(() -> {
             if (debugInfo != null)
                 debugInfo.hideAllDisplays();
         });
+        */
     }
 
     @Override
