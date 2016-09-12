@@ -154,7 +154,8 @@ public class Invoker
             ObjectBenchInterface objectBench, Debugger debugger, InvokerCompiler compiler,
             String instanceName, Charset sourceCharset)
     {
-        Platform.runLater(() -> { this.parent = frame; });
+        if (frame != null)
+            Platform.runLater(() -> { this.parent = frame; });
         this.member = member;
         this.watcher = watcher;
         if (member instanceof ConstructorView) {
