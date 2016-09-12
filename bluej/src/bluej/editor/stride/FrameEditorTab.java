@@ -120,6 +120,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -836,9 +837,22 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 // Draw twice; first white, then smaller blue line over the top:
                 for (int k = 0; k < 2; k++)
                 {
-                    g.strokeLine(prevTargetX, prevTargetY, targetX, targetY);
-                    g.strokeLine(targetX - 10, targetY - 10, targetX, targetY);
-                    g.strokeLine(targetX + 10, targetY - 10, targetX, targetY);
+                    if (Math.abs(prevTargetY - targetY) < 15.0f)
+                    {
+                        g.strokeLine(prevTargetX, prevTargetY, targetX, targetY);
+                        g.strokeLine(targetX - 10, targetY - 10, targetX, targetY);
+                        g.strokeLine(targetX + 10, targetY - 10, targetX, targetY);
+                    }
+                    else
+                    {
+                        double bulge = Math.abs(prevTargetY - targetY) < 60.0f ? 5 : 10;
+                        double angle = bulge == 5 ? 0.4 : 0.15;
+                        //g.strokeArc((prevTargetX + targetX) / 2.0, (prevTargetY + targetY) / 2.0, 10, Math.abs(targetY - prevTargetY), -30, -60, ArcType.OPEN);
+                        g.strokeArc(prevTargetX - bulge, prevTargetY, 2*bulge, Math.abs(targetY - prevTargetY), 90, -180, ArcType.OPEN);
+                        g.strokeLine(targetX - 14.4*Math.sin(angle), targetY - 14.4*Math.cos(angle), targetX, targetY);
+                        g.strokeLine(targetX + 14.4*Math.cos(angle), targetY - 14.4*Math.sin(angle), targetX, targetY);
+                    }
+
                     g.setStroke(Color.BLUE);
                     g.setLineWidth(2.0);
                 }
