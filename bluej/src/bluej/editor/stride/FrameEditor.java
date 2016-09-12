@@ -234,6 +234,7 @@ public class FrameEditor implements Editor
 
             }
         });
+        debugInfo.bindVarVisible(panel.debugVarVisibleProperty());
         
         if (callbackOnOpen != null)
             SwingUtilities.invokeLater(callbackOnOpen);  

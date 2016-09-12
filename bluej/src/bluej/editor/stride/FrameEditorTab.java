@@ -93,6 +93,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -102,6 +103,7 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -265,6 +267,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private boolean inScrollTo = false;
     private Canvas execHistoryCanvas;
     private final Set<Node> execNodesListenedTo = new HashSet<>();
+    private final SimpleBooleanProperty debugVarVisibleProperty = new SimpleBooleanProperty(false);
 
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
@@ -845,6 +848,26 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
+    // package-visible
+    ObservableBooleanValue debugVarVisibleProperty()
+    {
+        return debugVarVisibleProperty;
+    }
+
+    private static enum ShowVars
+    {
+        NONE, FIELDS;
+
+        @Override
+        public String toString()
+        {
+            if (this == NONE)
+                return "None";
+            else
+                return "Fields";
+        }
+    }
+
     //package-visible
     void showDebuggerControls(DebuggerThread thread)
     {
@@ -856,7 +879,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         continueButton.setOnAction(e -> {thread.cont(); hideDebuggerControls(); });
         Button haltButton = new Button("Halt", new ImageView(Config.getFixedImageAsFXImage("stop.gif")));
         // Halt does nothing at the moment
-        buttons.getChildren().addAll(stepButton, continueButton, haltButton);
+        Label showVarLabel = new Label("Show variables: ");
+        ComboBox<ShowVars> showVars = new ComboBox<>(FXCollections.observableArrayList(ShowVars.values()));
+        showVars.getSelectionModel().select(0);
+        debugVarVisibleProperty.bind(showVars.getSelectionModel().selectedItemProperty().isEqualTo(ShowVars.FIELDS));
+
+        buttons.getChildren().addAll(stepButton, continueButton, haltButton, showVarLabel, showVars);
         contentRoot.setBottom(buttons);
     }
     

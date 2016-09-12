@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javafx.animation.ScaleTransition;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -47,6 +49,7 @@ public class DebugInfo
     private final IdentityHashMap<FrameCursor, Display> displays = new IdentityHashMap<>();
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private Map<String,DebugVarInfo> prevState, state;
+    private final SimpleBooleanProperty showVars = new SimpleBooleanProperty(false);
     
     @OnThread(Tag.Any)
     public DebugInfo()
@@ -96,7 +99,12 @@ public class DebugInfo
         });
         displays.clear();
     }
-    
+
+    public void bindVarVisible(ObservableBooleanValue showVars)
+    {
+        this.showVars.bind(showVars);
+    }
+
     public class Display extends AnchorPane implements HighlightedBreakpoint
     {
         private final ArrayList<VBox> varDisplay = new ArrayList<>();
@@ -135,6 +143,8 @@ public class DebugInfo
                 row.getChildren().addAll(k, v);
                 disp.getChildren().add(row);
                 row.getStyleClass().add("debug-info");
+                row.managedProperty().bind(showVars);
+                row.visibleProperty().bind(showVars);
             }
             return disp;
         }
