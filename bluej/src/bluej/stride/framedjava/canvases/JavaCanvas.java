@@ -22,6 +22,7 @@
 package bluej.stride.framedjava.canvases;
 
 
+import bluej.stride.framedjava.frames.BreakpointFrame;
 import bluej.stride.generic.InteractionManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -55,13 +56,13 @@ public class JavaCanvas extends FrameCanvas
         Display disp;
         VBox special;
         if (f != null) {
-            disp  = info.getInfoDisplay(f.getCursorBefore(), f.getNode());
+            disp  = info.getInfoDisplay(f.getCursorBefore(), f.getNode(), f instanceof BreakpointFrame);
             removeSpecialsAfter(info, f.getCursorBefore());
             special = getSpecialBefore(f.getCursorBefore());
         }
         else {
             // Add at very end of canvas:
-            disp = info.getInfoDisplay(getLastCursor(), null);
+            disp = info.getInfoDisplay(getLastCursor(), null, false);
             special = getSpecialAfter(null);
             removeSpecialsAfter(info, null);
         }

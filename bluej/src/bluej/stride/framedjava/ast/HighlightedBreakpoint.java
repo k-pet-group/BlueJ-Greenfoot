@@ -33,4 +33,7 @@ public interface HighlightedBreakpoint
 
     @OnThread(Tag.FXPlatform)
     Node getNode();
+
+    @OnThread(Tag.FXPlatform)
+    boolean isBreakpointFrame();
 }

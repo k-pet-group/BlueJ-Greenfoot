@@ -838,9 +838,16 @@ public class FrameEditor implements Editor
                             js = saveJava(lastSource, true).javaSource;
                         }
                         curBreakpoint = js.handleStop(lineNumber, debugInfo);
-                        if (execHistory.isEmpty() || execHistory.get(execHistory.size() - 1) != curBreakpoint)
-                            execHistory.add(curBreakpoint);
-                        panel.redrawExecHistory(execHistory);
+                        if (curBreakpoint.isBreakpointFrame())
+                        {
+                            SwingUtilities.invokeLater(() -> thread.step());
+                        }
+                        else
+                        {
+                            if (execHistory.isEmpty() || execHistory.get(execHistory.size() - 1) != curBreakpoint)
+                                execHistory.add(curBreakpoint);
+                            panel.redrawExecHistory(execHistory);
+                        }
                     }
                     catch (IOException ioe) {
                         Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
@@ -897,7 +904,10 @@ public class FrameEditor implements Editor
             if (javaSource.get() != null)
             {
                 JavaSource latestSource = this.javaSource.get();
-                SwingUtilities.invokeLater(() -> {latestBreakpoints = latestSource.registerBreakpoints(this, watcher);});
+                SwingUtilities.invokeLater(() -> {
+                    watcher.clearAllBreakpoints();
+                    latestBreakpoints = latestSource.registerBreakpoints(this, watcher);
+                });
             }
         });
     }

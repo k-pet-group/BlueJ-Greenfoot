@@ -62,7 +62,7 @@ public class DebugInfo
     }
     
     @OnThread(Tag.FXPlatform)
-    public synchronized Display getInfoDisplay(FrameCursor f, Node justExecuted)
+    public synchronized Display getInfoDisplay(FrameCursor f, Node justExecuted, boolean isBeforeBreakpointFrame)
     {
         if (displays.containsKey(f))
         {
@@ -71,7 +71,7 @@ public class DebugInfo
         }
         else
         {
-            Display d = new Display(prevState, state, justExecuted);
+            Display d = new Display(prevState, state, justExecuted, isBeforeBreakpointFrame);
             displays.put(f, d);
             return d;
         }
@@ -103,11 +103,13 @@ public class DebugInfo
         private final Node node;
         private int curDisplay = -1;
         private Label curCounter;
-        
+        private final boolean isBreakpointFrame;
+
         @OnThread(Tag.FXPlatform)
-        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node node)
+        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node node, boolean isBreakpointFrame)
         {
             this.node = node;
+            this.isBreakpointFrame = isBreakpointFrame;
             HBox controls = new HBox();
             curCounter = new Label("1/1");
             //controls.getChildren().addAll(new Label("<"), curCounter, new Label(">"));
@@ -176,6 +178,12 @@ public class DebugInfo
         public Node getNode()
         {
             return node;
+        }
+
+        @Override
+        public @OnThread(Tag.FXPlatform) boolean isBreakpointFrame()
+        {
+            return isBreakpointFrame;
         }
     }
 }
