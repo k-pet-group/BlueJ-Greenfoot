@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.editor.stride.FrameEditor;
 import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -1985,7 +1986,7 @@ public final class Package extends Graph
      * A thread has hit a breakpoint, done a step or selected a frame in the debugger. Display the source
      * code with the relevant line highlighted.
      */
-    private void showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
+    private boolean showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
     {
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
@@ -1994,10 +1995,12 @@ public final class Package extends Graph
         Editor editor = editorForTarget(sourcename, bringToFront);
         if (editor != null) {
             editor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
+            return editor instanceof FrameEditor;
         }
         else if (reason == ShowSourceReason.BREAKPOINT_HIT) {
             showMessageWithText("break-no-source", sourcename);
         }
+        return false;
     }
 
     /**
@@ -2006,7 +2009,7 @@ public final class Package extends Graph
      * @param lineNo      The line number to show
      * @return  true if the editor was the most recent editor to have a message displayed
      */
-    public boolean showSource(String sourcename, int lineNo)
+    public void showSource(String sourcename, int lineNo)
     {
         String msg = " ";
         
@@ -2015,8 +2018,6 @@ public final class Package extends Graph
 
         showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront,
                 null);
-
-        return bringToFront;
     }
     
     /**
@@ -2182,9 +2183,11 @@ public final class Package extends Graph
             msg = msg.replace("$", thread.getName());
         }
         
-        showSource(thread, thread.getClassSourceName(0), thread.getLineNumber(0), ShowSourceReason.BREAKPOINT_HIT, msg);
-        getProject().getExecControls().show();
-        getProject().getExecControls().makeSureThreadIsSelected(thread);
+        if (!showSource(thread, thread.getClassSourceName(0), thread.getLineNumber(0), ShowSourceReason.BREAKPOINT_HIT, msg))
+        {
+            getProject().getExecControls().show();
+            getProject().getExecControls().makeSureThreadIsSelected(thread);
+        }
     }
 
     /**
@@ -2202,9 +2205,11 @@ public final class Package extends Graph
         
         int frame = thread.getSelectedFrame();
         ShowSourceReason reason = breakpoint ? ShowSourceReason.BREAKPOINT_HIT : ShowSourceReason.STEP_OR_HALT;
-        showSource(thread, thread.getClassSourceName(frame), thread.getLineNumber(frame), reason, msg);
-        getProject().getExecControls().show();
-        getProject().getExecControls().makeSureThreadIsSelected(thread);
+        if (!showSource(thread, thread.getClassSourceName(frame), thread.getLineNumber(frame), reason, msg))
+        {
+            getProject().getExecControls().show();
+            getProject().getExecControls().makeSureThreadIsSelected(thread);
+        }
     }
 
     /**
