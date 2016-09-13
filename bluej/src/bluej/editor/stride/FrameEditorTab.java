@@ -868,6 +868,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return debugVarVisibleProperty;
     }
 
+    @OnThread(Tag.Any)
     private static enum ShowVars
     {
         NONE, FIELDS;
