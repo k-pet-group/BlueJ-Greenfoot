@@ -826,7 +826,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     execNodesListenedTo.add(b.getNode());
                 }
                 double targetX = execHistoryCanvas.getWidth()/2.0; //bounds.getMinX() + 100;
-                double targetY = overlay.sceneYToCodeOverlayY(bounds.getMinY());
+                double targetY = overlay.sceneYToCodeOverlayY(bounds.getMinY()) + b.getYOffset();
                 if (i == 0)
                 {
                     prevTargetX = targetX;

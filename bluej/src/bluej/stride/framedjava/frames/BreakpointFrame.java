@@ -98,6 +98,12 @@ public class BreakpointFrame extends SingleLineFrame implements CodeFrame<Breakp
             {
                 return true;
             }
+
+            @Override
+            public double getYOffset()
+            {
+                return 0;
+            }
         };
     }
 }

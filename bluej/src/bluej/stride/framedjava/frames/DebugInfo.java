@@ -191,6 +191,12 @@ public class DebugInfo
         }
 
         @Override
+        public @OnThread(Tag.FXPlatform) double getYOffset()
+        {
+            return 8;
+        }
+
+        @Override
         public @OnThread(Tag.FXPlatform) boolean isBreakpointFrame()
         {
             return isBreakpointFrame;
