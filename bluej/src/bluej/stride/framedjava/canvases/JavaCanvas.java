@@ -56,13 +56,13 @@ public class JavaCanvas extends FrameCanvas
         Display disp;
         VBox special;
         if (f != null) {
-            disp  = info.getInfoDisplay(f.getCursorBefore(), f.getNode(), f instanceof BreakpointFrame);
+            disp  = info.getInfoDisplay(f.getCursorBefore(), f.getNode(), null, f instanceof BreakpointFrame);
             removeSpecialsAfter(info, f.getCursorBefore());
             special = getSpecialBefore(f.getCursorBefore());
         }
         else {
             // Add at very end of canvas:
-            disp = info.getInfoDisplay(getLastCursor(), null, false);
+            disp = info.getInfoDisplay(getLastCursor(), getNode(), () -> getNode().getBoundsInLocal().getHeight() - 8, false);
             special = getSpecialAfter(null);
             removeSpecialsAfter(info, null);
         }

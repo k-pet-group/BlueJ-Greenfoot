@@ -40,6 +40,7 @@ import javafx.util.Duration;
 
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.generic.FrameCursor;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -65,7 +66,7 @@ public class DebugInfo
     }
     
     @OnThread(Tag.FXPlatform)
-    public synchronized Display getInfoDisplay(FrameCursor f, Node justExecuted, boolean isBeforeBreakpointFrame)
+    public synchronized Display getInfoDisplay(FrameCursor f, Node justExecuted, FXPlatformSupplier<Double> yOffset, boolean isBeforeBreakpointFrame)
     {
         if (displays.containsKey(f))
         {
@@ -74,7 +75,7 @@ public class DebugInfo
         }
         else
         {
-            Display d = new Display(prevState, state, justExecuted, isBeforeBreakpointFrame);
+            Display d = new Display(prevState, state, justExecuted, yOffset, isBeforeBreakpointFrame);
             displays.put(f, d);
             return d;
         }
@@ -109,15 +110,17 @@ public class DebugInfo
     {
         private final ArrayList<VBox> varDisplay = new ArrayList<>();
         private final Node node;
+        private final FXPlatformSupplier<Double> yOffsetCalculator;
         private int curDisplay = -1;
         private Label curCounter;
         private final boolean isBreakpointFrame;
 
         @OnThread(Tag.FXPlatform)
-        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node node, boolean isBreakpointFrame)
+        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node node, FXPlatformSupplier<Double> yOffset, boolean isBreakpointFrame)
         {
             this.node = node;
             this.isBreakpointFrame = isBreakpointFrame;
+            this.yOffsetCalculator = yOffset;
             HBox controls = new HBox();
             curCounter = new Label("1/1");
             //controls.getChildren().addAll(new Label("<"), curCounter, new Label(">"));
@@ -193,7 +196,10 @@ public class DebugInfo
         @Override
         public @OnThread(Tag.FXPlatform) double getYOffset()
         {
-            return 8;
+            if (yOffsetCalculator == null)
+                return 8;
+            else
+                return yOffsetCalculator.get();
         }
 
         @Override
