@@ -140,7 +140,13 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * double-, triple-, etc- blurred.
      */
     private final BooleanProperty disabledRoot = new SimpleBooleanProperty(true);
-    
+    private final String stylePrefix;
+
+    public final String getStylePrefix()
+    {
+        return stylePrefix;
+    }
+
     /** enum for keeping track of frame preview state */
     public static enum FramePreviewEnabled
     {
@@ -253,6 +259,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         if (stylePrefix == null)
             throw new NullPointerException();
         JavaFXUtil.addStyleClass(frameContents, "frame", stylePrefix + "frame");
+        this.stylePrefix = stylePrefix;
         
         // When we are enabled/disabled, update our child slot states and trigger a compilation.
         frameEnabledProperty.addListener((a, b, enabled) -> {

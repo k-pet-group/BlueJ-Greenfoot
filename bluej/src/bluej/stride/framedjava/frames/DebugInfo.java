@@ -66,7 +66,7 @@ public class DebugInfo
     }
     
     @OnThread(Tag.FXPlatform)
-    public synchronized Display getInfoDisplay(FrameCursor f, Node justExecuted, FXPlatformSupplier<Double> yOffset, boolean isBeforeBreakpointFrame)
+    public synchronized Display getInfoDisplay(FrameCursor f, Node justExecuted, FXPlatformSupplier<Double> yOffset, String stylePrefix, boolean isBeforeBreakpointFrame)
     {
         if (displays.containsKey(f))
         {
@@ -75,7 +75,7 @@ public class DebugInfo
         }
         else
         {
-            Display d = new Display(prevState, state, justExecuted, yOffset, isBeforeBreakpointFrame);
+            Display d = new Display(prevState, state, justExecuted, yOffset, stylePrefix, isBeforeBreakpointFrame);
             displays.put(f, d);
             return d;
         }
@@ -116,7 +116,7 @@ public class DebugInfo
         private final boolean isBreakpointFrame;
 
         @OnThread(Tag.FXPlatform)
-        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node node, FXPlatformSupplier<Double> yOffset, boolean isBreakpointFrame)
+        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node node, FXPlatformSupplier<Double> yOffset, String stylePrefix, boolean isBreakpointFrame)
         {
             this.node = node;
             this.isBreakpointFrame = isBreakpointFrame;
@@ -127,6 +127,9 @@ public class DebugInfo
             AnchorPane.setTopAnchor(controls, 5.0);
             AnchorPane.setRightAnchor(controls, 5.0);
             getChildren().add(controls);
+            JavaFXUtil.addStyleClass(this, "debug-info-surround");
+            if (stylePrefix != null && !stylePrefix.isEmpty())
+                JavaFXUtil.setPseudoclass("bj-" + stylePrefix + "debug", true, this);
             
             addState(prevVars, vars);
         }
@@ -163,28 +166,32 @@ public class DebugInfo
             }
             curDisplay = varDisplay.size() - 1;
             curCounter.setText((curDisplay + 1) + "/" + varDisplay.size());
-            AnchorPane.setTopAnchor(disp, 2.0);
-            AnchorPane.setLeftAnchor(disp, 2.0);
+            AnchorPane.setTopAnchor(disp, 1.0);
+            AnchorPane.setLeftAnchor(disp, 1.0);
+            AnchorPane.setBottomAnchor(disp, 1.0);
+            AnchorPane.setRightAnchor(disp, 1.0);
             getChildren().add(disp);
-            JavaFXUtil.addStyleClass(this, "debug-info-highlight");
+            //JavaFXUtil.addStyleClass(this, "debug-info-highlight");
             pulse();
         }
 
         private void pulse()
         {
+            /*
             ScaleTransition st = new ScaleTransition(Duration.millis(200), this);
             st.setByX(0.3);
             st.setByY(0.3);
             st.setAutoReverse(true);
             st.setCycleCount(2);
             st.play();            
+            */
         }
 
         @Override
         public void removeHighlight()
         {
-            JavaFXUtil.removeStyleClass(this, "debug-info-highlight");
-            JavaFXUtil.addStyleClass(this, "debug-info");
+            //JavaFXUtil.removeStyleClass(this, "debug-info-highlight");
+            //JavaFXUtil.addStyleClass(this, "debug-info");
         }
 
         @Override

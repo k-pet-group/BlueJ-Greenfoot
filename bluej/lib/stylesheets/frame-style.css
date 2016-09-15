@@ -98,6 +98,11 @@
     -fx-background-color: white;
     -fx-border-color: white;
 }
+.frame:bj-debug-before {
+    -fx-border-radius: 0 0 5 5;
+    -fx-background-radius: 0 0 5 5;
+    -fx-border-width: 0 1 1 1;
+}
 
 .if-frame, .while-frame, .foreach-frame, .try-frame, .switch-frame {
     -fx-padding: 3 0 2 0;
@@ -555,7 +560,7 @@
 
 
 /* Link blocks to defined colours: */
-.if-frame { -fx-background-color: if-frame; -fx-border-color: if-border; }
+.if-frame, .debug-info-surround:bj-if-debug { -fx-background-color: if-frame; -fx-border-color: if-border; }
 .if-frame:bj-java-preview { -fx-background-color: if-frame-java; -fx-border-color: if-border-java; }
 .if-sidelabel { -fx-text-fill: if-sidelabel; }
 .if-sidelabel:bj-java-preview {-fx-text-fill: if-frame-java; }
@@ -834,6 +839,15 @@
     -fx-text-fill: hsb(360, 54%, 85%);
 }
 
+.debug-info-surround {
+    -fx-background-color: frame;
+    -fx-border-color: frame-border;
+    -fx-border-radius: 5 5 0 0;
+    -fx-background-radius: 5 5 0 0;
+    -fx-border-width: 1 1 0 1;
+    -fx-border-style: solid inside;
+    -fx-padding: 3;
+}
 .debug-info {
     -fx-background-color: debug-info; 
     -fx-padding: 3 0 3 10;
