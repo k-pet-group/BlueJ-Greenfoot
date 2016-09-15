@@ -888,9 +888,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         HBox buttons = new HBox();
         JavaFXUtil.addStyleClass(buttons, "debugger-buttons");
-        Button stepButton = new Button("Step", new ImageView(Config.getFixedImageAsFXImage("step.gif")));
+        ImageView stepIcon = new ImageView(Config.getFixedImageAsFXImage("step.gif"));
+        stepIcon.setRotate(90);
+        Button stepButton = new Button("Step", stepIcon);
         stepButton.setOnAction(e -> thread.step());
-        Button continueButton = new Button("Continue", new ImageView(Config.getFixedImageAsFXImage("continue.gif")));
+        ImageView continueIcon = new ImageView(Config.getFixedImageAsFXImage("continue.gif"));
+        continueIcon.setRotate(90);
+        Button continueButton = new Button("Continue", continueIcon);
         continueButton.setOnAction(e -> {thread.cont(); hideDebuggerControls(); });
         Button haltButton = new Button("Halt", new ImageView(Config.getFixedImageAsFXImage("stop.gif")));
         // Halt does nothing at the moment
