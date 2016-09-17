@@ -74,6 +74,7 @@ import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.ReturnTree;
+import com.sun.source.tree.SynchronizedTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.JavacTask;
@@ -122,7 +123,8 @@ class TCScanner extends TreePathScanner<Void, Void>
         );
     // We only process one compilation unit at a time (no nesting), so no need for stack:
     private CompilationUnitTree cu;
-    
+    private boolean inSynchronizedThis;
+
     public TCScanner(JavacTask task, List<String> ignorePackages) throws NoSuchMethodException
     {
         trees = Trees.instance(task);
@@ -1472,13 +1474,35 @@ class TCScanner extends TreePathScanner<Void, Void>
                 issueError("\n    Field " + node.getName() + " being used requires " + tag + "\nbut this code may be running on another thread: " + ann.map(Object::toString).orElse("unspecified"), node);
             }
             
-            if (tag.requireSynchronized() && methodScopeStack.size() > 0 && methodScopeStack.getLast().item != null && !methodScopeStack.getLast().item.getModifiers().getFlags().contains(Modifier.SYNCHRONIZED))
+            if (tag.requireSynchronized() && methodScopeStack.size() > 0 && methodScopeStack.getLast().item != null && !methodScopeStack.getLast().item.getModifiers().getFlags().contains(Modifier.SYNCHRONIZED) && !inSynchronizedThis)
             {
                 issueError("\n    Field " + node.getName() + " being used requires synchronized but method is not synchronized", node);
             }
         }
         
         return super.visitIdentifier(node, aVoid);
+    }
+
+    @Override
+    public Void visitSynchronized(SynchronizedTree node, Void aVoid)
+    {
+        boolean isThis;
+        if (node.getExpression() == null)
+            isThis = true;
+        else
+        {
+            // Bit hacky, but close enough:
+            isThis = node.getExpression().toString().contains("this");
+        }
+        if (isThis)
+        {
+            inSynchronizedThis = true;
+            Void p = super.visitSynchronized(node, aVoid);
+            inSynchronizedThis = false;
+            return p;
+        }
+        else
+            return super.visitSynchronized(node, aVoid);
     }
 
     @Override

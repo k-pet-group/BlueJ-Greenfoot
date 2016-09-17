@@ -31,6 +31,8 @@ import bluej.utility.Debug;
 import com.sun.jdi.*;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class represents a thread running on the remote virtual machine.
@@ -84,6 +86,7 @@ class JdiThread extends DebuggerThread
     private ThreadReference rt;
     
     /** We track suspension status internally */
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private boolean isSuspended;
     
     /** Any active step request */
@@ -198,7 +201,7 @@ class JdiThread extends DebuggerThread
     /**
      * Return true if this thread is currently suspended.
      */
-    public boolean isSuspended()
+    public synchronized boolean isSuspended()
     {
         return isSuspended;
     }
@@ -551,7 +554,10 @@ class JdiThread extends DebuggerThread
      */
     public void stopped()
     {
-        isSuspended = true;
+        synchronized (this)
+        {
+            isSuspended = true;
+        }
         clearPreviousStep(getRemoteThread());
     }
     
@@ -653,7 +659,7 @@ class JdiThread extends DebuggerThread
      * Called when we are the serverThread, to let us know we've been resumed
      * (and should update our internal status accordingly)
      */
-    public void notifyResumed()
+    public synchronized void notifyResumed()
     {
         isSuspended = false;
     }
