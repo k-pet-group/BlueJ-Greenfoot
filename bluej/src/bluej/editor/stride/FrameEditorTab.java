@@ -907,6 +907,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     //package-visible
     void showDebuggerControls(DebuggerThread thread)
     {
+        if (contentRoot.getBottom() != null)
+            return; // Already added
+        
         HBox buttons = new HBox();
         JavaFXUtil.addStyleClass(buttons, "debugger-buttons");
         ImageView stepIcon = new ImageView(Config.getFixedImageAsFXImage("step.gif"));
