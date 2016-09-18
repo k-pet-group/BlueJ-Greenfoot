@@ -852,7 +852,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         //g.strokeArc((prevTargetX + targetX) / 2.0, (prevTargetY + targetY) / 2.0, 10, Math.abs(targetY - prevTargetY), -30, -60, ArcType.OPEN);
                         if (prevTargetY < targetY)
                         {
-                            g.strokeArc(prevTargetX - bulge, prevTargetY, 2 * bulge, Math.abs(targetY - prevTargetY), 90, -180, ArcType.OPEN);
+                            g.beginPath();
+                            g.moveTo(prevTargetX, prevTargetY);
+                            g.bezierCurveTo(prevTargetX + bulge, prevTargetY, prevTargetX + bulge, targetY, prevTargetX, targetY);
+                            g.stroke();
                             g.strokeLine(targetX - 14.4 * Math.sin(angle), targetY - 14.4 * Math.cos(angle), targetX, targetY);
                             g.strokeLine(targetX + 14.4 * Math.cos(angle), targetY - 14.4 * Math.sin(angle), targetX, targetY);
                         }
@@ -860,8 +863,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         {
                             // Draw line down to turn-back, then back up again:
                             double turnBack = overlay.sceneYToCodeOverlayY(bounds.getMinY()) + b.getYOffsetOfTurnBack();
-                            g.strokeArc(prevTargetX - bulge, prevTargetY, 2 * bulge, Math.abs(turnBack - prevTargetY), 90, -180, ArcType.OPEN);
-                            g.strokeArc(prevTargetX - bulge, targetY, 2 * bulge, Math.abs(targetY - turnBack), 90, 180, ArcType.OPEN);
+                            g.beginPath();
+                            g.moveTo(prevTargetX, prevTargetY);
+                            g.bezierCurveTo(prevTargetX + bulge, prevTargetY, prevTargetX + bulge, turnBack, prevTargetX, turnBack);
+                            g.bezierCurveTo(targetX - 2*bulge, turnBack, targetX - 2*bulge, targetY, targetX, targetY);
+                            g.stroke();
 
                             g.strokeLine(targetX + 14.4 * Math.sin(angle), targetY + 14.4 * Math.cos(angle), targetX, targetY);
                             g.strokeLine(targetX - 14.4 * Math.cos(angle), targetY + 14.4 * Math.sin(angle), targetX, targetY);
