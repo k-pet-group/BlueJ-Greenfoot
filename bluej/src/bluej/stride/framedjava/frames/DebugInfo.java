@@ -66,7 +66,7 @@ public class DebugInfo
     }
     
     @OnThread(Tag.FXPlatform)
-    public synchronized Display getInfoDisplay(FrameCursor f, String stylePrefix, boolean isBeforeBreakpointFrame)
+    public synchronized Display getInfoDisplay(FrameCursor f, Node frameNode, String stylePrefix, boolean isBeforeBreakpointFrame)
     {
         if (displays.containsKey(f))
         {
@@ -75,7 +75,7 @@ public class DebugInfo
         }
         else
         {
-            Display d = new Display(prevState, state, stylePrefix, isBeforeBreakpointFrame);
+            Display d = new Display(prevState, state, frameNode, stylePrefix, isBeforeBreakpointFrame);
             displays.put(f, d);
             return d;
         }
@@ -109,14 +109,16 @@ public class DebugInfo
     public class Display extends AnchorPane implements HighlightedBreakpoint
     {
         private final ArrayList<VBox> varDisplay = new ArrayList<>();
+        private final Node frameNode;
         private int curDisplay = -1;
         private Label curCounter;
         private final boolean isBreakpointFrame;
 
         @OnThread(Tag.FXPlatform)
-        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, String stylePrefix, boolean isBreakpointFrame)
+        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node frameNode, String stylePrefix, boolean isBreakpointFrame)
         {
             this.isBreakpointFrame = isBreakpointFrame;
+            this.frameNode = frameNode;
             HBox controls = new HBox();
             curCounter = new Label("1/1");
             //controls.getChildren().addAll(new Label("<"), curCounter, new Label(">"));
@@ -154,6 +156,10 @@ public class DebugInfo
         @OnThread(Tag.FXPlatform)
         public void addState(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars)
         {
+            // Temporary, to stop adding new states and ruining the display:
+            if (curDisplay >= 0)
+                return;
+            
             VBox disp = makeDisplay(prevVars, vars);
             varDisplay.add(disp);
             if (curDisplay >= 0)
@@ -200,6 +206,12 @@ public class DebugInfo
         public @OnThread(Tag.FXPlatform) double getYOffset()
         {
             return 5;
+        }
+
+        @Override
+        public @OnThread(Tag.FXPlatform) double getYOffsetOfTurnBack()
+        {
+            return frameNode.localToScene(frameNode.getBoundsInLocal()).getMaxY() - 5 - localToScene(getBoundsInLocal()).getMinY();
         }
 
         @Override

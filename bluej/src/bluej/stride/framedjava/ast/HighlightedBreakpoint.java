@@ -38,5 +38,8 @@ public interface HighlightedBreakpoint
     double getYOffset();
 
     @OnThread(Tag.FXPlatform)
+    double getYOffsetOfTurnBack();
+
+    @OnThread(Tag.FXPlatform)
     boolean isBreakpointFrame();
 }

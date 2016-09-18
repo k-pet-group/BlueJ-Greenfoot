@@ -823,6 +823,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         redrawExecHistory(execHistory);
                     });
                     // TODO remove the listener when done
+                    // TODO only redraw once for each scroll
                     execNodesListenedTo.add(b.getNode());
                 }
                 double targetX = execHistoryCanvas.getWidth()*0.66; //bounds.getMinX() + 100;
@@ -834,6 +835,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 }
                 g.setStroke(Color.WHITE);
                 g.setLineWidth(4.0);
+                //Debug.message("Drawing from " + prevTargetY + " to " + targetY + ": " + b.getNode());
                 // Draw twice; first white, then smaller blue line over the top:
                 for (int k = 0; k < 2; k++)
                 {
@@ -848,9 +850,22 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         double bulge = Math.abs(prevTargetY - targetY) < 60.0f ? 5 : 10;
                         double angle = bulge == 5 ? 0.4 : 0.15;
                         //g.strokeArc((prevTargetX + targetX) / 2.0, (prevTargetY + targetY) / 2.0, 10, Math.abs(targetY - prevTargetY), -30, -60, ArcType.OPEN);
-                        g.strokeArc(prevTargetX - bulge, prevTargetY, 2*bulge, Math.abs(targetY - prevTargetY), 90, -180, ArcType.OPEN);
-                        g.strokeLine(targetX - 14.4*Math.sin(angle), targetY - 14.4*Math.cos(angle), targetX, targetY);
-                        g.strokeLine(targetX + 14.4*Math.cos(angle), targetY - 14.4*Math.sin(angle), targetX, targetY);
+                        if (prevTargetY < targetY)
+                        {
+                            g.strokeArc(prevTargetX - bulge, prevTargetY, 2 * bulge, Math.abs(targetY - prevTargetY), 90, -180, ArcType.OPEN);
+                            g.strokeLine(targetX - 14.4 * Math.sin(angle), targetY - 14.4 * Math.cos(angle), targetX, targetY);
+                            g.strokeLine(targetX + 14.4 * Math.cos(angle), targetY - 14.4 * Math.sin(angle), targetX, targetY);
+                        }
+                        else
+                        {
+                            // Draw line down to turn-back, then back up again:
+                            double turnBack = overlay.sceneYToCodeOverlayY(bounds.getMinY()) + b.getYOffsetOfTurnBack();
+                            g.strokeArc(prevTargetX - bulge, prevTargetY, 2 * bulge, Math.abs(turnBack - prevTargetY), 90, -180, ArcType.OPEN);
+                            g.strokeArc(prevTargetX - bulge, targetY, 2 * bulge, Math.abs(targetY - turnBack), 90, 180, ArcType.OPEN);
+
+                            g.strokeLine(targetX + 14.4 * Math.sin(angle), targetY + 14.4 * Math.cos(angle), targetX, targetY);
+                            g.strokeLine(targetX - 14.4 * Math.cos(angle), targetY + 14.4 * Math.sin(angle), targetX, targetY);
+                        }
                     }
 
                     g.setStroke(Color.BLUE);

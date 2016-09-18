@@ -58,15 +58,15 @@ public class JavaCanvas extends FrameCanvas
         VBox special;
         if (f != null) {
             JavaFXUtil.setPseudoclass("bj-debug-before", true, f.getNode());
-            disp = info.getInfoDisplay(f.getCursorBefore(), f.getStylePrefix(), f instanceof BreakpointFrame);
-            removeSpecialsAfter(info, f.getCursorBefore());
+            disp = info.getInfoDisplay(f.getCursorBefore(), f.getNode(), f.getStylePrefix(), f instanceof BreakpointFrame);
+            //removeSpecialsAfter(info, f.getCursorBefore());
             special = getSpecialBefore(f.getCursorBefore());
         }
         else {
             // Add at very end of canvas:
-            disp = info.getInfoDisplay(getLastCursor(), null, false);
+            disp = info.getInfoDisplay(getLastCursor(), null, null, false);
             special = getSpecialAfter(null);
-            removeSpecialsAfter(info, null);
+            //removeSpecialsAfter(info, null);
         }
         
         if (special.getChildren().contains(disp) == false) {
@@ -80,7 +80,7 @@ public class JavaCanvas extends FrameCanvas
     {
         while (fc != null) {
             VBox special = getSpecialAfter(fc);
-            Debug.message("Clearing children for: " + special + " after " + fc);
+            //Debug.message("Clearing children for: " + special + " after " + fc);
             info.removeAllDisplays(special.getChildren());
             special.getChildren().clear();
             // Descend to get rid of children:
