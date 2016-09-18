@@ -57,9 +57,9 @@
     
     breakpoint-frame: hsb(0, 60%, 30%);
     breakpoint-text: white;
-    debug-info: rgb(255, 204, 204);
-    debug-info-highlight: rgb(255, 80, 80);
-    debug-info-text: black;
+    debug-info: rgb(153, 61, 0);
+    debug-info-highlight: rgb(230, 115, 0);
+    debug-info-text: white;
         
     method-frame: hsb(60, 15%, 93%);
     method-frame-java: hsb(60, 8%, 95%);
@@ -570,7 +570,7 @@
 .try-sidelabel, .catch-sidelabel { -fx-text-fill: try-sidelabel; }
 .try-sidelabel:bj-java-preview, .catch-sidelabel:bj-java-preview { -fx-text-fill: try-frame-java; }
 
-.while-frame{ -fx-background-color: while-frame; -fx-border-color: while-border; }
+.while-frame, .debug-info-surround:bj-while-debug { -fx-background-color: while-frame; -fx-border-color: while-border; }
 .while-frame:bj-java-preview { -fx-background-color: while-frame-java; -fx-border-color: while-border-java; }
 .while-sidelabel { -fx-text-fill: while-sidelabel; }
 .while-sidelabel:bj-java-preview {-fx-text-fill: while-frame-java; }
@@ -846,7 +846,11 @@
     -fx-background-radius: 5 5 0 0;
     -fx-border-width: 1 1 0 1;
     -fx-border-style: solid inside;
-    -fx-padding: 3;
+    -fx-padding: 3 3 0 3;
+}
+.debug-info-rows {
+    -fx-background-color: debug-info;
+    -fx-min-height: 5px;
 }
 .debug-info {
     -fx-background-color: debug-info; 

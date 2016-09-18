@@ -136,6 +136,7 @@ public class DebugInfo
         private VBox makeDisplay(Map<String, DebugVarInfo> prevVars,
                 Map<String, DebugVarInfo> vars) {
             VBox disp = new VBox();
+            JavaFXUtil.addStyleClass(disp, "debug-info-rows");
             for (Map.Entry<String, DebugVarInfo> var : vars.entrySet())
             {
                 DebugVarInfo prev = prevVars == null ? null : prevVars.get(var.getKey());
