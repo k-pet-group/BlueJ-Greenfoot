@@ -41,7 +41,9 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -132,7 +134,7 @@ public class DebugInfo
 
     public class Display extends AnchorPane implements HighlightedBreakpoint
     {
-        private final ObservableList<VBox> varDisplay = FXCollections.observableArrayList();
+        private final ObservableList<Pane> varDisplay = FXCollections.observableArrayList();
         private final ArrayList<Integer> varIndexes = new ArrayList<>();
         private final Node frameNode;
         private final SimpleIntegerProperty curDisplay = new SimpleIntegerProperty(-1);
@@ -175,7 +177,7 @@ public class DebugInfo
                     getChildren().add(0, varDisplay.get(now.intValue()));
                 updateChildren();
             });
-            varDisplay.addListener((ListChangeListener<? super VBox>)c -> {
+            varDisplay.addListener((ListChangeListener<? super Pane>)c -> {
                 // Currently only additions happen, so we just check if 
                 // we trying to display one past the end:
                 if (parent == null && curDisplay.get() == varDisplay.size() - 1)
@@ -186,10 +188,12 @@ public class DebugInfo
         }
 
         @OnThread(Tag.FXPlatform)
-        private VBox makeDisplay(Map<String, DebugVarInfo> prevVars,
-                Map<String, DebugVarInfo> vars) {
-            VBox disp = new VBox();
+        private Pane makeDisplay(Map<String, DebugVarInfo> prevVars,
+                                 Map<String, DebugVarInfo> vars) {
+            GridPane disp = new GridPane();
+            disp.setHgap(20);
             JavaFXUtil.addStyleClass(disp, "debug-info-rows");
+            int index = 0;
             for (Map.Entry<String, DebugVarInfo> var : vars.entrySet())
             {
                 DebugVarInfo prev = prevVars == null ? null : prevVars.get(var.getKey());
@@ -199,10 +203,11 @@ public class DebugInfo
                 Node v = var.getValue().getDisplay(prev);
                 v.getStyleClass().add("debug-info-text");
                 row.getChildren().addAll(k, v);
-                disp.getChildren().add(row);
+                disp.add(row, index % 3, index / 3);
                 row.getStyleClass().add("debug-info");
                 row.managedProperty().bind(showVars);
                 row.visibleProperty().bind(showVars);
+                index += 1;
             }
             return disp;
         }
@@ -210,7 +215,7 @@ public class DebugInfo
         @OnThread(Tag.FXPlatform)
         public void addState(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, int varIndex)
         {
-            VBox disp = makeDisplay(prevVars, vars);
+            Pane disp = makeDisplay(prevVars, vars);
             varIndexes.add(varIndex);
             varDisplay.add(disp);
             if (parent == null)
@@ -289,7 +294,7 @@ public class DebugInfo
             {
                 children.add(child);
                 child.parent = this;
-                child.varDisplay.addListener((ListChangeListener<? super VBox>)c -> updateChildren());
+                child.varDisplay.addListener((ListChangeListener<? super Pane>)c -> updateChildren());
             }
         }
         
