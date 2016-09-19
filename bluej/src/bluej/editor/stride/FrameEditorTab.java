@@ -828,62 +828,61 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     // TODO only redraw once for each scroll
                     execNodesListenedTo.add(b.getNode());
                 }
-                if (!b.showExec(i))
-                {
-                    b.showExec(i);
-                    continue;
-                }
+                
                 
                 double targetX = execHistoryCanvas.getWidth()*0.66; //bounds.getMinX() + 100;
                 double targetY = overlay.sceneYToCodeOverlayY(bounds.getMinY()) + b.getYOffset();
-                if (i == 0)
+                if (b.showExec(i))
                 {
-                    prevTargetX = targetX;
-                    prevTargetY = targetY - 10;
-                }
-                g.setStroke(Color.WHITE);
-                g.setLineWidth(4.0);
-                //Debug.message("Drawing from " + prevTargetY + " to " + targetY + ": " + b.getNode());
-                // Draw twice; first white, then smaller blue line over the top:
-                for (int k = 0; k < 2; k++)
-                {
-                    if (Math.abs(prevTargetY - targetY) < 15.0f)
+                    if (i == 0)
                     {
-                        g.strokeLine(prevTargetX, prevTargetY, targetX, targetY);
-                        g.strokeLine(targetX - 10, targetY - 10, targetX, targetY);
-                        g.strokeLine(targetX + 10, targetY - 10, targetX, targetY);
+                        prevTargetX = targetX;
+                        prevTargetY = targetY - 10;
                     }
-                    else
+                    g.setStroke(Color.WHITE);
+                    g.setLineWidth(4.0);
+                    //Debug.message("Drawing from " + prevTargetY + " to " + targetY + ": " + b.getNode());
+                    // Draw twice; first white, then smaller blue line over the top:
+                    for (int k = 0; k < 2; k++)
                     {
-                        double bulge = Math.abs(prevTargetY - targetY) < 60.0f ? 5 : 10;
-                        double angle = bulge == 5 ? 0.4 : 0.15;
-                        //g.strokeArc((prevTargetX + targetX) / 2.0, (prevTargetY + targetY) / 2.0, 10, Math.abs(targetY - prevTargetY), -30, -60, ArcType.OPEN);
-                        if (prevTargetY < targetY)
+                        if (Math.abs(prevTargetY - targetY) < 15.0f)
                         {
-                            g.beginPath();
-                            g.moveTo(prevTargetX, prevTargetY);
-                            g.bezierCurveTo(prevTargetX + bulge, prevTargetY, prevTargetX + bulge, targetY, prevTargetX, targetY);
-                            g.stroke();
-                            g.strokeLine(targetX - 14.4 * Math.sin(angle), targetY - 14.4 * Math.cos(angle), targetX, targetY);
-                            g.strokeLine(targetX + 14.4 * Math.cos(angle), targetY - 14.4 * Math.sin(angle), targetX, targetY);
+                            g.strokeLine(prevTargetX, prevTargetY, targetX, targetY);
+                            g.strokeLine(targetX - 10, targetY - 10, targetX, targetY);
+                            g.strokeLine(targetX + 10, targetY - 10, targetX, targetY);
                         }
                         else
                         {
-                            // Draw line down to turn-back, then back up again:
-                            double turnBack = overlay.sceneYToCodeOverlayY(bounds.getMinY()) + b.getYOffsetOfTurnBack();
-                            g.beginPath();
-                            g.moveTo(prevTargetX, prevTargetY);
-                            g.bezierCurveTo(prevTargetX + bulge, prevTargetY, prevTargetX + bulge, turnBack, prevTargetX, turnBack);
-                            g.bezierCurveTo(targetX - 2*bulge, turnBack, targetX - 2*bulge, targetY, targetX, targetY);
-                            g.stroke();
+                            double bulge = Math.abs(prevTargetY - targetY) < 60.0f ? 5 : 10;
+                            double angle = bulge == 5 ? 0.4 : 0.15;
+                            //g.strokeArc((prevTargetX + targetX) / 2.0, (prevTargetY + targetY) / 2.0, 10, Math.abs(targetY - prevTargetY), -30, -60, ArcType.OPEN);
+                            if (prevTargetY < targetY)
+                            {
+                                g.beginPath();
+                                g.moveTo(prevTargetX, prevTargetY);
+                                g.bezierCurveTo(prevTargetX + bulge, prevTargetY, prevTargetX + bulge, targetY, prevTargetX, targetY);
+                                g.stroke();
+                                g.strokeLine(targetX - 14.4 * Math.sin(angle), targetY - 14.4 * Math.cos(angle), targetX, targetY);
+                                g.strokeLine(targetX + 14.4 * Math.cos(angle), targetY - 14.4 * Math.sin(angle), targetX, targetY);
+                            }
+                            else
+                            {
+                                // Draw line down to turn-back, then back up again:
+                                double turnBack = overlay.sceneYToCodeOverlayY(bounds.getMinY()) + b.getYOffsetOfTurnBack();
+                                g.beginPath();
+                                g.moveTo(prevTargetX, prevTargetY);
+                                g.bezierCurveTo(prevTargetX + bulge, prevTargetY, prevTargetX + bulge, turnBack, prevTargetX, turnBack);
+                                g.bezierCurveTo(targetX - 2 * bulge, turnBack, targetX - 2 * bulge, targetY, targetX, targetY);
+                                g.stroke();
 
-                            g.strokeLine(targetX + 14.4 * Math.sin(angle), targetY + 14.4 * Math.cos(angle), targetX, targetY);
-                            g.strokeLine(targetX - 14.4 * Math.cos(angle), targetY + 14.4 * Math.sin(angle), targetX, targetY);
+                                g.strokeLine(targetX + 14.4 * Math.sin(angle), targetY + 14.4 * Math.cos(angle), targetX, targetY);
+                                g.strokeLine(targetX - 14.4 * Math.cos(angle), targetY + 14.4 * Math.sin(angle), targetX, targetY);
+                            }
                         }
-                    }
 
-                    g.setStroke(Color.BLUE);
-                    g.setLineWidth(2.0);
+                        g.setStroke(Color.BLUE);
+                        g.setLineWidth(2.0);
+                    }
                 }
                 prevTargetX = targetX;
                 prevTargetY = targetY + 5;

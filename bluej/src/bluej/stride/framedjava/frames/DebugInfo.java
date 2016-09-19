@@ -171,13 +171,14 @@ public class DebugInfo
             curDisplay.addListener((prop, prev, now) -> {
                 if (prev.intValue() >= 0 && prev.intValue() < varDisplay.size())
                     getChildren().remove(varDisplay.get(prev.intValue()));
-                if (now.intValue() < varDisplay.size())
+                if (now.intValue() >= 0 && now.intValue() < varDisplay.size())
                     getChildren().add(0, varDisplay.get(now.intValue()));
+                updateChildren();
             });
             varDisplay.addListener((ListChangeListener<? super VBox>)c -> {
                 // Currently only additions happen, so we just check if 
                 // we trying to display one past the end:
-                if (curDisplay.get() == varDisplay.size() - 1)
+                if (parent == null && curDisplay.get() == varDisplay.size() - 1)
                     getChildren().add(0, varDisplay.get(curDisplay.get()));
             });
             
@@ -210,9 +211,9 @@ public class DebugInfo
         public void addState(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, int varIndex)
         {
             VBox disp = makeDisplay(prevVars, vars);
-            varDisplay.add(disp);
             varIndexes.add(varIndex);
-            if (!curDisplay.isBound())
+            varDisplay.add(disp);
+            if (parent == null)
                 curDisplay.set(varDisplay.size() - 1);
             AnchorPane.setTopAnchor(disp, 1.0);
             AnchorPane.setLeftAnchor(disp, 1.0);
@@ -284,9 +285,24 @@ public class DebugInfo
 
         public void addChild(Display child)
         {
-            children.add(child);
-            child.parent = this;
-            child.curDisplay.bind(curDisplay);
+            if (!children.contains(child))
+            {
+                children.add(child);
+                child.parent = this;
+                child.varDisplay.addListener((ListChangeListener<? super VBox>)c -> updateChildren());
+            }
+        }
+        
+        private void updateChildren()
+        {
+            for (Display child : children)
+            {
+                int lowerBound = curDisplay.get() >= 0 ? (isLatest() && curDisplay.get() >= 1 ? varIndexes.get(curDisplay.get() - 1) : varIndexes.get(curDisplay.get())) : -1;
+                int upperBound = curDisplay.get() + 1 < varIndexes.size() ? varIndexes.get(curDisplay.get() + 1) : Integer.MAX_VALUE;
+
+                // Find the child iteration that is within the bounds, if any:
+                child.curDisplay.set(child.varIndexes.indexOf(child.varIndexes.stream().filter(varIndex -> varIndex >= lowerBound && varIndex <= upperBound).findFirst().orElse(-1)));
+            }
         }
 
         @Override
@@ -299,8 +315,8 @@ public class DebugInfo
                 // Trying to show an arrow arriving at the first display and we are a parent:
                 if (!varIndexes.isEmpty() && varIndexes.get(0) == index && !children.isEmpty())
                     return true;
-                // Trying to show an arrow arriving at the current display:
-                if (varIndexes.get(curDisplay.get()) == index)
+                // Trying to show an arrow arriving at the current display and we are not parent or latest:
+                if (varIndexes.get(curDisplay.get()) == index && (children.isEmpty() || isLatest()))
                     return true;
                 // Trying to show an arrow arriving at the next display and we are a parent:
                 if (curDisplay.get() + 1 < varIndexes.size() && varIndexes.get(curDisplay.get() + 1) == index && !children.isEmpty())
