@@ -42,4 +42,12 @@ public interface HighlightedBreakpoint
 
     @OnThread(Tag.FXPlatform)
     boolean isBreakpointFrame();
+
+    /**
+     * Is this execution index in the execution history part
+     * of the current loop?  This depends on the state
+     * of the <1/3> arrows on the variable state.
+     */
+    @OnThread(Tag.FXPlatform)
+    boolean showExec(int index);
 }

@@ -110,6 +110,12 @@ public class BreakpointFrame extends SingleLineFrame implements CodeFrame<Breakp
             {
                 return 0;
             }
+
+            @Override
+            public boolean showExec(int index)
+            {
+                return true;
+            }
         };
     }
 }

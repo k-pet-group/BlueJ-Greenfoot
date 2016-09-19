@@ -61,7 +61,8 @@ public class DebugInfo
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private Map<String,DebugVarInfo> prevState, state;
     private final SimpleBooleanProperty showVars = new SimpleBooleanProperty(false);
-    
+    private int stateIndex;
+
     @OnThread(Tag.Any)
     public DebugInfo()
     {
@@ -69,10 +70,11 @@ public class DebugInfo
     }
     
     @OnThread(Tag.Any)
-    public synchronized void addVarState(Map<String,DebugVarInfo> state)
+    public synchronized void addVarState(Map<String,DebugVarInfo> state, int index)
     {
         this.prevState = this.state;
         this.state = state;
+        this.stateIndex = index;
     }
     
     @OnThread(Tag.FXPlatform)
@@ -80,18 +82,18 @@ public class DebugInfo
     {
         if (displays.containsKey(f))
         {
-            displays.get(f).addState(prevState, state);
+            displays.get(f).addState(prevState, state, stateIndex);
             return displays.get(f);
         }
         else
         {
-            Display d = new Display(prevState, state, frameNode, stylePrefix, isBeforeBreakpointFrame);
+            Display d = new Display(prevState, state, stateIndex, frameNode, stylePrefix, isBeforeBreakpointFrame);
             // Notify any parents:
             Frame frame = f.getFrameAfter();
             while (frame != null)
             {
                 frame = Optional.ofNullable(frame.getParentCanvas()).map(FrameCanvas::getParent).map(CanvasParent::getFrame).orElse(null);
-                if (frame != null)
+                if (frame != null && frame instanceof WhileFrame) // TODO: generalise to other loops
                 {
                     FrameCursor cursor = frame.getCursorBefore();
                     if (displays.containsKey(cursor))
@@ -131,15 +133,17 @@ public class DebugInfo
     public class Display extends AnchorPane implements HighlightedBreakpoint
     {
         private final ObservableList<VBox> varDisplay = FXCollections.observableArrayList();
+        private final ArrayList<Integer> varIndexes = new ArrayList<>();
         private final Node frameNode;
         private final SimpleIntegerProperty curDisplay = new SimpleIntegerProperty(-1);
         private final Label curCounter;
         private final boolean isBreakpointFrame;
         private final ObservableList<Display> children = FXCollections.observableArrayList();
         private final BooleanBinding showControls;
+        private Display parent = null;
 
         @OnThread(Tag.FXPlatform)
-        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node frameNode, String stylePrefix, boolean isBreakpointFrame)
+        public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, int varIndex, Node frameNode, String stylePrefix, boolean isBreakpointFrame)
         {
             this.isBreakpointFrame = isBreakpointFrame;
             this.frameNode = frameNode;
@@ -177,7 +181,7 @@ public class DebugInfo
                     getChildren().add(0, varDisplay.get(curDisplay.get()));
             });
             
-            addState(prevVars, vars);
+            addState(prevVars, vars, varIndex);
         }
 
         @OnThread(Tag.FXPlatform)
@@ -203,10 +207,11 @@ public class DebugInfo
         }
         
         @OnThread(Tag.FXPlatform)
-        public void addState(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars)
+        public void addState(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, int varIndex)
         {
             VBox disp = makeDisplay(prevVars, vars);
             varDisplay.add(disp);
+            varIndexes.add(varIndex);
             if (!curDisplay.isBound())
                 curDisplay.set(varDisplay.size() - 1);
             AnchorPane.setTopAnchor(disp, 1.0);
@@ -280,7 +285,49 @@ public class DebugInfo
         public void addChild(Display child)
         {
             children.add(child);
+            child.parent = this;
             child.curDisplay.bind(curDisplay);
+        }
+
+        @Override
+        public @OnThread(Tag.FXPlatform) boolean showExec(int index)
+        {
+            if (curDisplay.get() < 0)
+                return false; // Not reached here yet
+            if (curDisplay.get() < varDisplay.size())
+            {
+                // Trying to show an arrow arriving at the first display and we are a parent:
+                if (!varIndexes.isEmpty() && varIndexes.get(0) == index && !children.isEmpty())
+                    return true;
+                // Trying to show an arrow arriving at the current display:
+                if (varIndexes.get(curDisplay.get()) == index)
+                    return true;
+                // Trying to show an arrow arriving at the next display and we are a parent:
+                if (curDisplay.get() + 1 < varIndexes.size() && varIndexes.get(curDisplay.get() + 1) == index && !children.isEmpty())
+                    return true;
+            }
+            // We also show arrows from previous iteration, iff the
+            // parent has the largest index
+            if (curDisplay.get() > 0 && curDisplay.get() - 1 < varIndexes.size() && parent != null && parent.isLatest() && varIndexes.get(curDisplay.get() - 1) == index)
+                return true;
+            return false;
+            /*
+            
+            return curDisplay.get() >= 0 && 
+                ((curDisplay.get() < varDisplay.size() && 
+                    (varIndexes.get(curDisplay.get()) == index || 
+                    (!children.isEmpty() && curDisplay.get() > 0 && varIndexes.get(curDisplay.get() - 1) == index)))
+                || (parent != null && parent.curDisplay.get() > 0 && parent.curDisplay.get() < parent.varDisplay.size() && parent.varIndexes.get(parent.curDisplay.get() - 1) == index - 1));
+                */
+        }
+
+        /**
+         * Is the latest index on this later than all children?
+         * @return
+         */
+        private boolean isLatest()
+        {
+            return varIndexes.get(curDisplay.get()) >= children.stream().mapToInt(c -> c.varIndexes.isEmpty() ? -1 : c.varIndexes.get(c.varIndexes.size() - 1)).max().orElse(-1);
         }
     }
 }

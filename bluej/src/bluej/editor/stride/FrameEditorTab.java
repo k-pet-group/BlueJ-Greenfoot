@@ -269,6 +269,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private Canvas execHistoryCanvas;
     private final Set<Node> execNodesListenedTo = new HashSet<>();
     private final SimpleBooleanProperty debugVarVisibleProperty = new SimpleBooleanProperty(false);
+    private List<HighlightedBreakpoint> latestExecHistory;
 
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
@@ -803,6 +804,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.FXPlatform)
     public void redrawExecHistory(List<HighlightedBreakpoint> execHistory)
     {
+        this.latestExecHistory = execHistory;
         CodeOverlayPane overlay = getCodeOverlayPane();
         if (execHistoryCanvas != null)
             overlay.removeOverlay(execHistoryCanvas);
@@ -820,12 +822,18 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 if (!execNodesListenedTo.contains(b.getNode()))
                 {
                     JavaFXUtil.addChangeListenerPlatform(b.getNode().localToSceneTransformProperty(), t -> {
-                        redrawExecHistory(execHistory);
+                        redrawExecHistory(latestExecHistory);
                     });
                     // TODO remove the listener when done
                     // TODO only redraw once for each scroll
                     execNodesListenedTo.add(b.getNode());
                 }
+                if (!b.showExec(i))
+                {
+                    b.showExec(i);
+                    continue;
+                }
+                
                 double targetX = execHistoryCanvas.getWidth()*0.66; //bounds.getMinX() + 100;
                 double targetY = overlay.sceneYToCodeOverlayY(bounds.getMinY()) + b.getYOffset();
                 if (i == 0)
