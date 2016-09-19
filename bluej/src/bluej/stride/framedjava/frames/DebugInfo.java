@@ -28,9 +28,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import javafx.animation.ScaleTransition;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -39,6 +46,9 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
+import bluej.stride.generic.CanvasParent;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameCursor;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -76,6 +86,18 @@ public class DebugInfo
         else
         {
             Display d = new Display(prevState, state, frameNode, stylePrefix, isBeforeBreakpointFrame);
+            // Notify any parents:
+            Frame frame = f.getFrameAfter();
+            while (frame != null)
+            {
+                frame = Optional.ofNullable(frame.getParentCanvas()).map(FrameCanvas::getParent).map(CanvasParent::getFrame).orElse(null);
+                if (frame != null)
+                {
+                    FrameCursor cursor = frame.getCursorBefore();
+                    if (displays.containsKey(cursor))
+                        displays.get(cursor).addChild(d);
+                }
+            }
             displays.put(f, d);
             return d;
         }
@@ -108,11 +130,13 @@ public class DebugInfo
 
     public class Display extends AnchorPane implements HighlightedBreakpoint
     {
-        private final ArrayList<VBox> varDisplay = new ArrayList<>();
+        private final ObservableList<VBox> varDisplay = FXCollections.observableArrayList();
         private final Node frameNode;
-        private int curDisplay = -1;
-        private Label curCounter;
+        private final SimpleIntegerProperty curDisplay = new SimpleIntegerProperty(-1);
+        private final Label curCounter;
         private final boolean isBreakpointFrame;
+        private final ObservableList<Display> children = FXCollections.observableArrayList();
+        private final BooleanBinding showControls;
 
         @OnThread(Tag.FXPlatform)
         public Display(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, Node frameNode, String stylePrefix, boolean isBreakpointFrame)
@@ -121,13 +145,37 @@ public class DebugInfo
             this.frameNode = frameNode;
             HBox controls = new HBox();
             curCounter = new Label("1/1");
-            //controls.getChildren().addAll(new Label("<"), curCounter, new Label(">"));
-            AnchorPane.setTopAnchor(controls, 5.0);
+            curCounter.textProperty().bind(curDisplay.add(1).asString().concat("/").concat(Bindings.size(varDisplay).asString()));
+            Label leftArrow = new Label("<");
+            Label rightArrow = new Label(">");
+            JavaFXUtil.addStyleClass(curCounter, "debug-info-number");
+            JavaFXUtil.addStyleClass(leftArrow, "debug-info-arrow");
+            JavaFXUtil.addStyleClass(rightArrow, "debug-info-arrow");
+            leftArrow.setOnMouseClicked(e -> {left(); e.consume();});
+            rightArrow.setOnMouseClicked(e -> {right(); e.consume();});
+            controls.getChildren().addAll(leftArrow, curCounter, rightArrow);
+            AnchorPane.setTopAnchor(controls, 2.0);
             AnchorPane.setRightAnchor(controls, 5.0);
+            showControls = Bindings.size(varDisplay).greaterThan(1).and(Bindings.isNotEmpty(children));
+            controls.managedProperty().bind(showControls);
+            controls.visibleProperty().bind(showControls);
             getChildren().add(controls);
             JavaFXUtil.addStyleClass(this, "debug-info-surround");
             if (stylePrefix != null && !stylePrefix.isEmpty())
                 JavaFXUtil.setPseudoclass("bj-" + stylePrefix + "debug", true, this);
+            
+            curDisplay.addListener((prop, prev, now) -> {
+                if (prev.intValue() >= 0 && prev.intValue() < varDisplay.size())
+                    getChildren().remove(varDisplay.get(prev.intValue()));
+                if (now.intValue() < varDisplay.size())
+                    getChildren().add(0, varDisplay.get(now.intValue()));
+            });
+            varDisplay.addListener((ListChangeListener<? super VBox>)c -> {
+                // Currently only additions happen, so we just check if 
+                // we trying to display one past the end:
+                if (curDisplay.get() == varDisplay.size() - 1)
+                    getChildren().add(0, varDisplay.get(curDisplay.get()));
+            });
             
             addState(prevVars, vars);
         }
@@ -157,25 +205,33 @@ public class DebugInfo
         @OnThread(Tag.FXPlatform)
         public void addState(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars)
         {
-            // Temporary, to stop adding new states and ruining the display:
-            if (curDisplay >= 0)
-                return;
-            
             VBox disp = makeDisplay(prevVars, vars);
             varDisplay.add(disp);
-            if (curDisplay >= 0)
-            {
-                getChildren().remove(varDisplay.get(curDisplay));
-            }
-            curDisplay = varDisplay.size() - 1;
-            curCounter.setText((curDisplay + 1) + "/" + varDisplay.size());
+            if (!curDisplay.isBound())
+                curDisplay.set(varDisplay.size() - 1);
             AnchorPane.setTopAnchor(disp, 1.0);
             AnchorPane.setLeftAnchor(disp, 1.0);
             AnchorPane.setBottomAnchor(disp, 1.0);
             AnchorPane.setRightAnchor(disp, 1.0);
-            getChildren().add(disp);
-            //JavaFXUtil.addStyleClass(this, "debug-info-highlight");
+            JavaFXUtil.setPseudoclass("bj-highlight", false, displays.values().toArray(new Node[0]));
+            JavaFXUtil.setPseudoclass("bj-highlight", true, this);
             pulse();
+        }
+        
+        private void left()
+        {
+            if (curDisplay.get() > 0)
+            {
+                curDisplay.set(curDisplay.get() - 1);
+            }
+        }
+        
+        private void right()
+        {
+            if (curDisplay.get() < varDisplay.size() - 1)
+            {
+                curDisplay.set(curDisplay.get() + 1);
+            }
         }
 
         private void pulse()
@@ -219,6 +275,12 @@ public class DebugInfo
         public @OnThread(Tag.FXPlatform) boolean isBreakpointFrame()
         {
             return isBreakpointFrame;
+        }
+
+        public void addChild(Display child)
+        {
+            children.add(child);
+            child.curDisplay.bind(curDisplay);
         }
     }
 }

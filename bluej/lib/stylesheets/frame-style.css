@@ -853,18 +853,25 @@
     -fx-min-height: 5px;
 }
 .debug-info {
-    -fx-background-color: debug-info; 
+    -fx-background-color: transparent; 
     -fx-padding: 3 0 3 10;
     -fx-border-width: 0;
 }
-.debug-info-highlight {
-    -fx-background-color: debug-info; 
+.debug-info-surround:bj-highlight .debug-info-rows {
+    -fx-background-color: rgb(255, 0, 0); 
     -fx-padding: 3 0 3 10;
-    -fx-border-width: 4;
-    -fx-border-color: hsb(0, 100%, 100%);
+    /*-fx-border-width: 4;
+    -fx-border-color: rgb(255, 0, 0);*/
 }
-.debug-info-text {
+.debug-info-text, .debug-info-number, .debug-info-arrow {
     -fx-text-fill: debug-info-text;
+}
+.debug-info-number, .debug-info-arrow {
+    -fx-font-size: 14px;
+}
+.debug-info-arrow:hover {
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
 }
 .debugger-buttons{
     -fx-padding: 10;
