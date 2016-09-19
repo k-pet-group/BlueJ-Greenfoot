@@ -813,6 +813,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         GraphicsContext g = execHistoryCanvas.getGraphicsContext2D();
 
         double prevTargetX = 0, prevTargetY = 0;
+        HighlightedBreakpoint prevPoint = null;
+        List<HighlightedBreakpoint> drawnFrom = new ArrayList<>();
         for (int i = 0; i < execHistory.size(); i++)
         {
             HighlightedBreakpoint b = execHistory.get(i);
@@ -853,8 +855,23 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         }
                         else
                         {
-                            double bulge = Math.abs(prevTargetY - targetY) < 60.0f ? 5 : 10;
-                            double angle = bulge == 5 ? 0.4 : 0.15;
+                            double bulge, angle;
+                            if (prevPoint != null && drawnFrom.contains(prevPoint))
+                            {
+                                // Drawn an arrow from the source before; need to bulge more:
+                                bulge = 35;
+                                angle = 0.15;
+                            }
+                            else if (Math.abs(prevTargetY - targetY) < 60.0f)
+                            {
+                                bulge = 5;
+                                angle = 0.4;
+                            }
+                            else
+                            {
+                                bulge = 10;
+                                angle = 0.15;
+                            }
                             //g.strokeArc((prevTargetX + targetX) / 2.0, (prevTargetY + targetY) / 2.0, 10, Math.abs(targetY - prevTargetY), -30, -60, ArcType.OPEN);
                             if (prevTargetY < targetY)
                             {
@@ -883,9 +900,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         g.setStroke(Color.BLUE);
                         g.setLineWidth(2.0);
                     }
+                    if (prevPoint != null)
+                        drawnFrom.add(prevPoint);
                 }
                 prevTargetX = targetX;
                 prevTargetY = targetY + 5;
+                prevPoint = b;
             }
         }
     }

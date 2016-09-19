@@ -315,17 +315,13 @@ public class DebugInfo
                 // Trying to show an arrow arriving at the first display and we are a parent:
                 if (!varIndexes.isEmpty() && varIndexes.get(0) == index && !children.isEmpty())
                     return true;
-                // Trying to show an arrow arriving at the current display and we are not parent or latest:
+                // Trying to show an arrow arriving at the current display and we are not parent or we are parent but are latest:
                 if (varIndexes.get(curDisplay.get()) == index && (children.isEmpty() || isLatest()))
                     return true;
                 // Trying to show an arrow arriving at the next display and we are a parent:
                 if (curDisplay.get() + 1 < varIndexes.size() && varIndexes.get(curDisplay.get() + 1) == index && !children.isEmpty())
                     return true;
             }
-            // We also show arrows from previous iteration, iff the
-            // parent has the largest index
-            if (curDisplay.get() > 0 && curDisplay.get() - 1 < varIndexes.size() && parent != null && parent.isLatest() && varIndexes.get(curDisplay.get() - 1) == index)
-                return true;
             return false;
             /*
             
