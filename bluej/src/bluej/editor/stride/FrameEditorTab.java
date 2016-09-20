@@ -2077,6 +2077,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 if (normalMethodFrame.getName().equals(method.getName())) {
                     insertMethodContentsIntoMethodFrame(method, normalMethodFrame);
                     after.accept(true);
+                    return;
                 }
             }
             // method not found, create it
@@ -2103,6 +2104,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         if (doFrame.getCode().toJavaSource().toTemporaryJavaCodeString().equals(methodCall.toJavaSource().toTemporaryJavaCodeString()))
                         {
                             after.accept(true);
+                            return;
                         }
                     }
                 }
