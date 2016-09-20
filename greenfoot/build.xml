@@ -890,7 +890,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <include name="build.xml" />  
                 <exclude name="**/.DS_Store"/>
             </zipfileset>
-            <zipfileset src="${bluej.projectdir}/package/BlueJ-source-${bluej.version.nodots}.zip" prefix="bluej" />                       
+            <zipfileset src="${bluej.projectdir}/package/BlueJ-source-${bluej.version.nodots}${bluej.rcsuffix}.zip" prefix="bluej" />                       
         </zip>
     </target>
     
