@@ -23,6 +23,7 @@ package bluej.stride.generic;
 
 import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.ast.Loader;
+import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.InterfaceFrame;
 import bluej.stride.operations.AbstractOperation.Combine;
@@ -167,7 +168,10 @@ public abstract class SingleLineFrame extends Frame
         if (!(this instanceof CodeFrame))
             return;
 
-        Element el = ((CodeFrame) this).getCode().toXML();
+        CodeElement code = ((CodeFrame)this).getCode();
+        if (code == null)
+            return;
+        Element el = code.toXML();
         String xml = el.toXML();
         int existingRecent = Utility.findIndex(recentValues, fs -> fs.cachedXML.equals(xml));
         if (existingRecent != -1)

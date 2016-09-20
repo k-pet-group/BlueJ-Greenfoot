@@ -1696,7 +1696,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.FXPlatform)
     public void flagErrorsAsOld()
     {
-        getTopLevelFrame().flagErrorsAsOld();
+        if (getTopLevelFrame() != null)
+            getTopLevelFrame().flagErrorsAsOld();
     }
 
     @OnThread(Tag.FXPlatform)
