@@ -757,6 +757,11 @@ public class FrameEditor implements Editor
                 FrameEditor.this.addExtendsInterface(interfaceName, classInfo);
             }
 
+            @Override
+            public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo)
+            {
+                FrameEditor.this.removeExtendsOrImplementsInterface(interfaceName, classInfo);
+            }
         };
     }
 
@@ -1378,6 +1383,17 @@ public class FrameEditor implements Editor
                 createPanel(false, false);
             }
             panel.addExtends(interfaceName);
+        });
+    }
+
+    @Override
+    public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo)
+    {
+        Platform.runLater(() -> {
+            if (panel == null) {
+                createPanel(false, false);
+            }
+            panel.removeExtendsOrImplementsInterface(interfaceName);
         });
     }
 }

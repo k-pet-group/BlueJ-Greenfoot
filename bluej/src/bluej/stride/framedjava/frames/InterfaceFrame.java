@@ -172,7 +172,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     }
 
     @Override
-    public void addExtends(String className)
+    public void addExtendsClassOrInterface(String className)
     {
         extendsList.addTypeSlotAtEnd(className, false);
     }
@@ -189,6 +189,20 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void removeExtendsOrImplementsInterface(String interfaceName)
+    {
+        List<TypeSlotFragment> extendsTypes = extendsList.getTypes();
+        for (int i = 0; i < extendsTypes.size(); i++)
+        {
+            if (extendsTypes.get(i).getContent().equals(interfaceName))
+            {
+                extendsList.removeIndex(i);
+                return;
+            }
+        }
+    }
+    
     @Override
     public boolean canDoBirdseye()
     {

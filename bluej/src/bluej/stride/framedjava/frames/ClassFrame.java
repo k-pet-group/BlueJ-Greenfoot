@@ -651,7 +651,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     }
 
     @Override
-    public void addExtends(String className)
+    public void addExtendsClassOrInterface(String className)
     {
         extendsSlot.setText(className);
     }
@@ -666,6 +666,20 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     public void addImplements(String className)
     {
         implementsSlot.addTypeSlotAtEnd(className, false);
+    }
+
+    @Override
+    public void removeExtendsOrImplementsInterface(String interfaceName)
+    {
+        List<TypeSlotFragment> implementsTypes = implementsSlot.getTypes();
+        for (int i = 0; i < implementsTypes.size(); i++)
+        {
+            if (implementsTypes.get(i).getContent().equals(interfaceName))
+            {
+                implementsSlot.removeIndex(i);
+                return;
+            }
+        }
     }
 
     private boolean nodeInside(Node target, Parent parent)

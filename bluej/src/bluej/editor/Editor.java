@@ -300,4 +300,9 @@ public interface Editor
      */
     void addExtendsInterface(String interfaceName, ClassInfo classInfo);
 
+    /**
+     * For a class or interface, remove the given interface from the implements/extends section
+     */
+    void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo);
+
 }

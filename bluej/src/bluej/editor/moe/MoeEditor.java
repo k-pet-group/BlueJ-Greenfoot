@@ -4277,6 +4277,46 @@ public final class MoeEditor extends JPanel
         }
     }
 
+    @Override
+    public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo info)
+    {
+        try {
+            save();
+
+            if (info != null) {
+                Selection s1 = null;
+
+                List<Selection> vsels;
+                List<String> vtexts;
+
+                vsels = info.getInterfaceSelections();
+                vtexts = getInterfaceTexts(vsels);
+                int where = vtexts.indexOf(interfaceName);
+
+                // we have a special case if we deleted the first bit of an
+                // "implements" clause, yet there are still clauses left.. we have
+                // to delete the following "," instead of the preceding one.
+                if (where == 1 && vsels.size() > 2)
+                    where = 2;
+
+                if (where > 0) { // should always be true
+                    s1 = vsels.get(where - 1);
+                    s1.combineWith(vsels.get(where));
+                }
+
+                // delete the text from the end backwards so that our
+                if (s1 != null) {
+                    setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    insertText("", false);
+                }
+
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
+    }
 
     /**
      * Using a list of selections, retrieve a list of text strings from the editor which

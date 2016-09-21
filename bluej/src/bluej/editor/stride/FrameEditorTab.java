@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -120,7 +119,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -918,7 +916,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     public void addExtends(String className)
     {
-        withTopLevelFrame(f -> f.addExtends(className));
+        withTopLevelFrame(f -> f.addExtendsClassOrInterface(className));
     }
 
     public void removeExtendsClass()
@@ -929,6 +927,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void addImplements(String className)
     {
         withTopLevelFrame(f -> f.addImplements(className));
+    }
+
+    public void removeExtendsOrImplementsInterface(String interfaceName)
+    {
+        withTopLevelFrame(f -> f.removeExtendsOrImplementsInterface(interfaceName));
     }
 
     @OnThread(Tag.Any)

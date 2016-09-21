@@ -46,9 +46,10 @@ public interface TopLevelFrame<T extends CodeElement & TopLevelCodeElement> exte
 {
     public BirdseyeManager prepareBirdsEyeView(SharedTransition animate);
 
-    void addExtends(String className);
+    void addExtendsClassOrInterface(String className);
     void removeExtendsClass();
     void addImplements(String className);
+    void removeExtendsOrImplementsInterface(String interfaceName);
 
     public static enum BodyFocus { TOP, BOTTOM, BEST_PICK };
     public void focusOnBody(BodyFocus on);
