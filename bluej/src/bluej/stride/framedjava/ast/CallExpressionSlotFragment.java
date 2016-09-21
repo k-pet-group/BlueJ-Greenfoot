@@ -21,17 +21,31 @@
  */
 package bluej.stride.framedjava.ast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.errors.EmptyError;
+import bluej.stride.framedjava.errors.FixSuggestion;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
+import bluej.stride.framedjava.frames.IfFrame;
+import bluej.stride.framedjava.frames.ReturnFrame;
+import bluej.stride.framedjava.frames.SwitchFrame;
+import bluej.stride.framedjava.frames.ThrowFrame;
+import bluej.stride.framedjava.frames.WhileFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
+import bluej.stride.generic.Frame;
+import threadchecker.OnThread;
 
 /**
  * Created by neil on 04/12/2015.
  */
 public class CallExpressionSlotFragment extends FilledExpressionSlotFragment
 {
+    private static final List<String> KEYWORDS = Arrays.asList("if", "while", "switch", "return", "throw"); 
+    
     public CallExpressionSlotFragment(String content, String javaCode)
     {
         super(content, javaCode);
@@ -45,12 +59,61 @@ public class CallExpressionSlotFragment extends FilledExpressionSlotFragment
     @Override
     public Stream<SyntaxCodeError> findEarlyErrors()
     {
-        // TODO Also check the call is actually a method call, and not an assignment or other expression
         Stream<SyntaxCodeError> superErrors = super.findEarlyErrors();
         // Look for a blank frame and give an error:
         if (content.equals("()"))
         {
             return Stream.concat(Stream.of(new EmptyError(this, "Method name cannot be blank")), superErrors);
+        }
+        else if (content.endsWith(")") && KEYWORDS.stream().anyMatch(k -> content.startsWith(k + "(")))
+        {
+            String keyword = content.substring(0, content.indexOf("("));
+            String innerStride = content.substring(content.indexOf("(") + 1, content.length() - 1);
+            String javaCode = getJavaCode();
+            String innerJava = javaCode.substring(javaCode.indexOf("(") + 1, javaCode.length() - 1);
+            FixSuggestion fix = new FixSuggestion()
+            {
+                @Override
+                public String getDescription()
+                {
+                    return "Replace with " + keyword + " frame";
+                }
+
+                @Override
+                public void execute()
+                {
+                    Frame frame = getSlot().getParentFrame();
+                    FilledExpressionSlotFragment inner = new FilledExpressionSlotFragment(innerStride, innerJava);
+                    switch (keyword)
+                    {
+                        case "if":
+                            frame.getParentCanvas().replaceBlock(frame, new IfFrame(frame.getEditor(), inner, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null, true));
+                            break;
+                        case "while":
+                            frame.getParentCanvas().replaceBlock(frame, new WhileFrame(frame.getEditor(), inner, true));
+                            break;
+                        case "switch":
+                            frame.getParentCanvas().replaceBlock(frame, new SwitchFrame(frame.getEditor(), inner, true));
+                            break;
+                        case "return":
+                            frame.getParentCanvas().replaceBlock(frame, new ReturnFrame(frame.getEditor(), inner, true));
+                            break;
+                        case "throw":
+                            frame.getParentCanvas().replaceBlock(frame, new ThrowFrame(frame.getEditor(), inner, true));
+                            break;
+                    }
+                }
+            };
+            return Stream.concat(Stream.of(new SyntaxCodeError(this, keyword + " is not a valid method name") {
+                @Override
+                public List<FixSuggestion> getFixSuggestions()
+                {
+                    ArrayList<FixSuggestion> fixes = new ArrayList<>();
+                    fixes.addAll(super.getFixSuggestions());
+                    fixes.add(fix);
+                    return fixes;
+                }
+            }), superErrors);
         }
         return superErrors;
     }
