@@ -279,8 +279,19 @@ public interface Editor
     void cancelFreshState();
     
     void focusMethod(String methodName);
-    
+
+    /**
+     * For a class, set the extends section to extend the given className
+     */
     void addExtendsClass(String className, ClassInfo classInfo);
 
+    /**
+     * For a class, remove the extends section
+     */
     void removeExtendsClass(ClassInfo classInfo);
+
+    /**
+     * For a class, add the given (interface) type name to the implements clause
+     */
+    void addImplements(String interfaceName, ClassInfo classInfo);
 }

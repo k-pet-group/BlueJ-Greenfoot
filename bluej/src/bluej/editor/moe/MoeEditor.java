@@ -4207,7 +4207,66 @@ public final class MoeEditor extends JPanel
             DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
-    
+
+    @Override
+    public void addImplements(String interfaceName, ClassInfo info)
+    {
+        try {
+            save();
+
+            if (info != null) {
+                Selection s1 = info.getImplementsInsertSelection();
+                setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+
+                if (info.hasInterfaceSelections()) {
+                    // if we already have an implements clause then we need to put a
+                    // comma and the interface name but not before checking that we
+                    // don't already have it
+
+                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
+
+                    // XXX make this equality check against full package name
+                    if (!exists.contains(interfaceName))
+                        insertText(", " + interfaceName, false);
+                }
+                else {
+                    // otherwise we need to put the actual "implements" word
+                    // and the interface name
+                    insertText(" implements " + interfaceName, false);
+                }
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Using a list of selections, retrieve a list of text strings from the editor which
+     * correspond to those selections.
+     * TODO this is usually used to get the implemented interfaces, but it is a clumsy way
+     *      to do that.
+     */
+    private List<String> getInterfaceTexts(List<Selection> selections)
+    {
+        List<String> r = new ArrayList<String>(selections.size());
+        for (Selection sel : selections)
+        {
+            String text = getText(new bluej.parser.SourceLocation(sel.getLine(), sel.getColumn()),
+                new bluej.parser.SourceLocation(sel.getEndLine(), sel.getEndColumn()));
+
+            // check for type arguments: don't include them in the text
+            int taIndex = text.indexOf('<');
+            if (taIndex != -1)
+                text = text.substring(0, taIndex);
+            text = text.trim();
+
+            r.add(text);
+        }
+        return r;
+    }
+
     @OnThread(Tag.Swing)
     private static void initialiseContentAssist(CodeCompletionDisplay codeCompletionDlg, int xpos, int ypos)
     {

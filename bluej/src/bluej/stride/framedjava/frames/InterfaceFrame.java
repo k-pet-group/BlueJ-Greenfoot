@@ -178,6 +178,12 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     }
 
     @Override
+    public void addImplements(String className)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void removeExtendsClass()
     {
         throw new UnsupportedOperationException();

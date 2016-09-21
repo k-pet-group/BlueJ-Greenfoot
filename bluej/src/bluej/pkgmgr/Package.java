@@ -1797,37 +1797,9 @@ public final class Package extends Graph
     {
         ClassTarget from = (ClassTarget) d.getFrom(); // a class
         ClassTarget to = (ClassTarget) d.getTo(); // an interface
-        TextEditor ed = from.getEditor().assumeText();
-        try {
-            ed.save();
-            
-            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
-            if (info != null) {
-                
-                Selection s1 = info.getImplementsInsertSelection();
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an implements clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't already have it
-                    
-                    List<String> exists = getInterfaceTexts(ed, info.getInterfaceSelections());
-                    
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(to.getBaseName()))
-                        ed.insertText(", " + to.getBaseName(), false);
-                }
-                else {
-                    // otherwise we need to put the actual "implements" word
-                    // and the interface name
-                    ed.insertText(" implements " + to.getBaseName(), false);
-                }
-                ed.save();
-            }
-        }
-        catch (IOException ioe) {
-            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
+        if (info != null) {
+            from.getEditor().addImplements(to.getBaseName(), info);
         }
     }
 

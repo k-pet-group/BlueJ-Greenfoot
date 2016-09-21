@@ -48,6 +48,7 @@ public interface TopLevelFrame<T extends CodeElement & TopLevelCodeElement> exte
 
     void addExtends(String className);
     void removeExtendsClass();
+    void addImplements(String className);
 
     public static enum BodyFocus { TOP, BOTTOM, BEST_PICK };
     public void focusOnBody(BodyFocus on);

@@ -740,6 +740,12 @@ public class FrameEditor implements Editor
             }
 
             @Override
+            public void addImplements(String className, ClassInfo classInfo)
+            {
+                FrameEditor.this.addImplements(className, classInfo);
+            }
+
+            @Override
             public void removeExtendsClass(ClassInfo classInfo)
             {
                 FrameEditor.this.removeExtendsClass(classInfo);
@@ -1322,6 +1328,17 @@ public class FrameEditor implements Editor
         }
         else
             Debug.reportError(result.exception);
+    }
+
+    @Override
+    public void addImplements(String className, ClassInfo classInfo)
+    {
+        Platform.runLater(() -> {
+            if (panel == null) {
+                createPanel(false, false);
+            }
+            panel.addImplements(className);
+        });
     }
 
     @Override

@@ -926,6 +926,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         withTopLevelFrame(f -> f.removeExtendsClass());
     }
 
+    public void addImplements(String className)
+    {
+        withTopLevelFrame(f -> f.addImplements(className));
+    }
+
     @OnThread(Tag.Any)
     private static enum ShowVars
     {
