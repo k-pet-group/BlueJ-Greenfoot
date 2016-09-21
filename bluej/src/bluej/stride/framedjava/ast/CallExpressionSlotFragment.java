@@ -71,39 +71,7 @@ public class CallExpressionSlotFragment extends FilledExpressionSlotFragment
             String innerStride = content.substring(content.indexOf("(") + 1, content.length() - 1);
             String javaCode = getJavaCode();
             String innerJava = javaCode.substring(javaCode.indexOf("(") + 1, javaCode.length() - 1);
-            FixSuggestion fix = new FixSuggestion()
-            {
-                @Override
-                public String getDescription()
-                {
-                    return "Replace with " + keyword + " frame";
-                }
-
-                @Override
-                public void execute()
-                {
-                    Frame frame = getSlot().getParentFrame();
-                    FilledExpressionSlotFragment inner = new FilledExpressionSlotFragment(innerStride, innerJava);
-                    switch (keyword)
-                    {
-                        case "if":
-                            frame.getParentCanvas().replaceBlock(frame, new IfFrame(frame.getEditor(), inner, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null, true));
-                            break;
-                        case "while":
-                            frame.getParentCanvas().replaceBlock(frame, new WhileFrame(frame.getEditor(), inner, true));
-                            break;
-                        case "switch":
-                            frame.getParentCanvas().replaceBlock(frame, new SwitchFrame(frame.getEditor(), inner, true));
-                            break;
-                        case "return":
-                            frame.getParentCanvas().replaceBlock(frame, new ReturnFrame(frame.getEditor(), inner, true));
-                            break;
-                        case "throw":
-                            frame.getParentCanvas().replaceBlock(frame, new ThrowFrame(frame.getEditor(), inner, true));
-                            break;
-                    }
-                }
-            };
+            FixSuggestion fix = new ReplaceKeywordCallWithFrame(keyword, innerStride, innerJava);
             return Stream.concat(Stream.of(new SyntaxCodeError(this, keyword + " is not a valid method name") {
                 @Override
                 public List<FixSuggestion> getFixSuggestions()
@@ -116,5 +84,50 @@ public class CallExpressionSlotFragment extends FilledExpressionSlotFragment
             }), superErrors);
         }
         return superErrors;
+    }
+
+    private class ReplaceKeywordCallWithFrame extends FixSuggestion
+    {
+        private final String keyword;
+        private final String innerStride;
+        private final String innerJava;
+
+        public ReplaceKeywordCallWithFrame(String keyword, String innerStride, String innerJava)
+        {
+            this.keyword = keyword;
+            this.innerStride = innerStride;
+            this.innerJava = innerJava;
+        }
+
+        @Override
+        public String getDescription()
+        {
+            return "Replace with " + keyword + " frame";
+        }
+
+        @Override
+        public void execute()
+        {
+            Frame frame = getSlot().getParentFrame();
+            FilledExpressionSlotFragment inner = new FilledExpressionSlotFragment(innerStride, innerJava);
+            switch (keyword)
+            {
+                case "if":
+                    frame.getParentCanvas().replaceBlock(frame, new IfFrame(frame.getEditor(), inner, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null, true));
+                    break;
+                case "while":
+                    frame.getParentCanvas().replaceBlock(frame, new WhileFrame(frame.getEditor(), inner, true));
+                    break;
+                case "switch":
+                    frame.getParentCanvas().replaceBlock(frame, new SwitchFrame(frame.getEditor(), inner, true));
+                    break;
+                case "return":
+                    frame.getParentCanvas().replaceBlock(frame, new ReturnFrame(frame.getEditor(), inner, true));
+                    break;
+                case "throw":
+                    frame.getParentCanvas().replaceBlock(frame, new ThrowFrame(frame.getEditor(), inner, true));
+                    break;
+            }
+        }
     }
 }

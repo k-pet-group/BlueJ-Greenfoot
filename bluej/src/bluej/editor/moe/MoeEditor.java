@@ -4182,7 +4182,7 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (IOException ioe) {
-            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
         }
     }
 
@@ -4204,7 +4204,7 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (IOException ioe) {
-            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
         }
     }
 
@@ -4238,7 +4238,7 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (IOException ioe) {
-            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
         }
     }
 
@@ -4273,7 +4273,7 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (IOException ioe) {
-            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
         }
     }
 
@@ -4314,7 +4314,7 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (IOException ioe) {
-            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
         }
     }
 

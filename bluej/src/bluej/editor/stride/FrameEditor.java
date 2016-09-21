@@ -734,30 +734,35 @@ public class FrameEditor implements Editor
             }
 
             @Override
+            @OnThread(Tag.Swing)
             public void setExtendsClass(String className, ClassInfo classInfo)
             {
                 FrameEditor.this.setExtendsClass(className, classInfo);
             }
 
             @Override
+            @OnThread(Tag.Swing)
             public void addImplements(String className, ClassInfo classInfo)
             {
                 FrameEditor.this.addImplements(className, classInfo);
             }
 
             @Override
+            @OnThread(Tag.Swing)
             public void removeExtendsClass(ClassInfo classInfo)
             {
                 FrameEditor.this.removeExtendsClass(classInfo);
             }
 
             @Override
+            @OnThread(Tag.Swing)
             public void addExtendsInterface(String interfaceName, ClassInfo classInfo)
             {
                 FrameEditor.this.addExtendsInterface(interfaceName, classInfo);
             }
 
             @Override
+            @OnThread(Tag.Swing)
             public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo)
             {
                 FrameEditor.this.removeExtendsOrImplementsInterface(interfaceName, classInfo);
