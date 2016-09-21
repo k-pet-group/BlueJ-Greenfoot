@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
 
+import bluej.graph.RubberBand;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.Dependency.Line;
@@ -32,7 +33,7 @@ import bluej.pkgmgr.dependency.Dependency.Line;
  * 
  * @author fisker
  * @author Michael Kolling
- * @version $Id: ExtendsDependencyPainter.java 15998 2016-06-08 14:55:27Z nccb $
+ * @version $Id: ExtendsDependencyPainter.java 16593 2016-09-21 15:54:38Z nccb $
  */
 public class ExtendsDependencyPainter
     implements DependencyPainter
@@ -57,12 +58,22 @@ public class ExtendsDependencyPainter
         Stroke oldStroke = g.getStroke();
         ExtendsDependency d = (ExtendsDependency) dependency;
 
-        g.setStroke(normalUnselected);
+        boolean isSelected = d.isSelected() && hasFocus;
+        g.setStroke((isSelected ? normalSelected : normalUnselected));
 
         Line line = d.computeLine();
 
         paintArrow(g, line.from, line.to);
         g.setStroke(oldStroke);
+    }
+
+    /**
+     * Draw an ExtendsDependency from DependTarget d to the mouse position
+     */
+    public void paintIntermediateDependency(Graphics2D g, RubberBand rb)
+    {
+        g.setStroke(normalUnselected);
+        paintArrow(g, rb.startPt, rb.endPt);
     }
 
     private void paintArrow(Graphics2D g, Point pFrom, Point pTo)
@@ -83,4 +94,33 @@ public class ExtendsDependencyPainter
         g.drawPolygon(xPoints, yPoints, 3);
         g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see bluej.pkgmgr.graphPainter.DependencyPainter#getPopupMenuPosition(bluej.pkgmgr.dependency.Dependency)
+     */
+    public Point getPopupMenuPosition(Dependency dependency)
+    {
+
+        if (!(dependency instanceof ExtendsDependency)) {
+            throw new IllegalArgumentException("Not a ExtendsDependency");
+        }
+        Point pFrom = new Point(dependency.getFrom().getX() + dependency.getFrom().getWidth() / 2, dependency.getFrom()
+                .getY()
+                + dependency.getFrom().getHeight() / 2);
+        Point pTo = new Point(dependency.getTo().getX() + dependency.getTo().getWidth() / 2, dependency.getTo().getY()
+                + dependency.getTo().getHeight() / 2);
+        // Get the angle of the line from src to dst.
+        double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
+        pTo = dependency.getTo().getAttachment(angle);
+        //          draw the arrow head
+        int[] xPoints = {pTo.x, pTo.x + (int) ((ARROW_SIZE) * Math.cos(angle + ARROW_ANGLE)),
+                pTo.x + (int) (ARROW_SIZE * Math.cos(angle - ARROW_ANGLE))};
+        int[] yPoints = {pTo.y, pTo.y - (int) ((ARROW_SIZE) * Math.sin(angle + ARROW_ANGLE)),
+                pTo.y - (int) (ARROW_SIZE * Math.sin(angle - ARROW_ANGLE))};
+        return new Point((xPoints[0] + xPoints[1] + xPoints[2]) / 3, (yPoints[0] + yPoints[1] + yPoints[2]) / 3);
+
+    }
+
 }

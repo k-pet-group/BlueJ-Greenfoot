@@ -90,6 +90,7 @@ import bluej.extensions.SourceType;
 import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
+import bluej.pkgmgr.dependency.Dependency;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -145,6 +146,7 @@ import bluej.pkgmgr.actions.GenerateDocsAction;
 import bluej.pkgmgr.actions.HelpAboutAction;
 import bluej.pkgmgr.actions.ImportProjectAction;
 import bluej.pkgmgr.actions.NewClassAction;
+import bluej.pkgmgr.actions.NewInheritsAction;
 import bluej.pkgmgr.actions.NewPackageAction;
 import bluej.pkgmgr.actions.NewProjectAction;
 import bluej.pkgmgr.actions.OpenProjectAction;
@@ -160,9 +162,11 @@ import bluej.pkgmgr.actions.SaveProjectAction;
 import bluej.pkgmgr.actions.SaveProjectAsAction;
 import bluej.pkgmgr.actions.ShowCopyrightAction;
 import bluej.pkgmgr.actions.ShowDebuggerAction;
+import bluej.pkgmgr.actions.ShowInheritsAction;
 import bluej.pkgmgr.actions.ShowTerminalAction;
 import bluej.pkgmgr.actions.ShowTestResultsAction;
 import bluej.pkgmgr.actions.ShowTextEvalAction;
+import bluej.pkgmgr.actions.ShowUsesAction;
 import bluej.pkgmgr.actions.StandardAPIHelpAction;
 import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
@@ -214,6 +218,9 @@ public class PkgMgrFrame extends JPanel
     private JPanel buttonPanel;
     private JPanel testPanel;
     private JPanel teamPanel;
+    private JCheckBoxMenuItem showUsesMenuItem;
+    private JCheckBoxMenuItem showExtendsMenuItem;
+    private AbstractButton imgExtendsButton;
     private AbstractButton runButton;
     private JLabel statusbar;
     // Initialised once, effectively final thereafter:
@@ -262,12 +269,15 @@ public class PkgMgrFrame extends JPanel
     private final Action newPackageAction = new NewPackageAction(this);
     private final Action addClassAction = new AddClassAction(this);
     private final Action removeAction = new RemoveAction(this);
+    private final Action newInheritsAction = new NewInheritsAction(this);
     private final Action compileAction = new CompileAction(this);
     private final Action compileSelectedAction = new CompileSelectedAction(this);
     private final Action rebuildAction = new RebuildAction(this);
     private final Action restartVMAction = new RestartVMAction(this);
     private final Action useLibraryAction = new UseLibraryAction(this);
     private final Action generateDocsAction = new GenerateDocsAction(this);
+    private final PkgMgrToggleAction showUsesAction = new ShowUsesAction(this);
+    private final PkgMgrToggleAction showInheritsAction = new ShowInheritsAction(this);
     private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this);
     private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
     private final PkgMgrToggleAction showTextEvalAction = new ShowTextEvalAction(this);
@@ -891,6 +901,12 @@ public class PkgMgrFrame extends JPanel
                 Debug.reportError("Could not read preferred project screen position");
             }
             
+            String uses_str = p.getProperty("package.showUses", "true");
+            String extends_str = p.getProperty("package.showExtends", "true");
+            
+            setShowUsesInPackage(uses_str.equals("true"));
+            setShowExtendsInPackage(extends_str.equals("true"));
+
             editor.revalidate();
             editor.requestFocus();
             
@@ -1661,6 +1677,9 @@ public class PkgMgrFrame extends JPanel
             d = objbench.getSize();
             p.put("objectbench.width", Integer.toString(d.width));
             p.put("objectbench.height", Integer.toString(d.height));
+    
+            p.put("package.showUses", Boolean.toString(pkg.isShowUses()));
+            p.put("package.showExtends", Boolean.toString(pkg.isShowExtends()));
         }
         pkg.save(p);
     }
@@ -2190,7 +2209,7 @@ public class PkgMgrFrame extends JPanel
     {
         Component permanentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
         if (permanentFocusOwner == editor || Arrays.asList(editor.getComponents()).contains(permanentFocusOwner)) { // focus in diagram
-            if (!doRemoveTargets()) {
+            if (!(doRemoveTargets() || doRemoveDependency())) {
                 Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "no-class-selected"));
             }
         }
@@ -2223,6 +2242,43 @@ public class PkgMgrFrame extends JPanel
         });
         return true;
     }
+
+    private boolean doRemoveDependency()
+    {
+        Dependency dependency = pkg.getSelectedDependency();
+        if (dependency == null) {
+            return false;
+        }
+        dependency.remove();
+        return true;
+    }
+
+    /**
+     * The user function to add a uses arrow to the diagram was invoked.
+     */
+    public void doNewUses()
+    {
+        pkg.setState(Package.S_CHOOSE_USES_FROM);
+        setStatus(Config.getString("pkgmgr.chooseUsesFrom"));
+        pkg.getEditor().clearSelection();
+    }
+
+    /**
+     * The user function to add an inherits arrow to the dagram was invoked.
+     */
+    public void doNewInherits()
+    {
+        pkg.setState(Package.S_CHOOSE_EXT_FROM);
+        setStatus(Config.getString("pkgmgr.chooseInhFrom"));
+        editor.clearSelection();
+    }
+
+    /**
+     * The user function to remove an arrow from the dagram was invoked.
+     * 
+     * public void doRemoveArrow() { pkg.setState(Package.S_DELARROW);
+     * setStatus(Config.getString("pkgmgr.chooseArrow")); }
+     */
 
     /**
      * The user function to test all classes in a package
@@ -2462,6 +2518,21 @@ public class PkgMgrFrame extends JPanel
     }
 
     /**
+     * Toggle the state of the "show uses arrows" switch.
+     */
+    public void setShowUsesInPackage(boolean show)
+    {
+        pkg.setShowUses(show);
+        editor.repaint();
+    }
+
+    public void setShowExtendsInPackage(boolean show)
+    {
+        pkg.setShowExtends(show);
+        editor.repaint();
+    }
+    
+    /**
      * Show or hide the testing tools.
      * @param show True to show; false to hide
      */
@@ -2695,6 +2766,10 @@ public class PkgMgrFrame extends JPanel
 
                 AbstractButton button = createButton(newClassAction, false, false, 4, 4);
                 buttonPanel.add(button);
+                if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
+
+                imgExtendsButton = createButton(newInheritsAction, true, false, 4, 4);
+                buttonPanel.add(imgExtendsButton);
                 if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
 
                 button = createButton(compileAction, false, false, 4, 4);
@@ -2977,6 +3052,9 @@ public class PkgMgrFrame extends JPanel
             createMenuItem(newPackageAction, menu);
             createMenuItem(addClassAction, menu);
             createMenuItem(removeAction, menu);
+            menu.addSeparator();
+
+            createMenuItem(newInheritsAction, menu);
         }
 
         menu = new JMenu(Config.getString("menu.tools"));
@@ -3049,6 +3127,10 @@ public class PkgMgrFrame extends JPanel
         menu.setMnemonic(Config.getMnemonicKey("menu.view"));
         menubar.add(menu);
         {
+            showUsesMenuItem = createCheckboxMenuItem(showUsesAction, menu, true);
+            showExtendsMenuItem = createCheckboxMenuItem(showInheritsAction, menu, true);
+            menu.addSeparator();
+
             createCheckboxMenuItem(showDebuggerAction, menu, false);
             createCheckboxMenuItem(showTerminalAction, menu, false);
             createCheckboxMenuItem(showTextEvalAction, menu, false);
@@ -3115,7 +3197,7 @@ public class PkgMgrFrame extends JPanel
 
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
         if (bmodel != null)
-            item.setModel(action.getToggleModel());
+            item.setModel(bmodel);
         else
             item.setState(selected);
         menu.add(item);
@@ -3145,6 +3227,8 @@ public class PkgMgrFrame extends JPanel
      */
     public void menuCall()
     {
+        if (!isEmptyFrame())
+            pkg.setState(Package.S_IDLE);
         clearStatus();
     }
 
@@ -3165,12 +3249,15 @@ public class PkgMgrFrame extends JPanel
         actionsToDisable.add(newPackageAction);
         actionsToDisable.add(addClassAction);
         actionsToDisable.add(removeAction);
+        actionsToDisable.add(newInheritsAction);
         actionsToDisable.add(compileAction);
         actionsToDisable.add(compileSelectedAction);
         actionsToDisable.add(rebuildAction);
         actionsToDisable.add(restartVMAction);
         actionsToDisable.add(useLibraryAction);
         actionsToDisable.add(generateDocsAction);
+        actionsToDisable.add(showUsesAction);
+        actionsToDisable.add(showInheritsAction);
         actionsToDisable.add(showDebuggerAction);
         actionsToDisable.add(showTerminalAction);
         actionsToDisable.add(showTextEvalAction);

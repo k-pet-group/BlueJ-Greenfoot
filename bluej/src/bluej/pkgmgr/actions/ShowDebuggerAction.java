@@ -30,17 +30,12 @@ import bluej.pkgmgr.PkgMgrFrame;
  * so that it can be tied to a check-box.
  * 
  * @author Davin McCall
- * @version $Id: ShowDebuggerAction.java 16081 2016-06-25 09:42:13Z nccb $
+ * @version $Id: ShowDebuggerAction.java 16593 2016-09-21 15:54:38Z nccb $
  */
 final public class ShowDebuggerAction extends PkgMgrToggleAction
 {
     public ShowDebuggerAction(PkgMgrFrame pmf)
     {
-        super(pmf, "menu.view.showExecControls");
-    }
-            
-    public ButtonModel getToggleModel()
-    {
-        return new bluej.debugmgr.ExecControlButtonModel(pmf);
+        super(pmf, "menu.view.showExecControls", new bluej.debugmgr.ExecControlButtonModel(pmf));
     }
 }

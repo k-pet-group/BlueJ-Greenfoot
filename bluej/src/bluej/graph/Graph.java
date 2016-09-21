@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -134,7 +134,34 @@ public abstract class Graph
      */
     public SelectableGraphElement findGraphElement(int x, int y)
     {
-        return findVertex(x, y);
+        SelectableGraphElement element = findVertex(x, y);
+
+        if (element == null) {
+            element = findEdge(x, y);
+        }
+        return element;
+    }
+
+    /**
+     * Finds the Edge that covers the coordinate x,y and is visible. If no
+     * (visible) edge is found, null is returned.
+     * 
+     * @param x
+     *            the x coordinate
+     * @param y
+     *            the y coordinate
+     * @return an edge at that position, or null
+     */
+    private Edge findEdge(int x, int y)
+    {
+        Edge element = null;
+        for (Iterator<? extends Edge> it = getEdges(); it.hasNext();) {
+            element = it.next();
+            if (element.isVisible() && element.contains(x, y)) {
+                return element;
+            }
+        }
+        return null;
     }
 
     /**

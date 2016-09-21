@@ -21,21 +21,29 @@
  */
 package bluej.pkgmgr.actions;
 
-import javax.swing.ButtonModel;
-
+import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
- * Action to toggle display of test results. This action provides a ButtonModel
- * which can be tied to a check-box.
+ * "New 'inherits' relationship" command. User can select two classes to
+ * create an inheritance relationship between them. The relationship is also
+ * inserted into the code ("class A extends B"...).
  * 
  * @author Davin McCall
- * @version $Id: ShowTestResultsAction.java 16593 2016-09-21 15:54:38Z nccb $
+ * @version $Id: NewInheritsAction.java 6215 2009-03-30 13:28:25Z polle $
  */
-final public class ShowTestResultsAction extends PkgMgrToggleAction
+final public class NewInheritsAction extends PkgMgrAction
 {
-    public ShowTestResultsAction(PkgMgrFrame pmf)
+    public NewInheritsAction(PkgMgrFrame pmf)
     {
-        super(pmf, "menu.view.showTestDisplay", new bluej.testmgr.TestDisplayButtonModel());
+        super(pmf, "menu.edit.newInherits");
+        putValue(SMALL_ICON, Config.getImageAsIcon("image.build.extends"));
+        putValue(SHORT_DESCRIPTION, Config.getString("tooltip.newExtends"));
+    }
+    
+    public void actionPerformed(PkgMgrFrame pmf)
+    {
+        pmf.clearStatus();
+        pmf.doNewInherits();
     }
 }

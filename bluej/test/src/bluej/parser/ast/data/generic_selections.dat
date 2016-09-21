@@ -1,0 +1,8 @@
+// test generic selections
+
+class GenericClass<T extends Thread, U> extends GenericBase<U,
+                 List<Thread>>
+    implements List<Thread>, GenInt<U>
+{
+
+}

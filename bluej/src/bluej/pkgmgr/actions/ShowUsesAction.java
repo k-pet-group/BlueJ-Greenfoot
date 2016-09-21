@@ -22,20 +22,33 @@
 package bluej.pkgmgr.actions;
 
 import javax.swing.ButtonModel;
+import javax.swing.JToggleButton;
 
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
- * Action to toggle display of test results. This action provides a ButtonModel
- * which can be tied to a check-box.
+ * Action to toggle display of "uses" relationships in the graph window.
  * 
  * @author Davin McCall
- * @version $Id: ShowTestResultsAction.java 16593 2016-09-21 15:54:38Z nccb $
+ * @version $Id: ShowUsesAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
-final public class ShowTestResultsAction extends PkgMgrToggleAction
+
+final public class ShowUsesAction extends PkgMgrToggleAction
 {
-    public ShowTestResultsAction(PkgMgrFrame pmf)
+    public ShowUsesAction(PkgMgrFrame pmf)
     {
-        super(pmf, "menu.view.showTestDisplay", new bluej.testmgr.TestDisplayButtonModel());
+        super(pmf, "menu.view.showUses", new JToggleButton.ToggleButtonModel() {
+            @Override
+            public boolean isSelected()
+            {
+                return pmf.getPackage() != null && pmf.getPackage().isShowUses();
+            }
+
+            @Override
+            public void setSelected(boolean b)
+            {
+                pmf.setShowUsesInPackage(b);
+            }
+        });
     }
 }

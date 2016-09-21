@@ -1,0 +1,4 @@
+class XYZ implements AA, BB, CC
+{
+
+}

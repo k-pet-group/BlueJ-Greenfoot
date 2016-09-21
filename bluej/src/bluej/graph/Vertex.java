@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,6 +64,15 @@ public abstract class Vertex implements SelectableGraphElement
         return (component.getX() <= x) && (x < component.getX() + component.getWidth()) && 
                (component.getY() <= y) && (y < component.getY() + component.getHeight());
     }
+
+
+    @Override
+    public void remove()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
 
     @Override
     public void doubleClick(MouseEvent evt)

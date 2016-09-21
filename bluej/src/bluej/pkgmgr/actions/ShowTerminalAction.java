@@ -30,18 +30,13 @@ import bluej.pkgmgr.PkgMgrFrame;
  * which can be tied to a check-box.
  * 
  * @author Davin McCall
- * @version $Id: ShowTerminalAction.java 16081 2016-06-25 09:42:13Z nccb $
+ * @version $Id: ShowTerminalAction.java 16593 2016-09-21 15:54:38Z nccb $
  */
 
 final public class ShowTerminalAction extends PkgMgrToggleAction
 {
     public ShowTerminalAction(PkgMgrFrame pmf)
     {
-        super(pmf, "menu.view.showTerminal");
-    }
-    
-    public ButtonModel getToggleModel()
-    {
-        return new bluej.terminal.TerminalButtonModel(pmf);
+        super(pmf, "menu.view.showTerminal", new bluej.terminal.TerminalButtonModel(pmf));
     }
 }

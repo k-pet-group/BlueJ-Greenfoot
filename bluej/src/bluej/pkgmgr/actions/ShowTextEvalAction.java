@@ -33,11 +33,6 @@ final public class ShowTextEvalAction extends PkgMgrToggleAction
 {
     public ShowTextEvalAction(PkgMgrFrame pmf)
     {
-        super(pmf, "menu.view.showTextEval");
-    }
-    
-    public ButtonModel getToggleModel()
-    {
-        return new bluej.debugmgr.texteval.TextEvalButtonModel(pmf);
+        super(pmf, "menu.view.showTextEval", new bluej.debugmgr.texteval.TextEvalButtonModel(pmf));
     }
 }

@@ -9,34 +9,25 @@ import bluej.pkgmgr.PkgMgrFrame;
  */
 public abstract class PkgMgrToggleAction extends PkgMgrAction
 {
-    public PkgMgrToggleAction(PkgMgrFrame pmf, String s)
+    private final ButtonModel toggleButtonModel;
+
+    public PkgMgrToggleAction(PkgMgrFrame pmf, String s, ButtonModel toggleButtonModel)
     {
         super(pmf, s);
+        this.toggleButtonModel = toggleButtonModel;
     }
 
-    public PkgMgrToggleAction(PkgMgrFrame pmf, String s, int keycode)
-    {
-        super(pmf, s, keycode);
-    }
-
-    public PkgMgrToggleAction(PkgMgrFrame pmf, String s, int keycode, int modifiers)
-    {
-        super(pmf, s, keycode, modifiers);
-    }
 
     /**
-     * Retrieve the "toggle model" if any of an action. An action only has a toggle
-     * model if it has an assosciated boolean state which should be displayed as a check
-     * box.
-     *
-     * By default there is no toggle model.
-     *
-     * @return the toggle model for this action (or null).
+     * Retrieve the "toggle model" of this action.
      */
-    public abstract ButtonModel getToggleModel();
+    public final ButtonModel getToggleModel()
+    {
+        return toggleButtonModel;
+    }
 
     @Override
-    public void actionPerformed(PkgMgrFrame pmf)
+    public final void actionPerformed(PkgMgrFrame pmf)
     {
         // Do nothing by default
     }

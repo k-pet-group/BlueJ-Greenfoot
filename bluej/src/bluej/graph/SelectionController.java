@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,6 +55,7 @@ public class SelectionController
     
     private Marquee marquee; 
     private SelectionSet selection;   // Contains the elements that have been selected
+    private RubberBand rubberBand;
     
     private boolean moving = false; 
     private boolean resizing = false; 
@@ -87,6 +88,12 @@ public class SelectionController
                 selection.addExisting(v);
             }
         }
+        for (Iterator<? extends Edge> i = graph.getEdges(); i.hasNext(); ) {
+            Edge e = i.next();
+            if (e.isSelected()) {
+                selection.addExisting(e);
+            }
+        }
     }
 
     // ======= MouseListener interface =======
@@ -101,6 +108,7 @@ public class SelectionController
         int clickY = evt.getY();
 
         SelectableGraphElement clickedElement = graph.findGraphElement(clickX, clickY);
+        notifyPackage(clickedElement);
         
         if (clickedElement == null) {                           // nothing hit
             if (!isMultiselectionKeyDown(evt)) {
@@ -126,15 +134,20 @@ public class SelectionController
                 }
             }
 
-
-            dragStartX = clickX;
-            dragStartY = clickY;
-
-            if(clickedElement.isHandle(clickX, clickY)) {
-                resizing = true;
+            if(isDrawingDependency()) {
+                if (clickedElement instanceof Target)
+                    rubberBand = new RubberBand(clickX, clickY, clickX, clickY);
             }
             else {
-                moving = true;
+                dragStartX = clickX;
+                dragStartY = clickY;
+
+                if(clickedElement.isHandle(clickX, clickY)) {
+                    resizing = true;
+                }
+                else {
+                    moving = true;                        
+                }
             }
         }
     }
@@ -144,6 +157,13 @@ public class SelectionController
      */
     public void mouseReleased(MouseEvent evt)
     {
+        if (isDrawingDependency()) {
+            SelectableGraphElement selectedElement = graph.findGraphElement(evt.getX(), evt.getY());
+            notifyPackage(selectedElement);
+            graphEditor.repaint();
+        }
+        rubberBand = null;
+        
         SelectionSet newSelection = marquee.stop();     // may or may not have had a marquee...
         if(newSelection != null) {
             selection.addAll(newSelection);
@@ -206,7 +226,11 @@ public class SelectionController
                 newRect.height++;
                 graphEditor.repaint(newRect);
             }
-            else
+            else if (rubberBand != null) {
+                rubberBand.setEnd(evt.getX(), evt.getY());
+                graphEditor.repaint();
+            }
+            else 
             {
                 if(! selection.isEmpty()) {
                     int deltaX = snapToGrid(evt.getX() - dragStartX);
@@ -256,6 +280,11 @@ public class SelectionController
 
         else if (isPlusOrMinusKey(evt)) {
             resizeWithFixedRatio(evt);
+        }
+
+        // dependency selection
+        else if (evt.getKeyCode() == KeyEvent.VK_PAGE_UP || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+            selectDependency(evt);
         }
 
         // post context menu
@@ -310,6 +339,24 @@ public class SelectionController
     public void keyTyped(KeyEvent evt) {}
 
     // ======= end of KeyListener interface =======
+
+
+    private void notifyPackage(GraphElement element)
+    {
+        if(element instanceof ClassTarget)
+            ((Package)graph).targetSelected((Target)element);
+        else
+            ((Package)graph).targetSelected(null);
+    }
+    
+    /**
+     * Tell whether the package is currently drawing a dependency.
+     */
+    public boolean isDrawingDependency()
+    {
+        return (((Package)graph).getState() == Package.S_CHOOSE_USES_TO)
+                || (((Package)graph).getState() == Package.S_CHOOSE_EXT_TO);
+    }
 
     
     private static boolean isArrowKey(KeyEvent evt)
@@ -399,6 +446,29 @@ public class SelectionController
         selection.resize(delta, delta);
         selection.moveStopped();
     }
+    
+    private void selectDependency(KeyEvent evt)
+    {
+        Vertex vertex = selection.getAnyVertex();
+        if(vertex != null && vertex instanceof DependentTarget) {
+            selection.selectOnly(vertex);
+            List<Dependency> dependencies = ((DependentTarget) vertex).dependentsAsList();
+
+            Dependency currentDependency = dependencies.get(currentDependencyIndex);
+            if (currentDependency != null) {
+                selection.remove(currentDependency);
+            }
+            currentDependencyIndex += (evt.getKeyCode() == KeyEvent.VK_PAGE_UP ? 1 : -1);
+            currentDependencyIndex %= dependencies.size();
+            if (currentDependencyIndex < 0) {//% is not a real modulo
+                currentDependencyIndex = dependencies.size() - 1;
+            }
+            currentDependency = (Dependency) dependencies.get(currentDependencyIndex);
+            if (currentDependency != null) {
+                selection.add(currentDependency);
+            }
+        }
+    }
 
     /**
      * A menu popup trigger has been detected. Handle it.
@@ -435,13 +505,22 @@ public class SelectionController
      */
     private void postMenu()
     {
-        // Choose a target
-        Vertex vertex = selection.getAnyVertex();
-        if(vertex != null) {
-            selection.selectOnly(vertex);
-            int x = vertex.getX() + vertex.getWidth() - 20;
-            int y = vertex.getY() + 20;
-            postMenu(vertex, x, y);
+        // first check whether we have selected edges
+        Dependency dependency = (Dependency) selection.getAnyEdge();
+        if (dependency != null) {
+            Point p = ((GraphPainterStdImpl) GraphPainterStdImpl.getInstance()).getDependencyPainter(dependency)
+                    .getPopupMenuPosition(dependency);
+            postMenu(dependency, p.x, p.y);
+        }
+        else {
+            // if not, choose a target
+            Vertex vertex = selection.getAnyVertex();
+            if(vertex != null) {
+                selection.selectOnly(vertex);
+                int x = vertex.getX() + vertex.getWidth() - 20;
+                int y = vertex.getY() + 20;
+                postMenu(vertex, x, y);
+            }
         }
     }
 
@@ -547,6 +626,15 @@ public class SelectionController
         int new_x = steps * GraphEditor.GRID_SIZE;//new x-coor w/ respect to
                                                   // grid
         return new_x;
+    }
+
+    /**
+     * Return the rubber band of this graph.
+     * @return  The rubber band instance, or null if no rubber band is currently in use.
+     */
+    public RubberBand getRubberBand()
+    {
+        return rubberBand;
     }
 
     @Override

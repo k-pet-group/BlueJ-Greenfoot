@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,5 +86,10 @@ public class InternationalParseTest extends junit.framework.TestCase
         
         // Superclass name is Error (encoded)
         assertEquals("java.lang.Error", info.getSuperclass());
+        
+        // The selection should be 12 characters long (2 * 6)
+        Selection testSel = info.getSuperReplaceSelection();
+        assertEquals(48, testSel.getColumn());
+        assertEquals(58, testSel.getEndColumn());
     } 
 }

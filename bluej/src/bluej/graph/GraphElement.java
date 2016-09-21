@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,12 @@ import java.awt.event.MouseEvent;
  * 
  */
 public interface GraphElement
-{
+{   
+    /**
+     * Remove this element from the graph.
+     */
+    abstract public void remove();
+    
     /**
      * Subtypes of Graph elements must override this if it want GraphEditor
      * to be able to locate them. Only classes that can not be selected and that
@@ -43,6 +48,11 @@ public interface GraphElement
      */
     abstract public void doubleClick(MouseEvent evt);
 
+    /**
+     * Post the context menu for this target.
+     */
+    abstract public void popupMenu(int x, int y, GraphEditor graphEditor);
+    
     /**
      * Get the text to display as a tool tip when the user hovers over this element
      * @return null for no tool-tip, otherwise return the text
