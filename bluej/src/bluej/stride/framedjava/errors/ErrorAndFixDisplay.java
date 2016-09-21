@@ -55,7 +55,13 @@ public class ErrorAndFixDisplay
     private final List<FixDisplay> fixes = new ArrayList<>();
     private int highlighted = -1; // Offset into error.getFixSuggestions()
     private FXPlatformRunnable cancelShow;
-    
+    private boolean showing = false;
+
+    public boolean isShowing()
+    {
+        return showing;
+    }
+
     public static interface ErrorFixListener
     {
         @OnThread(Tag.FXPlatform)
@@ -122,6 +128,7 @@ public class ErrorAndFixDisplay
             // them getting in the way of code completion:
             vbox.toBack();
             error.focusedProperty().set(true);
+            showing = true;
             recordShow();
         });
     }
@@ -159,6 +166,7 @@ public class ErrorAndFixDisplay
             // them getting in the way of code completion:
             vbox.toBack();
             error.focusedProperty().set(true);
+            showing = true;
             recordShow();
         });
     }
@@ -173,6 +181,7 @@ public class ErrorAndFixDisplay
         }
         editor.getCodeOverlayPane().removeOverlay(vbox);
         error.focusedProperty().set(false);
+        showing = false;
     }
     
     public boolean hasFixes()

@@ -863,7 +863,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     // Package-visible
     void up()
     {
-        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes())
+        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes() && errorAndFixDisplay.isShowing())
         {
             errorAndFixDisplay.up();
         }
@@ -915,7 +915,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     // Package-visible
     void down()
     {
-        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes())
+        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes() && errorAndFixDisplay.isShowing())
         {
             errorAndFixDisplay.down();
         }

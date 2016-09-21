@@ -328,7 +328,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     switch (event.getCode())
                     {
                         case UP:
-                            if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes())
+                            if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes() && errorAndFixDisplay.isShowing())
                             {
                                 errorAndFixDisplay.up();
                             }
@@ -339,7 +339,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                             event.consume();
                             break;
                         case DOWN:
-                            if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes())
+                            if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes() && errorAndFixDisplay.isShowing())
                             {
                                 errorAndFixDisplay.down();
                             }
