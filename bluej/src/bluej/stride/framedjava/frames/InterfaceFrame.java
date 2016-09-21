@@ -178,6 +178,12 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     }
 
     @Override
+    public void removeExtendsClass()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean canDoBirdseye()
     {
         // No point, since we only have prototypes in

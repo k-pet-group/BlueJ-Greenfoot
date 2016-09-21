@@ -4160,7 +4160,7 @@ public final class MoeEditor extends JPanel
     }
 
     @Override
-    public void addExtends(String className, ClassInfo info)
+    public void addExtendsClass(String className, ClassInfo info)
     {
         try {
             save();
@@ -4186,6 +4186,28 @@ public final class MoeEditor extends JPanel
         }
     }
 
+    @Override
+    public void removeExtendsClass(ClassInfo info)
+    {
+        try {
+            save();
+
+            if (info != null) {
+                Selection s1 = info.getExtendsReplaceSelection();
+                s1.combineWith(info.getSuperReplaceSelection());
+                
+                if (s1 != null) {
+                    setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    insertText("", false);
+                }
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
+    }
+    
     @OnThread(Tag.Swing)
     private static void initialiseContentAssist(CodeCompletionDisplay codeCompletionDlg, int xpos, int ypos)
     {

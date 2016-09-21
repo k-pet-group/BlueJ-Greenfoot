@@ -280,5 +280,7 @@ public interface Editor
     
     void focusMethod(String methodName);
     
-    void addExtends(String className, ClassInfo classInfo);
+    void addExtendsClass(String className, ClassInfo classInfo);
+
+    void removeExtendsClass(ClassInfo classInfo);
 }

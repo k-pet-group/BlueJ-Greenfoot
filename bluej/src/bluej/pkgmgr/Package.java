@@ -1886,7 +1886,7 @@ public final class Package extends Graph
     {
         ClassTarget from = (ClassTarget)d.getFrom();
         ClassTarget to = (ClassTarget)d.getTo();
-        from.getEditor().addExtends(to.getBaseName(), from.getSourceInfo().getInfo(from.getSourceFile(), this));
+        from.getEditor().addExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getSourceFile(), this));
     }
 
     /**
@@ -1928,20 +1928,20 @@ public final class Package extends Graph
                         s1 = vsels.get(where - 1);
                         s1.combineWith(vsels.get(where));
                     }
+
+                    // delete the text from the end backwards so that our
+                    if (s1 != null) {
+                        ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                        ed.insertText("", false);
+                    }
+
+                    ed.save();
                 }
                 else if (d instanceof ExtendsDependency) {
-                    // a class extends
-                    s1 = info.getExtendsReplaceSelection();
-                    s1.combineWith(info.getSuperReplaceSelection());
+                    from.getEditor().removeExtendsClass(info);
                 }
                 
-                // delete the text from the end backwards so that our
-                if (s1 != null) {
-                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                    ed.insertText("", false);
-                }
                 
-                ed.save();
             }
         }
         catch (IOException ioe) {
