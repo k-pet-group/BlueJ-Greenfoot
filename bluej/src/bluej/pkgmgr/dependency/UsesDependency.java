@@ -22,6 +22,7 @@
 package bluej.pkgmgr.dependency;
 
 import bluej.extensions.BDependency.Type;
+import bluej.graph.GraphEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
 
@@ -32,7 +33,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 16593 2016-09-21 15:54:38Z nccb $
+ * @version $Id: UsesDependency.java 16599 2016-09-21 22:16:31Z nccb $
  */
 public class UsesDependency extends Dependency
 {
@@ -213,5 +214,11 @@ public class UsesDependency extends Dependency
     public Type getType()
     {
         return Type.USES;
+    }
+    
+    @Override
+    public void popupMenu(int x, int y, GraphEditor graphEditor)
+    {
+        // Don't popup a menu; uses arrows can't be removed.
     }
 }
