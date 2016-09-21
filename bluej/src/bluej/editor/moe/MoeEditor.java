@@ -4160,7 +4160,7 @@ public final class MoeEditor extends JPanel
     }
 
     @Override
-    public void addExtendsClass(String className, ClassInfo info)
+    public void setExtendsClass(String className, ClassInfo info)
     {
         try {
             save();
@@ -4241,6 +4241,42 @@ public final class MoeEditor extends JPanel
             DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
+
+    @Override
+    public void addExtendsInterface(String interfaceName, ClassInfo info)
+    {
+        try {
+            save();
+
+            if (info != null) {
+                Selection s1 = info.getExtendsInsertSelection();
+                setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+
+                if (info.hasInterfaceSelections()) {
+                    // if we already have an extends clause then we need to put a
+                    // comma and the interface name but not before checking that we
+                    // don't
+                    // already have it
+
+                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
+
+                    // XXX make this equality check against full package name
+                    if (!exists.contains(interfaceName))
+                        insertText(", " + interfaceName, false);
+                }
+                else {
+                    // otherwise we need to put the actual "extends" word
+                    // and the interface name
+                    insertText(" extends " + interfaceName, false);
+                }
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
+    }
+
 
     /**
      * Using a list of selections, retrieve a list of text strings from the editor which

@@ -283,7 +283,7 @@ public interface Editor
     /**
      * For a class, set the extends section to extend the given className
      */
-    void addExtendsClass(String className, ClassInfo classInfo);
+    void setExtendsClass(String className, ClassInfo classInfo);
 
     /**
      * For a class, remove the extends section
@@ -294,4 +294,10 @@ public interface Editor
      * For a class, add the given (interface) type name to the implements clause
      */
     void addImplements(String interfaceName, ClassInfo classInfo);
+
+    /**
+     * For an interface, add to the extends section to extend the given interfaceName
+     */
+    void addExtendsInterface(String interfaceName, ClassInfo classInfo);
+
 }

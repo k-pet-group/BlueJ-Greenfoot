@@ -1797,7 +1797,7 @@ public final class Package extends Graph
     {
         ClassTarget from = (ClassTarget) d.getFrom(); // a class
         ClassTarget to = (ClassTarget) d.getTo(); // an interface
-        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
         if (info != null) {
             from.getEditor().addImplements(to.getBaseName(), info);
         }
@@ -1813,39 +1813,8 @@ public final class Package extends Graph
     {
         ClassTarget from = (ClassTarget) d.getFrom(); // an interface
         ClassTarget to = (ClassTarget) d.getTo(); // an interface
-        TextEditor ed = from.getEditor().assumeText();
-        try {
-            ed.save();
-
-            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
-
-            if (info != null) {
-                Selection s1 = info.getExtendsInsertSelection();
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an extends clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't
-                    // already have it
-                    
-                    List<String> exists = getInterfaceTexts(ed, info.getInterfaceSelections());
-                    
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(to.getBaseName()))
-                        ed.insertText(", " + to.getBaseName(), false);
-                }
-                else {
-                    // otherwise we need to put the actual "extends" word
-                    // and the interface name
-                    ed.insertText(" extends " + to.getBaseName(), false);
-                }
-                ed.save();
-            }
-        }
-        catch (IOException ioe) {
-            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
-        }
+        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        from.getEditor().addExtendsInterface(to.getBaseName(), info);
     }
 
     /**
@@ -1858,7 +1827,7 @@ public final class Package extends Graph
     {
         ClassTarget from = (ClassTarget)d.getFrom();
         ClassTarget to = (ClassTarget)d.getTo();
-        from.getEditor().addExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getSourceFile(), this));
+        from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getJavaSourceFile(), this));
     }
 
     /**
