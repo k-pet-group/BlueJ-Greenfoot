@@ -1884,33 +1884,9 @@ public final class Package extends Graph
      */
     public void userAddExtendsClassDependency(Dependency d)
     {
-        ClassTarget from = (ClassTarget) d.getFrom();
-        ClassTarget to = (ClassTarget) d.getTo();
-        TextEditor ed = from.getEditor().assumeText();
-        try {
-            ed.save();
-
-            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
-
-            if (info != null) {
-                if (info.getSuperclass() == null) {
-                    Selection s1 = info.getExtendsInsertSelection();
-                    
-                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                    ed.insertText(" extends " + to.getBaseName(), false);
-                }
-                else {
-                    Selection s1 = info.getSuperReplaceSelection();
-                    
-                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                    ed.insertText(to.getBaseName(), false);
-                }
-                ed.save();
-            }
-        }
-        catch (IOException ioe) {
-            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
-        }
+        ClassTarget from = (ClassTarget)d.getFrom();
+        ClassTarget to = (ClassTarget)d.getTo();
+        from.getEditor().addExtends(to.getBaseName(), from.getSourceInfo().getInfo(from.getSourceFile(), this));
     }
 
     /**

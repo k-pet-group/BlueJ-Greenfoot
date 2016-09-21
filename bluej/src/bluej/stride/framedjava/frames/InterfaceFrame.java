@@ -172,6 +172,12 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     }
 
     @Override
+    public void addExtends(String className)
+    {
+        extendsList.addTypeSlotAtEnd(className, false);
+    }
+
+    @Override
     public boolean canDoBirdseye()
     {
         // No point, since we only have prototypes in

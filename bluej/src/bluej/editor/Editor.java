@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.stride.FrameEditor;
+import bluej.parser.symtab.ClassInfo;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import threadchecker.OnThread;
@@ -276,6 +277,8 @@ public interface Editor
     void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodCall, Consumer<Boolean> after);
 
     void cancelFreshState();
-
+    
     void focusMethod(String methodName);
+    
+    void addExtends(String className, ClassInfo classInfo);
 }

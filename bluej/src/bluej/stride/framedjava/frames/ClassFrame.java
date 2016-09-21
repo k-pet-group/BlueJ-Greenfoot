@@ -650,6 +650,12 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         };
     }
 
+    @Override
+    public void addExtends(String className)
+    {
+        extendsSlot.setText(className);
+    }
+
     private boolean nodeInside(Node target, Parent parent)
     {
         // Borrowed from http://stackoverflow.com/questions/17731330/in-javafx-how-do-i-determine-if-the-node-gaining-focus-is-a-child-node-of-myself

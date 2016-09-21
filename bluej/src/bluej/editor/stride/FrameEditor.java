@@ -732,6 +732,12 @@ public class FrameEditor implements Editor
             {
                 FrameEditor.this.focusMethod(methodName);
             }
+
+            @Override
+            public void addExtends(String className, ClassInfo classInfo)
+            {
+                FrameEditor.this.addExtends(className, classInfo);
+            }
         };
     }
 
@@ -1310,5 +1316,16 @@ public class FrameEditor implements Editor
         }
         else
             Debug.reportError(result.exception);
+    }
+
+    @Override
+    public void addExtends(String className, ClassInfo classInfo)
+    {
+        Platform.runLater(() -> {
+            if (panel == null) {
+                createPanel(false, false);
+            }
+            panel.addExtends(className);
+        });
     }
 }

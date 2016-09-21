@@ -916,6 +916,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return debugVarVisibleProperty;
     }
 
+    public void addExtends(String className)
+    {
+        withTopLevelFrame(f -> f.addExtends(className));
+    }
+
     @OnThread(Tag.Any)
     private static enum ShowVars
     {

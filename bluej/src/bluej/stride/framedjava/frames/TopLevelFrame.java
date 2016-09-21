@@ -45,6 +45,9 @@ import bluej.stride.slots.HeaderItem;
 public interface TopLevelFrame<T extends CodeElement & TopLevelCodeElement> extends CodeFrame<T>, CursorFinder
 {
     public BirdseyeManager prepareBirdsEyeView(SharedTransition animate);
+
+    void addExtends(String className);
+
     public static enum BodyFocus { TOP, BOTTOM, BEST_PICK };
     public void focusOnBody(BodyFocus on);
     @OnThread(Tag.FXPlatform)

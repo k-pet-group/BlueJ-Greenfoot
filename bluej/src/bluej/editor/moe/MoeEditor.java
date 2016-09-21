@@ -89,6 +89,8 @@ import bluej.compiler.CompileType;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
+import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -4155,6 +4157,33 @@ public final class MoeEditor extends JPanel
         SwingUtilities.invokeLater(() ->
             sourcePane.requestFocusInWindow()
         );
+    }
+
+    @Override
+    public void addExtends(String className, ClassInfo info)
+    {
+        try {
+            save();
+
+            if (info != null) {
+                if (info.getSuperclass() == null) {
+                    Selection s1 = info.getExtendsInsertSelection();
+
+                    setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    insertText(" extends " + className, false);
+                }
+                else {
+                    Selection s1 = info.getSuperReplaceSelection();
+
+                    setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    insertText(className, false);
+                }
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
     }
 
     @OnThread(Tag.Swing)
