@@ -101,8 +101,12 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -283,7 +287,8 @@ public class PkgMgrFrame extends JPanel
     private final PkgMgrToggleAction showTextEvalAction = new ShowTextEvalAction(this);
     private final Action runTestsAction = new RunTestsAction(this);
     /* The scroller which holds the PackageEditor we use to edit packages */
-    private JScrollPane classScroller = null;
+    @OnThread(Tag.Any)
+    private SwingNode classScroller = null;
     /*
      * The package that this frame is working on or null for the case where
      * there is no package currently being edited (check with isEmptyFrame())
@@ -293,11 +298,10 @@ public class PkgMgrFrame extends JPanel
      * The graph editor which works on the package or null for the case where
      * there is no package current being edited (isEmptyFrame() == true)
      */
+    @OnThread(Tag.Any)
     private PackageEditor editor = null;
     private final ObjectBench objbench;
     private TextEvalArea textEvaluator;
-    private JSplitPane splitPane;
-    private JSplitPane objectBenchSplitPane;
     private boolean showingTextEvaluator = false;
 
     // static methods to create and remove frames
@@ -310,13 +314,13 @@ public class PkgMgrFrame extends JPanel
     private final NoProjectMessagePanel noProjectMessagePanel = new NoProjectMessagePanel();
 
     @OnThread(Tag.FX)
-    private SwingNode swingNode;
-    @OnThread(Tag.FX)
     private Property<Stage> stageProperty;
     @OnThread(Tag.FX)
     private Property<BorderPane> paneProperty;
     @OnThread(Tag.FXPlatform)
     private FXPlatformRunnable cancelWiggle;
+    private final SwingNode padSwingNode;
+    private JPanel toolPanel;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -343,30 +347,40 @@ public class PkgMgrFrame extends JPanel
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
             new JFXPanel();
-            swingNode = new SwingNodeFixed();
-            swingNode.setContent(PkgMgrFrame.this);
-            Dimension preferredSize = swingNode.getContent().getPreferredSize();
-            swingNode.getContent().validate();
+            //SwingNode diagramSwingNode = new SwingNode();
+            //diagramSwingNode.setContent(PkgMgrFrame.this);
+            //diagramSwingNode.getContent().validate();
+            //Dimension minSize = diagramSwingNode.getContent().getMinimumSize();
+            SwingNode benchSwingNode = new SwingNodeFixed();
+            benchSwingNode.setContent(objbench);
+            padSwingNode = new SwingNodeFixed();
+            padSwingNode.setContent(textEvaluator);
+            SwingNode statusSwingNode = new SwingNodeFixed();
+            statusSwingNode.setContent(statusbar);
+            SwingNode buttons = new SwingNodeFixed();
+            buttons.setContent(toolPanel);
             Platform.runLater(() -> {
                 Stage stage = new Stage();
                 BlueJTheme.setWindowIconFX(stage);
-                BorderPane root = new BorderPane(swingNode);
-                root.setPrefWidth(preferredSize.getWidth());
-                root.setPrefHeight(preferredSize.getHeight());
+                
+                BorderPane topPane = new BorderPane();
+                topPane.setCenter(new ScrollPane(classScroller));
+                //topPane.setMinHeight(minSize.getHeight());
+                topPane.setLeft(buttons);
+                SplitPane bottomPane = new SplitPane(benchSwingNode, padSwingNode);
+                bottomPane.setOrientation(Orientation.HORIZONTAL);
+                SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
+                topBottomSplit.setOrientation(Orientation.VERTICAL);
+                BorderPane root = new BorderPane(topBottomSplit);
                 updateFXSize = pref -> {
                     root.setPrefWidth(pref.getWidth());
                     root.setPrefHeight(pref.getHeight());
                     stage.sizeToScene();
                 };
-                JavaFXUtil.addChangeListenerPlatform(stage.widthProperty(), w -> {
-                    if (Config.isWinOS())
-                        scheduleWindowWiggle(stage);
-                });
-                JavaFXUtil.addChangeListenerPlatform(stage.heightProperty(), h -> {
-                    if (Config.isWinOS())
-                        scheduleWindowWiggle(stage);
-                });
 
+                root.setBottom(statusSwingNode);
+                //root.setPrefWidth(preferredSize.getWidth());
+                //root.setPrefHeight(preferredSize.getHeight());
                 stage.setScene(new Scene(root));
                 stage.show();
                 //org.scenicview.ScenicView.show(stage.getScene());
@@ -374,6 +388,8 @@ public class PkgMgrFrame extends JPanel
                 paneProperty.setValue(root);
             });
         }
+        else
+            padSwingNode = null;
     }
 
     /**
@@ -864,7 +880,7 @@ public class PkgMgrFrame extends JPanel
             pkg.setEditor(this.editor);
             addCtrlTabShortcut(editor);
             
-            classScroller.setViewportView(editor);
+            Platform.runLater(() -> classScroller.setContent(editor));
             
             // fetch some properties from the package that interest us
             Properties p = pkg.getLastSavedProperties();
@@ -873,16 +889,14 @@ public class PkgMgrFrame extends JPanel
                 String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
                 String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
                 
-                classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
-
-                Dimension prefSize = getPreferredSize();
-                Platform.runLater(() -> {
-                    if (updateFXSize != null) updateFXSize.accept(prefSize);
-                    SwingUtilities.invokeLater(() -> {
-                        if (objectBenchSplitPane != null)
-                            objectBenchSplitPane.resetToPreferredSizes();
-                    });
-                });
+                //classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
+                
+                String objectBench_height_str = p.getProperty("objectbench.height");
+                String objectBench_width_str = p.getProperty("objectbench.width");
+                if (objectBench_height_str != null && objectBench_width_str != null) {
+                    objbench.setPreferredSize(new Dimension(Integer.parseInt(objectBench_width_str),
+                            Integer.parseInt(objectBench_height_str)));
+                }
                 
                 String x_str = p.getProperty("package.editor.x", "30");
                 String y_str = p.getProperty("package.editor.y", "30");
@@ -978,8 +992,8 @@ public class PkgMgrFrame extends JPanel
         extMgr.packageClosing(pkg);
 
         if(! Config.isGreenfoot()) {
-            classScroller.setViewportView(null);
-            classScroller.setBorder(Config.getNormalBorder());
+            Platform.runLater(() -> classScroller.setContent(null));
+            //classScroller.setBorder(Config.getNormalBorder());
             editor.removeMouseListener(this);
             this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
             this.viewMenuManager.setMenuGenerator(new ViewExtensionMenu(pkg));
@@ -1092,7 +1106,7 @@ public class PkgMgrFrame extends JPanel
     {
         
         if (isEmptyFrame()) {
-            classScroller.setViewportView(noProjectMessagePanel);
+            Platform.runLater(() -> classScroller.setContent(noProjectMessagePanel));
             repaint();
         }
         updateWindowTitle();
@@ -1197,7 +1211,7 @@ public class PkgMgrFrame extends JPanel
     @Override
     public void pkgEditorGotFocus()
     {
-        classScroller.setBorder(Config.getFocusBorder());
+        //classScroller.setBorder(Config.getFocusBorder());
     }
 
 
@@ -1211,7 +1225,7 @@ public class PkgMgrFrame extends JPanel
     @Override
     public void pkgEditorLostFocus()
     {
-        classScroller.setBorder(Config.getNormalBorder());
+        //classScroller.setBorder(Config.getNormalBorder());
     }
     
     /**
@@ -1434,7 +1448,6 @@ public class PkgMgrFrame extends JPanel
         pkg.addTarget(target);
 
         if (editor != null) {
-            editor.revalidate();
             editor.scrollRectToVisible(target.getBounds());
             editor.repaint();
         }
@@ -1664,7 +1677,7 @@ public class PkgMgrFrame extends JPanel
         }
         
         if(!Config.isGreenfoot()) {
-            Dimension d = classScroller.getSize();
+            /*Dimension d = classScroller.getSize();
     
             p.put("package.editor.width", Integer.toString(d.width));
             p.put("package.editor.height", Integer.toString(d.height));
@@ -1679,7 +1692,7 @@ public class PkgMgrFrame extends JPanel
             p.put("objectbench.height", Integer.toString(d.height));
     
             p.put("package.showUses", Boolean.toString(pkg.isShowUses()));
-            p.put("package.showExtends", Boolean.toString(pkg.isShowExtends()));
+            p.put("package.showExtends", Boolean.toString(pkg.isShowExtends()));*/
         }
         pkg.save(p);
     }
@@ -2733,19 +2746,9 @@ public class PkgMgrFrame extends JPanel
 
         setupMenus();
 
-        // We used to have a gradient fill panel but that is now gone.  At the time,
-        // to let that gradient fill show through, all the other panes that sit
-        // on top of the frame must have setOpaque(false) called, hence all the calls
-        // of that type throughout the code below.  I haven't yet removed the calls, but
-        // they are no longer necessary.
-
-        Container contentPane = this;
-        contentPane.setLayout(new BorderLayout());
-        ((JPanel) contentPane).setBorder(BlueJTheme.generalBorderWithStatusBar);
-
         // create the main panel holding the diagram and toolbar on the left
 
-        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+        JPanel mainPanel = this; //new JPanel(new BorderLayout(5, 5));
         if (!Config.isRaspberryPi()) mainPanel.setOpaque(false);
 
         // Install keystroke to restart the VM
@@ -2755,7 +2758,7 @@ public class PkgMgrFrame extends JPanel
         mainPanel.getActionMap().put("restartVM", action);
 
         // create the left hand side toolbar
-        JPanel toolPanel = new JPanel();
+        toolPanel = new JPanel();
         if (!Config.isRaspberryPi()) toolPanel.setOpaque(false);
         {
             buttonPanel = new JPanel();
@@ -2860,9 +2863,10 @@ public class PkgMgrFrame extends JPanel
             toolPanel.add(testPanel);
             toolPanel.add(machineIcon);
         }
-        mainPanel.add(toolPanel, BorderLayout.WEST);
+        //mainPanel.add(toolPanel, BorderLayout.WEST);
 
-        classScroller = new JScrollPane();
+        classScroller = new SwingNode();
+        /*
         classScroller.setBorder(Config.getNormalBorder());
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         classScroller.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
@@ -2871,15 +2875,8 @@ public class PkgMgrFrame extends JPanel
         classScroller.getHorizontalScrollBar().setUnitIncrement(20);
         if (!Config.isRaspberryPi()) classScroller.setOpaque(false);
         mainPanel.add(classScroller, BorderLayout.CENTER);
-
+*/
         itemsToDisable.add(objbench);
-
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainPanel, objbench);
-        splitPane.setBorder(null);
-        splitPane.setResizeWeight(1.0);
-        splitPane.setDividerSize(5);
-        if (!Config.isRaspberryPi()) splitPane.setOpaque(false);
-        contentPane.add(splitPane, BorderLayout.CENTER);
 
         // create the bottom status area
 
@@ -2900,7 +2897,6 @@ public class PkgMgrFrame extends JPanel
             progressbar.setRunning(false);
             statusArea.add(progressbar, BorderLayout.EAST);
         }
-        contentPane.add(statusArea, BorderLayout.SOUTH);
 
         // hide testing tools if not wanted
         if (!testToolsShown) {
@@ -2934,22 +2930,15 @@ public class PkgMgrFrame extends JPanel
      */
     private void addTextEvaluatorPane()
     {
-        classScroller.setPreferredSize(classScroller.getSize()); // memorize
+        //classScroller.setPreferredSize(classScroller.getSize()); // memorize
                                                                  // current size
         if (textEvaluator == null) {
             textEvaluator = new TextEvalArea(this, pkgMgrFont);
-            objectBenchSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objbench, textEvaluator);
-            objectBenchSplitPane.setBorder(null);
-            objectBenchSplitPane.setResizeWeight(0.9);
-            objectBenchSplitPane.setDividerSize(5);
-            if (!Config.isRaspberryPi()) objectBenchSplitPane.setOpaque(false);
+            if (padSwingNode != null)
+                padSwingNode.setContent(textEvaluator);
             itemsToDisable.add(textEvaluator);
             addCtrlTabShortcut(textEvaluator.getFocusableComponent());
         }
-        else {
-            objectBenchSplitPane.setLeftComponent(objbench);
-        }
-        splitPane.setBottomComponent(objectBenchSplitPane);
         showingTextEvaluator = true;
     }
 
@@ -2961,8 +2950,7 @@ public class PkgMgrFrame extends JPanel
         textEvaluator.setPreferredSize(textEvaluator.getSize()); // memorize
                                                                  // current
                                                                  // sizes
-        classScroller.setPreferredSize(classScroller.getSize());
-        splitPane.setBottomComponent(objbench);
+        //classScroller.setPreferredSize(classScroller.getSize());
         showingTextEvaluator = false;
     }
 
@@ -3330,6 +3318,7 @@ public class PkgMgrFrame extends JPanel
      */
     private void addCtrlTabShortcut(final JComponent toPane)
     {
+        /*
         toPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.CTRL_DOWN_MASK), "nextPMFPane");
         toPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
@@ -3350,40 +3339,9 @@ public class PkgMgrFrame extends JPanel
                 movePaneFocus(toPane, -1);
             }
         });
+        */
     }
     
-    /**
-     * Moves focus from given pane to prev (-1)/next (+1) pane.
-     */
-    private void movePaneFocus(final JComponent fromPane, int direction)
-    {
-        List<JComponent> visiblePanes = new ArrayList<>();
-        if (editor != null)
-        {
-            // editor is null if no package is open
-            visiblePanes.add(editor);
-        }
-        // Object bench is always present, even if no package open:
-        visiblePanes.add(objbench);
-        if (showingTextEvaluator)
-        {
-            visiblePanes.add(textEvaluator.getFocusableComponent());
-        }
-        
-        for (int i = 0; i < visiblePanes.size(); i++)
-        {
-            if (visiblePanes.get(i) == fromPane)
-            {
-                int destination = i + direction;
-                // Wrap around:
-                if (destination >= visiblePanes.size()) destination = 0;
-                if (destination < 0) destination = visiblePanes.size() - 1;
-                
-                visiblePanes.get(destination).requestFocusInWindow();
-            }
-        }
-    }
-
     @OnThread(Tag.FX)
     public Stage getFXWindow()
     {
