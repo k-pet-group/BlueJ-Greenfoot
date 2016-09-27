@@ -23,23 +23,18 @@ package bluej.pkgmgr;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
-import java.awt.Point;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.print.PageFormat;
@@ -60,14 +55,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -75,18 +65,17 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import bluej.classmgr.BPClassLoader;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.extensions.SourceType;
+import bluej.groupwork.actions.CommitCommentAction;
+import bluej.groupwork.actions.StatusAction;
+import bluej.groupwork.actions.UpdateDialogAction;
 import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
@@ -97,17 +86,29 @@ import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
+import javafx.beans.binding.When;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.geometry.Orientation;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -177,7 +178,6 @@ import bluej.pkgmgr.actions.UseLibraryAction;
 import bluej.pkgmgr.actions.WebsiteAction;
 import bluej.pkgmgr.print.PackagePrintManager;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
@@ -219,21 +219,24 @@ public class PkgMgrFrame extends JPanel
     private static final ExtensionsManager extMgr = ExtensionsManager.getInstance();
     @OnThread(Tag.FXPlatform)
     private FXPlatformConsumer<Dimension> updateFXSize;
-    private JPanel buttonPanel;
-    private JPanel testPanel;
-    private JPanel teamPanel;
+    @OnThread(Tag.FXPlatform)
+    private TitledPane testPanel;
+    @OnThread(Tag.FXPlatform)
+    private TitledPane teamPanel;
     private JCheckBoxMenuItem showUsesMenuItem;
     private JCheckBoxMenuItem showExtendsMenuItem;
-    private AbstractButton imgExtendsButton;
-    private AbstractButton runButton;
+    @OnThread(Tag.FXPlatform)
+    private ButtonBase imgExtendsButton;
+    private @OnThread(Tag.FX) ButtonBase runButton;
     private JLabel statusbar;
     // Initialised once, effectively final thereafter:
     @OnThread(Tag.Any)
     private ActivityIndicator progressbar;
     private JLabel testStatusMessage;
-    private JLabel recordingLabel;
-    private AbstractButton endTestButton;
-    private AbstractButton cancelTestButton;
+    @OnThread(Tag.FXPlatform)
+    private Label recordingLabel;
+    private @OnThread(Tag.FX) ButtonBase endTestButton;
+    private @OnThread(Tag.FX) ButtonBase cancelTestButton;
     private JMenuItem endTestMenuItem;
     private JMenuItem cancelTestMenuItem;
     private ClassTarget testTarget = null;
@@ -251,15 +254,14 @@ public class PkgMgrFrame extends JPanel
     private JMenuItem updateMenuItem;
     private JMenuItem commitMenuItem;
     private JMenuItem statusMenuItem;
-    private AbstractButton updateButton;
-    private AbstractButton commitButton;
-    private AbstractButton teamStatusButton;
-    private List<JComponent> teamItems;
+    private @OnThread(Tag.FX) ButtonBase updateButton;
+    private @OnThread(Tag.FX) ButtonBase commitButton;
+    private @OnThread(Tag.FX) ButtonBase teamStatusButton;
     private TeamActionGroup teamActions;
     private JMenuItem showTestResultsItem;
-    private List<JComponent> itemsToDisable;
+    private List<Object> itemsToDisable;
     private List<Action> actionsToDisable;
-    private List<JComponent> testItems;
+    @OnThread(Tag.Any)
     private MachineIcon machineIcon;
     /* UI actions */
     private final Action closeProjectAction = new CloseProjectAction(this);
@@ -269,11 +271,14 @@ public class PkgMgrFrame extends JPanel
     private final Action exportProjectAction = new ExportProjectAction(this);
     private final Action pageSetupAction = new PageSetupAction(this);
     private final Action printAction = new PrintAction(this);
+    @OnThread(Tag.Any)
     private final Action newClassAction = new NewClassAction(this);
     private final Action newPackageAction = new NewPackageAction(this);
     private final Action addClassAction = new AddClassAction(this);
     private final Action removeAction = new RemoveAction(this);
+    @OnThread(Tag.Any)
     private final Action newInheritsAction = new NewInheritsAction(this);
+    @OnThread(Tag.Any)
     private final Action compileAction = new CompileAction(this);
     private final Action compileSelectedAction = new CompileSelectedAction(this);
     private final Action rebuildAction = new RebuildAction(this);
@@ -285,6 +290,7 @@ public class PkgMgrFrame extends JPanel
     private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this);
     private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
     private final PkgMgrToggleAction showTextEvalAction = new ShowTextEvalAction(this);
+    @OnThread(Tag.Any)
     private final Action runTestsAction = new RunTestsAction(this);
     /* The scroller which holds the PackageEditor we use to edit packages */
     @OnThread(Tag.Any)
@@ -320,7 +326,8 @@ public class PkgMgrFrame extends JPanel
     @OnThread(Tag.FXPlatform)
     private FXPlatformRunnable cancelWiggle;
     private final SwingNode padSwingNode;
-    private JPanel toolPanel;
+    @OnThread(Tag.FXPlatform)
+    private VBox toolPanel;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -357,8 +364,6 @@ public class PkgMgrFrame extends JPanel
             padSwingNode.setContent(textEvaluator);
             SwingNode statusSwingNode = new SwingNodeFixed();
             statusSwingNode.setContent(statusbar);
-            SwingNode buttons = new SwingNodeFixed();
-            buttons.setContent(toolPanel);
             Platform.runLater(() -> {
                 Stage stage = new Stage();
                 BlueJTheme.setWindowIconFX(stage);
@@ -366,7 +371,7 @@ public class PkgMgrFrame extends JPanel
                 BorderPane topPane = new BorderPane();
                 topPane.setCenter(new ScrollPane(classScroller));
                 //topPane.setMinHeight(minSize.getHeight());
-                topPane.setLeft(buttons);
+                topPane.setLeft(toolPanel);
                 SplitPane bottomPane = new SplitPane(benchSwingNode, padSwingNode);
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
                 SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
@@ -381,7 +386,9 @@ public class PkgMgrFrame extends JPanel
                 root.setBottom(statusSwingNode);
                 //root.setPrefWidth(preferredSize.getWidth());
                 //root.setPrefHeight(preferredSize.getHeight());
-                stage.setScene(new Scene(root));
+                Scene scene = new Scene(root);
+                Config.addPMFStylesheets(scene);
+                stage.setScene(scene);
                 stage.show();
                 //org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
@@ -966,11 +973,17 @@ public class PkgMgrFrame extends JPanel
         // empty and not associated with a project - in that case it has its
         // own TeamActionGroup. When a project is opened, the actions from
         // the project then need to be associated with the appropriate controls.
-        
-        teamStatusButton.setAction(teamActions.getStatusAction(this));
-        updateButton.setAction(teamActions.getUpdateAction(this));
+
+        StatusAction statusAction = teamActions.getStatusAction(this);
+        UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
+        CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
+        Platform.runLater(() -> {
+            setButtonAction(statusAction, teamStatusButton);
+            setButtonAction(updateAction, updateButton);
+            setButtonAction(commitCommentAction, commitButton);
+        });
         teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction(this));
-        commitButton.setAction(teamActions.getCommitCommentAction(this));
+        
         shareProjectMenuItem.setAction(teamActions.getImportAction(this));
         statusMenuItem.setAction(teamActions.getStatusAction(this));
         commitMenuItem.setAction(teamActions.getCommitCommentAction(this));
@@ -2298,7 +2311,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void doTest()
     {
-        runButton.setEnabled(false);
+        Platform.runLater(() -> runButton.setDisable(true));
 
         List<ClassTarget> l = pkg.getTestTargets();
 
@@ -2331,8 +2344,10 @@ public class PkgMgrFrame extends JPanel
      */
     public void endTestRun()
     {
-        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().endMultipleTests());
-        runButton.setEnabled(true);
+        Platform.runLater(() -> {
+            TestDisplayFrame.getTestDisplay().endMultipleTests();
+            runButton.setDisable(false);
+        });
     }
 
     /**
@@ -2387,11 +2402,13 @@ public class PkgMgrFrame extends JPanel
      */
     public void testRecordingStarted(String message)
     {
-        recordingLabel.setEnabled(true);
         testStatusMessage.setText(message);
-        endTestButton.setEnabled(true);
+        Platform.runLater(() -> {
+            endTestButton.setDisable(false);
+            cancelTestButton.setDisable(false);
+            recordingLabel.setDisable(false);
+        });
         endTestMenuItem.setEnabled(true);
-        cancelTestButton.setEnabled(true);
         cancelTestMenuItem.setEnabled(true);
 
         getProject().setTestMode(true);
@@ -2402,11 +2419,13 @@ public class PkgMgrFrame extends JPanel
      */
     private void testRecordingEnded()
     {
-        recordingLabel.setEnabled(false);
         testStatusMessage.setText("");
-        endTestButton.setEnabled(false);
+        Platform.runLater(() -> {
+            recordingLabel.setDisable(true);
+            endTestButton.setDisable(true);
+            cancelTestButton.setDisable(true);
+        });
         endTestMenuItem.setEnabled(false);
-        cancelTestButton.setEnabled(false);
         cancelTestMenuItem.setEnabled(false);
 
         Project proj = getProject();
@@ -2551,9 +2570,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void showTestingTools(boolean show)
     {
-        testItems.stream().forEach((component) -> {
-            component.setVisible(show);
-        });
+        Platform.runLater(() -> testPanel.setExpanded(show));
     }
     
     /**
@@ -2562,9 +2579,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void showTeamTools(boolean show)
     {
-        teamItems.stream().forEach((component) -> {
-            component.setVisible(show);
-        });
+        Platform.runLater(() -> teamPanel.setExpanded(show));
     }
 
     /**
@@ -2741,9 +2756,7 @@ public class PkgMgrFrame extends JPanel
             //TODOPMF
             //setIconImage(icon);
         }
-        testItems = new ArrayList<>();
-        teamItems = new ArrayList<>();
-
+        
         setupMenus();
 
         // create the main panel holding the diagram and toolbar on the left
@@ -2757,112 +2770,92 @@ public class PkgMgrFrame extends JPanel
                 (KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "restartVM");
         mainPanel.getActionMap().put("restartVM", action);
 
-        // create the left hand side toolbar
-        toolPanel = new JPanel();
-        if (!Config.isRaspberryPi()) toolPanel.setOpaque(false);
-        {
-            buttonPanel = new JPanel();
-            if (!Config.isRaspberryPi()) buttonPanel.setOpaque(false);
-            {
-                buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-                buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+        machineIcon = new MachineIcon(this);
+        itemsToDisable.add(machineIcon);
+        UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
+        CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
+        StatusAction statusAction = teamActions.getStatusAction(this);
 
-                AbstractButton button = createButton(newClassAction, false, false, 4, 4);
-                buttonPanel.add(button);
-                if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
-
-                imgExtendsButton = createButton(newInheritsAction, true, false, 4, 4);
-                buttonPanel.add(imgExtendsButton);
-                if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
-
-                button = createButton(compileAction, false, false, 4, 4);
-                buttonPanel.add(button);
-                if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
-
-                buttonPanel.setAlignmentX(0.5f);
-            }
-
-            testPanel = new JPanel();
-            if (!Config.isRaspberryPi()) testPanel.setOpaque(false);
-            {
-                testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.Y_AXIS));
-
-                testPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 14, 5));
-
-                runButton = createButton(runTestsAction, false, false, 2, 4);
-                runButton.setText(Config.getString("pkgmgr.test.run"));
-                runButton.setAlignmentX(0.15f);
-                testPanel.add(runButton);
-                testPanel.add(Box.createVerticalStrut(8));
-
-                recordingLabel = new JLabel(Config.getString("pkgmgr.test.record"), Config
-                        .getFixedImageAsIcon("record.gif"), SwingConstants.LEADING);
-                recordingLabel.setFont(pkgMgrFont);
-                recordingLabel.setEnabled(false);
-                recordingLabel.setAlignmentX(0.15f);
-                testPanel.add(recordingLabel);
-                testPanel.add(Box.createVerticalStrut(3));
-
-                action = new EndTestRecordAction(this);
-                endTestButton = createButton(action, false, false, 2, 4);
-                //make the button use a different label than the one from
-                // action
-                endTestButton.setText(Config.getString("pkgmgr.test.end"));
-                endTestButton.setEnabled(false);
-
-                testPanel.add(endTestButton);
-                if(!Config.isMacOSLeopard()) testPanel.add(Box.createVerticalStrut(3));
-
-                action = new CancelTestRecordAction(this);
-                cancelTestButton = createButton(action, false, false, 2, 4);
-                //make the button use a different label than the one from
-                // action
-                cancelTestButton.setText(Config.getString("cancel"));
-                cancelTestButton.setEnabled(false);
-
-                testPanel.add(cancelTestButton);
-
-                testPanel.setAlignmentX(0.5f);
-            }
-            testItems.add(testPanel);
+        Platform.runLater(() -> {
+            // create the left hand side toolbar
+            toolPanel = new VBox();
+            JavaFXUtil.addStyleClass(toolPanel, "pmf-tools");
             
-            teamPanel = new JPanel();
-            if (!Config.isRaspberryPi()) teamPanel.setOpaque(false);
-            {
-                teamPanel.setLayout(new BoxLayout(teamPanel, BoxLayout.Y_AXIS));
+            VBox topButtons = new VBox();
+            JavaFXUtil.addStyleClass(topButtons, "pmf-tools-top");
+            ButtonBase button = createButton(newClassAction, false);
+            topButtons.getChildren().add(button);
+            imgExtendsButton = createButton(newInheritsAction, false);
+            imgExtendsButton.setText(null);
+            imgExtendsButton.setGraphic(new ImageView(Config.getImageAsFXImage("image.build.extends")));
+            topButtons.getChildren().add(imgExtendsButton);
+            button = createButton(compileAction, false);
+            topButtons.getChildren().add(button);
+            toolPanel.getChildren().add(topButtons);
+            
+            Pane space = new Pane();
+            VBox.setVgrow(space, Priority.ALWAYS);
+            toolPanel.getChildren().add(space);
+            
+            testPanel = new TitledPane();
+            JavaFXUtil.addStyleClass(testPanel, "pmf-tools-test");
+            testPanel.setText(Config.getString("pkgmgr.test.title"));
+            VBox testPanelItems = new VBox();
+            JavaFXUtil.addStyleClass(testPanelItems, "pmf-tools-test-items");
+            testPanel.setContent(testPanelItems);
+            runButton = createButton(runTestsAction, false);
+            runButton.setText(Config.getString("pkgmgr.test.run"));
+            testPanelItems.getChildren().add(runButton);
 
-                teamPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 14, 5));
-                updateButton = createButton(teamActions.getUpdateAction(this), false, false, 2, 4);                
-                updateButton.setAlignmentX(0.15f);
-                teamPanel.add(updateButton);
-                if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
-                
-                commitButton = createButton(teamActions.getCommitCommentAction(this), false, false, 2, 4);
-                commitButton.setAlignmentX(0.15f);
-                //make the button use a different label than the one from
-                // action
-                teamPanel.add(commitButton);
-                if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
+            ImageView recordingIcon = new ImageView(Config
+                .getFixedImageAsFXImage("record.gif"));
+            recordingLabel = new Label(Config.getString("pkgmgr.test.record"), recordingIcon);
+            ColorAdjust desaturate = new ColorAdjust(0, -1, -0.5, 0);
+            recordingIcon.effectProperty().bind(new When(recordingLabel.disabledProperty()).then(desaturate).otherwise((ColorAdjust)null));
+            recordingLabel.setDisable(true);
+            testPanelItems.getChildren().add(recordingLabel);
+            
+            endTestButton = createButton(new EndTestRecordAction(this), false);
+            //make the button use a different label than the one from
+            // action
+            endTestButton.setText(Config.getString("pkgmgr.test.end"));
+            endTestButton.setDisable(true);
 
-                teamStatusButton = createButton(teamActions.getStatusAction(this), false, false, 2, 4);
-                teamStatusButton.setAlignmentX(0.15f);
-                teamPanel.add(teamStatusButton);
-                if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
-                teamPanel.setAlignmentX(0.5f);
-            }
-            teamItems.add(teamPanel);
+            testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(endTestButton), "pmf-tools-test-recording-button"));
+            
+            cancelTestButton = createButton(new CancelTestRecordAction(this), false);
+            //make the button use a different label than the one from
+            // action
+            cancelTestButton.setText(Config.getString("cancel"));
+            cancelTestButton.setDisable(true);
 
-            machineIcon = new MachineIcon(this);
-            machineIcon.setAlignmentX(0.5f);
-            itemsToDisable.add(machineIcon);
+            testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(cancelTestButton), "pmf-tools-test-recording-button"));
 
-            toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
-            toolPanel.add(buttonPanel);
-            toolPanel.add(Box.createVerticalGlue());
-            toolPanel.add(teamPanel);
-            toolPanel.add(testPanel);
-            toolPanel.add(machineIcon);
-        }
+            //testItems.add(testPanel);
+
+            teamPanel = new TitledPane();
+            teamPanel.setText(Config.getString("pkgmgr.team.title"));
+            JavaFXUtil.addStyleClass(teamPanel, "pmf-tools-team");
+            VBox teamPanelItems = new VBox();
+            JavaFXUtil.addStyleClass(teamPanelItems, "pmf-tools-team-items");
+            teamPanel.setContent(teamPanelItems);
+            
+            updateButton = createButton(updateAction, false);
+            teamPanelItems.getChildren().add(updateButton);
+            
+            commitButton = createButton(commitCommentAction, false);
+            teamPanelItems.getChildren().add(commitButton);
+            
+            teamStatusButton = createButton(statusAction, false);
+            teamPanelItems.getChildren().add(teamStatusButton);
+            //teamItems.add(teamPanel);
+
+            toolPanel.getChildren().add(teamPanel);
+            toolPanel.getChildren().add(testPanel);
+            SwingNode node = new SwingNodeFixed();
+            node.setContent(machineIcon);
+            toolPanel.getChildren().add(node);
+        });
         //mainPanel.add(toolPanel, BorderLayout.WEST);
 
         classScroller = new SwingNode();
@@ -2959,40 +2952,43 @@ public class PkgMgrFrame extends JPanel
      * 
      * @param action
      *            the Action abstraction dictating text, icon, tooltip, action.
-     * @param notext
-     *            set true if the action text should not appear (icon only).
      * @param toggle
      *            true if this is a toggle button, false otherwise
-     * @param hSpacing
-     *            horizontal margin (left, right)
-     * @param vSpacing
-     *            vertical margin (top, bottom)
      * @return the new button
      */
-    private AbstractButton createButton(Action action, boolean notext, boolean toggle, int hSpacing, int vSpacing)
+    @OnThread(Tag.FXPlatform)
+    private ButtonBase createButton(Action action, boolean toggle)
     {
-        AbstractButton button;
+        ButtonBase button;
         if (toggle) {
-            button = new JToggleButton(action);
+            button = new ToggleButton();
         }
         else {
-            button = new JButton(action);
+            button = new Button();
         }
-        button.setFont(pkgMgrFont);
-        Utility.changeToMacButton(button);
-        button.setFocusable(false); // buttons shouldn't get focus
-
-        if (notext)
-            button.setText(null);
-
-        Dimension pref = button.getMinimumSize();
-        pref.width = Integer.MAX_VALUE;
-        button.setMaximumSize(pref);
-        if(!Config.isMacOSLeopard()) {
-            button.setMargin(new Insets(vSpacing, hSpacing, vSpacing, hSpacing));
-        }
+        setButtonAction(action, button);
+        button.setFocusTraversable(false); // buttons shouldn't get focus
+        //if (notext)
+        //    button.setText(null);
 
         return button;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void setButtonAction(Action action, ButtonBase button)
+    {
+        SwingUtilities.invokeLater(() -> {
+            String name = (String)action.getValue(Action.NAME);
+            Platform.runLater(() -> {
+                if (button.getText() == null || button.getText().isEmpty())
+                    button.setText(name);
+            });
+        });
+        button.setOnAction(e -> {
+            SwingUtilities.invokeLater(() -> {
+                action.actionPerformed(new ActionEvent(button, ActionEvent.ACTION_PERFORMED, null));
+            });
+        });
     }
 
     /**
@@ -3067,7 +3063,6 @@ public class PkgMgrFrame extends JPanel
                 endTestMenuItem.setEnabled(false);
                 cancelTestMenuItem.setEnabled(false);
             }
-            testItems.add(testingMenu);
             menu.add(testingMenu);
             
             //team menu setup
@@ -3091,7 +3086,6 @@ public class PkgMgrFrame extends JPanel
                 
                 teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(this), teamMenu);
             }
-            teamItems.add(teamMenu);
             menu.add(teamMenu);
 
             if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
@@ -3123,12 +3117,10 @@ public class PkgMgrFrame extends JPanel
             createCheckboxMenuItem(showTerminalAction, menu, false);
             createCheckboxMenuItem(showTextEvalAction, menu, false);
             JSeparator testSeparator = new JSeparator();
-            testItems.add(testSeparator);
             menu.add(testSeparator);
 
             showTestResultsItem = createCheckboxMenuItem(new ShowTestResultsAction(this), menu, false);
-            testItems.add(showTestResultsItem);
-
+            
             // Create the menu manager that looks after extension view menus
             viewMenuManager = new MenuManager(menu.getPopupMenu());
 
@@ -3305,7 +3297,10 @@ public class PkgMgrFrame extends JPanel
         }
         
         itemsToDisable.stream().forEach((component) -> {
-            component.setEnabled(enable);
+            if (component instanceof JComponent)
+                ((JComponent)component).setEnabled(enable);
+            else if (component instanceof Node)
+                Platform.runLater(() -> ((Node)component).setDisable(!enable));
         });
         actionsToDisable.stream().forEach((action) -> {
             action.setEnabled(enable);

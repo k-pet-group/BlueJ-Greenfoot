@@ -382,6 +382,9 @@ pkgmgr.classmenu.convertToStride=Convert to Stride
 pkgmgr.classmenu.createTest=Create Test Class
 pkgmgr.classmenu.launchFX=Run JavaFX Application
 
+pkgmgr.team.title=Teamwork
+pkgmgr.test.title=Testing
+
 pkgmgr.test.label=Testing
 pkgmgr.test.record=recording
 pkgmgr.test.run=Run Tests

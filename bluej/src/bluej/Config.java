@@ -1874,7 +1874,6 @@ public final class Config
         for (String stem : stylesheetStems)
         {
             addStylesheet(scene, stem);
-            //scene.getStylesheets().add("file:///Users/mik/Development/frames/bluej/lib/stylesheets/" + stem + ".css");
         }
     }
 
@@ -1888,6 +1887,12 @@ public final class Config
     public static void addTestsStylesheets(Scene scene)
     {
         addStylesheet(scene, "tests");
+    }
+
+    @OnThread(Tag.FX)
+    public static void addPMFStylesheets(Scene scene)
+    {
+        addStylesheet(scene, "pkgmgrframe");
     }
 
     @OnThread(Tag.FX)

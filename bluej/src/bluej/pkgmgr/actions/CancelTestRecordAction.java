@@ -21,22 +21,27 @@
  */
 package bluej.pkgmgr.actions;
 
+import javax.swing.SwingUtilities;
+
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Cancel recording of a test method. Also removes from the bench objects which
  * were created since recording began.
  * 
  * @author Davin McCall
- * @version $Id: CancelTestRecordAction.java 16081 2016-06-25 09:42:13Z nccb $
+ * @version $Id: CancelTestRecordAction.java 16606 2016-09-27 12:30:05Z nccb $
  */
 final public class CancelTestRecordAction extends PkgMgrAction
 {
+    @OnThread(Tag.Any)
     public CancelTestRecordAction(PkgMgrFrame pmf)
     {
         super(pmf, "menu.tools.cancel");
-        putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test.cancel"));
+        SwingUtilities.invokeLater(() -> putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test.cancel")));
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

@@ -21,8 +21,12 @@
  */
 package bluej.pkgmgr.actions;
 
+import javax.swing.SwingUtilities;
+
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * End a recording of a test method. Creates a new test case class and
@@ -30,14 +34,15 @@ import bluej.pkgmgr.PkgMgrFrame;
  * recording began.
  * 
  * @author Davin McCall
- * @version $Id: EndTestRecordAction.java 16081 2016-06-25 09:42:13Z nccb $
+ * @version $Id: EndTestRecordAction.java 16606 2016-09-27 12:30:05Z nccb $
  */
 final public class EndTestRecordAction extends PkgMgrAction
 {
+    @OnThread(Tag.Any)
     public EndTestRecordAction(PkgMgrFrame pmf)
     {
         super(pmf, "menu.tools.end");
-        putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test.end"));
+        SwingUtilities.invokeLater(() -> putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test.end")));
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

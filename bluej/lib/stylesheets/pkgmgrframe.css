@@ -1,0 +1,29 @@
+.pmf-tools {
+    -fx-padding: 0 0 8px 0;
+    -fx-alignment: center;
+}
+.pmf-tools, .pmf-tools-top, .pmf-tools-team-items, .pmf-tools-test-items {
+    -fx-spacing: 8px;
+    -fx-fill-width: true;
+    -fx-max-width: 130px;
+}
+.pmf-tools .button {
+    -fx-max-width: 9999;
+}
+.pmf-tools > .titled-pane > .content > * {
+    -fx-padding: 0;
+}
+.pmf-tools-top, .pmf-tools > .titled-pane > .content {
+    -fx-padding: 8px;
+}
+
+.pmf-tools-test > .title, .pmf-tools-team > .title {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0 0 0 0, 1 0 1 0, 2 0 2 0;
+}
+.pmf-tools-test > .content, .pmf-tools-team > .content {
+    -fx-border-width: 0;
+}
+.pmf-tools-test-recording-button {
+    -fx-padding: 0 0 0 16px;
+}
