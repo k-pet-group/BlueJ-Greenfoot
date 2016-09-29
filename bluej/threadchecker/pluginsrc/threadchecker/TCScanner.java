@@ -184,8 +184,10 @@ class TCScanner extends TreePathScanner<Void, Void>
         methodAnns.add(new MethodRef("javafx.animation.AnimationTimer", "handle", new LocatedTag(Tag.FXPlatform, false, false, "<AnimationTimer>")));
         
         // This one isn't actually true!  But it's used during printing so let's live:
-        
         methodAnns.add(new MethodRef("javax.swing.JComponent", "paint", new LocatedTag(Tag.Any, false, false, "<Swing paint hack>")));
+        // This is actually thread-safe:
+        methodAnns.add(new MethodRef("javax.swing.JComponent", "getClientProperty", new LocatedTag(Tag.Any, false, false, "<Swing client properties>")));
+        methodAnns.add(new MethodRef("javax.swing.JComponent", "putClientProperty", new LocatedTag(Tag.Any, false, false, "<Swing client properties>")));
         
         classAnns.put("java.awt.event.InputEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
         classAnns.put("java.awt.event.ComponentEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));

@@ -570,10 +570,6 @@ image.editor.breakmark=break.gif
 image.editor.stepmark=stepmark.gif
 image.editor.breakstepmark=stepbreak.gif
 
-# object bench
-image.bench.object=object.png
-image.bench.object-selected=object-selected.png
-
 #text eval area
 image.eval.prompt=prompt.gif
 image.eval.continue=prompt-continue.gif

@@ -78,6 +78,7 @@ import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
+import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.editor.Editor;
 import bluej.editor.stride.FXTabbedEditor;
@@ -1043,6 +1044,7 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * A string which uniquely identifies this project
      */
+    @OnThread(Tag.Any)
     public String getUniqueId() 
     {
         return String.valueOf(new String("BJID" + getProjectDir().getPath()).hashCode());
@@ -1520,7 +1522,8 @@ public class Project implements DebuggerListener, InspectorManager
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
         if (frames != null) {
             for (int i = 0; i < frames.length; i++) {
-                frames[i].getObjectBench().removeAllObjects(getUniqueId());
+                ObjectBench bench = frames[i].getObjectBench();
+                Platform.runLater(() -> {bench.removeAllObjects(getUniqueId());});
                 frames[i].clearTextEval();
             }
         }

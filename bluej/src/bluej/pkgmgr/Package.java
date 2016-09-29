@@ -248,6 +248,7 @@ public final class Package extends Graph
     private CompileReason queuedReason;
     
     /** File pointing at the directory for this package */
+    @OnThread(Tag.Any)
     private File dir;
 
     /* ------------------- end of field declarations ------------------- */
@@ -339,6 +340,7 @@ public final class Package extends Graph
      * Get the unique identifier for this package (it's directory name at
      * present)
      */
+    @OnThread(Tag.Any)
     public String getId()
     {
         return getPath().getPath();
@@ -429,6 +431,7 @@ public final class Package extends Graph
      * @return The file object representing the full path to the packages
      *         directory
      */
+    @OnThread(Tag.Any)
     public File getPath() 
     {
         return dir;

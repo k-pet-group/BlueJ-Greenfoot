@@ -306,7 +306,9 @@ public class PkgMgrFrame extends JPanel
      */
     @OnThread(Tag.Any)
     private PackageEditor editor = null;
-    private final ObjectBench objbench;
+    @OnThread(Tag.Any)
+    // Effectively final, but can't mark it as such because initialised on other thread
+    private ObjectBench objbench;
     private TextEvalArea textEvaluator;
     private boolean showingTextEvaluator = false;
 
@@ -342,8 +344,6 @@ public class PkgMgrFrame extends JPanel
         });
         this.pkg = null;
         this.editor = null;
-        objbench = new ObjectBench(this);
-        addCtrlTabShortcut(objbench);
         if(!Config.isGreenfoot()) {
             teamActions = new TeamActionGroup(false);
             teamActions.setAllDisabled(this);
@@ -358,8 +358,6 @@ public class PkgMgrFrame extends JPanel
             //diagramSwingNode.setContent(PkgMgrFrame.this);
             //diagramSwingNode.getContent().validate();
             //Dimension minSize = diagramSwingNode.getContent().getMinimumSize();
-            SwingNode benchSwingNode = new SwingNodeFixed();
-            benchSwingNode.setContent(objbench);
             padSwingNode = new SwingNodeFixed();
             padSwingNode.setContent(textEvaluator);
             SwingNode statusSwingNode = new SwingNodeFixed();
@@ -367,12 +365,15 @@ public class PkgMgrFrame extends JPanel
             Platform.runLater(() -> {
                 Stage stage = new Stage();
                 BlueJTheme.setWindowIconFX(stage);
+
+                objbench = new ObjectBench(this);
+                addCtrlTabShortcut(objbench);
                 
                 BorderPane topPane = new BorderPane();
                 topPane.setCenter(new ScrollPane(classScroller));
                 //topPane.setMinHeight(minSize.getHeight());
                 topPane.setLeft(toolPanel);
-                SplitPane bottomPane = new SplitPane(benchSwingNode, padSwingNode);
+                SplitPane bottomPane = new SplitPane(objbench, padSwingNode);
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
                 SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
@@ -396,7 +397,10 @@ public class PkgMgrFrame extends JPanel
             });
         }
         else
+        {
             padSwingNode = null;
+            Platform.runLater(() -> {objbench = new ObjectBench(this);});
+        }
     }
 
     /**
@@ -901,8 +905,10 @@ public class PkgMgrFrame extends JPanel
                 String objectBench_height_str = p.getProperty("objectbench.height");
                 String objectBench_width_str = p.getProperty("objectbench.width");
                 if (objectBench_height_str != null && objectBench_width_str != null) {
-                    objbench.setPreferredSize(new Dimension(Integer.parseInt(objectBench_width_str),
-                            Integer.parseInt(objectBench_height_str)));
+                    Platform.runLater(() -> {
+                        objbench.setPrefWidth(Integer.parseInt(objectBench_width_str));
+                        objbench.setPrefHeight(Integer.parseInt(objectBench_height_str));
+                    });
                 }
                 
                 String x_str = p.getProperty("package.editor.x", "30");
@@ -1011,7 +1017,9 @@ public class PkgMgrFrame extends JPanel
             this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
             this.viewMenuManager.setMenuGenerator(new ViewExtensionMenu(pkg));
             
-            getObjectBench().removeAllObjects(getProject().getUniqueId());
+            ObjectBench bench = getObjectBench();
+            String uniqueId = getProject().getUniqueId();
+            Platform.runLater(() -> {bench.removeAllObjects(uniqueId);});
             clearTextEval();
             updateTextEvalBackground(true);
             
@@ -2239,12 +2247,15 @@ public class PkgMgrFrame extends JPanel
                 Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "no-class-selected"));
             }
         }
-        else if (permanentFocusOwner == objbench || objbench.getObjects().contains(permanentFocusOwner)) { // focus in object bench
-            objbench.removeSelectedObject(pkg.getId());
-        }
         else {
-            // ignore the command - focus is probably in text eval area
+            String pkgId = pkg.getId();
+            Platform.runLater(() -> {
+                if (objbench.isFocused()) { // focus in object bench
+                    objbench.removeSelectedObject(pkgId);
+                }
+            });
         }
+        // Otherwise ignore the command - focus is probably in text eval area
     }
 
     private boolean doRemoveTargets()
@@ -3311,6 +3322,11 @@ public class PkgMgrFrame extends JPanel
      * Adds shortcuts for Ctrl-TAB and Ctrl-Shift-TAB to the given pane, which move to the
      * next/previous pane of the main three (package editor, object bench, code pad) that are visible
      */
+
+    @OnThread(Tag.Any)
+    private void addCtrlTabShortcut(final Node toPane)
+    {
+    }
     private void addCtrlTabShortcut(final JComponent toPane)
     {
         /*

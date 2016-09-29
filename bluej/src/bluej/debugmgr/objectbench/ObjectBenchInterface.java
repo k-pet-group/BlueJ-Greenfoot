@@ -29,20 +29,20 @@ import threadchecker.Tag;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public interface ObjectBenchInterface
 {
     /**
      * Add a listener for events on this object bench.
      * @param l  The listener to add
      */
-    @OnThread(Tag.Any)
+    
     public void addObjectBenchListener(ObjectBenchListener l);
     
     /**
      * Remove a listener so that it no longer receives events.
      * @param l  The listener to remove
      */
-    @OnThread(Tag.Any)
     public void removeObjectBenchListener(ObjectBenchListener l);
     
     /**

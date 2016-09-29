@@ -27,3 +27,7 @@
 .pmf-tools-test-recording-button {
     -fx-padding: 0 0 0 16px;
 }
+
+.object-bench {
+    /*TODO different border when disabled and when focused (see ObjectBench history) */
+}

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
 import com.sun.jdi.*;
 import java.util.*;
+import javafx.application.Platform;
 
 /**
  * A wrapper for an object on the BlueJ object bench.
@@ -99,7 +100,9 @@ public class BObject
         PkgMgrFrame aFrame = wrapperId.getPackageFrame();
 
         ObjectBench aBench = aFrame.getObjectBench();
-        aBench.removeObject(objectWrapper, aPackage.getId());
+        // Take copy because we're about to blank it:
+        ObjectWrapper prevWrapper = objectWrapper;
+        Platform.runLater(() -> {aBench.removeObject(prevWrapper, aPackage.getId());});
 
         objectWrapper = null;
     }

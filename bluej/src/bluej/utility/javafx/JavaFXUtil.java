@@ -90,6 +90,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.Menu;
@@ -115,6 +116,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import bluej.editor.stride.FXTabbedEditor;
@@ -1174,7 +1176,7 @@ public class JavaFXUtil
      * @param src The list to copy from
      * @return An action which, if run, cancels this binding effect.
      */
-    public static <T> FXRunnable bindList(ObservableList<T> dest, ObservableList<T> src)
+    public static <T> FXRunnable bindList(ObservableList<? super T> dest, ObservableList<T> src)
     {
         ListChangeListener<T> obs = c -> dest.setAll(src);
         src.addListener(obs);
@@ -1363,7 +1365,7 @@ public class JavaFXUtil
         for (int i = 0; i < swingMenu.getMenuCount(); i++)
         {
             JMenu menu = swingMenu.getMenu(i);
-            menus.add(swingMenuToFX(menu, eventSource));
+            menus.add(swingMenuToFX(menu, eventSource, (a, b) -> {}));
         }
         return () -> {
             MenuBar menuBar = new MenuBar();
@@ -1379,7 +1381,7 @@ public class JavaFXUtil
      * Helper method for swingMenuBarToFX, see docs for that method
      */
     @OnThread(Tag.Swing)
-    private static FXSupplier<Menu> swingMenuToFX(JMenu swingMenu, Object source)
+    private static FXSupplier<Menu> swingMenuToFX(JMenu swingMenu, Object source, FXBiConsumer<JMenuItem, MenuItem> extraConvert)
     {
         List<FXSupplier<? extends MenuItem>> items = new ArrayList<>();
         List<FXRunnable> onShow = new ArrayList<>();
@@ -1391,7 +1393,7 @@ public class JavaFXUtil
                 // Separator:
                 items.add(createMenuSeparator());
             else if (item instanceof JMenu)
-                items.add(swingMenuToFX((JMenu)item, source));
+                items.add(swingMenuToFX((JMenu)item, source, extraConvert));
             else
             {
                 FXSupplier<MenuItemAndShow> menuItemAndShowFXSupplier = swingMenuItemToFX(item, source);
@@ -1399,6 +1401,7 @@ public class JavaFXUtil
                     MenuItemAndShow itemAndShow = menuItemAndShowFXSupplier.get();
                     if (itemAndShow.onShow != null)
                         onShow.add(itemAndShow.onShow);
+                    extraConvert.accept(item, itemAndShow.menuItem);
                     return itemAndShow.menuItem;
                 };
                 items.add(menuItemFXSupplier);
@@ -1416,6 +1419,44 @@ public class JavaFXUtil
                 onShow.forEach(FXRunnable::run);
             });
             return menu;
+        };
+    }
+    
+    @OnThread(Tag.Swing)
+    public static FXRunnable swingMenuItemsToContextMenu(ContextMenu destination, List<JMenuItem> swingItems, Object source, FXBiConsumer<JMenuItem, MenuItem> extraConvert)
+    {
+        List<FXSupplier<? extends MenuItem>> items = new ArrayList<>();
+        List<FXRunnable> onShow = new ArrayList<>();
+        for (JMenuItem item : swingItems)
+        {
+            if (item == null)
+                // Separator:
+                items.add(createMenuSeparator());
+            else if (item instanceof JMenu)
+                items.add(swingMenuToFX((JMenu)item, source, extraConvert));
+            else
+            {
+                FXSupplier<MenuItemAndShow> menuItemAndShowFXSupplier = swingMenuItemToFX(item, source);
+                FXSupplier<MenuItem> menuItemFXSupplier = () -> {
+                    MenuItemAndShow itemAndShow = menuItemAndShowFXSupplier.get();
+                    if (itemAndShow.onShow != null)
+                        onShow.add(itemAndShow.onShow);
+                    extraConvert.accept(item, itemAndShow.menuItem);
+                    return itemAndShow.menuItem;
+                };
+                items.add(menuItemFXSupplier);
+            }
+        }
+        return () -> {
+            for (FXSupplier<? extends MenuItem> menuItemFXSupplier : items)
+            {
+                destination.getItems().add(menuItemFXSupplier.get());
+            }
+            // Note: it is the supplier
+            // which adds all the updates to the onShow list:
+            destination.addEventHandler(WindowEvent.WINDOW_SHOWING, e -> {
+                onShow.forEach(FXRunnable::run);
+            });
         };
     }
 

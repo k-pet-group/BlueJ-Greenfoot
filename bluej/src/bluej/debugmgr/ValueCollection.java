@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,13 +23,16 @@ package bluej.debugmgr;
 
 import java.util.Iterator;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 
 /**
  * A collection of named values (NameValue interface), which may be references
  * (objects) or primitive values.
  * 
  * @author Davin McCall
- * @version $Id: ValueCollection.java 6595 2009-09-02 14:30:49Z davmac $
+ * @version $Id: ValueCollection.java 16607 2016-09-29 14:00:49Z nccb $
  */
 public interface ValueCollection
 {   

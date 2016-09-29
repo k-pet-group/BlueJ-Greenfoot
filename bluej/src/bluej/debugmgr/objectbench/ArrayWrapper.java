@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,10 @@
  */
 package bluej.debugmgr.objectbench;
 
-import java.awt.*;
-import java.awt.event.*;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 
 import bluej.debugger.*;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -38,7 +38,7 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ArrayWrapper.java 16607 2016-09-29 14:00:49Z nccb $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
@@ -53,60 +53,4 @@ public class ArrayWrapper extends ObjectWrapper
         super(pmf, ob, obj, obj.getGenType(), instanceName);
     }
 
-    /**
-     * Creates the popup menu structure by parsing the object's class
-     * inheritance hierarchy.
-     * 
-     * @param className
-     *            class name of the object for which the menu is to be built
-     */
-    protected void createMenu(String className)
-    {
-        menu = new JPopupMenu(getName());
-        JMenuItem item;
-
-        //        item.addActionListener(
-        //            new ActionListener() {
-        //                public void actionPerformed(ActionEvent e) {
-        // /*invokeMethod(e.getSource());*/ }
-        //           });
-
-        // add inspect and remove options
-        menu.add(item = new JMenuItem(inspect));
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                inspectObject();
-            }
-        });
-        item.setFont(PrefMgr.getStandoutMenuFont());
-        item.setForeground(envOpColour);
-
-        menu.add(item = new JMenuItem(remove));
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                removeObject();
-            }
-        });
-        item.setFont(PrefMgr.getStandoutMenuFont());
-        item.setForeground(envOpColour);
-
-        add(menu);
-    }
-
-    /**
-     * draw a UML style object (array) instance
-     */
-    protected void drawUMLStyle(Graphics2D g)
-    {
-        g.setFont(PrefMgr.getStandardFont());
-
-        drawUMLObjectShape(g, HGAP + ARRAY_GAP*2, (VGAP / 2) + ARRAY_GAP*2, WIDTH - 10, HEIGHT - 10,  SHADOW_SIZE, 8);
-        drawUMLObjectShape(g, HGAP + ARRAY_GAP, (VGAP / 2) + ARRAY_GAP, WIDTH - 10, HEIGHT - 10,  SHADOW_SIZE, 8);
-        drawUMLObjectShape(g, HGAP, (VGAP / 2), WIDTH - 10, HEIGHT - 10,  SHADOW_SIZE, 8);
-
-        drawUMLObjectText(g, HGAP, (VGAP / 2), WIDTH - 10, 3, getName() + ":", displayClassName);
-
-    }
 }
