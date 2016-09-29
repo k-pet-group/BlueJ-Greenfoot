@@ -44,6 +44,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import javafx.application.Platform;
+import javafx.beans.binding.When;
 import javafx.collections.ObservableList;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
@@ -53,6 +54,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -217,7 +219,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             JavaFXUtil.listenForContextMenu(this, (x, y) -> {
                 menu.show(this, x, y);
                 return true;
-            });
+            }, KeyCode.SPACE, KeyCode.ENTER);
             
             setMinWidth(WIDTH);
             setMinHeight(HEIGHT);
@@ -236,7 +238,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
             Label label = new Label(getName() + ":\n" + displayClassName);
             JavaFXUtil.addStyleClass(label, "object-wrapper-text");
-            getChildren().addAll(new ObjectBackground(10.0, 2.0), label);
+            getChildren().addAll(new ObjectBackground(10.0, new When(focusedProperty()).then(6.0).otherwise(2.0)), label);
             setBackground(null);
             setEffect(new DropShadow(6.0, 3.0, 3.0, javafx.scene.paint.Color.GRAY));
             

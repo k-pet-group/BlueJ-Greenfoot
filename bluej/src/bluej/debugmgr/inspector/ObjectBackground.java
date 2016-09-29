@@ -1,5 +1,7 @@
 package bluej.debugmgr.inspector;
 
+import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -20,14 +22,15 @@ import threadchecker.Tag;
 public class ObjectBackground extends ResizableCanvas
 {
     private final double cornerSize;
-    private final double lineWidth;
+    private final ObservableDoubleValue lineWidth;
 
-    public ObjectBackground(double cornerSize, double lineWidth)
+    public ObjectBackground(double cornerSize, ObservableDoubleValue lineWidth)
     {
         this.cornerSize = cornerSize;
         this.lineWidth = lineWidth;
         JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> redrawContent());
         JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> redrawContent());
+        JavaFXUtil.addChangeListenerPlatform(lineWidth, d -> redrawContent());
 
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(widthProperty());
@@ -58,7 +61,7 @@ public class ObjectBackground extends ResizableCanvas
         gc.fillOval(-2.0 * w, -2.5 * h, 5.0 * w, 3.0 * h);
 
         gc.setStroke(Color.BLACK);
-        gc.setLineWidth(lineWidth);
+        gc.setLineWidth(lineWidth.get());
         gc.strokeRoundRect(0, 0, w, h, cornerSize, cornerSize);
     }
 }

@@ -28,6 +28,8 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -196,7 +198,7 @@ public class ObjectInspector extends Inspector
 
 
         button.setDefaultButton(true);
-        StackPane stackPane = new StackPane(new ObjectBackground(CORNER_SIZE, 3.0), contentPane);
+        StackPane stackPane = new StackPane(new ObjectBackground(CORNER_SIZE, new ReadOnlyDoubleWrapper(3.0)), contentPane);
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(widthProperty());
         clip.heightProperty().bind(heightProperty());

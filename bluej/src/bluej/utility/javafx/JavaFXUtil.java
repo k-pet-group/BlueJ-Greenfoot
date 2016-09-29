@@ -670,7 +670,7 @@ public class JavaFXUtil
      * @param showContextMenu The function to call to show the menu.  The parameters are X and Y
      *                        screen (*NOT* scene) coordinates.  Returns true if the menu was shown.
      */
-    public static void listenForContextMenu(Node node, FXPlatformBiFunction<Double, Double, Boolean> showContextMenu)
+    public static void listenForContextMenu(Node node, FXPlatformBiFunction<Double, Double, Boolean> showContextMenu, KeyCode... otherKeys)
     {
         EventHandler<MouseEvent> popupHandler = e -> {
             if (e.isPopupTrigger())
@@ -686,7 +686,7 @@ public class JavaFXUtil
         
         
         node.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == KeyCode.CONTEXT_MENU)
+            if (e.getCode() == KeyCode.CONTEXT_MENU || Arrays.asList(otherKeys).contains(e.getCode()))
             {
                 Point2D scenePt = node.localToScene(5, 5);
                 Scene scene = node.getScene();
