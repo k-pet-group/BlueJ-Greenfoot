@@ -53,6 +53,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -811,7 +812,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     private void clicked(MouseEvent evt)
     {
         // Don't process popup here, done elsewhere
-        if (!evt.isPopupTrigger() && evt.isPrimaryButtonDown()) {
+        if (!evt.isPopupTrigger() && evt.getButton() == MouseButton.PRIMARY) {
             if (evt.getClickCount() > 1) // double click
                 inspectObject();
             else { //single click
