@@ -35,11 +35,15 @@ import javax.swing.SwingUtilities;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.text.Text;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -523,6 +527,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         obp = new ObjectBenchPanel();
         JavaFXUtil.addStyleClass(this, "object-bench");
         JavaFXUtil.bindList(obp.getChildren(), objects);
+        
         /*
         Dimension sz = obp.getMinimumSize();
         Insets in = scroll.getInsets();
@@ -531,7 +536,21 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         scroll.setPreferredSize(sz);
         scroll.getVerticalScrollBar().setUnitIncrement(20);
         */
-        setContent(obp);
+        StackPane stack = new StackPane();
+        Text obLabel = new Text("Object Bench");
+        JavaFXUtil.addStyleClass(obLabel, "object-bench-back-text");
+        stack.getChildren().addAll(obp, obLabel);
+        // Use object not lambda because we remove:
+        objects.addListener(new ListChangeListener<ObjectWrapper>()
+        {
+            @Override
+            public void onChanged(Change<? extends ObjectWrapper> c)
+            {
+                stack.getChildren().remove(obLabel);
+                objects.removeListener(this);
+            }
+        });
+        setContent(stack);
         setFitToWidth(true);
         // start with a clean slate recording invocations
         SwingUtilities.invokeLater(() -> {resetRecordingInteractions();});
