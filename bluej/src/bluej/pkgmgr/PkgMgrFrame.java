@@ -378,6 +378,7 @@ public class PkgMgrFrame extends JPanel
                 SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
                 BorderPane root = new BorderPane(topBottomSplit);
+                JavaFXUtil.addStyleClass(root, "pmf-root");
                 updateFXSize = pref -> {
                     root.setPrefWidth(pref.getWidth());
                     root.setPrefHeight(pref.getHeight());
@@ -391,7 +392,7 @@ public class PkgMgrFrame extends JPanel
                 Config.addPMFStylesheets(scene);
                 stage.setScene(scene);
                 stage.show();
-                //org.scenicview.ScenicView.show(stage.getScene());
+                org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
                 paneProperty.setValue(root);
             });

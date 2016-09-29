@@ -1,3 +1,10 @@
+.pmf-root {
+    -fx-padding: 10px;
+}
+.pmf-root > .split-pane {
+    -fx-background-insets: 0;
+}
+
 .pmf-tools {
     -fx-padding: 0 0 8px 0;
     -fx-alignment: center;
@@ -19,7 +26,7 @@
 
 .pmf-tools-test > .title, .pmf-tools-team > .title {
     -fx-background-radius: 0;
-    -fx-background-insets: 0 0 0 0, 1 0 1 0, 2 0 2 0;
+    -fx-background-insets: 0 0 0 0, 1 0 1 1, 2 0 2 2;
 }
 .pmf-tools-test > .content, .pmf-tools-team > .content {
     -fx-border-width: 0;
@@ -29,7 +36,15 @@
 }
 
 .object-bench {
-    /*TODO different border when disabled and when focused (see ObjectBench history) */
+    -fx-border-width: 1;
+    -fx-border-color: -fx-box-border;
+    /*TODO different border when disabled and when focused or child is focused (see ObjectBench history) */
+}
+.object-bench > .viewport {
+    -fx-background-color: rgb(242, 233, 227);
+}
+.object-bench-panel {
+    -fx-background-color: transparent;
 }
 .object-wrapper {
     -fx-padding: 5px;

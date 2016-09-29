@@ -521,6 +521,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     {
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
+        JavaFXUtil.addStyleClass(this, "object-bench");
         JavaFXUtil.bindList(obp.getChildren(), objects);
         /*
         Dimension sz = obp.getMinimumSize();
