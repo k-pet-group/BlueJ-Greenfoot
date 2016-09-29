@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -44,6 +45,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -144,6 +146,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             {
                 objects.add(wrapper);
             }
+            wrapper.animateIn();
             updateAccessibleName();
         });
         
@@ -252,7 +255,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         
         wrapper.prepareRemove();
         wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
-        objects.remove(wrapper);
+        wrapper.animateOut(() -> objects.remove(wrapper));
 
         updateAccessibleName();
     }
@@ -539,14 +542,17 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         StackPane stack = new StackPane();
         Text obLabel = new Text("Object Bench");
         JavaFXUtil.addStyleClass(obLabel, "object-bench-back-text");
-        stack.getChildren().addAll(obp, obLabel);
+        stack.getChildren().addAll(obLabel, obp);
         // Use object not lambda because we remove:
         objects.addListener(new ListChangeListener<ObjectWrapper>()
         {
             @Override
             public void onChanged(Change<? extends ObjectWrapper> c)
             {
-                stack.getChildren().remove(obLabel);
+                FadeTransition t = new FadeTransition(Duration.millis(200), obLabel);
+                t.setToValue(0.0);
+                t.setOnFinished(e -> stack.getChildren().remove(obLabel));
+                t.play();
                 objects.removeListener(this);
             }
         });

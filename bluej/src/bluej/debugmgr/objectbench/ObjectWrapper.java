@@ -43,6 +43,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
 import javafx.collections.ObservableList;
@@ -60,6 +61,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -90,6 +92,7 @@ import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -946,6 +949,28 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     public void showMenu()
     {
         menu.show(this, Side.LEFT, 5, 5);
+    }
+
+    public void animateIn()
+    {
+        ScaleTransition t = new ScaleTransition(Duration.millis(300), this);
+        t.setFromX(0.2);
+        t.setFromY(0.2);
+        t.setToX(1.0);
+        t.setToY(1.0);
+        t.play();
+    }
+    
+    public void animateOut(FXPlatformRunnable after)
+    {
+        ScaleTransition t = new ScaleTransition(Duration.millis(300), this);
+        t.setToX(0.0);
+        t.setToY(0.0);
+        t.setOnFinished(e -> {
+            if (after != null)
+                after.run();
+        });
+        t.play();
     }
     /*
     @Override
