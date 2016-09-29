@@ -557,6 +557,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             this.setMinHeight(ObjectWrapper.HEIGHT);
             //this.setPrefWidth(ObjectWrapper.WIDTH);
             //this.prefHeightProperty().bind()  TODO is this necessary?  HEIGHT * numrows
+            JavaFXUtil.addStyleClass(this, "object-bench-panel");
         }
 
         /**

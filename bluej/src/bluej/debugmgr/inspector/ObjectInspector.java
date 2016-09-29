@@ -28,44 +28,31 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Paint;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
-import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.ArrayElementGetRecord;
 import bluej.testmgr.record.ArrayElementInspectorRecord;
 import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ResizableCanvas;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -209,7 +196,7 @@ public class ObjectInspector extends Inspector
 
 
         button.setDefaultButton(true);
-        StackPane stackPane = new StackPane(new Background(), contentPane);
+        StackPane stackPane = new StackPane(new ObjectBackground(CORNER_SIZE, 3.0), contentPane);
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(widthProperty());
         clip.heightProperty().bind(heightProperty());
@@ -220,41 +207,6 @@ public class ObjectInspector extends Inspector
         Scene scene = new Scene(stackPane);
         scene.setFill(null);
         setScene(scene);
-    }
-    
-    @OnThread(Tag.FXPlatform)
-    private class Background extends ResizableCanvas
-    {
-        public Background()
-        {
-            JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> redrawContent());
-            JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> redrawContent());
-        }
-        
-        private void redrawContent()
-        {
-            GraphicsContext gc = getGraphicsContext2D();
-            double w = getWidth();
-            double h = getHeight();
-
-            final Paint bottomColor =
-                new LinearGradient(w/2, h/2, w/2, h, false, CycleMethod.NO_CYCLE,
-                    new Stop(0.0, new javafx.scene.paint.Color(227.0/255.0, 71.0/255.0, 71.0/255.0, 1.0)),
-                    new Stop(1.0, new javafx.scene.paint.Color(205.0/255.0, 39.0/255.0, 39.0/255.0, 1.0)));
-            final Paint topColor =
-                new LinearGradient(w/2, 0, w/2, h/2, false, CycleMethod.NO_CYCLE,
-                    new Stop(0.0, new javafx.scene.paint.Color(248.0/255.0, 120.0/255.0, 120.0/255.0, 1.0)),
-                    new Stop(1.0, new javafx.scene.paint.Color(231.0/255.0, 96.0/255.0, 96.0/255.0, 1.0)));
-
-            gc.setFill(bottomColor);
-            gc.fillRect(0, 0, w, h);
-            gc.setFill(topColor);
-            gc.fillOval(-2.0*w, -2.5*h, 5.0*w, 3.0*h);
-            
-            gc.setStroke(Color.BLACK);
-            gc.setLineWidth(3);
-            gc.strokeRoundRect(0, 0, w, h, CORNER_SIZE, CORNER_SIZE);
-        }
     }
 
     /**

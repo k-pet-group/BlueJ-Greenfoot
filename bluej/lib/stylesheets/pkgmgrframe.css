@@ -31,3 +31,10 @@
 .object-bench {
     /*TODO different border when disabled and when focused (see ObjectBench history) */
 }
+.object-wrapper {
+    -fx-padding: 5px;
+}
+.object-wrapper-text {
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+}

@@ -52,9 +52,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -68,6 +70,7 @@ import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.inspector.ObjectBackground;
 import bluej.extensions.BObject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
@@ -228,7 +231,14 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                     ob.setSelectedObject(null);
             });
             
-            getChildren().add(new Label(getName() + ":\n" + displayClassName));
+            JavaFXUtil.addStyleClass(this, "object-wrapper");
+
+            Label label = new Label(getName() + ":\n" + displayClassName);
+            JavaFXUtil.addStyleClass(label, "object-wrapper-text");
+            getChildren().addAll(new ObjectBackground(10.0, 2.0), label);
+            setBackground(null);
+            setEffect(new DropShadow(6.0, 3.0, 3.0, javafx.scene.paint.Color.GRAY));
+            
         });
     }
 
