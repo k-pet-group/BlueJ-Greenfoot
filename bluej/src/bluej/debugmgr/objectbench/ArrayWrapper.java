@@ -23,10 +23,15 @@ package bluej.debugmgr.objectbench;
 
 
 import javax.swing.SwingUtilities;
+import javafx.beans.binding.When;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.AnchorPane;
 
 import bluej.debugger.*;
+import bluej.debugmgr.inspector.ObjectBackground;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 
@@ -38,7 +43,7 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 16607 2016-09-29 14:00:49Z nccb $
+ * @version $Id: ArrayWrapper.java 16624 2016-09-30 07:32:03Z nccb $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
@@ -53,4 +58,20 @@ public class ArrayWrapper extends ObjectWrapper
         super(pmf, ob, obj, obj.getGenType(), instanceName);
     }
 
+    protected void createComponent(Label label)
+    {
+        AnchorPane multipleBackgrounds = new AnchorPane();
+        for (int i = 2; i >= 0; i--)
+        {
+            ObjectBackground bk = new ObjectBackground(CORNER_SIZE, new When(focusedProperty()).then(FOCUSED_BORDER).otherwise(UNFOCUSED_BORDER));
+            multipleBackgrounds.getChildren().add(bk);
+            AnchorPane.setTopAnchor(bk, (double)(i * ARRAY_GAP));
+            AnchorPane.setLeftAnchor(bk, (double)(i * ARRAY_GAP));
+            AnchorPane.setRightAnchor(bk, (double)((2-i) * ARRAY_GAP));
+            AnchorPane.setBottomAnchor(bk, (double)((2-i) * ARRAY_GAP));
+        }
+        getChildren().addAll(multipleBackgrounds, label);
+        setBackground(null);
+        setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
+    }
 }

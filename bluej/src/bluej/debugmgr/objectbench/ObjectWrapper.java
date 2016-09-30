@@ -137,6 +137,10 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     protected static final int VGAP = 6;    // vert. gap between objects (above and below of each object)
     public static final int WIDTH = 100;    // width including gap
     public static final int HEIGHT = 70;   // height including gap
+    public static final double CORNER_SIZE = 10.0;
+    public static final double FOCUSED_BORDER = 6.0;
+    public static final double UNFOCUSED_BORDER = 2.0;
+    public static final double SHADOW_RADIUS = 6.0;
 
     private static int itemHeight = 19;   // wild guess until we find out
     private static boolean itemHeightKnown = false;
@@ -241,11 +245,16 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
             Label label = new Label(getName() + ":\n" + displayClassName);
             JavaFXUtil.addStyleClass(label, "object-wrapper-text");
-            getChildren().addAll(new ObjectBackground(10.0, new When(focusedProperty()).then(6.0).otherwise(2.0)), label);
-            setBackground(null);
-            setEffect(new DropShadow(6.0, 3.0, 3.0, javafx.scene.paint.Color.GRAY));
+            createComponent(label);
             
         });
+    }
+
+    protected void createComponent(Label label)
+    {
+        getChildren().addAll(new ObjectBackground(CORNER_SIZE, new When(focusedProperty()).then(FOCUSED_BORDER).otherwise(UNFOCUSED_BORDER)), label);
+        setBackground(null);
+        setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
     }
 
     @OnThread(Tag.Any)
