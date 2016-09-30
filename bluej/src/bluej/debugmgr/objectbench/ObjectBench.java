@@ -547,6 +547,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         objects.addListener(new ListChangeListener<ObjectWrapper>()
         {
             @Override
+            @OnThread(Tag.FXPlatform)
             public void onChanged(Change<? extends ObjectWrapper> c)
             {
                 FadeTransition t = new FadeTransition(Duration.millis(200), obLabel);

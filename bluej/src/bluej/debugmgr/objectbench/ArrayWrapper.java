@@ -34,6 +34,8 @@ import bluej.debugger.*;
 import bluej.debugmgr.inspector.ObjectBackground;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A wrapper around array objects.
@@ -43,21 +45,22 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 16624 2016-09-30 07:32:03Z nccb $
+ * @version $Id: ArrayWrapper.java 16633 2016-09-30 20:47:52Z nccb $
  */
+@OnThread(Tag.FXPlatform)
 public class ArrayWrapper extends ObjectWrapper
 {
     public static int WORD_GAP = 8;
     public static int SHADOW_SIZE = 3;
     public static int ARRAY_GAP = 3;
     
-    
-
+    @OnThread(Tag.Swing)
     public ArrayWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
     {
         super(pmf, ob, obj, obj.getGenType(), instanceName);
     }
 
+    @Override
     protected void createComponent(Label label)
     {
         AnchorPane multipleBackgrounds = new AnchorPane();
