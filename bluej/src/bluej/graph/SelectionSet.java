@@ -122,7 +122,6 @@ public final class SelectionSet
                 if (target.isMoveable()) {
                     target.setDragging(true);
                     Point delta = restrictDelta(deltaX, deltaY);
-                    target.setGhostPosition(delta.x, delta.y);
                 }
             }
         }
@@ -154,11 +153,6 @@ public final class SelectionSet
      */
     public void moveStopped()
     {
-        for (Target element : elements) {
-            if(element.isMoveable()) {
-                element.setPositionToGhost();
-            }
-        }        
     }
     
 
@@ -174,7 +168,6 @@ public final class SelectionSet
         for (Target target : elements) {
             if (target.isResizable()) {
                 target.setDragging(true);
-                target.setGhostSize(deltaX, deltaY);
             }
         }
     }

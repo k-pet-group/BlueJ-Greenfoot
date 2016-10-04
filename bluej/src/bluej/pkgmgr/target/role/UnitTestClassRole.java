@@ -27,7 +27,6 @@ import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,13 +44,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -72,7 +71,6 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.TestRunnerThread;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
-import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.ExistingFixtureInvokerRecord;
 import bluej.utility.Debug;
@@ -100,7 +98,7 @@ public class UnitTestClassRole extends ClassRole
     private static final String fixtureToBench = Config.getString("pkgmgr.test.popup.fixtureToBench");
     
     /** Whether this is a Junit 4 test class. If false, it's a Junit 3 test class. */
-    private boolean isJunit4;
+    private final boolean isJunit4;
     
     /**
      * Create the unit test class role.
@@ -149,6 +147,7 @@ public class UnitTestClassRole extends ClassRole
     }
 
     @SuppressWarnings("unchecked")
+    @OnThread(Tag.Any)
     private boolean isJUnitTestMethod(Method m)
     {
         if (isJunit4) {
@@ -192,7 +191,8 @@ public class UnitTestClassRole extends ClassRole
      * @return the generated JPopupMenu
      */
     @Override
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl, int state)
+    @OnThread(Tag.FXPlatform)
+    public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, int state)
     {
         boolean enableTestAll = false;
 
@@ -211,9 +211,16 @@ public class UnitTestClassRole extends ClassRole
 
         // add run all tests option
         addMenuItem(menu, new TestAction(testAll, ct.getPackage().getEditor(),ct), enableTestAll);
-        menu.addSeparator();
+        menu.add(new SeparatorMenuItem());
 
         return false;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private static void addMenuItem(ObservableList<MenuItem> menu, TargetAbstractAction testAction, boolean enableTestAll)
+    {
+        menu.add(testAction);
+        testAction.setDisable(!enableTestAll);
     }
 
     /**
@@ -223,7 +230,8 @@ public class UnitTestClassRole extends ClassRole
      * @param cl Class object associated with this class target
      */
     @Override
-    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
+    @OnThread(Tag.FXPlatform)
+    public boolean createClassConstructorMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
     {
         boolean hasEntries = false;
 
@@ -244,35 +252,31 @@ public class UnitTestClassRole extends ClassRole
                 catch (ClassNotFoundException cnfe) {
                     rtype = m.getReturnType().getName();
                 }
-                Action testAction = new TestAction(rtype + " " + m.getName() + "()",
+                TargetAbstractAction testAction = new TestAction(rtype + " " + m.getName() + "()",
                         ct.getPackage().getEditor(), ct, m.getName());
                 
-                JMenuItem item = new JMenuItem();
-                item.setAction(testAction);
-                item.setFont(PrefMgr.getPopupMenuFont());
-                menu.add(item);
+                menu.add(testAction);
                 hasEntries = true;
             }
             if (!hasEntries) {
-                JMenuItem item = new JMenuItem(Config.getString("pkgmgr.test.popup.noTests"));
-                item.setFont(PrefMgr.getPopupMenuFont());
-                item.setEnabled(false);
+                MenuItem item = new MenuItem(Config.getString("pkgmgr.test.popup.noTests"));
+                item.setDisable(true);
                 menu.add(item);
             }
         }
         else {
-            JMenuItem item = new JMenuItem(Config.getString("pkgmgr.test.popup.abstract"));
-            item.setFont(PrefMgr.getPopupMenuFont());
-            item.setEnabled(false);
+            MenuItem item = new MenuItem(Config.getString("pkgmgr.test.popup.abstract"));
+            item.setDisable(true);
             menu.add(item);
         }
         return true;
     }
 
     @Override
-    public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
+    @OnThread(Tag.FXPlatform)
+    public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct, boolean hasSource, Class<?> cl)
     {
-        boolean enable = !ct.getPackage().getProject().inTestMode() && ct.hasSourceCode() && ! ct.isAbstract();
+        boolean enable = !ct.getPackage().getProject().inTestMode() && hasSource && ! ct.isAbstract();
             
         addMenuItem(menu, new MakeTestCaseAction(createTest,
                                                     ct.getPackage().getEditor(), ct), enable);
@@ -285,6 +289,7 @@ public class UnitTestClassRole extends ClassRole
     }
 
     @Override
+    @OnThread(Tag.Any)
     public boolean canConvertToStride()
     {
         return false; // annotations needed for JUnit are not supported
@@ -726,7 +731,8 @@ public class UnitTestClassRole extends ClassRole
     /**
      * A base class for all our actions that run on targets.
      */
-    private abstract class TargetAbstractAction extends AbstractAction
+    @OnThread(Tag.FXPlatform)
+    private abstract class TargetAbstractAction extends MenuItem
     {
         protected Target t;
         protected PackageEditor ped;
@@ -736,7 +742,11 @@ public class UnitTestClassRole extends ClassRole
             super(name);
             this.ped = ped;
             this.t = t;
+            setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
         }
+
+        @OnThread(Tag.Swing)
+        public abstract void actionPerformed(javafx.event.ActionEvent actionEvent);
     }
 
     /**
@@ -745,6 +755,7 @@ public class UnitTestClassRole extends ClassRole
      * test class is run; otherwise it refers to a test method that should be run
      * individually.
      */
+    @OnThread(Tag.FXPlatform)
     private class TestAction extends TargetAbstractAction
     {
         private String testName;
@@ -761,12 +772,15 @@ public class UnitTestClassRole extends ClassRole
             this.testName = testName;
         }
 
+        @Override
+        @OnThread(Tag.Swing)
         public void actionPerformed(ActionEvent e)
         {
             ped.raiseRunTargetEvent(t, testName);
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private class MakeTestCaseAction extends TargetAbstractAction
     {
         public MakeTestCaseAction(String name, PackageEditor ped, Target t)
@@ -774,12 +788,15 @@ public class UnitTestClassRole extends ClassRole
             super(name, ped, t);
         }
 
+        @Override
+        @OnThread(Tag.Swing)
         public void actionPerformed(ActionEvent e)
         {
             ped.raiseMakeTestCaseEvent(t);
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private class BenchToFixtureAction extends TargetAbstractAction
     {
         public BenchToFixtureAction(String name, PackageEditor ped, Target t)
@@ -787,12 +804,15 @@ public class UnitTestClassRole extends ClassRole
             super(name, ped, t);
         }
 
+        @Override
+        @OnThread(Tag.Swing)
         public void actionPerformed(ActionEvent e)
         {
             ped.raiseBenchToFixtureEvent(t);
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private class FixtureToBenchAction extends TargetAbstractAction
     {
         public FixtureToBenchAction(String name, PackageEditor ped, Target t)
@@ -800,6 +820,8 @@ public class UnitTestClassRole extends ClassRole
             super(name, ped, t);
         }
 
+        @Override
+        @OnThread(Tag.Swing)
         public void actionPerformed(ActionEvent e)
         {
             ped.raiseFixtureToBenchEvent(t);

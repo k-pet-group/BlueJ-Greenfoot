@@ -23,8 +23,14 @@ package bluej.pkgmgr.target.role;
 
 import javax.swing.JPopupMenu;
 
+import javafx.collections.ObservableList;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.prefmgr.PrefMgr;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A role object which a class target uses to delegate behaviour to.
@@ -45,20 +51,7 @@ public class StdClassRole extends ClassRole
     {
         return "ClassTarget";
     }
- 
-    /**
-     * Generate a popup menu for this class role.
-     *
-     * @param   menu    the menu to add items to
-     * @param   ct      the ClassTarget we are constructing the role for
-     * @param   state   whether the target is COMPILED etc.
-     * @return  true if we added any menu tiems, false otherwise
-     */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl, int state)
-    {
-        return false;
-    }
-
+    
     /**
      * Adds role specific items at the bottom of the popup menu for this class target.
      *
@@ -68,18 +61,21 @@ public class StdClassRole extends ClassRole
      *
      * @return true if any menu items have been added
      */
-    public boolean createRoleMenuEnd(JPopupMenu menu, ClassTarget ct, int state)
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, int state)
     {
         if(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS)) {
             if (ct.getAssociation() == null) {
-                menu.addSeparator();
-                addMenuItem(menu, ct.new CreateTestAction(), true);
+                menu.add(new SeparatorMenuItem());
+                menu.add(ct.new CreateTestAction());
             }
         }
         return true;
     }
 
     @Override
+    @OnThread(Tag.Any)
     public boolean canConvertToStride()
     {
         return true;

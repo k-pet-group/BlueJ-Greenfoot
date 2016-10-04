@@ -35,6 +35,10 @@ import java.util.Properties;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+
+import javafx.collections.ObservableList;
+import javafx.scene.control.MenuItem;
 
 import bluej.Config;
 import bluej.debugmgr.ConstructAction;
@@ -52,6 +56,8 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class role in a class target, providing behaviour specific to particular
@@ -182,34 +188,6 @@ public abstract class ClassRole
         }
     }
 
-    /**
-     * Adds a single item to this roles popup menu.
-     * 
-     * This method is used by ClassTarget to add some standard menus as well as
-     * by the roles to add menus. It should be overridden with caution.
-     * 
-     * @param menu
-     *            the popup menu the item is to be added to
-     * @param action
-     *            the action to be registered with this menu item
-     * @param itemString
-     *            the String to be displayed on menu item
-     * @param enabled
-     *            boolean value representing whether item should be enabled
-     *  
-     */
-    public void addMenuItem(JPopupMenu menu, Action action, boolean enabled)
-    {
-        JMenuItem item;
-
-        item = new JMenuItem();
-        item.setAction(action);
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        item.setEnabled(enabled);
-
-        menu.add(item);
-    }
 
     /**
      * Adds role specific items at the top of the popup menu for this class
@@ -224,7 +202,8 @@ public abstract class ClassRole
      * 
      * @return true if any menu items have been added
      */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl, int state)
+    @OnThread(Tag.FXPlatform)
+    public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, int state)
     {
         return false;
     }
@@ -242,7 +221,8 @@ public abstract class ClassRole
      * 
      * @return true if any menu items have been added
      */
-    public boolean createRoleMenuEnd(JPopupMenu menu, ClassTarget ct, int state)
+    @OnThread(Tag.FXPlatform)
+    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, int state)
     {
         return false;
     }
@@ -255,7 +235,8 @@ public abstract class ClassRole
      * @param cl
      *            Class object associated with this class target
      */
-    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
+    @OnThread(Tag.FXPlatform)
+    public boolean createClassConstructorMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
     {
         ViewFilter filter;
         View view = View.getView(cl);
@@ -271,7 +252,8 @@ public abstract class ClassRole
         return false;
     }
 
-    public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
+    @OnThread(Tag.FXPlatform)
+    public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct, boolean hasSource, Class<?> cl)
     {
         ViewFilter filter;
         View view = View.getView(cl);
@@ -288,8 +270,53 @@ public abstract class ClassRole
      * Create the menu items for the given members (constructors or methods).
      * @return  true if any items were created
      */
-    public static boolean createMenuItems(JPopupMenu menu, CallableView[] members, ViewFilter filter, int first, int last,
+    @OnThread(Tag.FXPlatform)
+    private static boolean createMenuItems(ObservableList<MenuItem> menu, CallableView[] members, ViewFilter filter, int first, int last,
             String prefix, InvokeListener il)
+    {
+        // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first
+        // + " last = " + last);
+        boolean hasEntries = false;
+        JMenuItem item;
+
+        for (int i = first; i < last; i++) {
+            try {
+                CallableView m = members[last - i - 1];
+                if (!filter.accept(m))
+                    continue;
+                // Debug.message("createSubMenu - creating MenuItem");
+
+                Action callAction = null;
+                if (m instanceof MethodView)
+                {
+                    MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
+                    menu.add(menuItem);
+                    menuItem.setOnAction(e -> SwingUtilities.invokeLater(() ->
+                    {
+                        new InvokeAction((MethodView)m, il, prefix + m.getLongDesc()).actionPerformed(null);
+                    }));
+                    hasEntries = true;
+                }
+                else if (m instanceof ConstructorView)
+                {
+                    MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
+                    menu.add(menuItem);
+                    menuItem.setOnAction(e -> SwingUtilities.invokeLater(() -> {
+                        new ConstructAction((ConstructorView) m, il, prefix + m.getLongDesc()).actionPerformed(null);
+                    }));
+                    hasEntries = true;
+                }
+            }
+            catch (Exception e) {
+                Debug.reportError("Exception accessing methods: " + e);
+                e.printStackTrace();
+            }
+        }
+        return hasEntries;
+    }
+    // Swing version, for Greenfoot:
+    public static boolean createMenuItems(JPopupMenu menu, CallableView[] members, ViewFilter filter, int first, int last,
+                                          String prefix, InvokeListener il)
     {
         // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first
         // + " last = " + last);
@@ -354,5 +381,6 @@ public abstract class ClassRole
      * this method does not need to check for that).  Returns false for unsupported
      * class types, like enums or unit tests.
      */
+    @OnThread(Tag.Any)
     public abstract boolean canConvertToStride();
 }

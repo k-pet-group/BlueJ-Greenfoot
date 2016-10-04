@@ -24,8 +24,13 @@ package bluej.pkgmgr.target.role;
 import javax.swing.*;
 import java.awt.*;
 
+import javafx.collections.ObservableList;
+import javafx.scene.control.*;
+
 import bluej.Config;
 import bluej.pkgmgr.target.*;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A role object to represent the behaviour of abstract classes.
@@ -75,12 +80,15 @@ public class AbstractClassRole extends ClassRole
      * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
-    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public boolean createClassConstructorMenu(ObservableList<javafx.scene.control.MenuItem> menu, ClassTarget ct, Class<?> cl)
     {
         return false;
     }
 
     @Override
+    @OnThread(Tag.Any)
     public boolean canConvertToStride()
     {
         return true;

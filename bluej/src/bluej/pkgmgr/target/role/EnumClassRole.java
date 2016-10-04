@@ -25,9 +25,15 @@ import java.awt.Color;
 import java.awt.Paint;
 
 import javax.swing.JPopupMenu;
+import javafx.collections.ObservableList;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+
 import bluej.Config;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.prefmgr.PrefMgr;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A role object to represent the behaviour of enums.
@@ -77,7 +83,9 @@ public class EnumClassRole extends ClassRole
      * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
-    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public boolean createClassConstructorMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
     {
         return false;
     }
@@ -91,18 +99,21 @@ public class EnumClassRole extends ClassRole
      *
      * @return true if any menu items have been added
      */
-    public boolean createRoleMenuEnd(JPopupMenu menu, ClassTarget ct, int state)
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, int state)
     {
         if(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS)) {
             if (ct.getAssociation() == null) {
-                menu.addSeparator();
-                addMenuItem(menu, ct.new CreateTestAction(), true);
+                menu.add(new SeparatorMenuItem());
+                menu.add(ct.new CreateTestAction());
             }
         }
         return true;
     }
 
     @Override
+    @OnThread(Tag.Any)
     public boolean canConvertToStride()
     {
         return false; //enums are not supported

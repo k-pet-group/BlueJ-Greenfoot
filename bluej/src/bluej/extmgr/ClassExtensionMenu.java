@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,8 @@ import bluej.extensions.BClass;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.MenuGenerator;
 import bluej.pkgmgr.target.ClassTarget;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Implementation of the {@link ExtensionMenu} interface for the Class
@@ -36,7 +38,7 @@ import bluej.pkgmgr.target.ClassTarget;
  */
 public class ClassExtensionMenu implements ExtensionMenu
 {
-    private ClassTarget classTarget;
+    private final ClassTarget classTarget;
 
     /**
      * Constructor. Creates a new {@link ClassExtensionMenu}.
@@ -44,6 +46,7 @@ public class ClassExtensionMenu implements ExtensionMenu
      * @param classTarget
      *            The class target which was selected by the user.
      */
+    @OnThread(Tag.Any)
     public ClassExtensionMenu(ClassTarget classTarget)
     {
         this.classTarget = classTarget;

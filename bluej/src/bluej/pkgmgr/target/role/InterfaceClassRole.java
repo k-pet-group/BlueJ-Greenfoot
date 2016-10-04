@@ -24,6 +24,8 @@ package bluej.pkgmgr.target.role;
 import java.awt.*;
 
 import bluej.Config;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A role object to represent the behaviour of interfaces.
@@ -65,6 +67,7 @@ public class InterfaceClassRole extends ClassRole
     }
 
     @Override
+    @OnThread(Tag.Any)
     public boolean canConvertToStride()
     {
         return true; // interfaces are supported

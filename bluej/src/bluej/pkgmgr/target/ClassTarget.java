@@ -25,7 +25,6 @@ package bluej.pkgmgr.target;
 import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -47,8 +46,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import javax.swing.AbstractAction;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
@@ -76,7 +73,7 @@ import bluej.extensions.event.ClassEvent;
 import bluej.extensions.event.ClassTargetEvent;
 import bluej.extmgr.ClassExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.MenuManager;
+import bluej.extmgr.FXMenuManager;
 import bluej.parser.ParseFailure;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -115,11 +112,16 @@ import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -174,6 +176,7 @@ public class ClassTarget extends DependentTarget
     
     // caches whether the class is abstract. Only accurate when the
     // classtarget state is normal (ie. the class is compiled).
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private boolean isAbstract;
     
     // a flag indicating whether an editor should have the naviview expanded/collapsed
@@ -522,10 +525,13 @@ public class ClassTarget extends DependentTarget
      */
     public void determineRole(Class<?> cl)
     {
-        isAbstract = false;
-        
         if (cl != null) {
-            isAbstract = Modifier.isAbstract(cl.getModifiers());
+            boolean isAbs;
+            synchronized (this)
+            {
+                isAbstract = Modifier.isAbstract(cl.getModifiers());
+                isAbs = isAbstract;
+            }
             
             ClassLoader clLoader = cl.getClassLoader();
             Class<?> junitClass = null;
@@ -559,7 +565,7 @@ public class ClassTarget extends DependentTarget
             else if (JavaUtils.getJavaUtils().isEnum(cl)) {
                 setRole(new EnumClassRole());
             }
-            else if (isAbstract) {
+            else if (isAbs) {
                 setRole(new AbstractClassRole());
             }
             else if (isJunit4TestClass(cl)) {
@@ -570,6 +576,11 @@ public class ClassTarget extends DependentTarget
             }
         }
         else {
+            synchronized (this)
+            {
+                isAbstract = false;
+            }
+            
             // try the parsed source code
             ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
 
@@ -820,7 +831,8 @@ public class ClassTarget extends DependentTarget
      * 
      * The return is only valid if isCompiled() is true.
      */
-    public boolean isAbstract()
+    @OnThread(Tag.Any)
+    public synchronized boolean isAbstract()
     {
         return isAbstract;
     }
@@ -1819,13 +1831,6 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Construct a popup menu for the class target, including caching of
-     * results.
-     */
-    protected JPopupMenu menu = null;
-    boolean compiledMenu = false;
-
-    /**
      * Post the context menu for this target.
      * 
      * @param x  the x coordinate for the menu, relative to graph editor
@@ -1835,114 +1840,113 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     public void popupMenu(int x, int y, PackageEditor graphEditor)
     {
-        Class<?> cl = null;
-        /*
-        if (state == S_NORMAL) {
-            // handle error causes when loading classes which are compiled
-            // but not loadable in the current VM. (Eg if they were compiled
-            // for a later VM).
-            // we detect the error, remove the class file, and invalidate
-            // to allow them to be recompiled
-            cl = getPackage().loadClass(getQualifiedName());
-            if (cl == null) {
-                // trouble loading the class
-                // remove the class file and invalidate the target
-                if (sourceAvailable != SourceType.NONE) {
-                    getClassFile().delete();
-                    invalidate();
+        SwingUtilities.invokeLater(() ->
+        {
+            Class<?> cl = null;
+
+            if (state == S_NORMAL)
+            {
+                // handle error causes when loading classes which are compiled
+                // but not loadable in the current VM. (Eg if they were compiled
+                // for a later VM).
+                // we detect the error, remove the class file, and invalidate
+                // to allow them to be recompiled
+                cl = getPackage().loadClass(getQualifiedName());
+                if (cl == null)
+                {
+                    // trouble loading the class
+                    // remove the class file and invalidate the target
+                    if (sourceAvailable != SourceType.NONE)
+                    {
+                        getClassFile().delete();
+                        invalidate();
+                    }
                 }
             }
-        }*/
 
-        // check that the class loading hasn't changed out state
-        if (state == S_NORMAL) {
-            //menu = createMenu(cl);
-            // editor.add(menu);
-        }
-        else {
-            //menu = createMenu(null);
-            // editor.add(menu);
-        }
-
-        //if (menu != null) {
-            //menu.show(graphEditor, x, y);
-        //}
+            // check that the class loading hasn't changed out state
+            if (state != S_NORMAL)
+                cl = null;
+            // Need a bunch of info from the Swing thread before hopping to FX:
+            Class<?> clFinal = cl;
+            ClassRole roleFinal = role;
+            SourceType sourceAvailableFinal = sourceAvailable;
+            boolean docExists = getDocumentationFile().exists();
+            ExtensionsManager extMgr = ExtensionsManager.getInstance();
+            Platform.runLater(() -> {
+                withMenu(clFinal,  roleFinal, sourceAvailableFinal, docExists, menu -> menu.show(graphEditor, x, y), extMgr);
+            });
+        });
     }
 
     /**
      * Creates a popup menu for this class target.
      * 
+     * @param extMgr
      * @param cl class object associated with this class target
      * @return the created popup menu object
      */
-    protected JPopupMenu createMenu(Class<?> cl)
+    @OnThread(Tag.FXPlatform)
+    protected void withMenu(Class<?> cl, ClassRole roleRef, SourceType source, boolean docExists, FXPlatformConsumer<ContextMenu> withMenu, ExtensionsManager extMgr)
     {
-        JPopupMenu menu = new JPopupMenu(getBaseName() + " operations");
+        final ContextMenu menu = new ContextMenu();
 
         // call on role object to add any options needed at top
-        role.createRoleMenu(menu, this, cl, state);
+        roleRef.createRoleMenu(menu.getItems(), this, cl, state);
 
         if (cl != null)
         {
             if (Application.class.isAssignableFrom(cl))
             {
-                role.addMenuItem(menu, new AbstractAction(launchFXStr)
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        getPackage().getDebugger().launchFXApp(cl.getName());
-                    }
-                }, true);
+                menu.getItems().add(JavaFXUtil.makeMenuItem(launchFXStr,() -> SwingUtilities.invokeLater(() -> getPackage().getDebugger().launchFXApp(cl.getName())), null));
+            }
+            
+            if (roleRef.createClassConstructorMenu(menu.getItems(), this, cl)) {
+                menu.getItems().add(new SeparatorMenuItem());
+            }
+            
+            if (roleRef.createClassStaticMenu(menu.getItems(), this, source != SourceType.NONE, cl)) {
+                menu.getItems().add(new SeparatorMenuItem());
             }
         }
-
-        if (cl != null) {
-            if (role.createClassConstructorMenu(menu, this, cl)) {
-                menu.addSeparator();
-            }
-        }
-
-        if (cl != null) {
-            if (role.createClassStaticMenu(menu, this, cl)) {
-                menu.addSeparator();
-            }
-        }
-        boolean sourceOrDocExists = sourceAvailable != SourceType.NONE || getDocumentationFile().exists();
-        role.addMenuItem(menu, new EditAction(), sourceOrDocExists);
-        role.addMenuItem(menu, new CompileAction(), sourceAvailable != SourceType.NONE);
-        role.addMenuItem(menu, new InspectAction(), cl != null);
-        role.addMenuItem(menu, new RemoveAction(), true);
-        if (sourceAvailable == SourceType.Stride)
-            role.addMenuItem(menu, new ConvertToJavaAction(), true);
-        else if (sourceAvailable == SourceType.Java && role.canConvertToStride())
-            role.addMenuItem(menu, new ConvertToStrideAction(), true);
+        boolean sourceOrDocExists = source != SourceType.NONE || docExists;
+        menu.getItems().add(new EditAction(sourceOrDocExists));
+        menu.getItems().add(new CompileAction(source != SourceType.NONE));
+        menu.getItems().add(new InspectAction(cl != null));
+        menu.getItems().add(new RemoveAction());
+        if (source == SourceType.Stride)
+            menu.getItems().add(new ConvertToJavaAction());
+        else if (source == SourceType.Java && roleRef.canConvertToStride())
+            menu.getItems().add(new ConvertToStrideAction());
 
         // call on role object to add any options needed at bottom
-        role.createRoleMenuEnd(menu, this, state);
+        roleRef.createRoleMenuEnd(menu.getItems(), this, state);
 
-        MenuManager menuManager = new MenuManager(menu);
-        menuManager.setMenuGenerator(new ClassExtensionMenu(this));
-        menuManager.addExtensionMenu(getPackage().getProject());
+        FXMenuManager menuManager = new FXMenuManager(menu, extMgr, new ClassExtensionMenu(this));
+        SwingUtilities.invokeLater(() -> {
+            menuManager.addExtensionMenu(getPackage().getProject());
 
-        return menu;
+            Platform.runLater(() -> {withMenu.accept(menu);});
+        });
     }
 
     /**
      * Action which creates a test
      */
-    public class CreateTestAction extends AbstractAction
+    @OnThread(Tag.FXPlatform)
+    public class CreateTestAction extends MenuItem
     {
         /**
          * Constructor for the CreateTestAction object
          */
         public CreateTestAction()
         {
-            putValue(NAME, createTestStr);
+            super(createTestStr);
+            setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
         }
-
-        @Override
-        public void actionPerformed(ActionEvent e)
+        
+        @OnThread(Tag.Swing)
+        private void actionPerformed(ActionEvent e)
         {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
 
@@ -1972,49 +1976,47 @@ public class ClassTarget extends DependentTarget
     /**
      * Action to open the editor for a classtarget
      */
-    private class EditAction extends AbstractAction
+    @OnThread(Tag.FXPlatform)
+    private class EditAction extends MenuItem
     {
-        public EditAction()
+        public EditAction(boolean enable)
         {
-            putValue(NAME, editStr);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e)
-        {
-            open();
+            super(editStr);
+            setOnAction(e -> SwingUtilities.invokeLater(() -> open()));
+            setDisable(!enable);
         }
     }
 
     /**
      * Action to compile a classtarget
      */
-    private class CompileAction extends AbstractAction
+    @OnThread(Tag.FXPlatform)
+    private class CompileAction extends MenuItem
     {
-        public CompileAction()
+        public CompileAction(boolean enable)
         {
-            putValue(NAME, compileStr);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e)
-        {
-            getPackage().compile(ClassTarget.this, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
+            super(compileStr);
+            setOnAction(e -> SwingUtilities.invokeLater(() -> {
+                getPackage().compile(ClassTarget.this, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
+            }));
+            setDisable(!enable);
         }
     }
 
     /**
      * Action to remove a classtarget from its package
      */
-    private class RemoveAction extends AbstractAction
+    @OnThread(Tag.FXPlatform)
+    private class RemoveAction extends MenuItem
     {
         public RemoveAction()
         {
-            putValue(NAME, removeStr);
+            super(removeStr);
+            setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
         }
 
-        @Override
-        public void actionPerformed(ActionEvent e)
+        @OnThread(Tag.Swing)
+        private void actionPerformed(ActionEvent e)
         {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
             Platform.runLater(() -> {
@@ -2029,79 +2031,83 @@ public class ClassTarget extends DependentTarget
     /**
      * Action to inspect the static members of a class
      */
-    private class InspectAction extends AbstractAction
+    @OnThread(Tag.FXPlatform)
+    private class InspectAction extends MenuItem
     {
-        public InspectAction()
+        public InspectAction(boolean enable)
         {
-            putValue(NAME, inspectStr);
+            super(inspectStr);
+            setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
+            setDisable(!enable);
         }
 
-        @Override
-        public void actionPerformed(ActionEvent e)
+        @OnThread(Tag.Swing)
+        private void actionPerformed(ActionEvent e)
         {
             if (checkDebuggerState()) {
                 inspect();
             }
         }
     }
-    
-    private class ConvertToJavaAction extends AbstractAction
+
+    @OnThread(Tag.FXPlatform)
+    private class ConvertToJavaAction extends MenuItem
     {
         public ConvertToJavaAction()
         {
-            putValue(NAME, convertToJavaStr);
+            super(convertToJavaStr);
+            setOnAction(this::actionPerformed);
         }
 
-        @Override
-        public void actionPerformed(ActionEvent e)
+        private void actionPerformed(ActionEvent e)
         {
-            Platform.runLater(() -> {
-                if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message"))
-                {
-                    SwingUtilities.invokeLater(() -> removeStride());
-                }
-            });
+            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message"))
+            {
+                SwingUtilities.invokeLater(() -> removeStride());
+            }
         }
     }
 
-    public class ConvertToStrideAction extends AbstractAction
+    @OnThread(Tag.FXPlatform)
+    public class ConvertToStrideAction extends MenuItem
     {
         public ConvertToStrideAction()
         {
-            putValue(NAME, convertToStrideStr);
+            super(convertToStrideStr);
+            setOnAction(e -> SwingUtilities.invokeLater(() -> convertToStride()));
         }
-
-        @Override
-        public void actionPerformed(ActionEvent e)
-        {
-            File javaSourceFile = getJavaSourceFile();
-            Platform.runLater(() -> {
-                if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message"))
+    }
+    
+    @OnThread(Tag.Swing)
+    public void convertToStride()
+    {
+        File javaSourceFile = getJavaSourceFile();
+        Platform.runLater(() -> {
+            if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message"))
+            {
+                try
                 {
-                    try
+                    Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath()).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
+                    if (!javaConvertResult.getWarnings().isEmpty())
                     {
-                        Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath()).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
-                        if (!javaConvertResult.getWarnings().isEmpty())
-                        {
-                            new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
-                        }
-                        List<CodeElement> elements = javaConvertResult.getElements();
-                        
-                        if (elements.size() != 1 || !(elements.get(0) instanceof TopLevelCodeElement))
-                        {
-                            JavaFXUtil.errorDialog("convert.to.stride.error.title", "convert.to.stride.error.message");
-                            return; // Abort
-                        }
-                        SwingUtilities.invokeLater(() -> addStride((TopLevelCodeElement)elements.get(0)));    
+                        new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
                     }
-                    catch (IOException | ParseFailure pf)
+                    List<CodeElement> elements = javaConvertResult.getElements();
+                    
+                    if (elements.size() != 1 || !(elements.get(0) instanceof TopLevelCodeElement))
                     {
-                        new ConvertResultDialog(pf.getMessage()).showAndWait();
-                        // Abort the conversion
+                        JavaFXUtil.errorDialog("convert.to.stride.error.title", "convert.to.stride.error.message");
+                        return; // Abort
                     }
+                    SwingUtilities.invokeLater(() -> addStride((TopLevelCodeElement)elements.get(0)));    
                 }
-            });
-        }
+                catch (IOException | ParseFailure pf)
+                {
+                    new ConvertResultDialog(pf.getMessage()).showAndWait();
+                    // Abort the conversion
+                }
+            }
+        });
     }
 
     /**

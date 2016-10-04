@@ -245,7 +245,6 @@ public class PackageTarget extends Target
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
-        setGhostSize(0, 0);
     }
 
     @Override

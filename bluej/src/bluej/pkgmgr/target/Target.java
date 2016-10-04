@@ -24,6 +24,7 @@ package bluej.pkgmgr.target;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -118,6 +119,19 @@ public abstract class Target
                     {
                         pkg.getEditor().selectOnly(this);
                     }
+                }
+                else if (e.isPopupTrigger())
+                {
+                    pkg.getEditor().selectOnly(this);
+                    popupMenu((int)e.getScreenX(), (int)e.getScreenY(), pkg.getEditor());
+                }
+                e.consume();    
+            });
+            pane.setOnMousePressed(e -> {
+                if (e.isPopupTrigger())
+                {
+                    pkg.getEditor().selectOnly(this);
+                    popupMenu((int)e.getScreenX(), (int)e.getScreenY(), pkg.getEditor());
                 }
             });
         });
@@ -440,23 +454,6 @@ public abstract class Target
 
     @OnThread(Tag.FXPlatform)
     public void setDragging(boolean b)
-    {
-        
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void setGhostPosition(int x, int y)
-    {
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void setPositionToGhost()
-    {
-        
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void setGhostSize(int deltaX, int deltaY)
     {
         
     }
