@@ -631,4 +631,9 @@ public final class PackageEditor extends StackPane
     {
         return showExtends;
     }
+
+    public void selectOnly(Target target)
+    {
+        selectionController.selectOnly(target);
+    }
 }

@@ -39,8 +39,12 @@
 .target {
     -fx-border-width: 1;
     -fx-border-color: black;
+    -fx-border-style: solid outside; /* Prevents relayout when border gets thicker */
     -fx-background-color: rgb(237, 182, 87);
     -fx-cursor: hand;
+}
+.target:bj-selected {
+    -fx-border-width: 3;
 }
 .target-name {
     -fx-font-weight: bold;

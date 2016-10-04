@@ -75,10 +75,6 @@ public abstract class Target
     protected boolean selected;
     protected boolean queued;
 
-    // the following fields are needed to correctly calculate the width of
-    // a target in dependence of its name and the font used to display it
-    static FontRenderContext FRC = new FontRenderContext(new AffineTransform(), false, false);
-
     // Shadow variables to allow saving from Swing of FX items:
     @OnThread(Tag.Any)
     private final AtomicInteger atomicX = new AtomicInteger();
@@ -109,8 +105,20 @@ public abstract class Target
             pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
             
             pane.setOnMouseClicked(e -> {
-                if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY)
+                if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
                     doubleClick();
+                else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
+                {
+                    // Single left-click.  Is modifier down?
+                    if (e.isShiftDown() || e.isShortcutDown())
+                    {
+                        pkg.getEditor().addToSelection(this);
+                    }
+                    else
+                    {
+                        pkg.getEditor().selectOnly(this);
+                    }
+                }
             });
         });
 
@@ -237,15 +245,15 @@ public abstract class Target
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Selectable#setSelected(boolean)
+     * Sets the selected status of this target.  Do not call directly
+     * to select us; instead call SelectionController/SelectionSet's methods,
+     * which will call this after updating the selected set.
      */
     @OnThread(Tag.FXPlatform)
     public void setSelected(boolean selected)
     {
         this.selected = selected;
-        repaint();
+        JavaFXUtil.setPseudoclass("bj-selected", selected, pane);
     }
 
     /*

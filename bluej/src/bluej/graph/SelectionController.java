@@ -532,4 +532,8 @@ public class SelectionController
         return rubberBand;
     }
 
+    public void selectOnly(Target target)
+    {
+        selection.selectOnly(target);
+    }
 }
