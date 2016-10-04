@@ -168,6 +168,8 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     private final ObjectBench ob;
 
     private boolean isSelected = false;
+
+    private static final String MENU_STYLE_INBUILT = "object-action-inbuilt";
     
     /**
      * Get an object wrapper for a user object. 
@@ -412,9 +414,11 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         // add inspect and remove options
         MenuItem item;
         menu.getItems().add(item = new MenuItem(inspect));
+        JavaFXUtil.addStyleClass(item, MENU_STYLE_INBUILT);
         item.setOnAction(e -> inspectObject());
   
         menu.getItems().add(item = new MenuItem(remove));
+        JavaFXUtil.addStyleClass(item, MENU_STYLE_INBUILT);
         item.setOnAction(e -> removeObject());
 
         FXMenuManager menuManager = new FXMenuManager(menu, extMgr, new ObjectExtensionMenu(this));

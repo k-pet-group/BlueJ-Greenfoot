@@ -209,6 +209,7 @@ public class ClassTarget extends DependentTarget
     private boolean recordedAsOpen = false;
     @OnThread(Tag.Any)
     private final AtomicBoolean visible = new AtomicBoolean(true);
+    private static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
 
     /**
      * Create a new class target in package 'pkg'.
@@ -1943,6 +1944,7 @@ public class ClassTarget extends DependentTarget
         {
             super(createTestStr);
             setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
         
         @OnThread(Tag.Swing)
@@ -1984,6 +1986,7 @@ public class ClassTarget extends DependentTarget
             super(editStr);
             setOnAction(e -> SwingUtilities.invokeLater(() -> open()));
             setDisable(!enable);
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
 
@@ -2000,6 +2003,7 @@ public class ClassTarget extends DependentTarget
                 getPackage().compile(ClassTarget.this, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
             }));
             setDisable(!enable);
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
 
@@ -2013,6 +2017,7 @@ public class ClassTarget extends DependentTarget
         {
             super(removeStr);
             setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
 
         @OnThread(Tag.Swing)
@@ -2025,6 +2030,7 @@ public class ClassTarget extends DependentTarget
                     SwingUtilities.invokeLater(() -> getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this));
                 }
             });
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
 
@@ -2039,6 +2045,7 @@ public class ClassTarget extends DependentTarget
             super(inspectStr);
             setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
             setDisable(!enable);
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
 
         @OnThread(Tag.Swing)
@@ -2047,6 +2054,7 @@ public class ClassTarget extends DependentTarget
             if (checkDebuggerState()) {
                 inspect();
             }
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
 
@@ -2057,6 +2065,7 @@ public class ClassTarget extends DependentTarget
         {
             super(convertToJavaStr);
             setOnAction(this::actionPerformed);
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
 
         private void actionPerformed(ActionEvent e)
@@ -2075,6 +2084,7 @@ public class ClassTarget extends DependentTarget
         {
             super(convertToStrideStr);
             setOnAction(e -> SwingUtilities.invokeLater(() -> convertToStride()));
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
     
