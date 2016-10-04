@@ -32,10 +32,10 @@
 #include <list>
 #include <shlwapi.h>
 
-
+#define __cplusplus_temp __cplusplus
 #undef __cplusplus
 #include <jni.h>
-#define __cplusplus
+#define __cplusplus __cplusplus_temp
 
 #ifndef APPNAME
 #define APPNAME "BlueJ"
