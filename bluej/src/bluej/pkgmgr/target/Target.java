@@ -40,6 +40,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -119,21 +120,15 @@ public abstract class Target
                     {
                         pkg.getEditor().selectOnly(this);
                     }
-                }
-                else if (e.isPopupTrigger())
-                {
-                    pkg.getEditor().selectOnly(this);
-                    popupMenu((int)e.getScreenX(), (int)e.getScreenY(), pkg.getEditor());
+                    pane.requestFocus();
                 }
                 e.consume();    
             });
-            pane.setOnMousePressed(e -> {
-                if (e.isPopupTrigger())
-                {
-                    pkg.getEditor().selectOnly(this);
-                    popupMenu((int)e.getScreenX(), (int)e.getScreenY(), pkg.getEditor());
-                }
-            });
+            JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
+                pkg.getEditor().selectOnly(this);
+                popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
+                return true;
+            }, KeyCode.SPACE, KeyCode.ENTER);
         });
 
         if (pkg == null)
