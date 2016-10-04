@@ -37,7 +37,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
+import bluej.pkgmgr.Layer;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget;
 

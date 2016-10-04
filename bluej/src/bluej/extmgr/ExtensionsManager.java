@@ -21,7 +21,6 @@
  */
 package bluej.extmgr;
 
-import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.io.File;
 import java.util.*;
@@ -34,7 +33,7 @@ import bluej.extensions.event.*;
 import bluej.extensions.painter.ExtensionClassTargetPainter;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
+import bluej.pkgmgr.Layer;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformSupplier;
 

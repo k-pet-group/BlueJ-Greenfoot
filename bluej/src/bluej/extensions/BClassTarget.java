@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,14 +22,19 @@
 package bluej.extensions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javafx.application.Platform;
+
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget;
+import bluej.utility.Utility;
 
 /**
  * A wrapper for a class target (vertex) in the class diagram of BlueJ.
@@ -108,7 +113,7 @@ public class BClassTarget
         ClassTarget classTarget = getClassTarget();
         
         if (classTarget != null) {
-            classTarget.recalcDependentPositions();
+            Platform.runLater(() -> {classTarget.recalcDependentPositions();});
         }
     }
 
@@ -127,7 +132,8 @@ public class BClassTarget
         ClassTarget classTarget = getClassTarget();
 
         if (classTarget != null) {
-            classTarget.getPackage().getEditor().revalidate();
+            PackageEditor editor = classTarget.getPackage().getEditor();
+            Platform.runLater(() -> {editor.repaint();});
         }
     }
 
@@ -223,7 +229,7 @@ public class BClassTarget
         ClassTarget classTarget = getClassTarget();
 
         if (classTarget != null) {
-            classTarget.setVisible(visible);
+            Platform.runLater(() -> {classTarget.setVisible(visible);});
         }
     }
 
@@ -312,16 +318,9 @@ public class BClassTarget
      *            An {@link Iterator} of type {@link Dependency}.
      * @return A {@link List} of corresponding {@link BDependency} objects.
      */
-    private List<BDependency> getBDependencies(Iterator<? extends Dependency> dependencies)
+    private List<BDependency> getBDependencies(Collection<? extends Dependency> dependencies)
     {
-        List<BDependency> result = new ArrayList<BDependency>();
-
-        while (dependencies.hasNext()) {
-            Dependency dependency = dependencies.next();
-            result.add(dependency.getBDependency());
-        }
-
-        return result;
+        return Utility.mapList(dependencies, Dependency::getBDependency);
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,15 +21,18 @@
  */
 package bluej.pkgmgr.target;
 
+import javax.swing.SwingUtilities;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import bluej.graph.Moveable;
+import javafx.application.Platform;
+
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.dependency.*;
-import bluej.utility.MultiIterator;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A target that has relationships to other targets
@@ -46,11 +49,16 @@ public abstract class DependentTarget extends EditableTarget
 
     protected int state = S_INVALID;
 
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<UsesDependency> inUses;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<UsesDependency> outUses;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<Dependency> parents;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<Dependency> children;
 
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     protected DependentTarget assoc;
 
     /**
@@ -69,6 +77,7 @@ public abstract class DependentTarget extends EditableTarget
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setPos(int x, int y)
     {
         super.setPos(x,y);
@@ -76,6 +85,7 @@ public abstract class DependentTarget extends EditableTarget
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setSize(int width, int height)
     {
         super.setSize(width, height);
@@ -98,21 +108,24 @@ public abstract class DependentTarget extends EditableTarget
         }
     }
 
-    public void setAssociation(DependentTarget t)
+    @OnThread(Tag.FXPlatform)
+    public synchronized void setAssociation(DependentTarget t)
     {
         assoc = t;
         //assoiated classes are not allowed to move on their own
-        if (assoc instanceof Moveable){
-            ((Moveable)assoc).setIsMoveable(false);
+        if (assoc.isMoveable()){
+            assoc.setIsMoveable(false);
         }
     }
 
-    public DependentTarget getAssociation()
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    public synchronized DependentTarget getAssociation()
     {
         return assoc;
     }
 
-    public void addDependencyOut(Dependency d, boolean recalc)
+    @OnThread(Tag.FXPlatform)
+    public synchronized void addDependencyOut(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
             outUses.add((UsesDependency) d);
@@ -125,11 +138,12 @@ public abstract class DependentTarget extends EditableTarget
         }
 
         if(recalc) {
-            setState(S_INVALID);
+            SwingUtilities.invokeLater(() -> {setState(S_INVALID);});
         }
     }
 
-    public void addDependencyIn(Dependency d, boolean recalc)
+    @OnThread(Tag.FXPlatform)
+    public synchronized void addDependencyIn(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
             inUses.add((UsesDependency) d);
@@ -142,7 +156,8 @@ public abstract class DependentTarget extends EditableTarget
         }
     }
 
-    public void removeDependencyOut(Dependency d, boolean recalc)
+    @OnThread(Tag.FXPlatform)
+    public synchronized void removeDependencyOut(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
             outUses.remove(d);
@@ -155,10 +170,13 @@ public abstract class DependentTarget extends EditableTarget
         }
         
         if(recalc)
-            setState(S_INVALID);
+        {
+            SwingUtilities.invokeLater(() -> {setState(S_INVALID);});
+        }
     }
 
-    public void removeDependencyIn(Dependency d, boolean recalc)
+    @OnThread(Tag.FXPlatform)
+    public synchronized void removeDependencyIn(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
             inUses.remove(d);
@@ -172,29 +190,32 @@ public abstract class DependentTarget extends EditableTarget
         }
     }
 
-    public Iterator<? extends Dependency> dependencies()
+    @OnThread(Tag.Any)
+    public synchronized Collection<Dependency> dependencies()
     {
-        List<Iterator<? extends Dependency>> v = new ArrayList<Iterator<? extends Dependency>>(2);
-        v.add(parents.iterator());
-        v.add(outUses.iterator());
-        return new MultiIterator<Dependency>(v);
+        List<Dependency> d = new ArrayList<>();
+        d.addAll(parents);
+        d.addAll(outUses);
+        return d;
     }
 
-    public Iterator<? extends Dependency> dependents()
+    @OnThread(Tag.Any)
+    public synchronized Collection<Dependency> dependents()
     {
-        List<Iterator<? extends Dependency>> v = new ArrayList<Iterator<? extends Dependency>>(2);
-        v.add(children.iterator());
-        v.add(inUses.iterator());
-        return new MultiIterator<Dependency>(v);
+        List<Dependency> d = new ArrayList<>();
+        d.addAll(children);
+        d.addAll(inUses);
+        return d;
     }
     
     /**
      * Get the dependencies between this target and its parent(s).
      * The returned list should not be modified and may be a view or a copy.
      */
-    public List<Dependency> getParents()
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    public synchronized List<Dependency> getParents()
     {
-        return Collections.unmodifiableList(parents);
+        return Collections.unmodifiableList(new ArrayList<>(parents));
     }
     
     /**
@@ -202,12 +223,14 @@ public abstract class DependentTarget extends EditableTarget
      * 
      * @return
      */
-    public List<Dependency> getChildren()
+    @OnThread(value = Tag.Any)
+    public synchronized List<Dependency> getChildrenDependencies()
     {
-        return Collections.unmodifiableList(children);
+        return Collections.unmodifiableList(new ArrayList<>(children));
     }
-    
-    public List<Dependency> dependentsAsList()
+
+    @OnThread(Tag.Any)
+    public synchronized List<Dependency> dependentsAsList()
     {
         List<Dependency> list = new LinkedList<Dependency>();
         list.addAll(inUses);
@@ -217,16 +240,18 @@ public abstract class DependentTarget extends EditableTarget
         return list;
     }
 
-    public Iterator<UsesDependency> usesDependencies()
+    @OnThread(Tag.Any)
+    public synchronized List<UsesDependency> usesDependencies()
     {
-        return Collections.unmodifiableList(outUses).iterator();
+        return Collections.unmodifiableList(new ArrayList<>(outUses));
     }
     
     /**
      *  Remove all outgoing dependencies. Also updates the package. (Don't
      *  call from package remove method - this will cause infinite recursion.)
      */
-    protected void removeAllOutDependencies()
+    @OnThread(Tag.Swing)
+    protected synchronized void removeAllOutDependencies()
     {
         // While removing the dependencies the dependency list must be
         // copied since the original is modified during this operation.
@@ -237,7 +262,7 @@ public abstract class DependentTarget extends EditableTarget
             Dependency[] outUsesArray = new Dependency[outUses.size()];
             outUses.toArray(outUsesArray);
             for(int i = 0; i < outUsesArray.length ; i++) {
-                getPackage().removeDependency(outUsesArray[i], false);
+                getPackage().getEditor().removeDependency(outUsesArray[i], false);
             }
         }
 
@@ -247,7 +272,8 @@ public abstract class DependentTarget extends EditableTarget
     /**
      *  Remove inheritance dependencies.
      */
-    protected void removeInheritDependencies()
+    @OnThread(Tag.Swing)
+    protected synchronized void removeInheritDependencies()
     {
         // While removing the dependencies the dependency list must be
         // copied since the original is modified during this operation.
@@ -257,7 +283,7 @@ public abstract class DependentTarget extends EditableTarget
             Dependency[] parentsArray = new Dependency[ parents.size() ];
             parents.toArray(parentsArray);
             for(int i = 0; i < parentsArray.length ; i++)
-                getPackage().removeDependency(parentsArray[i], false);
+                getPackage().getEditor().removeDependency(parentsArray[i], false);
         }
     }
 
@@ -265,7 +291,8 @@ public abstract class DependentTarget extends EditableTarget
      *  Remove all incoming dependencies. Also updates the package. (Don't
      *  call from package remove method - this will cause infinite recursion.)
      */
-    protected void removeAllInDependencies()
+    @OnThread(Tag.Swing)
+    protected synchronized void removeAllInDependencies()
     {
         // While removing the dependencies the dependency list must be
         // copied since the original is modified during this operation.
@@ -276,7 +303,7 @@ public abstract class DependentTarget extends EditableTarget
             Dependency[] inUsesArray = new Dependency[ inUses.size() ];
             inUses.toArray(inUsesArray);
             for(int i = 0; i < inUsesArray.length ; i++)
-                getPackage().removeDependency(inUsesArray[i], false);
+                getPackage().getEditor().removeDependency(inUsesArray[i], false);
         }
 
         // delete dependencies to child classes
@@ -284,24 +311,25 @@ public abstract class DependentTarget extends EditableTarget
             Dependency[] childrenArray = new Dependency[ children.size() ];
             children.toArray(childrenArray);
             for(int i = 0; i < childrenArray.length ; i++)
-                getPackage().removeDependency(childrenArray[i], false);
+                getPackage().getEditor().removeDependency(childrenArray[i], false);
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public void recalcOutUses()
     {
         // Determine the visible outgoing uses dependencies
-        List<UsesDependency> visibleOutUses = getVisibleUsesDependencies(outUses);
+        List<UsesDependency> visibleOutUses = getVisibleUsesDependencies(usesDependencies());
 
         // Order the arrows by quadrant and then appropriate coordinate
         Collections.sort(visibleOutUses, new LayoutComparer(this, false));
 
         // Count the number of arrows into each quadrant
-        int cy = getY() + getHeight() / 2;
+        int cy = getY() + (int)getHeight() / 2;
         int n_top = 0, n_bottom = 0;
         for(int i = visibleOutUses.size() - 1; i >= 0; i--) {
             Target to = ((Dependency) visibleOutUses.get(i)).getTo();
-            int to_cy = to.getY() + to.getHeight() / 2;
+            int to_cy = to.getY() + (int)to.getHeight() / 2;
             if(to_cy < cy)
                 ++n_top;
             else
@@ -309,17 +337,17 @@ public abstract class DependentTarget extends EditableTarget
         }
 
         // Assign source coordinates to each arrow
-        int top_left = getX() + (getWidth() - (n_top - 1) * ARR_HORIZ_DIST) / 2;
-        int bottom_left = getX() + (getWidth() - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
+        int top_left = getX() + ((int)getWidth() - (n_top - 1) * ARR_HORIZ_DIST) / 2;
+        int bottom_left = getX() + ((int)getWidth() - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
         for(int i = 0; i < n_top + n_bottom; i++) {
             UsesDependency d = (UsesDependency) visibleOutUses.get(i);
-            int to_cy = d.getTo().getY() + d.getTo().getHeight() / 2;
+            int to_cy = d.getTo().getY() + (int)d.getTo().getHeight() / 2;
             if(to_cy < cy) {
                 d.setSourceCoords(top_left, getY() - 4, true);
                 top_left += ARR_HORIZ_DIST;
             }
             else {
-                d.setSourceCoords(bottom_left, getY() + getHeight() + 4, false);
+                d.setSourceCoords(bottom_left, getY() + (int)getHeight() + 4, false);
                 bottom_left += ARR_HORIZ_DIST;
             }
         }
@@ -328,7 +356,8 @@ public abstract class DependentTarget extends EditableTarget
     /**
      * Re-layout arrows into this target
      */
-    public void recalcInUses()
+    @OnThread(Tag.FXPlatform)
+    public synchronized void recalcInUses()
     {
         // Determine the visible incoming uses dependencies
         List<UsesDependency> visibleInUses = getVisibleUsesDependencies(inUses);
@@ -337,12 +366,12 @@ public abstract class DependentTarget extends EditableTarget
         Collections.sort(visibleInUses, new LayoutComparer(this, true));
 
         // Count the number of arrows into each quadrant
-        int cx = getX() + getWidth() / 2;
+        int cx = getX() + (int)getWidth() / 2;
         int n_left = 0, n_right = 0;
         for(int i = visibleInUses.size() - 1; i >= 0; i--)
         {
             Target from = ((Dependency) visibleInUses.get(i)).getFrom();
-            int from_cx = from.getX() + from.getWidth() / 2;
+            int from_cx = from.getX() + (int)from.getWidth() / 2;
             if(from_cx < cx)
                 ++n_left;
             else
@@ -350,12 +379,12 @@ public abstract class DependentTarget extends EditableTarget
         }
 
         // Assign source coordinates to each arrow
-        int left_top = getY() + (getHeight() - (n_left - 1) * ARR_VERT_DIST) / 2;
-        int right_top = getY() + (getHeight() - (n_right - 1) * ARR_VERT_DIST) / 2;
+        int left_top = getY() + ((int)getHeight() - (n_left - 1) * ARR_VERT_DIST) / 2;
+        int right_top = getY() + ((int)getHeight() - (n_right - 1) * ARR_VERT_DIST) / 2;
         for(int i = 0; i < n_left + n_right; i++)
         {
             UsesDependency d = (UsesDependency) visibleInUses.get(i);
-            int from_cx = d.getFrom().getX() + d.getFrom().getWidth() / 2;
+            int from_cx = d.getFrom().getX() + (int)d.getFrom().getWidth() / 2;
             if(from_cx < cx)
             {
                 d.setDestCoords(getX() - 4, left_top, true);
@@ -363,7 +392,7 @@ public abstract class DependentTarget extends EditableTarget
             }
             else
             {
-                d.setDestCoords(getX() + getWidth() + 4, right_top, false);
+                d.setDestCoords(getX() + (int)getWidth() + 4, right_top, false);
                 right_top += ARR_VERT_DIST;
             }
         }
@@ -378,7 +407,8 @@ public abstract class DependentTarget extends EditableTarget
      * @return A {@link List} containing all visible uses dependencies from the
      *         input list.
      */
-    private List<UsesDependency> getVisibleUsesDependencies(List<UsesDependency> usesDependencies)
+    @OnThread(Tag.FXPlatform)
+    private static List<UsesDependency> getVisibleUsesDependencies(List<UsesDependency> usesDependencies)
     {
         List<UsesDependency> result = new ArrayList<UsesDependency>();
 
@@ -394,12 +424,14 @@ public abstract class DependentTarget extends EditableTarget
     /**
      *  Clear the flag in a outgoing uses dependencies
      */
-    protected void unflagAllOutDependencies()
+    @OnThread(Tag.Swing)
+    protected synchronized void unflagAllOutDependencies()
     {
         for(int i = 0; i < outUses.size(); i++)
             ((UsesDependency)outUses.get(i)).setFlag(false);
     }
 
+    @OnThread(Tag.FXPlatform)
     public Point getAttachment(double angle)
     {
         double radius;
@@ -431,7 +463,8 @@ public abstract class DependentTarget extends EditableTarget
      * dependency arrows associated with this target.
      * @param editor
      */
-    public void recalcDependentPositions() 
+    @OnThread(Tag.FXPlatform)
+    public synchronized void recalcDependentPositions() 
     {
         // Recalculate arrows
         recalcInUses();
@@ -450,6 +483,7 @@ public abstract class DependentTarget extends EditableTarget
         updateAssociatePosition();
     }
 
+    @OnThread(Tag.FXPlatform)
     protected void updateAssociatePosition()
     {
         DependentTarget t = getAssociation();
@@ -495,7 +529,7 @@ public abstract class DependentTarget extends EditableTarget
     public void setState(int newState)
     {
         state = newState;
-        repaint();
+        Platform.runLater(() -> {repaint();});
     }
 
 }

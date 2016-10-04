@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,10 +27,12 @@ import java.util.Properties;
 import javax.swing.*;
 
 import bluej.Config;
-import bluej.graph.GraphEditor;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A parent package
@@ -76,11 +78,13 @@ public class ParentPackageTarget extends PackageTarget
         return true;
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isResizable()
     {
         return false;
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isMoveable()
     {
         return false;
@@ -104,12 +108,13 @@ public class ParentPackageTarget extends PackageTarget
     /**
      * Disply the context menu.
      */
-    public void popupMenu(int x, int y, GraphEditor graphEditor)
+    @OnThread(Tag.FXPlatform)
+    public void popupMenu(int x, int y, PackageEditor graphEditor)
     {
-        JPopupMenu menu = createMenu(null);
-        if (menu != null) {
-            menu.show(graphEditor, x, y);
-        }
+        //JPopupMenu menu = createMenu(null);
+        //if (menu != null) {
+            //menu.show(graphEditor, x, y);
+        //}
     }
 
     /**

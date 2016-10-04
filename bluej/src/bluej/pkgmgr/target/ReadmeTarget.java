@@ -23,17 +23,16 @@ package bluej.pkgmgr.target;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+
+import javafx.application.Platform;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 
 import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
@@ -43,10 +42,8 @@ import bluej.compiler.CompileType;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.extensions.SourceType;
-import bluej.graph.GraphEditor;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.graphPainter.ReadmeTargetPainter;
-import bluej.prefmgr.PrefMgr;
+import bluej.pkgmgr.PackageEditor;
 import bluej.utility.Debug;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -58,9 +55,9 @@ import threadchecker.Tag;
  */
 public class ReadmeTarget extends EditableTarget
 {
-    private static final int WIDTH = ReadmeTargetPainter.getMaxImageWidth();
-    private static final int HEIGHT = ReadmeTargetPainter.getMaxImageHeight();
-    private static String openStr = Config.getString("pkgmgr.packagemenu.open");
+    private static final int WIDTH = 30;
+    private static final int HEIGHT = 50;
+    private static final String openStr = Config.getString("pkgmgr.packagemenu.open");
     private static final Color envOpColour = Config.ENV_COLOUR;
     
     public static final String README_ID = "@README";
@@ -71,8 +68,10 @@ public class ReadmeTarget extends EditableTarget
         // a valid java name
         super(pkg, README_ID);
         
-        setPos(10, 10);
-        setSize(WIDTH, HEIGHT);
+        Platform.runLater(() -> {
+            setPos(10, 10);
+            setSize(WIDTH, HEIGHT);
+        });
     }
 
     @Override
@@ -96,6 +95,7 @@ public class ReadmeTarget extends EditableTarget
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isResizable()
     {
         return false;
@@ -151,53 +151,35 @@ public class ReadmeTarget extends EditableTarget
      * Creates a new PkgFrame when a package is drilled down on.
      */
     @Override
-    public void doubleClick(MouseEvent evt)
+    @OnThread(Tag.FXPlatform)
+    public void doubleClick()
     {
-        openEditor();
+        SwingUtilities.invokeLater(() -> openEditor());
     }
 
     /*
      * Post the context menu for this target.
      */
     @Override
-    public void popupMenu(int x, int y, GraphEditor editor)
+    @OnThread(Tag.FXPlatform)
+    public void popupMenu(int x, int y, PackageEditor editor)
     {
-        JPopupMenu menu = createMenu(null);
+        ContextMenu menu = createMenu();
         if (menu != null) {
             // editor.add(menu);
-            menu.show(editor, x, y);
+            menu.show(getNode(), x, y);
         }
     }
     
-    /**
-     * Construct a popup menu which displays all our parent packages.
-     */
-    private JPopupMenu createMenu(Class<?> cl)
+    @OnThread(Tag.FXPlatform)
+    private ContextMenu createMenu()
     {
-        JPopupMenu menu = new JPopupMenu();
-        JMenuItem item;
-           
-        Action openAction = new OpenAction(openStr);
-
-        item = menu.add(openAction);
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        return menu;
+        MenuItem open = new MenuItem(openStr);
+        open.setOnAction(e -> SwingUtilities.invokeLater(() -> openEditor()));
+        
+        return new ContextMenu(open);
     }
 
-    private class OpenAction extends AbstractAction
-    {
-        public OpenAction(String menu)
-        {
-            super(menu);
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            openEditor();
-        }
-    }
-    
     @Override
     public void remove()
     {
@@ -221,12 +203,6 @@ public class ReadmeTarget extends EditableTarget
     
     @Override
     public void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits, StrideEditReason reason) { }
-
-    @Override
-    public String getTooltipText()
-    {
-        return "README";
-    }
 
     @Override
     public void recordClose() { }

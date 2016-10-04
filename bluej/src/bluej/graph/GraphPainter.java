@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,10 +23,12 @@ package bluej.graph;
 
 import java.awt.Graphics2D;
 
+import bluej.pkgmgr.PackageEditor;
+
 /**
  * Interface for GraphPainters
  * @author fisker
- * @version $Id: GraphPainter.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: GraphPainter.java 16646 2016-10-04 11:08:29Z nccb $
  */
 public interface GraphPainter
 {
@@ -35,5 +37,5 @@ public interface GraphPainter
      * @param g  The graphics contect to paint on.
      * @param graphEditor  The editor to be painted.
      */
-    void paint(Graphics2D g, GraphEditor graphEditor);
+    void paint(Graphics2D g, PackageEditor graphEditor);
 }

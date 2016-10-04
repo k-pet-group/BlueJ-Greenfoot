@@ -160,7 +160,7 @@ public class ClassDiagramPrinter implements Printable
                   printArea.width, printArea.height);
         ((Graphics2D)g).scale(scaleFactor, scaleFactor);
 
-        pkg.getEditor().paint(g);
+        //pkg.getEditor().paint(g);
 
         currentPage = pageIndex;
         return Printable.PAGE_EXISTS;

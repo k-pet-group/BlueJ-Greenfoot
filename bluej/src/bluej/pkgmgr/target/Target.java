@@ -22,9 +22,9 @@
 package bluej.pkgmgr.target;
 
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
 import bluej.prefmgr.PrefMgr;
-import bluej.graph.Vertex;
-import bluej.graph.GraphEditor;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -32,13 +32,21 @@ import java.util.Properties;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import javafx.application.Platform;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 
 /**
  * A general target in a package
  * 
  * @author Michael Cahill
  */
-public abstract class Target extends Vertex
+public abstract class Target
     implements Comparable<Target>
 {
     static final int DEF_WIDTH = 80;
@@ -60,6 +68,7 @@ public abstract class Target extends Vertex
 
     protected boolean disabled;
 
+    @OnThread(Tag.Any)
     protected boolean selected;
     protected boolean queued;
 
@@ -67,12 +76,30 @@ public abstract class Target extends Vertex
     // a target in dependence of its name and the font used to display it
     static FontRenderContext FRC = new FontRenderContext(new AffineTransform(), false, false);
 
+    // Shadow variables to allow saving from Swing of FX items:
+    @OnThread(Tag.Any)
+    private final AtomicInteger atomicX = new AtomicInteger();
+    @OnThread(Tag.Any)
+    private final AtomicInteger atomicY = new AtomicInteger();
+    @OnThread(Tag.Any)
+    private final AtomicInteger atomicWidth = new AtomicInteger();
+    @OnThread(Tag.Any)
+    private final AtomicInteger atomicHeight = new AtomicInteger();
+    
+    @OnThread(Tag.FXPlatform)
+    protected BorderPane pane;
+    
     /**
      * Create a new target with default size.
      */
     public Target(Package pkg, String identifierName)
     {
-        super(0, 0, calculateWidth(identifierName), DEF_HEIGHT);
+        Platform.runLater(() -> {
+            pane = new BorderPane();
+            pane.setPrefWidth(calculateWidth(identifierName));
+            pane.setPrefHeight(DEF_HEIGHT);
+            pane.setTop(new Label(identifierName));
+        });
 
         if (pkg == null)
             throw new NullPointerException();
@@ -91,15 +118,16 @@ public abstract class Target extends Vertex
      *            the name of the target (may be null).
      * @return the width the target should have to fully display its name.
      */
+    @OnThread(Tag.FX)
     protected static int calculateWidth(String name)
     {
         int width = 0;
         if (name != null)
-            width = (int) PrefMgr.getTargetFont().getStringBounds(name, FRC).getWidth();
+            width = (int)JavaFXUtil.measureString(new javafx.scene.control.Label(), name);//(int) PrefMgr.getTargetFont().getStringBounds(name, FRC).getWidth();
         if ((width + 20) <= DEF_WIDTH)
             return DEF_WIDTH;
         else
-            return (width + 29) / GraphEditor.GRID_SIZE * GraphEditor.GRID_SIZE;
+            return (width + 29) / PackageEditor.GRID_SIZE * PackageEditor.GRID_SIZE;
     }
     
     /**
@@ -134,19 +162,26 @@ public abstract class Target extends Vertex
         }
         catch (NumberFormatException nfe) {}
         
-        setPos(xpos, ypos);
-        setSize(width, height);
+        final int xPosFinal = xpos;
+        final int yPosFinal = ypos;
+        final int widthFinal = width;
+        final int heightFinal = height;
+        Platform.runLater(() -> {
+            setPos(xPosFinal, yPosFinal);
+            setSize(widthFinal, heightFinal);
+        });
     }
 
     /**
      * Save the target's properties to 'props'.
      */
+    @OnThread(Tag.Swing)
     public void save(Properties props, String prefix)
     {
-        props.put(prefix + ".x", String.valueOf(getX()));
-        props.put(prefix + ".y", String.valueOf(getY()));
-        props.put(prefix + ".width", String.valueOf(getWidth()));
-        props.put(prefix + ".height", String.valueOf(getHeight()));
+        props.put(prefix + ".x", String.valueOf(atomicX.get()));
+        props.put(prefix + ".y", String.valueOf(atomicY.get()));
+        props.put(prefix + ".width", String.valueOf(atomicWidth.get()));
+        props.put(prefix + ".height", String.valueOf(atomicHeight.get()));
 
         props.put(prefix + ".name", getIdentifierName());
     }
@@ -193,6 +228,7 @@ public abstract class Target extends Vertex
      * 
      * @see bluej.graph.Selectable#setSelected(boolean)
      */
+    @OnThread(Tag.FXPlatform)
     public void setSelected(boolean selected)
     {
         this.selected = selected;
@@ -204,23 +240,10 @@ public abstract class Target extends Vertex
      * 
      * @see bluej.graph.Selectable#isSelected()
      */
+    @OnThread(Tag.Any)
     public boolean isSelected()
     {
         return selected;
-    }
-
-    /**
-     * Return a bounding box for this target.
-     */
-    public Rectangle getBoundingBox()
-    {
-        return getBounds();
-    }
-
-    public void toggleSelected()
-    {
-        selected = !selected;
-        repaint();
     }
 
     /*
@@ -228,9 +251,42 @@ public abstract class Target extends Vertex
      * 
      * @see bluej.graph.Selectable#isHandle(int, int)
      */
+    @OnThread(Tag.FXPlatform)
     public boolean isHandle(int x, int y)
     {
         return (x - this.getX() + y - this.getY() >= getWidth() + getHeight() - HANDLE_SIZE);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public int getX()
+    {
+        Double leftAnchor = AnchorPane.getLeftAnchor(pane);
+        if (leftAnchor == null)
+            return 0;
+        else
+            return (int)(double)leftAnchor;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public int getY()
+    {
+        Double topAnchor = AnchorPane.getTopAnchor(pane);
+        if (topAnchor == null)
+            return 0;
+        else
+            return (int)(double)topAnchor;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public int getWidth()
+    {
+        return (int)pane.getWidth();
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public int getHeight()
+    {
+        return (int)pane.getHeight();
     }
 
     public boolean isQueued()
@@ -243,6 +299,7 @@ public abstract class Target extends Vertex
         this.queued = queued;
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isResizable()
     {
         return true;
@@ -258,10 +315,11 @@ public abstract class Target extends Vertex
         return true;
     }
 
+    @OnThread(Tag.FXPlatform)
     public synchronized void repaint()
     {
-        if (pkg != null && pkg.getEditor() != null) {
-            pkg.getEditor().repaint(getX(), getY(), getWidth(), getHeight());
+        if (pkg != null) {
+            pkg.repaint();
         }
     }
 
@@ -269,6 +327,7 @@ public abstract class Target extends Vertex
      * We have a notion of equality that relates solely to the identifierName.
      * If the identifierNames's are equal then the Target's are equal.
      */
+    @OnThread(Tag.Any)
     public boolean equals(Object o)
     {
         if (o instanceof Target) {
@@ -278,11 +337,13 @@ public abstract class Target extends Vertex
         return false;
     }
 
+    @OnThread(Tag.Any)
     public synchronized int hashCode()
     {
         return identifierName.hashCode();
     }
 
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public int compareTo(Target t)
     {
         if (equals(t))
@@ -304,5 +365,78 @@ public abstract class Target extends Vertex
     public String toString()
     {
         return getDisplayName();
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setPos(int x, int y)
+    {
+        AnchorPane.setTopAnchor(pane, (double)y);
+        AnchorPane.setLeftAnchor(pane, (double)x);
+        atomicX.set(x);
+        atomicY.set(y);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setSize(int width, int height)
+    {
+        pane.setPrefWidth(width);
+        pane.setPrefHeight(height);
+        atomicWidth.set(width);
+        atomicHeight.set(height);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public abstract void doubleClick();
+
+    @OnThread(Tag.FXPlatform)
+    public abstract void popupMenu(int x, int y, PackageEditor editor);
+
+    public abstract void remove();
+
+    @OnThread(Tag.FXPlatform)
+    public Node getNode()
+    {
+        return pane;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public Bounds getBounds()
+    {
+        return pane.getBoundsInLocal();
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public boolean isMoveable()
+    {
+        return false;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setIsMoveable(boolean b)
+    {
+        
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setDragging(boolean b)
+    {
+        
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setGhostPosition(int x, int y)
+    {
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setPositionToGhost()
+    {
+        
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setGhostSize(int deltaX, int deltaY)
+    {
+        
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,8 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.extensions;
+
+import javafx.application.Platform;
 
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
@@ -241,12 +243,14 @@ public class BDependency
         Dependency dependency = originId.getDependency(targetId, type);
 
         if (dependency != null) {
-            dependency.setVisible(visible);                
+            Platform.runLater(() -> {
+                dependency.setVisible(visible);                
         
-            if (recalc) {
-                dependency.getFrom().recalcOutUses();
-                dependency.getTo().recalcInUses();
-            }
+                if (recalc) {
+                    dependency.getFrom().recalcOutUses();
+                    dependency.getTo().recalcInUses();
+                }
+            });
         }
     }
     

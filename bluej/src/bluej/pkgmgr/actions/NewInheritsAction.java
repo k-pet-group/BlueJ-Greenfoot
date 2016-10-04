@@ -21,6 +21,8 @@
  */
 package bluej.pkgmgr.actions;
 
+import javafx.application.Platform;
+
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 

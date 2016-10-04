@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ import java.util.Comparator;
 
 import bluej.pkgmgr.dependency.*;
 import bluej.pkgmgr.target.*;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An ordering on targets to make layout nicer (reduce line intersections, etc.). This
@@ -59,6 +61,7 @@ import bluej.pkgmgr.target.*;
  *
  * @author Michael Cahill
  */
+@OnThread(Tag.FXPlatform)
 public class LayoutComparer implements Comparator<Dependency>
 {
     DependentTarget centre;
@@ -76,6 +79,8 @@ public class LayoutComparer implements Comparator<Dependency>
      *
      * Note: this is designed to reduce intersections when drawing lines.
      */
+    @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public int compare(Dependency a, Dependency b)
     {
         DependentTarget ta = in ? a.getFrom() : a.getTo();

@@ -79,6 +79,7 @@ import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.text.TabExpander;
 
+import bluej.pkgmgr.target.Target;
 import bluej.utility.javafx.FXPlatformSupplier;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -1360,7 +1361,12 @@ public class Utility
             }
         };
     }
-    
+
+    public static <T> List<T> filterList(Collection<T> src, Predicate<T> keep)
+    {
+        return src.stream().filter(keep).collect(Collectors.toList());
+    }
+
     @FunctionalInterface
     public static interface BackgroundRunnable
     {

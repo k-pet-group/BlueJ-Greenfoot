@@ -28,7 +28,7 @@ import bluej.extensions.painter.ExtensionClassTargetPainter;
 import bluej.extmgr.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
+import bluej.pkgmgr.Layer;
 import java.awt.*;
 import java.io.*;
 import java.util.*;

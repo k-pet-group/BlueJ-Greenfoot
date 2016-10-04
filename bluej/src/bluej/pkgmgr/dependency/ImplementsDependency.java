@@ -26,14 +26,18 @@ import java.util.Properties;
 import bluej.extensions.BDependency.Type;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An "implements" dependency between two (class) targets in a package
  *
  * @author  Michael Kolling
  */
+@OnThread(Tag.FXPlatform)
 public class ImplementsDependency extends Dependency
 {
+    @OnThread(Tag.Any)
     public ImplementsDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(pkg, from, to);
@@ -44,6 +48,7 @@ public class ImplementsDependency extends Dependency
         this(pkg, null, null);
     }
 
+    @OnThread(Tag.Swing)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
@@ -61,6 +66,7 @@ public class ImplementsDependency extends Dependency
     }
     
     @Override
+    @OnThread(Tag.Any)
     public Type getType()
     {
         return Type.IMPLEMENTS;

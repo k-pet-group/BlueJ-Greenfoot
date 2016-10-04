@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,15 +24,21 @@ package bluej.graph;
 import java.awt.*;
 import java.util.*;
 
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.Target;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * The diagram's marquee (a rectangular drag area for selecting graph elements).
  * 
  * @author fisker
  * @author Michael Kolling
  */
+@OnThread(Tag.FXPlatform)
 public final class Marquee
 {
-    private Graph graph;
+    private Package graph;
     private int drag_start_x, drag_start_y;
     private Rectangle currentRect;
     private SelectionSet selected = null;
@@ -40,7 +46,8 @@ public final class Marquee
     /**
      * Create a marquee for a given graph.
      */
-    public Marquee(Graph graph)
+    @OnThread(Tag.Any)
+    public Marquee(Package graph)
     {
         this.graph = graph;
     }
@@ -52,7 +59,7 @@ public final class Marquee
     {
         drag_start_x = x;
         drag_start_y = y;
-        selected = new SelectionSet();
+        selected = new SelectionSet(Collections.emptyList());
     }
 
     /**
@@ -91,8 +98,7 @@ public final class Marquee
         selected.clear();
 
         //find the intersecting vertices
-        for (Iterator<? extends Vertex> it = graph.getVertices(); it.hasNext();) {
-            Vertex v = it.next();
+        for (Target v : graph.getVertices()) {
             if (v.getBounds().intersects(x, y, w, h)) {
                 selected.add(v);
             }

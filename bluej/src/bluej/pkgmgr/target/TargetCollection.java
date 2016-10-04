@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,12 +23,16 @@ package bluej.pkgmgr.target;
 
 import java.util.*;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A collection of targets. 
  *
  * @author Andrew Patterson
  */
-public class TargetCollection
+@OnThread(Tag.Any)
+public class TargetCollection implements Iterable<Target>
 {
     /** all the targets in a package */
     protected HashMap<String,Target> targets = new HashMap<String,Target>();
@@ -43,11 +47,6 @@ public class TargetCollection
         return targets.values().iterator();
     }
 
-    public Iterator<Target> sortediterator()
-    {
-        return new TreeSet<Target>(targets.values()).iterator();
-    }
-    
     /**
      * Get an array of the targets currently in the collection.
      */

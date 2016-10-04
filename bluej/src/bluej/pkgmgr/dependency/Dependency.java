@@ -35,11 +35,12 @@ import bluej.extensions.BDependency.Type;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
-import bluej.graph.*;
-import bluej.graph.Edge;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.target.*;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A dependency between two targets in a package.
@@ -47,29 +48,41 @@ import bluej.utility.Debug;
  * @author Michael Cahill
  * @author Michael Kolling
  */
-public abstract class Dependency extends Edge
+@OnThread(Tag.FXPlatform)
+public abstract class Dependency
 {
+    @OnThread(Tag.Any)
+    public final Target from;
+    @OnThread(Tag.Any)
+    public final Target to;
+    @OnThread(Tag.Any)
+    private boolean visible = true;
     Package pkg;
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
     protected boolean selected = false;
     //    protected static final float strokeWithDefault = 1.0f;
     //    protected static final float strokeWithSelected = 2.0f;
+    @OnThread(Tag.Swing)
     private BDependency singleBDependency; // every Dependency has none or one BDependency
 
     static final int SELECT_DIST = 4;
 
+    @OnThread(Tag.Any)
     public Dependency(Package pkg, DependentTarget from, DependentTarget to)
     {
-        super(from, to);
+        this.from = from;
+        this.to = to;
         this.pkg = pkg;
     }
 
+    @OnThread(Tag.Any)
     public Dependency(Package pkg)
     {
-        this(pkg, null, null);
+        this(pkg, (DependentTarget)null, null);
     }
 
     @Override
+    @OnThread(Tag.Any)
     public boolean equals(Object other)
     {
         if (!(other instanceof Dependency))
@@ -79,26 +92,25 @@ public abstract class Dependency extends Edge
     }
 
     @Override
+    @OnThread(Tag.Any)
     public int hashCode()
     {
         return to.hashCode() - from.hashCode();
     }
 
-    public void repaint()
-    {
-        pkg.repaint();
-    }
-
+    @OnThread(Tag.Any)
     public DependentTarget getFrom()
     {
         return (DependentTarget) from;
     }
 
+    @OnThread(Tag.Any)
     public DependentTarget getTo()
     {
         return (DependentTarget) to;
     }
 
+    @OnThread(Tag.Swing)
     public BDependency getBDependency()
     {
         if (singleBDependency == null) {
@@ -116,6 +128,7 @@ public abstract class Dependency extends Edge
      * 
      * @return The type of this dependency;
      */
+    @OnThread(Tag.Any)
     public abstract Type getType();
 
     /**
@@ -124,33 +137,30 @@ public abstract class Dependency extends Edge
      * 
      * @return true if successful or false if the named targets could not be found
      */
-    public boolean load(Properties props, String prefix)
+    @OnThread(Tag.Any)
+    public Dependency(Package pkg, Properties props, String prefix) throws DependencyNotFoundException
     {
+        this.pkg = pkg;
         String fromName = props.getProperty(prefix + ".from");
         if (fromName == null) {
-            Debug.reportError("No 'from' target specified for dependency " + prefix);
-            return false;
+            throw new DependencyNotFoundException("No 'from' target specified for dependency " + prefix);
         }
         this.from = pkg.getTarget(fromName);
         if (! (this.from instanceof DependentTarget)) {
-            Debug.reportError("Failed to find 'from' target " + fromName);
-            return false;
+            throw new DependencyNotFoundException("Failed to find 'from' target " + fromName);
         }
                 
         String toName = props.getProperty(prefix + ".to");
         if (toName == null) {
-            Debug.reportError("No 'to' target specified for dependency " + prefix);
-            return false;
+            throw new DependencyNotFoundException("No 'to' target specified for dependency " + prefix);
         }
         this.to = pkg.getTarget(toName);
         if (! (this.to instanceof DependentTarget)) {
-            Debug.reportError("Failed to find 'to' target " + toName);
-            return false;
+            throw new DependencyNotFoundException("Failed to find 'to' target " + toName);
         }
-        
-        return true;
     }
 
+    @OnThread(Tag.Swing)
     public void save(Properties props, String prefix)
     {
         props.put(prefix + ".from", ((DependentTarget) from).getIdentifierName());
@@ -160,69 +170,60 @@ public abstract class Dependency extends Edge
     /**
      * Disply the context menu.
      */
-    public void popupMenu(int x, int y, GraphEditor graphEditor)
+    public void popupMenu(int x, int y, PackageEditor graphEditor)
     {
-        JPopupMenu menu = new JPopupMenu();
-        menu.add(new RemoveAction());
-        menu.show(graphEditor, x, y);
+        //JPopupMenu menu = new JPopupMenu();
+        //menu.add(new RemoveAction());
+        //menu.show(graphEditor, x, y);
     }
 
-    private class RemoveAction extends AbstractAction
-    {
-        public RemoveAction()
-        {
-            putValue(NAME, removeStr);
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            remove();
-
-        }
-    }
+    /**
+     * Remove this element from the graph.
+     */
+    abstract public void remove();
 
     public String toString()
     {
         return getFrom().getIdentifierName() + " --> " + getTo().getIdentifierName();
     }
 
-    @Override
-    public void setVisible(boolean visible)
+    @OnThread(Tag.Any)
+    public boolean isVisible()
     {
-        if (visible != isVisible()) {
-            super.setVisible(visible);
+        return visible;
+    }
+    
+    public void setVisible(boolean vis)
+    {
+        if (vis != this.visible) {
+            this.visible = vis;
+            pkg.repaint();
             
-            // Inform all listeners about the visibility change
-            DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), visible);
-            ExtensionsManager.getInstance().delegateEvent(event);
+            SwingUtilities.invokeLater(() -> {
+                // Inform all listeners about the visibility change
+                DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), vis);
+                ExtensionsManager.getInstance().delegateEvent(event);
+            });
         }
     }
 
-    @Override
     public void setSelected(boolean selected)
     {
         this.selected = selected;
-        repaint();
+        pkg.repaint();
     }
 
-    @Override
     public boolean isSelected()
     {
         return selected;
     }
 
-    @Override
-    public boolean isHandle(int x, int y)
-    {
-        return false;
-    }
 
     /**
      * Contains method for dependencies that are drawn as more or less straight
      * lines (e.g. extends). Should be overwritten for dependencies with
      * different shape.
      */
-    @Override
     public boolean contains(int x, int y)
     {
         Line line = computeLine();
@@ -285,6 +286,7 @@ public abstract class Dependency extends Edge
      * Inner class to describe the most important state of this dependency
      * (start point, end point, angle) concisely.
      */
+    @OnThread(Tag.FXPlatform)
     public class Line
     {
         public Point from;
@@ -298,7 +300,13 @@ public abstract class Dependency extends Edge
             this.angle = angle;
         }
     }
-    
-    public void singleSelected() { }
 
+    @OnThread(Tag.Any)
+    public static class DependencyNotFoundException extends Exception
+    {
+        public DependencyNotFoundException(String s)
+        {
+            super(s);
+        }
+    }
 }

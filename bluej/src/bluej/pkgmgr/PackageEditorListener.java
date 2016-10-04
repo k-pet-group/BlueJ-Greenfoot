@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package bluej.pkgmgr;
 import java.util.EventListener;
 
 import bluej.testmgr.record.InvokerRecord;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The listener for PackageEditor events.
@@ -39,10 +41,12 @@ public interface PackageEditorListener extends EventListener
     /**
      * The package editor received focus
      */
+    @OnThread(Tag.FXPlatform)
     void pkgEditorGotFocus();
     
     /**
      * The package editor lost permanent focus
      */
+    @OnThread(Tag.FXPlatform)
     void pkgEditorLostFocus();
 }

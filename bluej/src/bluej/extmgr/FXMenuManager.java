@@ -27,13 +27,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.stage.WindowEvent;
 
 import bluej.pkgmgr.Project;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -51,9 +57,20 @@ public final class FXMenuManager
 {
     private final ExtensionsManager extMgr;
     private final SeparatorMenuItem menuSeparator;
+    // Either popupMenu will be non-null, or menu, but not both:
     @OnThread(Tag.Any)
     private final ContextMenu popupMenu;
-    private final ExtensionMenu menuGenerator;
+    @OnThread(Tag.Any)
+    private final Menu menu;
+
+    @OnThread(Tag.Any)
+    public synchronized void setMenuGenerator(ExtensionMenu menuGenerator)
+    {
+        this.menuGenerator = menuGenerator;
+    }
+
+    @OnThread(value = Tag.Any,requireSynchronized = true)
+    private ExtensionMenu menuGenerator;
 
     /**
      * Constructor for the MenuManager object.
@@ -64,10 +81,20 @@ public final class FXMenuManager
     public FXMenuManager(ContextMenu aPopupMenu, ExtensionsManager extMgr, ExtensionMenu menuGenerator)
     {
         this.extMgr = extMgr;
-        this.popupMenu = aPopupMenu;
         this.menuGenerator = menuGenerator;
-        popupMenu.setOnShowing(this::popupMenuWillBecomeVisible);
         menuSeparator = new SeparatorMenuItem();
+        this.popupMenu = aPopupMenu;
+        popupMenu.setOnShowing(this::menuWillBecomeVisible);
+        this.menu = null;
+    }
+    public FXMenuManager(Menu aMenu, ExtensionsManager extMgr, ExtensionMenu menuGenerator)
+    {
+        this.extMgr = extMgr;
+        this.menuGenerator = menuGenerator;
+        menuSeparator = new SeparatorMenuItem();
+        this.menu = aMenu;
+        menu.setOnShowing(this::menuWillBecomeVisible);
+        this.popupMenu = null;
     }
 
     /**
@@ -77,19 +104,22 @@ public final class FXMenuManager
      * @param  onThisProject  a specific project to look for, or null for all projects.
      */
     @OnThread(Tag.Swing)
-    public void addExtensionMenu(Project onThisProject)
+    public synchronized void addExtensionMenu(Project onThisProject)
     {
         // Get all menus that can be possibly be generated now.
         List<JMenuItem> menuItems = extMgr.getMenuItems(menuGenerator, onThisProject);
 
-        FXRunnable addItems = JavaFXUtil.swingMenuItemsToContextMenu(popupMenu, menuItems, null, (swingItem, fxItem) -> {
-            fxItem.getProperties().put("bluej.extmgr.ExtensionWrapper", swingItem.getClientProperty("bluej.extmgr.ExtensionWrapper"));
-            fxItem.getProperties().put("bluej.extmgr.JMenuItem", swingItem);
-        });
+        final FXPlatformRunnable addItems = popupMenu != null ?
+            JavaFXUtil.swingMenuItemsToContextMenu(popupMenu, menuItems, null, (swingItem, fxItem) -> {
+                fxItem.getProperties().put("bluej.extmgr.ExtensionWrapper", swingItem.getClientProperty("bluej.extmgr.ExtensionWrapper"));
+                fxItem.getProperties().put("bluej.extmgr.JMenuItem", swingItem);
+            }) :
+            supplierToRunnable(JavaFXUtil.swingMenuToFX(menuItems, null, () -> this.menu, (a, b) -> {}));
         
         Platform.runLater(() -> {
             // Take copy to iterate because we're doing removal:
-            ArrayList<MenuItem> oldPopupItems = new ArrayList<>(popupMenu.getItems());
+            final ObservableList<MenuItem> items = getItems();
+            ArrayList<MenuItem> oldPopupItems = new ArrayList<>(items);
             for (MenuItem aComponent : oldPopupItems) {
                 // Only remove if it was an extension item:
                 ExtensionWrapper aWrapper = (ExtensionWrapper) aComponent.getProperties().get(
@@ -99,19 +129,33 @@ public final class FXMenuManager
                     continue;
                 }
     
-                popupMenu.getItems().remove(aComponent);
+                items.remove(aComponent);
             }
     
-            popupMenu.getItems().remove(menuSeparator);
+            items.remove(menuSeparator);
     
             // If the provided menu is empty we are done here.
             if (!menuItems.isEmpty())
             {
-                popupMenu.getItems().add(menuSeparator);
+                items.add(menuSeparator);
                 addItems.run();
             }
         });
         
+    }
+
+    @OnThread(Tag.Any)
+    private FXPlatformRunnable supplierToRunnable(FXPlatformSupplier<Menu> menuFXSupplier)
+    {
+        return () -> {menuFXSupplier.get();};
+    }
+
+    private ObservableList<MenuItem> getItems()
+    {
+        if (popupMenu != null)
+            return popupMenu.getItems();
+        else
+            return menu.getItems();
     }
 
     /**
@@ -119,12 +163,13 @@ public final class FXMenuManager
      *
      * @param  event  The associated event
      */
-    public void popupMenuWillBecomeVisible(WindowEvent event)
+    private void menuWillBecomeVisible(Event event)
     {
         int itemsCount = 0;
 
         // Take copy to iterate because we're doing removal:
-        ArrayList<MenuItem> popupMenuItems = new ArrayList<>(popupMenu.getItems());
+        final ObservableList<MenuItem> items = getItems();
+        ArrayList<MenuItem> popupMenuItems = new ArrayList<>(items);
         for (MenuItem aComponent : popupMenuItems) {
 
             ExtensionWrapper aWrapper = (ExtensionWrapper) aComponent.getProperties().get(
@@ -139,18 +184,22 @@ public final class FXMenuManager
             SwingUtilities.invokeLater(() -> {
                 if (!aWrapper.isValid())
                 {
-                    Platform.runLater(() -> {popupMenu.getItems().remove(aComponent);});
+                    Platform.runLater(() -> {
+                        items.remove(aComponent);});
                 }
                 else
                 {
-                    aWrapper.safePostMenuItem(menuGenerator, swingItem);
+                    synchronized (this)
+                    {
+                        aWrapper.safePostMenuItem(menuGenerator, swingItem);
+                    }
                 }
             });
             itemsCount++;
         }
 
         if (itemsCount <= 0) {
-            popupMenu.getItems().remove(menuSeparator);
+            items.remove(menuSeparator);
         }
     }
 }

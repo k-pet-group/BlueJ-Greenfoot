@@ -23,11 +23,15 @@ package bluej.graph;
 
 import java.awt.Point;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Class RubberBand describes a rubber line used during line dragging.
  * The line always extends from a source target to a given end point.
  */
 
+@OnThread(Tag.FXPlatform)
 public class RubberBand 
 {
     /** The line's start point */

@@ -22,21 +22,17 @@
 package bluej.pkgmgr;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Image;
-import java.awt.KeyboardFocusManager;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
@@ -62,10 +58,8 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
@@ -73,38 +67,43 @@ import bluej.classmgr.BPClassLoader;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.extensions.SourceType;
+import bluej.extmgr.FXMenuManager;
 import bluej.groupwork.actions.CommitCommentAction;
 import bluej.groupwork.actions.StatusAction;
 import bluej.groupwork.actions.UpdateDialogAction;
 import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
-import bluej.pkgmgr.dependency.Dependency;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -167,11 +166,8 @@ import bluej.pkgmgr.actions.SaveProjectAction;
 import bluej.pkgmgr.actions.SaveProjectAsAction;
 import bluej.pkgmgr.actions.ShowCopyrightAction;
 import bluej.pkgmgr.actions.ShowDebuggerAction;
-import bluej.pkgmgr.actions.ShowInheritsAction;
 import bluej.pkgmgr.actions.ShowTerminalAction;
 import bluej.pkgmgr.actions.ShowTestResultsAction;
-import bluej.pkgmgr.actions.ShowTextEvalAction;
-import bluej.pkgmgr.actions.ShowUsesAction;
 import bluej.pkgmgr.actions.StandardAPIHelpAction;
 import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
@@ -197,7 +193,7 @@ import bluej.views.MethodView;
  * The main user interface frame which allows editing of packages
  */
 public class PkgMgrFrame extends JPanel
-    implements BlueJEventListener, MouseListener, PackageEditorListener
+    implements BlueJEventListener, PackageEditorListener
 {
     static final int DEFAULT_WIDTH = 560;
     static final int DEFAULT_HEIGHT = 400;
@@ -242,11 +238,11 @@ public class PkgMgrFrame extends JPanel
     private ClassTarget testTarget = null;
     private String testTargetMethod;
     private int testIdentifier = 0;
-    private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
     private JMenu testingMenu;
     private MenuManager toolsMenuManager;
-    private MenuManager viewMenuManager;
+    @OnThread(Tag.FXPlatform)
+    private SimpleObjectProperty<FXMenuManager> viewMenuManager;
     private JMenu teamMenu;
     private JMenuItem shareProjectMenuItem;
     private JMenuItem teamSettingsMenuItem;
@@ -285,16 +281,10 @@ public class PkgMgrFrame extends JPanel
     private final Action restartVMAction = new RestartVMAction(this);
     private final Action useLibraryAction = new UseLibraryAction(this);
     private final Action generateDocsAction = new GenerateDocsAction(this);
-    private final PkgMgrToggleAction showUsesAction = new ShowUsesAction(this);
-    private final PkgMgrToggleAction showInheritsAction = new ShowInheritsAction(this);
     private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this);
     private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
-    private final PkgMgrToggleAction showTextEvalAction = new ShowTextEvalAction(this);
     @OnThread(Tag.Any)
     private final Action runTestsAction = new RunTestsAction(this);
-    /* The scroller which holds the PackageEditor we use to edit packages */
-    @OnThread(Tag.Any)
-    private SwingNode classScroller = null;
     /*
      * The package that this frame is working on or null for the case where
      * there is no package currently being edited (check with isEmptyFrame())
@@ -310,7 +300,8 @@ public class PkgMgrFrame extends JPanel
     // Effectively final, but can't mark it as such because initialised on other thread
     private ObjectBench objbench;
     private TextEvalArea textEvaluator;
-    private boolean showingTextEvaluator = false;
+    @OnThread(Tag.FXPlatform)
+    private SimpleBooleanProperty showingTextEval;
 
     // static methods to create and remove frames
     // lazy initialised dialogs
@@ -330,6 +321,8 @@ public class PkgMgrFrame extends JPanel
     private final SwingNode padSwingNode;
     @OnThread(Tag.FXPlatform)
     private VBox toolPanel;
+    @OnThread(Tag.FXPlatform)
+    private EventHandler<javafx.scene.input.MouseEvent> editorMousePressed;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -341,6 +334,8 @@ public class PkgMgrFrame extends JPanel
         Platform.runLater(() -> {
             stageProperty = new SimpleObjectProperty<>(null);
             paneProperty = new SimpleObjectProperty<>(null);
+            showingTextEval = new SimpleBooleanProperty(false);
+            viewMenuManager = new SimpleObjectProperty<>(null);
         });
         this.pkg = null;
         this.editor = null;
@@ -370,7 +365,7 @@ public class PkgMgrFrame extends JPanel
                 addCtrlTabShortcut(objbench);
                 
                 BorderPane topPane = new BorderPane();
-                topPane.setCenter(new ScrollPane(classScroller));
+                topPane.setCenter(new ScrollPane(editor));
                 //topPane.setMinHeight(minSize.getHeight());
                 topPane.setLeft(toolPanel);
                 SplitPane bottomPane = new SplitPane(objbench, padSwingNode);
@@ -395,6 +390,7 @@ public class PkgMgrFrame extends JPanel
                 //org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
                 paneProperty.setValue(root);
+                JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
             });
         }
         else
@@ -468,10 +464,10 @@ public class PkgMgrFrame extends JPanel
         frames.remove(frame);
 
         BlueJEvent.removeListener(frame);
-        PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEvaluator);
-
+        
         Platform.runLater(() ->
         {
+            PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEval.get());
             javafx.stage.Window window = frame.getFXWindow();
             if (window != null)
                 window.hide();
@@ -884,15 +880,32 @@ public class PkgMgrFrame extends JPanel
 
         if(! Config.isGreenfoot()) {
             this.editor = new PackageEditor(this, pkg, this);
-            editor.getAccessibleContext().setAccessibleName(Config.getString("pkgmgr.graphEditor.title"));
-            editor.setFocusable(true);
-            editor.setTransferHandler(new FileTransferHandler(this));
-            editor.addMouseListener(this);  // This mouse listener MUST be before
-            editor.startMouseListening();   //  the editor's listener itself!
+            Platform.runLater(() -> {
+                editor.setOnDragOver(event -> {
+                        Dragboard db = event.getDragboard();
+                        if (db.hasFiles()) {
+                            event.acceptTransferModes(TransferMode.COPY);
+                        } else {
+                            event.consume();
+                        }
+                });
+    
+                editor.setOnDragDropped(event -> {
+                        Dragboard db = event.getDragboard();
+                        boolean success = false;
+                        if (db.hasFiles()) {
+                            success = true;
+                            SwingUtilities.invokeLater(() -> {addFiles(db.getFiles());});
+                        }
+                        event.setDropCompleted(success);
+                        event.consume();
+                });
+                editorMousePressed = e -> clearStatus();
+                editor.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);  // This mouse listener MUST be before
+                editor.startMouseListening();   //  the editor's listener itself!
+            });
             pkg.setEditor(this.editor);
             addCtrlTabShortcut(editor);
-            
-            Platform.runLater(() -> classScroller.setContent(editor));
             
             // fetch some properties from the package that interest us
             Properties p = pkg.getLastSavedProperties();
@@ -932,11 +945,11 @@ public class PkgMgrFrame extends JPanel
             String uses_str = p.getProperty("package.showUses", "true");
             String extends_str = p.getProperty("package.showExtends", "true");
             
-            setShowUsesInPackage(uses_str.equals("true"));
-            setShowExtendsInPackage(extends_str.equals("true"));
-
-            editor.revalidate();
-            editor.requestFocus();
+            Platform.runLater(() -> {
+                editor.setShowUses(uses_str.equals("true"));
+                editor.setShowExtends(extends_str.equals("true"));
+                editor.requestFocus();
+            });
             
             enableFunctions(true); // changes menu items
             updateWindow();
@@ -947,8 +960,18 @@ public class PkgMgrFrame extends JPanel
             this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
             this.toolsMenuManager.addExtensionMenu(pkg.getProject());
 
-            this.viewMenuManager.setMenuGenerator(new ViewExtensionMenu(pkg));
-            this.viewMenuManager.addExtensionMenu(pkg.getProject());
+            Package pkgFinal = pkg;
+            // I hate FX/Swing GUI threading...
+            Platform.runLater(() ->
+                {
+                    // runAfterCurrent so that FX finishes initialising the menu,
+                    // then hop to Swing thread to actually change things:
+                    JavaFXUtil.onceNotNull(this.viewMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
+                    {
+                        vm.setMenuGenerator(new ViewExtensionMenu(pkgFinal));
+                        vm.addExtensionMenu(pkgFinal.getProject());
+                    })));
+                });
         
             teamActions = pkg.getProject().getTeamActions();
             resetTeamActions();
@@ -1012,11 +1035,8 @@ public class PkgMgrFrame extends JPanel
         extMgr.packageClosing(pkg);
 
         if(! Config.isGreenfoot()) {
-            Platform.runLater(() -> classScroller.setContent(null));
-            //classScroller.setBorder(Config.getNormalBorder());
-            editor.removeMouseListener(this);
             this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
-            this.viewMenuManager.setMenuGenerator(new ViewExtensionMenu(pkg));
+            this.viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(pkg));
             
             ObjectBench bench = getObjectBench();
             String uniqueId = getProject().getUniqueId();
@@ -1024,7 +1044,12 @@ public class PkgMgrFrame extends JPanel
             clearTextEval();
             updateTextEvalBackground(true);
             
-            editor.graphClosed();
+            // Take a copy because we're about to null it:
+            PackageEditor oldEd = editor;
+            Platform.runLater(() -> {
+                oldEd.removeEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);
+                oldEd.graphClosed();
+            });
         }
 
         getPackage().closeAllEditors();
@@ -1128,7 +1153,8 @@ public class PkgMgrFrame extends JPanel
     {
         
         if (isEmptyFrame()) {
-            Platform.runLater(() -> classScroller.setContent(noProjectMessagePanel));
+            //TODO
+            //Platform.runLater(() -> classScroller.setContent(noProjectMessagePanel));
             repaint();
         }
         updateWindowTitle();
@@ -1207,30 +1233,9 @@ public class PkgMgrFrame extends JPanel
     {
         return textEvaluator;
     }
-
-    @Override
-    public void mousePressed(MouseEvent evt)
-    {
-        clearStatus();
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent evt)
-    {}
     
     @Override
-    public void mouseClicked(MouseEvent evt)
-    {}
-
-    @Override
-    public void mouseEntered(MouseEvent evt)
-    {}
-    
-    @Override
-    public void mouseExited(MouseEvent evt)
-    {}
-    
-    @Override
+    @OnThread(Tag.FXPlatform)
     public void pkgEditorGotFocus()
     {
         //classScroller.setBorder(Config.getFocusBorder());
@@ -1245,6 +1250,7 @@ public class PkgMgrFrame extends JPanel
     // --- non-interactive methods ---
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void pkgEditorLostFocus()
     {
         //classScroller.setBorder(Config.getNormalBorder());
@@ -1466,13 +1472,14 @@ public class PkgMgrFrame extends JPanel
                 return false;
         }
 
-        pkg.findSpaceForVertex(target);
         pkg.addTarget(target);
-
-        if (editor != null) {
-            editor.scrollRectToVisible(target.getBounds());
-            editor.repaint();
-        }
+        
+        Platform.runLater(() -> {
+            if (editor != null) {
+                editor.findSpaceForVertex(target);
+                editor.scrollTo(target);
+            }
+        });
 
         if (target.getRole() instanceof UnitTestClassRole) {
             pkg.compileQuiet(target, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE);
@@ -1665,7 +1672,10 @@ public class PkgMgrFrame extends JPanel
                 enableFunctions(false); // changes menu items
                 updateWindow();
                 toolsMenuManager.addExtensionMenu(null);
-                viewMenuManager.addExtensionMenu(null);
+                Platform.runLater(() -> {
+                    FXMenuManager vm = viewMenuManager.get();
+                    SwingUtilities.invokeLater(() -> vm.addExtensionMenu(null));
+                });
             }
             else { // all frames gone, lets quit
                 bluej.Main.doQuit();
@@ -2242,73 +2252,40 @@ public class PkgMgrFrame extends JPanel
      */
     public void doRemove()
     {
-        Component permanentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
-        if (permanentFocusOwner == editor || Arrays.asList(editor.getComponents()).contains(permanentFocusOwner)) { // focus in diagram
-            if (!(doRemoveTargets() || doRemoveDependency())) {
-                Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "no-class-selected"));
-            }
-        }
-        else {
-            String pkgId = pkg.getId();
-            Platform.runLater(() -> {
-                if (objbench.isFocused()) { // focus in object bench
-                    objbench.removeSelectedObject(pkgId);
+        Package pkgFinal = this.pkg;
+        String pkgId = pkg.getId();
+        Platform.runLater(() -> {
+            if (editor.isFocused())
+            {
+                if (!(doRemoveTargets(pkgFinal) || editor.doRemoveDependency())) {
+                    DialogManager.showErrorFX(getFXWindow(), "no-class-selected");
                 }
-            });
-        }
+            }
+            else if (objbench.isFocused()) { // focus in object bench
+                objbench.removeSelectedObject(pkgId);
+            }
+        });
         // Otherwise ignore the command - focus is probably in text eval area
     }
 
-    private boolean doRemoveTargets()
+    @OnThread(Tag.FXPlatform)
+    private boolean doRemoveTargets(Package thePkg)
     {
-        Target[] targets = pkg.getSelectedTargets();
-        if (targets.length <= 0) {
+        List<Target> targets = thePkg.getSelectedTargets();
+        if (targets.size() <= 0) {
             return false;
         }
-        Platform.runLater(() ->
+        if (askRemoveClass())
         {
-            if (askRemoveClass())
+            SwingUtilities.invokeLater(() ->
             {
-                SwingUtilities.invokeLater(() ->
+                for (Target target : targets)
                 {
-                    for (Target target : targets)
-                    {
-                        target.remove();
-                    }
-                });
-            }
-        });
-        return true;
-    }
-
-    private boolean doRemoveDependency()
-    {
-        Dependency dependency = pkg.getSelectedDependency();
-        if (dependency == null) {
-            return false;
+                    target.remove();
+                }
+            });
         }
-        dependency.remove();
         return true;
-    }
-
-    /**
-     * The user function to add a uses arrow to the diagram was invoked.
-     */
-    public void doNewUses()
-    {
-        pkg.setState(Package.S_CHOOSE_USES_FROM);
-        setStatus(Config.getString("pkgmgr.chooseUsesFrom"));
-        pkg.getEditor().clearSelection();
-    }
-
-    /**
-     * The user function to add an inherits arrow to the dagram was invoked.
-     */
-    public void doNewInherits()
-    {
-        pkg.setState(Package.S_CHOOSE_EXT_FROM);
-        setStatus(Config.getString("pkgmgr.chooseInhFrom"));
-        editor.clearSelection();
     }
 
     /**
@@ -2476,8 +2453,8 @@ public class PkgMgrFrame extends JPanel
      */
     public void compileSelected()
     {
-        Target[] targets = pkg.getSelectedTargets();
-        if (targets.length > 0) {
+        List<Target> targets = pkg.getSelectedTargets();
+        if (targets.size() > 0) {
             for (Target target : targets) {
                 if (target instanceof ClassTarget) {
                     ClassTarget t = (ClassTarget) target;
@@ -2562,21 +2539,6 @@ public class PkgMgrFrame extends JPanel
     }
 
     /**
-     * Toggle the state of the "show uses arrows" switch.
-     */
-    public void setShowUsesInPackage(boolean show)
-    {
-        pkg.setShowUses(show);
-        editor.repaint();
-    }
-
-    public void setShowExtendsInPackage(boolean show)
-    {
-        pkg.setShowExtends(show);
-        editor.repaint();
-    }
-    
-    /**
      * Show or hide the testing tools.
      * @param show True to show; false to hide
      */
@@ -2604,35 +2566,35 @@ public class PkgMgrFrame extends JPanel
     {
         updateWindow();
     }
-    
-    /**
-     * Tell whether we are currently showing the text evaluation pane.
-     * 
-     * @return true if the text eval pane is visible.
-     */
-    public boolean isTextEvalVisible()
-    {
-        return showingTextEvaluator;
-    }
 
     /**
      * Show or hide the text evaluation component.
      * @param show True to show; false to hide
      */
-    public void showHideTextEval(boolean show)
+    @OnThread(Tag.FXPlatform)
+    private void showHideTextEval(boolean show)
     {
-        if (showingTextEvaluator == show) // already showing the right thing?
-            return;
-
         if (show) {
-            addTextEvaluatorPane();
-            textEvaluator.requestFocus();
+            SwingUtilities.invokeLater(() -> {
+                //classScroller.setPreferredSize(classScroller.getSize()); // memorize
+                // current size
+                if (textEvaluator == null) {
+                    textEvaluator = new TextEvalArea(this, pkgMgrFont);
+                    if (padSwingNode != null)
+                        padSwingNode.setContent(textEvaluator);
+                    itemsToDisable.add(textEvaluator);
+                    addCtrlTabShortcut(textEvaluator.getFocusableComponent());
+                }
+                textEvaluator.requestFocus();
+            });
         }
         else {
-            removeTextEvaluatorPane();
+            SwingUtilities.invokeLater(() -> {
+                textEvaluator.setPreferredSize(textEvaluator.getSize()); // memorize current sizes
+            });
+            //classScroller.setPreferredSize(classScroller.getSize());});
             editor.requestFocus();
         }
-        showingTextEvaluator = show;
     }
 
     /**
@@ -2869,8 +2831,7 @@ public class PkgMgrFrame extends JPanel
             toolPanel.getChildren().add(node);
         });
         //mainPanel.add(toolPanel, BorderLayout.WEST);
-
-        classScroller = new SwingNode();
+        
         /*
         classScroller.setBorder(Config.getNormalBorder());
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
@@ -2915,7 +2876,7 @@ public class PkgMgrFrame extends JPanel
         
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
-            addTextEvaluatorPane();
+            Platform.runLater(() -> {showingTextEval.set(true);});
         }
 
         Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> {
@@ -2928,35 +2889,6 @@ public class PkgMgrFrame extends JPanel
         if (isEmptyFrame()) {
             enableFunctions(false);
         }
-    }
-
-    /**
-     * Add the text evaluation pane in the lower area of the frame.
-     */
-    private void addTextEvaluatorPane()
-    {
-        //classScroller.setPreferredSize(classScroller.getSize()); // memorize
-                                                                 // current size
-        if (textEvaluator == null) {
-            textEvaluator = new TextEvalArea(this, pkgMgrFont);
-            if (padSwingNode != null)
-                padSwingNode.setContent(textEvaluator);
-            itemsToDisable.add(textEvaluator);
-            addCtrlTabShortcut(textEvaluator.getFocusableComponent());
-        }
-        showingTextEvaluator = true;
-    }
-
-    /**
-     * Remove the text evaluation pane from the frame.
-     */
-    private void removeTextEvaluatorPane()
-    {
-        textEvaluator.setPreferredSize(textEvaluator.getSize()); // memorize
-                                                                 // current
-                                                                 // sizes
-        //classScroller.setPreferredSize(classScroller.getSize());
-        showingTextEvaluator = false;
     }
 
     /**
@@ -3008,13 +2940,13 @@ public class PkgMgrFrame extends JPanel
      */
     private void setupMenus()
     {
-        menubar = new JMenuBar();
+        List<JavaFXUtil.SwingOrFXMenu> menubar = new ArrayList<>();
         itemsToDisable = new ArrayList<>();
 
         JMenu menu = new JMenu(Config.getString("menu.package"));
         int mnemonic = Config.getMnemonicKey("menu.package");
         menu.setMnemonic(mnemonic);
-        menubar.add(menu);
+        menubar.add(new JavaFXUtil.SwingMenu(menu));
         {
             createMenuItem(new NewProjectAction(this), menu);
             createMenuItem(new OpenProjectAction(this), menu);
@@ -3042,7 +2974,7 @@ public class PkgMgrFrame extends JPanel
 
         menu = new JMenu(Config.getString("menu.edit"));
         menu.setMnemonic(Config.getMnemonicKey("menu.edit"));
-        menubar.add(menu);
+        menubar.add(new JavaFXUtil.SwingMenu(menu));
         {
             createMenuItem(newClassAction, menu);
             createMenuItem(newPackageAction, menu);
@@ -3055,7 +2987,7 @@ public class PkgMgrFrame extends JPanel
 
         menu = new JMenu(Config.getString("menu.tools"));
         menu.setMnemonic(Config.getMnemonicKey("menu.tools"));
-        menubar.add(menu);
+        menubar.add(new JavaFXUtil.SwingMenu(menu));
         {
             createMenuItem(compileAction, menu);
             createMenuItem(compileSelectedAction, menu);
@@ -3117,35 +3049,45 @@ public class PkgMgrFrame extends JPanel
             }
         }
 
-        menu = new JMenu(Config.getString("menu.view"));
-        menu.setMnemonic(Config.getMnemonicKey("menu.view"));
-        menubar.add(menu);
+        //menu = new JMenu(Config.getString("menu.view"));
+        //menu.setMnemonic(Config.getMnemonicKey("menu.view"));
         {
-            showUsesMenuItem = createCheckboxMenuItem(showUsesAction, menu, true);
-            showExtendsMenuItem = createCheckboxMenuItem(showInheritsAction, menu, true);
-            menu.addSeparator();
+            ExtensionsManager extMgr = ExtensionsManager.getInstance();
+            JavaFXUtil.FXPlusSwingMenu mixedMenu = new JavaFXUtil.FXPlusSwingMenu(() -> {
+                Menu fxMenu = new Menu(Config.getString("menu.view"));
+                // Create the menu manager that looks after extension view menus
+                viewMenuManager.set(new FXMenuManager(fxMenu, extMgr, null));
+                return fxMenu;
+            });
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), editor.showUsesProperty(), null));
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showInherits"), editor.showInheritsProperty(), null));
+            mixedMenu.addFX(SeparatorMenuItem::new);
+            List<JMenuItem> swingItems = new ArrayList<>();
+            createCheckboxMenuItem(showDebuggerAction, swingItems, false);
+            createCheckboxMenuItem(showTerminalAction, swingItems, false);
+            mixedMenu.addSwing(swingItems);
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, null));
+            mixedMenu.addFX(SeparatorMenuItem::new);
 
-            createCheckboxMenuItem(showDebuggerAction, menu, false);
-            createCheckboxMenuItem(showTerminalAction, menu, false);
-            createCheckboxMenuItem(showTextEvalAction, menu, false);
-            JSeparator testSeparator = new JSeparator();
-            menu.add(testSeparator);
+            swingItems = new ArrayList<>();
+            showTestResultsItem = createCheckboxMenuItem(new ShowTestResultsAction(this), swingItems, false);
+            mixedMenu.addSwing(swingItems);
 
-            showTestResultsItem = createCheckboxMenuItem(new ShowTestResultsAction(this), menu, false);
-            
-            // Create the menu manager that looks after extension view menus
-            viewMenuManager = new MenuManager(menu.getPopupMenu());
-
-            // If this is the first frame create the extension view menu now.
             // (Otherwise, it will be created during project open.)
-            if (frames.size() <= 1) {
-                viewMenuManager.addExtensionMenu(null);
+            if (frames.size() <= 1)
+            {
+                mixedMenu.runAtEnd(() -> Platform.runLater(() -> {
+                    FXMenuManager vm = viewMenuManager.get();
+                    SwingUtilities.invokeLater(() -> {vm.addExtensionMenu(null);});
+                }));
             }
+
+            menubar.add(mixedMenu);
         }
 
         menu = new JMenu(Config.getString("menu.help"));
         menu.setMnemonic(Config.getMnemonicKey("menu.help"));
-        menubar.add(menu);
+        menubar.add(new JavaFXUtil.SwingMenu(menu));
         {
             if (!Config.usingMacScreenMenubar()) { // no "About" here for Mac
                 createMenuItem(new HelpAboutAction(this), menu);
@@ -3162,11 +3104,14 @@ public class PkgMgrFrame extends JPanel
         addUserHelpItems(menu);
         updateRecentProjects();
 
-        FXSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);
+        FXPlatformSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);
         Platform.runLater(() -> JavaFXUtil.onceNotNull(paneProperty, pane -> {
-            MenuBar fxMenuBar = fxMenuBarSupplier.get();
-            fxMenuBar.setUseSystemMenuBar(true);
-            pane.setTop(fxMenuBar);
+            JavaFXUtil.runNowOrLater(() ->
+            {
+                MenuBar fxMenuBar = fxMenuBarSupplier.get();
+                fxMenuBar.setUseSystemMenuBar(true);
+                pane.setTop(fxMenuBar);
+            });
         }));
     }
 
@@ -3183,7 +3128,7 @@ public class PkgMgrFrame extends JPanel
     /**
      * Add a new menu item to a menu.
      */
-    private JCheckBoxMenuItem createCheckboxMenuItem(PkgMgrToggleAction action, JMenu menu, boolean selected)
+    private JCheckBoxMenuItem createCheckboxMenuItem(PkgMgrToggleAction action, List<JMenuItem> menu, boolean selected)
     {
         ButtonModel bmodel = action.getToggleModel();
 
@@ -3220,7 +3165,10 @@ public class PkgMgrFrame extends JPanel
     public void menuCall()
     {
         if (!isEmptyFrame())
-            pkg.setState(Package.S_IDLE);
+        {
+            PackageEditor pkgEd = pkg.getEditor();
+            Platform.runLater(() -> {pkgEd.clearState();});
+        }
         clearStatus();
     }
 
@@ -3248,11 +3196,8 @@ public class PkgMgrFrame extends JPanel
         actionsToDisable.add(restartVMAction);
         actionsToDisable.add(useLibraryAction);
         actionsToDisable.add(generateDocsAction);
-        actionsToDisable.add(showUsesAction);
-        actionsToDisable.add(showInheritsAction);
         actionsToDisable.add(showDebuggerAction);
         actionsToDisable.add(showTerminalAction);
-        actionsToDisable.add(showTextEvalAction);
         actionsToDisable.add(runTestsAction);
     }
 
@@ -3383,6 +3328,16 @@ public class PkgMgrFrame extends JPanel
                 JavaFXUtil.runAfterCurrent(() -> stage.setX(x));
             }
         });
+    }
+
+    @OnThread(Tag.Swing)
+    public void doNewInherits()
+    {
+        if (pkg != null && pkg.getEditor() != null)
+        {
+            PackageEditor pkgEg = pkg.getEditor();
+            Platform.runLater(() -> {pkgEg.doNewInherits();});
+        }
     }
 
     class URLDisplayer

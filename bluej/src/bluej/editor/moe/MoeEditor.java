@@ -91,6 +91,7 @@ import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -3313,7 +3314,7 @@ public final class MoeEditor extends JPanel
 
         menubar = createMenuBar();
         menubar.setName("menubar");
-        FXSupplier<MenuBar> genMenubar = JavaFXUtil.swingMenuBarToFX(menubar, this);
+        FXPlatformSupplier<MenuBar> genMenubar = JavaFXUtil.swingMenuBarToFX(menubar, this);
         Platform.runLater(() -> {
             fxMenus.clear();
             genMenubar.get().getMenus().forEach(fxMenus::add);

@@ -51,6 +51,7 @@ import javafx.application.Platform;
 
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -71,22 +72,17 @@ import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
 import bluej.editor.TextEditor;
-import bluej.extensions.BDependency;
 import bluej.extensions.BPackage;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.SourceType;
 import bluej.extensions.event.CompileEvent;
-import bluej.extensions.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
-import bluej.graph.Edge;
-import bluej.graph.Graph;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.ParseUtils;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.ClassTarget;
@@ -102,7 +98,6 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
-import bluej.utility.MultiIterator;
 import bluej.utility.SortedProperties;
 import bluej.utility.Utility;
 import bluej.utility.filefilter.FrameSourceFilter;
@@ -117,7 +112,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Axel Schmolitzky
  * @author Andrew Patterson
  */
-public final class Package extends Graph
+public final class Package
 {
     /** message to be shown on the status bar */
     static final String compiling = Config.getString("pkgmgr.compiling");
@@ -149,6 +144,15 @@ public final class Package extends Graph
     public static final int CLASS_EXISTS = 4;
     /** error code */
     public static final int CREATE_ERROR = 5;
+    private final List<Dependency> pendingDeps = new ArrayList<>();
+
+    public void addDependency(Dependency dependency)
+    {
+        if (editor != null)
+            editor.addDependency(dependency, dependency instanceof UsesDependency);
+        else
+            pendingDeps.add(dependency);
+    }
 
     /** Reason code for displaying source line */
     private enum ShowSourceReason
@@ -193,48 +197,26 @@ public final class Package extends Graph
     private volatile SortedProperties lastSavedProps = new SortedProperties();
 
     /** all the targets in a package */
-    private TargetCollection targets;
-
-    /** all the uses-arrows in a package */
-    private List<Dependency> usesArrows;
-
-    /** all the extends-arrows in a package */
-    private List<Dependency> extendsArrows;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    private final TargetCollection targets;
 
     /** Holds the choice of "from" target for a new dependency */
+    @OnThread(Tag.FXPlatform)
     private DependentTarget fromChoice;
 
     /** the CallHistory of a package */
     private CallHistory callHistory;
-
-    /** whether extends-arrows should be shown */
-    private boolean showExtends = true;
-    /** whether uses-arrows should be shown */
-    private boolean showUses = true;
 
     /**
      * needed when debugging with breakpoints to see if the editor window needs
      * to be brought to the front
      */
     private String lastSourceName = "";
-
-    /** state constant - normal state */
-    public static final int S_IDLE = 0;
-    /** state constant - choose the "from" target of a "uses" dependency arrow */
-    public static final int S_CHOOSE_USES_FROM = 1;
-    /** state constant - choose the "to" target for a "uses" dependency arrow */
-    public static final int S_CHOOSE_USES_TO = 2;
-    /** state constant - choose the "from" target of an "extends" arrow */
-    public static final int S_CHOOSE_EXT_FROM = 3;
-    /** state constant - choose the "to" target for an "extends" arrow */
-    public static final int S_CHOOSE_EXT_TO = 4;
-
+    
     /** determines the maximum length of the CallHistory of a package */
     public static final int HISTORY_LENGTH = 6;
-
-    /** the state a package can be in (one of the S_* values) */
-    private int state = S_IDLE;
-
+    
+    @OnThread(Tag.Any)
     private PackageEditor editor;
     
     /** True if we currently have a compile queued up waiting for debugger to become idle */
@@ -274,6 +256,7 @@ public final class Package extends Graph
         this.project = project;
         this.baseName = baseName;
         this.parentPackage = parent;
+        this.targets = new TargetCollection();
 
         init();
     }
@@ -288,16 +271,13 @@ public final class Package extends Graph
         this.project = project;
         this.baseName = "";
         this.parentPackage = null;
-
+        this.targets = new TargetCollection();
         init();
     }
 
     private void init()
         throws IOException
     {
-        targets = new TargetCollection();
-        usesArrows = new ArrayList<Dependency>();
-        extendsArrows = new ArrayList<Dependency>();
         callHistory = new CallHistory(HISTORY_LENGTH);
         dir = new File(project.getProjectDir(), getRelativePath().getPath());
         load();
@@ -396,7 +376,7 @@ public final class Package extends Graph
      * get the readme target for this package
      *  
      */
-    public ReadmeTarget getReadmeTarget()
+    public synchronized ReadmeTarget getReadmeTarget()
     {
         ReadmeTarget readme = (ReadmeTarget) targets.get(ReadmeTarget.README_ID);
         return readme;
@@ -451,7 +431,7 @@ public final class Package extends Graph
      * boring is that the package has no classes in it and only one sub package.
      * If this package is not boring, this method returns null.
      */
-    protected Package getBoringSubPackage()
+    protected synchronized Package getBoringSubPackage()
     {
         PackageTarget pt = null;
 
@@ -482,7 +462,7 @@ public final class Package extends Graph
      * 
      * @param getUncached   should be true if unopened packages should be included
      */
-    protected List<Package> getChildren(boolean getUncached)
+    protected synchronized List<Package> getChildren(boolean getUncached)
     {
         List<Package> children = new ArrayList<Package>();
 
@@ -515,18 +495,16 @@ public final class Package extends Graph
         PkgMgrFrame.displayMessage(this, msg);
     }
 
-    public void repaint()
-    {
-        if (editor != null) {
-            editor.repaint();
-        }
-    }
-
     void setEditor(PackageEditor editor)
     {
         this.editor = editor;
+        for (Dependency d : pendingDeps)
+            editor.addDependency(d, d instanceof UsesDependency);
+        pendingDeps.clear();
+        Platform.runLater(() -> {editor.graphChanged();});
     }
     
+    @OnThread(Tag.Any)
     public PackageEditor getEditor()
     {
         return editor;
@@ -548,81 +526,10 @@ public final class Package extends Graph
      * 
      * @return the currently selected array of Targets.
      */
-    public Target[] getSelectedTargets()
+    @OnThread(Tag.Any)
+    public synchronized List<Target> getSelectedTargets()
     {
-        Target[] targetArray = new Target[0];
-        LinkedList<Target> list = new LinkedList<Target>();
-        for (Iterator<Target> it = getVertices(); it.hasNext();) {
-            Target target = it.next();
-            if (target.isSelected()) {
-                list.add(target);
-            }
-        }
-        return list.toArray(targetArray);
-    }
-
-    /**
-     * Get the selected Dependencies.
-     * 
-     * @return The currently selected dependency or null.
-     */
-    public Dependency getSelectedDependency()
-    {
-        for (Iterator<? extends Edge> it = getEdges(); it.hasNext();) {
-            Edge edge = it.next();
-            if (edge instanceof Dependency && edge.isSelected()) {
-                return (Dependency) edge;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns the {@link Dependency} with the specified <code>origin</code>,
-     * <code>target</code> and <code>type</code> or <code>null</code> if there
-     * is no such dependency.
-     * 
-     * @param origin
-     *            The origin of the dependency.
-     * @param target
-     *            The target of the dependency.
-     * @param type
-     *            The type of the dependency (there may be more than one
-     *            dependencies with the same origin and target but different
-     *            types).
-     * @return The {@link Dependency} with the specified <code>origin</code>,
-     *         <code>target</code> and <code>type</code> or <code>null</code> if
-     *         there is no such dependency.
-     */
-    public Dependency getDependency(DependentTarget origin, DependentTarget target, BDependency.Type type)
-    {
-        List<Dependency> dependencies = new ArrayList<Dependency>();
-
-        switch (type) {
-            case USES :
-                dependencies = usesArrows;
-                break;
-            case IMPLEMENTS :
-            case EXTENDS :
-                dependencies = extendsArrows;
-                break;
-            case UNKNOWN :
-                // If the type of the dependency is UNKNOWN, the requested
-                // dependency does not exist anymore. In this case the method
-                // returns null.
-                return null;
-        }
-
-        for (Dependency dependency : dependencies) {
-            DependentTarget from = dependency.getFrom();
-            DependentTarget to = dependency.getTo();
-
-            if (from.equals(origin) && to.equals(target)) {
-                return dependency;
-            }
-        }
-
-        return null;
+        return Utility.filterList(getVertices(), Target::isSelected);
     }
 
     /**
@@ -729,7 +636,7 @@ public final class Package extends Graph
      * Refresh the targets and dependency arrows in the package, based on whatever
      * is actually on disk.
      */
-    public void refreshPackage()
+    public synchronized void refreshPackage()
     {
         // read in all the targets contained in this package
         // into this temporary map
@@ -808,13 +715,11 @@ public final class Package extends Graph
         // Find an empty spot for any targets which didn't already have
         // a position
         for (Target t : targetsToPlace) {
-            findSpaceForVertex(t);
+            Platform.runLater(() -> {editor.findSpaceForVertex(t);});
         }
         
         // Start with all classes in the normal (compiled) state.
-        Iterator<Target> targetIt = targets.iterator();
-        for ( ; targetIt.hasNext();) {
-            Target target = targetIt.next();
+        for (Target target : targets) {
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 ct.setState(DependentTarget.S_NORMAL);
@@ -822,26 +727,38 @@ public final class Package extends Graph
         }
 
         // Fix up dependency information
+        /*
         for (int i = 0; i < numDependencies; i++) {
             Dependency dep = null;
             String type = lastSavedProps.getProperty("dependency" + (i + 1) + ".type");
 
             if ("UsesDependency".equals(type)) {
-                dep = new UsesDependency(this);
-                if (dep.load(lastSavedProps, "dependency" + (i + 1))) { 
-                    addDependency(dep, false);
+                try
+                {
+                    UsesDependency newDep = new UsesDependency(this, lastSavedProps, "dependency" + (i + 1));
+                    if (editor != null)
+                    {
+                        editor.addDependency(newDep, false);
+                    }
+                    else
+                    {
+                        
+                    }
+                }
+                catch (Dependency.DependencyNotFoundException e)
+                {
+                    Debug.reportError(e);
                 }
             }
         }
-        recalcArrows();
+        */
+        Platform.runLater(() -> {recalcArrows();});
 
         // Update class states. We do this before updating roles (or anything else
         // which analyses the source) because the analysis does symbol resolution, and
         // that depends on having the correct compiled state.
         LinkedList<ClassTarget> invalidated = new LinkedList<ClassTarget>();
-        targetIt = targets.iterator();
-        for ( ; targetIt.hasNext();) {
-            Target target = targetIt.next();
+        for (Target target : targets) {
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -867,9 +784,7 @@ public final class Package extends Graph
         }
         
         // Update class roles
-        targetIt = targets.iterator();
-        for ( ; targetIt.hasNext();) {
-            Target target = targetIt.next();
+        for (Target target : targets) {
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -905,7 +820,7 @@ public final class Package extends Graph
 
                 if (t1 != null && t2 != null && t1 instanceof DependentTarget) {
                     DependentTarget dt = (DependentTarget) t1;
-                    dt.setAssociation((DependentTarget)t2);
+                    Platform.runLater(() -> {dt.setAssociation((DependentTarget)t2);});
                 }
             }
         }
@@ -945,7 +860,7 @@ public final class Package extends Graph
         catch (NumberFormatException e) {}
 
         // If we get here, then we didn't find a location for the target
-        findSpaceForVertex(t);
+        Platform.runLater(() -> {editor.findSpaceForVertex(t);});
     }
     
     /**
@@ -969,12 +884,12 @@ public final class Package extends Graph
         //Take special care of ReadmeTarget
         //see ReadmeTarget.isSaveable for explanation
         t.load(lastSavedProps, "readme");
-        t.setPos(FIXED_TARGET_X, FIXED_TARGET_Y);
+        Platform.runLater(() -> {t.setPos(FIXED_TARGET_X, FIXED_TARGET_Y);});
         addTarget(t);
         if (!isUnnamedPackage()) {
-            t = new ParentPackageTarget(this);
-            findSpaceForVertex(t);
-            addTarget(t);
+            final Target parent = new ParentPackageTarget(this);
+            Platform.runLater(() -> {editor.findSpaceForVertex(parent);});
+            addTarget(parent);
         }
 
     }
@@ -990,7 +905,7 @@ public final class Package extends Graph
      * Any new source files will have their package lines updated to match the
      * package we are in.
      */
-    public void reload()
+    public synchronized void reload()
     {
         File subDirs[] = getPath().listFiles(new SubPackageFilter());
 
@@ -1003,7 +918,7 @@ public final class Package extends Graph
 
             if (target == null) {
                 Target newtarget = addPackage(subDirs[i].getName());
-                findSpaceForVertex(newtarget);
+                Platform.runLater(() -> {editor.findSpaceForVertex(newtarget);});
             }
         }
 
@@ -1016,7 +931,7 @@ public final class Package extends Graph
 
             if (target == null) {
                 Target newtarget = addClass(targetName);
-                findSpaceForVertex(newtarget);
+                Platform.runLater(() -> {editor.findSpaceForVertex(newtarget);});
             }
         }
 
@@ -1049,7 +964,7 @@ public final class Package extends Graph
             }
         }
 
-        graphChanged();
+        Platform.runLater(() -> {editor.graphChanged();});
     }
     
     /**
@@ -1075,26 +990,33 @@ public final class Package extends Graph
         }
         
         for (int i = 0; i < numTargets; i++) {
-            Target target = null;
             String identifierName = props.getProperty("target" + (i + 1) + ".name");
             int x = Integer.parseInt(props.getProperty("target" + (i + 1) + ".x"));
             int y = Integer.parseInt(props.getProperty("target" + (i + 1) + ".y"));
             int height = Integer.parseInt(props.getProperty("target" + (i + 1) + ".height"));
             int width = Integer.parseInt(props.getProperty("target" + (i + 1) + ".width"));
-            target = getTarget(identifierName);
+            Target target = getTarget(identifierName);
             if (target != null){
-                target.setPos(x, y);
-                target.setSize(width, height);
+                Platform.runLater(() -> {
+                    target.setPos(x, y);
+                    target.setSize(width, height);
+                });
             }
         }
         repaint();
+    }
+
+    @OnThread(Tag.Any)
+    public void repaint()
+    {
+        JavaFXUtil.runNowOrLater(() -> {if (editor != null) editor.repaint();});
     }
 
     /**
      * Save this package to disk. The package is saved to the standard package
      * file.
      */
-    public void save(Properties frameProperties)
+    public synchronized void save(Properties frameProperties)
     {
         /* create the directory if it doesn't exist */
         File dir = getPath();
@@ -1109,7 +1031,7 @@ public final class Package extends Graph
         props.putAll(frameProperties);
 
         // save targets and dependencies in package
-        props.put("package.numDependencies", String.valueOf(usesArrows.size()));
+        props.put("package.numDependencies", String.valueOf(editor.getUsesArrows().size()));
 
         int t_count = 0;
 
@@ -1129,8 +1051,8 @@ public final class Package extends Graph
         Target t = getTarget(ReadmeTarget.README_ID);
         t.save(props, "readme");
 
-        for (int i = 0; i < usesArrows.size(); i++) { // uses arrows
-            Dependency d = usesArrows.get(i);
+        for (int i = 0; i < editor.getUsesArrows().size(); i++) { // uses arrows
+            Dependency d = editor.getUsesArrows().get(i);
             d.save(props, "dependency" + (i + 1));
         }
 
@@ -1184,7 +1106,7 @@ public final class Package extends Graph
 
         ClassTarget t = addClass(className);
 
-        findSpaceForVertex(t);
+        Platform.runLater(() -> {editor.findSpaceForVertex(t);});
         t.analyseSource();
         
         DataCollector.addClass(this, t);
@@ -1237,27 +1159,20 @@ public final class Package extends Graph
         return getProject().loadClass(className);
     }
 
-    public Iterator<Target> getVertices()
+    @OnThread(Tag.Any)
+    public synchronized List<Target> getVertices()
     {
-        return targets.sortediterator();
+        List<Target> r = new ArrayList<>();
+        for (Target t : targets)
+            r.add(t);
+        return r;
     }
 
-    public Iterator<? extends Edge> getEdges()
-    {
-        List<Iterator<? extends Edge>> iterations = new ArrayList<Iterator<? extends Edge>>();
-
-        if (showUses)
-            iterations.add(usesArrows.iterator());
-        if (showExtends)
-            iterations.add(extendsArrows.iterator());
-
-        return new MultiIterator<Edge>(iterations);
-    }
 
     /**
      * Return a List of all ClassTargets that have the role of a unit test.
      */
-    public List<ClassTarget> getTestTargets()
+    public synchronized List<ClassTarget> getTestTargets()
     {
         List<ClassTarget> l = new ArrayList<ClassTarget>();
 
@@ -1294,20 +1209,27 @@ public final class Package extends Graph
     {
         Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
 
-        try {
+        try
+        {
             // build the list of targets that need to be compiled
-            for (Target target : targets.toArray()) {
-                if (target instanceof ClassTarget) {
-                    ClassTarget ct = (ClassTarget) target;
-                    if (ct.isInvalidState() && ! ct.isQueued()) {
-                        // Next line is to solve bugs caused when compile happens before saving,
-                        // e.g. when creating a new class, it will be marked with red strips.
-                        // It is commented out as it is added to ensureSaved() @ ClassTarget.
-                        // if it causes a problem there, delete it and uncomment it here.
-//                      ct.getEditor();
-                        ct.ensureSaved();
-                        toCompile.add(ct);
-                        ct.setQueued(true);
+            synchronized (this)
+            {
+                for (Target target : targets.toArray())
+                {
+                    if (target instanceof ClassTarget)
+                    {
+                        ClassTarget ct = (ClassTarget)target;
+                        if (ct.isInvalidState() && !ct.isQueued())
+                        {
+                            // Next line is to solve bugs caused when compile happens before saving,
+                            // e.g. when creating a new class, it will be marked with red strips.
+                            // It is commented out as it is added to ensureSaved() @ ClassTarget.
+                            // if it causes a problem there, delete it and uncomment it here.
+    //                      ct.getEditor();
+                            ct.ensureSaved();
+                            toCompile.add(ct);
+                            ct.setQueued(true);
+                        }
                     }
                 }
             }
@@ -1453,10 +1375,15 @@ public final class Package extends Graph
         // first, and iterate through the copied list, to avoid "concurrent" modification
         // problems.
         List<ClassTarget> compileTargets = new ArrayList<ClassTarget>();
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = it.next();
-            if (target instanceof ClassTarget) {
-                compileTargets.add((ClassTarget) target);
+        synchronized (this)
+        {
+            for (Iterator<Target> it = targets.iterator(); it.hasNext(); )
+            {
+                Target target = it.next();
+                if (target instanceof ClassTarget)
+                {
+                    compileTargets.add((ClassTarget)target);
+                }
             }
         }
 
@@ -1494,15 +1421,17 @@ public final class Package extends Graph
     {
         // Because we call editor.save() on targets, which can result in
         // a renamed class target, we need to iterate through a copy of
-        // the collection - hence the toArray() call here:
-        for (Target target : targets.toArray()) {
-            if (target instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) target;
-                Editor ed = ct.getEditor();
-                // Editor can be null eg. class file and no src file
-                if(ed != null) {
-                    ed.save();
-                }
+        // the collection - hence the new ArrayList call here:
+        List<ClassTarget> classTargets;
+        synchronized (this)
+        {
+            classTargets = new ArrayList<>(getClassTargets());
+        }
+        for (ClassTarget ct : classTargets) {
+            Editor ed = ct.getEditor();
+            // Editor can be null eg. class file and no src file
+            if(ed != null) {
+                ed.save();
             }
         }
     }
@@ -1528,10 +1457,7 @@ public final class Package extends Graph
             while (! queue.isEmpty()) {
                 ClassTarget head = queue.remove(0);
 
-                Iterator<? extends Dependency> dependencies = head.dependencies();
-
-                while (dependencies.hasNext()) {
-                    Dependency d = dependencies.next();
+                for (Dependency d : head.dependencies()) {
                     if (!(d.getTo() instanceof ClassTarget)) {
                         continue;
                     }
@@ -1684,12 +1610,14 @@ public final class Package extends Graph
      */
     public void reInitBreakpoints()
     {
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = it.next();
-
-            if (target instanceof ClassTarget) {
-                ((ClassTarget) target).reInitBreakpoints();
-            }
+        List<ClassTarget> classTargets;
+        synchronized (this)
+        {
+            classTargets = getClassTargets();
+        }
+        for (ClassTarget target : classTargets)
+        {
+            target.reInitBreakpoints();
         }
     }
 
@@ -1698,29 +1626,32 @@ public final class Package extends Graph
      */
     public void removeStepMarks()
     {
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = it.next();
-
-            if (target instanceof ClassTarget)
-                ((ClassTarget) target).removeStepMark();
+        List<ClassTarget> classTargets;
+        synchronized (this)
+        {
+            classTargets = new ArrayList<>(getClassTargets());
+        }
+        for (ClassTarget target : classTargets)
+        {
+            target.removeStepMark();
         }
     }
 
-    public void addTarget(Target t)
+    public synchronized void addTarget(Target t)
     {
         if (t.getPackage() != this)
             throw new IllegalArgumentException();
 
         targets.add(t.getIdentifierName(), t);
-        graphChanged();
+        if (editor != null)
+            Platform.runLater(() -> {editor.graphChanged();});
     }
 
-    public void removeTarget(Target t)
+    public synchronized void removeTarget(Target t)
     {
         targets.remove(t.getIdentifierName());
-        removedSelectableElement(t);
         t.setRemoved();
-        graphChanged();
+        Platform.runLater(() -> {editor.graphChanged();});
     }
 
     /**
@@ -1728,7 +1659,7 @@ public final class Package extends Graph
      * their name as the key. If class name changes we need to remove the target
      * and add again with the new key.
      */
-    public void updateTargetIdentifier(Target t, String oldIdentifier, String newIdentifier)
+    public synchronized void updateTargetIdentifier(Target t, String oldIdentifier, String newIdentifier)
     {
         if (t == null || newIdentifier == null) {
             Debug.reportError("cannot properly update target name...");
@@ -1743,52 +1674,18 @@ public final class Package extends Graph
      * 
      * @param d  the dependency to remove
      */
+    @OnThread(Tag.FXPlatform)
     public void removeArrow(Dependency d)
     {
-        if (!(d instanceof UsesDependency)) {
-            userRemoveDependency(d);
-        }
-        removeDependency(d, true);
-        graphChanged();
-    }
-
-    /**
-     * Add a dependancy in this package. The dependency is also added to the
-     * individual targets involved.
-     */
-    public void addDependency(Dependency d, boolean recalc)
-    {
-        DependentTarget from = d.getFrom();
-        DependentTarget to = d.getTo();
-
-        if (from == null || to == null) {
-            // Debug.reportError("Found invalid dependency - ignored.");
-            return;
-        }
-
-        if (d instanceof UsesDependency) {
-            int index = usesArrows.indexOf(d);
-            if (index != -1) {
-                ((UsesDependency) usesArrows.get(index)).setFlag(true);
-                return;
+        SwingUtilities.invokeLater(() -> {
+            if (!(d instanceof UsesDependency)) {
+                userRemoveDependency(d);
             }
-            else
-                usesArrows.add(d);
-        }
-        else {
-            if (extendsArrows.contains(d))
-                return;
-            else
-                extendsArrows.add(d);
-        }
-
-        from.addDependencyOut(d, recalc);
-        to.addDependencyIn(d, recalc);
-
-        // Inform all listeners about the added dependency
-        DependencyEvent event = new DependencyEvent(d, this, DependencyEvent.Type.DEPENDENCY_ADDED);
-        ExtensionsManager.getInstance().delegateEvent(event);
+            editor.removeDependency(d, true);
+            Platform.runLater(() -> {editor.graphChanged();});
+        });
     }
+
 
     /**
      * A user initiated addition of an "implements" clause from a class to
@@ -1856,38 +1753,13 @@ public final class Package extends Graph
     }
     
     /**
-     * Remove a dependency from this package. The dependency is also removed
-     * from the individual targets involved.
-     */
-    public void removeDependency(Dependency d, boolean recalc)
-    {
-        if (d instanceof UsesDependency)
-            usesArrows.remove(d);
-        else
-            extendsArrows.remove(d);
-
-        DependentTarget from = d.getFrom();
-        from.removeDependencyOut(d, recalc);
-
-        DependentTarget to = d.getTo();
-        to.removeDependencyIn(d, recalc);
-
-        removedSelectableElement(d);
-
-        // Inform all listeners about the removed dependency
-        DependencyEvent event = new DependencyEvent(d, this, DependencyEvent.Type.DEPENDENCY_REMOVED);
-        ExtensionsManager.getInstance().delegateEvent(event);
-    }
-
-    /**
      * Lay out the arrows between targets.
      */
+    @OnThread(Tag.FXPlatform)
     private void recalcArrows()
     {
-        Iterator<Target> it = getVertices();
-        while (it.hasNext()) {
-            Target t = it.next();
-
+        for (Target t : getVertices())
+        {
             if (t instanceof DependentTarget) {
                 DependentTarget dt = (DependentTarget) t;
 
@@ -1904,7 +1776,8 @@ public final class Package extends Graph
      *            the unique name of a target.
      * @return the target with name "tname" if existent, null otherwise.
      */
-    public Target getTarget(String identifierName)
+    @OnThread(Tag.Any)
+    public synchronized Target getTarget(String identifierName)
     {
         if (identifierName == null)
             return null;
@@ -1920,7 +1793,7 @@ public final class Package extends Graph
      * @return the target with name "tname" if existent and if it is a
      *         DependentTarget, null otherwise.
      */
-    public DependentTarget getDependentTarget(String identifierName)
+    public synchronized DependentTarget getDependentTarget(String identifierName)
     {
         if (identifierName == null)
             return null;
@@ -1937,7 +1810,7 @@ public final class Package extends Graph
      * Returns an ArrayList of ClassTargets holding all targets of this package.
      * @return a not null but possibly empty array list of ClassTargets for this package.
      */
-    public final ArrayList<ClassTarget> getClassTargets()
+    public synchronized final ArrayList<ClassTarget> getClassTargets()
     {
         ArrayList<ClassTarget> risul = new ArrayList<ClassTarget>();
 
@@ -1954,26 +1827,16 @@ public final class Package extends Graph
     /**
      * Return a List of Strings with names of all classes in this package.
      */
-    public List<String> getAllClassnames()
+    public synchronized List<String> getAllClassnames()
     {
-        List<String> names = new ArrayList<String>();
-        
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target t = it.next();
-
-            if (t instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) t;
-                names.add(ct.getBaseName());
-            }
-        }
-        return names;
+        return Utility.mapList(getClassTargets(), ClassTarget::getBaseName);
     }
 
     /**
      * Return a List of Strings with names of all classes in this package that
      * has accompanying source.
      */
-    public List<String> getAllClassnamesWithSource()
+    public synchronized List<String> getAllClassnamesWithSource()
     {
         List<String> names = new ArrayList<String>();
 
@@ -1987,37 +1850,6 @@ public final class Package extends Graph
             }
         }
         return names;
-    }
-
-    public void setShowUses(boolean state)
-    {
-        showUses = state;
-    }
-
-    public void setShowExtends(boolean state)
-    {
-        showExtends = state;
-    }
-
-    public boolean isShowUses()
-    {
-        return showUses;
-    }
-
-    public boolean isShowExtends()
-    {
-        return showExtends;
-    }
-
-
-    public void setState(int state)
-    {
-        this.state = state;
-    }
-
-    public int getState()
-    {
-        return state;
     }
 
     /**
@@ -2052,8 +1884,10 @@ public final class Package extends Graph
      * Called when in an interesting state (e.g. adding a new dependency) and a
      * target is selected. Calling with 'null' as parameter resets to idle state.
      */
+    @OnThread(Tag.Any)
     public void targetSelected(Target t)
     {
+        /*
         if(t == null) {
             if(getState() != S_IDLE) {
                 setState(S_IDLE);
@@ -2139,6 +1973,7 @@ public final class Package extends Graph
                 // e.g. deleting arrow - selecting target ignored
                 break;
         }
+        */
     }
 
     /**
@@ -2733,7 +2568,7 @@ public final class Package extends Graph
             {
                 setStatus(compileDone);
             }
-            graphChanged();
+            Platform.runLater(() -> {editor.graphChanged();});
 
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
@@ -2950,11 +2785,12 @@ public final class Package extends Graph
             // Display status dialog for accessibility. If chainObserver is set, we assume
             // that the chained observer will fulfill this responsibility instead.
             if (successful && chainObserver == null && PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
-                // getEditor can return null in Greenfoot
-                if (getEditor() != null && getEditor().isVisible()) {
-                    PackageEditor ed = getEditor();
-                    Platform.runLater(() -> DialogManager.showTextFX(ed.getFXWindow(), Config.getString("pkgmgr.accessibility.compileDone")));
-                }
+                Platform.runLater(() -> {
+                    // editor can be null in Greenfoot
+                    if (editor != null && editor.isVisible()) {
+                        DialogManager.showTextFX(editor.getFXWindow(), Config.getString("pkgmgr.accessibility.compileDone"));
+                    }
+                });
             }
         }
     }
@@ -2967,10 +2803,17 @@ public final class Package extends Graph
      */
     public void closeAllEditors()
     {
-        // ToArray has been used here rather than Iterator, to avoid
+        // We take a copy here to avoid
         // ConcurrentModificationException which happened on closing
         // BlueJ main frame after renaming a class without compile.
-        for (Target target : targets.toArray()) {
+        List<Target> targetsCopy;
+        synchronized (this)
+        {
+            targetsCopy = new ArrayList<>();
+            for (Target t : targets)
+                targetsCopy.add(t);
+        }
+        for (Target target : targetsCopy) {
             if (target instanceof EditableTarget) {
                 EditableTarget et = (EditableTarget) target;
                 if (et.editorOpen()) {

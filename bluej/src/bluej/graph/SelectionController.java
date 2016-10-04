@@ -21,25 +21,25 @@
  */
 package bluej.graph;
 
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.Iterator;
-import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
+import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.DependentTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class controls the selection (the set of selected elements in the graph).
@@ -47,11 +47,11 @@ import bluej.pkgmgr.target.Target;
  * and a rubber band (for drawing new edges). Both the marquee and the rubber band can
  * be inactive.
  */
+@OnThread(Tag.FXPlatform)
 public class SelectionController
-    implements FocusListener, MouseListener, MouseMotionListener, KeyListener
 {
-    private GraphEditor graphEditor;
-    private Graph graph;
+    private PackageEditor graphEditor;
+    private Package graph;
     
     private Marquee marquee; 
     private SelectionSet selection;   // Contains the elements that have been selected
@@ -76,38 +76,24 @@ public class SelectionController
      * @param graphEditor
      * @param graph
      */
-    public SelectionController(GraphEditor graphEditor)
+    @OnThread(Tag.Any)
+    public SelectionController(PackageEditor graphEditor)
     {
         this.graphEditor = graphEditor;
-        this.graph = graphEditor.getGraph();
+        this.graph = graphEditor.getPackage();
         marquee = new Marquee(graph);
-        selection = new SelectionSet();
-        for (Iterator<? extends Vertex> i = graph.getVertices(); i.hasNext(); ) {
-            Vertex v = i.next();
-            if (v.isSelected()) {
-                selection.addExisting(v);
-            }
-        }
-        for (Iterator<? extends Edge> i = graph.getEdges(); i.hasNext(); ) {
-            Edge e = i.next();
-            if (e.isSelected()) {
-                selection.addExisting(e);
-            }
-        }
+        selection = new SelectionSet(Utility.filterList(graph.getVertices(), Target::isSelected));
     }
-
-    // ======= MouseListener interface =======
 
     /**
      * A mouse-pressed event. Analyse what we should do with it.
      */
-    public void mousePressed(MouseEvent evt)
+    public void mousePressed(javafx.scene.input.MouseEvent evt, Target clickedElement)
     {
         graphEditor.requestFocus();
-        int clickX = evt.getX();
-        int clickY = evt.getY();
+        int clickX = (int)evt.getX();
+        int clickY = (int)evt.getY();
 
-        SelectableGraphElement clickedElement = graph.findGraphElement(clickX, clickY);
         notifyPackage(clickedElement);
         
         if (clickedElement == null) {                           // nothing hit
@@ -158,8 +144,8 @@ public class SelectionController
     public void mouseReleased(MouseEvent evt)
     {
         if (isDrawingDependency()) {
-            SelectableGraphElement selectedElement = graph.findGraphElement(evt.getX(), evt.getY());
-            notifyPackage(selectedElement);
+            //Target selectedElement = graph.findGraphElement(evt.getX(), evt.getY());
+            //notifyPackage(selectedElement);
             graphEditor.repaint();
         }
         rubberBand = null;
@@ -172,7 +158,6 @@ public class SelectionController
         
         if(moving || resizing) {
             endMove();
-            graphEditor.revalidate();
             graphEditor.repaint();
         }
     }
@@ -185,29 +170,10 @@ public class SelectionController
     {
         if (isButtonOne(evt)) {
             if (evt.getClickCount() > 1) {
-                selection.doubleClick(evt);
+                selection.doubleClick();
             }
         }
     }
-
-    /**
-     * The mouse pointer entered this component.
-     */
-    public void mouseEntered(MouseEvent e) {}
-
-    /**
-     * The mouse pointer exited this component.
-     */
-    public void mouseExited(MouseEvent e) {}
-
-    // ======= end of MouseListener interface =======
-
-    // ======= MouseMotionListener interface: =======
-
-    /**
-     * The mouse was moved - not interested here.
-     */
-    public void mouseMoved(MouseEvent evt) {}
 
     /**
      * The mouse was dragged - either draw a marquee or move some classes.
@@ -217,24 +183,24 @@ public class SelectionController
         if (isButtonOne(evt)) {
             if (marquee.isActive()) {
                 Rectangle oldRect = marquee.getRectangle();                
-                marquee.move(evt.getX(), evt.getY());
+                marquee.move((int)evt.getX(), (int)evt.getY());
                 Rectangle newRect = (Rectangle) marquee.getRectangle().clone();  
                 if(oldRect != null) {
                     newRect.add(oldRect);
                 }
                 newRect.width++;
                 newRect.height++;
-                graphEditor.repaint(newRect);
+                graphEditor.repaint();
             }
             else if (rubberBand != null) {
-                rubberBand.setEnd(evt.getX(), evt.getY());
+                rubberBand.setEnd((int)evt.getX(), (int)evt.getY());
                 graphEditor.repaint();
             }
             else 
             {
                 if(! selection.isEmpty()) {
-                    int deltaX = snapToGrid(evt.getX() - dragStartX);
-                    int deltaY = snapToGrid(evt.getY() - dragStartY);
+                    int deltaX = snapToGrid((int)evt.getX() - dragStartX);
+                    int deltaY = snapToGrid((int)evt.getY() - dragStartY);
     
                     if(resizing) {
                         selection.resize(deltaX, deltaY);
@@ -282,23 +248,18 @@ public class SelectionController
             resizeWithFixedRatio(evt);
         }
 
-        // dependency selection
-        else if (evt.getKeyCode() == KeyEvent.VK_PAGE_UP || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
-            selectDependency(evt);
-        }
-
         // post context menu
-        else if (evt.getKeyCode() == KeyEvent.VK_SPACE || evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_CONTEXT_MENU) {
+        else if (evt.getCode() == KeyCode.SPACE || evt.getCode() == KeyCode.ENTER || evt.getCode() == KeyCode.CONTEXT_MENU) {
             postMenu();
         }
 
         // 'A' (with any or no modifiers) selects all
-        else if (evt.getKeyCode() == KeyEvent.VK_A) {
+        else if (evt.getCode() == KeyCode.A) {
             selectAll();
         }
 
         // Escape removes selections
-        else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+        else if (evt.getCode() == KeyCode.ESCAPE) {
             if(moving || resizing) {
                 endMove();
             }
@@ -333,17 +294,12 @@ public class SelectionController
         graphEditor.repaint();
     }
 
-    /**
-     * Key typed - of no interest to us.
-     */
-    public void keyTyped(KeyEvent evt) {}
-
     // ======= end of KeyListener interface =======
 
 
-    private void notifyPackage(GraphElement element)
+    private void notifyPackage(Target element)
     {
-        if(element instanceof ClassTarget)
+        if (element != null && element instanceof ClassTarget)
             ((Package)graph).targetSelected((Target)element);
         else
             ((Package)graph).targetSelected(null);
@@ -352,17 +308,17 @@ public class SelectionController
     /**
      * Tell whether the package is currently drawing a dependency.
      */
+    @OnThread(Tag.FXPlatform)
     public boolean isDrawingDependency()
     {
-        return (((Package)graph).getState() == Package.S_CHOOSE_USES_TO)
-                || (((Package)graph).getState() == Package.S_CHOOSE_EXT_TO);
+        return graphEditor.isDrawingDependency();
     }
 
     
     private static boolean isArrowKey(KeyEvent evt)
     {
-        return evt.getKeyCode() == KeyEvent.VK_UP || evt.getKeyCode() == KeyEvent.VK_DOWN
-                || evt.getKeyCode() == KeyEvent.VK_LEFT || evt.getKeyCode() == KeyEvent.VK_RIGHT;
+        return evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.DOWN
+                || evt.getCode() == KeyCode.LEFT || evt.getCode() == KeyCode.RIGHT;
     }
 
     /**
@@ -371,8 +327,8 @@ public class SelectionController
      */
     private void navigate(KeyEvent evt)
     {
-        Vertex currentTarget = findSingleVertex();
-        currentTarget = traverseStragegiImpl.findNextVertex(graph, currentTarget, evt.getKeyCode());
+        Target currentTarget = findSingleVertex();
+        currentTarget = traverseStragegiImpl.findNextVertex(graph, currentTarget, evt.getCode());
         selection.selectOnly(currentTarget);
     }
 
@@ -412,21 +368,21 @@ public class SelectionController
      */
     private void setKeyDelta(KeyEvent evt)
     {
-        switch(evt.getKeyCode()) {
-            case KeyEvent.VK_UP : {
-                keyDeltaY -= GraphEditor.GRID_SIZE;
+        switch(evt.getCode()) {
+            case UP: {
+                keyDeltaY -= PackageEditor.GRID_SIZE;
                 break;
             }
-            case KeyEvent.VK_DOWN : {
-                keyDeltaY += GraphEditor.GRID_SIZE;
+            case DOWN: {
+                keyDeltaY += PackageEditor.GRID_SIZE;
                 break;
             }
-            case KeyEvent.VK_LEFT : {
-                keyDeltaX -= GraphEditor.GRID_SIZE;
+            case LEFT: {
+                keyDeltaX -= PackageEditor.GRID_SIZE;
                 break;
             }
-            case KeyEvent.VK_RIGHT : {
-                keyDeltaX += GraphEditor.GRID_SIZE;
+            case RIGHT: {
+                keyDeltaX += PackageEditor.GRID_SIZE;
                 break;
             }
         }
@@ -437,65 +393,14 @@ public class SelectionController
      */
     private boolean isPlusOrMinusKey(KeyEvent evt)
     {
-        return evt.getKeyChar() == '+' || evt.getKeyChar() == '-';
+        return "+-".contains(evt.getCharacter());
     }
 
     private void resizeWithFixedRatio(KeyEvent evt)
     {
-        int delta = (evt.getKeyChar() == '+' ? GraphEditor.GRID_SIZE : -GraphEditor.GRID_SIZE);
+        int delta = (evt.getCharacter().equals("+") ? PackageEditor.GRID_SIZE : -PackageEditor.GRID_SIZE);
         selection.resize(delta, delta);
         selection.moveStopped();
-    }
-    
-    private void selectDependency(KeyEvent evt)
-    {
-        Vertex vertex = selection.getAnyVertex();
-        if(vertex != null && vertex instanceof DependentTarget) {
-            selection.selectOnly(vertex);
-            List<Dependency> dependencies = ((DependentTarget) vertex).dependentsAsList();
-
-            Dependency currentDependency = dependencies.get(currentDependencyIndex);
-            if (currentDependency != null) {
-                selection.remove(currentDependency);
-            }
-            currentDependencyIndex += (evt.getKeyCode() == KeyEvent.VK_PAGE_UP ? 1 : -1);
-            currentDependencyIndex %= dependencies.size();
-            if (currentDependencyIndex < 0) {//% is not a real modulo
-                currentDependencyIndex = dependencies.size() - 1;
-            }
-            currentDependency = (Dependency) dependencies.get(currentDependencyIndex);
-            if (currentDependency != null) {
-                selection.add(currentDependency);
-            }
-        }
-    }
-
-    /**
-     * A menu popup trigger has been detected. Handle it.
-     */
-    public void handlePopupTrigger(MouseEvent evt)
-    {
-        int clickX = evt.getX();
-        int clickY = evt.getY();
-
-        SelectableGraphElement clickedElement = graph.findGraphElement(clickX, clickY);
-        if (clickedElement != null) {
-            selection.selectOnly(clickedElement);
-            postMenu(clickedElement, clickX, clickY);
-        }
-        else {
-            postMenu(clickX, clickY);
-        }
-    }
-    
-    /**
-     * Post the context menu on the diagram at the specified location
-     * @param x
-     * @param y
-     */
-    private void postMenu(int x, int y)
-    {
-        graphEditor.popupMenu(x,y);
     }
     
     /**
@@ -505,22 +410,13 @@ public class SelectionController
      */
     private void postMenu()
     {
-        // first check whether we have selected edges
-        Dependency dependency = (Dependency) selection.getAnyEdge();
-        if (dependency != null) {
-            Point p = ((GraphPainterStdImpl) GraphPainterStdImpl.getInstance()).getDependencyPainter(dependency)
-                    .getPopupMenuPosition(dependency);
-            postMenu(dependency, p.x, p.y);
-        }
-        else {
-            // if not, choose a target
-            Vertex vertex = selection.getAnyVertex();
-            if(vertex != null) {
-                selection.selectOnly(vertex);
-                int x = vertex.getX() + vertex.getWidth() - 20;
-                int y = vertex.getY() + 20;
-                postMenu(vertex, x, y);
-            }
+        // if not, choose a target
+        Target vertex = selection.getAnyVertex();
+        if(vertex != null) {
+            selection.selectOnly(vertex);
+            int x = vertex.getX() + vertex.getWidth() - 20;
+            int y = vertex.getY() + 20;
+            postMenu(vertex, x, y);
         }
     }
 
@@ -528,7 +424,7 @@ public class SelectionController
     /**
      * Post the context menu for a given element at the given screen position.
      */
-    private void postMenu(SelectableGraphElement element, int x, int y)
+    private void postMenu(Target element, int x, int y)
     {
         element.popupMenu(x, y, graphEditor);
     }
@@ -543,13 +439,13 @@ public class SelectionController
     }
 
     
-    private Vertex findSingleVertex()
+    private Target findSingleVertex()
     {
-        Vertex vertex = selection.getAnyVertex();
+        Target vertex = selection.getAnyVertex();
 
         // if there is no selection we select an existing vertex
         if (vertex == null) {
-            vertex = (Vertex) graph.getVertices().next();
+            vertex = graph.getVertices().get(0);
         }
         return vertex;
     }
@@ -568,15 +464,14 @@ public class SelectionController
      */
     private void selectAll()
     {
-        for(Iterator<? extends Vertex> i = graph.getVertices(); i.hasNext(); ) {
-            selection.add(i.next());
-        }
+        for (Target t : graph.getVertices())
+            selection.add(t);
     }
     
     /**
      * Clear the current selection.
      */
-    public void removeFromSelection(SelectableGraphElement element)
+    public void removeFromSelection(Target element)
     {
         selection.remove(element);
     }
@@ -585,7 +480,7 @@ public class SelectionController
      * Add to the current selection
      * @param element
      */
-    public void addToSelection(SelectableGraphElement element)
+    public void addToSelection(Target element)
     {
         selection.add(element);
     }
@@ -597,7 +492,7 @@ public class SelectionController
      */
     private boolean isButtonOne(MouseEvent evt)
     {
-        return !evt.isPopupTrigger() && ((evt.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != MouseEvent.BUTTON1_DOWN_MASK);
+        return !evt.isPopupTrigger() && evt.getButton() == MouseButton.PRIMARY;
     }
 
     /**
@@ -622,8 +517,8 @@ public class SelectionController
      */
     private int snapToGrid(int x)
     {
-        int steps = x / GraphEditor.GRID_SIZE;
-        int new_x = steps * GraphEditor.GRID_SIZE;//new x-coor w/ respect to
+        int steps = x / PackageEditor.GRID_SIZE;
+        int new_x = steps * PackageEditor.GRID_SIZE;//new x-coor w/ respect to
                                                   // grid
         return new_x;
     }
@@ -637,20 +532,4 @@ public class SelectionController
         return rubberBand;
     }
 
-    @Override
-    public void focusGained(FocusEvent e)
-    {
-        Iterator<? extends Vertex> it = graph.getVertices();
-        while (it.hasNext())
-        {
-            Vertex v = it.next();
-            if (v.getComponent() == e.getComponent())
-            {
-                selection.selectOnly(v);
-            }
-        }
-    }
-
-    @Override
-    public void focusLost(FocusEvent e) { }
 }

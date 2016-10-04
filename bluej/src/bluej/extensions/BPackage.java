@@ -328,14 +328,14 @@ public class BPackage
         throws ProjectNotOpenException, PackageNotFoundException
     {
         Package bluejPkg = packageId.getBluejPackage();    
-        Target [] targets = bluejPkg.getSelectedTargets();
+        List<Target> targets = bluejPkg.getSelectedTargets();
         ArrayList<BClass> aList  = new ArrayList<BClass>();
         
-        for(int index=0; index<targets.length; index++) 
+        for (Target t : targets) 
         {
-            if ( !(targets[index] instanceof ClassTarget )) continue; 
+            if ( !(t instanceof ClassTarget )) continue; 
 
-            ClassTarget target = (ClassTarget)targets[index];
+            ClassTarget target = (ClassTarget)t;
             aList.add(target.getBClass());
         }
 
@@ -403,7 +403,7 @@ public class BPackage
             throws ProjectNotOpenException, PackageNotFoundException
     {
         Package bluejPackage = packageId.getBluejPackage();
-        Dependency dependency = bluejPackage.getDependency(from.getClassTarget(), to.getClassTarget(), type);
+        Dependency dependency = bluejPackage.getEditor().getDependency(from.getClassTarget(), to.getClassTarget(), type);
         
         return (dependency != null) ? dependency.getBDependency() : null;
     }

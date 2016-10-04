@@ -1362,8 +1362,10 @@ public class Project implements DebuggerListener, InspectorManager
             Target target = i.next();
             if (target != null){
                 PackageEditor packageEditor = target.getPackage().getEditor();
-                packageEditor.addToSelection(target);
-                packageEditor.repaint();
+                Platform.runLater(() -> {
+                    packageEditor.addToSelection(target);
+                    packageEditor.repaint();
+                });
             }
         }
     }
@@ -1424,10 +1426,9 @@ public class Project implements DebuggerListener, InspectorManager
     {
         List<Target> selectedTargets = new LinkedList<Target>();
         List<String> packageNames = getPackageNames();
-        for (Iterator<String> i = packageNames.iterator(); i.hasNext();) {
-            String packageName = i.next();
+        for (String packageName : packageNames) {
             Package p = getPackage(packageName);
-            selectedTargets.addAll(Arrays.asList(p.getSelectedTargets()));
+            selectedTargets.addAll(p.getSelectedTargets());
         }
         return selectedTargets;
     }

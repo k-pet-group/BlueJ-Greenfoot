@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,19 @@
  */
 package bluej.graph;
 
+import javafx.scene.input.KeyCode;
+
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.Target;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A strategy to move graph selections with keyboard input.
  * 
  * @author fisker
  */
+@OnThread(Tag.FXPlatform)
 public interface TraverseStrategy
 {
     /**
@@ -37,5 +45,5 @@ public interface TraverseStrategy
      * @param key  The key that was pressed.
      * @return     A vertex that should be selected now.
      */
-    public Vertex findNextVertex(Graph graph, Vertex currentVertex, int key);
+    public Target findNextVertex(Package graph, Target currentVertex, KeyCode key);
 }

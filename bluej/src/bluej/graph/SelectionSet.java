@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,8 +23,13 @@ package bluej.graph;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import bluej.pkgmgr.target.Target;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * SelectionSet holds a set of selected graph elements. By inserting an
@@ -33,16 +38,20 @@ import java.util.Set;
  * @author fisker
  * @author Michael Kolling
  */
+@OnThread(Tag.FXPlatform)
 public final class SelectionSet
 {
-    private Set<SelectableGraphElement> elements = new HashSet<SelectableGraphElement>();
+    private Set<Target> elements = new HashSet<>();
 
     /**
      * 
      * @param graphEditor
      */
-    public SelectionSet()
-    {}
+    @OnThread(Tag.Any)
+    public SelectionSet(Collection<Target> initial)
+    {
+        elements.addAll(initial);
+    }
 
     /**
      * Add an unselected selectable graphElement to the set and
@@ -50,22 +59,12 @@ public final class SelectionSet
      * 
      * @param element  The element to add
      */
-    public void add(SelectableGraphElement element)
+    public void add(Target element)
     {
         if (!element.isSelected()) {
             element.setSelected(true);
             elements.add(element);
         }
-    }
-    
-    /**
-     * Add an already selected element to the set; to be used during initialisation only.
-     * 
-     * @param element   The element, which is marked selected, to be tracked in the selection set
-     */
-    public void addExisting(SelectableGraphElement element)
-    {
-        elements.add(element);
     }
     
     /**
@@ -81,7 +80,7 @@ public final class SelectionSet
      * 
      * @param graphElement
      */
-    public void remove(SelectableGraphElement element)
+    public void remove(Target element)
     {
         if (element != null) {
             element.setSelected(false);
@@ -95,7 +94,7 @@ public final class SelectionSet
      */
     public void clear()
     {
-        for (SelectableGraphElement element : elements) {
+        for (Target element : elements) {
             element.setSelected(false);
         }
         elements.clear();
@@ -106,11 +105,10 @@ public final class SelectionSet
      * 
      * @param evt  The mouse event that originated this double click.
      */
-    public void doubleClick(MouseEvent evt)
+    public void doubleClick()
     {
-        final MouseEvent event = evt;
-        for (SelectableGraphElement element : elements) {
-            element.doubleClick(event);
+        for (Target element : elements) {
+            element.doubleClick();
         }        
     }
     
@@ -119,9 +117,8 @@ public final class SelectionSet
      */
     public void move(int deltaX, int deltaY)
     {
-        for (GraphElement element : elements) {
-            if(element instanceof Moveable) {
-                Moveable target = (Moveable) element;
+        for (Target target : elements) {
+            if(target.isMoveable()) {
                 if (target.isMoveable()) {
                     target.setDragging(true);
                     Point delta = restrictDelta(deltaX, deltaY);
@@ -136,9 +133,8 @@ public final class SelectionSet
      */
     private Point restrictDelta(int deltaX, int deltaY)
     {
-        for (GraphElement element : elements) {
-            if(element instanceof Moveable) {
-                Moveable target = (Moveable) element;
+        for (Target target : elements) {
+            if(target.isMoveable()) {
 
                 if(target.getX() + deltaX < 0) {
                     deltaX = -target.getX();
@@ -158,10 +154,9 @@ public final class SelectionSet
      */
     public void moveStopped()
     {
-        for (GraphElement element : elements) {
-            if(element instanceof Moveable) {
-                Moveable moveable = (Moveable) element;
-                moveable.setPositionToGhost();
+        for (Target element : elements) {
+            if(element.isMoveable()) {
+                element.setPositionToGhost();
             }
         }        
     }
@@ -176,13 +171,10 @@ public final class SelectionSet
      */
     public void resize(int deltaX, int deltaY)
     {
-        for (GraphElement element : elements) {
-            if(element instanceof Moveable) {
-                Moveable target = (Moveable) element;
-                if (target.isResizable()) {
-                    target.setDragging(true);
-                    target.setGhostSize(deltaX, deltaY);
-                }
+        for (Target target : elements) {
+            if (target.isResizable()) {
+                target.setDragging(true);
+                target.setGhostSize(deltaX, deltaY);
             }
         }
     }
@@ -202,39 +194,22 @@ public final class SelectionSet
      * 
      * @param element  The single element to hold in the selection. 
      */
-    public void selectOnly(SelectableGraphElement element)
+    public void selectOnly(Target element)
     {
         clear();
         add(element);
-        element.singleSelected();
     }
     
     /** 
      * Return a random vertex from this selection.
      * @return  An vertex, or null, if none exists.
      */
-    public Vertex getAnyVertex()
+    public Target getAnyVertex()
     {
-        for (GraphElement element : elements) {
-            if(element instanceof Vertex) {
-                return (Vertex) element;
-            }
+        for (Target element : elements) {
+            return element;
         }
         return null;
     }
 
-    
-    /** 
-     * Return a random vertex from this selection.
-     * @return  An vertex, or null, if none exists.
-     */
-    public Edge getAnyEdge()
-    {
-        for (GraphElement element : elements) {
-            if(element instanceof Edge) {
-                return (Edge) element;
-            }
-        }
-        return null;
-    }
 }

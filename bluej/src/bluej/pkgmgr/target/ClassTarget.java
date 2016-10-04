@@ -26,7 +26,6 @@ import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -45,6 +44,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -77,9 +77,6 @@ import bluej.extensions.event.ClassTargetEvent;
 import bluej.extmgr.ClassExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
-import bluej.graph.GraphEditor;
-import bluej.graph.Moveable;
-import bluej.graph.Vertex;
 import bluej.parser.ParseFailure;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -90,6 +87,7 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.SourceInfo;
@@ -135,7 +133,7 @@ import threadchecker.Tag;
  * @author Bruce Quig
  */
 public class ClassTarget extends DependentTarget
-    implements Moveable, InvokeListener
+    implements InvokeListener
 {
     final static int MIN_WIDTH = 60;
     final static int MIN_HEIGHT = 30;
@@ -186,11 +184,9 @@ public class ClassTarget extends DependentTarget
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
 
-    private int ghostX;
-    private int ghostY;
-    private int ghostWidth;
-    private int ghostHeight;
+    @OnThread(Tag.FXPlatform)
     private boolean isDragging = false;
+    @OnThread(Tag.FXPlatform)
     private boolean isMoveable = true;
     private SourceType sourceAvailable;
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
@@ -208,6 +204,8 @@ public class ClassTarget extends DependentTarget
     // Keep track of whether the editor is open or not; we get a lot of
     // potential open events, and don't want to keep recording ourselves as re-opening
     private boolean recordedAsOpen = false;
+    @OnThread(Tag.Any)
+    private final AtomicBoolean visible = new AtomicBoolean(true);
 
     /**
      * Create a new class target in package 'pkg'.
@@ -250,8 +248,6 @@ public class ClassTarget extends DependentTarget
                 role = new EnumClassRole();
             }
         }
-        setGhostPosition(0, 0);
-        setGhostSize(0, 0);
     }
     
     private void calcSourceAvailable()
@@ -445,7 +441,7 @@ public class ClassTarget extends DependentTarget
             }
             
             state = newState;
-            repaint();
+            Platform.runLater(() -> {repaint();});
         }
     }
 
@@ -777,8 +773,7 @@ public class ClassTarget extends DependentTarget
     public void invalidate()
     {
         setState(S_INVALID);
-        for (Iterator<? extends Dependency> it = dependents(); it.hasNext();) {
-            Dependency d = it.next();
+        for (Dependency d : dependents()) {
             ClassTarget dependent = (ClassTarget) d.getFrom();
             
             if (! dependent.isInvalidState()) {    
@@ -892,6 +887,12 @@ public class ClassTarget extends DependentTarget
             case Stride: return getFrameSourceFile();
         }
         return null;
+    }
+
+    @OnThread(Tag.Any)
+    public boolean isVisible()
+    {
+        return visible.get();
     }
 
     public static class SourceFileInfo
@@ -1489,7 +1490,7 @@ public class ClassTarget extends DependentTarget
         }
         if (!newTypeParameters.equals(typeParameters)) {
             typeParameters = newTypeParameters;
-            updateSize();
+            Platform.runLater(() -> {updateSize();});
         }
     }
 
@@ -1560,13 +1561,12 @@ public class ClassTarget extends DependentTarget
                     continue;
                 }
 
-                getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
+                getPackage().addDependency(new UsesDependency(getPackage(), this, used));
             }
         }
 
         // check for inconsistent use dependencies
-        for (Iterator<UsesDependency> it = usesDependencies(); it.hasNext();) {
-            UsesDependency usesDep = it.next();
+        for (UsesDependency usesDep : usesDependencies()) {
             if (!usesDep.isFlagged()) {
                 getPackage().setStatus(usesArrowMsg + usesDep);
             }
@@ -1613,7 +1613,7 @@ public class ClassTarget extends DependentTarget
             superName = superName.substring(prefixLen);
             DependentTarget superclass = getPackage().getDependentTarget(superName);
             if (superclass != null) {
-                getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass), false);
+                getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass));
                 if (superclass.getState() != S_NORMAL) {
                     setState(S_INVALID);
                 }
@@ -1635,7 +1635,7 @@ public class ClassTarget extends DependentTarget
             DependentTarget interfce = getPackage().getDependentTarget(interfaceName);
 
             if (interfce != null) {
-                getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce), false);
+                getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce));
                 if (interfce.getState() != S_NORMAL) {
                     setState(S_INVALID);
                 }
@@ -1688,7 +1688,7 @@ public class ClassTarget extends DependentTarget
             String oldName = getIdentifierName();
             setIdentifierName(newName);
             setDisplayName(newName);
-            updateSize();
+            Platform.runLater(() -> {updateSize();});
             
             // Update the BClass object
             BClass bClass = getBClass();
@@ -1699,14 +1699,12 @@ public class ClassTarget extends DependentTarget
             ExtensionBridge.changeBClassTargetName(bClassTarget, getQualifiedName());
             
             // Update all BDependency objects related to this target
-            for (Iterator<? extends Dependency> iterator = dependencies(); iterator.hasNext();) {
-                Dependency outgoingDependency = iterator.next();
+            for (Dependency outgoingDependency : dependencies()) {
                 BDependency bDependency = outgoingDependency.getBDependency();
                 ExtensionBridge.changeBDependencyOriginName(bDependency, getQualifiedName());
             }
             
-            for (Iterator<? extends Dependency> iterator = dependents(); iterator.hasNext();) {
-                Dependency incomingDependency = iterator.next();
+            for (Dependency incomingDependency : dependents()) {
                 BDependency bDependency = incomingDependency.getBDependency();
                 ExtensionBridge.changeBDependencyTargetName(bDependency, getQualifiedName());
             }
@@ -1807,11 +1805,17 @@ public class ClassTarget extends DependentTarget
      * Resizes the class so the entire classname + type parameter are visible
      *  
      */
+    @OnThread(Tag.FXPlatform)
     private void updateSize()
     {
-        int width = calculateWidth(getDisplayName());
-        setSize(width, getHeight());
-        repaint();
+        SwingUtilities.invokeLater(() -> {
+            String displayName = getDisplayName();
+            Platform.runLater(() -> {
+                int width = calculateWidth(displayName);
+                setSize(width, getHeight());
+                repaint();
+            });
+        });
     }
 
     /**
@@ -1828,10 +1832,11 @@ public class ClassTarget extends DependentTarget
      * @param y  the y coordinate for the menu, relative to graph editor
      */
     @Override
-    public void popupMenu(int x, int y, GraphEditor graphEditor)
+    @OnThread(Tag.FXPlatform)
+    public void popupMenu(int x, int y, PackageEditor graphEditor)
     {
         Class<?> cl = null;
-
+        /*
         if (state == S_NORMAL) {
             // handle error causes when loading classes which are compiled
             // but not loadable in the current VM. (Eg if they were compiled
@@ -1847,21 +1852,21 @@ public class ClassTarget extends DependentTarget
                     invalidate();
                 }
             }
-        }
+        }*/
 
         // check that the class loading hasn't changed out state
         if (state == S_NORMAL) {
-            menu = createMenu(cl);
+            //menu = createMenu(cl);
             // editor.add(menu);
         }
         else {
-            menu = createMenu(null);
+            //menu = createMenu(null);
             // editor.add(menu);
         }
 
-        if (menu != null) {
-            menu.show(graphEditor, x, y);
-        }
+        //if (menu != null) {
+            //menu.show(graphEditor, x, y);
+        //}
     }
 
     /**
@@ -1957,8 +1962,8 @@ public class ClassTarget extends DependentTarget
                     }
                 }
                 updateAssociatePosition();
-                getPackage().getEditor().revalidate();
-                getPackage().getEditor().repaint();
+                PackageEditor pkgEd = getPackage().getEditor();
+                Platform.runLater(() -> {pkgEd.repaint();});
 
             }
         }
@@ -2105,88 +2110,19 @@ public class ClassTarget extends DependentTarget
      * @param evt Description of the Parameter
      */
     @Override
-    public void doubleClick(MouseEvent evt)
+    @OnThread(Tag.FXPlatform)
+    public void doubleClick()
     {
-        open();
+        SwingUtilities.invokeLater(() -> {open();});
     }
 
-    /**
-     * @return Returns the ghostX.
-     */
-    @Override
-    public int getGhostX()
-    {
-        return ghostX;
-    }
-
-    /**
-     * @return Returns the ghostX.
-     */
-    @Override
-    public int getGhostY()
-    {
-        return ghostY;
-    }
-
-    /**
-     * @return Returns the ghostX.
-     */
-    public int getGhostWidth()
-    {
-        return ghostWidth;
-    }
-
-    /**
-     * @return Returns the ghostX.
-     */
-    public int getGhostHeight()
-    {
-        return ghostHeight;
-    }
-
-    /**
-     * Set the position of the ghost image given a delta to the real size.
-     * 
-     * @param deltaX The new ghostPosition value
-     * @param deltaY The new ghostPosition value
-     */
-    @Override
-    public void setGhostPosition(int deltaX, int deltaY)
-    {
-        this.ghostX = getX() + deltaX;
-        this.ghostY = getY() + deltaY;
-    }
-
-    /**
-     * Set the size of the ghost image given a delta to the real size.
-     * 
-     * @param deltaX The new ghostSize value
-     * @param deltaY The new ghostSize value
-     */
-    @Override
-    public void setGhostSize(int deltaX, int deltaY)
-    {
-        ghostWidth = Math.max(getWidth() + deltaX, MIN_WIDTH);
-        ghostHeight = Math.max(getHeight() + deltaY, MIN_HEIGHT);
-    }
-
-    /**
-     * Set the target's position to its ghost position.
-     */
-    @Override
-    public void setPositionToGhost()
-    {
-        super.setPos(ghostX, ghostY);
-        setSize(ghostWidth, ghostHeight);
-        isDragging = false;
-    }
 
     /**
      * Ask whether we are currently dragging.
      * 
      * @return The dragging value
      */
-    @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isDragging()
     {
         return isDragging;
@@ -2198,7 +2134,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param isDragging The new dragging value
      */
-    @Override
+    @OnThread(Tag.FXPlatform)
     public void setDragging(boolean isDragging)
     {
         this.isDragging = isDragging;
@@ -2211,10 +2147,10 @@ public class ClassTarget extends DependentTarget
      * @param y The new pos value
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setPos(int x, int y)
     {
         super.setPos(x, y);
-        setGhostPosition(0, 0);
     }
 
     /**
@@ -2224,21 +2160,24 @@ public class ClassTarget extends DependentTarget
      * @param height The new size value
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
-        setGhostSize(0, 0);
     }
     
-    @Override
-    public void setVisible(boolean visible)
+    @OnThread(Tag.FXPlatform)
+    public void setVisible(boolean vis)
     {
-        if (visible != isVisible()) {
-            super.setVisible(visible);
+        if (vis != this.visible.get()) {
+            this.visible.set(vis);
+            pane.setVisible(vis);
             
-            // Inform all listeners about the visibility change
-            ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), visible);
-            ExtensionsManager.getInstance().delegateEvent(event);
+            SwingUtilities.invokeLater(() -> {
+                // Inform all listeners about the visibility change
+                ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), vis);
+                ExtensionsManager.getInstance().delegateEvent(event);
+            });
         }
     }
 
@@ -2255,23 +2194,20 @@ public class ClassTarget extends DependentTarget
 
         // if this target is the assocation for another Target, remove
         // the association
-        Iterator<? extends Vertex> it = getPackage().getVertices();
-        while (it.hasNext()) {
-            Object o = it.next();
+        for (Target o : getPackage().getVertices())
+        {
             if (o instanceof DependentTarget) {
                 DependentTarget d = (DependentTarget) o;
                 if (this.equals(d.getAssociation())) {
-                    d.setAssociation(null);
+                    Platform.runLater(() -> {d.setAssociation(null);});
                 }
             }
         }
 
         // flag dependent Targets as invalid
         invalidate();
-
         removeAllInDependencies();
         removeAllOutDependencies();
-
         // remove associated files (.frame, .class, .java and .ctxt)
         prepareFilesForRemoval();
     }
@@ -2368,7 +2304,7 @@ public class ClassTarget extends DependentTarget
         //DataCollector.convertJavaToStride(getPackage(), srcFile, getSourceFile());
     }
 
-    @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isMoveable()
     {
         return isMoveable;
@@ -2380,7 +2316,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @see bluej.graph.Moveable#setIsMoveable(boolean)
      */
-    @Override
+    @OnThread(Tag.FXPlatform)
     public void setIsMoveable(boolean isMoveable)
     {
         this.isMoveable = isMoveable;
@@ -2450,12 +2386,6 @@ public class ClassTarget extends DependentTarget
     public void setProperty(String key, String value) 
     {
         properties.put(key, value);
-    }
-    
-    @Override
-    public String getTooltipText()
-    {
-        return null;
     }
     
     @Override

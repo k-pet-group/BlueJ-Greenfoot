@@ -81,7 +81,7 @@ public class PackagePrinter extends Thread implements Printable
         this.pkg = pkg;
         this.pkgQualName = pkg.getQualifiedName();
         this.pageFormat = pageFormat;
-        graphSize = pkg.getMinimumSize();
+        graphSize = null; //pkg.getMinimumSize();
     }
 
     public void run()
@@ -146,6 +146,7 @@ public class PackagePrinter extends Thread implements Printable
         g.setClip(currentColumn * printArea.width, currentRow * printArea.height,
                   printArea.width, printArea.height);
 
+        /*
         try {
             EventQueue.invokeAndWait(() -> pkg.getEditor().paint(g));
         }
@@ -154,7 +155,7 @@ public class PackagePrinter extends Thread implements Printable
         }
         catch (InterruptedException ie) {
             throw new RuntimeException(ie);
-        }
+        }*/
 
         currentPage = pageIndex;
         return Printable.PAGE_EXISTS;

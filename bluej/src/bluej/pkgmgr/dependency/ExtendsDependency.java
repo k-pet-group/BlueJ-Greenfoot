@@ -24,6 +24,8 @@ package bluej.pkgmgr.dependency;
 import bluej.extensions.BDependency.Type;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.Properties;
 
@@ -32,8 +34,10 @@ import java.util.Properties;
  *
  * @author Michael Kolling
  */
+@OnThread(Tag.FXPlatform)
 public class ExtendsDependency extends Dependency
 {
+    @OnThread(Tag.Any)
     public ExtendsDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(pkg, from, to);
@@ -44,6 +48,7 @@ public class ExtendsDependency extends Dependency
         this(pkg, null, null);
     }
 
+    @OnThread(Tag.Swing)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
@@ -61,6 +66,7 @@ public class ExtendsDependency extends Dependency
     }
     
     @Override
+    @OnThread(Tag.Any)
     public Type getType()
     {
         return Type.EXTENDS;

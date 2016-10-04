@@ -80,6 +80,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -633,7 +634,7 @@ public class ExecControls
     @OnThread(Tag.Swing)
     private void createWindowContent()
     {
-        FXSupplier<MenuBar> fxMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), this);
+        FXPlatformSupplier<MenuBar> fxMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), this);
         Platform.runLater(() -> {
             MenuBar bar = fxMenuBar.get();
             bar.setUseSystemMenuBar(true);

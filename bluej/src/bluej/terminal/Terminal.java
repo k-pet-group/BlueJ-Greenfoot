@@ -53,6 +53,7 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 
 import bluej.BlueJTheme;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingNode;
@@ -661,7 +662,7 @@ public final class Terminal
 
         SwingNode swingNode = new SwingNodeFixed();
         swingNode.setContent(mainPanel);
-        FXSupplier<MenuBar> makeFXMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), mainPanel);
+        FXPlatformSupplier<MenuBar> makeFXMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), mainPanel);
         Platform.runLater(() -> {
             window = new Stage();
             BlueJTheme.setWindowIconFX(window);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,7 +45,7 @@ import bluej.extensions.PreferenceGenerator;
 import bluej.extensions.event.ExtensionEvent;
 import bluej.extensions.painter.ExtensionClassTargetPainter;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.graphPainter.ClassTargetPainter.Layer;
+import bluej.pkgmgr.Layer;
 import bluej.utility.Debug;
 
 /**

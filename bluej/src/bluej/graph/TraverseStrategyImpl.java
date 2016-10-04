@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2016  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,16 +24,24 @@ package bluej.graph;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
 
+import javafx.scene.input.KeyCode;
+
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.Target;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A strategy to move graph selections with keyboard input.
  * 
  * @author fisker
  */
+@OnThread(Tag.FXPlatform)
 public class TraverseStrategyImpl
     implements TraverseStrategy
 {
 
-    private double calcDistance(Vertex vertex1, Vertex vertex2)
+    private double calcDistance(Target vertex1, Target vertex2)
     {
         if (vertex1 == null || vertex2 == null) {
             return Double.POSITIVE_INFINITY;
@@ -55,25 +63,23 @@ public class TraverseStrategyImpl
      * @param key  The key that was pressed.
      * @return     A vertex that should be selected now.
      */
-    public Vertex findNextVertex(Graph graph, Vertex currentVertex, int key)
+    public Target findNextVertex(Package graph, Target currentVertex, KeyCode key)
     {
         int currentVertexCenterX = currentVertex.getX() + currentVertex.getWidth() / 2;
         int currentVertexCenterY = currentVertex.getY() + currentVertex.getHeight() / 2;
         int x;
         int y;
-        Vertex v = null;
         double closest = Double.POSITIVE_INFINITY;
         double currentDistance;
-        Vertex closestVertex = null;
+        Target closestVertex = null;
         boolean left, right, up, down, notSelf, inRightRegion;
-        for (Iterator<? extends Vertex> i = graph.getVertices(); i.hasNext();) {
-            v = (Vertex) i.next();
+        for (Target v : graph.getVertices()) {
             x = v.getX() + v.getWidth() / 2 - currentVertexCenterX;
             y = v.getY() + v.getHeight() / 2 - currentVertexCenterY;
-            left = key == KeyEvent.VK_LEFT && y >= x && y <= -x;
-            right = key == KeyEvent.VK_RIGHT && y <= x && y >= -x;
-            up = key == KeyEvent.VK_UP && y <= x && y <= -x;
-            down = key == KeyEvent.VK_DOWN && y >= x && y >= -x;
+            left = key == KeyCode.LEFT && y >= x && y <= -x;
+            right = key == KeyCode.RIGHT && y <= x && y >= -x;
+            up = key == KeyCode.UP && y <= x && y <= -x;
+            down = key == KeyCode.DOWN && y >= x && y >= -x;
             notSelf = currentVertex != v;
             inRightRegion = (left || right || up || down) && notSelf;
 

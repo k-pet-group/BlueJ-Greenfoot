@@ -22,9 +22,11 @@
 package bluej.pkgmgr.dependency;
 
 import bluej.extensions.BDependency.Type;
-import bluej.graph.GraphEditor;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.target.*;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.Properties;
 import java.awt.*;
@@ -33,23 +35,34 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 16599 2016-09-21 22:16:31Z nccb $
+ * @version $Id: UsesDependency.java 16646 2016-10-04 11:08:29Z nccb $
  */
+@OnThread(Tag.FXPlatform)
 public class UsesDependency extends Dependency
 {
     private int sourceX, sourceY, destX, destY;
     private boolean startTop, endLeft;
+    @OnThread(Tag.Swing)
     private boolean flag;    // flag to mark some dependencies
 
+    @OnThread(Tag.Any)
     public UsesDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(pkg, from, to);
         flag = false;
     }
 
+    @OnThread(Tag.Any)
     public UsesDependency(Package pkg)
     {
-        this(pkg, null, null);
+        this(pkg, (DependentTarget)null, null);
+    }
+
+    @OnThread(Tag.Any)
+    public UsesDependency(Package pkg, Properties props, String prefix) throws DependencyNotFoundException
+    {
+        super(pkg, props, prefix);
+        flag = false;
     }
 
     public void setSourceCoords(int src_x, int src_y, boolean start_top)
@@ -134,7 +147,7 @@ public class UsesDependency extends Dependency
         return new Line(new Point(sourceX, sourceY), new Point(destX, destY), 0.0);
     }
     
-
+    @OnThread(Tag.Swing)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
@@ -143,11 +156,13 @@ public class UsesDependency extends Dependency
         props.put(prefix + ".type", "UsesDependency");
     }
 
+    @OnThread(Tag.Swing)
     public void setFlag(boolean value)
     {
         flag = value;
     }
 
+    @OnThread(Tag.Swing)
     public boolean isFlagged()
     {
         return flag;
@@ -211,13 +226,15 @@ public class UsesDependency extends Dependency
     }
 
     @Override
+    @OnThread(Tag.Any)
     public Type getType()
     {
         return Type.USES;
     }
     
     @Override
-    public void popupMenu(int x, int y, GraphEditor graphEditor)
+    @OnThread(Tag.FXPlatform)
+    public void popupMenu(int x, int y, PackageEditor graphEditor)
     {
         // Don't popup a menu; uses arrows can't be removed.
     }
