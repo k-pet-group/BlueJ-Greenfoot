@@ -38,6 +38,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
@@ -57,6 +59,7 @@ public abstract class Target
     static final int TEXT_HEIGHT = 16;
     static final int TEXT_BORDER = 4;
     static final int SHAD_SIZE = 4;
+    private static final double SHADOW_RADIUS = 6.0;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private String identifierName; // the name handle for this target within
@@ -98,7 +101,17 @@ public abstract class Target
             pane = new BorderPane();
             pane.setPrefWidth(calculateWidth(identifierName));
             pane.setPrefHeight(DEF_HEIGHT);
-            pane.setTop(new Label(identifierName));
+            Label name = new Label(identifierName);
+            JavaFXUtil.addStyleClass(name, "target-name");
+            name.setMaxWidth(9999.0);
+            pane.setTop(name);
+            JavaFXUtil.addStyleClass(pane, "target");
+            pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
+            
+            pane.setOnMouseClicked(e -> {
+                if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY)
+                    doubleClick();
+            });
         });
 
         if (pkg == null)
