@@ -31,11 +31,11 @@
 #include <cstring>
 #include <list>
 #include <shlwapi.h>
+#include <cstdio>
 
-#define __cplusplus_temp __cplusplus
 #undef __cplusplus
 #include <jni.h>
-#define __cplusplus __cplusplus_temp
+#define __cplusplus
 
 #ifndef APPNAME
 #define APPNAME "BlueJ"
@@ -45,8 +45,6 @@
 #define REQUIREDJAVA "1.5"
 #endif
 
-
-#include <cstdio>
 
 // Handy typedef
 typedef std::basic_string<TCHAR> string;
