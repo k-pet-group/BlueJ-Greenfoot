@@ -617,10 +617,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
 
-    <target name="clean-common-weather" description="clean up Weather .jar and .class files to be built again" >
+    <target name="clean-common-weather" description="clean up Weather .jar and classes folder to be built again" >
         <delete file="common/Weather/lib/Weather.jar"/>
         <delete includeemptydirs="true">
-            <fileset dir="common/Weather" includes="classes/**/*" defaultexcludes="no"/>
+            <fileset dir="common/Weather/classes" defaultexcludes="no"/>
         </delete>
     </target>
 
