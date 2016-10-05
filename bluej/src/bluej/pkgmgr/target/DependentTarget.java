@@ -22,7 +22,6 @@
 package bluej.pkgmgr.target;
 
 import javax.swing.SwingUtilities;
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -31,6 +30,7 @@ import javafx.application.Platform;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.dependency.*;
+import javafx.geometry.Point2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -343,11 +343,11 @@ public abstract class DependentTarget extends EditableTarget
             UsesDependency d = (UsesDependency) visibleOutUses.get(i);
             int to_cy = d.getTo().getY() + (int)d.getTo().getHeight() / 2;
             if(to_cy < cy) {
-                d.setSourceCoords(top_left, getY() - 4, true);
+                d.setSourceCoords(top_left, getY() - 2.5, true);
                 top_left += ARR_HORIZ_DIST;
             }
             else {
-                d.setSourceCoords(bottom_left, getY() + (int)getHeight() + 4, false);
+                d.setSourceCoords(bottom_left, getY() + getHeight() + 2.5, false);
                 bottom_left += ARR_HORIZ_DIST;
             }
         }
@@ -432,7 +432,7 @@ public abstract class DependentTarget extends EditableTarget
     }
 
     @OnThread(Tag.FXPlatform)
-    public Point getAttachment(double angle)
+    public Point2D getAttachment(double angle)
     {
         double radius;
         double sin = Math.sin(angle);
@@ -445,15 +445,16 @@ public abstract class DependentTarget extends EditableTarget
         else    // top
             radius = 0.5 * getHeight() / Math.abs(sin);
 
-        Point p = new Point(getX() + getWidth() / 2 + (int)(radius * cos),
+        javafx.geometry.Point2D p = new Point2D(getX() + getWidth() / 2 + (int)(radius * cos),
                             getY() + getHeight() / 2 - (int)(radius * sin));
 
         // Correct for shadow
+        /*
         if((-m < tan) && (tan < m) && (cos > 0))    // right side
             p.x += SHAD_SIZE;
         if((Math.abs(tan) > m) && (sin < 0) && (p.x > getX() + SHAD_SIZE))  // bottom
             p.y += SHAD_SIZE;
-
+        */
         return p;
     }
     

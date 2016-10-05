@@ -1367,6 +1367,22 @@ public class Utility
         return src.stream().filter(keep).collect(Collectors.toList());
     }
 
+    /**
+     * Rounds the number to the nearest integer + 0.5 value.
+     *
+     * Note, this is not the same as rounding to the nearest half-integer.
+     * 1.2 will be rounded to 1.5.  But 1.0 will also be rounded to 1.5.
+     * 0.9 will be rounded to 0.5, and so on.
+     *
+     * This is useful when you want to draw a smooth JavaFX line
+     * which must be drawn at 0.5 pixel intervals.
+     */
+    public static double roundHalf(double x)
+    {
+        // Simplest implementation I could think of:
+        return 0.5 + Math.round(x - 0.5);
+    }
+
     @FunctionalInterface
     public static interface BackgroundRunnable
     {

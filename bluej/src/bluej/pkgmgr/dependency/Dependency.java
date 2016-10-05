@@ -23,11 +23,9 @@ package bluej.pkgmgr.dependency;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.util.Properties;
 
 import javax.swing.*;
-import javax.swing.AbstractAction;
 
 import bluej.Config;
 import bluej.extensions.BDependency;
@@ -38,7 +36,8 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.target.*;
-import bluej.utility.Debug;
+import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -227,7 +226,7 @@ public abstract class Dependency
     public boolean contains(int x, int y)
     {
         Line line = computeLine();
-        Rectangle bounds = getBoxFromLine(line);
+        Rectangle2D bounds = getBoxFromLine(line);
 
         // Now check if <p> is in the rectangle
         if (!bounds.contains(x, y)) {
@@ -235,13 +234,13 @@ public abstract class Dependency
         }
 
         // Get the angle of the line from pFrom to p
-        double theta = Math.atan2(-(line.from.y - y), line.from.x - x);
+        double theta = Math.atan2(-(line.from.getY() - y), line.from.getX() - x);
 
-        double norm = normDist(line.from.x, line.from.y, x, y, Math.sin(line.angle - theta));
+        double norm = normDist(line.from.getX(), line.from.getY(), x, y, Math.sin(line.angle - theta));
         return (norm < SELECT_DIST * SELECT_DIST);
     }
 
-    static final double normDist(int ax, int ay, int bx, int by, double scale)
+    static final double normDist(double ax, double ay, double bx, double by, double scale)
     {
         return ((ax - bx) * (ax - bx) + (ay - by) * (ay - by)) * scale * scale;
     }
@@ -250,14 +249,14 @@ public abstract class Dependency
      * Given the line describing start and end points of this dependency, return
      * its bounding box.
      */
-    protected Rectangle getBoxFromLine(Line line)
+    protected Rectangle2D getBoxFromLine(Line line)
     {
-        int x = Math.min(line.from.x, line.to.x) - SELECT_DIST;
-        int y = Math.min(line.from.y, line.to.y) - SELECT_DIST;
-        int width = Math.max(line.from.x, line.to.x) - x + (2*SELECT_DIST);
-        int height = Math.max(line.from.y, line.to.y) - y + (2*SELECT_DIST);
+        double x = Math.min(line.from.getX(), line.to.getX()) - SELECT_DIST;
+        double y = Math.min(line.from.getY(), line.to.getY()) - SELECT_DIST;
+        double width = Math.max(line.from.getX(), line.to.getX()) - x + (2*SELECT_DIST);
+        double height = Math.max(line.from.getY(), line.to.getY()) - y + (2*SELECT_DIST);
 
-        return new Rectangle(x, y, width, height);
+        return new Rectangle2D(x, y, width, height);
     }
 
     /**
@@ -269,11 +268,11 @@ public abstract class Dependency
     public Line computeLine()
     {
         // Compute centre points of source and dest target
-        Point pFrom = new Point(from.getX() + from.getWidth() / 2, from.getY() + from.getHeight() / 2);
-        Point pTo = new Point(to.getX() + to.getWidth() / 2, to.getY() + to.getHeight() / 2);
+        Point2D pFrom = new Point2D(from.getX() + from.getWidth() / 2, from.getY() + from.getHeight() / 2);
+        Point2D pTo = new Point2D(to.getX() + to.getWidth() / 2, to.getY() + to.getHeight() / 2);
 
         // Get the angle of the line from pFrom to pTo.
-        double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
+        double angle = Math.atan2(-(pFrom.getY() - pTo.getY()), pFrom.getX() - pTo.getX());
 
         // Compute intersection points with target border
         pFrom = ((DependentTarget) from).getAttachment(angle + Math.PI);
@@ -289,11 +288,11 @@ public abstract class Dependency
     @OnThread(Tag.FXPlatform)
     public class Line
     {
-        public Point from;
-        public Point to;
+        public Point2D from;
+        public Point2D to;
         double angle;
 
-        Line(Point from, Point to, double angle)
+        Line(Point2D from, Point2D to, double angle)
         {
             this.from = from;
             this.to = to;

@@ -35,6 +35,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import bluej.utility.Utility;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -458,11 +459,11 @@ public final class PackageEditor extends StackPane
                 }*/
 
             g.setLineDashes(DASHES);
-            int src_x = d.getSourceX();
-            int src_y = d.getSourceY();
-            int dst_x = d.getDestX();
-            int dst_y = d.getDestY();
-            ;
+            // These should all be rounded to the nearest integer+0.5 value:
+            double src_x = d.getSourceX();
+            double src_y = d.getSourceY();
+            double dst_x = d.getDestX();
+            double dst_y = d.getDestY();
 
             g.setStroke(Color.BLACK);
             // Draw the end arrow
@@ -473,18 +474,18 @@ public final class PackageEditor extends StackPane
             g.setLineDashes(DASHES);
 
             // Draw the start
-            int corner_y = src_y + (d.isStartTop() ? -15 : 15);
+            double corner_y = src_y + (d.isStartTop() ? -15 : 15);
             g.strokeLine(src_x, corner_y, src_x, src_y);
             src_y = corner_y;
 
             // Draw the last line segment
-            int corner_x = dst_x + (d.isEndLeft() ? -15 : 15);
+            double corner_x = dst_x + (d.isEndLeft() ? -15 : 15);
             g.strokeLine(corner_x, dst_y, dst_x, dst_y);
             dst_x = corner_x;
 
             // if arrow vertical corner, draw first segment up to corner
             if ((src_y != dst_y) && (d.isStartTop() == (src_y < dst_y))) {
-                corner_x = ((src_x + dst_x) / 2) + (d.isEndLeft() ? 15 : -15);
+                corner_x = Utility.roundHalf(((src_x + dst_x) / 2) + (d.isEndLeft() ? 15 : -15));
                 corner_x = (d.isEndLeft() ? Math.min(dst_x, corner_x) : Math.max(dst_x, corner_x));
                 g.strokeLine(src_x, src_y, corner_x, src_y);
                 src_x = corner_x;
@@ -492,7 +493,7 @@ public final class PackageEditor extends StackPane
 
             // if arrow horiz. corner, draw first segment up to corner
             if ((src_x != dst_x) && (d.isEndLeft() == (src_x > dst_x))) {
-                corner_y = ((src_y + dst_y) / 2) + (d.isStartTop() ? 15 : -15);
+                corner_y = Utility.roundHalf(((src_y + dst_y) / 2) + (d.isStartTop() ? 15 : -15));
                 corner_y = (d.isStartTop() ? Math.min(src_y, corner_y) : Math.max(src_y, corner_y));
                 g.strokeLine(dst_x, corner_y, dst_x, dst_y);
                 dst_y = corner_y;

@@ -25,22 +25,25 @@ import bluej.extensions.BDependency.Type;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.target.*;
+import bluej.utility.Utility;
+import javafx.geometry.Point2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.Properties;
-import java.awt.*;
 
 /**
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 16646 2016-10-04 11:08:29Z nccb $
+ * @version $Id: UsesDependency.java 16674 2016-10-05 16:49:56Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class UsesDependency extends Dependency
 {
-    private int sourceX, sourceY, destX, destY;
+    // All are rounded to the nearest integer + 0.5 boundary
+    // to make the lines sharp;
+    private double sourceX, sourceY, destX, destY;
     private boolean startTop, endLeft;
     @OnThread(Tag.Swing)
     private boolean flag;    // flag to mark some dependencies
@@ -65,48 +68,48 @@ public class UsesDependency extends Dependency
         flag = false;
     }
 
-    public void setSourceCoords(int src_x, int src_y, boolean start_top)
+    public void setSourceCoords(double src_x, double src_y, boolean start_top)
     {
-        this.sourceX = src_x;
-        this.sourceY = src_y;
+        this.sourceX = Utility.roundHalf(src_x);
+        this.sourceY = Utility.roundHalf(src_y);
         this.setStartTop(start_top);
     }
 
-    public void setDestCoords(int dst_x, int dst_y, boolean end_left)
+    public void setDestCoords(double dst_x, double dst_y, boolean end_left)
     {
-        this.destX = dst_x;
-        this.destY = dst_y;
+        this.destX = Utility.roundHalf(dst_x);
+        this.destY = Utility.roundHalf(dst_y);
         this.setEndLeft(end_left);
     }
 
     /**
      * Test whether (x,y) is in rectangle (x0,x1,y0,y1),
      */
-    static final boolean inRect(int x, int y, int x0, int y0, int x1, int y1)
+    static final boolean inRect(double x, double y, double x0, double y0, double x1, double y1)
     {
-        int xmin = Math.min(x0, x1);
-        int xmax = Math.max(x0, x1);
-        int ymin = Math.min(y0, y1);
-        int ymax = Math.max(y0, y1);
+        double xmin = Math.min(x0, x1);
+        double xmax = Math.max(x0, x1);
+        double ymin = Math.min(y0, y1);
+        double ymax = Math.max(y0, y1);
         return (xmin <= x) && (ymin <= y) && (x < xmax) && (y < ymax);
     }
 
     public boolean contains(int x, int y)
     {
-        int src_x = this.sourceX;
-        int src_y = this.sourceY;
-        int dst_x = this.destX;
-        int dst_y = this.destY;
+        double src_x = this.sourceX;
+        double src_y = this.sourceY;
+        double dst_x = this.destX;
+        double dst_y = this.destY;
 
         // Check the first segment
-        int corner_y = src_y + (isStartTop() ? -15 : 15);
+        double corner_y = src_y + (isStartTop() ? -15 : 15);
         if(inRect(x, y, src_x - SELECT_DIST, corner_y, src_x + SELECT_DIST, src_y))
             return true;
 
         src_y = corner_y;
 
         // Check the last line segment
-        int corner_x = dst_x + (isEndLeft() ? -15 : 15);
+        double corner_x = dst_x + (isEndLeft() ? -15 : 15);
         if(inRect(x, y, corner_x, dst_y - SELECT_DIST, dst_x, dst_y + SELECT_DIST))
             return true;
 
@@ -144,7 +147,7 @@ public class UsesDependency extends Dependency
      */
     public Line computeLine()
     {
-        return new Line(new Point(sourceX, sourceY), new Point(destX, destY), 0.0);
+        return new Line(new Point2D(sourceX, sourceY), new Point2D(destX, destY), 0.0);
     }
     
     @OnThread(Tag.Swing)
@@ -176,31 +179,26 @@ public class UsesDependency extends Dependency
     /**
      * @return Returns the sourceX.
      */
-    public int getSourceX() {
+    public double getSourceX() {
         return sourceX;
     }
     /**
      * @return Returns the sourceY.
      */
-    public int getSourceY() {
+    public double getSourceY() {
         return sourceY;
     }
-    /**
-     * @param sourceY The sourceY to set.
-     */
-    public void setSourceY(int sourceY) {
-        this.sourceY = sourceY;
-    }
+
     /**
      * @return Returns the destX.
      */
-    public int getDestX() {
+    public double getDestX() {
         return destX;
     }
     /**
      * @return Returns the destY.
      */
-    public int getDestY() {
+    public double getDestY() {
         return destY;
     }
 
