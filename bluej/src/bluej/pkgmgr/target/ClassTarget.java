@@ -2030,7 +2030,6 @@ public class ClassTarget extends DependentTarget
                     SwingUtilities.invokeLater(() -> getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this));
                 }
             });
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
 
@@ -2054,7 +2053,6 @@ public class ClassTarget extends DependentTarget
             if (checkDebuggerState()) {
                 inspect();
             }
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
 

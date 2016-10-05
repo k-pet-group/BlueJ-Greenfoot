@@ -727,7 +727,6 @@ public final class Package
         }
 
         // Fix up dependency information
-        /*
         for (int i = 0; i < numDependencies; i++) {
             Dependency dep = null;
             String type = lastSavedProps.getProperty("dependency" + (i + 1) + ".type");
@@ -742,7 +741,7 @@ public final class Package
                     }
                     else
                     {
-                        
+                        pendingDeps.add(newDep);
                     }
                 }
                 catch (Dependency.DependencyNotFoundException e)
@@ -751,7 +750,6 @@ public final class Package
                 }
             }
         }
-        */
         Platform.runLater(() -> {recalcArrows();});
 
         // Update class states. We do this before updating roles (or anything else

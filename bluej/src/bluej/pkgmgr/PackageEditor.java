@@ -39,10 +39,13 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Window;
 
 import bluej.debugger.DebuggerObject;
@@ -61,6 +64,8 @@ import bluej.pkgmgr.target.DependentTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.ResizableCanvas;
 import bluej.views.CallableView;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -88,13 +93,15 @@ public final class PackageEditor extends StackPane
 
     /** all the uses-arrows in a package */
     @OnThread(value = Tag.Any,requireSynchronized = true)
-    private final List<Dependency> usesArrows = new ArrayList<>();
+    private final List<UsesDependency> usesArrows = new ArrayList<>();
 
     /** all the extends-arrows in a package */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private final List<Dependency> extendsArrows = new ArrayList<>();
 
     private final AnchorPane classLayer = new AnchorPane();
+    private final Canvas arrowLayer = new Canvas();
+    private boolean aboutToRepaint = false;
 
     /**
      * Construct a package editor for the given package.
@@ -106,7 +113,14 @@ public final class PackageEditor extends StackPane
         this.pkg = pkg;
         this.listener = listener;
         this.selectionController = new SelectionController(this);
-        Platform.runLater(() -> {getChildren().add(classLayer);});
+        Platform.runLater(() -> {
+            classLayer.setBackground(null);
+            arrowLayer.widthProperty().bind(widthProperty());
+            arrowLayer.heightProperty().bind(heightProperty());
+            JavaFXUtil.addChangeListenerPlatform(arrowLayer.widthProperty(), s -> repaint());
+            JavaFXUtil.addChangeListenerPlatform(arrowLayer.heightProperty(), s -> repaint());
+            getChildren().addAll(arrowLayer, classLayer);
+        });
     }
 
     /**
@@ -366,9 +380,125 @@ public final class PackageEditor extends StackPane
         
     }
 
+    private static final int ARROW_SIZE = 18; // pixels
+    private static final double ARROW_ANGLE = Math.PI / 6; // radians
+    private static final double DASHES[] = {5.0f, 2.0f};
+
     public void repaint()
     {
-        //TODO redraw edges on canvas
+        if (!aboutToRepaint)
+        {
+            aboutToRepaint = true;
+            JavaFXUtil.runAfterCurrent(this::actualRepaint);
+        }
+    }
+
+    private void actualRepaint()
+    {
+        aboutToRepaint = false;
+        List<Dependency> extendsDeps;
+        List<UsesDependency> usesDeps;
+        // Don't hold the monitor too long: access once and take copy.
+        synchronized (this)
+        {
+            extendsDeps = new ArrayList<>(this.extendsArrows);
+            usesDeps = new ArrayList<>(this.usesArrows);
+        }
+        GraphicsContext g = arrowLayer.getGraphicsContext2D();
+
+        for (Dependency d : extendsDeps)
+        {
+            g.setStroke(Color.BLACK);
+            g.setLineWidth(1.0);
+            g.setLineDashes();
+            double fromY = d.getFrom().getY();
+            double fromX = d.getFrom().getX();
+            double toY = d.getTo().getY();
+            double toX = d.getTo().getX();
+
+            double angle = Math.atan2(-(fromY - toY), fromX - toX);
+
+            double arrowJoinX = toX + ((ARROW_SIZE - 2) * Math.cos(angle));
+            double arrowJoinY = toY - ((ARROW_SIZE - 2) * Math.sin(angle));
+
+            // draw the arrow head
+            double[] xPoints = {toX, toX + ((ARROW_SIZE) * Math.cos(angle + ARROW_ANGLE)),
+                    toX + (ARROW_SIZE * Math.cos(angle - ARROW_ANGLE))};
+            double[] yPoints = {toY, toY - ((ARROW_SIZE) * Math.sin(angle + ARROW_ANGLE)),
+                    toY - (ARROW_SIZE * Math.sin(angle - ARROW_ANGLE))};
+
+            g.strokePolygon(xPoints, yPoints, 3);
+            g.strokeLine(fromX, fromY, arrowJoinX, arrowJoinY);
+        }
+
+        for (UsesDependency d : usesDeps)
+        {
+            /*
+
+            private static final BasicStroke dashedUnselected = new BasicStroke(strokeWidthDefault, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
+            private static final BasicStroke dashedSelected = new BasicStroke(strokeWidthSelected, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
+            private static final BasicStroke normalSelected = new BasicStroke(strokeWidthSelected);
+            private static final BasicStroke normalUnselected = new BasicStroke(strokeWidthDefault);
+            */
+/*
+                double[] dashedStroke, normalStroke;
+                boolean isSelected = d.isSelected() && hasFocus;
+                if (isSelected) {
+                    dashedStroke = dashedSelected;
+                    normalStroke = normalSelected;
+                }
+                else {
+                    dashedStroke = dashedUnselected;
+                    normalStroke = normalUnselected;
+                }*/
+
+            g.setLineDashes(DASHES);
+            int src_x = d.getSourceX();
+            int src_y = d.getSourceY();
+            int dst_x = d.getDestX();
+            int dst_y = d.getDestY();
+            ;
+
+            g.setStroke(Color.BLACK);
+            // Draw the end arrow
+            int delta_x = d.isEndLeft() ? -10 : 10;
+
+            g.strokeLine(dst_x, dst_y, dst_x + delta_x, dst_y + 4);
+            g.strokeLine(dst_x, dst_y, dst_x + delta_x, dst_y - 4);
+            g.setLineDashes(DASHES);
+
+            // Draw the start
+            int corner_y = src_y + (d.isStartTop() ? -15 : 15);
+            g.strokeLine(src_x, corner_y, src_x, src_y);
+            src_y = corner_y;
+
+            // Draw the last line segment
+            int corner_x = dst_x + (d.isEndLeft() ? -15 : 15);
+            g.strokeLine(corner_x, dst_y, dst_x, dst_y);
+            dst_x = corner_x;
+
+            // if arrow vertical corner, draw first segment up to corner
+            if ((src_y != dst_y) && (d.isStartTop() == (src_y < dst_y))) {
+                corner_x = ((src_x + dst_x) / 2) + (d.isEndLeft() ? 15 : -15);
+                corner_x = (d.isEndLeft() ? Math.min(dst_x, corner_x) : Math.max(dst_x, corner_x));
+                g.strokeLine(src_x, src_y, corner_x, src_y);
+                src_x = corner_x;
+            }
+
+            // if arrow horiz. corner, draw first segment up to corner
+            if ((src_x != dst_x) && (d.isEndLeft() == (src_x > dst_x))) {
+                corner_y = ((src_y + dst_y) / 2) + (d.isStartTop() ? 15 : -15);
+                corner_y = (d.isStartTop() ? Math.min(src_y, corner_y) : Math.max(src_y, corner_y));
+                g.strokeLine(dst_x, corner_y, dst_x, dst_y);
+                dst_y = corner_y;
+            }
+
+            // draw the middle bit
+            g.strokeLine(src_x, src_y, src_x, dst_y);
+            g.strokeLine(src_x, dst_y, dst_x, dst_y);
+        }
     }
 
 
@@ -475,7 +605,7 @@ public final class PackageEditor extends StackPane
     @OnThread(Tag.Any)
     public synchronized Dependency getDependency(DependentTarget origin, DependentTarget target, BDependency.Type type)
     {
-        List<Dependency> dependencies = new ArrayList<Dependency>();
+        List<? extends Dependency> dependencies = new ArrayList<Dependency>();
 
         switch (type) {
             case USES :
@@ -531,7 +661,7 @@ public final class PackageEditor extends StackPane
                     return;
                 }
                 else
-                    usesArrows.add(d);
+                    usesArrows.add((UsesDependency)d);
             }
             else
             {

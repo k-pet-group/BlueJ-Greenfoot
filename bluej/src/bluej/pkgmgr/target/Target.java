@@ -93,6 +93,7 @@ public abstract class Target
     /**
      * Create a new target with default size.
      */
+    @OnThread(Tag.Swing)
     public Target(Package pkg, String identifierName)
     {
         Platform.runLater(() -> {
@@ -200,6 +201,7 @@ public abstract class Target
             setPos(xPosFinal, yPosFinal);
             setSize(widthFinal, heightFinal);
         });
+        //Debug.printCallStack("Loading");
     }
 
     /**
@@ -404,6 +406,11 @@ public abstract class Target
         AnchorPane.setLeftAnchor(pane, (double)x);
         atomicX.set(x);
         atomicY.set(y);
+        synchronized (this)
+        {
+            if (pkg != null && pkg.getEditor() != null)
+                pkg.getEditor().repaint();
+        }
     }
 
     @OnThread(Tag.FXPlatform)
@@ -413,6 +420,11 @@ public abstract class Target
         pane.setPrefHeight(height);
         atomicWidth.set(width);
         atomicHeight.set(height);
+        synchronized (this)
+        {
+            if (pkg != null && pkg.getEditor() != null)
+                pkg.getEditor().repaint();
+        }
     }
 
     @OnThread(Tag.FXPlatform)
