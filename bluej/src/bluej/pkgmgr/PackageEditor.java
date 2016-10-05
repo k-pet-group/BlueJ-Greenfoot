@@ -405,6 +405,7 @@ public final class PackageEditor extends StackPane
             usesDeps = new ArrayList<>(this.usesArrows);
         }
         GraphicsContext g = arrowLayer.getGraphicsContext2D();
+        g.clearRect(0, 0, arrowLayer.getWidth(), arrowLayer.getHeight());
 
         for (Dependency d : extendsDeps)
         {
