@@ -158,7 +158,7 @@ public abstract class Target
                 {
                     setSize((int)(e.getX() + (prePressWidth - pressDeltaX)), (int)(e.getY() + (prePressHeight - pressDeltaY)));
                 }
-                else
+                else if (isMoveable())
                 {
                     // Need position relative to the editor to set new position:
                     Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
