@@ -875,6 +875,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 
                 <include name="common/**/*.java" />
                 <include name="common/**/*.jar" />
+                <exclude name="common/Weather/lib/Weather.jar" />
                 <include name="common/*.png" />
                 <include name="common/*.gif" />
                 <include name="imagelib/**/*" />           
