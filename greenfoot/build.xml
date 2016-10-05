@@ -882,7 +882,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <exclude name="images/**/*" />     
                 <include name="labels/**/*"/>
                 <include name="lib/**/*"/>
-                <include name="package/winlaunch/*" />     
+                <include name="native/**/*"/>
+                <include name="package/winlaunch/*" />
                 <include name="package/commons-*.jar"/>   
                 <include name="package/jl*.jar"/>
                 <include name="projects/**/*" />   
