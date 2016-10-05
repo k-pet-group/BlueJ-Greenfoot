@@ -412,10 +412,12 @@ public final class PackageEditor extends StackPane
             g.setStroke(Color.BLACK);
             g.setLineWidth(1.0);
             g.setLineDashes();
-            double fromY = d.getFrom().getY();
-            double fromX = d.getFrom().getX();
-            double toY = d.getTo().getY();
-            double toX = d.getTo().getX();
+            Dependency.Line line = d.computeLine();
+            double fromY = line.from.getY();
+            double fromX = line.from.getX();
+            double toY = line.to.getY();
+            double toX = line.to.getX();
+
 
             double angle = Math.atan2(-(fromY - toY), fromX - toX);
 
