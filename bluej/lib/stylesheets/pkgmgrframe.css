@@ -43,6 +43,9 @@
     -fx-background-color: rgb(237, 182, 87);
     -fx-cursor: hand;
 }
+.target:hover {
+    -fx-background-color: derive(rgb(237, 182, 87), 25%);
+}
 .target:bj-selected {
     -fx-border-width: 3;
 }

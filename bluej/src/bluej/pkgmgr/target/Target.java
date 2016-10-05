@@ -61,7 +61,7 @@ public abstract class Target
     static final int TEXT_HEIGHT = 16;
     static final int TEXT_BORDER = 4;
     static final int SHAD_SIZE = 4;
-    private static final double SHADOW_RADIUS = 6.0;
+    private static final double SHADOW_RADIUS = 3.0;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private String identifierName; // the name handle for this target within
