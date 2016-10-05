@@ -120,6 +120,7 @@ public class UnitTestClassRole extends ClassRole
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getStereotypeLabel()
     {
         return "unit test";

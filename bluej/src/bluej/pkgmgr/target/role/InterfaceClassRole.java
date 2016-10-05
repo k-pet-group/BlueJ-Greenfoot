@@ -49,6 +49,7 @@ public class InterfaceClassRole extends ClassRole
         return INTERFACE_ROLE_NAME;
     }
 
+    @OnThread(Tag.Any)
     public String getStereotypeLabel()
     {
         return "interface";

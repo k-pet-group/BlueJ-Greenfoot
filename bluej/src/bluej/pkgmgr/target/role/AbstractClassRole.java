@@ -54,6 +54,7 @@ public class AbstractClassRole extends ClassRole
         return ABSTRACT_ROLE_NAME;
     }
 
+    @OnThread(Tag.Any)
     public String getStereotypeLabel()
     {
         return "abstract";

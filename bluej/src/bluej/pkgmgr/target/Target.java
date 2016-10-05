@@ -43,6 +43,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 /**
@@ -62,8 +63,8 @@ public abstract class Target
     static final int TEXT_BORDER = 4;
     static final int SHAD_SIZE = 4;
     private static final double SHADOW_RADIUS = 3.0;
-    private static final double RESIZE_CORNER_SIZE = 16;
-    private static final double RESIZE_CORNER_GAP = 4;
+    protected static final double RESIZE_CORNER_SIZE = 16;
+
     private int prePressWidth;
     private int prePressHeight;
     private boolean pressIsResize;
@@ -96,8 +97,6 @@ public abstract class Target
     
     @OnThread(Tag.FXPlatform)
     protected BorderPane pane;
-    @OnThread(Tag.FXPlatform)
-    private ResizableCanvas canvas;
     
     /**
      * Create a new target with default size.
@@ -111,12 +110,6 @@ public abstract class Target
             pane.setPrefHeight(DEF_HEIGHT);
             // We set this here not from CSS because we vary it dynamically:
             pane.setCursor(Cursor.HAND);
-            Label name = new Label(identifierName);
-            JavaFXUtil.addStyleClass(name, "target-name");
-            name.setMaxWidth(9999.0);
-            pane.setTop(name);
-            canvas = new ResizableCanvas();
-            pane.setCenter(canvas);
             JavaFXUtil.addStyleClass(pane, "target");
             pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
             
@@ -331,24 +324,8 @@ public abstract class Target
     }
 
     @OnThread(Tag.FXPlatform)
-    private void redraw()
+    protected void redraw()
     {
-        GraphicsContext g = canvas.getGraphicsContext2D();
-        double width = canvas.getWidth();
-        double height = canvas.getHeight();
-        g.clearRect(0, 0, width, height);
-
-        // TODO draw the compile/error markings.
-
-        if (this.selected)
-        {
-            g.setStroke(Color.BLACK);
-            g.setLineDashes();
-            g.setLineWidth(1.0);
-            // Draw the marks in the corner to indicate resizing is possible:
-            g.strokeLine(width - RESIZE_CORNER_SIZE, height, width, height - RESIZE_CORNER_SIZE);
-            g.strokeLine(width - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, height, width, height - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
-        }
     }
 
     /*

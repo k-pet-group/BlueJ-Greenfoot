@@ -114,14 +114,18 @@ import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.ResizableCanvas;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.layout.VBox;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -147,6 +151,10 @@ public class ClassTarget extends DependentTarget
     private final static String convertToStrideStr = Config.getString("pkgmgr.classmenu.convertToStride");
     private final static String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
     private final static String launchFXStr = Config.getString("pkgmgr.classmenu.launchFX");
+
+    private static final String STEREOTYPE_OPEN = ""; //"<<";
+    private static final String STEREOTYPE_CLOSE = ""; //">>";
+    private static final double RESIZE_CORNER_GAP = 4;
 
     // Define Background Colours
     private final static Color compbg = new Color(200,150,100);
@@ -210,6 +218,14 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.Any)
     private final AtomicBoolean visible = new AtomicBoolean(true);
     private static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
+    @OnThread(Tag.Any)
+    private static String[] pseudos;
+
+    // The body of the class target which goes hashed, etc:
+    @OnThread(Tag.FXPlatform)
+    private ResizableCanvas canvas;
+    @OnThread(Tag.FXPlatform)
+    private Label stereotypeLabel;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -234,27 +250,49 @@ public class ClassTarget extends DependentTarget
         super(pkg, baseName);
         calcSourceAvailable();
 
+        if (pseudos == null)
+        {
+            pseudos = Utility.mapList(Arrays.<Class<? extends ClassRole>>asList(StdClassRole.class, UnitTestClassRole.class, AbstractClassRole.class, InterfaceClassRole.class, EnumClassRole.class), ClassTarget::pseudoFor).toArray(new String[0]);
+        }
+
+        Platform.runLater(() -> {
+            JavaFXUtil.addStyleClass(pane, "class-target");
+
+            Label name = new Label(baseName);
+            JavaFXUtil.addStyleClass(name, "class-target-name");
+            name.setMaxWidth(9999.0);
+            stereotypeLabel = new Label();
+            stereotypeLabel.setMaxWidth(9999.0);
+            stereotypeLabel.visibleProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
+            stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
+            JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
+            pane.setTop(new VBox(stereotypeLabel, name));
+            canvas = new ResizableCanvas();
+            pane.setCenter(canvas);
+        });
+
         // we can take a guess at what the role is going to be for the
         // object based on the start of the template name. If we get this
         // wrong, its no great shame as it'll be fixed the first time they
         // successfully analyse/compile the source.
         if (template != null) {
             if (template.startsWith("unittest")) {
-                role = new UnitTestClassRole(true);
+                setRole(new UnitTestClassRole(true));
             }
             else if (template.startsWith("abstract")) {
-                role = new AbstractClassRole();
+                setRole(new AbstractClassRole());
             }
             else if (template.startsWith("interface")) {
-                role = new InterfaceClassRole();
+                setRole(new InterfaceClassRole());
             }
             else if (template.startsWith("enum")) {
-                role = new EnumClassRole();
+                setRole(new EnumClassRole());
             }
+            else {
+                setRole(new StdClassRole());
+            }
+
         }
-        Platform.runLater(() -> {
-            JavaFXUtil.addStyleClass(pane, "class-target");
-        });
     }
     
     private void calcSourceAvailable()
@@ -469,11 +507,31 @@ public class ClassTarget extends DependentTarget
      * 
      * @param newRole The new role value
      */
-    protected void setRole(ClassRole newRole)
+    protected final void setRole(ClassRole newRole)
     {
-        if (role.getRoleName() != newRole.getRoleName()) {
+        if (role == null || role.getRoleName() != newRole.getRoleName()) {
             role = newRole;
+
+            String select = pseudoFor(role.getClass());
+            String stereotype = role.getStereotypeLabel();
+            Platform.runLater(() -> {
+                JavaFXUtil.selectPseudoClass(pane, Arrays.asList(pseudos).indexOf(select), pseudos);
+                if (stereotype != null)
+                    stereotypeLabel.setText(STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE);
+                else
+                    stereotypeLabel.setText("");
+            });
         }
+    }
+
+    @OnThread(Tag.Any)
+    private static String pseudoFor(Class<? extends ClassRole> aClass)
+    {
+        // AbstractClassRole becomes bj-abstract, etc
+        String name = aClass.getSimpleName();
+        if (name.endsWith("ClassRole"))
+            name = name.substring(0, name.length() - "ClassRole".length());
+        return "bj-" + name.toLowerCase();
     }
 
     /**
@@ -2195,6 +2253,28 @@ public class ClassTarget extends DependentTarget
                 ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), vis);
                 ExtensionsManager.getInstance().delegateEvent(event);
             });
+        }
+    }
+
+    @OnThread(Tag.FXPlatform)
+    @Override
+    protected void redraw()
+    {
+        GraphicsContext g = canvas.getGraphicsContext2D();
+        double width = canvas.getWidth();
+        double height = canvas.getHeight();
+        g.clearRect(0, 0, width, height);
+
+        // TODO draw the compile/error markings.
+
+        if (this.selected)
+        {
+            g.setStroke(javafx.scene.paint.Color.BLACK);
+            g.setLineDashes();
+            g.setLineWidth(1.0);
+            // Draw the marks in the corner to indicate resizing is possible:
+            g.strokeLine(width - RESIZE_CORNER_SIZE, height, width, height - RESIZE_CORNER_SIZE);
+            g.strokeLine(width - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, height, width, height - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
         }
     }
 

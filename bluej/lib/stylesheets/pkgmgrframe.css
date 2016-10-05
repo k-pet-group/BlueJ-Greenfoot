@@ -47,14 +47,25 @@
 .class-target:hover {
     -fx-background-color: derive(rgb(237, 182, 87), 25%);
 }
+.class-target:bj-unittest {
+    -fx-background-color: rgb(145, 170, 116);
+}
+.class-target:bj-unittest:hover {
+    -fx-background-color: derive(rgb(145, 170, 116), 25%);
+}
 .class-target:bj-selected {
     -fx-border-width: 3;
 }
-.target-name {
+.class-target-name {
     -fx-font-weight: bold;
     -fx-border-width: 0 0 1 0;
     -fx-border-color: black;
     -fx-alignment: center;
+    -fx-font-size: 10pt;
+}
+.class-target-extra {
+    -fx-alignment: center;
+    -fx-font-size: 8pt;
 }
 .class-action-inbuilt > .label, .object-action-inbuilt > .label {
     -fx-text-fill: darkred;

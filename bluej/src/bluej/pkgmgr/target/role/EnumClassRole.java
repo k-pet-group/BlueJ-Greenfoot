@@ -57,6 +57,7 @@ public class EnumClassRole extends ClassRole
         return ENUM_ROLE_NAME;
     }
 
+    @OnThread(Tag.Any)
     public String getStereotypeLabel()
     {
         return "enum";

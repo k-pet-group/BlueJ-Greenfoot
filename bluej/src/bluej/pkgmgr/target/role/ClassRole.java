@@ -135,6 +135,7 @@ public abstract class ClassRole
      * on classes in the UML diagram along with the class name. It may return
      * null if there is no stereotype label.
      */
+    @OnThread(Tag.Any)
     public String getStereotypeLabel()
     {
         return null;
