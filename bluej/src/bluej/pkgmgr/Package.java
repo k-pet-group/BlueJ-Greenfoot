@@ -888,7 +888,7 @@ public final class Package
         addTarget(t);
         if (!isUnnamedPackage()) {
             final Target parent = new ParentPackageTarget(this);
-            Platform.runLater(() -> {editor.findSpaceForVertex(parent);});
+            Platform.runLater(() -> {if (editor != null) editor.findSpaceForVertex(parent);});
             addTarget(parent);
         }
 

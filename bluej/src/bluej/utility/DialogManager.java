@@ -469,7 +469,7 @@ public class DialogManager
      */
     public static void tileWindow(Window child, Window parent)
     {
-        if(parent.isShowing()) {
+        if(parent != null && parent.isShowing()) {
             Point p_topleft = parent.getLocationOnScreen();
             child.setLocation(p_topleft.x + 20, p_topleft.y + 20);
         }
