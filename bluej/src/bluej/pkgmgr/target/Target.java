@@ -23,21 +23,16 @@ package bluej.pkgmgr.target;
 
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.Properties;
-import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
@@ -62,6 +57,8 @@ public abstract class Target
     static final int TEXT_BORDER = 4;
     static final int SHAD_SIZE = 4;
     private static final double SHADOW_RADIUS = 3.0;
+    private double pressDeltaX;
+    private double pressDeltaY;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private String identifierName; // the name handle for this target within
@@ -124,6 +121,17 @@ public abstract class Target
                     pane.requestFocus();
                 }
                 e.consume();    
+            });
+            pane.setOnMousePressed(e -> {
+                pressDeltaX = e.getX();
+                pressDeltaY = e.getY();
+                // TODO check if it's in the corner (and selected), in which case it will be a resize
+                // We don't consume because it may turn into a normal click.  Just record position.
+            });
+            pane.setOnMouseDragged(e -> {
+                Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
+                setPos((int)(p.getX() - pressDeltaX), (int)(p.getY() - pressDeltaY));
+                e.consume();
             });
             JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
                 pkg.getEditor().selectOnly(this);
