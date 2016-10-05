@@ -128,7 +128,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
     protected void paintLineMarkers(int lineIndex, Graphics g, int x, int y,
             MoeSyntaxDocument document, MoeErrorManager errors, Element line)
     {
-        if (errors.getErrorOnLine(lineIndex) != null)
+        if (errors != null && errors.getErrorOnLine(lineIndex) != null)
         {
             Color c = g.getColor();
             g.setColor(Color.RED);
