@@ -252,6 +252,9 @@ public class ClassTarget extends DependentTarget
                 role = new EnumClassRole();
             }
         }
+        Platform.runLater(() -> {
+            JavaFXUtil.addStyleClass(pane, "class-target");
+        });
     }
     
     private void calcSourceAvailable()

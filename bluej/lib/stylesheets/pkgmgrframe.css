@@ -36,7 +36,7 @@
 }
 
 /* Class Diagram */
-.target {
+.class-target {
     -fx-border-width: 1;
     -fx-border-color: black;
     -fx-border-style: solid outside; /* Prevents relayout when border gets thicker */
@@ -44,10 +44,10 @@
     /* We set this programatically because we vary it when the mouse moves to the bottom corner: */
     /*-fx-cursor: hand; */
 }
-.target:hover {
+.class-target:hover {
     -fx-background-color: derive(rgb(237, 182, 87), 25%);
 }
-.target:bj-selected {
+.class-target:bj-selected {
     -fx-border-width: 3;
 }
 .target-name {

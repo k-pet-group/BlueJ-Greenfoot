@@ -33,6 +33,8 @@ import javax.swing.SwingUtilities;
 import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
@@ -45,6 +47,7 @@ import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.Debug;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -55,12 +58,18 @@ import threadchecker.Tag;
  */
 public class ReadmeTarget extends EditableTarget
 {
-    private static final int WIDTH = 30;
-    private static final int HEIGHT = 50;
     private static final String openStr = Config.getString("pkgmgr.packagemenu.open");
     private static final Color envOpColour = Config.ENV_COLOUR;
     
     public static final String README_ID = "@README";
+
+    // Images
+    @OnThread(Tag.FXPlatform)
+    private static Image readmeImage;
+    @OnThread(Tag.FXPlatform)
+    private static Image selectedReadmeImage;
+    @OnThread(Tag.FXPlatform)
+    private ImageView imageView;
 
     public ReadmeTarget(Package pkg)
     {
@@ -69,9 +78,21 @@ public class ReadmeTarget extends EditableTarget
         super(pkg, README_ID);
         
         Platform.runLater(() -> {
+            if (readmeImage == null)
+                readmeImage = Config.getImageAsFXImage("image.readme");
+            if (selectedReadmeImage == null)
+                selectedReadmeImage= Config.getImageAsFXImage("image.readme-selected");
+
             setPos(10, 10);
-            setSize(WIDTH, HEIGHT);
+            setSize((int)readmeImage.getWidth(), (int)readmeImage.getHeight());
+            JavaFXUtil.addStyleClass(pane, "readme-target");
+            pane.setTop(null);
+            imageView = new ImageView();
+            imageView.setImage(readmeImage);
+            pane.setCenter(imageView);
         });
+
+
     }
 
     @Override
@@ -243,4 +264,12 @@ public class ReadmeTarget extends EditableTarget
     @Override
     @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type) {}
+
+    @Override
+    public @OnThread(Tag.FXPlatform) void setSelected(boolean selected)
+    {
+        super.setSelected(selected);
+        imageView.setImage(selected ? selectedReadmeImage : readmeImage);
+
+    }
 }

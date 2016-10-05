@@ -154,7 +154,7 @@ public abstract class Target
                 // We don't consume because it may turn into a normal click.  Just record position.
             });
             pane.setOnMouseDragged(e -> {
-                if (pressIsResize)
+                if (pressIsResize && isResizable())
                 {
                     setSize((int)(e.getX() + (prePressWidth - pressDeltaX)), (int)(e.getY() + (prePressHeight - pressDeltaY)));
                 }
