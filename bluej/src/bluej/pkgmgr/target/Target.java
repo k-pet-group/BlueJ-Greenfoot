@@ -312,13 +312,15 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public int getWidth()
     {
-        return (int)pane.getWidth();
+        // We use pref width because that's the internally intended width
+        // Actual width may be 0 during initialisation so we can't use that.
+        return (int)pane.getPrefWidth();
     }
 
     @OnThread(Tag.FXPlatform)
     public int getHeight()
     {
-        return (int)pane.getHeight();
+        return (int)pane.getPrefHeight();
     }
 
     public boolean isQueued()
