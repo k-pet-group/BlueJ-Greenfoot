@@ -24,6 +24,7 @@ package bluej.pkgmgr.target;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.ResizableCanvas;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -32,13 +33,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 
 /**
  * A general target in a package
@@ -57,6 +62,11 @@ public abstract class Target
     static final int TEXT_BORDER = 4;
     static final int SHAD_SIZE = 4;
     private static final double SHADOW_RADIUS = 3.0;
+    private static final double RESIZE_CORNER_SIZE = 16;
+    private static final double RESIZE_CORNER_GAP = 4;
+    private int prePressWidth;
+    private int prePressHeight;
+    private boolean pressIsResize;
     private double pressDeltaX;
     private double pressDeltaY;
 
@@ -86,6 +96,8 @@ public abstract class Target
     
     @OnThread(Tag.FXPlatform)
     protected BorderPane pane;
+    @OnThread(Tag.FXPlatform)
+    private ResizableCanvas canvas;
     
     /**
      * Create a new target with default size.
@@ -97,10 +109,14 @@ public abstract class Target
             pane = new BorderPane();
             pane.setPrefWidth(calculateWidth(identifierName));
             pane.setPrefHeight(DEF_HEIGHT);
+            // We set this here not from CSS because we vary it dynamically:
+            pane.setCursor(Cursor.HAND);
             Label name = new Label(identifierName);
             JavaFXUtil.addStyleClass(name, "target-name");
             name.setMaxWidth(9999.0);
             pane.setTop(name);
+            canvas = new ResizableCanvas();
+            pane.setCenter(canvas);
             JavaFXUtil.addStyleClass(pane, "target");
             pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
             
@@ -118,19 +134,36 @@ public abstract class Target
                     {
                         pkg.getEditor().selectOnly(this);
                     }
+                    updateCursor(e);
                     pane.requestFocus();
                 }
                 e.consume();    
             });
+            pane.setOnMouseMoved(e -> {
+                updateCursor(e);
+            });
+
             pane.setOnMousePressed(e -> {
                 pressDeltaX = e.getX();
                 pressDeltaY = e.getY();
-                // TODO check if it's in the corner (and selected), in which case it will be a resize
+                prePressWidth = getWidth();
+                prePressHeight = getHeight();
+                // Check if it's in the corner (and selected), in which case it will be a resize:
+                pressIsResize = isSelected() && cursorAtResizeCorner(e);
+
                 // We don't consume because it may turn into a normal click.  Just record position.
             });
             pane.setOnMouseDragged(e -> {
-                Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
-                setPos((int)(p.getX() - pressDeltaX), (int)(p.getY() - pressDeltaY));
+                if (pressIsResize)
+                {
+                    setSize((int)(e.getX() + (prePressWidth - pressDeltaX)), (int)(e.getY() + (prePressHeight - pressDeltaY)));
+                }
+                else
+                {
+                    // Need position relative to the editor to set new position:
+                    Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
+                    setPos((int) (p.getX() - pressDeltaX), (int) (p.getY() - pressDeltaY));
+                }
                 e.consume();
             });
             JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
@@ -146,6 +179,27 @@ public abstract class Target
         this.pkg = pkg;
         this.identifierName = identifierName;
         this.displayName = identifierName;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void updateCursor(MouseEvent e)
+    {
+        if (isSelected() && cursorAtResizeCorner(e))
+        {
+            pane.setCursor(Cursor.SE_RESIZE);
+        }
+        else
+        {
+            pane.setCursor(Cursor.HAND);
+
+        }
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public boolean cursorAtResizeCorner(MouseEvent e)
+    {
+        // Check if it's in the 45-degree corner in the bottom right:
+        return e.getX() + e.getY() >= getWidth() + getHeight() - RESIZE_CORNER_SIZE;
     }
 
     /**
@@ -273,6 +327,28 @@ public abstract class Target
     {
         this.selected = selected;
         JavaFXUtil.setPseudoclass("bj-selected", selected, pane);
+        redraw();
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void redraw()
+    {
+        GraphicsContext g = canvas.getGraphicsContext2D();
+        double width = canvas.getWidth();
+        double height = canvas.getHeight();
+        g.clearRect(0, 0, width, height);
+
+        // TODO draw the compile/error markings.
+
+        if (this.selected)
+        {
+            g.setStroke(Color.BLACK);
+            g.setLineDashes();
+            g.setLineWidth(1.0);
+            // Draw the marks in the corner to indicate resizing is possible:
+            g.strokeLine(width - RESIZE_CORNER_SIZE, height, width, height - RESIZE_CORNER_SIZE);
+            g.strokeLine(width - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, height, width, height - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
+        }
     }
 
     /*

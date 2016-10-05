@@ -41,7 +41,8 @@
     -fx-border-color: black;
     -fx-border-style: solid outside; /* Prevents relayout when border gets thicker */
     -fx-background-color: rgb(237, 182, 87);
-    -fx-cursor: hand;
+    /* We set this programatically because we vary it when the mouse moves to the bottom corner: */
+    /*-fx-cursor: hand; */
 }
 .target:hover {
     -fx-background-color: derive(rgb(237, 182, 87), 25%);
