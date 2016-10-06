@@ -100,7 +100,10 @@ public final class PackageEditor extends StackPane
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private final List<Dependency> extendsArrows = new ArrayList<>();
 
-    private final AnchorPane classLayer = new AnchorPane();
+    // Two class layers: one front (for normal classes),
+    // and one back (for test classes)
+    private final AnchorPane frontClassLayer = new AnchorPane();
+    private final AnchorPane backClassLayer = new AnchorPane();
     private final Canvas arrowLayer = new Canvas();
     private boolean aboutToRepaint = false;
 
@@ -115,13 +118,13 @@ public final class PackageEditor extends StackPane
         this.listener = listener;
         this.selectionController = new SelectionController(this);
         Platform.runLater(() -> {
-            classLayer.setBackground(null);
+            frontClassLayer.setBackground(null);
+            backClassLayer.setBackground(null);
             arrowLayer.widthProperty().bind(widthProperty());
             arrowLayer.heightProperty().bind(heightProperty());
             JavaFXUtil.addChangeListenerPlatform(arrowLayer.widthProperty(), s -> repaint());
             JavaFXUtil.addChangeListenerPlatform(arrowLayer.heightProperty(), s -> repaint());
-            getChildren().addAll(arrowLayer, classLayer);
-        });
+            getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer);        });
     }
 
     /**
@@ -338,7 +341,11 @@ public final class PackageEditor extends StackPane
 
         // We assume all components currently in the graph belong to vertices.
         // We first mark all of them as no longer needed:
-        for (Node c : classLayer.getChildren())
+        for (Node c : frontClassLayer.getChildren())
+        {
+            keep.put(c, false);
+        }
+        for (Node c : backClassLayer.getChildren())
         {
             keep.put(c, false);
         }
@@ -348,7 +355,7 @@ public final class PackageEditor extends StackPane
         {
             if (!keep.containsKey(v.getNode()))
             {
-                classLayer.getChildren().add(v.getNode());
+                (v.isFront() ? frontClassLayer : backClassLayer).getChildren().add(v.getNode());
                 //v.getComponent().addFocusListener(focusListener);
                 //v.getComponent().addFocusListener(selectionController);
                 //v.getComponent().addKeyListener(selectionController);
@@ -364,7 +371,8 @@ public final class PackageEditor extends StackPane
         {
             if (e.getValue().booleanValue() == false)
             {
-                classLayer.getChildren().remove(e.getKey());
+                frontClassLayer.getChildren().remove(e.getKey());
+                backClassLayer.getChildren().remove(e.getKey());
                 //e.getKey().removeFocusListener(focusListener);
                 //e.getKey().removeFocusListener(selectionController);
                 //e.getKey().removeKeyListener(selectionController);

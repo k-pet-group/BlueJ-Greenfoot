@@ -535,4 +535,10 @@ public abstract class Target
     {
         
     }
+
+    @OnThread(Tag.FXPlatform)
+    public boolean isFront()
+    {
+        return true;
+    }
 }

@@ -226,6 +226,8 @@ public class ClassTarget extends DependentTarget
     private ResizableCanvas canvas;
     @OnThread(Tag.FXPlatform)
     private Label stereotypeLabel;
+    @OnThread(Tag.FXPlatform)
+    private boolean isFront;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -514,7 +516,9 @@ public class ClassTarget extends DependentTarget
 
             String select = pseudoFor(role.getClass());
             String stereotype = role.getStereotypeLabel();
+            boolean shouldBeFront = role == null || !(role instanceof UnitTestClassRole);
             Platform.runLater(() -> {
+                isFront = shouldBeFront;
                 JavaFXUtil.selectPseudoClass(pane, Arrays.asList(pseudos).indexOf(select), pseudos);
                 if (stereotype != null)
                     stereotypeLabel.setText(STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE);
@@ -2606,5 +2610,11 @@ public class ClassTarget extends DependentTarget
     public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key)
     {
         DataCollector.unknownFrameCommandKey(this, enclosingFrameXpath, cursorIndex, key);
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) boolean isFront()
+    {
+        return isFront;
     }
 }
