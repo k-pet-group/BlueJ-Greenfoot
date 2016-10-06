@@ -444,7 +444,7 @@ public class ClassTarget extends DependentTarget
      * @param newState The new state value
      */
     @Override
-    public void setState(int newState)
+    public void setState(State newState)
     {
         if (state != newState) {
             boolean oldKnownError = knownError;
@@ -452,7 +452,7 @@ public class ClassTarget extends DependentTarget
             @OnThread(Tag.Any) Project proj = getPackage().getProject();
             Platform.runLater(() -> proj.removeInspectorInstance(qualifiedName));
             
-            if (newState == S_COMPILING)
+            if (newState == State.COMPILING)
             {
                 knownError = false;
                 if (getSourceType() == SourceType.Stride) {
@@ -468,13 +468,13 @@ public class ClassTarget extends DependentTarget
             else
             {
                 if (editor != null) {
-                    editor.compileFinished(newState == S_NORMAL);
+                    editor.compileFinished(newState == State.NORMAL);
                 }
             }
             
             // Notify extensions if necessary. Note extensions can't distinguish S_COMPILING and S_INVALID;
             // they are informed only if the class is currently compiled.
-            if (newState == S_NORMAL) {
+            if (newState == State.NORMAL) {
                 modifiedSinceCompile = false;
                 if (editor != null) {
                     editor.reInitBreakpoints();
@@ -482,7 +482,7 @@ public class ClassTarget extends DependentTarget
                 ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), true, false);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
-            else if (state == S_NORMAL || newState == S_INVALID || knownError != oldKnownError) {
+            else if (state == State.NORMAL || newState == State.INVALID || knownError != oldKnownError) {
                 ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), false, hasKnownError());
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
@@ -849,7 +849,7 @@ public class ClassTarget extends DependentTarget
      */
     public void invalidate()
     {
-        setState(S_INVALID);
+        setState(State.INVALID);
         for (Dependency d : dependents()) {
             ClassTarget dependent = (ClassTarget) d.getFrom();
             
@@ -912,7 +912,7 @@ public class ClassTarget extends DependentTarget
      */
     public Paint getBackgroundPaint(int width, int height)
     {
-        if (state == S_COMPILING) {
+        if (state == State.COMPILING) {
             return compbg;
         }
         else {
@@ -1317,7 +1317,7 @@ public class ClassTarget extends DependentTarget
      */
     public boolean isCompiled()
     {
-        return (state == S_NORMAL);
+        return (state == State.NORMAL);
     }
 
     /**
@@ -1350,7 +1350,7 @@ public class ClassTarget extends DependentTarget
         if (Config.isGreenfoot()) {
             //In Greenfoot compiling always compiles the whole package, and at least
             // compiles this target:
-            setState(S_INVALID);
+            setState(State.INVALID);
 
             // Even though we do a package compile, we must let the editor know when
             // the compile finishes, so that it updates its status correctly:
@@ -1411,7 +1411,7 @@ public class ClassTarget extends DependentTarget
 
             if (success) {
                 // skeleton successfully generated
-                setState(S_INVALID);
+                setState(State.INVALID);
                 sourceAvailable = sourceType;
                 return true;
             }
@@ -1692,8 +1692,8 @@ public class ClassTarget extends DependentTarget
             DependentTarget superclass = getPackage().getDependentTarget(superName);
             if (superclass != null) {
                 getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass));
-                if (superclass.getState() != S_NORMAL) {
-                    setState(S_INVALID);
+                if (superclass.getState() != State.NORMAL) {
+                    setState(State.INVALID);
                 }
             }
         }
@@ -1714,8 +1714,8 @@ public class ClassTarget extends DependentTarget
 
             if (interfce != null) {
                 getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce));
-                if (interfce.getState() != S_NORMAL) {
-                    setState(S_INVALID);
+                if (interfce.getState() != State.NORMAL) {
+                    setState(State.INVALID);
                 }
             }
         }
@@ -1910,7 +1910,7 @@ public class ClassTarget extends DependentTarget
         {
             Class<?> cl = null;
 
-            if (state == S_NORMAL)
+            if (state == State.NORMAL)
             {
                 // handle error causes when loading classes which are compiled
                 // but not loadable in the current VM. (Eg if they were compiled
@@ -1931,7 +1931,7 @@ public class ClassTarget extends DependentTarget
             }
 
             // check that the class loading hasn't changed out state
-            if (state != S_NORMAL)
+            if (state != State.NORMAL)
                 cl = null;
             // Need a bunch of info from the Swing thread before hopping to FX:
             Class<?> clFinal = cl;
@@ -2274,6 +2274,7 @@ public class ClassTarget extends DependentTarget
         g.clearRect(0, 0, width, height);
 
         // TODO draw the compile/error markings.
+
 
         if (this.selected && isResizable())
         {

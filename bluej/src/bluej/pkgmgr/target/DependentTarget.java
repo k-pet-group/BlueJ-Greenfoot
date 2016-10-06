@@ -43,11 +43,13 @@ import threadchecker.Tag;
 public abstract class DependentTarget extends EditableTarget
 {
     /** States * */
-    public static final int S_NORMAL = 0;
-    public static final int S_INVALID = 1;
-    public static final int S_COMPILING = 2;
+    @OnThread(Tag.Any)
+    public static enum State
+    {
+        NORMAL, INVALID, COMPILING;
+    }
 
-    protected int state = S_INVALID;
+    protected State state = State.INVALID;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<UsesDependency> inUses;
@@ -142,7 +144,7 @@ public abstract class DependentTarget extends EditableTarget
         }
 
         if(recalc) {
-            SwingUtilities.invokeLater(() -> {setState(S_INVALID);});
+            SwingUtilities.invokeLater(() -> {setState(State.INVALID);});
         }
     }
 
@@ -175,7 +177,7 @@ public abstract class DependentTarget extends EditableTarget
         
         if(recalc)
         {
-            SwingUtilities.invokeLater(() -> {setState(S_INVALID);});
+            SwingUtilities.invokeLater(() -> {setState(State.INVALID);});
         }
     }
 
@@ -510,19 +512,19 @@ public abstract class DependentTarget extends EditableTarget
      * Return the current state of the target (one of S_NORMAL, S_INVALID,
      * S_COMPILING)
      */
-    public int getState()
+    public State getState()
     {
         return state;
     }
 
     public boolean isInvalidState()
     {
-        return getState() == S_INVALID;
+        return getState() == State.INVALID;
     }
 
     public void setInvalidState()
     {
-        setState(S_INVALID);
+        setState(State.INVALID);
     }
     
     /**
@@ -531,7 +533,7 @@ public abstract class DependentTarget extends EditableTarget
      * 
      * @param newState The new state value
      */
-    public void setState(int newState)
+    public void setState(State newState)
     {
         state = newState;
         Platform.runLater(() -> {repaint();});

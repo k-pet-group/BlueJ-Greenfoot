@@ -23,6 +23,7 @@ package bluej.pkgmgr.target.role;
 
 import javax.swing.JPopupMenu;
 
+import bluej.pkgmgr.target.DependentTarget.State;
 import javafx.collections.ObservableList;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -63,7 +64,7 @@ public class StdClassRole extends ClassRole
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, int state)
+    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, State state)
     {
         if(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS)) {
             if (ct.getAssociation() == null) {

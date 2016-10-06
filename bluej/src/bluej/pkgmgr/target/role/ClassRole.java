@@ -37,6 +37,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import bluej.pkgmgr.target.DependentTarget.State;
 import javafx.collections.ObservableList;
 import javafx.scene.control.MenuItem;
 
@@ -204,7 +205,7 @@ public abstract class ClassRole
      * @return true if any menu items have been added
      */
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, int state)
+    public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, State state)
     {
         return false;
     }
@@ -223,7 +224,7 @@ public abstract class ClassRole
      * @return true if any menu items have been added
      */
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, int state)
+    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, State state)
     {
         return false;
     }

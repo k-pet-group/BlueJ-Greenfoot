@@ -722,7 +722,7 @@ public final class Package
         for (Target target : targets) {
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                ct.setState(DependentTarget.S_NORMAL);
+                ct.setState(DependentTarget.State.NORMAL);
             }
         }
 
@@ -761,7 +761,7 @@ public final class Package
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 if (ct.isCompiled() && !ct.upToDate()) {
-                    ct.setState(DependentTarget.S_INVALID);
+                    ct.setState(DependentTarget.State.INVALID);
                     invalidated.add(ct);
                 }
             }
@@ -774,7 +774,7 @@ public final class Package
                 if (dt instanceof ClassTarget) {
                     ClassTarget dep = (ClassTarget) dt;
                     if (dep.isCompiled()) {
-                        dep.setState(DependentTarget.S_INVALID);
+                        dep.setState(DependentTarget.State.INVALID);
                         invalidated.add(dep);
                     }
                 }
@@ -791,7 +791,7 @@ public final class Package
                     ct.determineRole(cl);
                     ct.analyseDependencies(cl);
                     if (cl == null) {
-                        ct.setState(DependentTarget.S_INVALID);
+                        ct.setState(DependentTarget.State.INVALID);
                     }
                 }
                 else {
@@ -953,10 +953,10 @@ public final class Package
                 if (cl != null) {
                     ct.determineRole(cl);
                     if (ct.upToDate()) {
-                        ct.setState(DependentTarget.S_NORMAL);
+                        ct.setState(DependentTarget.State.NORMAL);
                     }
                     else {
-                        ct.setState(DependentTarget.S_INVALID);
+                        ct.setState(DependentTarget.State.INVALID);
                     }
                 }
             }
@@ -1389,7 +1389,7 @@ public final class Package
                 // we don't want to try and compile if it is a class target without src
                 if (ct.hasSourceCode()) {
                     ct.ensureSaved();
-                    ct.setState(DependentTarget.S_INVALID);
+                    ct.setState(DependentTarget.State.INVALID);
                     ct.setQueued(true);
                 }
                 else {
@@ -2421,7 +2421,7 @@ public final class Package
 
                     if (t instanceof ClassTarget) {
                         ClassTarget ct = (ClassTarget) t;
-                        ct.setState(DependentTarget.S_COMPILING);
+                        ct.setState(DependentTarget.State.COMPILING);
                     }
                 }
             }
@@ -2555,7 +2555,7 @@ public final class Package
                     newCompiledState &= type.keepClasses();
                 }
 
-                t.setState(newCompiledState ? DependentTarget.S_NORMAL : DependentTarget.S_INVALID);
+                t.setState(newCompiledState ? DependentTarget.State.NORMAL : DependentTarget.State.INVALID);
                 t.setQueued(false);
                 if (successful && t.editorOpen())
                     t.getEditor().setCompiled(true);

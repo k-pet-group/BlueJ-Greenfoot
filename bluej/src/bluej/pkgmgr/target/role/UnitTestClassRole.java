@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
+import bluej.pkgmgr.target.DependentTarget.State;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -193,11 +194,11 @@ public class UnitTestClassRole extends ClassRole
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, int state)
+    public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, State state)
     {
         boolean enableTestAll = false;
 
-        if (state == ClassTarget.S_NORMAL && cl != null && ! ct.isAbstract()) {
+        if (state == ClassTarget.State.NORMAL && cl != null && ! ct.isAbstract()) {
             Method[] allMethods = cl.getMethods();
 
             for (int i=0; i < allMethods.length; i++) {
