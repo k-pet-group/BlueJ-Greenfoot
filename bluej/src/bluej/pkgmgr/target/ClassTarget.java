@@ -1938,7 +1938,7 @@ public class ClassTarget extends DependentTarget
             boolean docExists = getDocumentationFile().exists();
             ExtensionsManager extMgr = ExtensionsManager.getInstance();
             Platform.runLater(() -> {
-                withMenu(clFinal,  roleFinal, sourceAvailableFinal, docExists, menu -> menu.show(graphEditor, x, y), extMgr);
+                withMenu(clFinal,  roleFinal, sourceAvailableFinal, docExists, menu -> menu.show(pane, x, y), extMgr);
             });
         });
     }
