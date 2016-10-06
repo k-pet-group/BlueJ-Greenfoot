@@ -43,6 +43,7 @@ public final class Marquee
     private int drag_start_x, drag_start_y;
     private Rectangle currentRect;
     private final SelectionSet selected;
+    private boolean active = false;
 
     /**
      * Create a marquee for a given graph.
@@ -70,7 +71,8 @@ public final class Marquee
         currentRect.setY(y);
         currentRect.setWidth(0);
         currentRect.setHeight(0);
-        currentRect.setVisible(true);
+        currentRect.setVisible(false);
+        active = true;
     }
 
     /**
@@ -98,6 +100,8 @@ public final class Marquee
         currentRect.setY(y);
         currentRect.setWidth(w);
         currentRect.setHeight(h);
+        if (w != 0 || h != 0)
+            currentRect.setVisible(true);
 
         findSelectedVertices(x, y, w, h);
     }
@@ -125,6 +129,7 @@ public final class Marquee
     public void stop()
     {
         currentRect.setVisible(false);
+        active = false;
     }
 
     /**
@@ -132,7 +137,7 @@ public final class Marquee
      */
     public boolean isActive()
     {
-        return currentRect.isVisible();
+        return active;
     }
     
     /**
