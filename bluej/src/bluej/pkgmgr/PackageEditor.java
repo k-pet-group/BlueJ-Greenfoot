@@ -814,6 +814,9 @@ public final class PackageEditor extends StackPane
         return new_x;
     }
 
+    /**
+     * Started a move operation on the selection
+     */
     public void startedMove()
     {
         for (Target element : selectionController.getSelection())
@@ -823,12 +826,42 @@ public final class PackageEditor extends StackPane
         }
     }
 
+    /**
+     * Performing a move operation: move by the given amounts
+     * from the last time we called startedMove
+     */
     public void moveBy(int deltaX, int deltaY)
     {
         for (Target element : selectionController.getSelection())
         {
             if (element.isMoveable())
                 element.setPos(Math.max(0, element.getPreMoveX() + deltaX), Math.max(0, element.getPreMoveY() + deltaY));
+        }
+    }
+
+
+    /**
+     * Started a move operation on the selection
+     */
+    public void startedResize()
+    {
+        for (Target element : selectionController.getSelection())
+        {
+            if (element.isResizable())
+                element.savePreResize();
+        }
+    }
+
+    /**
+     * Performing a resize operation: resize by the given amounts
+     * from the last time we called startedResize
+     */
+    public void resizeBy(int deltaWidth, int deltaHeight)
+    {
+        for (Target element : selectionController.getSelection())
+        {
+            if (element.isResizable())
+                element.setSize(Math.max(40, element.getPreResizeWidth() + deltaWidth), Math.max(20, element.getPreResizeHeight() + deltaHeight));
         }
     }
 }

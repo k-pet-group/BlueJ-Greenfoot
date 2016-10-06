@@ -23,7 +23,6 @@ package bluej.pkgmgr.target;
 
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
-import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -66,9 +65,9 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     private int preMoveY;
     @OnThread(Tag.FXPlatform)
-    private int prePressWidth;
+    private int preResizeWidth;
     @OnThread(Tag.FXPlatform)
-    private int prePressHeight;
+    private int preResizeHeight;
     @OnThread(Tag.FXPlatform)
     private boolean pressIsResize;
     @OnThread(Tag.FXPlatform)
@@ -146,19 +145,22 @@ public abstract class Target
             pane.setOnMousePressed(e -> {
                 pressDeltaX = e.getX();
                 pressDeltaY = e.getY();
-                prePressWidth = getWidth();
-                prePressHeight = getHeight();
                 // Check if it's in the corner (and selected), in which case it will be a resize:
                 pressIsResize = isSelected() && cursorAtResizeCorner(e);
                 // This will save the positions, including ours:
-                pkg.getEditor().startedMove();
+                if (pressIsResize && isResizable())
+                    pkg.getEditor().startedResize();
+                else
+                    pkg.getEditor().startedMove();
 
                 e.consume();
             });
             pane.setOnMouseDragged(e -> {
                 if (pressIsResize && isResizable())
                 {
-                    setSize((int)(e.getX() + (prePressWidth - pressDeltaX)), (int)(e.getY() + (prePressHeight - pressDeltaY)));
+                    int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
+                    int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
+                    pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
                 }
                 else if (isMoveable())
                 {
@@ -586,5 +588,28 @@ public abstract class Target
     public int getPreMoveY()
     {
         return preMoveY;
+    }
+
+    /**
+     * Save the current size so that we later know
+     * how much to resize by (i.e. the delta).
+     */
+    @OnThread(Tag.FXPlatform)
+    public void savePreResize()
+    {
+        preResizeWidth = getWidth();
+        preResizeHeight = getHeight();
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public int getPreResizeWidth()
+    {
+        return preResizeWidth;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public int getPreResizeHeight()
+    {
+        return preResizeHeight;
     }
 }
