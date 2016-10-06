@@ -63,16 +63,6 @@ public class PackageTarget extends Target
     static final BasicStroke selectedStroke = new BasicStroke(3);
 
     @OnThread(Tag.FXPlatform)
-    private int ghostX;
-    @OnThread(Tag.FXPlatform)
-    private int ghostY;
-    @OnThread(Tag.FXPlatform)
-    private int ghostWidth;
-    @OnThread(Tag.FXPlatform)
-    private int ghostHeight;
-    @OnThread(Tag.FXPlatform)
-    private boolean isDragging;
-    @OnThread(Tag.FXPlatform)
     private boolean isMoveable = true;
 
     public PackageTarget(Package pkg, String baseName)
@@ -245,24 +235,6 @@ public class PackageTarget extends Target
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
-    }
-    /**
-     * Ask whether we are currently dragging. 
-     */
-    @OnThread(Tag.FXPlatform)
-    public boolean isDragging()
-    {
-        return isDragging;
-    }
-
-    /**
-     * Set whether or not we are currently dragging this class
-     * (either moving or resizing).
-     */
-    @OnThread(Tag.FXPlatform)
-    public void setDragging(boolean isDragging)
-    {
-        this.isDragging = isDragging;
     }
 
     @OnThread(Tag.FXPlatform)

@@ -196,8 +196,6 @@ public class ClassTarget extends DependentTarget
     private boolean analysing = false;
 
     @OnThread(Tag.FXPlatform)
-    private boolean isDragging = false;
-    @OnThread(Tag.FXPlatform)
     private boolean isMoveable = true;
     private SourceType sourceAvailable;
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
@@ -2196,31 +2194,6 @@ public class ClassTarget extends DependentTarget
     {
         SwingUtilities.invokeLater(() -> {open();});
     }
-
-
-    /**
-     * Ask whether we are currently dragging.
-     * 
-     * @return The dragging value
-     */
-    @OnThread(Tag.FXPlatform)
-    public boolean isDragging()
-    {
-        return isDragging;
-    }
-
-    /**
-     * Set whether or not we are currently dragging this class (either moving or
-     * resizing).
-     * 
-     * @param isDragging The new dragging value
-     */
-    @OnThread(Tag.FXPlatform)
-    public void setDragging(boolean isDragging)
-    {
-        this.isDragging = isDragging;
-    }
-
     /**
      * Set the size of this target.
      * 

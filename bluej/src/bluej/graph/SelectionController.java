@@ -22,6 +22,8 @@
 package bluej.graph;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -177,13 +179,13 @@ public class SelectionController
                 if(!resizing)
                     startKeyboardResize();
                 setKeyDelta(evt);
-                selection.resize(keyDeltaX, keyDeltaY);
+                //selection.resize(keyDeltaX, keyDeltaY);
             }
             else if (evt.isShiftDown()) {   // moving targets
                 if(!moving)
                     startKeyboardMove();
                 setKeyDelta(evt);
-                selection.move(keyDeltaX, keyDeltaY);
+                //selection.move(keyDeltaX, keyDeltaY);
             }
             else {                          // navigate the diagram
                 navigate(evt);
@@ -345,7 +347,7 @@ public class SelectionController
     private void resizeWithFixedRatio(KeyEvent evt)
     {
         int delta = (evt.getCharacter().equals("+") ? PackageEditor.GRID_SIZE : -PackageEditor.GRID_SIZE);
-        selection.resize(delta, delta);
+        //selection.resize(delta, delta);
         selection.moveStopped();
     }
     
@@ -458,5 +460,10 @@ public class SelectionController
     public void selectOnly(Target target)
     {
         selection.selectOnly(target);
+    }
+
+    public Collection<Target> getSelection()
+    {
+        return selection.getSelected();
     }
 }

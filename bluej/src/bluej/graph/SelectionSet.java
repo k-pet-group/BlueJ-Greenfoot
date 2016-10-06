@@ -113,41 +113,6 @@ public final class SelectionSet
             element.doubleClick();
         }        
     }
-    
-    /**
-     * Move the selected elements by the specified deltas.
-     */
-    public void move(int deltaX, int deltaY)
-    {
-        for (Target target : elements) {
-            if(target.isMoveable()) {
-                if (target.isMoveable()) {
-                    target.setDragging(true);
-                    Point delta = restrictDelta(deltaX, deltaY);
-                }
-            }
-        }
-    }
-
-    /**
-     * Restrict the delta so that no target moves out of the screen.
-     */
-    private Point restrictDelta(int deltaX, int deltaY)
-    {
-        for (Target target : elements) {
-            if(target.isMoveable()) {
-
-                if(target.getX() + deltaX < 0) {
-                    deltaX = -target.getX();
-                }
-                if(target.getY() + deltaY < 0) {
-                    deltaY = -target.getY();
-                }
-            }
-        }
-        return new Point(deltaX, deltaY);
-    }
-
 
     /**
      * A move gesture (either move or resize) has stopped. Inform all elements
@@ -155,23 +120,6 @@ public final class SelectionSet
      */
     public void moveStopped()
     {
-    }
-    
-
-    /**
-     * A resize operation has initiated (or continued). Inform al elements
-     * that they should react to the resize.
-     * 
-     * @param deltaX  The current x offset from the start of the resize.
-     * @param deltaY  The current y offset from the start of the resize.
-     */
-    public void resize(int deltaX, int deltaY)
-    {
-        for (Target target : elements) {
-            if (target.isResizable()) {
-                target.setDragging(true);
-            }
-        }
     }
 
     /**

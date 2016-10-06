@@ -61,10 +61,19 @@ public abstract class Target
     private static final double SHADOW_RADIUS = 3.0;
     protected static final double RESIZE_CORNER_SIZE = 16;
 
+    @OnThread(Tag.FXPlatform)
+    private int preMoveX;
+    @OnThread(Tag.FXPlatform)
+    private int preMoveY;
+    @OnThread(Tag.FXPlatform)
     private int prePressWidth;
+    @OnThread(Tag.FXPlatform)
     private int prePressHeight;
+    @OnThread(Tag.FXPlatform)
     private boolean pressIsResize;
+    @OnThread(Tag.FXPlatform)
     private double pressDeltaX;
+    @OnThread(Tag.FXPlatform)
     private double pressDeltaY;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
@@ -141,8 +150,10 @@ public abstract class Target
                 prePressHeight = getHeight();
                 // Check if it's in the corner (and selected), in which case it will be a resize:
                 pressIsResize = isSelected() && cursorAtResizeCorner(e);
+                // This will save the positions, including ours:
+                pkg.getEditor().startedMove();
 
-                // We don't consume because it may turn into a normal click.  Just record position.
+                e.consume();
             });
             pane.setOnMouseDragged(e -> {
                 if (pressIsResize && isResizable())
@@ -151,9 +162,17 @@ public abstract class Target
                 }
                 else if (isMoveable())
                 {
+                    // They didn't select us yet, but we still allow a drag-mvoe:
+                    if (!isSelected())
+                    {
+                        pkg.getEditor().selectOnly(this);
+                        pkg.getEditor().startedMove();
+                    }
                     // Need position relative to the editor to set new position:
                     Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
-                    setPos(pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX)), pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY)));
+                    int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX));
+                    int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
+                    pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
                 }
                 e.consume();
             });
@@ -520,21 +539,52 @@ public abstract class Target
         
     }
 
-    @OnThread(Tag.FXPlatform)
-    public void setDragging(boolean b)
-    {
-        
-    }
-
+    /**
+     * Is this a front class (true; most of them) or back (false;
+     * unit-test classes which always appear behind others)
+     */
     @OnThread(Tag.FXPlatform)
     public boolean isFront()
     {
         return true;
     }
 
+    /**
+     * Gets the bounds relative to the package editor.
+     * @return
+     */
     @OnThread(Tag.FXPlatform)
     public Bounds getBoundsInEditor()
     {
         return pane.getBoundsInParent();
+    }
+
+    /**
+     * Save the current position so that we later know
+     * how much to move by (i.e. the delta) when dragging.
+     */
+    @OnThread(Tag.FXPlatform)
+    public void savePreMovePosition()
+    {
+        preMoveX = getX();
+        preMoveY = getY();
+    }
+
+    /**
+     * The X position before we started the move
+     */
+    @OnThread(Tag.FXPlatform)
+    public int getPreMoveX()
+    {
+        return preMoveX;
+    }
+
+    /**
+     * The Y position before we started the move
+     */
+    @OnThread(Tag.FXPlatform)
+    public int getPreMoveY()
+    {
+        return preMoveY;
     }
 }

@@ -813,4 +813,22 @@ public final class PackageEditor extends StackPane
         // grid
         return new_x;
     }
+
+    public void startedMove()
+    {
+        for (Target element : selectionController.getSelection())
+        {
+            if (element.isMoveable())
+                element.savePreMovePosition();
+        }
+    }
+
+    public void moveBy(int deltaX, int deltaY)
+    {
+        for (Target element : selectionController.getSelection())
+        {
+            if (element.isMoveable())
+                element.setPos(Math.max(0, element.getPreMoveX() + deltaX), Math.max(0, element.getPreMoveY() + deltaY));
+        }
+    }
 }
