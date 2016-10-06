@@ -97,7 +97,9 @@ public abstract class Target
     
     @OnThread(Tag.FXPlatform)
     protected BorderPane pane;
-    
+    @OnThread(Tag.FXPlatform)
+    private boolean resizable = true;
+
     /**
      * Create a new target with default size.
      */
@@ -177,7 +179,7 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public void updateCursor(MouseEvent e)
     {
-        if (isSelected() && cursorAtResizeCorner(e))
+        if (isSelected() && isResizable() && cursorAtResizeCorner(e))
         {
             pane.setCursor(Cursor.SE_RESIZE);
         }
@@ -397,7 +399,13 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public boolean isResizable()
     {
-        return true;
+        return resizable;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setResizable(boolean resizable)
+    {
+        this.resizable = resizable;
     }
 
     public boolean isSaveable()

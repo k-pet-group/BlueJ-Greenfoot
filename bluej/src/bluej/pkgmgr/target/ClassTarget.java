@@ -2238,7 +2238,11 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     public void setSize(int width, int height)
     {
-        super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
+        int w = Math.max(width, MIN_WIDTH);
+        int h = Math.max(height, MIN_HEIGHT);
+        super.setSize(w, h);
+        if(assoc != null)
+            assoc.setSize(w, h);
     }
     
     @OnThread(Tag.FXPlatform)
@@ -2267,7 +2271,7 @@ public class ClassTarget extends DependentTarget
 
         // TODO draw the compile/error markings.
 
-        if (this.selected)
+        if (this.selected && isResizable())
         {
             g.setStroke(javafx.scene.paint.Color.BLACK);
             g.setLineDashes();

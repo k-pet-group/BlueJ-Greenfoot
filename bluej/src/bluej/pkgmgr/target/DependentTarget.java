@@ -116,6 +116,10 @@ public abstract class DependentTarget extends EditableTarget
         if (assoc.isMoveable()){
             assoc.setIsMoveable(false);
         }
+        if (assoc.isResizable())
+        {
+            assoc.setResizable(false);
+        }
     }
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
