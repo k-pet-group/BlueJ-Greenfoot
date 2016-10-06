@@ -45,6 +45,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Window;
@@ -104,6 +105,7 @@ public final class PackageEditor extends StackPane
     // and one back (for test classes)
     private final AnchorPane frontClassLayer = new AnchorPane();
     private final AnchorPane backClassLayer = new AnchorPane();
+    private Pane selectionLayer = new Pane();
     private final Canvas arrowLayer = new Canvas();
     private boolean aboutToRepaint = false;
 
@@ -125,7 +127,16 @@ public final class PackageEditor extends StackPane
             arrowLayer.heightProperty().bind(heightProperty());
             JavaFXUtil.addChangeListenerPlatform(arrowLayer.widthProperty(), s -> repaint());
             JavaFXUtil.addChangeListenerPlatform(arrowLayer.heightProperty(), s -> repaint());
-            getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer);        });
+            selectionLayer = new Pane();
+            // The mouse events occur on us not on the selection layer.
+            // We don't want the display getting in the way of mouse events:
+            selectionLayer.setMouseTransparent(true);
+            javafx.scene.shape.Rectangle rect = selectionController.getMarquee().getRectangle();
+            JavaFXUtil.addStyleClass(rect, "marquee");
+            selectionLayer.getChildren().add(rect);
+
+            getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer, selectionLayer);
+        });
     }
 
     /**

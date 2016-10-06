@@ -71,6 +71,12 @@
     -fx-text-fill: darkred;
     -fx-font-style: italic;
 }
+.marquee {
+    -fx-stroke-width: 2;
+    -fx-stroke: black;
+    -fx-stroke-type: outside;
+    -fx-fill: rgba(0, 0, 0, 0.2);
+}
 
 
 /* Object Bench */

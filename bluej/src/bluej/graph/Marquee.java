@@ -21,11 +21,12 @@
  */
 package bluej.graph;
 
-import java.awt.*;
 import java.util.*;
 
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.Target;
+import javafx.application.Platform;
+import javafx.scene.shape.Rectangle;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -38,18 +39,23 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public final class Marquee
 {
-    private Package graph;
+    private final Package graph;
     private int drag_start_x, drag_start_y;
     private Rectangle currentRect;
-    private SelectionSet selected = null;
+    private final SelectionSet selected;
 
     /**
      * Create a marquee for a given graph.
      */
     @OnThread(Tag.Any)
-    public Marquee(Package graph)
+    public Marquee(Package graph, SelectionSet selection)
     {
         this.graph = graph;
+        this.selected = selection;
+        Platform.runLater(() -> {
+            currentRect = new Rectangle();
+            currentRect.setVisible(false);
+        });
     }
 
     /**
@@ -59,7 +65,12 @@ public final class Marquee
     {
         drag_start_x = x;
         drag_start_y = y;
-        selected = new SelectionSet(Collections.emptyList());
+        selected.clear();
+        currentRect.setX(x);
+        currentRect.setY(y);
+        currentRect.setWidth(0);
+        currentRect.setHeight(0);
+        currentRect.setVisible(true);
     }
 
     /**
@@ -83,7 +94,10 @@ public final class Marquee
             y = y + h;
         w = Math.abs(w);
         h = Math.abs(h);
-        currentRect = new Rectangle(x, y, w, h);
+        currentRect.setX(x);
+        currentRect.setY(y);
+        currentRect.setWidth(w);
+        currentRect.setHeight(h);
 
         findSelectedVertices(x, y, w, h);
     }
@@ -99,7 +113,7 @@ public final class Marquee
 
         //find the intersecting vertices
         for (Target v : graph.getVertices()) {
-            if (v.getBounds().intersects(x, y, w, h)) {
+            if (v.getBoundsInEditor().intersects(x, y, w, h)) {
                 selected.add(v);
             }
         }
@@ -108,12 +122,9 @@ public final class Marquee
     /**
      * Stop a current marquee selection.
      */
-    public SelectionSet stop()
+    public void stop()
     {
-        currentRect = null;
-        SelectionSet tmp = selected;
-        selected = null;
-        return tmp;
+        currentRect.setVisible(false);
     }
 
     /**
@@ -121,7 +132,7 @@ public final class Marquee
      */
     public boolean isActive()
     {
-        return selected != null;
+        return currentRect.isVisible();
     }
     
     /**

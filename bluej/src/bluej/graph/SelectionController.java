@@ -50,13 +50,12 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class SelectionController
 {
-    private PackageEditor graphEditor;
-    private Package graph;
+    private final PackageEditor graphEditor;
+    private final Package graph;
     
-    private Marquee marquee; 
-    private SelectionSet selection;   // Contains the elements that have been selected
-    private RubberBand rubberBand;
-    
+    private final Marquee marquee;
+    private final SelectionSet selection;   // Contains the elements that have been selected
+
     private boolean moving = false; 
     private boolean resizing = false; 
 
@@ -65,8 +64,6 @@ public class SelectionController
 
     private int keyDeltaX;
     private int keyDeltaY;
-
-    private int currentDependencyIndex;  // for cycling through dependencies
 
     private TraverseStrategy traverseStragegiImpl = new TraverseStrategyImpl();
 
@@ -81,8 +78,9 @@ public class SelectionController
     {
         this.graphEditor = graphEditor;
         this.graph = graphEditor.getPackage();
-        marquee = new Marquee(graph);
         selection = new SelectionSet(Utility.filterList(graph.getVertices(), Target::isSelected));
+        marquee = new Marquee(graph, selection);
+
     }
 
     /**
@@ -121,8 +119,8 @@ public class SelectionController
             }
 
             if(isDrawingDependency()) {
-                if (clickedElement instanceof Target)
-                    rubberBand = new RubberBand(clickX, clickY, clickX, clickY);
+                //if (clickedElement instanceof Target)
+                    //rubberBand = new RubberBand(clickX, clickY, clickX, clickY);
             }
             else {
                 dragStartX = clickX;
@@ -148,13 +146,9 @@ public class SelectionController
             //notifyPackage(selectedElement);
             graphEditor.repaint();
         }
-        rubberBand = null;
-        
-        SelectionSet newSelection = marquee.stop();     // may or may not have had a marquee...
-        if(newSelection != null) {
-            selection.addAll(newSelection);
-            graphEditor.repaint();
-        }
+
+        marquee.stop();     // may or may not have had a marquee...
+        graphEditor.repaint();
         
         if(moving || resizing) {
             endMove();
@@ -182,21 +176,10 @@ public class SelectionController
     {
         if (isButtonOne(evt)) {
             if (marquee.isActive()) {
-                Rectangle oldRect = marquee.getRectangle();                
                 marquee.move((int)evt.getX(), (int)evt.getY());
-                Rectangle newRect = (Rectangle) marquee.getRectangle().clone();  
-                if(oldRect != null) {
-                    newRect.add(oldRect);
-                }
-                newRect.width++;
-                newRect.height++;
                 graphEditor.repaint();
             }
-            else if (rubberBand != null) {
-                rubberBand.setEnd((int)evt.getX(), (int)evt.getY());
-                graphEditor.repaint();
-            }
-            else 
+            else
             {
                 if(! selection.isEmpty()) {
                     int deltaX = snapToGrid((int)evt.getX() - dragStartX);
@@ -521,15 +504,6 @@ public class SelectionController
         int new_x = steps * PackageEditor.GRID_SIZE;//new x-coor w/ respect to
                                                   // grid
         return new_x;
-    }
-
-    /**
-     * Return the rubber band of this graph.
-     * @return  The rubber band instance, or null if no rubber band is currently in use.
-     */
-    public RubberBand getRubberBand()
-    {
-        return rubberBand;
     }
 
     public void selectOnly(Target target)

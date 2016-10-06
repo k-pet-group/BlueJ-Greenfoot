@@ -24,7 +24,6 @@ package bluej.pkgmgr.target;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ResizableCanvas;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -35,16 +34,12 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 /**
  * A general target in a package
@@ -513,12 +508,6 @@ public abstract class Target
     }
 
     @OnThread(Tag.FXPlatform)
-    public Bounds getBounds()
-    {
-        return pane.getBoundsInLocal();
-    }
-
-    @OnThread(Tag.FXPlatform)
     public boolean isMoveable()
     {
         return false;
@@ -540,5 +529,11 @@ public abstract class Target
     public boolean isFront()
     {
         return true;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public Bounds getBoundsInEditor()
+    {
+        return pane.getBoundsInParent();
     }
 }
