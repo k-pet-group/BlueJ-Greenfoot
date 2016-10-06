@@ -119,6 +119,7 @@ public final class PackageEditor extends StackPane
         this.selectionController = new SelectionController(this);
         Platform.runLater(() -> {
             frontClassLayer.setBackground(null);
+            frontClassLayer.setPickOnBounds(false);
             backClassLayer.setBackground(null);
             arrowLayer.widthProperty().bind(widthProperty());
             arrowLayer.heightProperty().bind(heightProperty());
