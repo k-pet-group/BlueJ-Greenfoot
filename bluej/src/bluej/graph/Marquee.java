@@ -25,6 +25,7 @@ import java.util.*;
 
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.Debug;
 import javafx.application.Platform;
 import javafx.scene.shape.Rectangle;
 import threadchecker.OnThread;
@@ -44,6 +45,7 @@ public final class Marquee
     private Rectangle currentRect;
     private final SelectionSet selected;
     private boolean active = false;
+    private final ArrayList<Target> previouslySelected = new ArrayList<>();
 
     /**
      * Create a marquee for a given graph.
@@ -64,9 +66,11 @@ public final class Marquee
      */
     public void start(int x, int y)
     {
+        previouslySelected.clear();
+        previouslySelected.addAll(selected.getSelected());
+        Debug.message("Prev: " + previouslySelected.size());
         drag_start_x = x;
         drag_start_y = y;
-        selected.clear();
         currentRect.setX(x);
         currentRect.setY(y);
         currentRect.setWidth(0);
@@ -101,7 +105,9 @@ public final class Marquee
         currentRect.setWidth(w);
         currentRect.setHeight(h);
         if (w != 0 || h != 0)
+        {
             currentRect.setVisible(true);
+        }
 
         findSelectedVertices(x, y, w, h);
     }
@@ -114,6 +120,7 @@ public final class Marquee
     {
         //clear the currently selected
         selected.clear();
+        selected.addAll(previouslySelected);
 
         //find the intersecting vertices
         for (Target v : graph.getVertices()) {

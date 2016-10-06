@@ -59,8 +59,6 @@ public class SelectionController
     private boolean moving = false; 
     private boolean resizing = false; 
 
-    private int dragStartX;
-    private int dragStartY;
 
     private int keyDeltaX;
     private int keyDeltaY;
@@ -86,53 +84,17 @@ public class SelectionController
     /**
      * A mouse-pressed event. Analyse what we should do with it.
      */
-    public void mousePressed(javafx.scene.input.MouseEvent evt, Target clickedElement)
+    public void mousePressed(javafx.scene.input.MouseEvent evt)
     {
         graphEditor.requestFocus();
         int clickX = (int)evt.getX();
         int clickY = (int)evt.getY();
 
-        notifyPackage(clickedElement);
-        
-        if (clickedElement == null) {                           // nothing hit
-            if (!isMultiselectionKeyDown(evt)) {
-                selection.clear();
-            }
-            if (isButtonOne(evt))
-                marquee.start(clickX, clickY);
+        if (!isMultiselectionKeyDown(evt)) {
+            selection.clear();
         }
-        else if (isButtonOne(evt)) {                            // clicked on something
-            if (isMultiselectionKeyDown(evt)) {
-                // a class was clicked, while multiselectionKey was down.
-                if (clickedElement.isSelected()) {
-                    selection.remove(clickedElement);
-                }
-                else {
-                    selection.add(clickedElement);
-                }
-            }
-            else {
-                // a class was clicked without multiselection
-                if (! clickedElement.isSelected()) {
-                    selection.selectOnly(clickedElement);
-                }
-            }
-
-            if(isDrawingDependency()) {
-                //if (clickedElement instanceof Target)
-                    //rubberBand = new RubberBand(clickX, clickY, clickX, clickY);
-            }
-            else {
-                dragStartX = clickX;
-                dragStartY = clickY;
-
-                if(clickedElement.isHandle(clickX, clickY)) {
-                    resizing = true;
-                }
-                else {
-                    moving = true;                        
-                }
-            }
+        if (isButtonOne(evt)) {
+            marquee.start(clickX, clickY);
         }
     }
 
@@ -182,6 +144,7 @@ public class SelectionController
             else
             {
                 if(! selection.isEmpty()) {
+                    /*
                     int deltaX = snapToGrid((int)evt.getX() - dragStartX);
                     int deltaY = snapToGrid((int)evt.getY() - dragStartY);
     
@@ -190,7 +153,7 @@ public class SelectionController
                     }
                     else if (moving) {
                         selection.move(deltaX, deltaY);
-                    }
+                    }*/
                 }
                 graphEditor.repaint();
             }

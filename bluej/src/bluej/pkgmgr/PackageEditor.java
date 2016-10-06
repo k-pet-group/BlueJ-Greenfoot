@@ -544,6 +544,14 @@ public final class PackageEditor extends StackPane
         selectionController.addToSelection(element);
     }
 
+    public void toggleSelection(Target element)
+    {
+        if (!element.isSelected())
+            selectionController.addToSelection(element);
+        else
+            selectionController.removeFromSelection(element);
+    }
+
     @OnThread(Tag.Any)
     public Package getPackage()
     {
@@ -558,7 +566,7 @@ public final class PackageEditor extends StackPane
     {
         addEventHandler(MouseEvent.MOUSE_DRAGGED, selectionController::mouseDragged);
         addEventHandler(MouseEvent.MOUSE_CLICKED, selectionController::mouseClicked);
-        addEventHandler(MouseEvent.MOUSE_PRESSED, e -> selectionController.mousePressed(e, null));
+        addEventHandler(MouseEvent.MOUSE_PRESSED, selectionController::mousePressed);
         addEventHandler(MouseEvent.MOUSE_RELEASED, selectionController::mouseReleased);
         addEventHandler(KeyEvent.KEY_PRESSED, selectionController::keyPressed);
         addEventHandler(KeyEvent.KEY_RELEASED, selectionController::keyReleased);

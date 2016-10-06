@@ -23,6 +23,7 @@ package bluej.pkgmgr.target;
 
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
+import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -118,7 +119,7 @@ public abstract class Target
                     // Single left-click.  Is modifier down?
                     if (e.isShiftDown() || e.isShortcutDown())
                     {
-                        pkg.getEditor().addToSelection(this);
+                        pkg.getEditor().toggleSelection(this);
                     }
                     else
                     {

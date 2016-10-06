@@ -23,6 +23,7 @@ package bluej.graph;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -70,9 +71,10 @@ public final class SelectionSet
     /**
      * Add all the elements from another selection set to this one.
      */
-    public void addAll(SelectionSet newSet)
+    public void addAll(Collection<Target> newSet)
     {
-        elements.addAll(newSet.elements);
+        for (Target t : newSet)
+            add(t);
     }
 
     /**
@@ -205,4 +207,8 @@ public final class SelectionSet
         return null;
     }
 
+    public Collection<Target> getSelected()
+    {
+        return new ArrayList<>(elements);
+    }
 }
