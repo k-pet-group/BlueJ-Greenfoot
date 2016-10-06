@@ -22,8 +22,6 @@
 package bluej.pkgmgr.target;
 
 
-import java.awt.Color;
-import java.awt.Paint;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileFilter;
@@ -125,8 +123,12 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.transform.Affine;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -156,15 +158,13 @@ public class ClassTarget extends DependentTarget
     private static final String STEREOTYPE_CLOSE = ""; //">>";
     private static final double RESIZE_CORNER_GAP = 4;
 
-    // Define Background Colours
-    private final static Color compbg = new Color(200,150,100);
 
     private static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
     // temporary file name extension to trick windows if changing case only in
     // class name
     private static String TEMP_FILE_EXTENSION = "-temp";
-    
+
     // the role object represents the changing roles that are class
     // target can have ie changing from applet to an interface etc
     // 'role' should never be null
@@ -227,7 +227,22 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     private Label stereotypeLabel;
     @OnThread(Tag.FXPlatform)
-    private boolean isFront;
+    private boolean isFront = true;
+    @OnThread(Tag.FXPlatform)
+    private static Image greyStripeImage;
+    @OnThread(Tag.FXPlatform)
+    private static Image redStripeImage;
+    private static final int GREY_STRIPE_SEPARATION = 12;
+    // How far between rows of stripes:
+    private static final double RED_STRIPE_SEPARATION = 12;
+    // How long between each up and down:
+    private static final double RED_STRIPE_ZIG_LENGTH = 6;
+    // How high each up and down is above the middle
+    // (Thus each up and down are 2*height apart from each other):
+    private static final double RED_STRIPE_ZIG_HEIGHT = 2;
+    private static final int STRIPE_THICKNESS = 3;
+    private static final Color RED_STRIPE = Color.rgb(180, 50, 20);
+    private static final Color GREY_STRIPE = Color.rgb(158, 139, 116);
 
     /**
      * Create a new class target in package 'pkg'.
@@ -488,7 +503,7 @@ public class ClassTarget extends DependentTarget
             }
             
             state = newState;
-            Platform.runLater(() -> {repaint();});
+            Platform.runLater(() -> {redraw();});
         }
     }
 
@@ -901,23 +916,6 @@ public class ClassTarget extends DependentTarget
     public synchronized boolean isAbstract()
     {
         return isAbstract;
-    }
-    
-    // --- Target interface ---
-
-    /**
-     * Gets the backgroundColour attribute of the ClassTarget object
-     * 
-     * @return The backgroundColour value
-     */
-    public Paint getBackgroundPaint(int width, int height)
-    {
-        if (state == State.COMPILING) {
-            return compbg;
-        }
-        else {
-            return getRole().getBackgroundPaint(width, height);
-        }
     }
 
 
@@ -2247,6 +2245,7 @@ public class ClassTarget extends DependentTarget
         super.setSize(w, h);
         if(assoc != null)
             assoc.setSize(w, h);
+        redraw();
     }
     
     @OnThread(Tag.FXPlatform)
@@ -2273,8 +2272,61 @@ public class ClassTarget extends DependentTarget
         double height = canvas.getHeight();
         g.clearRect(0, 0, width, height);
 
-        // TODO draw the compile/error markings.
+        // Draw either grey or red stripes:
+        if (state != State.NORMAL)
+        {
+            // We could draw the stripes manually each time, but that
+            // could get quite time-consuming when we have lots of classes.
+            // Instead, we create an image of the given stripes which
+            // we can draw tiled to save time.
+            if (hasKnownError())
+            {
+                // Red stripes
+                double size = RED_STRIPE_SEPARATION * 10;
+                if (redStripeImage == null)
+                {
+                    redStripeImage = JavaFXUtil.createImage((int)size, (int)size, gImage -> {
+                        gImage.setStroke(RED_STRIPE);
+                        gImage.setLineWidth(STRIPE_THICKNESS);
+                        Affine transform = new Affine();
+                        //transform.appendRotation(-45);
+                        gImage.setTransform(transform);
 
+                        for (int i = 0; i < size*2; i += RED_STRIPE_SEPARATION)
+                        {
+                            double startX = 0;
+                            double startY = i + RED_STRIPE_SEPARATION/2.0;
+                            int n = (int)(size / RED_STRIPE_ZIG_LENGTH) + 1;
+                            double[] xPoints = new double[n + 1];
+                            double[] yPoints = new double[n + 1];
+                            for (int j = 0; j <= n; j++)
+                            {
+                                boolean up = j % 2 == 0;
+                                xPoints[j] = startX + j * RED_STRIPE_ZIG_LENGTH;
+                                yPoints[j] = startY + (up ? -RED_STRIPE_ZIG_HEIGHT : RED_STRIPE_ZIG_HEIGHT);
+                            }
+                            gImage.strokePolyline(xPoints, yPoints, n + 1);
+                        }
+
+                    });
+                }
+                g.setFill(new ImagePattern(redStripeImage, 0, 0, size, size, false));
+                g.fillRect(0, 0, width, height);
+            }
+            else
+            {
+                int size = (GREY_STRIPE_SEPARATION + STRIPE_THICKNESS) * 10;
+                // Grey stripes
+                if (greyStripeImage == null)
+                {
+                    greyStripeImage = JavaFXUtil.createImage(size, size, gImage -> {
+                        JavaFXUtil.stripeRect(gImage, 0, 0, size, size, GREY_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, GREY_STRIPE);
+                    });
+                }
+                g.setFill(new ImagePattern(greyStripeImage, 0, 0, size, size, false));
+                g.fillRect(0, 0, width, height);
+            }
+        }
 
         if (this.selected && isResizable())
         {

@@ -77,6 +77,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
@@ -98,7 +101,9 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -1837,5 +1842,51 @@ public class JavaFXUtil
     public static void runPlatformLater(FXPlatformRunnable r)
     {
         Platform.runLater(r::run);
+    }
+
+    /**
+     * Draw stripes over a rectangle - yet another thing missing from the AWT
+     */
+    public static void stripeRect(GraphicsContext g, int x, int y, int width, int height, int separation, int thickness, Color color)
+    {
+        Paint prev = g.getStroke();
+        g.setStroke(color);
+        g.setLineWidth(thickness);
+        for (int offset = 0; offset < width + height; offset += separation + thickness) {
+            int x1, y1, x2, y2;
+
+            if (offset < height) {
+                x1 = x;
+                y1 = y + offset;
+            }
+            else {
+                x1 = x + offset - height;
+                y1 = y + height;
+            }
+
+            if (offset < width) {
+                x2 = x + offset;
+                y2 = y;
+            }
+            else {
+                x2 = x + width;
+                y2 = y + offset - width;
+            }
+
+            g.strokeLine(x1, y1, x2, y2);
+        }
+        g.setStroke(prev);
+    }
+
+    public static Image createImage(int width, int height, FXConsumer<GraphicsContext> draw)
+    {
+        Canvas c = new Canvas(width, height);
+        Scene s = new Scene(new StackPane(c));
+        draw.accept(c.getGraphicsContext2D());
+        WritableImage image = new WritableImage(width, height);
+        SnapshotParameters p = new SnapshotParameters();
+        p.setFill(Color.TRANSPARENT);
+        c.snapshot(p, image);
+        return image;
     }
 }
