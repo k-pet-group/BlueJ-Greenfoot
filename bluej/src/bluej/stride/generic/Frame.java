@@ -396,6 +396,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         int y = 0;
         for (Frame f : frames) {
             Bounds b = f.getNode().getBoundsInParent();
+
+            // alternative attempt - also not good:
+            //BufferedImage bimage = new Robot().createScreenCapture(new Rectangle((int)Math.ceil(b.getWidth()), (int)Math.ceil(b.getHeight())));
+            //WritableImage image = SwingFXUtils.toFXImage(bimage, null);
+
             WritableImage image = new WritableImage((int)Math.ceil(b.getWidth()), (int)Math.ceil(b.getHeight()));
             SnapshotParameters p = new SnapshotParameters();
             p.setFill(Color.TRANSPARENT);
@@ -406,7 +411,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             if (Config.isRetinaDisplay())
             {
                 // Take Retina resolution screenshot:
-                p.setTransform(Transform.scale(2, 2));
+                //p.setTransform(Transform.scale(2, 2));
             }
             f.getNode().snapshot(p, image);
             f.disabledRoot.set(dr);
