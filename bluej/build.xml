@@ -289,6 +289,10 @@
         <antcall target="ready-to-run" />
     </target>
 
+    <target name="rebuild-ready" depends="clean,ready-to-run">
+        <!-- Useful for running threadchecker -->
+    </target>
+
     <target name="run">
         <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
         <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>

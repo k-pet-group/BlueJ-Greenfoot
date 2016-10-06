@@ -246,15 +246,7 @@ public class PackageTarget extends Target
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
     }
-
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public void setPos(int x, int y)
-    {
-        super.setPos(x, y);
-    }
-
-    /** 
+    /**
      * Ask whether we are currently dragging. 
      */
     @OnThread(Tag.FXPlatform)

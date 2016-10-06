@@ -153,7 +153,7 @@ public abstract class Target
                 {
                     // Need position relative to the editor to set new position:
                     Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
-                    setPos((int) (p.getX() - pressDeltaX), (int) (p.getY() - pressDeltaY));
+                    setPos(pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX)), pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY)));
                 }
                 e.consume();
             });

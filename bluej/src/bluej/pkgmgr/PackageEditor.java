@@ -798,4 +798,19 @@ public final class PackageEditor extends StackPane
     {
         selectionController.selectOnly(target);
     }
+
+
+    /**
+     * Modify the given point to be one of the deined grid points.
+     *
+     * @param point  The original point
+     * @return      A point close to the original which is on the grid.
+     */
+    public int snapToGrid(int x)
+    {
+        int steps = x / PackageEditor.GRID_SIZE;
+        int new_x = steps * PackageEditor.GRID_SIZE;//new x-coor w/ respect to
+        // grid
+        return new_x;
+    }
 }

@@ -68,7 +68,6 @@ public final class Marquee
     {
         previouslySelected.clear();
         previouslySelected.addAll(selected.getSelected());
-        Debug.message("Prev: " + previouslySelected.size());
         drag_start_x = x;
         drag_start_y = y;
         currentRect.setX(x);

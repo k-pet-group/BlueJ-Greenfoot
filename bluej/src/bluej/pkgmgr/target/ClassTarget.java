@@ -2222,19 +2222,6 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Set the position of this target.
-     * 
-     * @param x The new pos value
-     * @param y The new pos value
-     */
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public void setPos(int x, int y)
-    {
-        super.setPos(x, y);
-    }
-
-    /**
      * Set the size of this target.
      * 
      * @param width The new size value
