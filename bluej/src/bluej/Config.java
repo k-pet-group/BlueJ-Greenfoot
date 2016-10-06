@@ -73,6 +73,9 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.lang.reflect.Field;
 
 /**
  * Class to handle application configuration for BlueJ.
@@ -1952,14 +1955,24 @@ public final class Config
 
     public static boolean isRetinaDisplay()
     {
-        // From http://stackoverflow.com/questions/20767708/how-do-you-detect-a-retina-display-in-java
-        Object obj = Toolkit.getDefaultToolkit().getDesktopProperty("apple.awt.contentScaleFactor");
-        if (obj instanceof Float) {
-            Float f = (Float) obj;
-            int scale = f.intValue();
-            return (scale == 2); // 1 indicates a regular mac display.
-        }
-        return false;
+     if (isMacOS()) {
+           // From http://bulenkov.com/2013/06/23/retina-support-in-oracle-jdk-1-7/
+           GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+           final GraphicsDevice device = env.getDefaultScreenDevice();
+
+           try {
+               Field field = device.getClass().getDeclaredField("scale");
+               if (field != null) {
+                   field.setAccessible(true);
+                   Object scale = field.get(device);
+
+                   if (scale instanceof Integer && ((Integer)scale) == 2) {
+                       return true;
+                   }
+               }
+           } catch (Exception ignore) {}
+       }
+       return false;
     }
 
     public static void loadFXFonts()
