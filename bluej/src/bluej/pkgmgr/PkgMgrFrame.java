@@ -365,7 +365,11 @@ public class PkgMgrFrame extends JPanel
                 addCtrlTabShortcut(objbench);
                 
                 BorderPane topPane = new BorderPane();
-                topPane.setCenter(new ScrollPane(editor));
+                ScrollPane pkgEditorScrollPane = new ScrollPane(editor);
+                pkgEditorScrollPane.setFitToWidth(true);
+                pkgEditorScrollPane.setFitToHeight(true);
+                pkgEditorScrollPane.prefViewportWidthProperty().bind(editor.prefWidthProperty());
+                topPane.setCenter(pkgEditorScrollPane);
                 //topPane.setMinHeight(minSize.getHeight());
                 topPane.setLeft(toolPanel);
                 SplitPane bottomPane = new SplitPane(objbench, padSwingNode);

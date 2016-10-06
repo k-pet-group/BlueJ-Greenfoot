@@ -36,6 +36,9 @@
 }
 
 /* Class Diagram */
+.class-diagram {
+    -fx-background-color: rgb(247, 245, 222);
+}
 .class-target {
     -fx-border-width: 1;
     -fx-border-color: black;

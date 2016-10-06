@@ -106,7 +106,7 @@ public final class PackageEditor extends StackPane
     private final AnchorPane frontClassLayer = new AnchorPane();
     private final AnchorPane backClassLayer = new AnchorPane();
     private Pane selectionLayer = new Pane();
-    private final Canvas arrowLayer = new Canvas();
+    private final Canvas arrowLayer = new ResizableCanvas();
     private boolean aboutToRepaint = false;
 
     /**
@@ -120,11 +120,10 @@ public final class PackageEditor extends StackPane
         this.listener = listener;
         this.selectionController = new SelectionController(this);
         Platform.runLater(() -> {
+            JavaFXUtil.addStyleClass(this, "class-diagram");
             frontClassLayer.setBackground(null);
             frontClassLayer.setPickOnBounds(false);
             backClassLayer.setBackground(null);
-            arrowLayer.widthProperty().bind(widthProperty());
-            arrowLayer.heightProperty().bind(heightProperty());
             JavaFXUtil.addChangeListenerPlatform(arrowLayer.widthProperty(), s -> repaint());
             JavaFXUtil.addChangeListenerPlatform(arrowLayer.heightProperty(), s -> repaint());
             selectionLayer = new Pane();
