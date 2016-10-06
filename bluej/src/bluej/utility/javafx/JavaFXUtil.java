@@ -1852,7 +1852,7 @@ public class JavaFXUtil
         Paint prev = g.getStroke();
         g.setStroke(color);
         g.setLineWidth(thickness);
-        for (int offset = 0; offset < width + height; offset += separation + thickness) {
+        for (int offset = separation/2; offset < width + height; offset += separation + thickness) {
             int x1, y1, x2, y2;
 
             if (offset < height) {

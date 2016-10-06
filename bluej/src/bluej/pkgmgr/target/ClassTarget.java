@@ -2319,7 +2319,7 @@ public class ClassTarget extends DependentTarget
             }
             else
             {
-                int size = (GREY_STRIPE_SEPARATION + STRIPE_THICKNESS) * 10;
+                int size = GREY_STRIPE_SEPARATION * 10;
                 // Grey stripes
                 if (greyStripeImage == null)
                 {
