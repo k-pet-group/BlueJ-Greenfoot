@@ -241,7 +241,9 @@ public class ClassTarget extends DependentTarget
     // (Thus each up and down are 2*height apart from each other):
     private static final double RED_STRIPE_ZIG_HEIGHT = 2;
     private static final int STRIPE_THICKNESS = 3;
+    @OnThread(Tag.FX)
     private static final Color RED_STRIPE = Color.rgb(180, 50, 20);
+    @OnThread(Tag.FX)
     private static final Color GREY_STRIPE = Color.rgb(158, 139, 116);
 
     /**
@@ -324,7 +326,9 @@ public class ClassTarget extends DependentTarget
 
     private BClass singleBClass;  // Every Target has none or one BClass
     private BClassTarget singleBClassTarget; // Every Target has none or one BClassTarget
-    private boolean knownError;
+    // Set from Swing thread but read on FX for display:
+    @OnThread(Tag.Any)
+    private final AtomicBoolean knownError = new AtomicBoolean(false);
     
     /**
      * Return the extensions BProject associated with this Project.
@@ -462,21 +466,21 @@ public class ClassTarget extends DependentTarget
     public void setState(State newState)
     {
         if (state != newState) {
-            boolean oldKnownError = knownError;
+            boolean oldKnownError = knownError.get();
             String qualifiedName = getQualifiedName();
             @OnThread(Tag.Any) Project proj = getPackage().getProject();
             Platform.runLater(() -> proj.removeInspectorInstance(qualifiedName));
             
             if (newState == State.COMPILING)
             {
-                knownError = false;
+                knownError.set(false);
                 if (getSourceType() == SourceType.Stride) {
                     getEditor(); // Create editor if necessary
                 }
                 if (editor != null)
                 {
                     if (editor.compileStarted()) {
-                        knownError = true;
+                        knownError.set(true);
                     }
                 }
             }
@@ -497,7 +501,7 @@ public class ClassTarget extends DependentTarget
                 ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), true, false);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
-            else if (state == State.NORMAL || newState == State.INVALID || knownError != oldKnownError) {
+            else if (state == State.NORMAL || newState == State.INVALID || knownError.get() != oldKnownError) {
                 ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), false, hasKnownError());
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
@@ -2279,7 +2283,7 @@ public class ClassTarget extends DependentTarget
             // could get quite time-consuming when we have lots of classes.
             // Instead, we create an image of the given stripes which
             // we can draw tiled to save time.
-            if (hasKnownError())
+            if (knownError.get())
             {
                 // Red stripes
                 double size = RED_STRIPE_SEPARATION * 10;
@@ -2599,16 +2603,17 @@ public class ClassTarget extends DependentTarget
     {
         // Errors are marked as part of compilation, so we expect that a suitable ClassEvent
         // is generated when compilation finishes; no need for it here.
-        knownError = true;
+        knownError.set(true);
     }
     
     /**
      * Check whether there was a compilation error for this target, last time
      * compilation was attempted.
      */
+    @OnThread(Tag.Swing)
     public boolean hasKnownError()
     {
-        return knownError;
+        return knownError.get();
     }
 
     @Override
