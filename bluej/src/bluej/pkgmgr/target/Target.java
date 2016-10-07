@@ -28,7 +28,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -89,16 +88,6 @@ public abstract class Target
     protected boolean selected;
     protected boolean queued;
 
-    // Shadow variables to allow saving from Swing of FX items:
-    @OnThread(Tag.Any)
-    private final AtomicInteger atomicX = new AtomicInteger();
-    @OnThread(Tag.Any)
-    private final AtomicInteger atomicY = new AtomicInteger();
-    @OnThread(Tag.Any)
-    private final AtomicInteger atomicWidth = new AtomicInteger();
-    @OnThread(Tag.Any)
-    private final AtomicInteger atomicHeight = new AtomicInteger();
-    
     @OnThread(Tag.FXPlatform)
     protected BorderPane pane;
     @OnThread(Tag.FXPlatform)
@@ -281,13 +270,13 @@ public abstract class Target
     /**
      * Save the target's properties to 'props'.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
-        props.put(prefix + ".x", String.valueOf(atomicX.get()));
-        props.put(prefix + ".y", String.valueOf(atomicY.get()));
-        props.put(prefix + ".width", String.valueOf(atomicWidth.get()));
-        props.put(prefix + ".height", String.valueOf(atomicHeight.get()));
+        props.put(prefix + ".x", String.valueOf(getX()));
+        props.put(prefix + ".y", String.valueOf(getY()));
+        props.put(prefix + ".width", String.valueOf(getWidth()));
+        props.put(prefix + ".height", String.valueOf(getHeight()));
 
         props.put(prefix + ".name", getIdentifierName());
     }
@@ -425,6 +414,7 @@ public abstract class Target
         this.resizable = resizable;
     }
 
+    @OnThread(Tag.Any)
     public boolean isSaveable()
     {
         return true;
@@ -492,8 +482,6 @@ public abstract class Target
     {
         AnchorPane.setTopAnchor(pane, (double)y);
         AnchorPane.setLeftAnchor(pane, (double)x);
-        atomicX.set(x);
-        atomicY.set(y);
         synchronized (this)
         {
             if (pkg != null && pkg.getEditor() != null)
@@ -506,8 +494,6 @@ public abstract class Target
     {
         pane.setPrefWidth(width);
         pane.setPrefHeight(height);
-        atomicWidth.set(width);
-        atomicHeight.set(height);
         synchronized (this)
         {
             if (pkg != null && pkg.getEditor() != null)

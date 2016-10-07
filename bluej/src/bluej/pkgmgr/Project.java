@@ -48,6 +48,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -187,7 +188,9 @@ public class Project implements DebuggerListener, InspectorManager
     private UpdateFilesFrame updateFilesFrame = null;
     private StatusFrame statusFrame = null;
     /** If true, this project is connected with a source repository */
-    private Boolean isSharedProject = null;
+    /** If empty, not checked yet */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    private Optional<Boolean> isSharedProject = Optional.empty();
 
     // team actions
     private TeamActionGroup teamActions;
@@ -195,6 +198,7 @@ public class Project implements DebuggerListener, InspectorManager
     private List<DocPathEntry> sourcePath;
     
     /** Project character set for source files etc */
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private Charset characterSet;
 
     @OnThread(Tag.FX) private final List<FXTabbedEditor> fXTabbedEditors = new ArrayList<>();
@@ -295,17 +299,17 @@ public class Project implements DebuggerListener, InspectorManager
 
         // Check whether this is a shared project
         File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");
-        isSharedProject = ccfFile.isFile();
+        isSharedProject = Optional.of(ccfFile.isFile());
         isDVCS=false;
-        if (isSharedProject){
+        if (isSharedProject.get()){
             TeamSettingsController tsc = new TeamSettingsController(this);
-            isSharedProject = TeamSettingsController.isValidVCSfound(projectDir);
-            if (isSharedProject){
+            isSharedProject = Optional.of(TeamSettingsController.isValidVCSfound(projectDir));
+            if (isSharedProject.get()){
                 isDVCS = tsc.getRepository(false).isDVCS();
             }
         }
         
-        teamActions = new TeamActionGroup(isSharedProject, isDVCS);
+        teamActions = new TeamActionGroup(isSharedProject.get(), isDVCS);
     }
 
     /**
@@ -572,6 +576,7 @@ public class Project implements DebuggerListener, InspectorManager
      *                          to make the new project
      * @return                  a boolean indicating success or failure
      */
+    @OnThread(Tag.Any)
     public static boolean createNewProject(String projectPath)
     {
         if (projectPath != null) {
@@ -741,7 +746,7 @@ public class Project implements DebuggerListener, InspectorManager
      * Get the character set that should be used for reading and writing source files
      * in this project. 
      */
-    public Charset getProjectCharset()
+    public synchronized Charset getProjectCharset()
     {
         return characterSet;
     }
@@ -749,7 +754,8 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Get the project properties to be written to storage when the project is saved.
      */
-    public Properties getProjectProperties()
+    @OnThread(Tag.Any)
+    public synchronized Properties getProjectProperties()
     {
         Properties p = new Properties();
         p.put(PROJECT_CHARSET_PROP, characterSet.name());
@@ -759,7 +765,7 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Restore project properties (called just after project is opened). 
      */
-    private void setProjectProperties(Properties props)
+    private synchronized void setProjectProperties(Properties props)
     {
         String charsetName = props.getProperty(PROJECT_CHARSET_PROP);
         if (charsetName != null) {
@@ -1033,7 +1039,12 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public Repository getRepository()
     {
-        if (isSharedProject) {
+        boolean shared;
+        synchronized (this)
+        {
+            shared = isSharedProject.orElse(false);
+        }
+        if (shared) {
             return getTeamSettingsController().getRepository(true);
         }
         else {
@@ -1299,9 +1310,10 @@ public class Project implements DebuggerListener, InspectorManager
             return;
         }
 
-        for (int i = 0; i < frames.length; i++) {
-            frames[i].doSave();
-            frames[i].setStatus(Config.getString("pkgmgr.packageSaved"));
+        for (PkgMgrFrame frame : frames)
+        {
+            Platform.runLater(() -> frame.doSave());
+            frame.setStatus(Config.getString("pkgmgr.packageSaved"));
         }
     }
 
@@ -1888,9 +1900,17 @@ public class Project implements DebuggerListener, InspectorManager
      * team.defs
      * @return true if the project is a team project
      */
+    @OnThread(Tag.Any)
     public boolean isTeamProject()
     {
-        if (this.isSharedProject == null){
+        // This method may be called before we've checked, in which
+        // case we check ourselves but don't record this:
+        Optional<Boolean> shared;
+        synchronized (this)
+        {
+            shared = this.isSharedProject;
+        }
+        if (!shared.isPresent()){
             //checks if it is a valid team project
             File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");
             if (ccfFile.isFile()){
@@ -1900,7 +1920,7 @@ public class Project implements DebuggerListener, InspectorManager
                 return false;
             }
         }
-        return isSharedProject;
+        return shared.get();
     }
 
     /**
@@ -1925,7 +1945,12 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public TeamSettingsController getTeamSettingsController()
     {
-        if(teamSettingsController == null && isSharedProject) {
+        boolean shared;
+        synchronized (this)
+        {
+            shared = isSharedProject.orElse(false);
+        }
+        if(teamSettingsController == null && shared) {
             teamSettingsController = new TeamSettingsController(this);
         }
         return teamSettingsController;
@@ -2015,9 +2040,12 @@ public class Project implements DebuggerListener, InspectorManager
      */
     private void setProjectShared(boolean shared)
     {
-        isSharedProject = shared;
+        synchronized (this)
+        {
+            isSharedProject = Optional.of(shared);
+        }
         //check if it is a dcvs.
-        if (isSharedProject){
+        if (shared){
             TeamSettingsController tsc = new TeamSettingsController(this);
             isDVCS = tsc.getRepository(false).isDVCS();
         }
@@ -2230,32 +2258,21 @@ public class Project implements DebuggerListener, InspectorManager
         fXTabbedEditors.forEach(FXTabbedEditor::updateMoveMenus);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void saveEditorLocations(Properties props)
     {
-        Semaphore s = new Semaphore(0);
-        ArrayList<FXTabbedEditor> fxEditors = new ArrayList<>();
-        ArrayList<Rectangle> fxCachedSizes = new ArrayList<>();
-        Platform.runLater(new Runnable() {
-            @OnThread(Tag.Any)
-            public void run() {
-                fxEditors.addAll(fXTabbedEditors);
-                fxCachedSizes.addAll(fxCachedEditorSizes);
-                s.release();
-            }
-        });
-        s.acquireUninterruptibly();
-        
-        for (int i = 0; i < fxEditors.size(); i++)
+        for (int i = 0; i < fXTabbedEditors.size(); i++)
         {
-            saveEditorLocation(props, fxEditors.get(i), "editor.fx." + i);
+            saveEditorLocation(props, fXTabbedEditors.get(i), "editor.fx." + i);
         }
         // Also put out the cached sizes after the end of the editors:
-        for (int i = fxEditors.size(); i < fxCachedSizes.size(); i++)
+        for (int i = fXTabbedEditors.size(); i < fxCachedEditorSizes.size(); i++)
         {
-            saveEditorLocation(props, fxCachedSizes.get(i), "editor.fx." + i);
+            saveEditorLocation(props, fxCachedEditorSizes.get(i), "editor.fx." + i);
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private void saveEditorLocation(Properties props, FXTabbedEditor editor, String prefix)
     {
         props.put(prefix + ".x", String.valueOf(editor.getX()));
@@ -2264,6 +2281,7 @@ public class Project implements DebuggerListener, InspectorManager
         props.put(prefix + ".height", String.valueOf(editor.getHeight()));
     }
 
+    @OnThread(Tag.FXPlatform)
     private void saveEditorLocation(Properties props, Rectangle rect, String prefix)
     {
         if (rect == null)

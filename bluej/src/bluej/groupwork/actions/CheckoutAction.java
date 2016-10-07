@@ -229,7 +229,7 @@ public class CheckoutAction extends TeamAction
         {
             deleteDirectory(projDir);
             projDir.delete();
-            newFrame.doClose(true, false);
+            Platform.runLater(() -> newFrame.doClose(true, false));
             // The frame might not have closed if it was the
             // last frame. In that case we want to enable it.
             newFrame.setEnabled(true);

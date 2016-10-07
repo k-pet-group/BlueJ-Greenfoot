@@ -220,13 +220,6 @@ public interface Editor
     void showInterface(boolean interfaceStatus);
 
     /**
-     *  Tell whether the editor is currently displaying the interface or the
-     *  source of the class.
-     *  @return  True, if interface is currently shown, false otherwise.
-     */
-    boolean isShowingInterface();
- 
-    /**
      * Returns a property of the current editor.
      *
      * @param  propertyKey  The propertyKey of the property to retrieve.

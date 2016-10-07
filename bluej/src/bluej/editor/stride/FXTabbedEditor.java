@@ -147,11 +147,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /** Cached so it can be read from any thread.  Written to once on Swing thread in initialise,
      * then effectively final thereafter */
     @OnThread(Tag.Any) private String projectTitle;
-    /** Atomic caches to be read from Swing thread: */
-    private final AtomicInteger locationX = new AtomicInteger(0);
-    private final AtomicInteger locationY = new AtomicInteger(0);
-    private final AtomicInteger locationWidth = new AtomicInteger(700);
-    private final AtomicInteger locationHeight = new AtomicInteger(700);
     @OnThread(Tag.Any)
     private final AtomicBoolean stageShowingSwing = new AtomicBoolean(false);
     private StringProperty titleStatus = new SimpleStringProperty("");
@@ -394,15 +389,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             JavaFXUtil.apply(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
                 ," - ", projectTitle, titleStatus));
 
-        JavaFXUtil.addChangeListener(stage.xProperty(), x -> locationX.set(x.intValue()));
-        JavaFXUtil.addChangeListener(stage.yProperty(), y -> locationY.set(y.intValue()));
         JavaFXUtil.addChangeListenerPlatform(stage.widthProperty(), w -> {
-            locationWidth.set(w.intValue());
             if (Config.isWinOS() && tabPane.getSelectionModel().getSelectedItem() instanceof MoeFXTab)
                 scheduleWindowWiggle();
         });
         JavaFXUtil.addChangeListenerPlatform(stage.heightProperty(), h -> {
-            locationHeight.set(h.intValue());
             if (Config.isWinOS() && tabPane.getSelectionModel().getSelectedItem() instanceof MoeFXTab)
                 scheduleWindowWiggle();
         });
@@ -1063,27 +1054,27 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         tabPane.getTabs().forEach(t -> updateMenusForTab((FXTab)t));
     }
 
-    @OnThread(value = Tag.Any, ignoreParent = true)
+    @OnThread(Tag.FX)
     public int getX()
     {
-        return locationX.get();
+        return (int)stage.getX();
     }
 
-    @OnThread(value = Tag.Any, ignoreParent = true)
+    @OnThread(Tag.FX)
     public int getY()
     {
-        return locationY.get();
+        return (int)stage.getY();
     }
 
-    @OnThread(value = Tag.Any, ignoreParent = true)
+    @OnThread(Tag.FX)
     public int getWidth()
     {
-        return locationWidth.get();
+        return (int)stage.getWidth();
     }
 
-    @OnThread(value = Tag.Any, ignoreParent = true)
+    @OnThread(Tag.FX)
     public int getHeight()
     {
-        return locationHeight.get();
+        return (int)stage.getHeight();
     }
 }

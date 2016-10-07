@@ -127,6 +127,7 @@ public final class Package
      * the name of the package file in a package directory that holds
      * information about the package and its targets.
      */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private PackageFile packageFile;
     
     /** Readme file name */
@@ -621,7 +622,7 @@ public final class Package
      * 
      * <p>This does not cause targets to be loaded. Use refreshPackage() for that.
      */
-    public void load()
+    public synchronized void load()
         throws IOException
     {
         // read the package properties
@@ -974,7 +975,10 @@ public final class Package
     {
         // try to load the package file for this package
         SortedProperties props = new SortedProperties();
-        packageFile.load(props);
+        synchronized (this)
+        {
+            packageFile.load(props);
+        }
 
         int numTargets = 0;
 
@@ -982,8 +986,10 @@ public final class Package
             numTargets = Integer.parseInt(props.getProperty("package.numTargets", "0"));
         }
         catch (Exception e) {
-            Debug.reportError("Error loading from bluej package file " + packageFile + ": " + e);
-            e.printStackTrace();
+            synchronized (this)
+            {
+                Debug.printCallStack("Error loading from bluej package file " + packageFile + ": " + e);
+            }
             return;
         }
         
@@ -1014,6 +1020,7 @@ public final class Package
      * Save this package to disk. The package is saved to the standard package
      * file.
      */
+    @OnThread(Tag.FXPlatform)
     public synchronized void save(Properties frameProperties)
     {
         /* create the directory if it doesn't exist */

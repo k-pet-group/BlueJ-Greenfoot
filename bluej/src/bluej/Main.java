@@ -33,6 +33,8 @@ import java.util.Properties;
 import java.util.UUID;
 import java.io.IOException;
 
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 
 import bluej.extensions.SourceType;
@@ -313,21 +315,21 @@ public class Main
         Platform.runLater(() ->
         {
             int answer = projectCount <= 1 ? 0 : DialogManager.askQuestionFX(recentPMF.getFXWindow(), "quit-all");
-            SwingUtilities.invokeLater(() ->
+            if (answer == 0)
             {
-                if (answer == 0)
-                {
-                    doQuit();
-                }
-                else
+                doQuit();
+            }
+            else
+            {
+                SwingUtilities.invokeLater(() ->
                 {
                     if (macEventResponse != null)
                     {
                         macEventResponse.cancelQuit();
                         macEventResponse = null;
                     }
-                }
-            });
+                });
+            }
         });
     }
 
@@ -337,7 +339,7 @@ public class Main
      * the events is relevant - Extensions should be unloaded after package
      * close
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static void doQuit()
     {
         PkgMgrFrame[] pkgFrames = PkgMgrFrame.getAllFrames();
@@ -345,18 +347,36 @@ public class Main
         // handle open packages so they are re-opened on startup
         handleOrphanPackages(pkgFrames);
 
-        // We replicate some of the behaviour of doClose() here
-        // rather than call it to avoid a nasty recursion
-        for (int i = pkgFrames.length - 1; i >= 0; i--) {
-            PkgMgrFrame aFrame = pkgFrames[i];
-            aFrame.doSave();
-            aFrame.closePackage();
-            PkgMgrFrame.closeFrame(aFrame);
-        }
+        JavaFXUtil.runNowOrLater(new FXPlatformRunnable()
+        {
+            int i = pkgFrames.length - 1;
 
-        ExtensionsManager extMgr = ExtensionsManager.getInstance();
-        extMgr.unloadExtensions();
-        bluej.Main.exit();
+            @Override
+            public @OnThread(Tag.FXPlatform) void run()
+            {
+                // We replicate some of the behaviour of doClose() here
+                // rather than call it to avoid a nasty recursion
+                if (i >= 0) {
+                    PkgMgrFrame aFrame = pkgFrames[i--];
+                    aFrame.doSave();
+                    SwingUtilities.invokeLater(() -> {
+                        aFrame.closePackage();
+                        Platform.runLater(() -> {
+                            PkgMgrFrame.closeFrame(aFrame);
+                            run();
+                        });
+                    });
+                }
+                else
+                {
+                    SwingUtilities.invokeLater(() -> {
+                        ExtensionsManager extMgr = ExtensionsManager.getInstance();
+                        extMgr.unloadExtensions();
+                        bluej.Main.exit();
+                    });
+                }
+            }
+        });
     }
 
     /**
@@ -365,7 +385,7 @@ public class Main
      *
      * @param openFrames
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private static void handleOrphanPackages(PkgMgrFrame[] openFrames)
     {
         // if there was a previous list, delete it
@@ -542,7 +562,10 @@ public class Main
         // save configuration properties
         Config.handleExit();
         // exit with success status
-        System.exit(0);
+
+        // We wrap this in a Platform.runLater/Swing.invokeLater to make sure it
+        // runs after any pending FX actions or Swing actions:
+        Platform.runLater(() -> SwingUtilities.invokeLater(() -> System.exit(0)));
     }
 
     // See comment on the field.

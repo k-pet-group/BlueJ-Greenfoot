@@ -48,6 +48,7 @@ public class StdClassRole extends ClassRole
     {
     }
 
+    @OnThread(Tag.Any)
     public String getRoleName()
     {
         return "ClassTarget";

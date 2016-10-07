@@ -100,6 +100,7 @@ public abstract class DependentTarget extends EditableTarget
      * @param prefix an internal name used for this target to identify
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);

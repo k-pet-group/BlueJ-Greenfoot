@@ -97,6 +97,7 @@ public class PackageTarget extends Target
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);

@@ -502,7 +502,7 @@ public class UpdateAction extends AbstractAction
                         pkg.closeAllEditors();
                         PkgMgrFrame frame = PkgMgrFrame.findFrame(pkg);
                         if (frame != null) {
-                            frame.doClose(true, false);
+                            Platform.runLater(() -> frame.doClose(true, false));
                         }
                         project.removePackage(packageName);
                     }

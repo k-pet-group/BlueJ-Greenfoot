@@ -53,7 +53,9 @@ import bluej.utility.Debug;
 @OnThread(Tag.Swing)
 public class TeamSettingsController
 {
-    private static ArrayList<TeamworkProvider> teamProviders;
+    // Don't need synchronized because it's never modified again:
+    @OnThread(value = Tag.Any)
+    private static final ArrayList<TeamworkProvider> teamProviders;
     static {
         teamProviders = new ArrayList<TeamworkProvider>(2);
         try {
@@ -285,16 +287,17 @@ public class TeamSettingsController
     
     /**
      * checks if a project has a team.defs if it doesn't, then return false
-     * @param projectDir File object representing the directory where team.defs is located.
+     * @param projDir File object representing the directory where team.defs is located.
      * @return true if there is a valid vcs. false otherwise.
      */
-    public static boolean isValidVCSfound(File projectDir)
+    @OnThread(Tag.Any)
+    public static boolean isValidVCSfound(File projDir)
     {
-        File teamdefs = new File(projectDir, "team.defs");
+        File teamDefs = new File(projDir, "team.defs");
         Properties p = new Properties();
         String providerName = null;
         try {
-            p.load(new FileInputStream(teamdefs));
+            p.load(new FileInputStream(teamDefs));
             providerName = p.getProperty("bluej.teamsettings.vcs");
         } catch (IOException e){
         }

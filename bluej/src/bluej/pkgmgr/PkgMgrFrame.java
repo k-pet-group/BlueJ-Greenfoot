@@ -81,6 +81,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -211,6 +212,7 @@ public class PkgMgrFrame extends JPanel
     // this variable is lazy initialised
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static PageFormat pageFormat = null;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static final List<PkgMgrFrame> frames = new ArrayList<>(); // of PkgMgrFrames
     private static final ExtensionsManager extMgr = ExtensionsManager.getInstance();
     @OnThread(Tag.FXPlatform)
@@ -289,6 +291,7 @@ public class PkgMgrFrame extends JPanel
      * The package that this frame is working on or null for the case where
      * there is no package currently being edited (check with isEmptyFrame())
      */
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private Package pkg = null;
     /*
      * The graph editor which works on the package or null for the case where
@@ -323,6 +326,16 @@ public class PkgMgrFrame extends JPanel
     private VBox toolPanel;
     @OnThread(Tag.FXPlatform)
     private EventHandler<javafx.scene.input.MouseEvent> editorMousePressed;
+    @OnThread(Tag.FXPlatform)
+    private ScrollPane pkgEditorScrollPane;
+    // We keep these properties here because we need them for creating
+    // the menu, but the menu may get created before a project (and PackageEditor) has been opened:
+    @OnThread(Tag.Any)
+    private SimpleBooleanProperty showUsesProperty;
+    @OnThread(Tag.Any)
+    private SimpleBooleanProperty showInheritsProperty;
+    @OnThread(Tag.FXPlatform)
+    private SplitPane bottomPane;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -331,12 +344,12 @@ public class PkgMgrFrame extends JPanel
      */
     private PkgMgrFrame()
     {
-        Platform.runLater(() -> {
-            stageProperty = new SimpleObjectProperty<>(null);
-            paneProperty = new SimpleObjectProperty<>(null);
-            showingTextEval = new SimpleBooleanProperty(false);
-            viewMenuManager = new SimpleObjectProperty<>(null);
-        });
+        stageProperty = new SimpleObjectProperty<>(null);
+        paneProperty = new SimpleObjectProperty<>(null);
+        showingTextEval = new SimpleBooleanProperty(false);
+        showUsesProperty = new SimpleBooleanProperty(true);
+        showInheritsProperty = new SimpleBooleanProperty(true);
+        viewMenuManager = new SimpleObjectProperty<>(null);
         this.pkg = null;
         this.editor = null;
         if(!Config.isGreenfoot()) {
@@ -345,7 +358,6 @@ public class PkgMgrFrame extends JPanel
 
             setupActionDisableSet();
             makeFrame();
-            updateWindow();
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
             new JFXPanel();
@@ -365,14 +377,13 @@ public class PkgMgrFrame extends JPanel
                 addCtrlTabShortcut(objbench);
                 
                 BorderPane topPane = new BorderPane();
-                ScrollPane pkgEditorScrollPane = new ScrollPane(editor);
+                pkgEditorScrollPane = new ScrollPane(editor);
                 pkgEditorScrollPane.setFitToWidth(true);
                 pkgEditorScrollPane.setFitToHeight(true);
-                pkgEditorScrollPane.prefViewportWidthProperty().bind(editor.prefWidthProperty());
                 topPane.setCenter(pkgEditorScrollPane);
                 //topPane.setMinHeight(minSize.getHeight());
                 topPane.setLeft(toolPanel);
-                SplitPane bottomPane = new SplitPane(objbench, padSwingNode);
+                bottomPane = new SplitPane(objbench, padSwingNode);
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
                 SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
@@ -395,6 +406,7 @@ public class PkgMgrFrame extends JPanel
                 stageProperty.setValue(stage);
                 paneProperty.setValue(root);
                 JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
+                updateWindow();
             });
         }
         else
@@ -412,8 +424,12 @@ public class PkgMgrFrame extends JPanel
     public static PkgMgrFrame createFrame()
     {
         PkgMgrFrame frame = new PkgMgrFrame();
-        frames.add(frame);
         BlueJEvent.addListener(frame);
+
+        synchronized (PkgMgrFrame.class)
+        {
+            frames.add(frame);
+        }
 
         Platform.runLater(() -> {
             JavaFXUtil.onceNotNull(frame.stageProperty, stage ->
@@ -433,23 +449,29 @@ public class PkgMgrFrame extends JPanel
      * Open a PkgMgrFrame with a package. This may create a new frame or return
      * an existing frame if this package is already being edited by a frame. If
      * an empty frame exists, that frame will be used to show the package.
-     * @param pkg The package to show in the frame
+     * @param aPkg The package to show in the frame
      * @return The new frame
      */
-    public static PkgMgrFrame createFrame(Package pkg)
+    @OnThread(Tag.Swing)
+    public static PkgMgrFrame createFrame(Package aPkg)
     {
-        PkgMgrFrame pmf = findFrame(pkg);
+        PkgMgrFrame pmf = findFrame(aPkg);
 
         if (pmf == null) {
             // check whether we've got an empty frame
 
-            if (frames.size() == 1)
-                pmf = frames.get(0);
+            if (frameCount() == 1)
+            {
+                synchronized (PkgMgrFrame.class)
+                {
+                    pmf = frames.get(0);
+                }
+            }
 
             if ((pmf == null) || !pmf.isEmptyFrame())
                 pmf = createFrame();
 
-            pmf.openPackage(pkg);
+            pmf.openPackage(aPkg);
         }
 
         return pmf;
@@ -460,34 +482,36 @@ public class PkgMgrFrame extends JPanel
      * PkgMgrFrame must not be editing a package when this function is called.
      * @param frame The frame to close
      */
+    @OnThread(Tag.FXPlatform)
     public static void closeFrame(PkgMgrFrame frame)
     {
         if (!frame.isEmptyFrame())
             throw new IllegalArgumentException();
 
-        frames.remove(frame);
-
-        BlueJEvent.removeListener(frame);
-        
-        Platform.runLater(() ->
+        synchronized (PkgMgrFrame.class)
         {
-            PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEval.get());
-            javafx.stage.Window window = frame.getFXWindow();
-            if (window != null)
-                window.hide();
-        });
+            frames.remove(frame);
+        }
+
+        SwingUtilities.invokeLater(() -> BlueJEvent.removeListener(frame));
+
+        PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEval.get());
+        javafx.stage.Window window = frame.getFXWindow();
+        if (window != null)
+            window.hide();
     }
 
     /**
      * Find a frame which is editing a particular Package and return it or
      * return null if it is not being edited
-     * @param pkg The package to search for
+     * @param aPkg The package to search for
      * @return The frame editing this package, or null
      */
-    public static PkgMgrFrame findFrame(Package pkg)
+    @OnThread(Tag.Any)
+    public synchronized static PkgMgrFrame findFrame(Package aPkg)
     {
         for (PkgMgrFrame pmf : frames) {
-            if (!pmf.isEmptyFrame() && pmf.getPackage() == pkg)
+            if (!pmf.isEmptyFrame() && pmf.getPackage() == aPkg)
                 return pmf;
         }
         return null;
@@ -496,7 +520,8 @@ public class PkgMgrFrame extends JPanel
     /**
      * @return the number of currently open top level frames
      */
-    public static int frameCount()
+    @OnThread(Tag.Any)
+    public synchronized static int frameCount()
     {
         return frames.size();
     }
@@ -506,7 +531,8 @@ public class PkgMgrFrame extends JPanel
      * none is found.
      * @return An array of all existing frames
      */
-    public static PkgMgrFrame[] getAllFrames()
+    @OnThread(Tag.Any)
+    public synchronized static PkgMgrFrame[] getAllFrames()
     {
         PkgMgrFrame[] openFrames = new PkgMgrFrame[frames.size()];
         frames.toArray(openFrames);
@@ -548,7 +574,7 @@ public class PkgMgrFrame extends JPanel
         List<PkgMgrFrame> list = new ArrayList<>();
         String pkgPrefixWithDot = pkgPrefix + ".";
 
-        for (PkgMgrFrame pmf : frames) {
+        for (PkgMgrFrame pmf : getAllFrames()) {
             if (!pmf.isEmptyFrame() && pmf.getProject() == proj) {
 
                 String fullName = pmf.getPackage().getQualifiedName();
@@ -626,9 +652,8 @@ public class PkgMgrFrame extends JPanel
     public static void updateTestingStatus()
     {
         if (testToolsShown != wantToSeeTestingTools()) {
-            frames.stream().forEach((pmf) -> {
+            for (PkgMgrFrame pmf : getAllFrames())
                 pmf.showTestingTools(!testToolsShown);
-            });
             testToolsShown = !testToolsShown;
         }
     }
@@ -648,8 +673,8 @@ public class PkgMgrFrame extends JPanel
     public static void updateTeamStatus()
     {
         if (teamToolsShown != wantToSeeTeamTools()) {
-            for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
-                i.next().showTeamTools(!teamToolsShown);
+            for (PkgMgrFrame pmf : getAllFrames()) {
+                pmf.showTeamTools(!teamToolsShown);
             }
             teamToolsShown = !teamToolsShown;
         }
@@ -671,9 +696,8 @@ public class PkgMgrFrame extends JPanel
      */
     public static void displayMessage(String message)
     {
-        frames.stream().forEach((frame) -> {
+        for (PkgMgrFrame frame : getAllFrames())
             frame.setStatus(message);
-        });
     }
 
     /**
@@ -785,7 +809,8 @@ public class PkgMgrFrame extends JPanel
         }
         if(createdNewFrame && !openedProject) {
             // Close newly created frame if it was never used.
-            PkgMgrFrame.closeFrame(pmf);
+            PkgMgrFrame pmfFinal = pmf;
+            Platform.runLater(() -> PkgMgrFrame.closeFrame(pmfFinal));
         }
         return openedProject;
     }
@@ -801,7 +826,7 @@ public class PkgMgrFrame extends JPanel
 
         if (allFrames != null) {
             for (PkgMgrFrame allFrame : allFrames) {
-                allFrame.doClose(true, true);
+                Platform.runLater(() -> allFrame.doClose(true, true));
             }
         }
     }
@@ -866,11 +891,12 @@ public class PkgMgrFrame extends JPanel
 
     /**
      * Displays the package in the frame for editing
-     * @param pkg The package to edit
+     * @param aPkg The package to edit
      */
-    public void openPackage(Package pkg)
+    @OnThread(Tag.Swing)
+    public void openPackage(Package aPkg)
     {
-        if (pkg == null) {
+        if (aPkg == null) {
             throw new NullPointerException();
         }
 
@@ -880,10 +906,10 @@ public class PkgMgrFrame extends JPanel
             closePackage();
         }
 
-        this.pkg = pkg;
+        this.pkg = aPkg;
 
         if(! Config.isGreenfoot()) {
-            this.editor = new PackageEditor(this, pkg, this);
+            this.editor = new PackageEditor(this, aPkg, this, showUsesProperty, showInheritsProperty);
             Platform.runLater(() -> {
                 editor.setOnDragOver(event -> {
                         Dragboard db = event.getDragboard();
@@ -908,24 +934,39 @@ public class PkgMgrFrame extends JPanel
                 editor.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);  // This mouse listener MUST be before
                 editor.startMouseListening();   //  the editor's listener itself!
             });
-            pkg.setEditor(this.editor);
+            aPkg.setEditor(this.editor);
             addCtrlTabShortcut(editor);
             
             // fetch some properties from the package that interest us
-            Properties p = pkg.getLastSavedProperties();
+            Properties p = aPkg.getLastSavedProperties();
             
             try {
                 String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
                 String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
                 
-                //classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
+                if (width_str != null && height_str != null)
+                {
+                    Platform.runLater(() -> {
+                        pkgEditorScrollPane.setPrefViewportWidth(Integer.parseInt(width_str));
+                        pkgEditorScrollPane.setPrefViewportHeight(Integer.parseInt(height_str));
+                        JavaFXUtil.onceNotNull(stageProperty, Stage::sizeToScene);
+                    });
+                }
                 
                 String objectBench_height_str = p.getProperty("objectbench.height");
                 String objectBench_width_str = p.getProperty("objectbench.width");
                 if (objectBench_height_str != null && objectBench_width_str != null) {
                     Platform.runLater(() -> {
-                        objbench.setPrefWidth(Integer.parseInt(objectBench_width_str));
-                        objbench.setPrefHeight(Integer.parseInt(objectBench_height_str));
+                        objbench.setPrefViewportWidth(Integer.parseInt(objectBench_width_str));
+                        objbench.setPrefViewportHeight(Integer.parseInt(objectBench_height_str));
+                        JavaFXUtil.onceNotNull(stageProperty, s -> {
+                            s.sizeToScene();
+                            // We must only stop resizing after our preferred size
+                            // has taken effect:
+                            JavaFXUtil.runPlatformLater(() -> {
+                                SplitPane.setResizableWithParent(bottomPane, false);
+                            });
+                        });
                     });
                 }
                 
@@ -940,8 +981,15 @@ public class PkgMgrFrame extends JPanel
                 
                 if (y > (Config.screenBounds.height - 80))
                     y = Config.screenBounds.height - 80;
-                
-                setLocation(x, y);
+
+                int xFinal = x;
+                int yFinal = y;
+                Platform.runLater(() -> {
+                    JavaFXUtil.onceNotNull(stageProperty, s -> {
+                        s.setX(xFinal);
+                        s.setY(yFinal);
+                    });
+                });
             } catch (NumberFormatException e) {
                 Debug.reportError("Could not read preferred project screen position");
             }
@@ -953,18 +1001,18 @@ public class PkgMgrFrame extends JPanel
                 editor.setShowUses(uses_str.equals("true"));
                 editor.setShowExtends(extends_str.equals("true"));
                 editor.requestFocus();
+                updateWindow();
             });
             
             enableFunctions(true); // changes menu items
-            updateWindow();
             setVisible(true);
             
             updateTextEvalBackground(isEmptyFrame());
                     
-            this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
-            this.toolsMenuManager.addExtensionMenu(pkg.getProject());
+            this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(aPkg));
+            this.toolsMenuManager.addExtensionMenu(aPkg.getProject());
 
-            Package pkgFinal = pkg;
+            Package pkgFinal = aPkg;
             // I hate FX/Swing GUI threading...
             Platform.runLater(() ->
                 {
@@ -977,11 +1025,11 @@ public class PkgMgrFrame extends JPanel
                     })));
                 });
         
-            teamActions = pkg.getProject().getTeamActions();
+            teamActions = aPkg.getProject().getTeamActions();
             resetTeamActions();
             
             //update TeamSettings menu items.
-            if (pkg.getProject().getTeamSettingsController() != null && pkg.getProject().getTeamSettingsController().getRepository(false).isDVCS()) {
+            if (aPkg.getProject().getTeamSettingsController() != null && aPkg.getProject().getTeamSettingsController().getRepository(false).isDVCS()) {
                 commitMenuItem.setText(Config.getString("team.menu.commitPush"));
             } else {
                 commitMenuItem.setText(Config.getString("team.menu.commit"));
@@ -989,12 +1037,18 @@ public class PkgMgrFrame extends JPanel
            
             showTestingTools(wantToSeeTestingTools());
             
-            pkg.getProject().scheduleCompilation(true, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE, pkg);
+            aPkg.getProject().scheduleCompilation(true, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE, aPkg);
+
+            Platform.runLater(() -> {
+                JavaFXUtil.onceNotNull(stageProperty, s -> {
+                    s.sizeToScene();
+                });
+            });
         }
         
-        DataCollector.packageOpened(pkg);
+        DataCollector.packageOpened(aPkg);
 
-        extMgr.packageOpened(pkg);
+        extMgr.packageOpened(aPkg);
     }
 
     /**
@@ -1030,21 +1084,23 @@ public class PkgMgrFrame extends JPanel
     /**
      * Closes the current package.
      */
+    @OnThread(Tag.Swing)
     public void closePackage()
     {
         if (isEmptyFrame()) {
             return;
         }
+        Package thePkg = getPackage();
         
-        extMgr.packageClosing(pkg);
+        extMgr.packageClosing(thePkg);
 
         if(! Config.isGreenfoot()) {
-            this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(pkg));
-            this.viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(pkg));
+            this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(thePkg));
+            this.viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(thePkg));
             
             ObjectBench bench = getObjectBench();
             String uniqueId = getProject().getUniqueId();
-            Platform.runLater(() -> {bench.removeAllObjects(uniqueId);});
+            Platform.runLater(() -> bench.removeAllObjects(uniqueId));
             clearTextEval();
             updateTextEvalBackground(true);
             
@@ -1058,12 +1114,15 @@ public class PkgMgrFrame extends JPanel
 
         getPackage().closeAllEditors();
         
-        DataCollector.packageClosed(pkg);
+        DataCollector.packageClosed(thePkg);
 
         Project proj = getProject();
 
         editor = null;
-        pkg = null;
+        synchronized (this)
+        {
+            this.pkg = null;
+        }
 
         // if there are no other frames editing this project, we close
         // the project
@@ -1100,7 +1159,8 @@ public class PkgMgrFrame extends JPanel
      * This call should be bracketed by a call to isEmptyFrame() before use.
      * @return The package shown by this frame
      */
-    public Package getPackage()
+    @OnThread(Tag.Any)
+    public synchronized Package getPackage()
     {
         return pkg;
     }
@@ -1109,7 +1169,8 @@ public class PkgMgrFrame extends JPanel
      * Return the project of the package shown by this frame.
      * @return The project of the package shown by this frame
      */
-    public Project getProject()
+    @OnThread(Tag.Any)
+    public synchronized Project getProject()
     {
         return pkg == null ? null : pkg.getProject();
     }
@@ -1118,7 +1179,8 @@ public class PkgMgrFrame extends JPanel
      * A call to this should bracket all uses of getPackage() and editor.
      * @return True is this frame is currently empty
      */
-    public boolean isEmptyFrame()
+    @OnThread(Tag.Any)
+    public synchronized boolean isEmptyFrame()
     {
         return pkg == null;
     }
@@ -1126,6 +1188,7 @@ public class PkgMgrFrame extends JPanel
     /**
      * Set the window title to show the current package name.
      */
+    @OnThread(Tag.FXPlatform)
     private void updateWindowTitle()
     {
         
@@ -1145,21 +1208,21 @@ public class PkgMgrFrame extends JPanel
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private void setTitle(String title)
     {
-        Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> stage.setTitle(title)));
+        JavaFXUtil.onceNotNull(stageProperty, stage -> stage.setTitle(title));
     }
 
     /**
      * Update the window title and show needed messages
      */
+    @OnThread(Tag.FXPlatform)
     private void updateWindow()
     {
-        
         if (isEmptyFrame()) {
             //TODO
             //Platform.runLater(() -> classScroller.setContent(noProjectMessagePanel));
-            repaint();
         }
         updateWindowTitle();
     }
@@ -1366,6 +1429,7 @@ public class PkgMgrFrame extends JPanel
      * @param dirName           The directory to create the project in
      * @return     true if successful, false otherwise
      */
+    @OnThread(Tag.Swing)
     public boolean newProject(String dirName)
     {
         if (Project.createNewProject(dirName)) {
@@ -1442,15 +1506,16 @@ public class PkgMgrFrame extends JPanel
      */
     public boolean createNewClass(String name, String template, SourceType sourceType, boolean showErr)
     {
+        Package thePkg = getPackage();
         // check whether name is already used
-        if (pkg.getTarget(name) != null) {
+        if (thePkg.getTarget(name) != null) {
             Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "duplicate-name"));
             return false;
         }
 
         //check if there already exists a class in a library with that name 
         String[] conflict=new String[1];
-        Class<?> c = pkg.loadClass(pkg.getQualifiedName(name));
+        Class<?> c = thePkg.loadClass(thePkg.getQualifiedName(name));
         if (c != null){
             if (! Package.checkClassMatchesFile(c, new File(getPackage().getPath(), name + ".class"))) {
                 conflict[0]=Package.getResourcePath(c);
@@ -1468,7 +1533,7 @@ public class PkgMgrFrame extends JPanel
             }
         }
 
-        ClassTarget target = new ClassTarget(pkg, name, template);
+        ClassTarget target = new ClassTarget(thePkg, name, template);
 
         if ( template != null ) { 
             boolean success = target.generateSkeleton(template, sourceType);
@@ -1476,7 +1541,7 @@ public class PkgMgrFrame extends JPanel
                 return false;
         }
 
-        pkg.addTarget(target);
+        thePkg.addTarget(target);
         
         Platform.runLater(() -> {
             if (editor != null) {
@@ -1486,13 +1551,13 @@ public class PkgMgrFrame extends JPanel
         });
 
         if (target.getRole() instanceof UnitTestClassRole) {
-            pkg.compileQuiet(target, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE);
+            thePkg.compileQuiet(target, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE);
         }
 
         // Schedule compilation of new class:
-        pkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE, pkg);
+        thePkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE, thePkg);
         
-        DataCollector.addClass(pkg, target);
+        DataCollector.addClass(thePkg, target);
         
         return true;
     }
@@ -1657,6 +1722,7 @@ public class PkgMgrFrame extends JPanel
      * @param keepLastFrame If true, keep the frame visible.
      * @param doSave If true, do a save before closing
      */
+    @OnThread(Tag.FXPlatform)
     public void doClose(boolean keepLastFrame, boolean doSave)
     {
         if (doSave) {
@@ -1669,16 +1735,18 @@ public class PkgMgrFrame extends JPanel
 
         if (frameCount() == 1) {
             if (keepLastFrame && !Config.isGreenfoot()) { // close package, leave frame, but not for greenfoot
-                testRecordingEnded(); // disable test controls
-                closePackage();
-                
-                updateRecentProjects();
-                enableFunctions(false); // changes menu items
+                SwingUtilities.invokeLater(() -> {
+                    closePackage();
+                    testRecordingEnded(); // disable test controls
+                    updateRecentProjects();
+                    enableFunctions(false);
+                }); // changes menu items
                 updateWindow();
-                toolsMenuManager.addExtensionMenu(null);
-                Platform.runLater(() -> {
-                    FXMenuManager vm = viewMenuManager.get();
-                    SwingUtilities.invokeLater(() -> vm.addExtensionMenu(null));
+
+                FXMenuManager vm = viewMenuManager.get();
+                SwingUtilities.invokeLater(() -> {
+                    toolsMenuManager.addExtensionMenu(null);
+                    vm.addExtensionMenu(null);
                 });
             }
             else { // all frames gone, lets quit
@@ -1686,7 +1754,7 @@ public class PkgMgrFrame extends JPanel
             }
         }
         else {
-            closePackage(); // remove package and frame
+            SwingUtilities.invokeLater(() -> closePackage()); // remove package and frame
             PkgMgrFrame.closeFrame(this);
         }
     }
@@ -1694,7 +1762,8 @@ public class PkgMgrFrame extends JPanel
     /**
      * Save this package. Don't ask questions - just do it.
      */
-    public void doSave()
+    @OnThread(Tag.FXPlatform)
+    public synchronized void doSave()
     {
         if (isEmptyFrame()) {
             return;
@@ -1713,22 +1782,17 @@ public class PkgMgrFrame extends JPanel
         }
         
         if(!Config.isGreenfoot()) {
-            /*Dimension d = classScroller.getSize();
+            p.put("package.editor.width", Integer.toString((int)pkgEditorScrollPane.getViewportBounds().getWidth()));
+            p.put("package.editor.height", Integer.toString((int)pkgEditorScrollPane.getViewportBounds().getHeight()));
+
+            p.put("package.editor.x", Integer.toString((int)stageProperty.getValue().getX()));
+            p.put("package.editor.y", Integer.toString((int)stageProperty.getValue().getY()));
+
+            p.put("objectbench.width", Integer.toString((int)objbench.getViewportBounds().getWidth()));
+            p.put("objectbench.height", Integer.toString((int)objbench.getViewportBounds().getHeight()));
     
-            p.put("package.editor.width", Integer.toString(d.width));
-            p.put("package.editor.height", Integer.toString(d.height));
-            
-            Point point = getLocation();
-    
-            p.put("package.editor.x", Integer.toString(point.x));
-            p.put("package.editor.y", Integer.toString(point.y));
-            
-            d = objbench.getSize();
-            p.put("objectbench.width", Integer.toString(d.width));
-            p.put("objectbench.height", Integer.toString(d.height));
-    
-            p.put("package.showUses", Boolean.toString(pkg.isShowUses()));
-            p.put("package.showExtends", Boolean.toString(pkg.isShowExtends()));*/
+            p.put("package.showUses", Boolean.toString(showUsesProperty.get()));
+            p.put("package.showExtends", Boolean.toString(showInheritsProperty.get()));
         }
         pkg.save(p);
     }
@@ -1801,7 +1865,7 @@ public class PkgMgrFrame extends JPanel
         // these could be aggregated however the error messages may be different
         // for each error
         for (File cls : classes) {
-            int result = pkg.importFile(cls);
+            int result = getPackage().importFile(cls);
             if (errorNames.containsKey(result))
             {
                 Platform.runLater(() -> DialogManager.showErrorWithTextFX(getFXWindow(), errorNames.get(result), cls.getName()));
@@ -2139,7 +2203,7 @@ public class PkgMgrFrame extends JPanel
             newInstanceName = wrapper.getName();
 
             // load the object into runtime scope
-            getPackage().getDebugger().addObject(pkg.getId(), newInstanceName, object);
+            getPackage().getDebugger().addObject(getPackage().getId(), newInstanceName, object);
 
             if (ir != null) {
                 ir.setBenchName(newInstanceName, wrapper.getTypeName());
@@ -2256,8 +2320,8 @@ public class PkgMgrFrame extends JPanel
      */
     public void doRemove()
     {
-        Package pkgFinal = this.pkg;
-        String pkgId = pkg.getId();
+        Package pkgFinal = getPackage();
+        String pkgId = pkgFinal.getId();
         Platform.runLater(() -> {
             if (editor.isFocused())
             {
@@ -2306,7 +2370,7 @@ public class PkgMgrFrame extends JPanel
     {
         Platform.runLater(() -> runButton.setDisable(true));
 
-        List<ClassTarget> l = pkg.getTestTargets();
+        List<ClassTarget> l = getPackage().getTestTargets();
 
         // Find the number of tests
         int numTests = 0;
@@ -2457,13 +2521,14 @@ public class PkgMgrFrame extends JPanel
      */
     public void compileSelected()
     {
-        List<Target> targets = pkg.getSelectedTargets();
+        Package thePkg = getPackage();
+        List<Target> targets = thePkg.getSelectedTargets();
         if (targets.size() > 0) {
             for (Target target : targets) {
                 if (target instanceof ClassTarget) {
                     ClassTarget t = (ClassTarget) target;
                     if (t.hasSourceCode())
-                        pkg.compile(t, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
+                        thePkg.compile(t, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
                 }
             }
         }
@@ -2498,7 +2563,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void generateProjectDocumentation()
     {
-        String message = pkg.generateDocumentation();
+        String message = getPackage().generateDocumentation();
         if (message.length() != 0) {
             Platform.runLater(() -> DialogManager.showTextFX(getFXWindow(), message));
         }
@@ -2568,7 +2633,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void updateSharedStatus(boolean shared)
     {
-        updateWindow();
+        Platform.runLater(() -> updateWindow());
     }
 
     /**
@@ -2884,9 +2949,7 @@ public class PkgMgrFrame extends JPanel
         }
 
         Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> {
-            stage.setOnCloseRequest(e -> {
-                SwingUtilities.invokeLater(() -> PkgMgrFrame.this.doClose(false, true));
-            });
+            stage.setOnCloseRequest(e -> PkgMgrFrame.this.doClose(false, true));
         }));
 
         // grey out certain functions if package not open.
@@ -3047,7 +3110,7 @@ public class PkgMgrFrame extends JPanel
 
             // If this is the first frame create the extension tools menu now.
             // (Otherwise, it will be created during project open.)
-            if (frames.size() <= 1) {
+            if (frameCount() <= 1) {
                 toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(null));
                 toolsMenuManager.addExtensionMenu(null);
             }
@@ -3063,8 +3126,8 @@ public class PkgMgrFrame extends JPanel
                 viewMenuManager.set(new FXMenuManager(fxMenu, extMgr, null));
                 return fxMenu;
             });
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), editor.showUsesProperty(), null));
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showInherits"), editor.showInheritsProperty(), null));
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), showUsesProperty, null));
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showInherits"), showInheritsProperty, null));
             mixedMenu.addFX(SeparatorMenuItem::new);
             List<JMenuItem> swingItems = new ArrayList<>();
             createCheckboxMenuItem(showDebuggerAction, swingItems, false);
@@ -3078,7 +3141,7 @@ public class PkgMgrFrame extends JPanel
             mixedMenu.addSwing(swingItems);
 
             // (Otherwise, it will be created during project open.)
-            if (frames.size() <= 1)
+            if (frameCount() <= 1)
             {
                 mixedMenu.runAtEnd(() -> Platform.runLater(() -> {
                     FXMenuManager vm = viewMenuManager.get();
@@ -3170,8 +3233,14 @@ public class PkgMgrFrame extends JPanel
     {
         if (!isEmptyFrame())
         {
-            PackageEditor pkgEd = pkg.getEditor();
-            Platform.runLater(() -> {pkgEd.clearState();});
+            synchronized (this)
+            {
+                PackageEditor pkgEd = pkg.getEditor();
+                Platform.runLater(() ->
+                {
+                    pkgEd.clearState();
+                });
+            }
         }
         clearStatus();
     }
@@ -3335,7 +3404,7 @@ public class PkgMgrFrame extends JPanel
     }
 
     @OnThread(Tag.Swing)
-    public void doNewInherits()
+    public synchronized void doNewInherits()
     {
         if (pkg != null && pkg.getEditor() != null)
         {

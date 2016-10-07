@@ -22,6 +22,7 @@
 package bluej.pkgmgr.actions;
 
 import bluej.pkgmgr.PkgMgrFrame;
+import javafx.application.Platform;
 
 /**
  * User chooses "close project". Save & close the current project. If the command
@@ -29,7 +30,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * the window regardless.
  * 
  * @author Davin McCall
- * @version $Id: CloseProjectAction.java 16081 2016-06-25 09:42:13Z nccb $
+ * @version $Id: CloseProjectAction.java 16695 2016-10-07 11:34:53Z nccb $
  */
 final public class CloseProjectAction extends PkgMgrAction
 {
@@ -41,6 +42,6 @@ final public class CloseProjectAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.doClose(true, true);
+        Platform.runLater(() -> pmf.doClose(true, true));
     }
 }

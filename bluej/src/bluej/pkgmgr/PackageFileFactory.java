@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package bluej.pkgmgr;
 import java.io.File;
 
 import bluej.Config;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Factory for creating package files.
@@ -41,6 +43,7 @@ public class PackageFileFactory
      * @param dir
      * @return
      */
+    @OnThread(Tag.Any)
     public static PackageFile getPackageFile(File dir)
     {
         if (Config.isGreenfoot()) {

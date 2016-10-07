@@ -54,6 +54,7 @@ public class EnumClassRole extends ClassRole
     {
     }
 
+    @OnThread(Tag.Any)
     public String getRoleName()
     {
         return ENUM_ROLE_NAME;

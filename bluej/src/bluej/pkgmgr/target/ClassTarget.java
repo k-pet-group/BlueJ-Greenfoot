@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -171,10 +172,12 @@ public class ClassTarget extends DependentTarget
     // role should be accessed using getRole() and set using
     // setRole(). A role should not contain important state information
     // because role objects are thrown away at a whim.
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private ClassRole role = new StdClassRole();
 
     // a flag indicating whether an editor, when opened for the first
     // time, should display the interface of this class
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private boolean openWithInterface = false;
 
     // cached information obtained by parsing the source code
@@ -188,8 +191,10 @@ public class ClassTarget extends DependentTarget
     private boolean isAbstract;
     
     // a flag indicating whether an editor should have the naviview expanded/collapsed
-    private Boolean isNaviviewExpanded=null;
-    
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    private Optional<Boolean> isNaviviewExpanded = Optional.empty();
+
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private final List<Integer> cachedBreakpoints = new ArrayList<>();
     
     // flag to prevent recursive calls to analyseDependancies()
@@ -206,9 +211,11 @@ public class ClassTarget extends DependentTarget
     // in an initially uncompiled class.
     private boolean modifiedSinceCompile = true;
 
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private String typeParameters = "";
     
     //properties map to store values used in the editor from the props (if necessary)
+    @OnThread(value = Tag.Any,requireSynchronized = true)
     private Map<String,String> properties = new HashMap<String,String>();
     // Keep track of whether the editor is open or not; we get a lot of
     // potential open events, and don't want to keep recording ourselves as re-opening
@@ -243,6 +250,8 @@ public class ClassTarget extends DependentTarget
     private static final Color RED_STRIPE = Color.rgb(180, 50, 20);
     @OnThread(Tag.FX)
     private static final Color GREY_STRIPE = Color.rgb(158, 139, 116);
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    private boolean showingInterface;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -449,7 +458,8 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The typeParameters value
      */
-    private String getTypeParameters()
+    @OnThread(Tag.Any)
+    private synchronized String getTypeParameters()
     {
         return typeParameters;
     }
@@ -514,7 +524,8 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The role value
      */
-    public ClassRole getRole()
+    @OnThread(Tag.Any)
+    public synchronized ClassRole getRole()
     {
         return role;
     }
@@ -526,7 +537,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param newRole The new role value
      */
-    protected final void setRole(ClassRole newRole)
+    protected synchronized final void setRole(ClassRole newRole)
     {
         if (role == null || role.getRoleName() != newRole.getRoleName()) {
             role = newRole;
@@ -684,9 +695,12 @@ public class ClassTarget extends DependentTarget
                     // We shouldn't override applet/unit test class roles based only
                     // on source analysis: if they inherit only indirectly from Applet
                     // or UnitTest, source analysis won't give the correct role
-                    if (! (role instanceof UnitTestClassRole))
+                    synchronized (this)
                     {
-                        setRole(new StdClassRole());
+                        if (!(role instanceof UnitTestClassRole))
+                        {
+                            setRole(new StdClassRole());
+                        }
                     }
                 }
             }
@@ -714,7 +728,10 @@ public class ClassTarget extends DependentTarget
         String type = props.getProperty(prefix + ".type");
 
         String intf = props.getProperty(prefix + ".showInterface");
-        openWithInterface = Boolean.valueOf(intf).booleanValue();
+        synchronized (this)
+        {
+            openWithInterface = Boolean.valueOf(intf).booleanValue();
+        }
 
         if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type)) {
             setRole(new UnitTestClassRole(false));
@@ -746,26 +763,30 @@ public class ClassTarget extends DependentTarget
             analyseSource();    
         }
         else {
-            typeParameters = typeParams;
-        }
-        
-        cachedBreakpoints.clear();
-        try
-        {
-            for (int i = 0; ; i++)
+            synchronized (this)
             {
-                String s = props.getProperty(prefix + ".breakpoint." + Integer.toString(i), "");
-                if (s != null && !s.isEmpty())
-                {
-                    cachedBreakpoints.add(Integer.parseInt(s));
-                }
-                else
-                    break;
+                typeParameters = typeParams;
             }
         }
-        catch (NumberFormatException e)
+
+        synchronized (this)
         {
-            Debug.reportError("Error parsing breakpoint line number", e);
+            cachedBreakpoints.clear();
+            try
+            {
+                for (int i = 0; ; i++)
+                {
+                    String s = props.getProperty(prefix + ".breakpoint." + Integer.toString(i), "");
+                    if (s != null && !s.isEmpty())
+                    {
+                        cachedBreakpoints.add(Integer.parseInt(s));
+                    } else
+                        break;
+                }
+            } catch (NumberFormatException e)
+            {
+                Debug.reportError("Error parsing breakpoint line number", e);
+            }
         }
     }
 
@@ -778,6 +799,7 @@ public class ClassTarget extends DependentTarget
      *            properties in a properties file used by multiple targets.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
@@ -786,21 +808,27 @@ public class ClassTarget extends DependentTarget
             props.put(prefix + ".type", getRole().getRoleName());
         }
 
-        if (editorOpen()) {
-            openWithInterface = getEditor().isShowingInterface();          
-        }
-        //saving the state of the naviview (open/close) to the props 
-        //setting the value of the expanded according to the value from the editor (if there is)
-        //else if there was a previous setting use that
-        if (editorOpen() && getProperty(NAVIVIEW_EXPANDED_PROPERTY)!=null){
-            props.put(prefix + ".naviview.expanded", String.valueOf(getProperty(NAVIVIEW_EXPANDED_PROPERTY)));
-        }
-        else if (isNaviviewExpanded!=null) {
+        boolean intf;
+        synchronized (this)
+        {
+            openWithInterface = showingInterface;
+            intf = openWithInterface;
+
+            //saving the state of the naviview (open/close) to the props
+            //setting the value of the expanded according to the value from the editor (if there is)
+            //else if there was a previous setting use that
+            if (getProperty(NAVIVIEW_EXPANDED_PROPERTY) != null)
+            {
+                props.put(prefix + ".naviview.expanded", String.valueOf(getProperty(NAVIVIEW_EXPANDED_PROPERTY)));
+            } else if (isNaviviewExpanded.isPresent())
+            {
                 props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
+            }
+            props.put(prefix + ".typeParameters", getTypeParameters());
         }
         
-        props.put(prefix + ".showInterface", Boolean.valueOf(openWithInterface).toString());
-        props.put(prefix + ".typeParameters", getTypeParameters());
+        props.put(prefix + ".showInterface", Boolean.valueOf(intf).toString());
+
 
         List<Integer> breakpoints;
         if (editor != null && editor instanceof FrameEditor)
@@ -809,7 +837,10 @@ public class ClassTarget extends DependentTarget
         }
         else
         {
-            breakpoints = cachedBreakpoints;
+            synchronized (this)
+            {
+                breakpoints = cachedBreakpoints;
+            }
         }
         for (int i = 0; i < breakpoints.size(); i++)
         {
@@ -1065,7 +1096,12 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.Swing)
     public Editor getEditor()
     {
-        return getEditor(openWithInterface);
+        boolean withInterface;
+        synchronized (this)
+        {
+            withInterface = this.openWithInterface;
+        }
+        return getEditor(withInterface);
     }
 
     /**
@@ -1292,7 +1328,12 @@ public class ClassTarget extends DependentTarget
             // and we should set them even if the editor is not open.
             // So we cache them as properties and use that here if
             // the editor has not been opened yet:
-            for (Integer line : cachedBreakpoints)
+            List<Integer> breakpoints;
+            synchronized (this)
+            {
+                breakpoints = new ArrayList<>(this.cachedBreakpoints);
+            }
+            for (Integer line : breakpoints)
             {
                 breakpointToggleEvent(line, true);
             }
@@ -1398,7 +1439,10 @@ public class ClassTarget extends DependentTarget
             boolean success;
             switch (sourceType) {
                 case Java:
-                    success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
+                    synchronized (this)
+                    {
+                        success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
+                    }
                     break;
                 case Stride:
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
@@ -1566,9 +1610,16 @@ public class ClassTarget extends DependentTarget
             }
             newTypeParameters += ">";
         }
-        if (!newTypeParameters.equals(typeParameters)) {
-            typeParameters = newTypeParameters;
-            Platform.runLater(() -> {updateSize();});
+        synchronized (this)
+        {
+            if (!newTypeParameters.equals(typeParameters))
+            {
+                typeParameters = newTypeParameters;
+                Platform.runLater(() ->
+                {
+                    updateSize();
+                });
+            }
         }
     }
 
@@ -1935,7 +1986,11 @@ public class ClassTarget extends DependentTarget
                 cl = null;
             // Need a bunch of info from the Swing thread before hopping to FX:
             Class<?> clFinal = cl;
-            ClassRole roleFinal = role;
+            final ClassRole roleFinal;
+            synchronized (this)
+            {
+                roleFinal = role;
+            }
             SourceType sourceAvailableFinal = sourceAvailable;
             boolean docExists = getDocumentationFile().exists();
             ExtensionsManager extMgr = ExtensionsManager.getInstance();
@@ -2478,25 +2533,27 @@ public class ClassTarget extends DependentTarget
      * Returns the naviview expanded value from the properties file
      * @return 
      */
-    public boolean isNaviviewExpanded() 
+    @OnThread(Tag.Any)
+    public synchronized boolean isNaviviewExpanded()
     {
-        return isNaviviewExpanded;
+        return isNaviviewExpanded.orElse(false);
     }
 
     /**
      * Sets the naviview expanded value from the properties file to this local variable
      * @param isNaviviewExpanded
      */
-    public void setNaviviewExpanded(boolean isNaviviewExpanded) 
+    public synchronized void setNaviviewExpanded(boolean isNaviviewExpanded)
     {
-        this.isNaviviewExpanded=isNaviviewExpanded;  
+        this.isNaviviewExpanded = Optional.of(isNaviviewExpanded);
     }
 
     /**
      * Retrieves a property from the editor
      */
     @Override
-    public String getProperty(String key) 
+    @OnThread(Tag.Any)
+    public synchronized String getProperty(String key)
     {
         return properties.get(key);
     }
@@ -2505,7 +2562,7 @@ public class ClassTarget extends DependentTarget
      * Sets a property for the editor
      */
     @Override
-    public void setProperty(String key, String value) 
+    public synchronized void setProperty(String key, String value)
     {
         properties.put(key, value);
     }
@@ -2634,5 +2691,11 @@ public class ClassTarget extends DependentTarget
     public @OnThread(Tag.FXPlatform) boolean isFront()
     {
         return isFront;
+    }
+
+    @Override
+    public synchronized void showingInterface(boolean showing)
+    {
+        this.showingInterface = showing;
     }
 }

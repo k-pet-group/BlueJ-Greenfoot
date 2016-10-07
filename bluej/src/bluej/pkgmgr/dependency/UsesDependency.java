@@ -36,7 +36,7 @@ import java.util.Properties;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 16674 2016-10-05 16:49:56Z nccb $
+ * @version $Id: UsesDependency.java 16695 2016-10-07 11:34:53Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class UsesDependency extends Dependency
@@ -150,7 +150,7 @@ public class UsesDependency extends Dependency
         return new Line(new Point2D(sourceX, sourceY), new Point2D(destX, destY), 0.0);
     }
     
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);

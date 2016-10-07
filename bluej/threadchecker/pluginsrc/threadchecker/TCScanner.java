@@ -176,6 +176,8 @@ class TCScanner extends TreePathScanner<Void, Void>
         //An override we need:
         methodAnns.add(new MethodRef("java.awt.Window", "dispose", new LocatedTag(Tag.Any, false, false, "<AWT>")));
         methodAnns.add(new MethodRef("javafx.beans.property.ObjectPropertyBase", "get", new LocatedTag(Tag.Any, false, false, "<JavaFX Beans>")));
+        methodAnns.add(new MethodRef("javafx.beans.property.SimpleObjectProperty", "<init>", new LocatedTag(Tag.Any, false, false, "<JavaFX Beans>")));
+        methodAnns.add(new MethodRef("javafx.beans.property.SimpleBooleanProperty", "<init>", new LocatedTag(Tag.Any, false, false, "<JavaFX Beans>")));
 
         methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "<init>", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
         methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "setContent", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
@@ -829,7 +831,7 @@ class TCScanner extends TreePathScanner<Void, Void>
 
     private void issueError(String errorMsg, Tree errorLocation)
     {
-        String link = cu.getLineMap() == null ? "" : cu.getSourceFile().getName() + ":" + cu.getLineMap().getLineNumber(((JCTree)errorLocation).getStartPosition()) + ": error: [line added as IntelliJ location link]";
+        String link = cu.getLineMap() == null ? "" : cu.getSourceFile().getName() + ":" + cu.getLineMap().getLineNumber(((JCTree)errorLocation).getStartPosition()) + ": error:"; // [line added as IntelliJ location link]";
         trees.printMessage(Kind.ERROR, "\n" + link + errorMsg, errorLocation, cu);
     }
 
@@ -1494,7 +1496,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         else
         {
             // Bit hacky, but close enough:
-            isThis = node.getExpression().toString().contains("this");
+            isThis = node.getExpression().toString().contains("this") || node.getExpression().toString().contains(".class") /* for static */;
         }
         if (isThis)
         {

@@ -73,6 +73,7 @@ public abstract class ClassRole
     private final Color defaultbg = Config.getOptionalItemColour("colour.class.bg.default");
     protected final Color envOpColour = Config.ENV_COLOUR;
 
+    @OnThread(Tag.Any)
     public String getRoleName()
     {
         return CLASS_ROLE_NAME;
@@ -88,6 +89,7 @@ public abstract class ClassRole
      * @param prefix
      *            prefix to identifiy this role's target
      */
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, int modifiers, String prefix)
     {
     }

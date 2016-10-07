@@ -130,6 +130,7 @@ public class ReadmeTarget extends EditableTarget
      * BlueJ version with an older BlueJ version.
      */
     @Override
+    @OnThread(Tag.Any)
     public boolean isSaveable()
     {
         return false;
@@ -271,5 +272,11 @@ public class ReadmeTarget extends EditableTarget
         super.setSelected(selected);
         imageView.setImage(selected ? selectedReadmeImage : readmeImage);
 
+    }
+
+    @Override
+    public void showingInterface(boolean showingInterface)
+    {
+        // Not applicable
     }
 }

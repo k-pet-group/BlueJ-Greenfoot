@@ -44,6 +44,7 @@ public class InterfaceClassRole extends ClassRole
     {
     }
 
+    @OnThread(Tag.Any)
     public String getRoleName()
     {
         return INTERFACE_ROLE_NAME;

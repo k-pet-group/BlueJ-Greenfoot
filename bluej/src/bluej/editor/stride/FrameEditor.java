@@ -170,13 +170,13 @@ public class FrameEditor implements Editor
      */
     @OnThread(Tag.Any) private final Runnable callbackOnOpen;
     
-    @OnThread(Tag.Swing)
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<Integer> latestBreakpoints = Collections.emptyList();
 
-    @OnThread(Tag.Swing)
-    public List<Integer> getBreakpoints()
+    @OnThread(Tag.Any)
+    public synchronized List<Integer> getBreakpoints()
     {
-        return latestBreakpoints;
+        return new ArrayList<>(latestBreakpoints);
     }
 
     /**
@@ -507,10 +507,6 @@ public class FrameEditor implements Editor
             @Override
             @OnThread(Tag.Any)
             public void printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground) { FrameEditor.this.printTo(printerJob, printLineNumbers, printBackground); }
-
-            @Override
-            @OnThread(Tag.Swing)
-            public boolean isShowingInterface() { return FrameEditor.this.isShowingInterface(); }
 
             @Override
             @OnThread(Tag.Swing)
@@ -944,7 +940,11 @@ public class FrameEditor implements Editor
                 JavaSource latestSource = this.javaSource.get();
                 SwingUtilities.invokeLater(() -> {
                     watcher.clearAllBreakpoints();
-                    latestBreakpoints = latestSource.registerBreakpoints(this, watcher);
+                    List<Integer> breaks = latestSource.registerBreakpoints(this, watcher);
+                    synchronized (this)
+                    {
+                        latestBreakpoints = breaks;
+                    }
                 });
             }
         });
@@ -991,13 +991,6 @@ public class FrameEditor implements Editor
     {
         // No need to do anything here
         // panel.showWindow();
-    }
-
-    @Override
-    public boolean isShowingInterface() 
-    {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Override

@@ -48,7 +48,7 @@ public class ExtendsDependency extends Dependency
         this(pkg, null, null);
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);

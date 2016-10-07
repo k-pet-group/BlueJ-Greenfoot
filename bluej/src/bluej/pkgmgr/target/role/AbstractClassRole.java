@@ -49,6 +49,7 @@ public class AbstractClassRole extends ClassRole
     {
     }
 
+    @OnThread(Tag.Any)
     public String getRoleName()
     {
         return ABSTRACT_ROLE_NAME;

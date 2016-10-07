@@ -90,8 +90,8 @@ public final class PackageEditor extends StackPane
     private final Package pkg;
     private final SelectionController selectionController;
     private boolean hasPermFocus;
-    private final SimpleBooleanProperty showExtends = new SimpleBooleanProperty();
-    private final SimpleBooleanProperty showUses = new SimpleBooleanProperty();
+    private final BooleanProperty showExtends;
+    private final BooleanProperty showUses;
 
     /** all the uses-arrows in a package */
     @OnThread(value = Tag.Any,requireSynchronized = true)
@@ -113,12 +113,14 @@ public final class PackageEditor extends StackPane
      * Construct a package editor for the given package.
      */
     @OnThread(Tag.Any)
-    public PackageEditor(PkgMgrFrame pmf, Package pkg, PackageEditorListener listener)
+    public PackageEditor(PkgMgrFrame pmf, Package pkg, PackageEditorListener listener, BooleanProperty showUses, BooleanProperty showInherits)
     {
         this.pmf = pmf;
         this.pkg = pkg;
         this.listener = listener;
         this.selectionController = new SelectionController(this);
+        this.showUses = showUses;
+        this.showExtends = showInherits;
         Platform.runLater(() -> {
             JavaFXUtil.addStyleClass(this, "class-diagram");
             frontClassLayer.setBackground(null);

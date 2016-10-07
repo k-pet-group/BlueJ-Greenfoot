@@ -159,7 +159,7 @@ public abstract class Dependency
         }
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
         props.put(prefix + ".from", ((DependentTarget) from).getIdentifierName());

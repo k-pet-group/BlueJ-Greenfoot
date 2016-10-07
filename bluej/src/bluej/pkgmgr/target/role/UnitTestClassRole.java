@@ -110,6 +110,7 @@ public class UnitTestClassRole extends ClassRole
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getRoleName()
     {
         if (isJunit4) {

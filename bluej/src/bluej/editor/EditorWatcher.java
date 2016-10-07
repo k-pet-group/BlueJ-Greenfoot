@@ -125,4 +125,9 @@ public interface EditorWatcher
     void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement);
 
     void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key);
+
+    /**
+     * Notifies watcher whether we are showing the interface (docs) or not
+     */
+    void showingInterface(boolean showingInterface);
 }

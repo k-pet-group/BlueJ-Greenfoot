@@ -53,6 +53,7 @@ public class ParentPackageTarget extends PackageTarget
     {
     }
 
+    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
     }
@@ -90,6 +91,7 @@ public class ParentPackageTarget extends PackageTarget
         return false;
     }
 
+    @OnThread(Tag.Any)
     public boolean isSaveable()
     {
         return false;

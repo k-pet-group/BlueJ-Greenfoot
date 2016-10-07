@@ -1196,7 +1196,6 @@ public final class MoeEditor extends JPanel
      * 
      * @return True, if interface is currently shown, false otherwise.
      */
-    @Override
     public boolean isShowingInterface()
     {
         return viewingHTML;
@@ -2300,6 +2299,7 @@ public final class MoeEditor extends JPanel
         document = sourceDocument;
         currentTextPane = sourcePane;
         viewingHTML = false;
+        watcher.showingInterface(false);
         scrollPane.setViewportView(currentTextPane);
         dividerPanel.endTemporaryHide();
         currentTextPane.requestFocus();
@@ -2550,6 +2550,7 @@ public final class MoeEditor extends JPanel
         document = htmlDocument;
         currentTextPane = htmlPane;
         viewingHTML = true;
+        watcher.showingInterface(true);
         scrollPane.setViewportView(htmlPane);
         currentTextPane.requestFocus();
         initSearch();
