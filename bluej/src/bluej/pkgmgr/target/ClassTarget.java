@@ -2074,7 +2074,7 @@ public class ClassTarget extends DependentTarget
 
             if (pmf != null) {
                 String testClassName = getIdentifierName() + "Test";
-                pmf.createNewClass(testClassName, "unittest", SourceType.Java, true);
+                pmf.createNewClass(testClassName, "unittest", SourceType.Java, true, -1, -1);
                 // we want to check that the previous called actually
                 // created a unit test class as a name clash with an existing
                 // class would not. This prevents a non unit test becoming

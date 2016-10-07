@@ -150,7 +150,7 @@ public class BPackage
         if ( ! classJavaFile.canWrite() ) 
             throw new MissingJavaFileException (classJavaFile.toString());
 
-        bluejFrame.createNewClass(className,null,sourceType,true);
+        bluejFrame.createNewClass(className,null,sourceType,true,-1,-1);
         return getBClass ( className );
     }
     

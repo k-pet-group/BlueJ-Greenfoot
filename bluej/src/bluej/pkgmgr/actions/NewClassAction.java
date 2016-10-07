@@ -30,7 +30,6 @@ import bluej.pkgmgr.PkgMgrFrame;
  * applet, etc)
  * 
  * @author Davin McCall
- * @version $Id: NewClassAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 final public class NewClassAction extends PkgMgrAction
 {
@@ -43,6 +42,6 @@ final public class NewClassAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.doCreateNewClass();
+        pmf.doCreateNewClass(-1, -1);
     }
 }

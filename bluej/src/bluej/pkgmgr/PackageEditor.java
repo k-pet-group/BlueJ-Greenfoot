@@ -35,13 +35,18 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import bluej.Config;
+import bluej.extmgr.FXMenuManager;
 import bluej.utility.Utility;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -225,36 +230,49 @@ public final class PackageEditor extends StackPane
         listener.recordInteraction(ir);
     }
     
-    public void popupMenu(int x, int y)
+    private boolean popupMenu(double screenX, double screenY)
     {
-        //JPopupMenu menu = createMenu();
-        //menu.show(this, x, y);
+        ContextMenu menu = new ContextMenu();
+        Point2D graphLoc = screenToLocal(screenX, screenY);
+        MenuItem newClass = new MenuItem(Config.getString("menu.edit.newClass"));
+        newClass.setOnAction(e -> {
+            SwingUtilities.invokeLater(() -> {
+                pmf.menuCall();
+                pmf.doCreateNewClass(graphLoc.getX(), graphLoc.getY());
+            });
+        });
+        JavaFXUtil.addStyleClass(newClass, "class-action-inbuilt");
+
+        MenuItem newPackage = new MenuItem(Config.getString("menu.edit.newPackage"));
+        newPackage.setOnAction(e -> {
+            SwingUtilities.invokeLater(() ->
+            {
+                pmf.menuCall();
+                pmf.doCreateNewPackage(graphLoc.getX(), graphLoc.getY());
+            });
+        });
+        JavaFXUtil.addStyleClass(newPackage, "class-action-inbuilt");
+
+        menu.getItems().addAll(newClass, newPackage);
+
+        // Eugh; we need the extensions manager from the swing thread,
+        // then need to create on FX then add extension on Swing
+        // then show on FX.
+        SwingUtilities.invokeLater(() -> {
+            ExtensionsManager extMgr = ExtensionsManager.getInstance();
+            PackageExtensionMenu menuGenerator = new PackageExtensionMenu(pkg);
+            Platform.runLater(() -> {
+                FXMenuManager menuManager = new FXMenuManager(menu, extMgr, menuGenerator);
+                SwingUtilities.invokeLater(() -> {
+                    menuManager.addExtensionMenu(pkg.getProject());
+                    Platform.runLater(() -> menu.show(this, screenX, screenY));
+                });
+            });
+        });
+
+        return true;
     }
 
-    @OnThread(Tag.Swing)
-    private JPopupMenu createMenu()
-    {
-        JPopupMenu menu = new JPopupMenu();
-        Action newClassAction = new NewClassAction(pmf);
-        addMenuItem(menu, newClassAction);
-        Action newPackageAction = new NewPackageAction(pmf);
-        addMenuItem(menu, newPackageAction);
-
-        MenuManager menuManager = new MenuManager(menu);
-        menuManager.setMenuGenerator(new PackageExtensionMenu(pkg));
-        menuManager.addExtensionMenu(pkg.getProject());
-
-        return menu;
-    }
-
-    @OnThread(Tag.Swing)
-    private void addMenuItem(JPopupMenu menu, Action action)
-    {
-        JMenuItem item = menu.add(action);
-        item.setFont(PrefMgr.getPopupMenuFont());
-        //item.setForeground(envOpColour);
-    }
-    
     public void setPermFocus(boolean focus)
     {
         boolean wasFocussed = hasPermFocus;
@@ -571,6 +589,7 @@ public final class PackageEditor extends StackPane
         addEventHandler(MouseEvent.MOUSE_RELEASED, selectionController::mouseReleased);
         addEventHandler(KeyEvent.KEY_PRESSED, selectionController::keyPressed);
         addEventHandler(KeyEvent.KEY_RELEASED, selectionController::keyReleased);
+        JavaFXUtil.listenForContextMenu(this, this::popupMenu);
     }
 
     public void scrollTo(Target target)

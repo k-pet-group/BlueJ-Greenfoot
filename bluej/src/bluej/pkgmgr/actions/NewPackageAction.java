@@ -28,7 +28,6 @@ import bluej.pkgmgr.PkgMgrFrame;
  * specified name.
  * 
  * @author Davin McCall
- * @version $Id: NewPackageAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 final public class NewPackageAction extends PkgMgrAction
 {
@@ -40,6 +39,6 @@ final public class NewPackageAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.doCreateNewPackage();
+        pmf.doCreateNewPackage(-1, -1);
     }
 }

@@ -74,6 +74,7 @@ import bluej.groupwork.actions.UpdateDialogAction;
 import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
+import bluej.pkgmgr.target.PackageTarget;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -1506,9 +1507,11 @@ public class PkgMgrFrame extends JPanel
      * @param showErr
      *            true if a "duplicate name" dialog should be shown if
      *            the named class already exists
+     * @param x The X coordinate in the class diagram, or -1 for auto-place
+     * @param y The Y coordinate in the class diagram, or -1 for auto-place
      * @return  true if successful, false is the named class already exists
      */
-    public boolean createNewClass(String name, String template, SourceType sourceType, boolean showErr)
+    public boolean createNewClass(String name, String template, SourceType sourceType, boolean showErr, double x, double y)
     {
         Package thePkg = getPackage();
         // check whether name is already used
@@ -1549,7 +1552,10 @@ public class PkgMgrFrame extends JPanel
         
         Platform.runLater(() -> {
             if (editor != null) {
-                editor.findSpaceForVertex(target);
+                if (x == -1)
+                    editor.findSpaceForVertex(target);
+                else
+                    target.setPos((int)x, (int)y);
                 editor.scrollTo(target);
             }
         });
@@ -2225,8 +2231,10 @@ public class PkgMgrFrame extends JPanel
 
     /**
      * Implementation of the "New Class" user function.
+     * @param x The X coordinate in the class diagram, or -1 for auto-place
+     * @param y The Y coordinate in the class diagram, or -1 for auto-place
      */
-    public void doCreateNewClass()
+    public void doCreateNewClass(double x, double y)
     {
         // Must take reference on Swing thread:
         SourceType sourceType = this.pkg.getDefaultSourceType();
@@ -2242,7 +2250,7 @@ public class PkgMgrFrame extends JPanel
 
             result.ifPresent(info -> 
                 SwingUtilities.invokeLater(() ->
-                    createNewClass(info.className, info.templateName, info.sourceType, true)
+                    createNewClass(info.className, info.templateName, info.sourceType, true, x, y)
                 )
             );
         });
@@ -2252,14 +2260,17 @@ public class PkgMgrFrame extends JPanel
      * Prompts the user with a dialog asking for the name of a package to
      * create. Package name can be fully qualified in which case all
      * intermediate packages will also be created as necessary.
+     *
+     * @param x The X coordinate in the class diagram, or -1 for auto-place
+     * @param y The Y coordinate in the class diagram, or -1 for auto-place
      */
-    public void doCreateNewPackage()
+    public void doCreateNewPackage(double x, double y)
     {
         Platform.runLater(() -> {
             NewPackageDialog dlg = new NewPackageDialog(stageProperty.getValue());
             Optional<String> pkgName = dlg.showAndWait();
 
-            pkgName.ifPresent(name -> SwingUtilities.invokeLater(() -> createNewPackage(name, true)));
+            pkgName.ifPresent(name -> SwingUtilities.invokeLater(() -> createNewPackage(name, true, x, y)));
         });
     }
     
@@ -2270,9 +2281,11 @@ public class PkgMgrFrame extends JPanel
      * @param name    The name of the package to create
      * @param showErrDialog   If true, and a duplicate name exists, a dialog
      *                    will be displayed informing the user of the error.
+     * @param x The X coordinate in the class diagram, or -1 for auto-place
+     * @param y The Y coordinate in the class diagram, or -1 for auto-place
      * @return true if successful
      */
-    public boolean createNewPackage(String name, boolean showErrDialog)
+    public boolean createNewPackage(String name, boolean showErrDialog, double x, double y)
     {
         String fullName;
 
@@ -2311,11 +2324,24 @@ public class PkgMgrFrame extends JPanel
             // TODO propagate a more informative exception
             return false;
         }
-        
+
         newPackage = newPackage.getParent();
         while (newPackage != null) {
             newPackage.reload();
             newPackage = newPackage.getParent();
+        }
+
+        synchronized (this)
+        {
+            for (Target t : pkg.getVertices())
+            {
+                if (t instanceof PackageTarget)
+                {
+                    PackageTarget pt = (PackageTarget) t;
+                    if (pt.getQualifiedName().equals(fullName) && x != -1)
+                        Platform.runLater(() -> pt.setPos((int) x, (int) y));
+                }
+            }
         }
         
         return true;
