@@ -234,6 +234,26 @@ public final class PackageEditor extends StackPane
     {
         ContextMenu menu = new ContextMenu();
         Point2D graphLoc = screenToLocal(screenX, screenY);
+        for (Dependency d : getEdges())
+        {
+            if (d.isRemovable() && d.contains((int)graphLoc.getX(), (int)graphLoc.getY()))
+            {
+                // Show a remove menu
+                MenuItem removeEdge = new MenuItem(Config.getString("menu.edit.remove"));
+                removeEdge.setOnAction(e -> {
+                    d.remove();
+                });
+                menu.setOnShowing(e -> {
+                    d.setSelected(true);
+                });
+                menu.setOnHiding(e -> {
+                    d.setSelected(false);
+                });
+                menu.getItems().add(removeEdge);
+                menu.show(this, screenX, screenY);
+                return true;
+            }
+        }
         MenuItem newClass = new MenuItem(Config.getString("menu.edit.newClass"));
         newClass.setOnAction(e -> {
             SwingUtilities.invokeLater(() -> {
@@ -450,7 +470,7 @@ public final class PackageEditor extends StackPane
         for (Dependency d : extendsDeps)
         {
             g.setStroke(Color.BLACK);
-            g.setLineWidth(1.0);
+            g.setLineWidth(d.isSelected() ? 3.0 : 1.0);
             g.setLineDashes();
             Dependency.Line line = d.computeLine();
             double fromY = line.from.getY();
@@ -497,6 +517,7 @@ public final class PackageEditor extends StackPane
                     normalStroke = normalUnselected;
                 }*/
 
+            g.setLineWidth(1.0);
             g.setLineDashes(DASHES);
             // These should all be rounded to the nearest integer+0.5 value:
             double src_x = d.getSourceX();

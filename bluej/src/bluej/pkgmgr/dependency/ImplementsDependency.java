@@ -71,4 +71,10 @@ public class ImplementsDependency extends Dependency
     {
         return Type.IMPLEMENTS;
     }
+
+    @Override
+    public boolean isRemovable()
+    {
+        return true;
+    }
 }

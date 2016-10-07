@@ -167,16 +167,6 @@ public abstract class Dependency
     }
 
     /**
-     * Disply the context menu.
-     */
-    public void popupMenu(int x, int y, PackageEditor graphEditor)
-    {
-        //JPopupMenu menu = new JPopupMenu();
-        //menu.add(new RemoveAction());
-        //menu.show(graphEditor, x, y);
-    }
-
-    /**
      * Remove this element from the graph.
      */
     abstract public void remove();
@@ -280,6 +270,8 @@ public abstract class Dependency
 
         return new Line(pFrom, pTo, angle);
     }
+
+    public abstract boolean isRemovable();
 
     /**
      * Inner class to describe the most important state of this dependency

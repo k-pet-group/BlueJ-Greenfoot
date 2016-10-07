@@ -71,4 +71,10 @@ public class ExtendsDependency extends Dependency
     {
         return Type.EXTENDS;
     }
+
+    @Override
+    public boolean isRemovable()
+    {
+        return true;
+    }
 }

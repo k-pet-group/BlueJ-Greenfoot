@@ -36,7 +36,6 @@ import java.util.Properties;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 16695 2016-10-07 11:34:53Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class UsesDependency extends Dependency
@@ -229,11 +228,10 @@ public class UsesDependency extends Dependency
     {
         return Type.USES;
     }
-    
+
     @Override
-    @OnThread(Tag.FXPlatform)
-    public void popupMenu(int x, int y, PackageEditor graphEditor)
+    public boolean isRemovable()
     {
-        // Don't popup a menu; uses arrows can't be removed.
+        return false;
     }
 }
