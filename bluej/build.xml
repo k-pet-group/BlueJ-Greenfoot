@@ -54,6 +54,7 @@
     <property name="editor.jar" value="${bluej_home}/lib/bluejeditor.jar"/>
     <property name="extension.jar" value="${bluej_home}/lib/bluejext.jar"/>
     <property name="lang-stride.jar" value="${bluej_home}/lib/lang-stride.jar"/>
+    <property name="greenfoot-native.jar" value="${bluej_home}/lib/greenfoot-native.jar"/>
 
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
@@ -523,6 +524,7 @@
         <delete file="package/greenfoot-splash.png" />
         <delete file="boot/src/bluej/greenfoot-splash.png" />
         <delete dir="lib/greenfoot" />
+        <delete quiet="false" file="${greenfoot-native.jar}" />
         <!-- Commons libraries -->
         <delete >
             <fileset dir="lib">
