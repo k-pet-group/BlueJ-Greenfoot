@@ -225,7 +225,7 @@ public class PackageTarget extends Target
     {
         ContextMenu menu = createMenu();
         if (menu != null) {
-            menu.show(graphEditor, x, y);
+            menu.show(pane, x, y);
         }
     }
 
@@ -239,6 +239,7 @@ public class PackageTarget extends Target
         open.setOnAction(e -> SwingUtilities.invokeLater(() -> {
             getPackage().getEditor().raiseOpenPackageEvent(this, getOpenPkgName());
         }));
+        JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
         ContextMenu contextMenu = new ContextMenu(open);
 
         if (isRemovable())
@@ -248,6 +249,7 @@ public class PackageTarget extends Target
             {
                 getPackage().getEditor().raiseRemoveTargetEvent(this);
             }));
+            JavaFXUtil.addStyleClass(remove, "class-action-inbuilt");
             contextMenu.getItems().add(remove);
         }
 
