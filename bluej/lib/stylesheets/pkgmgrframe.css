@@ -85,6 +85,8 @@
 }
 .class-action-inbuilt > .label, .object-action-inbuilt > .label {
     -fx-text-fill: darkred;
+}
+.object-action-inbuilt > .label {
     -fx-font-style: italic;
 }
 .package-target {

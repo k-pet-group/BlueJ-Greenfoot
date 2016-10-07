@@ -245,6 +245,7 @@ public final class PackageEditor extends StackPane
                 removeEdge.setOnAction(e -> {
                     d.remove();
                 });
+                JavaFXUtil.addStyleClass(removeEdge, "class-action-inbuilt");
                 menu.setOnShowing(e -> {
                     d.setSelected(true);
                 });

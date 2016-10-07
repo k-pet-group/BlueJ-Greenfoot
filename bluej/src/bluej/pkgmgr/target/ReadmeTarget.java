@@ -198,7 +198,7 @@ public class ReadmeTarget extends EditableTarget
     {
         MenuItem open = new MenuItem(openStr);
         open.setOnAction(e -> SwingUtilities.invokeLater(() -> openEditor()));
-        
+        JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
         return new ContextMenu(open);
     }
 
