@@ -426,11 +426,9 @@ public abstract class Target
     }
 
     @OnThread(Tag.FXPlatform)
-    public synchronized void repaint()
+    public void repaint()
     {
-        if (pkg != null) {
-            pkg.repaint();
-        }
+        getPackage().repaint();
     }
 
     /**
@@ -482,11 +480,7 @@ public abstract class Target
     {
         AnchorPane.setTopAnchor(pane, (double)y);
         AnchorPane.setLeftAnchor(pane, (double)x);
-        synchronized (this)
-        {
-            if (pkg != null && pkg.getEditor() != null)
-                pkg.getEditor().repaint();
-        }
+        repaint();
     }
 
     @OnThread(Tag.FXPlatform)
@@ -494,11 +488,7 @@ public abstract class Target
     {
         pane.setPrefWidth(width);
         pane.setPrefHeight(height);
-        synchronized (this)
-        {
-            if (pkg != null && pkg.getEditor() != null)
-                pkg.getEditor().repaint();
-        }
+        repaint();
     }
 
     @OnThread(Tag.FXPlatform)
