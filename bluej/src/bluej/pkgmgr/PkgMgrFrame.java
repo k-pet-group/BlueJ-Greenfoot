@@ -405,6 +405,10 @@ public class PkgMgrFrame extends JPanel
                 //org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
                 paneProperty.setValue(root);
+                // If it should already be showing, do that now:
+                if (showingTextEval.get())
+                    showHideTextEval(true);
+                // Listen for future updates:
                 JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
                 updateWindow();
             });
