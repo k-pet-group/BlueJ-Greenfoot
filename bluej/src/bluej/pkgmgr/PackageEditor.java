@@ -327,8 +327,8 @@ public final class PackageEditor extends StackPane
             }
         }
         
-        double minWidth = getMinWidth();
-        double minHeight = getMinHeight();
+        double minWidth = 300;
+        double minHeight = 200;
 
         if (RIGHT_PLACEMENT_MIN > minWidth)
             minWidth = RIGHT_PLACEMENT_MIN;

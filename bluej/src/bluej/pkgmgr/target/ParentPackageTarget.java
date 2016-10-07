@@ -21,16 +21,14 @@
  */
 package bluej.pkgmgr.target;
 
-import java.awt.event.*;
 import java.util.Properties;
-
-import javax.swing.*;
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
+import javafx.scene.input.MouseEvent;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -97,78 +95,21 @@ public class ParentPackageTarget extends PackageTarget
         return false;
     }
 
-    /**
-     * Called when a package icon in a GraphEditor is double clicked.
-     * Creates a new PkgFrame when a package is drilled down on.
-     */
-    public void doubleClick(MouseEvent evt)
+    @Override
+    @OnThread(Tag.Any)
+    protected String getOpenPkgName()
     {
-        getPackage().getEditor().raiseOpenPackageEvent(this,
-                JavaNames.getPrefix(getPackage().getQualifiedName()));
+        return JavaNames.getPrefix(getPackage().getQualifiedName());
     }
 
-    /**
-     * Disply the context menu.
-     */
-    @OnThread(Tag.FXPlatform)
-    public void popupMenu(int x, int y, PackageEditor graphEditor)
-    {
-        //JPopupMenu menu = createMenu(null);
-        //if (menu != null) {
-            //menu.show(graphEditor, x, y);
-        //}
-    }
-
-    /**
-     * Construct a popup menu which displays all our parent packages.
-     */
-    private JPopupMenu createMenu(Class<?> cl)
-    {
-        JPopupMenu menu = new JPopupMenu(getBaseName());
-
-        String item = JavaNames.getPrefix(getPackage().getQualifiedName());
-
-        while(!item.equals("")) {
-            addMenuItem(menu, openStr + " " + item, item);
-            item = JavaNames.getPrefix(item);
-        }
-
-        addMenuItem(menu, openUnamedStr, "");
-
-        return menu;
-    }
-
-    private void addMenuItem(JPopupMenu menu, String itemString, String pkgName)
-    {
-        JMenuItem item;
-
-        Action openAction = new OpenAction(itemString, this, pkgName);
-
-        item = menu.add(openAction);
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-    }
-
-    private class OpenAction extends AbstractAction
-    {
-        private Target t;
-        private String pkgName;
-
-        public OpenAction(String menu, Target t, String pkgName)
-        {
-            super(menu);
-            this.t = t;
-            this.pkgName = pkgName;
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            getPackage().getEditor().raiseOpenPackageEvent(t, pkgName);
-        }
-    }
     public void remove(){
             // The user is not permitted to remove a paretnPackage
     }
-    
-    
+
+    @Override
+    @OnThread(Tag.Any)
+    protected boolean isRemovable()
+    {
+        return false;
+    }
 }

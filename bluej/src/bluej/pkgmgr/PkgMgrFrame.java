@@ -1758,8 +1758,11 @@ public class PkgMgrFrame extends JPanel
             }
         }
         else {
-            SwingUtilities.invokeLater(() -> closePackage()); // remove package and frame
-            PkgMgrFrame.closeFrame(this);
+            SwingUtilities.invokeLater(() -> {
+                closePackage();
+                Platform.runLater(() -> PkgMgrFrame.closeFrame(this));
+            }); // remove package and frame
+
         }
     }
     

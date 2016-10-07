@@ -217,7 +217,7 @@ public final class Package
     /** determines the maximum length of the CallHistory of a package */
     public static final int HISTORY_LENGTH = 6;
     
-    @OnThread(Tag.Any)
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private PackageEditor editor;
     
     /** True if we currently have a compile queued up waiting for debugger to become idle */
@@ -496,17 +496,28 @@ public final class Package
         PkgMgrFrame.displayMessage(this, msg);
     }
 
-    void setEditor(PackageEditor editor)
+    void setEditor(PackageEditor ed)
     {
-        this.editor = editor;
+        synchronized (this)
+        {
+            this.editor = ed;
+        }
         for (Dependency d : pendingDeps)
-            editor.addDependency(d, d instanceof UsesDependency);
+            ed.addDependency(d, d instanceof UsesDependency);
         pendingDeps.clear();
-        Platform.runLater(() -> {editor.graphChanged();});
+        Platform.runLater(() -> {
+            synchronized (this)
+            {
+                for (Target t : targets)
+                    if (t instanceof ParentPackageTarget)
+                        ed.findSpaceForVertex(t);
+            }
+            ed.graphChanged();
+        });
     }
     
     @OnThread(Tag.Any)
-    public PackageEditor getEditor()
+    public synchronized PackageEditor getEditor()
     {
         return editor;
     }
@@ -859,7 +870,7 @@ public final class Package
         catch (NumberFormatException e) {}
 
         // If we get here, then we didn't find a location for the target
-        Platform.runLater(() -> {editor.findSpaceForVertex(t);});
+        Platform.runLater(() -> {getEditor().findSpaceForVertex(t);});
     }
     
     /**
@@ -887,7 +898,11 @@ public final class Package
         addTarget(t);
         if (!isUnnamedPackage()) {
             final Target parent = new ParentPackageTarget(this);
-            Platform.runLater(() -> {if (editor != null) editor.findSpaceForVertex(parent);});
+            Platform.runLater(() -> {
+                PackageEditor ed = getEditor();
+                if (ed != null)
+                    ed.findSpaceForVertex(parent);
+            });
             addTarget(parent);
         }
 
@@ -1013,7 +1028,9 @@ public final class Package
     @OnThread(Tag.Any)
     public void repaint()
     {
-        JavaFXUtil.runNowOrLater(() -> {if (editor != null) editor.repaint();});
+        JavaFXUtil.runNowOrLater(() -> {
+            PackageEditor ed = getEditor();
+            if (ed != null) ed.repaint();});
     }
 
     /**
@@ -1111,7 +1128,7 @@ public final class Package
 
         ClassTarget t = addClass(className);
 
-        Platform.runLater(() -> {editor.findSpaceForVertex(t);});
+        Platform.runLater(() -> {getEditor().findSpaceForVertex(t);});
         t.analyseSource();
         
         DataCollector.addClass(this, t);
@@ -1684,8 +1701,8 @@ public final class Package
             if (!(d instanceof UsesDependency)) {
                 userRemoveDependency(d);
             }
-            editor.removeDependency(d, true);
-            Platform.runLater(() -> {editor.graphChanged();});
+            getEditor().removeDependency(d, true);
+            Platform.runLater(() -> {getEditor().graphChanged();});
         });
     }
 
@@ -2024,10 +2041,10 @@ public final class Package
         lastSourceName = sourcename;
 
         // showEditorMessage:
-        Editor editor = editorForTarget(sourcename, bringToFront);
-        if (editor != null) {
-            editor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
-            return editor instanceof FrameEditor;
+        Editor targetEditor = editorForTarget(sourcename, bringToFront);
+        if (targetEditor != null) {
+            targetEditor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
+            return targetEditor instanceof FrameEditor;
         }
         else if (reason == ShowSourceReason.BREAKPOINT_HIT) {
             showMessageWithText("break-no-source", sourcename);
@@ -2075,9 +2092,9 @@ public final class Package
     private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep,
             boolean bringToFront, String help)
     {
-        Editor editor = editorForTarget(filename, bringToFront);
-        if (editor != null) {
-            editor.displayMessage(message, lineNo, 0, beep, help);
+        Editor targetEditor = editorForTarget(filename, bringToFront);
+        if (targetEditor != null) {
+            targetEditor.displayMessage(message, lineNo, 0, beep, help);
         }
         else {
             Debug.message(filename + ", line" + lineNo + ": " + message);
@@ -2103,14 +2120,14 @@ public final class Package
 
         ClassTarget ct = (ClassTarget) t;
         
-        Editor editor = ct.getEditor();
-        if (editor != null) {
-            if (! editor.isOpen() || bringToFront) {
+        Editor targetEditor = ct.getEditor();
+        if (targetEditor != null) {
+            if (! targetEditor.isOpen() || bringToFront) {
                 ct.open();;
             }
         }
         
-        return editor;
+        return targetEditor;
     }
     
     /**
@@ -2184,17 +2201,17 @@ public final class Package
         
         ClassTarget t = (ClassTarget) target;
 
-        Editor editor = t.getEditor();
-        if (editor != null) {
+        Editor targetEditor = t.getEditor();
+        if (targetEditor != null) {
             if (messageCalc != null) {
-                diagnostic.setMessage(messageCalc.calculateMessage(editor));
+                diagnostic.setMessage(messageCalc.calculateMessage(targetEditor));
             }
             
             if (project.isClosing()) {
                 return ErrorShown.ERROR_NOT_SHOWN;
             }
             t.markKnownError();
-            boolean shown = editor.displayDiagnostic(diagnostic, errorIndex);
+            boolean shown = targetEditor.displayDiagnostic(diagnostic, errorIndex);
             return shown ? ErrorShown.ERROR_SHOWN : ErrorShown.ERROR_NOT_SHOWN;
         }
         else {

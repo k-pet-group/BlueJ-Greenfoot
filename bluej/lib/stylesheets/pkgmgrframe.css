@@ -36,16 +36,27 @@
 }
 
 /* Class Diagram */
-.class-diagram {
+.class-diagram, .package-target-preview {
     -fx-background-color: rgb(247, 245, 222);
 }
-.class-target {
+.package-target-preview-wrapper {
+    -fx-padding: 5;
+}
+.package-target-preview {
+    -fx-opacity: 0.7;
+    -fx-border-width: 0.5;
+    -fx-border-color: black;
+    -fx-border-style: solid outside;
+}
+.class-target, .package-target, .package-target-preview-item {
     -fx-border-width: 1;
     -fx-border-color: black;
     -fx-border-style: solid outside; /* Prevents relayout when border gets thicker */
-    -fx-background-color: rgb(237, 182, 87);
     /* We set this programatically because we vary it when the mouse moves to the bottom corner: */
-    /*-fx-cursor: hand; */
+        /*-fx-cursor: hand; */
+}
+.class-target, .package-target-preview-item {
+    -fx-background-color: rgb(237, 182, 87);
 }
 .class-target:hover {
     -fx-background-color: derive(rgb(237, 182, 87), 25%);
@@ -56,13 +67,15 @@
 .class-target:bj-unittest:hover {
     -fx-background-color: derive(rgb(145, 170, 116), 25%);
 }
-.class-target:bj-selected {
+.class-target:bj-selected, .package-target:bj-selected {
     -fx-border-width: 3;
 }
 .class-target-name {
-    -fx-font-weight: bold;
     -fx-border-width: 0 0 1 0;
     -fx-border-color: black;
+}
+.class-target-name, .package-target-name {
+    -fx-font-weight: bold;
     -fx-alignment: center;
     -fx-font-size: 10pt;
 }
@@ -73,6 +86,12 @@
 .class-action-inbuilt > .label, .object-action-inbuilt > .label {
     -fx-text-fill: darkred;
     -fx-font-style: italic;
+}
+.package-target {
+    -fx-background-color: rgb(189, 133, 170);
+}
+.package-target:hover {
+    -fx-background-color: derive(rgb(189, 133, 170), 25%);
 }
 .marquee {
     -fx-stroke-width: 2;
