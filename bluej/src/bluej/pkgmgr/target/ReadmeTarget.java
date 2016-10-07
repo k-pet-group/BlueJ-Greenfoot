@@ -188,7 +188,7 @@ public class ReadmeTarget extends EditableTarget
     {
         ContextMenu menu = createMenu();
         if (menu != null) {
-            // editor.add(menu);
+            showingMenu(menu);
             menu.show(getNode(), x, y);
         }
     }

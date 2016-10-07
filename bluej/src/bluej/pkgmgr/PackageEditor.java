@@ -113,6 +113,8 @@ public final class PackageEditor extends StackPane
     private Pane selectionLayer = new Pane();
     private final Canvas arrowLayer = new ResizableCanvas();
     private boolean aboutToRepaint = false;
+    @OnThread(Tag.FXPlatform)
+    private ContextMenu showingContextMenu;
 
     /**
      * Construct a package editor for the given package.
@@ -250,6 +252,7 @@ public final class PackageEditor extends StackPane
                     d.setSelected(false);
                 });
                 menu.getItems().add(removeEdge);
+                showingMenu(menu);
                 menu.show(this, screenX, screenY);
                 return true;
             }
@@ -285,12 +288,24 @@ public final class PackageEditor extends StackPane
                 FXMenuManager menuManager = new FXMenuManager(menu, extMgr, menuGenerator);
                 SwingUtilities.invokeLater(() -> {
                     menuManager.addExtensionMenu(pkg.getProject());
-                    Platform.runLater(() -> menu.show(this, screenX, screenY));
+                    Platform.runLater(() -> {
+                        showingMenu(menu);
+                        menu.show(this, screenX, screenY);
+                    });
                 });
             });
         });
 
         return true;
+    }
+
+    private void showingMenu(ContextMenu menu)
+    {
+        if (showingContextMenu != null)
+        {
+            showingContextMenu.hide();
+        }
+        showingContextMenu = menu;
     }
 
     public void setPermFocus(boolean focus)
@@ -604,6 +619,9 @@ public final class PackageEditor extends StackPane
      */
     public void startMouseListening()
     {
+        // Needs to be filter because we want to dismiss the menu when
+        // child nodes are clicked on:
+        addEventFilter(MouseEvent.MOUSE_PRESSED, e -> showingMenu(null));
         addEventHandler(MouseEvent.MOUSE_DRAGGED, selectionController::mouseDragged);
         addEventHandler(MouseEvent.MOUSE_CLICKED, selectionController::mouseClicked);
         addEventHandler(MouseEvent.MOUSE_PRESSED, selectionController::mousePressed);

@@ -24,6 +24,7 @@ package bluej.pkgmgr.target;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.control.ContextMenu;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -73,6 +74,8 @@ public abstract class Target
     private double pressDeltaX;
     @OnThread(Tag.FXPlatform)
     private double pressDeltaY;
+    @OnThread(Tag.FXPlatform)
+    private ContextMenu showingContextMenu;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private String identifierName; // the name handle for this target within
@@ -132,38 +135,43 @@ public abstract class Target
             });
 
             pane.setOnMousePressed(e -> {
-                pressDeltaX = e.getX();
-                pressDeltaY = e.getY();
-                // Check if it's in the corner (and selected), in which case it will be a resize:
-                pressIsResize = isSelected() && cursorAtResizeCorner(e);
-                // This will save the positions, including ours:
-                if (pressIsResize && isResizable())
-                    pkg.getEditor().startedResize();
-                else
-                    pkg.getEditor().startedMove();
-
+                showingMenu(null);
+                if (e.getButton() == MouseButton.PRIMARY)
+                {
+                    pressDeltaX = e.getX();
+                    pressDeltaY = e.getY();
+                    // Check if it's in the corner (and selected), in which case it will be a resize:
+                    pressIsResize = isSelected() && cursorAtResizeCorner(e);
+                    // This will save the positions, including ours:
+                    if (pressIsResize && isResizable())
+                        pkg.getEditor().startedResize();
+                    else
+                        pkg.getEditor().startedMove();
+                }
                 e.consume();
             });
             pane.setOnMouseDragged(e -> {
-                if (pressIsResize && isResizable())
+                if (e.getButton() == MouseButton.PRIMARY)
                 {
-                    int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
-                    int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
-                    pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
-                }
-                else if (isMoveable())
-                {
-                    // They didn't select us yet, but we still allow a drag-mvoe:
-                    if (!isSelected())
+                    if (pressIsResize && isResizable())
                     {
-                        pkg.getEditor().selectOnly(this);
-                        pkg.getEditor().startedMove();
+                        int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
+                        int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
+                        pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
+                    } else if (isMoveable())
+                    {
+                        // They didn't select us yet, but we still allow a drag-mvoe:
+                        if (!isSelected())
+                        {
+                            pkg.getEditor().selectOnly(this);
+                            pkg.getEditor().startedMove();
+                        }
+                        // Need position relative to the editor to set new position:
+                        Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
+                        int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX));
+                        int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
+                        pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
                     }
-                    // Need position relative to the editor to set new position:
-                    Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
-                    int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX));
-                    int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
-                    pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
                 }
                 e.consume();
             });
@@ -587,5 +595,15 @@ public abstract class Target
     public int getPreResizeHeight()
     {
         return preResizeHeight;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    protected final void showingMenu(ContextMenu newMenu)
+    {
+        if (showingContextMenu != null)
+        {
+            showingContextMenu.hide();
+        }
+        showingContextMenu = newMenu;
     }
 }

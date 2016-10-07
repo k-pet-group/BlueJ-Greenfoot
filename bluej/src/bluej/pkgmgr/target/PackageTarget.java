@@ -225,6 +225,7 @@ public class PackageTarget extends Target
     {
         ContextMenu menu = createMenu();
         if (menu != null) {
+            showingMenu(menu);
             menu.show(pane, x, y);
         }
     }
