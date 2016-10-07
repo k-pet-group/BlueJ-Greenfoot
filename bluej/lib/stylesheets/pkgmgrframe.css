@@ -55,7 +55,8 @@
     /* We set this programatically because we vary it when the mouse moves to the bottom corner: */
         /*-fx-cursor: hand; */
 }
-.class-target, .package-target-preview-item {
+.class-target, .class-target:bj-resizing, .class-target:bj-resizing:hover,
+  .package-target-preview-item {
     -fx-background-color: rgb(237, 182, 87);
 }
 .class-target:hover {
@@ -89,7 +90,7 @@
 .object-action-inbuilt > .label {
     -fx-font-style: italic;
 }
-.package-target {
+.package-target, .package-target:bj-resizing, .package-target:bj-resizing:hover {
     -fx-background-color: rgb(189, 133, 170);
 }
 .package-target:hover {

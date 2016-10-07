@@ -908,7 +908,10 @@ public final class PackageEditor extends StackPane
         for (Target element : selectionController.getSelection())
         {
             if (element.isResizable())
+            {
                 element.savePreResize();
+                JavaFXUtil.setPseudoclass("bj-resizing", true, element.getNode());
+            }
         }
     }
 
@@ -922,6 +925,15 @@ public final class PackageEditor extends StackPane
         {
             if (element.isResizable())
                 element.setSize(Math.max(40, element.getPreResizeWidth() + deltaWidth), Math.max(20, element.getPreResizeHeight() + deltaHeight));
+        }
+    }
+
+    public void endResize()
+    {
+        for (Target element : selectionController.getSelection())
+        {
+            if (element.isResizable())
+                JavaFXUtil.setPseudoclass("bj-resizing", false, element.getNode());
         }
     }
 }

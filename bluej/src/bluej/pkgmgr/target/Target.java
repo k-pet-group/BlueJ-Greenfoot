@@ -175,6 +175,9 @@ public abstract class Target
                 }
                 e.consume();
             });
+            pane.setOnMouseReleased(e -> {
+                pkg.getEditor().endResize();
+            });
             JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
                 pkg.getEditor().selectOnly(this);
                 popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
