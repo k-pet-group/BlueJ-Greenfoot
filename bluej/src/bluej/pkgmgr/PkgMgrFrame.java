@@ -401,7 +401,7 @@ public class PkgMgrFrame extends JPanel
                 Config.addPMFStylesheets(scene);
                 stage.setScene(scene);
                 stage.show();
-                org.scenicview.ScenicView.show(stage.getScene());
+                //org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
                 paneProperty.setValue(root);
                 // If it should already be showing, do that now:
