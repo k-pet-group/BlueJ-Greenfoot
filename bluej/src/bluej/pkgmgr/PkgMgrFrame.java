@@ -82,7 +82,6 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -113,6 +112,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import bluej.utility.javafx.UntitledCollapsiblePane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -222,8 +222,6 @@ public class PkgMgrFrame extends JPanel
     private TitledPane testPanel;
     @OnThread(Tag.FXPlatform)
     private TitledPane teamPanel;
-    private JCheckBoxMenuItem showUsesMenuItem;
-    private JCheckBoxMenuItem showExtendsMenuItem;
     @OnThread(Tag.FXPlatform)
     private ButtonBase imgExtendsButton;
     private @OnThread(Tag.FX) ButtonBase runButton;
@@ -403,7 +401,7 @@ public class PkgMgrFrame extends JPanel
                 Config.addPMFStylesheets(scene);
                 stage.setScene(scene);
                 stage.show();
-                //org.scenicview.ScenicView.show(stage.getScene());
+                org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
                 paneProperty.setValue(root);
                 // If it should already be showing, do that now:
@@ -2646,7 +2644,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void showTestingTools(boolean show)
     {
-        Platform.runLater(() -> testPanel.setExpanded(show));
+        //Platform.runLater(() -> testPanel.setExpanded(show));
     }
     
     /**
@@ -2655,7 +2653,7 @@ public class PkgMgrFrame extends JPanel
      */
     public void showTeamTools(boolean show)
     {
-        Platform.runLater(() -> teamPanel.setExpanded(show));
+        //Platform.runLater(() -> teamPanel.setExpanded(show));
     }
 
     /**
@@ -2926,8 +2924,12 @@ public class PkgMgrFrame extends JPanel
             teamPanelItems.getChildren().add(teamStatusButton);
             //teamItems.add(teamPanel);
 
-            toolPanel.getChildren().add(teamPanel);
-            toolPanel.getChildren().add(testPanel);
+            VBox foldout = new VBox(teamPanel, testPanel);
+            teamPanel.setCollapsible(false);
+            teamPanel.setExpanded(true);
+            testPanel.setCollapsible(false);
+            testPanel.setExpanded(true);
+            toolPanel.getChildren().add(new UntitledCollapsiblePane(foldout, true));
             SwingNode node = new SwingNodeFixed();
             node.setContent(machineIcon);
             toolPanel.getChildren().add(node);
