@@ -696,7 +696,7 @@ team.status.needsmerge=merge updates
 team.status.needsupdate=update from repository
 
 team.nocommitfiles=No files to commit
-team.nopushfiles=No files to push
+team.nopushfiles=No files to push (commit first)
 team.noupdatefiles=No files to update
 team.pushNeeded=Your repository is ahead of remote. Push needed.
 team.pullNeeded=Your repository is behind remote. Update needed.
