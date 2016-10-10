@@ -119,7 +119,6 @@ public class MachineIcon extends HBox
         GraphicsContext gc = indicator.getGraphicsContext2D();
         gc.clearRect(0, 0, w, h);
         gc.setLineWidth(3);
-        Debug.message("Redrawing " + indicatorPosition.get() + " " + forwards.get());
         for (int i = 0; i < NUM_BARS; i++)
         {
             double pos = (double)i / (double)(NUM_BARS - 1);
