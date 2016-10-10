@@ -133,7 +133,6 @@ import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.texteval.TextEvalArea;
 import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.MenuManager;
 import bluej.extmgr.ToolsExtensionMenu;
 import bluej.extmgr.ViewExtensionMenu;
 import bluej.groupwork.actions.CheckoutAction;
@@ -241,9 +240,10 @@ public class PkgMgrFrame extends JPanel
     private int testIdentifier = 0;
     private JMenu recentProjectsMenu;
     private JMenu testingMenu;
-    private MenuManager toolsMenuManager;
     @OnThread(Tag.FXPlatform)
-    private SimpleObjectProperty<FXMenuManager> viewMenuManager;
+    private final SimpleObjectProperty<FXMenuManager> toolsMenuManager;
+    @OnThread(Tag.FXPlatform)
+    private final SimpleObjectProperty<FXMenuManager> viewMenuManager;
     private JMenu teamMenu;
     private JMenuItem shareProjectMenuItem;
     private JMenuItem teamSettingsMenuItem;
@@ -349,6 +349,7 @@ public class PkgMgrFrame extends JPanel
         showingTextEval = new SimpleBooleanProperty(false);
         showUsesProperty = new SimpleBooleanProperty(true);
         showInheritsProperty = new SimpleBooleanProperty(true);
+        toolsMenuManager = new SimpleObjectProperty<>(null);
         viewMenuManager = new SimpleObjectProperty<>(null);
         this.pkg = null;
         this.editor = null;
@@ -1013,9 +1014,6 @@ public class PkgMgrFrame extends JPanel
             setVisible(true);
             
             updateTextEvalBackground(isEmptyFrame());
-                    
-            this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(aPkg));
-            this.toolsMenuManager.addExtensionMenu(aPkg.getProject());
 
             Package pkgFinal = aPkg;
             // I hate FX/Swing GUI threading...
@@ -1026,6 +1024,11 @@ public class PkgMgrFrame extends JPanel
                     JavaFXUtil.onceNotNull(this.viewMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
                     {
                         vm.setMenuGenerator(new ViewExtensionMenu(pkgFinal));
+                        vm.addExtensionMenu(pkgFinal.getProject());
+                    })));
+                    JavaFXUtil.onceNotNull(this.toolsMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
+                    {
+                        vm.setMenuGenerator(new ToolsExtensionMenu(pkgFinal));
                         vm.addExtensionMenu(pkgFinal.getProject());
                     })));
                 });
@@ -1100,7 +1103,7 @@ public class PkgMgrFrame extends JPanel
         extMgr.packageClosing(thePkg);
 
         if(! Config.isGreenfoot()) {
-            this.toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(thePkg));
+            this.toolsMenuManager.get().setMenuGenerator(new ToolsExtensionMenu(thePkg));
             this.viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(thePkg));
             
             ObjectBench bench = getObjectBench();
@@ -1754,8 +1757,9 @@ public class PkgMgrFrame extends JPanel
                 updateWindow();
 
                 FXMenuManager vm = viewMenuManager.get();
+                FXMenuManager tm = toolsMenuManager.get();
                 SwingUtilities.invokeLater(() -> {
-                    toolsMenuManager.addExtensionMenu(null);
+                    tm.addExtensionMenu(null);
                     vm.addExtensionMenu(null);
                 });
             }
@@ -3050,11 +3054,11 @@ public class PkgMgrFrame extends JPanel
         List<JavaFXUtil.SwingOrFXMenu> menubar = new ArrayList<>();
         itemsToDisable = new ArrayList<>();
 
-        JMenu menu = new JMenu(Config.getString("menu.package"));
-        int mnemonic = Config.getMnemonicKey("menu.package");
-        menu.setMnemonic(mnemonic);
-        menubar.add(new JavaFXUtil.SwingMenu(menu));
         {
+            JMenu menu = new JMenu(Config.getString("menu.package"));
+            int mnemonic = Config.getMnemonicKey("menu.package");
+            menu.setMnemonic(mnemonic);
+            menubar.add(new JavaFXUtil.SwingMenu(menu));
             createMenuItem(new NewProjectAction(this), menu);
             createMenuItem(new OpenProjectAction(this), menu);
             recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
@@ -3079,10 +3083,10 @@ public class PkgMgrFrame extends JPanel
             }
         }
 
-        menu = new JMenu(Config.getString("menu.edit"));
-        menu.setMnemonic(Config.getMnemonicKey("menu.edit"));
-        menubar.add(new JavaFXUtil.SwingMenu(menu));
         {
+            JMenu menu = new JMenu(Config.getString("menu.edit"));
+            menu.setMnemonic(Config.getMnemonicKey("menu.edit"));
+            menubar.add(new JavaFXUtil.SwingMenu(menu));
             createMenuItem(newClassAction, menu);
             createMenuItem(newPackageAction, menu);
             createMenuItem(addClassAction, menu);
@@ -3092,18 +3096,30 @@ public class PkgMgrFrame extends JPanel
             createMenuItem(newInheritsAction, menu);
         }
 
-        menu = new JMenu(Config.getString("menu.tools"));
-        menu.setMnemonic(Config.getMnemonicKey("menu.tools"));
-        menubar.add(new JavaFXUtil.SwingMenu(menu));
-        {
-            createMenuItem(compileAction, menu);
-            createMenuItem(compileSelectedAction, menu);
-            createMenuItem(rebuildAction, menu);
-            createMenuItem(restartVMAction, menu);
-            menu.addSeparator();
+        ExtensionsManager extMgr = ExtensionsManager.getInstance();
 
-            createMenuItem(useLibraryAction, menu);
-            createMenuItem(generateDocsAction, menu);
+        //menu = new JMenu(Config.getString("menu.tools"));
+        //menu.setMnemonic(Config.getMnemonicKey("menu.tools"));
+        //menubar.add(new JavaFXUtil.SwingMenu(menu));
+        {
+            JavaFXUtil.FXPlusSwingMenu mixedMenu = new JavaFXUtil.FXPlusSwingMenu(() -> {
+                Menu fxMenu = new Menu(Config.getString("menu.tools"));
+                // Create the menu manager that looks after extension tools menus
+                toolsMenuManager.set(new FXMenuManager(fxMenu, extMgr, null));
+                return fxMenu;
+            });
+
+            List<JMenuItem> swingItems = new ArrayList<>();
+            swingItems.add(new JMenuItem(compileAction));
+            swingItems.add(new JMenuItem(compileSelectedAction));
+            swingItems.add(new JMenuItem(rebuildAction));
+            swingItems.add(new JMenuItem(restartVMAction));
+            mixedMenu.addSwing(swingItems);
+            mixedMenu.addFX(SeparatorMenuItem::new);
+
+            swingItems.clear();
+            swingItems.add(new JMenuItem(useLibraryAction));
+            swingItems.add(new JMenuItem(generateDocsAction));
 
             testingMenu = new JMenu(Config.getString("menu.tools.testing"));
             testingMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
@@ -3114,7 +3130,7 @@ public class PkgMgrFrame extends JPanel
                 endTestMenuItem.setEnabled(false);
                 cancelTestMenuItem.setEnabled(false);
             }
-            menu.add(testingMenu);
+            swingItems.add(testingMenu);
             
             //team menu setup
             teamMenu = new JMenu(Config.getString("menu.tools.teamwork"));
@@ -3137,29 +3153,35 @@ public class PkgMgrFrame extends JPanel
                 
                 teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(this), teamMenu);
             }
-            menu.add(teamMenu);
+            swingItems.add(teamMenu);
+
+            mixedMenu.addSwing(swingItems);
+            swingItems.clear();
 
             if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
                                                    // Mac
-                menu.addSeparator();
-                createMenuItem(new PreferencesAction(this), menu);
+                mixedMenu.addFX(SeparatorMenuItem::new);
+                swingItems.add(new JMenuItem(new PreferencesAction(this)));
+                mixedMenu.addSwing(swingItems);
             }
-
-            // Create the menu manager that looks after extension tools menus
-            toolsMenuManager = new MenuManager(menu.getPopupMenu());
 
             // If this is the first frame create the extension tools menu now.
             // (Otherwise, it will be created during project open.)
-            if (frameCount() <= 1) {
-                toolsMenuManager.setMenuGenerator(new ToolsExtensionMenu(null));
-                toolsMenuManager.addExtensionMenu(null);
+            // (Otherwise, it will be created during project open.)
+            if (frameCount() <= 1)
+            {
+                mixedMenu.runAtEnd(() -> Platform.runLater(() -> {
+                    FXMenuManager tm = toolsMenuManager.get();
+                    SwingUtilities.invokeLater(() -> {tm.addExtensionMenu(null);});
+                }));
             }
+
+            menubar.add(mixedMenu);
         }
 
         //menu = new JMenu(Config.getString("menu.view"));
         //menu.setMnemonic(Config.getMnemonicKey("menu.view"));
         {
-            ExtensionsManager extMgr = ExtensionsManager.getInstance();
             JavaFXUtil.FXPlusSwingMenu mixedMenu = new JavaFXUtil.FXPlusSwingMenu(() -> {
                 Menu fxMenu = new Menu(Config.getString("menu.view"));
                 // Create the menu manager that looks after extension view menus
@@ -3192,10 +3214,10 @@ public class PkgMgrFrame extends JPanel
             menubar.add(mixedMenu);
         }
 
-        menu = new JMenu(Config.getString("menu.help"));
-        menu.setMnemonic(Config.getMnemonicKey("menu.help"));
-        menubar.add(new JavaFXUtil.SwingMenu(menu));
         {
+            JMenu menu = new JMenu(Config.getString("menu.help"));
+            menu.setMnemonic(Config.getMnemonicKey("menu.help"));
+            menubar.add(new JavaFXUtil.SwingMenu(menu));
             if (!Config.usingMacScreenMenubar()) { // no "About" here for Mac
                 createMenuItem(new HelpAboutAction(this), menu);
             }
@@ -3207,8 +3229,9 @@ public class PkgMgrFrame extends JPanel
             createMenuItem(new WebsiteAction(this), menu);
             createMenuItem(new TutorialAction(this), menu);
             createMenuItem(new StandardAPIHelpAction(this), menu);
+            addUserHelpItems(menu);
         }
-        addUserHelpItems(menu);
+
         updateRecentProjects();
 
         FXPlatformSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);

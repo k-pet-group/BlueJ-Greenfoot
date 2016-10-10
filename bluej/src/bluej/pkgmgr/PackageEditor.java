@@ -62,7 +62,6 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.extensions.BDependency;
 import bluej.extensions.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.MenuManager;
 import bluej.extmgr.PackageExtensionMenu;
 import bluej.graph.SelectionController;
 import bluej.pkgmgr.actions.NewClassAction;

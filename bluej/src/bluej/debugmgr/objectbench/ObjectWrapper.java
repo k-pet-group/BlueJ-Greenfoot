@@ -80,7 +80,6 @@ import bluej.extensions.BObject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.FXMenuManager;
-import bluej.extmgr.MenuManager;
 import bluej.extmgr.ObjectExtensionMenu;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
