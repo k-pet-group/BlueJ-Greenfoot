@@ -293,7 +293,14 @@ public class ClassTarget extends DependentTarget
             stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
             JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
             pane.setTop(new VBox(stereotypeLabel, name));
-            canvas = new ResizableCanvas();
+            canvas = new ResizableCanvas() {
+                @Override
+                public void resize(double width, double height)
+                {
+                    super.resize(width, height);
+                    redraw();
+                }
+            };
             pane.setCenter(canvas);
         });
 
@@ -2267,7 +2274,6 @@ public class ClassTarget extends DependentTarget
         super.setSize(w, h);
         if(assoc != null)
             assoc.setSize(w, h);
-        redraw();
     }
     
     @OnThread(Tag.FXPlatform)

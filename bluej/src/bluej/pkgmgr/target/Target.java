@@ -178,6 +178,16 @@ public abstract class Target
             pane.setOnMouseReleased(e -> {
                 pkg.getEditor().endResize();
             });
+            pane.setOnKeyTyped(e -> {
+                if ("+-".contains(e.getCharacter()) && isResizable())
+                {
+                    pkg.getEditor().startedResize();
+                    int delta = e.getCharacter().equals("+") ? PackageEditor.GRID_SIZE : -PackageEditor.GRID_SIZE;
+                    pkg.getEditor().resizeBy(delta, delta);
+                    pkg.getEditor().endResize();
+                }
+            });
+
             JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
                 pkg.getEditor().selectOnly(this);
                 popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
@@ -356,17 +366,6 @@ public abstract class Target
     public boolean isSelected()
     {
         return selected;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Selectable#isHandle(int, int)
-     */
-    @OnThread(Tag.FXPlatform)
-    public boolean isHandle(int x, int y)
-    {
-        return (x - this.getX() + y - this.getY() >= getWidth() + getHeight() - HANDLE_SIZE);
     }
 
     @OnThread(Tag.FXPlatform)

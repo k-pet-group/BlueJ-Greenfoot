@@ -191,13 +191,8 @@ public class SelectionController
                 navigate(evt);
             }
         }
-
-        else if (isPlusOrMinusKey(evt)) {
-            resizeWithFixedRatio(evt);
-        }
-
         // post context menu
-        else if (evt.getCode() == KeyCode.SPACE || evt.getCode() == KeyCode.ENTER || evt.getCode() == KeyCode.CONTEXT_MENU) {
+        else if (evt.getCode() == KeyCode.CONTEXT_MENU) {
             postMenu();
         }
 
@@ -336,21 +331,6 @@ public class SelectionController
         }
     }
 
-    /**
-     * Is the pressed key a plus or minus key?
-     */
-    private boolean isPlusOrMinusKey(KeyEvent evt)
-    {
-        return "+-".contains(evt.getCharacter());
-    }
-
-    private void resizeWithFixedRatio(KeyEvent evt)
-    {
-        int delta = (evt.getCharacter().equals("+") ? PackageEditor.GRID_SIZE : -PackageEditor.GRID_SIZE);
-        //selection.resize(delta, delta);
-        selection.moveStopped();
-    }
-    
     /**
      * Post the context menu of one selected element of the current selection.
      * If any dependencies are selected, show the menu for one of those. Otherwise
