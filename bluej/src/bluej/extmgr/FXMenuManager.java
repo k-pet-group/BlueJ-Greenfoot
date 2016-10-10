@@ -110,11 +110,11 @@ public final class FXMenuManager
         List<JMenuItem> menuItems = extMgr.getMenuItems(menuGenerator, onThisProject);
 
         final FXPlatformRunnable addItems = popupMenu != null ?
-            JavaFXUtil.swingMenuItemsToContextMenu(popupMenu, menuItems, null, (swingItem, fxItem) -> {
+            JavaFXUtil.swingMenuItemsToContextMenu(popupMenu, menuItems, this, (swingItem, fxItem) -> {
                 fxItem.getProperties().put("bluej.extmgr.ExtensionWrapper", swingItem.getClientProperty("bluej.extmgr.ExtensionWrapper"));
                 fxItem.getProperties().put("bluej.extmgr.JMenuItem", swingItem);
             }) :
-            supplierToRunnable(JavaFXUtil.swingMenuToFX(menuItems, null, () -> this.menu, (a, b) -> {}));
+            supplierToRunnable(JavaFXUtil.swingMenuToFX(menuItems, this, () -> this.menu, (a, b) -> {}));
         
         Platform.runLater(() -> {
             // Take copy to iterate because we're doing removal:
