@@ -25,6 +25,7 @@ import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -145,6 +146,9 @@ public final class PackageEditor extends StackPane
             selectionLayer.getChildren().add(rect);
 
             getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer, selectionLayer);
+
+            JavaFXUtil.addChangeListener(showUses, e -> JavaFXUtil.runNowOrLater(this::repaint));
+            JavaFXUtil.addChangeListener(showExtends, e -> JavaFXUtil.runNowOrLater(this::repaint));
         });
     }
 
@@ -478,8 +482,8 @@ public final class PackageEditor extends StackPane
         // Don't hold the monitor too long: access once and take copy.
         synchronized (this)
         {
-            extendsDeps = new ArrayList<>(this.extendsArrows);
-            usesDeps = new ArrayList<>(this.usesArrows);
+            extendsDeps = isShowExtends() ? new ArrayList<>(this.extendsArrows) : Collections.emptyList();
+            usesDeps = isShowUses() ? new ArrayList<>(this.usesArrows) : Collections.emptyList();
         }
         GraphicsContext g = arrowLayer.getGraphicsContext2D();
         g.clearRect(0, 0, arrowLayer.getWidth(), arrowLayer.getHeight());
