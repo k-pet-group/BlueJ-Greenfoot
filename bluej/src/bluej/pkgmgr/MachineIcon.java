@@ -21,78 +21,172 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.AWTEvent;
-import java.awt.event.MouseEvent;
-
 import javax.swing.*;
 
 import bluej.Config;
 import bluej.pkgmgr.actions.RestartVMAction;
+import bluej.utility.Debug;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.ResizableCanvas;
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
+import javafx.util.Duration;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
-public class MachineIcon extends JLabel
+@OnThread(Tag.FXPlatform)
+public class MachineIcon extends HBox
 {
-    private static final Icon workingIcon = Config.getFixedImageAsIcon("working.gif");
-    private static final Icon notWorkingIcon = Config.getFixedImageAsIcon("working-idle.gif");
-    private static final Icon workingIconDisabled = Config.getFixedImageAsIcon("working-disab.gif");
-    private static final Icon stoppedIcon = Config.getFixedImageAsIcon("working-stopped.gif");
+    private static final int NUM_BARS = 12;
+    private final Canvas indicator;
+    private final ButtonBase resetButton;
+    private final DoubleProperty indicatorPosition = new SimpleDoubleProperty(0.0);
+    private final BooleanProperty forwards = new SimpleBooleanProperty(true);
+    private final BooleanProperty running = new SimpleBooleanProperty(false);
+    private final RestartVMAction resetAction;
+    private ContextMenu contextMenu;
+    private Animation animation;
 
-    private JPopupMenu popupMenu;
-
-    public MachineIcon(PkgMgrFrame pmf)
+    public MachineIcon(PkgMgrFrame pmf, RestartVMAction resetAction)
     {
-        setIcon(notWorkingIcon);
-        setDisabledIcon(workingIconDisabled);
-        setToolTipText(Config.getString("tooltip.progress"));
-        popupMenu = createMachinePopup(pmf);
-        enableEvents(AWTEvent.KEY_EVENT_MASK);
+        setAlignment(Pos.CENTER);
+        indicator = new ResizableCanvas();
+        HBox.setHgrow(indicator, Priority.ALWAYS);
+        this.resetAction = resetAction;
+        resetButton = PkgMgrFrame.createButton(this.resetAction, false, true);
+        resetButton.setGraphic(drawResetArrow());
+        resetButton.setFocusTraversable(false);
+        JavaFXUtil.addStyleClass(resetButton, "reset-vm-button");
+        JavaFXUtil.setPseudoclass("bj-no-hover", true, resetButton);
+        resetButton.setOnMouseEntered(e -> JavaFXUtil.setPseudoclass("bj-no-hover", false, resetButton));
+        resetButton.setOnMouseExited(e -> JavaFXUtil.setPseudoclass("bj-no-hover", true, resetButton));
+        getChildren().addAll(indicator, resetButton);
+        JavaFXUtil.addChangeListenerPlatform(indicatorPosition, x -> redraw());
+        redraw();
+        Tooltip.install(indicator, new Tooltip(Config.getString("tooltip.progress")));
+        resetButton.setTooltip(new Tooltip(Config.getString("workIndicator.resetMachine")));
+        JavaFXUtil.listenForContextMenu(indicator, (x, y) -> {
+            if (contextMenu != null)
+                contextMenu.hide();
+            MenuItem item = new MenuItem(Config.getString("workIndicator.resetMachine"));
+            item.setOnAction(e -> SwingUtilities.invokeLater(() -> this.resetAction.actionPerformed(pmf)));
+            contextMenu = new ContextMenu(item);
+            contextMenu.show(indicator, x, y);
+            return true;
+        });
+    }
+
+    private static Node drawResetArrow()
+    {
+        Canvas c = new Canvas(16, 15);
+        GraphicsContext gc = c.getGraphicsContext2D();
+
+        gc.setLineWidth(2.0);
+        gc.setStroke(Color.gray(0.5));
+        gc.strokeLine(1, 1, 9, 1);
+        gc.strokeLine(1, 11, 9, 11);
+        gc.strokeArc(7, 1, 8, 10, 270, 180, ArcType.OPEN);
+        gc.strokeLine(1, 11, 4, 8);
+        gc.strokeLine(1, 11, 4, 14);
+
+        return c;
+    }
+
+    private void redraw()
+    {
+        double w = indicator.getWidth();
+        double h = indicator.getHeight();
+        GraphicsContext gc = indicator.getGraphicsContext2D();
+        gc.clearRect(0, 0, w, h);
+        gc.setLineWidth(3);
+        Debug.message("Redrawing " + indicatorPosition.get() + " " + forwards.get());
+        for (int i = 0; i < NUM_BARS; i++)
+        {
+            double pos = (double)i / (double)(NUM_BARS - 1);
+            // The intensity is a function of distance from the current progress
+            double intensity = 0.8 - 1.0 * Math.pow(Math.abs(pos - indicatorPosition.get()), 0.5);
+            if (intensity < 0 || ((pos - indicatorPosition.get() <= 0) != forwards.get()))
+                intensity = 0;
+            if (running.get())
+                gc.setStroke(Color.rgb(0, 0, 255, intensity));
+            else
+                gc.setStroke(Color.gray(0.0, intensity));
+            double x = 2.5 + pos * (w-5);
+            gc.strokeLine(x, 0, x, h);
+        }
+    }
+
+    private void cancelAnimation()
+    {
+        if (animation != null)
+        {
+            animation.stop();
+            animation = null;
+        }
     }
 
     /**
      * Indicate that the machine is idle.
      */
+    @OnThread(Tag.Swing)
     public void setIdle()
     {
-        setIcon(notWorkingIcon);
+        Platform.runLater(() ->
+        {
+            cancelAnimation();
+            forwards.setValue(true);
+            running.set(false);
+            indicatorPosition.set(0.5);
+        });
     }
 
     /**
      * Indicate that the machine is running.
      */
+    @OnThread(Tag.Swing)
     public void setRunning()
     {
-        setIcon(workingIcon);
+        Platform.runLater(() -> {
+            cancelAnimation();
+            running.set(true);
+            animation = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(indicatorPosition, 0.5, Interpolator.LINEAR), new KeyValue(forwards, true, Interpolator.DISCRETE)),
+                new KeyFrame(Duration.millis(500), new KeyValue(indicatorPosition, 1.0, Interpolator.LINEAR), new KeyValue(forwards, false, Interpolator.DISCRETE)),
+                new KeyFrame(Duration.millis(1500), new KeyValue(indicatorPosition, 0.0, Interpolator.LINEAR), new KeyValue(forwards, true, Interpolator.DISCRETE)),
+                new KeyFrame(Duration.millis(2000), new KeyValue(indicatorPosition, 0.5, Interpolator.LINEAR), new KeyValue(forwards, true, Interpolator.DISCRETE))
+            );
+            animation.setCycleCount(Animation.INDEFINITE);
+            animation.playFromStart();
+        });
     }
 
     /**
      * Indicate that the machine is stopped.
      */
+    @OnThread(Tag.Swing)
     public void setStopped()
     {
-        setIcon(stoppedIcon);
-    }
-
-    /**
-     * Process a mouse click into this object. If it was a popup event, show the
-     * object's menu.
-     */
-    protected void processMouseEvent(MouseEvent evt)
-    {
-        if (!isEnabled())
-            return;
-
-        super.processMouseEvent(evt);
-
-        if (evt.isPopupTrigger()) {
-            popupMenu.show(this, 10, 10);
-        }
-    }
-
-    private static JPopupMenu createMachinePopup(PkgMgrFrame pmf)
-    {
-        JPopupMenu menu = new JPopupMenu();
-        JMenuItem item = new JMenuItem(new RestartVMAction(pmf));
-        menu.add(item);
-        return menu;
+        Platform.runLater(this::cancelAnimation);
     }
 }
 

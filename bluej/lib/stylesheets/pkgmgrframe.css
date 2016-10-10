@@ -34,6 +34,10 @@
 .pmf-tools-test-recording-button {
     -fx-padding: 0 0 0 16px;
 }
+.reset-vm-button:bj-no-hover {
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
 
 /* Class Diagram */
 .class-diagram, .package-target-preview {

@@ -279,7 +279,8 @@ public class PkgMgrFrame extends JPanel
     private final Action compileAction = new CompileAction(this);
     private final Action compileSelectedAction = new CompileSelectedAction(this);
     private final Action rebuildAction = new RebuildAction(this);
-    private final Action restartVMAction = new RestartVMAction(this);
+    @OnThread(Tag.Any)
+    private final RestartVMAction restartVMAction = new RestartVMAction(this);
     private final Action useLibraryAction = new UseLibraryAction(this);
     private final Action generateDocsAction = new GenerateDocsAction(this);
     private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this);
@@ -2844,8 +2845,6 @@ public class PkgMgrFrame extends JPanel
                 (KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "restartVM");
         mainPanel.getActionMap().put("restartVM", action);
 
-        machineIcon = new MachineIcon(this);
-        itemsToDisable.add(machineIcon);
         UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
         StatusAction statusAction = teamActions.getStatusAction(this);
@@ -2930,9 +2929,9 @@ public class PkgMgrFrame extends JPanel
             testPanel.setCollapsible(false);
             testPanel.setExpanded(true);
             toolPanel.getChildren().add(new UntitledCollapsiblePane(foldout, true));
-            SwingNode node = new SwingNodeFixed();
-            node.setContent(machineIcon);
-            toolPanel.getChildren().add(node);
+            machineIcon = new MachineIcon(this, restartVMAction);
+            SwingUtilities.invokeLater(() -> itemsToDisable.add(machineIcon));
+            toolPanel.getChildren().add(machineIcon);
         });
         //mainPanel.add(toolPanel, BorderLayout.WEST);
         
@@ -3003,7 +3002,7 @@ public class PkgMgrFrame extends JPanel
      * @return the new button
      */
     @OnThread(Tag.FXPlatform)
-    private ButtonBase createButton(Action action, boolean toggle, boolean noText)
+    public static ButtonBase createButton(Action action, boolean toggle, boolean noText)
     {
         ButtonBase button;
         if (toggle) {
@@ -3021,7 +3020,7 @@ public class PkgMgrFrame extends JPanel
     }
 
     @OnThread(Tag.FXPlatform)
-    private void setButtonAction(Action action, ButtonBase button, boolean noText)
+    private static void setButtonAction(Action action, ButtonBase button, boolean noText)
     {
         if (!noText)
         {
