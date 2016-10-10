@@ -1069,9 +1069,9 @@ public class PkgMgrFrame extends JPanel
         UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
         Platform.runLater(() -> {
-            setButtonAction(statusAction, teamStatusButton);
-            setButtonAction(updateAction, updateButton);
-            setButtonAction(commitCommentAction, commitButton);
+            setButtonAction(statusAction, teamStatusButton, false);
+            setButtonAction(updateAction, updateButton, false);
+            setButtonAction(commitCommentAction, commitButton, false);
         });
         teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction(this));
         
@@ -2857,13 +2857,13 @@ public class PkgMgrFrame extends JPanel
             
             VBox topButtons = new VBox();
             JavaFXUtil.addStyleClass(topButtons, "pmf-tools-top");
-            ButtonBase button = createButton(newClassAction, false);
+            ButtonBase button = createButton(newClassAction, false, false);
             topButtons.getChildren().add(button);
-            imgExtendsButton = createButton(newInheritsAction, false);
+            imgExtendsButton = createButton(newInheritsAction, false, true);
             imgExtendsButton.setText(null);
             imgExtendsButton.setGraphic(new ImageView(Config.getImageAsFXImage("image.build.extends")));
             topButtons.getChildren().add(imgExtendsButton);
-            button = createButton(compileAction, false);
+            button = createButton(compileAction, false, false);
             topButtons.getChildren().add(button);
             toolPanel.getChildren().add(topButtons);
             
@@ -2877,7 +2877,7 @@ public class PkgMgrFrame extends JPanel
             VBox testPanelItems = new VBox();
             JavaFXUtil.addStyleClass(testPanelItems, "pmf-tools-test-items");
             testPanel.setContent(testPanelItems);
-            runButton = createButton(runTestsAction, false);
+            runButton = createButton(runTestsAction, false, false);
             runButton.setText(Config.getString("pkgmgr.test.run"));
             testPanelItems.getChildren().add(runButton);
 
@@ -2889,7 +2889,7 @@ public class PkgMgrFrame extends JPanel
             recordingLabel.setDisable(true);
             testPanelItems.getChildren().add(recordingLabel);
             
-            endTestButton = createButton(new EndTestRecordAction(this), false);
+            endTestButton = createButton(new EndTestRecordAction(this), false, false);
             //make the button use a different label than the one from
             // action
             endTestButton.setText(Config.getString("pkgmgr.test.end"));
@@ -2897,7 +2897,7 @@ public class PkgMgrFrame extends JPanel
 
             testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(endTestButton), "pmf-tools-test-recording-button"));
             
-            cancelTestButton = createButton(new CancelTestRecordAction(this), false);
+            cancelTestButton = createButton(new CancelTestRecordAction(this), false, false);
             //make the button use a different label than the one from
             // action
             cancelTestButton.setText(Config.getString("cancel"));
@@ -2914,13 +2914,13 @@ public class PkgMgrFrame extends JPanel
             JavaFXUtil.addStyleClass(teamPanelItems, "pmf-tools-team-items");
             teamPanel.setContent(teamPanelItems);
             
-            updateButton = createButton(updateAction, false);
+            updateButton = createButton(updateAction, false, false);
             teamPanelItems.getChildren().add(updateButton);
             
-            commitButton = createButton(commitCommentAction, false);
+            commitButton = createButton(commitCommentAction, false, false);
             teamPanelItems.getChildren().add(commitButton);
             
-            teamStatusButton = createButton(statusAction, false);
+            teamStatusButton = createButton(statusAction, false, false);
             teamPanelItems.getChildren().add(teamStatusButton);
             //teamItems.add(teamPanel);
 
@@ -3003,7 +3003,7 @@ public class PkgMgrFrame extends JPanel
      * @return the new button
      */
     @OnThread(Tag.FXPlatform)
-    private ButtonBase createButton(Action action, boolean toggle)
+    private ButtonBase createButton(Action action, boolean toggle, boolean noText)
     {
         ButtonBase button;
         if (toggle) {
@@ -3012,7 +3012,7 @@ public class PkgMgrFrame extends JPanel
         else {
             button = new Button();
         }
-        setButtonAction(action, button);
+        setButtonAction(action, button, noText);
         button.setFocusTraversable(false); // buttons shouldn't get focus
         //if (notext)
         //    button.setText(null);
@@ -3021,15 +3021,20 @@ public class PkgMgrFrame extends JPanel
     }
 
     @OnThread(Tag.FXPlatform)
-    private void setButtonAction(Action action, ButtonBase button)
+    private void setButtonAction(Action action, ButtonBase button, boolean noText)
     {
-        SwingUtilities.invokeLater(() -> {
-            String name = (String)action.getValue(Action.NAME);
-            Platform.runLater(() -> {
-                if (button.getText() == null || button.getText().isEmpty())
-                    button.setText(name);
+        if (!noText)
+        {
+            SwingUtilities.invokeLater(() ->
+            {
+                String name = (String) action.getValue(Action.NAME);
+                Platform.runLater(() ->
+                {
+                    if (button.getText() == null || button.getText().isEmpty())
+                        button.setText(name);
+                });
             });
-        });
+        }
         button.setOnAction(e -> {
             SwingUtilities.invokeLater(() -> {
                 action.actionPerformed(new ActionEvent(button, ActionEvent.ACTION_PERFORMED, null));
