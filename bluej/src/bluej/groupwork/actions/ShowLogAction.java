@@ -21,6 +21,8 @@
  */
 package bluej.groupwork.actions;
 
+import javafx.application.Platform;
+
 import bluej.Config;
 import bluej.groupwork.ui.HistoryFrame;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -29,7 +31,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * An action to show the repository history.
  * 
  * @author Davin McCall
- * @version $Id: ShowLogAction.java 16081 2016-06-25 09:42:13Z nccb $
+ * @version $Id: ShowLogAction.java 16722 2016-10-10 16:33:55Z nccb $
  */
 public class ShowLogAction extends TeamAction
 {
@@ -41,7 +43,7 @@ public class ShowLogAction extends TeamAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         HistoryFrame hd = new HistoryFrame(pmf);
-        hd.setLocationRelativeTo(pmf);
+        Platform.runLater(() -> hd.setLocationRelativeTo(pmf.getFXWindow()));
         hd.setVisible(true);
     }
 

@@ -39,7 +39,6 @@ public abstract class EditableTarget extends Target
     implements EditorWatcher
 {
     protected Editor editor;
-    protected Rectangle editorBounds;
 
     protected EditableTarget(Package pkg, String name)
     {
@@ -95,22 +94,6 @@ public abstract class EditableTarget extends Target
     public boolean editorOpen()
     {
         return (editor!=null);
-    }
-    
-    public void load(Properties props, String prefix)
-    {
-        super.load(props, prefix);
-        try {
-            if(props.getProperty(prefix + ".editor.x") != null) {
-                editorBounds = new Rectangle(Integer.parseInt(props.getProperty(prefix + ".editor.x")),
-                        Integer.parseInt(props.getProperty(prefix + ".editor.y")), 
-                        Integer.parseInt(props.getProperty(prefix + ".editor.width")),
-                        Integer.parseInt(props.getProperty(prefix + ".editor.height")));
-            }
-        }
-        catch (NumberFormatException nfe) {
-            // Corrupt properties file?
-        }
     }
     
     // --- EditorWatcher interface ---

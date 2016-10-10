@@ -1140,15 +1140,6 @@ public class ClassTarget extends DependentTarget
             EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
                     getPackage().getQualifiedName());
 
-            if (editorBounds == null) {
-                PkgMgrFrame frame = PkgMgrFrame.findFrame(getPackage());
-                if (frame != null) {
-                    editorBounds = new Rectangle();
-                    editorBounds.x = frame.getX() + 40;
-                    editorBounds.y = frame.getY() + 20;
-                }
-            }
-
             if (sourceAvailable == SourceType.Java) {
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),

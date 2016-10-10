@@ -22,7 +22,6 @@
 package bluej;
 
 import javax.swing.SwingUtilities;
-import java.awt.EventQueue;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -37,7 +36,6 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 
-import bluej.extensions.SourceType;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -49,9 +47,6 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.actions.HelpAboutAction;
-import bluej.pkgmgr.actions.PreferencesAction;
-import bluej.pkgmgr.actions.QuitAction;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 
@@ -185,7 +180,7 @@ public class Main
                     if (exists != null) {
                         Project openProj;
                         // checking all is well (project exists)
-                        if ((openProj = Project.openProject(exists, null)) != null) {
+                        if ((openProj = Project.openProject(exists)) != null) {
                             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
                             PkgMgrFrame.createFrame(pkg);
                             oneOpened = true;
@@ -440,7 +435,10 @@ public class Main
     private static void openEmptyFrame()
     {
         PkgMgrFrame frame = PkgMgrFrame.createFrame();
-        frame.setLocation(FIRST_X_LOCATION, FIRST_Y_LOCATION);
+        Platform.runLater(() -> {
+            frame.getFXWindow().setX(FIRST_X_LOCATION);
+            frame.getFXWindow().setY(FIRST_Y_LOCATION);
+        });
         frame.setVisible(true);
     }
     

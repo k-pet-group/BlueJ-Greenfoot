@@ -23,12 +23,10 @@ package bluej.pkgmgr;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +36,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,7 +50,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -344,14 +340,11 @@ public class Project implements DebuggerListener, InspectorManager
      * @param projectPath
      *            a string representing the path to open. This can either be a
      *            directory name or the filename of a bluej.pkg file.
-     * @param parent 
-     *            Component used as parent if we need to show any messages.
-     *            Can be null.
      * @return the Project representing the BlueJ project that has this
      *         directory within it or null if there were no bluej.pkg files in
      *         the specified directory.
      */
-    public static Project openProject(String projectPath, Component parent) 
+    public static Project openProject(String projectPath)
     {
         String startingPackageName;
         File projectDir;

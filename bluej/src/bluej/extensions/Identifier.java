@@ -161,12 +161,7 @@ class Identifier
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                // Check if it's already visible first, as calling
-                // setVisible(true) causes frame to grab focus on
-                // Windows
-                if(!pmf.isVisible()) {
-                    pmf.setVisible(true);
-                }
+                pmf.setVisible(true);
             }
         });
         return pmf;

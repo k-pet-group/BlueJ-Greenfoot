@@ -98,12 +98,6 @@ public class ReadmeTarget extends EditableTarget
     @Override
     public void load(Properties props, String prefix) throws NumberFormatException
     {
-        if(props.getProperty(prefix + ".editor.x") != null) {
-            editorBounds = new Rectangle(Integer.parseInt(props.getProperty(prefix + ".editor.x")),
-                    Integer.parseInt(props.getProperty(prefix + ".editor.y")), 
-                    Integer.parseInt(props.getProperty(prefix + ".editor.width")),
-                    Integer.parseInt(props.getProperty(prefix + ".editor.height")));
-        }        
     }
 
     /*

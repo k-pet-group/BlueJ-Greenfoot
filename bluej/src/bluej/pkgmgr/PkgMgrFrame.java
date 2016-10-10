@@ -22,7 +22,6 @@
 package bluej.pkgmgr;
 
 import java.awt.BorderLayout;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -89,6 +88,7 @@ import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -193,7 +193,7 @@ import bluej.views.MethodView;
 /**
  * The main user interface frame which allows editing of packages
  */
-public class PkgMgrFrame extends JPanel
+public class PkgMgrFrame
     implements BlueJEventListener, PackageEditorListener
 {
     static final int DEFAULT_WIDTH = 560;
@@ -1143,17 +1143,14 @@ public class PkgMgrFrame extends JPanel
      * Override standard show to add de-iconify and bring-to-front.
      * @param visible True to make this visible; false to hide.
      */
-    @Override
     public void setVisible(boolean visible)
     {
         if(!visible) {
-            super.setVisible(false);
             Platform.runLater(() -> {
                 JavaFXUtil.onceNotNull(stageProperty, Stage::hide);
             });
         }
         else if (!Config.isGreenfoot()) {
-            super.setVisible(true);
             //setState(Frame.NORMAL);
             Platform.runLater(() -> {
                 JavaFXUtil.onceNotNull(stageProperty, Stage::show);
@@ -1285,10 +1282,9 @@ public class PkgMgrFrame extends JPanel
      */
     public void setWaitCursor(boolean wait)
     {
-        if (wait)
-            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        else
-            setCursor(Cursor.getDefaultCursor());
+        Platform.runLater(() -> {
+            stageProperty.getValue().getScene().setCursor(wait ? Cursor.WAIT : null);
+        });
     }
 
     /**
@@ -1441,7 +1437,7 @@ public class PkgMgrFrame extends JPanel
     public boolean newProject(String dirName)
     {
         if (Project.createNewProject(dirName)) {
-            Project proj = Project.openProject(dirName, this);
+            Project proj = Project.openProject(dirName);
             
             Package unNamedPkg = proj.getPackage("");
             
@@ -1461,7 +1457,7 @@ public class PkgMgrFrame extends JPanel
     // TODO eventually, remove this, once we have switched to FX
     public Frame getWindow()
     {
-        Window windowAncestor = SwingUtilities.getWindowAncestor(this);
+        Window windowAncestor = SwingUtilities.getWindowAncestor(padSwingNode.getContent());
         return (Frame) windowAncestor;
     }
 
@@ -1640,7 +1636,7 @@ public class PkgMgrFrame extends JPanel
      */
     private boolean openProject(String projectPath)
     {
-        Project openProj = Project.openProject(projectPath, this);
+        Project openProj = Project.openProject(projectPath);
         if (openProj == null)
             return false;
         else {
@@ -2058,7 +2054,7 @@ public class PkgMgrFrame extends JPanel
             // that waits for completion of the call and then displays the
             // result (or does nothing if void)
             watcher = new ResultWatcher() {
-                private final ExpressionInformation expressionInformation = new ExpressionInformation(mv, getName());
+                private final ExpressionInformation expressionInformation = new ExpressionInformation(mv, mv.getName());
 
                 @Override
                 public void beginCompile()
@@ -2830,7 +2826,6 @@ public class PkgMgrFrame extends JPanel
 
     private void makeFrame()
     {
-        setFont(pkgMgrFont);
         Image icon = BlueJTheme.getIconImage();
         if (icon != null) {
             //TODOPMF
@@ -2839,16 +2834,8 @@ public class PkgMgrFrame extends JPanel
         
         setupMenus();
 
-        // create the main panel holding the diagram and toolbar on the left
-
-        JPanel mainPanel = this; //new JPanel(new BorderLayout(5, 5));
-        if (!Config.isRaspberryPi()) mainPanel.setOpaque(false);
-
         // Install keystroke to restart the VM
         Action action = new RestartVMAction(this);
-        mainPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                (KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "restartVM");
-        mainPanel.getActionMap().put("restartVM", action);
 
         UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);

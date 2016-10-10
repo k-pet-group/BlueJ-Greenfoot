@@ -88,7 +88,7 @@ final public class SaveProjectAsAction extends PkgMgrAction
                     PkgMgrFrame.closeProject(project);
 
                     // open new project
-                    Project openProj = Project.openProject(newName.getAbsolutePath(), null);
+                    Project openProj = Project.openProject(newName.getAbsolutePath());
 
                     if (openProj != null)
                     {

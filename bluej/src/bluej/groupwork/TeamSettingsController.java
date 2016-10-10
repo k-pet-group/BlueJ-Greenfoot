@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import javafx.application.Platform;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -393,7 +395,9 @@ public class TeamSettingsController
     {
         if (teamSettingsDialog == null) {
             teamSettingsDialog = new TeamSettingsDialog(this);
-            teamSettingsDialog.setLocationRelativeTo(PkgMgrFrame.getMostRecent());
+            TeamSettingsDialog dlgFinal = teamSettingsDialog;
+            PkgMgrFrame pmf = PkgMgrFrame.getMostRecent();
+            Platform.runLater(() -> dlgFinal.setLocationRelativeTo(pmf.getFXWindow()));
             checkTeamSettingsDialog();
         }
         

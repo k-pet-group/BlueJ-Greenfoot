@@ -73,7 +73,7 @@ public class CheckoutAction extends TeamAction
         // switch it to the new one once it's been created
         final TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
         TeamSettingsDialog tsd = tsc.getTeamSettingsDialog();
-        tsd.setLocationRelativeTo(oldFrame);
+        Platform.runLater(() -> tsd.setLocationRelativeTo(oldFrame.getFXWindow()));
 
         if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
             FXPlatformConsumer<File> finishCheckout = projectDir -> {
@@ -87,7 +87,6 @@ public class CheckoutAction extends TeamAction
                     {
                         newFrame = PkgMgrFrame.createFrame();
                         newFrame.setVisible(true);
-                        newFrame.setEnabled(false);
                     }
 
                     new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
@@ -97,7 +96,7 @@ public class CheckoutAction extends TeamAction
             if (!tsc.getRepository(true).isDVCS()) {
                 //if not DVCS, we need to select module.
                 ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame::getFXWindow, tsc.getRepository(true));
-                moduleDialog.setLocationRelativeTo(oldFrame);
+                Platform.runLater(() -> moduleDialog.setLocationRelativeTo(oldFrame.getFXWindow()));
                 moduleDialog.setVisible(true);
 
                 String moduleName = moduleDialog.getModuleName();
@@ -208,12 +207,11 @@ public class CheckoutAction extends TeamAction
                     }
                 }
 
-                Project project = Project.openProject(projDir.toString(), newFrame);
+                Project project = Project.openProject(projDir.toString());
 
                 project.setTeamSettingsController(tsc);
                 Package initialPackage = project.getPackage(project.getInitialPackageName());
                 newFrame.openPackage(initialPackage);
-                newFrame.setEnabled(true);
             }
             else {
                 Platform.runLater(() -> TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow()));
@@ -230,9 +228,6 @@ public class CheckoutAction extends TeamAction
             deleteDirectory(projDir);
             projDir.delete();
             Platform.runLater(() -> newFrame.doClose(true, false));
-            // The frame might not have closed if it was the
-            // last frame. In that case we want to enable it.
-            newFrame.setEnabled(true);
         }
         
         /**

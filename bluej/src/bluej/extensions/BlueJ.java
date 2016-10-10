@@ -144,7 +144,7 @@ public final class BlueJ
         if (directory == null)
             return null;
 
-        Project openProj = Project.openProject(directory.getAbsolutePath(), null);
+        Project openProj = Project.openProject(directory.getAbsolutePath());
         if (openProj == null)
             return null;
 
