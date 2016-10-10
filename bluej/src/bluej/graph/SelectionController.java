@@ -164,65 +164,6 @@ public class SelectionController
 
     // ======= end of MouseMotionListener interface =======
 
-    // ======= KeyListener interface =======
-
-    /**
-     * A key was pressed in the graph editor.
-     */
-    public void keyPressed(KeyEvent evt)
-    {
-        boolean handled = true; // assume for a start that we are handling the
-                                // key here
-
-        // post context menu
-        if (evt.getCode() == KeyCode.CONTEXT_MENU) {
-            postMenu();
-        }
-
-        // 'A' (with any or no modifiers) selects all
-        else if (evt.getCode() == KeyCode.A) {
-            selectAll();
-        }
-
-        // Escape removes selections
-        else if (evt.getCode() == KeyCode.ESCAPE) {
-            if(moving || resizing) {
-                endMove();
-            }
-            clearSelection();
-        }
-
-        else {
-            handled = false;
-        }
-
-        if (handled)
-            evt.consume();
-
-        graphEditor.repaint();
-    }
-
-    
-    /**
-     * A key was released. Check whether a key-based move or resize operation
-     * has ended.
-     */
-    public void keyReleased(KeyEvent evt)
-    {
-        if(moving && (!evt.isShiftDown())) {    // key-based moving stopped
-            selection.moveStopped();
-            moving = false;
-        }
-        else if(resizing && (!evt.isControlDown())) {    // key-based moving stopped
-            selection.moveStopped();
-            resizing = false;
-        }
-        graphEditor.repaint();
-    }
-
-    // ======= end of KeyListener interface =======
-
-
     private void notifyPackage(Target element)
     {
         if (element != null && element instanceof ClassTarget)
@@ -253,16 +194,6 @@ public class SelectionController
     }
 
     /**
-     * Prepare a key-based move operation.
-     */
-    private void startKeyboardMove()
-    {
-        keyDeltaX = 0;
-        keyDeltaY = 0;
-        moving = true;
-    }
-    
-    /**
      * End a move or resize gesture.
      *
      */
@@ -272,68 +203,6 @@ public class SelectionController
         moving = false;
         resizing = false;
     }
-    
-    /**
-     * Prepare a key-based resize operation.
-     */
-    private void startKeyboardResize()
-    {
-        keyDeltaX = 0;
-        keyDeltaY = 0;
-        resizing = true;
-    }
-     
-    /**
-     * Move all targets according to the supplied key.
-     */
-    private void setKeyDelta(KeyEvent evt)
-    {
-        switch(evt.getCode()) {
-            case UP: {
-                keyDeltaY -= PackageEditor.GRID_SIZE;
-                break;
-            }
-            case DOWN: {
-                keyDeltaY += PackageEditor.GRID_SIZE;
-                break;
-            }
-            case LEFT: {
-                keyDeltaX -= PackageEditor.GRID_SIZE;
-                break;
-            }
-            case RIGHT: {
-                keyDeltaX += PackageEditor.GRID_SIZE;
-                break;
-            }
-        }
-    }
-
-    /**
-     * Post the context menu of one selected element of the current selection.
-     * If any dependencies are selected, show the menu for one of those. Otherwise
-     * show the menu for a randomly chosen target.
-     */
-    private void postMenu()
-    {
-        // if not, choose a target
-        Target vertex = selection.getAnyVertex();
-        if(vertex != null) {
-            selection.selectOnly(vertex);
-            int x = vertex.getX() + vertex.getWidth() - 20;
-            int y = vertex.getY() + 20;
-            postMenu(vertex, x, y);
-        }
-    }
-
-    
-    /**
-     * Post the context menu for a given element at the given screen position.
-     */
-    private void postMenu(Target element, int x, int y)
-    {
-        element.popupMenu(x, y, graphEditor);
-    }
-
 
     /**
      * Return the marquee of this conroller.
@@ -367,7 +236,7 @@ public class SelectionController
     /** 
      * Select all graph vertices.
      */
-    private void selectAll()
+    public void selectAll()
     {
         for (Target t : graph.getVertices())
             selection.add(t);

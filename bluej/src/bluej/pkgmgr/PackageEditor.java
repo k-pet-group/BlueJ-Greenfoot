@@ -628,8 +628,6 @@ public final class PackageEditor extends StackPane
         addEventHandler(MouseEvent.MOUSE_CLICKED, selectionController::mouseClicked);
         addEventHandler(MouseEvent.MOUSE_PRESSED, selectionController::mousePressed);
         addEventHandler(MouseEvent.MOUSE_RELEASED, selectionController::mouseReleased);
-        addEventHandler(KeyEvent.KEY_PRESSED, selectionController::keyPressed);
-        addEventHandler(KeyEvent.KEY_RELEASED, selectionController::keyReleased);
         JavaFXUtil.listenForContextMenu(this, this::popupMenu);
     }
 
@@ -941,5 +939,10 @@ public final class PackageEditor extends StackPane
     public void navigate(KeyEvent event)
     {
         selectionController.navigate(event);
+    }
+
+    public void selectAll()
+    {
+        selectionController.selectAll();
     }
 }
