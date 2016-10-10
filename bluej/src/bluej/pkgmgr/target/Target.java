@@ -25,6 +25,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.input.KeyEvent;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -93,7 +94,7 @@ public abstract class Target
 
     @OnThread(Tag.FXPlatform)
     protected BorderPane pane;
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     private boolean resizable = true;
 
     /**
@@ -185,6 +186,43 @@ public abstract class Target
                     int delta = e.getCharacter().equals("+") ? PackageEditor.GRID_SIZE : -PackageEditor.GRID_SIZE;
                     pkg.getEditor().resizeBy(delta, delta);
                     pkg.getEditor().endResize();
+
+                    e.consume();
+                }
+            });
+            pane.setOnKeyPressed(e -> {
+                if (isArrowKey(e))
+                {
+                    if (e.isControlDown())
+                    {
+                        if (isResizable())
+                        {
+                            // Resize:
+                            pkg.getEditor().startedResize();
+                            int d = PackageEditor.GRID_SIZE;
+                            pkg.getEditor().resizeBy(
+                                e.getCode() == KeyCode.LEFT ? -d : (e.getCode() == KeyCode.RIGHT ? d : 0),
+                                e.getCode() == KeyCode.UP ? -d : (e.getCode() == KeyCode.DOWN ? d : 0));
+                            pkg.getEditor().endResize();
+                        }
+                    }
+                    else if (e.isShiftDown())
+                    {
+                        if (isMoveable())
+                        {
+                            // Move:
+                            pkg.getEditor().startedMove();
+                            int d = PackageEditor.GRID_SIZE;
+                            pkg.getEditor().moveBy(
+                                e.getCode() == KeyCode.LEFT ? -d : (e.getCode() == KeyCode.RIGHT ? d : 0),
+                                e.getCode() == KeyCode.UP ? -d : (e.getCode() == KeyCode.DOWN ? d : 0));
+                        }
+                    }
+                    else
+                        pkg.getEditor().navigate(e);
+
+
+                    e.consume();
                 }
             });
 
@@ -412,7 +450,7 @@ public abstract class Target
         this.queued = queued;
     }
 
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     public boolean isResizable()
     {
         return resizable;
@@ -607,5 +645,12 @@ public abstract class Target
             showingContextMenu.hide();
         }
         showingContextMenu = newMenu;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private static boolean isArrowKey(KeyEvent evt)
+    {
+        return evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.DOWN
+            || evt.getCode() == KeyCode.LEFT || evt.getCode() == KeyCode.RIGHT;
     }
 }

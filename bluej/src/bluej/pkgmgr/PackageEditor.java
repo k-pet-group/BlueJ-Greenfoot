@@ -47,6 +47,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -935,5 +936,10 @@ public final class PackageEditor extends StackPane
             if (element.isResizable())
                 JavaFXUtil.setPseudoclass("bj-resizing", false, element.getNode());
         }
+    }
+
+    public void navigate(KeyEvent event)
+    {
+        selectionController.navigate(event);
     }
 }

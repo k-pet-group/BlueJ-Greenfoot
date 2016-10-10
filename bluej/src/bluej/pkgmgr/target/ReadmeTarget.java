@@ -116,7 +116,7 @@ public class ReadmeTarget extends EditableTarget
     }
 
     @Override
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     public boolean isResizable()
     {
         return false;

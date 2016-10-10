@@ -227,15 +227,15 @@ public class ClassTarget extends DependentTarget
     private static String[] pseudos;
 
     // The body of the class target which goes hashed, etc:
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     private ResizableCanvas canvas;
     @OnThread(Tag.FXPlatform)
     private Label stereotypeLabel;
     @OnThread(Tag.FXPlatform)
     private boolean isFront = true;
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     private static Image greyStripeImage;
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     private static Image redStripeImage;
     private static final int GREY_STRIPE_SEPARATION = 12;
     // How far between rows of stripes:
@@ -295,6 +295,7 @@ public class ClassTarget extends DependentTarget
             pane.setTop(new VBox(stereotypeLabel, name));
             canvas = new ResizableCanvas() {
                 @Override
+                @OnThread(Tag.FX)
                 public void resize(double width, double height)
                 {
                     super.resize(width, height);
@@ -2291,7 +2292,7 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     @Override
     protected void redraw()
     {

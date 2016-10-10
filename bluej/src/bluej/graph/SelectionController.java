@@ -174,25 +174,8 @@ public class SelectionController
         boolean handled = true; // assume for a start that we are handling the
                                 // key here
 
-        if (isArrowKey(evt)) {
-            if (evt.isControlDown()) {      // resizing
-                if(!resizing)
-                    startKeyboardResize();
-                setKeyDelta(evt);
-                //selection.resize(keyDeltaX, keyDeltaY);
-            }
-            else if (evt.isShiftDown()) {   // moving targets
-                if(!moving)
-                    startKeyboardMove();
-                setKeyDelta(evt);
-                //selection.move(keyDeltaX, keyDeltaY);
-            }
-            else {                          // navigate the diagram
-                navigate(evt);
-            }
-        }
         // post context menu
-        else if (evt.getCode() == KeyCode.CONTEXT_MENU) {
+        if (evt.getCode() == KeyCode.CONTEXT_MENU) {
             postMenu();
         }
 
@@ -257,18 +240,12 @@ public class SelectionController
         return graphEditor.isDrawingDependency();
     }
 
-    
-    private static boolean isArrowKey(KeyEvent evt)
-    {
-        return evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.DOWN
-                || evt.getCode() == KeyCode.LEFT || evt.getCode() == KeyCode.RIGHT;
-    }
 
     /**
      * Move the current selection to another selected class, depending on
      * current selection and the key pressed.
      */
-    private void navigate(KeyEvent evt)
+    public void navigate(KeyEvent evt)
     {
         Target currentTarget = findSingleVertex();
         currentTarget = traverseStragegiImpl.findNextVertex(graph, currentTarget, evt.getCode());

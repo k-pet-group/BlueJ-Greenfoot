@@ -77,7 +77,7 @@ public class ParentPackageTarget extends PackageTarget
         return true;
     }
 
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     public boolean isResizable()
     {
         return false;
