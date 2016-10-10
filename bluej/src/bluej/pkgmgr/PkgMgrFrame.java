@@ -387,24 +387,25 @@ public class PkgMgrFrame extends JPanel
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
                 SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
-                BorderPane root = new BorderPane(topBottomSplit);
-                JavaFXUtil.addStyleClass(root, "pmf-root");
+                BorderPane contentRoot = new BorderPane(topBottomSplit);
+                JavaFXUtil.addStyleClass(contentRoot, "pmf-root");
                 updateFXSize = pref -> {
-                    root.setPrefWidth(pref.getWidth());
-                    root.setPrefHeight(pref.getHeight());
+                    contentRoot.setPrefWidth(pref.getWidth());
+                    contentRoot.setPrefHeight(pref.getHeight());
                     stage.sizeToScene();
                 };
 
-                root.setBottom(statusSwingNode);
+                contentRoot.setBottom(statusSwingNode);
                 //root.setPrefWidth(preferredSize.getWidth());
                 //root.setPrefHeight(preferredSize.getHeight());
-                Scene scene = new Scene(root);
+                BorderPane rootPlusMenu = new BorderPane(contentRoot);
+                Scene scene = new Scene(rootPlusMenu);
                 Config.addPMFStylesheets(scene);
                 stage.setScene(scene);
                 stage.show();
                 //org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
-                paneProperty.setValue(root);
+                paneProperty.setValue(rootPlusMenu);
                 // If it should already be showing, do that now:
                 if (showingTextEval.get())
                     showHideTextEval(true);
