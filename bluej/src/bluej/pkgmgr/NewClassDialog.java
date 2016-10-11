@@ -320,7 +320,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             enable = true;
         }
 
-        templates.forEach((radio, templateInfo) -> radio.setDisable(!templateInfo.sourceTypes.contains(language.selectedProperty().get())));
+        templates.forEach((radio, templateInfo) -> radio.setVisible(templateInfo.sourceTypes.contains(language.selectedProperty().get())));
         setOKEnabled(enable);
     }
     
