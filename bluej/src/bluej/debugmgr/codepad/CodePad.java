@@ -72,7 +72,7 @@ import javafx.util.StringConverter;
  * 
  * @author Michael Kolling
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.FX)
 public class CodePad extends ListView<CodePad.CodePadRow>
     implements ValueCollection, ResultWatcher
 {
@@ -179,8 +179,9 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             @OnThread(Tag.FX)
             public void commitEdit(CodePadRow newValue)
             {
-                super.commitEdit(newValue);
                 String text = newValue.getText();
+                ((EditRow)newValue).text = "";
+                super.commitEdit(newValue);
                 setEditable(false);    // don't allow input while we're thinking
                 command(text);
                 SwingUtilities.invokeLater(() -> executeCommand(text));
@@ -197,6 +198,8 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                     setEditable(item instanceof EditRow);
                     if (isEditable())
                         super.startEdit();
+                    else
+                        super.cancelEdit();
                 }
                 else
                 {
