@@ -82,6 +82,14 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     @OnThread(Tag.FX)
     public static class CodePadRow { protected String text = ""; public String getText() { return text; } }
     @OnThread(Tag.FX)
+    private static class CommandRow extends CodePadRow
+    {
+        public CommandRow(String text)
+        {
+            this.text = text;
+        }
+    }
+    @OnThread(Tag.FX)
     private static class EditRow extends CodePadRow
     {
         public EditRow(String text)
@@ -174,6 +182,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 super.commitEdit(newValue);
                 String text = newValue.getText();
                 setEditable(false);    // don't allow input while we're thinking
+                command(text);
                 SwingUtilities.invokeLater(() -> executeCommand(text));
             }
 
@@ -221,7 +230,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     public void clearVars()
     {
         localVars.clear();
-        if (textParser != null) {
+        if (textParser != null && frame.getProject() != null) {
             textParser.newClassLoader(frame.getProject().getClassLoader());
         }
     }
@@ -548,6 +557,15 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             });
         }
         */
+    }
+
+    /**
+     * Record part of a command
+     * @param s
+     */
+    private void command(String s)
+    {
+        getItems().add(getItems().size() - 1, new CommandRow(s));
     }
 
     /**
