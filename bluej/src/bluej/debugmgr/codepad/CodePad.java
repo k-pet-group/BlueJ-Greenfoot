@@ -20,37 +20,18 @@
  LICENSE.txt file that accompanied this code.
  */
 
-package bluej.debugmgr.texteval;
+package bluej.debugmgr.codepad;
 
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Event;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.accessibility.Accessible;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JEditorPane;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Caret;
 import javax.swing.text.Element;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.Keymap;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.Position;
-import javax.swing.text.SimpleAttributeSet;
 
 import javafx.application.Platform;
 
@@ -67,16 +48,22 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ValueCollection;
-import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.editor.moe.MoeSyntaxEditorKit;
 import bluej.parser.TextAnalyzer;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import javafx.collections.ListChangeListener;
+import javafx.scene.control.ListView;
+import javafx.scene.control.cell.TextFieldListCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 /**
  * A modified editor pane for the text evaluation area.
@@ -85,112 +72,157 @@ import javafx.stage.Stage;
  * 
  * @author Michael Kolling
  */
-public class TextEvalPane extends JEditorPane 
-    implements Accessible, ValueCollection, ResultWatcher, MouseMotionListener, MouseListener
+@OnThread(Tag.FXPlatform)
+public class CodePad extends ListView<CodePad.CodePadRow>
+    implements ValueCollection, ResultWatcher
 {
+
+    private final EditRow editRow;
+
+    @OnThread(Tag.FX)
+    public static class CodePadRow { protected String text = ""; public String getText() { return text; } }
+    @OnThread(Tag.FX)
+    private static class EditRow extends CodePadRow
+    {
+        public EditRow(String text)
+        {
+            this.text = text;
+        }
+    }
+    @OnThread(Tag.FX)
+    private static class OutputRow extends CodePadRow
+    {
+        public OutputRow(String text)
+        {
+            this.text = text;
+        }
+    }
+    @OnThread(Tag.FX)
+    private static class ErrorRow extends CodePadRow
+    {
+        public ErrorRow(String text)
+        {
+            this.text = text;
+        }
+    }
+
     private static final String nullLabel = "null";
     
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
     
     private final PkgMgrFrame frame;
-    private MoeSyntaxDocument doc;  // the text document behind the editor pane
+    @OnThread(Tag.Swing)
     private String currentCommand = "";
+    @OnThread(Tag.Swing)
     private IndexHistory history;
+    @OnThread(Tag.Swing)
     private Invoker invoker = null;
+    @OnThread(Tag.Swing)
     private TextAnalyzer textParser = null;
     
     // Keeping track of invocation
+    @OnThread(Tag.Swing)
     private boolean firstTry;
+    @OnThread(Tag.Swing)
     private boolean wrappedResult;
+    @OnThread(Tag.Swing)
     private String errorMessage;
-    
+
+    @OnThread(Tag.Swing)
     private boolean busy = false;
     private Action softReturnAction;
-    
+
+    @OnThread(Tag.Swing)
     private List<CodepadVar> localVars = new ArrayList<CodepadVar>();
+    @OnThread(Tag.Swing)
     private List<CodepadVar> newlyDeclareds;
+    @OnThread(Tag.Swing)
     private List<String> autoInitializedVars;
     // The action which removes the hover state on the object icon
     private Runnable removeHover;
 
-    public TextEvalPane(PkgMgrFrame frame)
+    public CodePad(PkgMgrFrame frame)
     {
         super();
-        getAccessibleContext().setAccessibleName(Config.getString("pkgmgr.codepad.title"));
         this.frame = frame;
-        setEditorKit(new MoeSyntaxEditorKit(true, null));
-        doc = (MoeSyntaxDocument) getDocument();
-        doc.enableParser(true);
-        defineKeymap();
-        clear();
+        //defineKeymap();
         history = new IndexHistory(20);
-        setCaret(new TextEvalCaret());
-        addMouseMotionListener(this);
-        addMouseListener(this);
-        setAutoscrolls(false);          // important - dragging objects from this component
-                                        // does not work correctly otherwise
+
+        StringConverter<CodePadRow> converter = new StringConverter<CodePadRow>()
+        {
+            @Override
+            @OnThread(Tag.FX)
+            public String toString(CodePadRow object)
+            {
+                return object == null ? "" : object.getText();
+            }
+
+            @Override
+            @OnThread(Tag.FX)
+            public CodePadRow fromString(String string)
+            {
+                // This is only called on commitEdit, in which case it must be an edit row:
+                return new EditRow(string);
+            }
+        };
+        setCellFactory(lv -> new TextFieldListCell<CodePadRow>(converter) {
+
+            @Override
+            @OnThread(Tag.FX)
+            public void commitEdit(CodePadRow newValue)
+            {
+                super.commitEdit(newValue);
+                String text = newValue.getText();
+                setEditable(false);    // don't allow input while we're thinking
+                SwingUtilities.invokeLater(() -> executeCommand(text));
+            }
+
+            @Override
+            @OnThread(Tag.FX)
+            public void updateItem(CodePadRow item, boolean empty)
+            {
+                super.updateItem(item, empty);
+                if (item != null)
+                {
+                    setText(item.getText());
+                    setEditable(item instanceof EditRow);
+                    if (isEditable())
+                        super.startEdit();
+                }
+                else
+                {
+                    setText("");
+                    setEditable(false);
+                    super.cancelEdit();
+                }
+            }
+
+            @Override
+            @OnThread(Tag.FX)
+            public void cancelEdit()
+            {
+            }
+
+            @Override
+            @OnThread(Tag.FX)
+            public void startEdit()
+            {
+            }
+        });
+
+        editRow = new EditRow("");
+        getItems().add(editRow);
+        setEditable(true);
     }
-    
-    public Dimension getPreferredSize() 
-    {
-        Dimension d = super.getPreferredSize();
-        d.width += TextEvalSyntaxView.TAG_WIDTH + 8;  // bit of empty space looks nice
-        return d;
-    }
-    
-    /**
-     * Make sure, when we are scrolling to follow the caret,
-     * that we can see the tag area as well.
-     */
-    public void scrollRectToVisible(Rectangle rect)
-    {
-        super.scrollRectToVisible(new Rectangle(rect.x - (TextEvalSyntaxView.TAG_WIDTH + 4), rect.y,
-                rect.width + TextEvalSyntaxView.TAG_WIDTH + 4, rect.height));
-    }
-    
-    /**
-     * Clear all text in this text area.
-     */
-    public void clear()
-    {
-        setText("");
-    }
-    
     /**
      * Clear the local variables.
      */
+    @OnThread(Tag.Swing)
     public void clearVars()
     {
         localVars.clear();
         if (textParser != null) {
             textParser.newClassLoader(frame.getProject().getClassLoader());
-        }
-    }
-
-    /**
-     * Paste the contents of the clipboard.
-     */
-    public void paste()
-    {
-        ensureLegalCaretPosition();
-        super.paste();
-    }
-
-    /**
-     * This is called when we get a 'paste' action (since we are handling 
-     * ordinary key input differently with the InsertCharacterAction.
-     * So: here we assume that we have a potential multi-line paste, and we
-     * want to treat it accordingly (as multi-line input).
-     */
-    public void replaceSelection(String content)
-    {
-        ensureLegalCaretPosition();
-
-        String[] lines = content.split("\n");
-        super.replaceSelection(lines[0]);
-        for(int i=1; i< lines.length;i++) {
-            softReturnAction.actionPerformed(null);
-            super.replaceSelection(lines[i]);
         }
     }
     
@@ -199,6 +231,7 @@ public class TextEvalPane extends JEditorPane
     /*
      * @see bluej.debugmgr.ValueCollection#getValueIterator()
      */
+    @OnThread(Tag.Swing)
     public Iterator<CodepadVar> getValueIterator()
     {
         return localVars.iterator();
@@ -207,8 +240,10 @@ public class TextEvalPane extends JEditorPane
     /*
      * @see bluej.debugmgr.ValueCollection#getNamedValue(java.lang.String)
      */
+    @OnThread(Tag.Swing)
     public NamedValue getNamedValue(String name)
     {
+        Class<Object> c = Object.class;
         NamedValue nv = getLocalVar(name);
         if (nv != null) {
             return nv;
@@ -225,6 +260,7 @@ public class TextEvalPane extends JEditorPane
      * @param name  The name of the variable to search for
      * @return    The named variable, or null
      */
+    @OnThread(Tag.Swing)
     private NamedValue getLocalVar(String name)
     {
         Iterator<CodepadVar> i = localVars.iterator();
@@ -244,12 +280,14 @@ public class TextEvalPane extends JEditorPane
      * @see bluej.debugmgr.ResultWatcher#beginExecution()
      */
     @Override
+    @OnThread(Tag.Swing)
     public void beginCompile() { }
     
     /*
      * @see bluej.debugmgr.ResultWatcher#beginExecution()
      */
     @Override
+    @OnThread(Tag.Swing)
     public void beginExecution(InvokerRecord ir)
     { 
         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
@@ -259,6 +297,7 @@ public class TextEvalPane extends JEditorPane
      * @see bluej.debugmgr.ResultWatcher#putResult(bluej.debugger.DebuggerObject, java.lang.String, bluej.testmgr.record.InvokerRecord)
      */
     @Override
+    @OnThread(Tag.Swing)
     public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
     {
         frame.getObjectBench().addInteraction(ir);
@@ -289,8 +328,7 @@ public class TextEvalPane extends JEditorPane
                     nindex = warning.length();
                 
                 String warnLine = warning.substring(findex, nindex);
-                append(warnLine);
-                markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
+                Platform.runLater(() -> error(warnLine));
                 findex = nindex + 1; // skip the newline character
             }
             
@@ -303,7 +341,7 @@ public class TextEvalPane extends JEditorPane
             
             if(resultString.equals(nullLabel)) {
                 DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultString);
-                output(resultString);
+                Platform.runLater(() -> output(resultString));
             }
             else {
                 boolean isObject = resultField.isReferenceType();
@@ -313,18 +351,18 @@ public class TextEvalPane extends JEditorPane
                     String resultType = resultObject.getGenType().toString(true);
                     String resultOutputString = resultString + "   (" + resultType + ")";
                     DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
-                    objectOutput(resultOutputString,  new ObjectInfo(resultObject, ir));
+                    Platform.runLater(() -> objectOutput(resultOutputString,  new ObjectInfo(resultObject, ir)));
                 }
                 else {
                     String resultType = resultField.getType().toString(true);
                     String resultOutputString = resultString + "   (" + resultType + ")";
                     DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
-                    output(resultOutputString);
+                    Platform.runLater(() -> output(resultOutputString));
                 }
             }            
         } 
         else {
-            markCurrentAs(TextEvalSyntaxView.OUTPUT, false);
+            //markCurrentAs(TextEvalSyntaxView.OUTPUT, false);
         }
         
         ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
@@ -335,10 +373,11 @@ public class TextEvalPane extends JEditorPane
         
         currentCommand = "";
         textParser.confirmCommand();
-        setEditable(true);    // allow next input
+        Platform.runLater(() -> setEditable(true));    // allow next input
         busy = false;
     }
 
+    @OnThread(Tag.Swing)
     private void updateInspectors()
     {
         Project proj = frame.getPackage().getProject();
@@ -348,6 +387,8 @@ public class TextEvalPane extends JEditorPane
     /**
      * An invocation has failed - here is the error message
      */
+    @Override
+    @OnThread(Tag.Swing)
     public void putError(String message, InvokerRecord ir)
     {
         if(firstTry) {
@@ -358,7 +399,7 @@ public class TextEvalPane extends JEditorPane
                 // we won't get type arguments).
                 wrappedResult = false;
                 errorMessage = null; // use the error message from this second attempt
-                invoker = new Invoker(frame, this, currentCommand, TextEvalPane.this);
+                invoker = new Invoker(frame, this, currentCommand, CodePad.this);
                 invoker.setImports(textParser.getImportStatements());
                 invoker.doFreeFormInvocation("");
             }
@@ -366,7 +407,7 @@ public class TextEvalPane extends JEditorPane
                 // We thought there was going to be a result, but compilation failed.
                 // Try again, but assume we have a statement this time.
                 firstTry = false;
-                invoker = new Invoker(frame, this, currentCommand, TextEvalPane.this);
+                invoker = new Invoker(frame, this, currentCommand, CodePad.this);
                 invoker.setImports(textParser.getImportStatements());
                 invoker.doFreeFormInvocation(null);
                 if (errorMessage == null) {
@@ -394,6 +435,8 @@ public class TextEvalPane extends JEditorPane
     /**
      * A runtime exception occurred.
      */
+    @Override
+    @OnThread(Tag.Swing)
     public void putException(ExceptionDescription exception, InvokerRecord ir)
     {
         ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
@@ -417,6 +460,8 @@ public class TextEvalPane extends JEditorPane
      * The remote VM terminated before execution completed (or as a result of
      * execution).
      */
+    @Override
+    @OnThread(Tag.Swing)
     public void putVMTerminated(InvokerRecord ir)
     {
         if (autoInitializedVars != null)
@@ -427,9 +472,8 @@ public class TextEvalPane extends JEditorPane
         
         String message = Config.getString("pkgmgr.codepad.vmTerminated");
         DataCollector.codePadError(frame.getPackage(), ir.getOriginalCommand(), message);
-        append(message);
-        markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
-        
+        Platform.runLater(() -> error(message));
+
         completeExecution();
     }
     
@@ -437,6 +481,7 @@ public class TextEvalPane extends JEditorPane
      * Remove the newly declared variables from the value collection.
      * (This is needed if compilation fails, or execution bombs with an exception).
      */
+    @OnThread(Tag.Swing)
     private void removeNewlyDeclareds()
     {
         if (newlyDeclareds != null) {
@@ -453,18 +498,20 @@ public class TextEvalPane extends JEditorPane
     /**
      * Show an error message, and allow further command input.
      */
+    @OnThread(Tag.Swing)
     private void showErrorMsg(final String message)
     {
-        error("Error: " + message);
+        Platform.runLater(() -> error("Error: " + message));
         completeExecution();
     }
     
     /**
      * Show an exception message, and allow further command input.
      */
+    @OnThread(Tag.Swing)
     private void showExceptionMsg(final String message)
     {
-        error("Exception: " + message);
+        Platform.runLater(() -> error("Exception: " + message));
         completeExecution();
     }
     
@@ -472,10 +519,11 @@ public class TextEvalPane extends JEditorPane
      * Execution of the current command has finished (one way or another).
      * Allow further command input.
      */
+    @OnThread(Tag.Swing)
     private void completeExecution()
     {
         currentCommand = "";
-        setEditable(true);
+        Platform.runLater(() -> setEditable(true));
         busy = false;
     }
 
@@ -488,6 +536,7 @@ public class TextEvalPane extends JEditorPane
      */
     public void tagAreaClick(int pos, int clickCount)
     {
+        /*
         ObjectInfo objInfo = objectAtPosition(pos);
         if(objInfo != null) {
             // Eugh: thread-hop just to get the window:
@@ -498,6 +547,7 @@ public class TextEvalPane extends JEditorPane
                 });
             });
         }
+        */
     }
 
     /**
@@ -506,13 +556,7 @@ public class TextEvalPane extends JEditorPane
      */
     private void output(String s)
     {
-        try {
-            doc.insertString(doc.getLength(), s, null);
-            markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
-        }
-        catch(BadLocationException exc) {
-            Debug.reportError("bad location in terminal operation");
-        }
+        getItems().add(getItems().size() - 1, new OutputRow(s));
     }
     
     /**
@@ -521,13 +565,8 @@ public class TextEvalPane extends JEditorPane
      */
     private void objectOutput(String s, ObjectInfo objInfo)
     {
-        try {
-            doc.insertString(doc.getLength(), s, null);
-            markAs(TextEvalSyntaxView.OBJECT, objInfo);
-        }
-        catch(BadLocationException exc) {
-            Debug.reportError("bad location in terminal operation");
-        }
+        getItems().add(getItems().size() - 1, new OutputRow(s));
+//        markAs(TextEvalSyntaxView.OBJECT, objInfo);
     }
     
     /**
@@ -536,174 +575,28 @@ public class TextEvalPane extends JEditorPane
      */
     private void error(String s)
     {
-        try {
-            doc.insertString(doc.getLength(), s, null);
-            markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
-        }
-        catch(BadLocationException exc) {
-            Debug.reportError("bad location in terminal operation");
-        }
-    }
-    
-    /**
-     * Append some text to this area.
-     * @param s The text to append.
-     */
-    private void append(String s)
-    {
-        try {
-            doc.insertString(doc.getLength(), s, null);
-            setCaretPosition(doc.getLength());
-        
-        }
-        catch(BadLocationException exc) {
-            Debug.reportError("bad location in terminal operation");
-        }
+        getItems().add(getItems().size() - 1, new ErrorRow(s));
     }
 
-    /**
-     * Ensure that the caret position (including the whole
-     * selection, if any) is within the editale area (the last 
-     * line of text). If it isn't, adjust it so that it is.
-     */
-    private void ensureLegalCaretPosition()
-    {
-        Caret caret = getCaret();
-        boolean dotOK = isLastLine(caret.getDot());
-        boolean markOK = isLastLine(caret.getMark());
-        
-        if(dotOK && markOK)     // both in last line - no problem
-            return;
-        
-        if(!dotOK && !markOK) { // both not in last line - append at end
-            setCaretPosition(getDocument().getLength());
-        }
-        else {                  // selection reaches into last line
-            caret.setDot(Math.max(caret.getDot(), caret.getMark()));
-            caret.moveDot(startOfLastLine());
-        }
-    }
-    
-    /**
-     * Check whether the given text position is within the area
-     * intended for editing (the last line).
-     * 
-     * @param pos  The position to be checked
-     * @return  True if this position is within the last text line.
-     */
-    private boolean isLastLine(int pos)
-    {
-        return pos >= startOfLastLine();
-    }
-    
-    /**
-     * Return the text position of the start of the last text line
-     * (the start of the area editable by the user).
-     * 
-     * @return  The position of the start of the last text line.
-     */
-    private int startOfLastLine()
-    {
-        AbstractDocument doc = (AbstractDocument) getDocument();
-        Element line = doc.getParagraphElement(doc.getLength());
-        return line.getStartOffset();
-    }
-    
-    /**
-     * Get the text of the current line (the last line) of this area.
-     * @return The text of the last line.
-     */
-    private String getCurrentLine()
-    {
-        Element line = doc.getParagraphElement(doc.getLength());
-        int lineStart = line.getStartOffset();
-        int lineEnd = line.getEndOffset() - 1;      // ignore newline char
-        
-        try {
-            return doc.getText(lineStart, lineEnd-lineStart);
-        }
-        catch(BadLocationException exc) {
-            Debug.reportError("bad location in text eval operation");
-            return "";
-        }
-    }
-    
-    /**
-     * Return the current column number.
-     */
-    private int getCurrentColumn()
-    {
-        Caret caret = getCaret();
-        int pos = Math.min(caret.getMark(), caret.getDot());
-        return getColumnFromPosition(pos);
-    }
-
-    /**
-     * Return the column for a given position.
-     */
-    private int getColumnFromPosition(int pos)
-    {
-        int lineStart = doc.getParagraphElement(pos).getStartOffset();
-        return (pos - lineStart);       
-    }
-    
-    /**
-     * Mark the last line of the text area as output. and start a new 
-     * line after that one.
-     */
-    private void markAs(String flag, Object value)
-    {
-        append("\n");
-        SimpleAttributeSet a = new SimpleAttributeSet();
-        a.addAttribute(flag, value);
-        doc.setParagraphAttributes(doc.getLength()-2, a);
-        repaint();
-    }
-    
-    /**
-     * Mark the current line of the text area as output.
-     */
-    private void markCurrentAs(String flag, Object value)
-    {
-        SimpleAttributeSet a = new SimpleAttributeSet();
-        a.addAttribute(flag, value);
-        doc.setParagraphAttributes(doc.getLength(), a);
-    }
-    
-     /**
-     * Replace the text of the current line with some new text.
-     * @param s The new text for the line.
-     */
-    private void replaceLine(String s)
-    {
-        Element line = doc.getParagraphElement(doc.getLength());
-        int lineStart = line.getStartOffset();
-        int lineEnd = line.getEndOffset() - 1;      // ignore newline char
-        
-        try {
-                doc.replace(lineStart, lineEnd-lineStart, s, null);
-        }
-        catch(BadLocationException exc) {
-            Debug.reportError("bad location in text eval operation");
-        }
-    }
-    
     /**
      * Return the object stored with the line at position 'pos'.
      * If that line does not have an object, return null.
      */
     private ObjectInfo objectAtPosition(int pos)
     {
-        Element line = getLineAt(pos);
-        return (ObjectInfo) line.getAttributes().getAttribute(TextEvalSyntaxView.OBJECT);
+        //Element line = getLineAt(pos);
+        //return (ObjectInfo) line.getAttributes().getAttribute(TextEvalSyntaxView.OBJECT);
+        return null;
     }
 
-    /**
-     *  Find and return a line by text position
-     */
-    private Element getLineAt(int pos)
+    public void clear()
     {
-        return doc.getParagraphElement(pos);
+        SwingUtilities.invokeLater(this::clearVars);
+    }
+
+    public void resetFontSize()
+    {
+
     }
 
 
@@ -713,10 +606,10 @@ public class TextEvalPane extends JEditorPane
      * Set the keymap for this text area. Especially: take care that cursor 
      * movement is restricted so that the cursor remains in the last line,
      * and interpret Return keys to evaluate commands.
-     */
+     */ /*
     private void defineKeymap()
     {
-        Keymap newmap = JTextComponent.addKeymap("texteval", getKeymap());
+        Keymap newmap = JTextComponent.addKeymap("codepad", getKeymap());
 
         // Note that we rely on behavior of the current DefaultEditorKit default key typed
         // handler to actually insert characters (it calls replaceSelection to do so,
@@ -756,108 +649,25 @@ public class TextEvalPane extends JEditorPane
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), action);
 
         setKeymap(newmap);
-    }
+    }*/
 
-
-    @Override
-    public void mouseDragged(MouseEvent e)
-    {
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e)
-    {
-        Point pt = new Point(e.getX(), e.getY());
-        Position.Bias[] biasRet = new Position.Bias[1];
-        int pos = getUI().viewToModel(this, pt, biasRet);
-
-        if (removeHover != null)
-        {
-            removeHover.run();
-            removeHover = null;
-        }
-
-        if (e.getX() <= TextEvalSyntaxView.TAG_WIDTH && objectAtPosition(pos) != null)
-        {
-            SimpleAttributeSet attr = new SimpleAttributeSet();
-            attr.addAttribute(TextEvalSyntaxView.OBJECT_HOVER, Boolean.TRUE);
-            removeHover = doc.setParagraphAttributes(pos, attr);
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        }
-        else
-        {
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        }
-        repaint();
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e)
-    {
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e)
-    {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e)
-    {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e)
-    {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e)
-    {
-        if (removeHover != null)
-        {
-            removeHover.run();
-            removeHover = null;
-            repaint();
-        }
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
-
-    final class ExecuteCommandAction extends AbstractAction {
-
-        /**
-         * Create a new action object. This action executes the current command.
-         */
-        public ExecuteCommandAction()
-        {
-            super("ExecuteCommand");
-        }
-        
-        /**
-         * Execute the text of the current line in the text area as a Java command.
-         */
-        final public void actionPerformed(ActionEvent event)
+    @OnThread(Tag.Swing)
+    private void executeCommand(String line)
         {
             if (busy) {
                 return;
             }
-            
-            String line = getCurrentLine();
+
             currentCommand = (currentCommand + line).trim();
             if(currentCommand.length() != 0) {
                        
                 history.add(line);
-                append("\n");
+                //append("\n");
                 firstTry = true;
-                setEditable(false);    // don't allow input while we're thinking
                 busy = true;
                 if (textParser == null) {
                     textParser = new TextAnalyzer(frame.getProject().getEntityResolver(),
-                            frame.getPackage().getQualifiedName(), TextEvalPane.this);
+                            frame.getPackage().getQualifiedName(), CodePad.this);
                 }
                 String retType;
                 retType = textParser.parseCommand(currentCommand);
@@ -904,7 +714,7 @@ public class TextEvalPane extends JEditorPane
                     }
                 }
                 
-                invoker = new Invoker(frame, TextEvalPane.this, currentCommand, TextEvalPane.this);
+                invoker = new Invoker(frame, CodePad.this, currentCommand, CodePad.this);
                 invoker.setImports(textParser.getImportStatements());
                 if (!invoker.doFreeFormInvocation(retType)) {
                     // Invocation failed
@@ -913,10 +723,9 @@ public class TextEvalPane extends JEditorPane
                 }
             }
             else {
-                markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
+                //markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
             }
         }
-    }
 
     final class ContinueCommandAction extends AbstractAction {
         
@@ -936,104 +745,18 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            /*
             if (busy)
                 return;
             
             String line = getCurrentLine();
             currentCommand += line + " ";
             history.add(line);
-            markAs(TextEvalSyntaxView.CONTINUE, Boolean.TRUE);
+            //markAs(TextEvalSyntaxView.CONTINUE, Boolean.TRUE);
+            */
         }
     }
 
-    final class BackSpaceAction extends AbstractAction {
-
-        /**
-         * Create a new action object.
-         */
-        public BackSpaceAction()
-        {
-            super("BackSpace");
-        }
-        
-        /**
-         * Perform a backspace action.
-         */
-        final public void actionPerformed(ActionEvent event)
-        {
-            if (busy) {
-                return;
-            }
-            
-            try {
-                if(getSelectionEnd() == getSelectionStart()) { // no selection
-                    if (getCurrentColumn() > 0) {
-                        doc.remove(getCaretPosition()-1, 1);
-                    }
-                }
-                else {
-                    replaceSelection("");
-                }
-            }
-            catch(BadLocationException exc) {
-                Debug.reportError("bad location in text eval operation");
-            }
-        }
-    }
-
-    final class CursorLeftAction extends AbstractAction {
-
-        /**
-         * Create a new action object.
-         */
-        public CursorLeftAction()
-        {
-            super("CursorLeft");
-        }
-
-        /**
-         * Move the cursor left (if allowed).
-         */
-        final public void actionPerformed(ActionEvent event)
-        {
-            if (busy) {
-                return;
-            }
-            
-            if(getCurrentColumn() > 0) {
-                Caret caret = getCaret();
-                caret.setDot(caret.getDot() - 1);
-            }
-        }
-    }
-    
-    final class CursorHomeAction extends AbstractAction {
-        
-        /**
-         * Create a new action object.
-         */
-        public CursorHomeAction()
-        {
-            super("CursorHome");
-        }
-        
-        /**
-         * Home the cursor. This overrides the default behaviour (move to
-         * column 0) to "move to column 1".
-         */
-        public void actionPerformed(ActionEvent event)
-        {
-            if (busy) {
-                return;
-            }
-            
-            Caret caret = getCaret();
-            int curCol = getColumnFromPosition(caret.getDot());
-            if (curCol != 1) {
-                caret.setDot(caret.getDot() - curCol);
-            }
-        }
-    }
 
     final class HistoryBackAction extends AbstractAction {
 
@@ -1050,14 +773,21 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            /*
             if (busy)
                 return;
             
             String line = history.getPrevious();
             if(line != null) {
-                replaceLine(line);
+                setInput(line);
             }
+            */
         }
+
+    }
+
+    private void setInput(String line)
+    {
 
     }
 
@@ -1076,41 +806,20 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            /*
             if (busy)
                 return;
             
             String line = history.getNext();
             if(line != null) {
-                replaceLine(line);
+                setInput(line);
             }
+            */
         }
 
     }
 
-    final class TransferFocusAction extends AbstractAction {
-        private boolean forward;
-        /**
-         * Create a new action object.
-         */
-        public TransferFocusAction(boolean forward)
-        {
-            super("TransferFocus");
-            this.forward = forward;
-        }
-        
-        /**
-         * Transfer the keyboard focus to another component.
-         */
-        final public void actionPerformed(ActionEvent event)
-        {
-            if(forward)
-                transferFocus();
-            else
-                transferFocusBackward();
-        }
-
-    }    
-
+    @OnThread(Tag.Any)
     final class ObjectInfo {
         DebuggerObject obj;
         InvokerRecord ir;

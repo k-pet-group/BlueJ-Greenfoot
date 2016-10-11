@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,7 +49,7 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
-import bluej.debugmgr.texteval.DeclaredVar;
+import bluej.debugmgr.codepad.DeclaredVar;
 import bluej.parser.entity.ConstantFloatValue;
 import bluej.parser.entity.ConstantIntValue;
 import bluej.parser.entity.EntityResolver;

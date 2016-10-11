@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.debugmgr.texteval;
+package bluej.debugmgr.codepad;
 
 import java.awt.Color;
 import java.awt.Graphics;

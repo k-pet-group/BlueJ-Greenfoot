@@ -59,12 +59,12 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import bluej.classmgr.BPClassLoader;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.debugmgr.codepad.CodePad;
 import bluej.extensions.SourceType;
 import bluej.extmgr.FXMenuManager;
 import bluej.groupwork.actions.CommitCommentAction;
@@ -131,7 +131,6 @@ import bluej.debugmgr.LibraryCallDialog;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.debugmgr.texteval.TextEvalArea;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ToolsExtensionMenu;
 import bluej.extmgr.ViewExtensionMenu;
@@ -302,7 +301,8 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     // Effectively final, but can't mark it as such because initialised on other thread
     private ObjectBench objbench;
-    private TextEvalArea textEvaluator;
+    @OnThread(Tag.FXPlatform)
+    private CodePad codePad;
     @OnThread(Tag.FXPlatform)
     private SimpleBooleanProperty showingTextEval;
 
@@ -321,7 +321,6 @@ public class PkgMgrFrame
     private Property<BorderPane> paneProperty;
     @OnThread(Tag.FXPlatform)
     private FXPlatformRunnable cancelWiggle;
-    private final SwingNode padSwingNode;
     @OnThread(Tag.FXPlatform)
     private VBox toolPanel;
     @OnThread(Tag.FXPlatform)
@@ -336,6 +335,8 @@ public class PkgMgrFrame
     private SimpleBooleanProperty showInheritsProperty;
     @OnThread(Tag.FXPlatform)
     private SplitPane bottomPane;
+    @OnThread(Tag.Any)
+    private SwingNode dummySwingNode;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -366,8 +367,6 @@ public class PkgMgrFrame
             //diagramSwingNode.setContent(PkgMgrFrame.this);
             //diagramSwingNode.getContent().validate();
             //Dimension minSize = diagramSwingNode.getContent().getMinimumSize();
-            padSwingNode = new SwingNodeFixed();
-            padSwingNode.setContent(textEvaluator);
             SwingNode statusSwingNode = new SwingNodeFixed();
             statusSwingNode.setContent(statusbar);
             Platform.runLater(() -> {
@@ -384,7 +383,8 @@ public class PkgMgrFrame
                 topPane.setCenter(pkgEditorScrollPane);
                 //topPane.setMinHeight(minSize.getHeight());
                 topPane.setLeft(toolPanel);
-                bottomPane = new SplitPane(objbench, padSwingNode);
+                codePad = new CodePad(this);
+                bottomPane = new SplitPane(objbench, codePad);
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
                 SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
@@ -417,7 +417,6 @@ public class PkgMgrFrame
         }
         else
         {
-            padSwingNode = null;
             Platform.runLater(() -> {objbench = new ObjectBench(this);});
         }
     }
@@ -1013,8 +1012,6 @@ public class PkgMgrFrame
             enableFunctions(true); // changes menu items
             setVisible(true);
             
-            updateTextEvalBackground(isEmptyFrame());
-
             Package pkgFinal = aPkg;
             // I hate FX/Swing GUI threading...
             Platform.runLater(() ->
@@ -1108,10 +1105,11 @@ public class PkgMgrFrame
             
             ObjectBench bench = getObjectBench();
             String uniqueId = getProject().getUniqueId();
-            Platform.runLater(() -> bench.removeAllObjects(uniqueId));
-            clearTextEval();
-            updateTextEvalBackground(true);
-            
+            Platform.runLater(() -> {
+                bench.removeAllObjects(uniqueId);
+                clearTextEval();
+            });
+
             // Take a copy because we're about to null it:
             PackageEditor oldEd = editor;
             Platform.runLater(() -> {
@@ -1300,9 +1298,10 @@ public class PkgMgrFrame
      * Return the Code Pad component.
      * @return The code pad of this frame
      */
-    public TextEvalArea getCodePad()
+    @OnThread(Tag.FXPlatform)
+    public CodePad getCodePad()
     {
-        return textEvaluator;
+        return codePad;
     }
     
     @Override
@@ -1454,10 +1453,15 @@ public class PkgMgrFrame
         return false;
     }
 
-    // TODO eventually, remove this, once we have switched to FX
+    /**
+     * This is primarily needed for the extensions, who want a reference to a AWT frame.
+     * Thankfully, JavaFX does use a AWT frame to back the JavaFX window, we
+     * just need to do some jiggery-pokery to get the reference.
+     * @return
+     */
     public Frame getWindow()
     {
-        Window windowAncestor = SwingUtilities.getWindowAncestor(padSwingNode.getContent());
+        Window windowAncestor = SwingUtilities.getWindowAncestor(dummySwingNode.getContent());
         return (Frame) windowAncestor;
     }
 
@@ -2676,6 +2680,7 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     private void showHideTextEval(boolean show)
     {
+        /*
         if (show) {
             SwingUtilities.invokeLater(() -> {
                 //classScroller.setPreferredSize(classScroller.getSize()); // memorize
@@ -2697,27 +2702,17 @@ public class PkgMgrFrame
             //classScroller.setPreferredSize(classScroller.getSize());});
             editor.requestFocus();
         }
+        */
     }
 
     /**
      * Clear the text evaluation component (if it exists).
      */
+    @OnThread(Tag.FXPlatform)
     public void clearTextEval()
     {
-        if (textEvaluator != null) {
-            textEvaluator.clear();
-        }
-    }
-    
-    /**
-     * Updates the background of the text evaluation component (if it exists),
-     * when a project is opened/closed
-     * @param emptyFrame True if the frame is currently empty
-     */
-    public void updateTextEvalBackground(boolean emptyFrame)
-    {
-        if (textEvaluator != null) {
-            textEvaluator.updateBackground(emptyFrame);
+        if (codePad != null) {
+            codePad.clear();
         }
     }
 
@@ -2841,6 +2836,7 @@ public class PkgMgrFrame
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
         StatusAction statusAction = teamActions.getStatusAction(this);
 
+        JLabel dummyContent = new JLabel("");
         Platform.runLater(() -> {
             // create the left hand side toolbar
             toolPanel = new VBox();
@@ -2857,6 +2853,10 @@ public class PkgMgrFrame
             button = createButton(compileAction, false, false);
             topButtons.getChildren().add(button);
             toolPanel.getChildren().add(topButtons);
+
+            dummySwingNode = new SwingNode();
+            dummySwingNode.setContent(dummyContent);
+            toolPanel.getChildren().add(dummySwingNode);
             
             Pane space = new Pane();
             VBox.setVgrow(space, Priority.ALWAYS);

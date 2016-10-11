@@ -1527,10 +1527,13 @@ public class Project implements DebuggerListener, InspectorManager
         // remove bench objects for all frames in this project
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
         if (frames != null) {
-            for (int i = 0; i < frames.length; i++) {
-                ObjectBench bench = frames[i].getObjectBench();
-                Platform.runLater(() -> {bench.removeAllObjects(getUniqueId());});
-                frames[i].clearTextEval();
+            for (PkgMgrFrame frame : frames)
+            {
+                ObjectBench bench = frame.getObjectBench();
+                Platform.runLater(() -> {
+                    bench.removeAllObjects(getUniqueId());
+                    frame.clearTextEval();
+                });
             }
         }
     }

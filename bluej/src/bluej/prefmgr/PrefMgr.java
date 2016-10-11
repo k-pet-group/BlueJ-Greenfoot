@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
@@ -280,10 +281,12 @@ public class PrefMgr
                     project.getTerminal().resetFont();
                 }
             }
-            for (int j = 0; j < frames.length; j++) {
-                if(frames[j].getCodePad() != null) {
-                    frames[j].getCodePad().resetFontSize();
-                }
+            for (PkgMgrFrame frame : frames)
+            {
+                Platform.runLater(() -> {
+                    if (frame.getCodePad() != null)
+                        frame.getCodePad().resetFontSize();
+                });
             }
         }
     }

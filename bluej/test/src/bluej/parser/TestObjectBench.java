@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2014,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,7 @@ import java.util.Map;
 
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
-import bluej.debugmgr.texteval.DeclaredVar;
+import bluej.debugmgr.codepad.DeclaredVar;
 
 /**
  * An object bench implementation for test purposes.

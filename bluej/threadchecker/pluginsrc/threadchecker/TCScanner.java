@@ -837,7 +837,14 @@ class TCScanner extends TreePathScanner<Void, Void>
 
     private boolean inSynthetic()
     {
-        return methodScopeStack.stream().anyMatch(p -> p.item.getName().toString().contains("$"));
+        return methodScopeStack.stream().anyMatch(p -> {
+            MethodTree item = p.item;
+            if (item == null)
+                return false; // Initialiser block
+            Name name = item.getName();
+            String s = name.toString();
+            return s.contains("$");
+        });
     }
     
     private Optional<LocatedTag> getCurrentTag(Collection<? extends TypeMirror> superTypes,

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.texteval.DeclaredVar;
+import bluej.debugmgr.codepad.DeclaredVar;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.lexer.JavaTokenTypes;
