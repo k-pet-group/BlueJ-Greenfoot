@@ -1406,7 +1406,11 @@ public final class Config
      */
     public static File getTemplateDir()
     {
-        return getLanguageFile("templates");
+        String path = commandProps.getProperty("bluej.templatePath" , "");
+        if(path.length() == 0) {
+            return getLanguageFile("templates");
+        }
+        return new File(path);
     }
 
     /**
@@ -1423,11 +1427,7 @@ public final class Config
      */
     public static File getClassTemplateDir()
     {
-        String path = commandProps.getProperty("bluej.templatePath" , "");
-        if(path.length() == 0) {
-            return getLanguageFile("templates/newclass");
-        }
-        return new File(path);
+        return new File(getTemplateDir().getPath() + "/newclass");
     }
 
     /**
