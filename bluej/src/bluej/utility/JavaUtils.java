@@ -279,7 +279,7 @@ public abstract class JavaUtils
      * Get a list of the type parameters for a generic constructor.
      * (return an empty list if the method is not generic).
      * 
-     * @param method   The method fro which to find the type parameters
+     * @param cons   The constructors for which to find the type parameters
      * @return  A list of GenTypeDeclTpar
      */
     abstract public List<GenTypeDeclTpar> getTypeParams(Constructor<?> cons);
@@ -339,7 +339,7 @@ public abstract class JavaUtils
      * In the case of a varargs method, the last argument will be an array
      * type.
      * 
-     * @param method  the method whose argument types to get
+     * @param constructor  the constructor whose argument types to get
      * @return  the argument types
      */
     abstract public JavaType[] getParamGenTypes(Constructor<?> constructor) throws ClassNotFoundException;
@@ -662,10 +662,9 @@ public abstract class JavaUtils
         return new GenTypeClass(new JavaReflective(c));
     }
     
-    private static final Pattern headerPattern = Pattern.compile("{1,}\\s@\\w");
+//    private static final Pattern headerPattern = Pattern.compile("{1,}\\s@\\w");
     private static final Pattern paramNamePattern = Pattern.compile("param\\s+\\w"); // regular expression for the parameter name
     private static final Pattern paramDescPattern = Pattern.compile("\\s+\\w");  // regular expression for the parameter description
-    private static final Pattern codePattern = Pattern.compile("(\\{@code)(\\s+\\w+)(\\})");  // regular expression for the code tokens
 
     /**
      * Convert javadoc comment body (as extracted by javadocToString for instance)
@@ -715,15 +714,31 @@ public abstract class JavaUtils
         return result;
     }
 
-    private static String convertCodeTokens(String rawBlock)
+    private static String convertCodeTokens(String rawString)
     {
-        String resultBlock = rawBlock;
+        String result = rawString;
 
-        Matcher matcher = codePattern.matcher(rawBlock); //search the current block
-        if (matcher.find()) {
-            resultBlock = matcher.replaceAll("<code>$2 </code>");
+        int startIndex;
+        while ((startIndex = result.indexOf("{@code")) != -1) {
+            int insideOpeningBrackets = 0;
+            int endIndex = -1;
+            for (int i = startIndex + 6; i < result.length(); i++) {
+                if (result.charAt(i) == '{') {
+                    insideOpeningBrackets++;
+                }
+                else if (result.charAt(i) == '}') {
+                    if (insideOpeningBrackets != 0) {
+                        insideOpeningBrackets--;
+                    }
+                    else {
+                        endIndex = i;
+                        break;
+                    }
+                }
+            }
+            result = result.substring(0, startIndex) + "<code>" + result.substring(startIndex + 6, endIndex) + " </code>" + result.substring(endIndex + 1);
         }
-        return resultBlock;
+        return result;
     }
 
     private static String makeCommentColour(String text)
@@ -738,7 +753,7 @@ public abstract class JavaUtils
      */
     private static List<String> getBlockTags(String[] lines)
     {
-        LinkedList<String> blocks = new LinkedList<String>();
+        LinkedList<String> blocks = new LinkedList<>();
         StringBuilder cur = new StringBuilder();
         for (String line : lines) {
             line = line.trim();
