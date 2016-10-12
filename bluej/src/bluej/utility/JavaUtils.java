@@ -665,14 +665,16 @@ public abstract class JavaUtils
     private static final Pattern headerPattern = Pattern.compile("{1,}\\s@\\w");
     private static final Pattern paramNamePattern = Pattern.compile("param\\s+\\w"); // regular expression for the parameter name
     private static final Pattern paramDescPattern = Pattern.compile("\\s+\\w");  // regular expression for the parameter description
-    
+    private static final Pattern codePattern = Pattern.compile("(\\{@code)(\\s+\\w+)(\\})");  // regular expression for the code tokens
+
     /**
      * Convert javadoc comment body (as extracted by javadocToString for instance)
      * to HTML suitable for display by HTMLEditorKit.
      */
     public static String javadocToHtml(String javadocString)
     {
-        Javadoc j = parseJavadoc(javadocString);
+        String javadocStringCodeTagged = convertCodeTokens(javadocString);
+        Javadoc j = parseJavadoc(javadocStringCodeTagged);
 
         StringBuilder rest = new StringBuilder();
         StringBuilder params = new StringBuilder();
@@ -711,6 +713,17 @@ public abstract class JavaUtils
 
         String result = makeCommentColour(j.getHeader()) + (hasParamDoc ? params.toString() : "<p>") + rest.toString();
         return result;
+    }
+
+    private static String convertCodeTokens(String rawBlock)
+    {
+        String resultBlock = rawBlock;
+
+        Matcher matcher = codePattern.matcher(rawBlock); //search the current block
+        if (matcher.find()) {
+            resultBlock = matcher.replaceAll("<code>$2 </code>");
+        }
+        return resultBlock;
     }
 
     private static String makeCommentColour(String text)
