@@ -18,7 +18,7 @@ import threadchecker.Tag;
 @OnThread(Tag.FX)
 public class TextFieldListCellWithGraphic<T> extends ListCell<T>
 {
-    private TextField textField;
+    protected TextField textField;
     private HBox hbox = new HBox();
     protected Node tagGraphic;
 

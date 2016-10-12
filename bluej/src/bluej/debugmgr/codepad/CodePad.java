@@ -35,6 +35,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -78,9 +79,8 @@ import threadchecker.Tag;
  */
 @OnThread(Tag.FX)
 public class CodePad extends ListView<CodePad.CodePadRow>
-    implements ValueCollection, ResultWatcher
+    implements ValueCollection
 {
-
     private final EditRow editRow;
 
     public static @OnThread(Tag.FX) class CodePadRow
@@ -95,6 +95,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         public String getText() { return text; }
         public boolean isEditable() { return false; }
         public Node getGraphic() { return r; }
+        public void setTextField(TextField textField) { }
     }
     @OnThread(Tag.FX)
     private static class CommandRow extends CodePadRow
@@ -107,6 +108,8 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     @OnThread(Tag.FX)
     private static class EditRow extends CodePadRow
     {
+        private TextField textField;
+
         public EditRow(String text)
         {
             this.text = text;
@@ -116,6 +119,18 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         public boolean isEditable()
         {
             return true;
+        }
+
+        @Override
+        public void setTextField(TextField textField)
+        {
+            this.textField = textField;
+        }
+        
+        public void setText(String text)
+        {
+            if (this.textField != null)
+                this.textField.setText(text);
         }
     }
     @OnThread(Tag.FX)
@@ -192,9 +207,9 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             Config.getImageAsFXImage("image.eval.object.add.highlight");
     
     private final PkgMgrFrame frame;
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     private String currentCommand = "";
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     private IndexHistory history;
     @OnThread(Tag.Swing)
     private Invoker invoker = null;
@@ -243,6 +258,16 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 copySelectedRows();
                 e.consume();
             }
+            else if (e.getCode() == KeyCode.UP)
+            {
+                historyBack();
+                e.consume();
+            }
+            else if (e.getCode() == KeyCode.DOWN)
+            {
+                historyForward();
+                e.consume();
+            }
         });
         
         StringConverter<CodePadRow> converter = new StringConverter<CodePadRow>()
@@ -259,7 +284,8 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             public CodePadRow fromString(String string)
             {
                 // This is only called on commitEdit, in which case it must be an edit row:
-                return new EditRow(string);
+                editRow.text = string;
+                return editRow;
             }
         };
         setCellFactory(lv -> new TextFieldListCellWithGraphic<CodePadRow>(converter) {
@@ -272,7 +298,12 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 super.commitEdit(newValue);
                 setEditable(false);    // don't allow input while we're thinking
                 command(text);
-                SwingUtilities.invokeLater(() -> executeCommand(text));
+                currentCommand = (currentCommand + text).trim();
+                if(currentCommand.length() != 0)
+                {
+                    history.add(text);
+                    SwingUtilities.invokeLater(() -> executeCommand(currentCommand));
+                }
             }
 
             @Override
@@ -287,7 +318,10 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                     setText(item.getText());
                     setEditable(item.isEditable());
                     if (isEditable())
+                    {
+                        item.setTextField(textField);
                         super.startEdit();
+                    }
                     else
                         super.cancelEdit();
                 }
@@ -383,207 +417,234 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         return null;
     }
     
-    //   --- ResultWatcher interface ---
-
-    /*
-     * @see bluej.debugmgr.ResultWatcher#beginExecution()
-     */
-    @Override
-    @OnThread(Tag.Swing)
-    public void beginCompile() { }
-    
-    /*
-     * @see bluej.debugmgr.ResultWatcher#beginExecution()
-     */
-    @Override
-    @OnThread(Tag.Swing)
-    public void beginExecution(InvokerRecord ir)
-    { 
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
-    }
-    
-    /*
-     * @see bluej.debugmgr.ResultWatcher#putResult(bluej.debugger.DebuggerObject, java.lang.String, bluej.testmgr.record.InvokerRecord)
-     */
-    @Override
-    @OnThread(Tag.Swing)
-    public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
+    private class CodePadResultWatcher implements ResultWatcher
     {
-        frame.getObjectBench().addInteraction(ir);
-        updateInspectors();
+        private final String command;
 
-        // Newly declared variables are now initialized
-        if (newlyDeclareds != null) {
-            Iterator<CodepadVar> i = newlyDeclareds.iterator();
-            while (i.hasNext()) {
-                CodepadVar cpv = (CodepadVar) i.next();
-                cpv.setInitialized();
-            }
-            newlyDeclareds = null;
+        public CodePadResultWatcher(String command)
+        {
+            this.command = command;
         }
-        
-        boolean giveUninitializedWarning = autoInitializedVars != null && autoInitializedVars.size() != 0; 
-        
-        if (giveUninitializedWarning && Utility.firstTimeThisRun("TextEvalPane.uninitializedWarning")) {
-            // Some variables were automatically initialized - warn the user that
-            // this won't happen in "real" code.
-            
-            String warning = uninitializedWarning;
-            
-            int findex = 0;
-            while (findex < warning.length()) {
-                int nindex = warning.indexOf('\n', findex);
-                if (nindex == -1)
-                    nindex = warning.length();
-                
-                String warnLine = warning.substring(findex, nindex);
-                Platform.runLater(() -> error(warnLine));
-                findex = nindex + 1; // skip the newline character
-            }
-            
-            autoInitializedVars.clear();
-        }
-        
-        if (!result.isNullObject()) {
-            DebuggerField resultField = result.getField(0);
-            String resultString = resultField.getValueString();
-            
-            if(resultString.equals(nullLabel)) {
-                DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultString);
-                Platform.runLater(() -> output(resultString));
-            }
-            else {
-                boolean isObject = resultField.isReferenceType();
-                
-                if(isObject) {
-                    DebuggerObject resultObject = resultField.getValueObject(null);
-                    String resultType = resultObject.getGenType().toString(true);
-                    String resultOutputString = resultString + "   (" + resultType + ")";
-                    DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
-                    Platform.runLater(() -> objectOutput(resultOutputString,  new ObjectInfo(resultObject, ir)));
-                }
-                else {
-                    String resultType = resultField.getType().toString(true);
-                    String resultOutputString = resultString + "   (" + resultType + ")";
-                    DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
-                    Platform.runLater(() -> output(resultOutputString));
-                }
-            }            
-        } 
-        else {
-            //markCurrentAs(TextEvalSyntaxView.OUTPUT, false);
-        }
-        
-        ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
-        executionEvent.setCommand(currentCommand);
-        executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-        executionEvent.setResultObject(result);
-        BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-        
-        currentCommand = "";
-        textParser.confirmCommand();
-        Platform.runLater(() -> setEditable(true));    // allow next input
-        busy = false;
-    }
 
-    @OnThread(Tag.Swing)
-    private void updateInspectors()
-    {
-        Project proj = frame.getPackage().getProject();
-        Platform.runLater(() -> proj.updateInspectors());
-    }
-
-    /**
-     * An invocation has failed - here is the error message
-     */
-    @Override
-    @OnThread(Tag.Swing)
-    public void putError(String message, InvokerRecord ir)
-    {
-        if(firstTry) {
-            if (wrappedResult) {
-                // We thought we knew what the result type should be, but there
-                // was a compile time error. So try again, assuming that we
-                // got it wrong, and we'll use the dynamic result type (meaning
-                // we won't get type arguments).
-                wrappedResult = false;
-                errorMessage = null; // use the error message from this second attempt
-                invoker = new Invoker(frame, this, currentCommand, CodePad.this);
-                invoker.setImports(textParser.getImportStatements());
-                invoker.doFreeFormInvocation("");
-            }
-            else {
-                // We thought there was going to be a result, but compilation failed.
-                // Try again, but assume we have a statement this time.
-                firstTry = false;
-                invoker = new Invoker(frame, this, currentCommand, CodePad.this);
-                invoker.setImports(textParser.getImportStatements());
-                invoker.doFreeFormInvocation(null);
-                if (errorMessage == null) {
-                    errorMessage = message;
-                }
-            }
+        /*
+                 * @see bluej.debugmgr.ResultWatcher#beginExecution()
+                 */
+        @Override
+        @OnThread(Tag.Swing)
+        public void beginCompile()
+        {
         }
-        else {
-            if (errorMessage == null) {
-                errorMessage = message;
+
+        /*
+         * @see bluej.debugmgr.ResultWatcher#beginExecution()
+         */
+        @Override
+        @OnThread(Tag.Swing)
+        public void beginExecution(InvokerRecord ir)
+        {
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
+        }
+
+        /*
+         * @see bluej.debugmgr.ResultWatcher#putResult(bluej.debugger.DebuggerObject, java.lang.String, bluej.testmgr.record.InvokerRecord)
+         */
+        @Override
+        @OnThread(Tag.Swing)
+        public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
+        {
+            frame.getObjectBench().addInteraction(ir);
+            updateInspectors();
+
+            // Newly declared variables are now initialized
+            if (newlyDeclareds != null)
+            {
+                Iterator<CodepadVar> i = newlyDeclareds.iterator();
+                while (i.hasNext())
+                {
+                    CodepadVar cpv = (CodepadVar)i.next();
+                    cpv.setInitialized();
+                }
+                newlyDeclareds = null;
             }
-            
-            // An error. Remove declared variables.
-            if (autoInitializedVars != null) {
+
+            boolean giveUninitializedWarning = autoInitializedVars != null && autoInitializedVars.size() != 0;
+
+            if (giveUninitializedWarning && Utility.firstTimeThisRun("TextEvalPane.uninitializedWarning"))
+            {
+                // Some variables were automatically initialized - warn the user that
+                // this won't happen in "real" code.
+
+                String warning = uninitializedWarning;
+
+                int findex = 0;
+                while (findex < warning.length())
+                {
+                    int nindex = warning.indexOf('\n', findex);
+                    if (nindex == -1)
+                        nindex = warning.length();
+
+                    String warnLine = warning.substring(findex, nindex);
+                    Platform.runLater(() -> error(warnLine));
+                    findex = nindex + 1; // skip the newline character
+                }
+
                 autoInitializedVars.clear();
             }
-            
+
+            if (!result.isNullObject())
+            {
+                DebuggerField resultField = result.getField(0);
+                String resultString = resultField.getValueString();
+
+                if (resultString.equals(nullLabel))
+                {
+                    DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultString);
+                    Platform.runLater(() -> output(resultString));
+                }
+                else
+                {
+                    boolean isObject = resultField.isReferenceType();
+
+                    if (isObject)
+                    {
+                        DebuggerObject resultObject = resultField.getValueObject(null);
+                        String resultType = resultObject.getGenType().toString(true);
+                        String resultOutputString = resultString + "   (" + resultType + ")";
+                        DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
+                        Platform.runLater(() -> objectOutput(resultOutputString, new ObjectInfo(resultObject, ir)));
+                    }
+                    else
+                    {
+                        String resultType = resultField.getType().toString(true);
+                        String resultOutputString = resultString + "   (" + resultType + ")";
+                        DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
+                        Platform.runLater(() -> output(resultOutputString));
+                    }
+                }
+            }
+            else
+            {
+                //markCurrentAs(TextEvalSyntaxView.OUTPUT, false);
+            }
+
+            ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
+            executionEvent.setCommand(command);
+            executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+            executionEvent.setResultObject(result);
+            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+
+            textParser.confirmCommand();
+            Platform.runLater(() -> setEditable(true));    // allow next input
+            busy = false;
+        }
+
+        @OnThread(Tag.Swing)
+        private void updateInspectors()
+        {
+            Project proj = frame.getPackage().getProject();
+            Platform.runLater(() -> proj.updateInspectors());
+        }
+
+        /**
+         * An invocation has failed - here is the error message
+         */
+        @Override
+        @OnThread(Tag.Swing)
+        public void putError(String message, InvokerRecord ir)
+        {
+            if (firstTry)
+            {
+                if (wrappedResult)
+                {
+                    // We thought we knew what the result type should be, but there
+                    // was a compile time error. So try again, assuming that we
+                    // got it wrong, and we'll use the dynamic result type (meaning
+                    // we won't get type arguments).
+                    wrappedResult = false;
+                    errorMessage = null; // use the error message from this second attempt
+                    invoker = new Invoker(frame, CodePad.this, currentCommand, this);
+                    invoker.setImports(textParser.getImportStatements());
+                    invoker.doFreeFormInvocation("");
+                }
+                else
+                {
+                    // We thought there was going to be a result, but compilation failed.
+                    // Try again, but assume we have a statement this time.
+                    firstTry = false;
+                    invoker = new Invoker(frame, CodePad.this, currentCommand, this);
+                    invoker.setImports(textParser.getImportStatements());
+                    invoker.doFreeFormInvocation(null);
+                    if (errorMessage == null)
+                    {
+                        errorMessage = message;
+                    }
+                }
+            }
+            else
+            {
+                if (errorMessage == null)
+                {
+                    errorMessage = message;
+                }
+
+                // An error. Remove declared variables.
+                if (autoInitializedVars != null)
+                {
+                    autoInitializedVars.clear();
+                }
+
+                removeNewlyDeclareds();
+                DataCollector.codePadError(frame.getPackage(), ir.getOriginalCommand(), errorMessage);
+                showErrorMsg(errorMessage);
+                errorMessage = null;
+            }
+        }
+
+        /**
+         * A runtime exception occurred.
+         */
+        @Override
+        @OnThread(Tag.Swing)
+        public void putException(ExceptionDescription exception, InvokerRecord ir)
+        {
+            ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
+            executionEvent.setCommand(currentCommand);
+            executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
+            executionEvent.setException(exception);
+            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+            updateInspectors();
+
+            if (autoInitializedVars != null)
+            {
+                autoInitializedVars.clear();
+            }
+
             removeNewlyDeclareds();
-            DataCollector.codePadError(frame.getPackage(), ir.getOriginalCommand(), errorMessage);
-            showErrorMsg(errorMessage);
-            errorMessage = null;
+            String message = exception.getClassName() + " (" + exception.getText() + ")";
+            DataCollector.codePadException(frame.getPackage(), ir.getOriginalCommand(), message);
+            showExceptionMsg(message);
         }
-    }
-    
-    /**
-     * A runtime exception occurred.
-     */
-    @Override
-    @OnThread(Tag.Swing)
-    public void putException(ExceptionDescription exception, InvokerRecord ir)
-    {
-        ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
-        executionEvent.setCommand(currentCommand);
-        executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
-        executionEvent.setException(exception);
-        BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-        updateInspectors();
 
-        if (autoInitializedVars != null) {
-            autoInitializedVars.clear();
+        /**
+         * The remote VM terminated before execution completed (or as a result of
+         * execution).
+         */
+        @Override
+        @OnThread(Tag.Swing)
+        public void putVMTerminated(InvokerRecord ir)
+        {
+            if (autoInitializedVars != null)
+                autoInitializedVars.clear();
+
+            removeNewlyDeclareds();
+
+
+            String message = Config.getString("pkgmgr.codepad.vmTerminated");
+            DataCollector.codePadError(frame.getPackage(), ir.getOriginalCommand(), message);
+            Platform.runLater(() -> error(message));
+
+            completeExecution();
         }
-        
-        removeNewlyDeclareds();
-        String message = exception.getClassName() + " (" + exception.getText() + ")";
-        DataCollector.codePadException(frame.getPackage(), ir.getOriginalCommand(), message);
-        showExceptionMsg(message);
-    }
-    
-    /**
-     * The remote VM terminated before execution completed (or as a result of
-     * execution).
-     */
-    @Override
-    @OnThread(Tag.Swing)
-    public void putVMTerminated(InvokerRecord ir)
-    {
-        if (autoInitializedVars != null)
-            autoInitializedVars.clear();
-        
-        removeNewlyDeclareds();
-        
-        
-        String message = Config.getString("pkgmgr.codepad.vmTerminated");
-        DataCollector.codePadError(frame.getPackage(), ir.getOriginalCommand(), message);
-        Platform.runLater(() -> error(message));
-
-        completeExecution();
     }
     
     /**
@@ -631,7 +692,6 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     @OnThread(Tag.Swing)
     private void completeExecution()
     {
-        currentCommand = "";
         Platform.runLater(() -> setEditable(true));
         busy = false;
     }
@@ -770,80 +830,72 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     }*/
 
     @OnThread(Tag.Swing)
-    private void executeCommand(String line)
-        {
-            if (busy) {
-                return;
-            }
+    private void executeCommand(String command)
+    {
+        if (busy) {
+            return;
+        }
+        
+        firstTry = true;
+        busy = true;
+        if (textParser == null) {
+            textParser = new TextAnalyzer(frame.getProject().getEntityResolver(),
+                    frame.getPackage().getQualifiedName(), CodePad.this);
+        }
+        String retType;
+        retType = textParser.parseCommand(command);
+        wrappedResult = (retType != null && retType.length() != 0);
+        
+        // see if any variables were declared
+        if (retType == null) {
+            firstTry = false; // Only try once.
+            command = textParser.getAmendedCommand();
+            List<DeclaredVar> declaredVars = textParser.getDeclaredVars();
+            if (declaredVars != null) {
+                Iterator<DeclaredVar> i = declaredVars.iterator();
+                while (i.hasNext()) {
+                    if (newlyDeclareds == null) {
+                        newlyDeclareds = new ArrayList<CodepadVar>();
+                    }
+                    if (autoInitializedVars == null) {
+                        autoInitializedVars = new ArrayList<String>();
+                    }
+                    
+                    DeclaredVar dv = i.next();
+                    String declaredName = dv.getName();
+                    
+                    if (getLocalVar(declaredName) != null) {
+                        // The variable has already been declared
+                        String errMsg = Config.getString("pkgmgr.codepad.redefinedVar");
+                        errMsg = Utility.mergeStrings(errMsg, declaredName);
+                        showErrorMsg(errMsg);
+                        removeNewlyDeclareds();
+                        return;
+                    }
+                    
+                    CodepadVar cpv = new CodepadVar(dv.getName(), dv.getDeclaredType(), dv.isFinal());
+                    newlyDeclareds.add(cpv);
+                    localVars.add(cpv);
 
-            currentCommand = (currentCommand + line).trim();
-            if(currentCommand.length() != 0) {
-                       
-                history.add(line);
-                //append("\n");
-                firstTry = true;
-                busy = true;
-                if (textParser == null) {
-                    textParser = new TextAnalyzer(frame.getProject().getEntityResolver(),
-                            frame.getPackage().getQualifiedName(), CodePad.this);
-                }
-                String retType;
-                retType = textParser.parseCommand(currentCommand);
-                wrappedResult = (retType != null && retType.length() != 0);
-                
-                // see if any variables were declared
-                if (retType == null) {
-                    firstTry = false; // Only try once.
-                    currentCommand = textParser.getAmendedCommand();
-                    List<DeclaredVar> declaredVars = textParser.getDeclaredVars();
-                    if (declaredVars != null) {
-                        Iterator<DeclaredVar> i = declaredVars.iterator();
-                        while (i.hasNext()) {
-                            if (newlyDeclareds == null) {
-                                newlyDeclareds = new ArrayList<CodepadVar>();
-                            }
-                            if (autoInitializedVars == null) {
-                                autoInitializedVars = new ArrayList<String>();
-                            }
-                            
-                            DeclaredVar dv = i.next();
-                            String declaredName = dv.getName();
-                            
-                            if (getLocalVar(declaredName) != null) {
-                                // The variable has already been declared
-                                String errMsg = Config.getString("pkgmgr.codepad.redefinedVar");
-                                errMsg = Utility.mergeStrings(errMsg, declaredName);
-                                showErrorMsg(errMsg);
-                                removeNewlyDeclareds();
-                                return;
-                            }
-                            
-                            CodepadVar cpv = new CodepadVar(dv.getName(), dv.getDeclaredType(), dv.isFinal());
-                            newlyDeclareds.add(cpv);
-                            localVars.add(cpv);
-
-                            // If the variable was declared but not initialized, the codepad
-                            // auto-initializes it. We add to a list so that we can display
-                            // a warning to that effect, once the command has completed.
-                            if (! dv.isInitialized()) {
-                                autoInitializedVars.add(dv.getName());
-                            }
-                        }
+                    // If the variable was declared but not initialized, the codepad
+                    // auto-initializes it. We add to a list so that we can display
+                    // a warning to that effect, once the command has completed.
+                    if (! dv.isInitialized()) {
+                        autoInitializedVars.add(dv.getName());
                     }
                 }
-                
-                invoker = new Invoker(frame, CodePad.this, currentCommand, CodePad.this);
-                invoker.setImports(textParser.getImportStatements());
-                if (!invoker.doFreeFormInvocation(retType)) {
-                    // Invocation failed
-                    firstTry = false;
-                    putError("Invocation failed.", null);
-                }
-            }
-            else {
-                //markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
             }
         }
+
+        CodePadResultWatcher watcher = new CodePadResultWatcher(command);
+        invoker = new Invoker(frame, CodePad.this, command, watcher);
+        invoker.setImports(textParser.getImportStatements());
+        if (!invoker.doFreeFormInvocation(retType)) {
+            // Invocation failed
+            firstTry = false;
+            watcher.putError("Invocation failed.", null);
+        }
+    }
 
     final class ContinueCommandAction extends AbstractAction {
         
@@ -875,66 +927,25 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         }
     }
 
-
-    final class HistoryBackAction extends AbstractAction {
-
-        /**
-         * Create a new action object.
-         */
-        public HistoryBackAction()
-        {
-            super("HistoryBack");
+    private void historyBack()
+    {
+        String line = history.getPrevious();
+        if(line != null) {
+            setInput(line);
         }
-        
-        /**
-         * Set the current line to the previous input history entry.
-         */
-        final public void actionPerformed(ActionEvent event)
-        {
-            /*
-            if (busy)
-                return;
-            
-            String line = history.getPrevious();
-            if(line != null) {
-                setInput(line);
-            }
-            */
-        }
-
     }
 
     private void setInput(String line)
     {
-
+        editRow.setText(line);
     }
 
-    final class HistoryForwardAction extends AbstractAction {
-
-        /**
-         * Create a new action object.
-         */
-        public HistoryForwardAction()
-        {
-            super("HistoryForward");
+    private void historyForward()
+    {
+        String line = history.getNext();
+        if(line != null) {
+            setInput(line);
         }
-        
-        /**
-         * Set the current line to the next input history entry.
-         */
-        final public void actionPerformed(ActionEvent event)
-        {
-            /*
-            if (busy)
-                return;
-            
-            String line = history.getNext();
-            if(line != null) {
-                setInput(line);
-            }
-            */
-        }
-
     }
 
     @OnThread(Tag.Any)
