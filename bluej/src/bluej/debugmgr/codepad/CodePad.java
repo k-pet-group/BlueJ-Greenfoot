@@ -116,6 +116,15 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         }
 
         @Override
+        public String getText()
+        {
+            if (textField != null)
+                return textField.getText();
+            else
+                return super.getText();
+        }
+
+        @Override
         public boolean isEditable()
         {
             return true;
@@ -226,7 +235,6 @@ public class CodePad extends ListView<CodePad.CodePadRow>
 
     @OnThread(Tag.Swing)
     private boolean busy = false;
-    private Action softReturnAction;
 
     @OnThread(Tag.Swing)
     private List<CodepadVar> localVars = new ArrayList<CodepadVar>();
@@ -268,6 +276,11 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 historyForward();
                 e.consume();
             }
+            else if (e.getCode() == KeyCode.ENTER && e.isShiftDown())
+            {
+                softReturn();
+                e.consume();
+            }
         });
         
         StringConverter<CodePadRow> converter = new StringConverter<CodePadRow>()
@@ -297,12 +310,14 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 ((EditRow)newValue).text = "";
                 super.commitEdit(newValue);
                 setEditable(false);    // don't allow input while we're thinking
-                command(text);
+                command(text, true);
                 currentCommand = (currentCommand + text).trim();
                 if(currentCommand.length() != 0)
                 {
                     history.add(text);
-                    SwingUtilities.invokeLater(() -> executeCommand(currentCommand));
+                    String cmd = currentCommand;
+                    currentCommand = "";
+                    SwingUtilities.invokeLater(() -> executeCommand(cmd));
                 }
             }
 
@@ -319,8 +334,10 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                     setEditable(item.isEditable());
                     if (isEditable())
                     {
-                        item.setTextField(textField);
+                        // Must startEdit first, as that may be what initialises
+                        // textField (if we haven't edited this cell before):
                         super.startEdit();
+                        item.setTextField(textField);
                     }
                     else
                         super.cancelEdit();
@@ -562,7 +579,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                     // we won't get type arguments).
                     wrappedResult = false;
                     errorMessage = null; // use the error message from this second attempt
-                    invoker = new Invoker(frame, CodePad.this, currentCommand, this);
+                    invoker = new Invoker(frame, CodePad.this, command, this);
                     invoker.setImports(textParser.getImportStatements());
                     invoker.doFreeFormInvocation("");
                 }
@@ -571,7 +588,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                     // We thought there was going to be a result, but compilation failed.
                     // Try again, but assume we have a statement this time.
                     firstTry = false;
-                    invoker = new Invoker(frame, CodePad.this, currentCommand, this);
+                    invoker = new Invoker(frame, CodePad.this, command, this);
                     invoker.setImports(textParser.getImportStatements());
                     invoker.doFreeFormInvocation(null);
                     if (errorMessage == null)
@@ -608,7 +625,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         public void putException(ExceptionDescription exception, InvokerRecord ir)
         {
             ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
-            executionEvent.setCommand(currentCommand);
+            executionEvent.setCommand(command);
             executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
             executionEvent.setException(exception);
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
@@ -697,33 +714,10 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     }
 
     /**
-     * We had a click in the tag area. Handle it appropriately.
-     * Specifically: If the click (or double click) is on an object, then
-     * start an object drag (or inspect).
-     * @param pos   The text position where we got the click.
-     * @param clickCount  Number of consecutive clicks
-     */
-    public void tagAreaClick(int pos, int clickCount)
-    {
-        /*
-        ObjectInfo objInfo = objectAtPosition(pos);
-        if(objInfo != null) {
-            // Eugh: thread-hop just to get the window:
-            Platform.runLater(() -> {
-                Stage fxWindow = frame.getFXWindow();
-                SwingUtilities.invokeLater(() -> {
-                    frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir);
-                });
-            });
-        }
-        */
-    }
-
-    /**
      * Record part of a command
      * @param s
      */
-    private void command(String s)
+    private void command(String s, boolean isFinalLine)
     {
         getItems().add(getItems().size() - 1, new CommandRow(s));
     }
@@ -776,58 +770,6 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     {
 
     }
-
-
-    // ---- end of MouseMotionListener interface ----
-
-    /**
-     * Set the keymap for this text area. Especially: take care that cursor 
-     * movement is restricted so that the cursor remains in the last line,
-     * and interpret Return keys to evaluate commands.
-     */ /*
-    private void defineKeymap()
-    {
-        Keymap newmap = JTextComponent.addKeymap("codepad", getKeymap());
-
-        // Note that we rely on behavior of the current DefaultEditorKit default key typed
-        // handler to actually insert characters (it calls replaceSelection to do so,
-        // which we've overridden).
-
-        Action action = new ExecuteCommandAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), action);
-
-        softReturnAction = new ContinueCommandAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), softReturnAction);
-
-        action = new BackSpaceAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), action);
-        
-        action = new CursorLeftAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, 0), action);
-
-        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT) == false)
-        {
-            action = new HistoryBackAction();
-            newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), action);
-            newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, 0), action);
-
-            action = new HistoryForwardAction();
-            newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), action);
-            newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, 0), action);
-        }
-        
-        action = new TransferFocusAction(true);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), action);
-
-        action = new TransferFocusAction(false);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), action);
-        
-        action = new CursorHomeAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), action);
-
-        setKeymap(newmap);
-    }*/
 
     @OnThread(Tag.Swing)
     private void executeCommand(String command)
@@ -897,34 +839,13 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         }
     }
 
-    final class ContinueCommandAction extends AbstractAction {
-        
-        /**
-         * Create a new action object. This action reads the current
-         * line as a start for a new command and continues reading the 
-         * command in the next line.
-         */
-        public ContinueCommandAction()
-        {
-            super("ContinueCommand");
-        }
-        
-        /**
-         * Read the text of the current line in the text area as the
-         * start of a Java command and continue reading in the next line.
-         */
-        final public void actionPerformed(ActionEvent event)
-        {
-            /*
-            if (busy)
-                return;
-            
-            String line = getCurrentLine();
-            currentCommand += line + " ";
-            history.add(line);
-            //markAs(TextEvalSyntaxView.CONTINUE, Boolean.TRUE);
-            */
-        }
+    private void softReturn()
+    {
+        String line = editRow.getText();
+        currentCommand += line + " ";
+        history.add(line);
+        command(line, false);
+        editRow.setText("");
     }
 
     private void historyBack()
