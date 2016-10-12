@@ -1053,7 +1053,8 @@ public final class Package
         props.putAll(frameProperties);
 
         // save targets and dependencies in package
-        props.put("package.numDependencies", String.valueOf(editor.getUsesArrows().size()));
+        if (editor != null)
+            props.put("package.numDependencies", String.valueOf(editor.getUsesArrows().size()));
 
         int t_count = 0;
 
@@ -1073,9 +1074,13 @@ public final class Package
         Target t = getTarget(ReadmeTarget.README_ID);
         t.save(props, "readme");
 
-        for (int i = 0; i < editor.getUsesArrows().size(); i++) { // uses arrows
-            Dependency d = editor.getUsesArrows().get(i);
-            d.save(props, "dependency" + (i + 1));
+        if (editor != null)
+        {
+            for (int i = 0; i < editor.getUsesArrows().size(); i++)
+            { // uses arrows
+                Dependency d = editor.getUsesArrows().get(i);
+                d.save(props, "dependency" + (i + 1));
+            }
         }
 
         try {
@@ -2588,7 +2593,7 @@ public final class Package
             {
                 setStatus(compileDone);
             }
-            Platform.runLater(() -> {editor.graphChanged();});
+            Platform.runLater(() -> {if (editor != null) editor.graphChanged();});
 
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
