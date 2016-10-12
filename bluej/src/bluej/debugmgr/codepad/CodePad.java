@@ -22,18 +22,21 @@
 
 package bluej.debugmgr.codepad;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
-
 import javafx.application.Platform;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -54,16 +57,9 @@ import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javafx.collections.ListChangeListener;
-import javafx.scene.control.ListView;
-import javafx.scene.control.cell.TextFieldListCell;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
 /**
  * A modified editor pane for the text evaluation area.
@@ -80,7 +76,13 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     private final EditRow editRow;
 
     @OnThread(Tag.FX)
-    public static class CodePadRow { protected String text = ""; public String getText() { return text; } }
+    public static class CodePadRow
+    {
+        protected String text = "";
+        public String getText() { return text; }
+        public boolean isEditable() { return false; }
+        public Node getGraphic() { return null; }
+    }
     @OnThread(Tag.FX)
     private static class CommandRow extends CodePadRow
     {
@@ -96,13 +98,66 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         {
             this.text = text;
         }
+
+        @Override
+        public boolean isEditable()
+        {
+            return true;
+        }
     }
     @OnThread(Tag.FX)
-    private static class OutputRow extends CodePadRow
+    private class OutputRow extends CodePadRow
     {
-        public OutputRow(String text)
+        private final ImageView graphic;
+
+        public OutputRow(String text, ObjectInfo objInfo)
         {
             this.text = text;
+            if (objInfo != null)
+            {
+                graphic = new ImageView(objectImage);
+                graphic.setMouseTransparent(false);
+                // It turns out that LabeledSkinBase contains this code:
+                // // RT-19851 Only setMouseTransparent(true) for an ImageView.  This allows the button
+                // // to be picked regardless of the changing images on top of it.
+                // if (graphic instanceof ImageView) {
+                //    graphic.setMouseTransparent(true);
+                //}
+                // Our graphic is an ImageView, so it gets its mouse transparent set to
+                // true by that code.  To ward this off, we add a listener that always
+                // sets it back to false whenever it has been turned true:
+                JavaFXUtil.addChangeListener(graphic.mouseTransparentProperty(), b -> {
+                    // Won't infinitely recurse, only change back to true once:
+                    if (b.booleanValue())
+                        graphic.setMouseTransparent(false);
+                });
+                graphic.setCursor(Cursor.HAND);
+                graphic.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                    // Don't really care about click count; double click can do it too, that's fine.
+                    if (e.getButton() == MouseButton.PRIMARY)
+                    {
+                        Stage fxWindow = frame.getFXWindow();
+                        SwingUtilities.invokeLater(() -> {
+                            frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir);
+                        });
+                        e.consume();
+                    }
+                });
+                graphic.setOnMouseEntered(e -> {
+                    graphic.setImage(objectImageHighlight);
+                });
+                graphic.setOnMouseExited(e -> {
+                    graphic.setImage(objectImage);
+                });
+            }
+            else
+                graphic = null;
+        }
+
+        @Override
+        public Node getGraphic()
+        {
+            return graphic;
         }
     }
     @OnThread(Tag.FX)
@@ -117,6 +172,11 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     private static final String nullLabel = "null";
     
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
+
+    private static final Image objectImage =
+            Config.getImageAsFXImage("image.eval.object.add");
+    private static final Image objectImageHighlight =
+            Config.getImageAsFXImage("image.eval.object.add.highlight");
     
     private final PkgMgrFrame frame;
     @OnThread(Tag.Swing)
@@ -173,8 +233,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 return new EditRow(string);
             }
         };
-        setCellFactory(lv -> new TextFieldListCell<CodePadRow>(converter) {
-
+        setCellFactory(lv -> new TextFieldListCellWithGraphic<CodePadRow>(converter) {
             @Override
             @OnThread(Tag.FX)
             public void commitEdit(CodePadRow newValue)
@@ -191,11 +250,13 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             @OnThread(Tag.FX)
             public void updateItem(CodePadRow item, boolean empty)
             {
+                // Must set it before calling super method:
+                tagGraphic = item != null ? item.getGraphic() : null;
                 super.updateItem(item, empty);
                 if (item != null)
                 {
                     setText(item.getText());
-                    setEditable(item instanceof EditRow);
+                    setEditable(item.isEditable());
                     if (isEditable())
                         super.startEdit();
                     else
@@ -577,7 +638,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      */
     private void output(String s)
     {
-        getItems().add(getItems().size() - 1, new OutputRow(s));
+        getItems().add(getItems().size() - 1, new OutputRow(s, null));
     }
     
     /**
@@ -586,7 +647,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      */
     private void objectOutput(String s, ObjectInfo objInfo)
     {
-        getItems().add(getItems().size() - 1, new OutputRow(s));
+        getItems().add(getItems().size() - 1, new OutputRow(s, objInfo));
 //        markAs(TextEvalSyntaxView.OBJECT, objInfo);
     }
     
