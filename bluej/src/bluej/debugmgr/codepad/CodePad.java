@@ -25,14 +25,21 @@ package bluej.debugmgr.codepad;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
@@ -222,6 +229,22 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         //defineKeymap();
         history = new IndexHistory(20);
 
+        getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        
+        // Add context menu with copy:
+        setContextMenu(new ContextMenu(JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"), () -> {
+            copySelectedRows();
+        }, null)));
+        
+        // Add keyboard shortcut ourselves:
+        addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.C && e.isShortcutDown())
+            {
+                copySelectedRows();
+                e.consume();
+            }
+        });
+        
         StringConverter<CodePadRow> converter = new StringConverter<CodePadRow>()
         {
             @Override
@@ -293,6 +316,13 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         getItems().add(editRow);
         setEditable(true);
     }
+
+    private void copySelectedRows()
+    {
+        String copied = getSelectionModel().getSelectedItems().stream().map(CodePadRow::getText).collect(Collectors.joining("\n"));
+        Clipboard.getSystemClipboard().setContent(Collections.singletonMap(DataFormat.PLAIN_TEXT, copied));
+    }
+
     /**
      * Clear the local variables.
      */
