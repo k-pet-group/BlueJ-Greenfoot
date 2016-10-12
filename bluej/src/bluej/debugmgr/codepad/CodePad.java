@@ -35,6 +35,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
@@ -75,13 +76,18 @@ public class CodePad extends ListView<CodePad.CodePadRow>
 
     private final EditRow editRow;
 
-    @OnThread(Tag.FX)
-    public static class CodePadRow
+    public static @OnThread(Tag.FX) class CodePadRow
     {
         protected String text = "";
+        // Crude way of making sure all lines are spaced the same as ones with an object image;
+        // use an invisible rectangle as a spacer:
+        protected Rectangle r = new Rectangle(objectImage.getWidth(), objectImage.getHeight());
+        {
+            r.setVisible(false);
+        }
         public String getText() { return text; }
         public boolean isEditable() { return false; }
-        public Node getGraphic() { return null; }
+        public Node getGraphic() { return r; }
     }
     @OnThread(Tag.FX)
     private static class CommandRow extends CodePadRow
