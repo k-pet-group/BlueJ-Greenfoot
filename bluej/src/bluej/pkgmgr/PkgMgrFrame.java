@@ -383,8 +383,7 @@ public class PkgMgrFrame
                 topPane.setCenter(pkgEditorScrollPane);
                 //topPane.setMinHeight(minSize.getHeight());
                 topPane.setLeft(toolPanel);
-                codePad = new CodePad(this);
-                bottomPane = new SplitPane(objbench, codePad);
+                bottomPane = new SplitPane(objbench);
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
                 SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
@@ -2680,29 +2679,21 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     private void showHideTextEval(boolean show)
     {
-        /*
-        if (show) {
-            SwingUtilities.invokeLater(() -> {
-                //classScroller.setPreferredSize(classScroller.getSize()); // memorize
-                // current size
-                if (textEvaluator == null) {
-                    textEvaluator = new TextEvalArea(this, pkgMgrFont);
-                    if (padSwingNode != null)
-                        padSwingNode.setContent(textEvaluator);
-                    itemsToDisable.add(textEvaluator);
-                    addCtrlTabShortcut(textEvaluator.getFocusableComponent());
-                }
-                textEvaluator.requestFocus();
-            });
+        if (show)
+        {
+            codePad = new CodePad(this);
+            CodePad cpFinal = codePad;
+            SwingUtilities.invokeLater(() -> itemsToDisable.add(cpFinal));
+            bottomPane.getItems().add(codePad);
+            codePad.requestFocus();
         }
-        else {
-            SwingUtilities.invokeLater(() -> {
-                textEvaluator.setPreferredSize(textEvaluator.getSize()); // memorize current sizes
-            });
-            //classScroller.setPreferredSize(classScroller.getSize());});
-            editor.requestFocus();
+        else
+        {
+            CodePad cpFinal = codePad;
+            SwingUtilities.invokeLater(() -> itemsToDisable.remove(cpFinal));
+            bottomPane.getItems().remove(codePad);
+            codePad = null;
         }
-        */
     }
 
     /**
@@ -3182,7 +3173,7 @@ public class PkgMgrFrame
             createCheckboxMenuItem(showDebuggerAction, swingItems, false);
             createCheckboxMenuItem(showTerminalAction, swingItems, false);
             mixedMenu.addSwing(swingItems);
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, null));
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, Config.hasAcceleratorKey("menu.view.showTextEval") ? Config.getAcceleratorKeyFX("menu.view.showTextEval") : null));
             mixedMenu.addFX(SeparatorMenuItem::new);
 
             swingItems = new ArrayList<>();

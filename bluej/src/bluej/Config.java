@@ -51,7 +51,10 @@ import java.util.Scanner;
 
 import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
+import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -1066,6 +1069,27 @@ public final class Config
         }
         KeyStroke k1= KeyStroke.getKeyStroke(keyString);
         return KeyStroke.getKeyStroke(k1.getKeyCode(), modifiers);
+    }
+
+    @OnThread(Tag.FX)
+    public static KeyCombination getAcceleratorKeyFX(String strname)
+    {
+        int index;
+        List<KeyCombination.Modifier> modifiers = new ArrayList<>();
+        modifiers.add(KeyCombination.SHORTCUT_DOWN);
+        String str = langProps.getProperty(strname, strname);
+        String keyString;
+        index = str.indexOf('@');
+        index++;
+        if(str.charAt(index) == '^') { //then the modifiers is CTRL + SHIFT
+            index++;
+            modifiers.add(KeyCombination.SHIFT_DOWN);
+        }
+        keyString = str.substring(index).toUpperCase();
+        if(keyString.length() == 1) {
+            return new KeyCharacterCombination(keyString, modifiers.toArray(new KeyCombination.Modifier[0]));
+        }
+        return new KeyCodeCombination(KeyCode.getKeyCode(keyString), modifiers.toArray(new KeyCombination.Modifier[0]));
     }
 
     /**
