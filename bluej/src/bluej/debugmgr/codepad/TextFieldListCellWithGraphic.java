@@ -7,6 +7,7 @@ import javafx.scene.control.Cell;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
 
 import threadchecker.OnThread;
@@ -153,6 +154,8 @@ public class TextFieldListCellWithGraphic<T> extends ListCell<T>
                     commitEdit(converter.get().fromString(textField.getText()));
                     event.consume();
                 });
+                textField.setMaxWidth(9999.0);
+                HBox.setHgrow(textField, Priority.ALWAYS);
             }
 
             startEdit(this, getConverter(), hbox, tagGraphic, textField);
