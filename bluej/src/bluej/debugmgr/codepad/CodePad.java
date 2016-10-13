@@ -105,6 +105,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         }
         
         // Different styles used for the rows
+        @OnThread(Tag.Any)
         public static enum RowStyle
         {
             COMMAND_PARTIAL("bj-codepad-cmd-partial"),
@@ -141,6 +142,12 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         public CommandRow(String text, boolean isFinalLine)
         {
             this.text = text; this.isFinalLine = isFinalLine;
+        }
+
+        @Override
+        public Node getGraphic()
+        {
+            return null;
         }
 
         @Override
@@ -190,6 +197,12 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         public RowStyle getStyle()
         {
             return RowStyle.EDIT;
+        }
+
+        @Override
+        public Node getGraphic()
+        {
+            return null;
         }
     }
     @OnThread(Tag.FX)
