@@ -185,6 +185,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         public void setTextField(TextField textField)
         {
             this.textField = textField;
+            textField.setPromptText(Config.getString("codepad.prompt"));
         }
         
         public void setText(String text)
