@@ -665,4 +665,14 @@ public abstract class Target
         return evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.DOWN
             || evt.getCode() == KeyCode.LEFT || evt.getCode() == KeyCode.RIGHT;
     }
+
+    public boolean isFocused()
+    {
+        return pane.isFocused();
+    }
+
+    public void requestFocus()
+    {
+        pane.requestFocus();
+    }
 }

@@ -127,6 +127,11 @@ public final class Marquee
                 selected.add(v);
             }
         }
+        
+        // If none of them are focused, focus one, otherwise keyboard
+        // actions won't work:
+        if (!selected.isEmpty() && !selected.getSelected().stream().anyMatch(Target::isFocused))
+            selected.getAnyVertex().requestFocus();
     }
 
     /**
