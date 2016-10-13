@@ -139,10 +139,29 @@
 /* Code Pad */
 .codepad-row {
     -fx-wrap-text: false;
+    /* This is effectively the text indent: */
+    -fx-graphic-text-gap: 5px;
+    /* Use list-cell padding, but reduce left to get object icon close to edge */
+    -fx-padding: 0.25em 0.583em 0.25em 0.25em;
+}
+.codepad-row:even, .codepad-row:odd {
+    /* Make sure all empty cells are white: */
+    -fx-background-color: white, lightgray, white;
+    -fx-background-insets: 0, 0 0 0 20, 0 0 0 21;
 }
 .codepad-row:bj-codepad-error {
     -fx-text-fill: red;
 }
 .codepad-row:bj-codepad-output {
     -fx-text-fill: green;
+}
+.codepad-row:bj-codepad-edit:even, .codepad-row:bj-codepad-edit:odd {
+    /* Use list-cell padding, but increase left to indent text field */
+    -fx-padding: 0.25em 0.583em 0.25em 0.75em;
+}
+.codepad-row:bj-codepad-error:even, .codepad-row:bj-codepad-error:odd,
+.codepad-row:bj-codepad-output:even, .codepad-row:bj-codepad-output:odd {
+    -fx-background-color: rgb(220, 247, 245), lightgray, rgb(220, 247, 245);
+    /* This is effectively the text indent: */
+    -fx-graphic-text-gap: 25px;
 }
