@@ -666,11 +666,13 @@ public abstract class Target
             || evt.getCode() == KeyCode.LEFT || evt.getCode() == KeyCode.RIGHT;
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isFocused()
     {
         return pane.isFocused();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void requestFocus()
     {
         pane.requestFocus();
