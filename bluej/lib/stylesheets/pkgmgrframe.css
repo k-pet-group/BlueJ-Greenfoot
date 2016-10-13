@@ -135,3 +135,14 @@
     -fx-text-fill: white;
     -fx-text-alignment: center;
 }
+
+/* Code Pad */
+.codepad-row {
+    -fx-wrap-text: false;
+}
+.codepad-row:bj-codepad-error {
+    -fx-text-fill: red;
+}
+.codepad-row:bj-codepad-output {
+    -fx-text-fill: green;
+}

@@ -25,6 +25,7 @@ package bluej.debugmgr.codepad;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -81,10 +82,20 @@ import threadchecker.Tag;
 public class CodePad extends ListView<CodePad.CodePadRow>
     implements ValueCollection
 {
+    /**
+     * The last row in the listview, which is always in an editing
+     * state.
+     */
     private final EditRow editRow;
 
-    public static @OnThread(Tag.FX) class CodePadRow
+    /**
+     * A data item which backs a single row in the code pad.
+     * This might be the currently edited row (the last row), or
+     * a read-only item detailing a past command or command outcome;
+     */
+    public abstract static @OnThread(Tag.FX) class CodePadRow
     {
+        // Text content of the row
         protected String text = "";
         // Crude way of making sure all lines are spaced the same as ones with an object image;
         // use an invisible rectangle as a spacer:
@@ -92,17 +103,50 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         {
             r.setVisible(false);
         }
+        
+        // Different styles used for the rows
+        public static enum RowStyle
+        {
+            COMMAND_PARTIAL("bj-codepad-cmd-partial"),
+            COMMAND_END("bj-codepad-cmd-end"),
+            ERROR("bj-codepad-error"),
+            OUTPUT("bj-codepad-output"),
+            EDIT("bj-codepad-edit");
+            
+            private final String pseudo;
+            public String getPseudoClass() { return pseudo;}
+            private RowStyle(String pseudo) { this.pseudo = pseudo; }
+        }
+        
         public String getText() { return text; }
         public boolean isEditable() { return false; }
         public Node getGraphic() { return r; }
         public void setTextField(TextField textField) { }
+        public abstract RowStyle getStyle();
     }
+
+    private static final String[] allRowStyles;
+    static {
+        allRowStyles = new String[CodePadRow.RowStyle.values().length];
+        for (int i = 0; i < CodePadRow.RowStyle.values().length; i++)
+        {
+            allRowStyles[i] = CodePadRow.RowStyle.values()[i].getPseudoClass();
+        }
+    }
+    
     @OnThread(Tag.FX)
     private static class CommandRow extends CodePadRow
     {
-        public CommandRow(String text)
+        private final boolean isFinalLine;
+        public CommandRow(String text, boolean isFinalLine)
         {
-            this.text = text;
+            this.text = text; this.isFinalLine = isFinalLine;
+        }
+
+        @Override
+        public RowStyle getStyle()
+        {
+            return isFinalLine ? RowStyle.COMMAND_END : RowStyle.COMMAND_PARTIAL;
         }
     }
     @OnThread(Tag.FX)
@@ -140,6 +184,12 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         {
             if (this.textField != null)
                 this.textField.setText(text);
+        }
+
+        @Override
+        public RowStyle getStyle()
+        {
+            return RowStyle.EDIT;
         }
     }
     @OnThread(Tag.FX)
@@ -194,7 +244,13 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         @Override
         public Node getGraphic()
         {
-            return graphic;
+            return graphic != null ? graphic : super.getGraphic();
+        }
+
+        @Override
+        public RowStyle getStyle()
+        {
+            return RowStyle.OUTPUT;
         }
     }
     @OnThread(Tag.FX)
@@ -203,6 +259,12 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         public ErrorRow(String text)
         {
             this.text = text;
+        }
+
+        @Override
+        public RowStyle getStyle()
+        {
+            return RowStyle.ERROR;
         }
     }
 
@@ -289,7 +351,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             @OnThread(Tag.FX)
             public String toString(CodePadRow object)
             {
-                return object == null ? "" : object.getText();
+                return object == null ? "" : object.text;
             }
 
             @Override
@@ -302,6 +364,9 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             }
         };
         setCellFactory(lv -> new TextFieldListCellWithGraphic<CodePadRow>(converter) {
+            {
+                JavaFXUtil.addStyleClass(this, "codepad-row");
+            }
             @Override
             @OnThread(Tag.FX)
             public void commitEdit(CodePadRow newValue)
@@ -328,10 +393,10 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 // Must set it before calling super method:
                 tagGraphic = item != null ? item.getGraphic() : null;
                 super.updateItem(item, empty);
-                if (item != null)
+                if (!empty && item != null)
                 {
-                    setText(item.getText());
                     setEditable(item.isEditable());
+
                     if (isEditable())
                     {
                         // Must startEdit first, as that may be what initialises
@@ -340,13 +405,16 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                         item.setTextField(textField);
                     }
                     else
+                    {
                         super.cancelEdit();
+                    }
+                    JavaFXUtil.selectPseudoClass(this, Arrays.asList(allRowStyles).indexOf(item.getStyle().getPseudoClass()), allRowStyles);
                 }
                 else
                 {
-                    setText("");
                     setEditable(false);
                     super.cancelEdit();
+                    JavaFXUtil.selectPseudoClass(this, -1, allRowStyles);
                 }
             }
 
@@ -719,7 +787,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      */
     private void command(String s, boolean isFinalLine)
     {
-        getItems().add(getItems().size() - 1, new CommandRow(s));
+        getItems().add(getItems().size() - 1, new CommandRow(s, isFinalLine));
     }
 
     /**
