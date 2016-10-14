@@ -84,6 +84,7 @@ import javafx.beans.binding.When;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
@@ -215,8 +216,6 @@ public class PkgMgrFrame
     private static final List<PkgMgrFrame> frames = new ArrayList<>(); // of PkgMgrFrames
     private static final ExtensionsManager extMgr = ExtensionsManager.getInstance();
     @OnThread(Tag.FXPlatform)
-    private FXPlatformConsumer<Dimension> updateFXSize;
-    @OnThread(Tag.FXPlatform)
     private TitledPane testPanel;
     @OnThread(Tag.FXPlatform)
     private TitledPane teamPanel;
@@ -333,10 +332,14 @@ public class PkgMgrFrame
     private SimpleBooleanProperty showUsesProperty;
     @OnThread(Tag.Any)
     private SimpleBooleanProperty showInheritsProperty;
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     private SplitPane bottomPane;
+    @OnThread(Tag.FX)
+    private double bottomPaneLastDividerPos = 0.6; // default split
     @OnThread(Tag.Any)
     private SwingNode dummySwingNode;
+    @OnThread(Tag.FX)
+    private SplitPane topBottomSplit;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -363,10 +366,6 @@ public class PkgMgrFrame
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
             new JFXPanel();
-            //SwingNode diagramSwingNode = new SwingNode();
-            //diagramSwingNode.setContent(PkgMgrFrame.this);
-            //diagramSwingNode.getContent().validate();
-            //Dimension minSize = diagramSwingNode.getContent().getMinimumSize();
             SwingNode statusSwingNode = new SwingNodeFixed();
             statusSwingNode.setContent(statusbar);
             Platform.runLater(() -> {
@@ -385,19 +384,29 @@ public class PkgMgrFrame
                 topPane.setLeft(toolPanel);
                 bottomPane = new SplitPane(objbench);
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
-                SplitPane topBottomSplit = new SplitPane(topPane, bottomPane);
+                SplitPane.setResizableWithParent(bottomPane, false);
+                // Wait until the codepad appears, then set it:
+                bottomPane.getDividers().addListener((ListChangeListener<? super SplitPane.Divider>)c -> {
+                    c.next();
+                    if (c.wasAdded())
+                    {
+                        // Use last saved divider positions:
+                        c.getAddedSubList().get(0).setPosition(bottomPaneLastDividerPos);
+                    }
+                    else if (c.wasRemoved())
+                    {
+                        // Store divider position:
+                        bottomPaneLastDividerPos = c.getRemoved().get(0).getPosition();
+                    }
+                });
+                
+                
+                topBottomSplit = new SplitPane(topPane, bottomPane);
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
                 BorderPane contentRoot = new BorderPane(topBottomSplit);
                 JavaFXUtil.addStyleClass(contentRoot, "pmf-root");
-                updateFXSize = pref -> {
-                    contentRoot.setPrefWidth(pref.getWidth());
-                    contentRoot.setPrefHeight(pref.getHeight());
-                    stage.sizeToScene();
-                };
-
+                
                 contentRoot.setBottom(statusSwingNode);
-                //root.setPrefWidth(preferredSize.getWidth());
-                //root.setPrefHeight(preferredSize.getHeight());
                 BorderPane rootPlusMenu = new BorderPane(contentRoot);
                 Scene scene = new Scene(rootPlusMenu);
                 Config.addPMFStylesheets(scene);
@@ -945,35 +954,6 @@ public class PkgMgrFrame
             Properties p = aPkg.getLastSavedProperties();
             
             try {
-                String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
-                String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
-                
-                if (width_str != null && height_str != null)
-                {
-                    Platform.runLater(() -> {
-                        pkgEditorScrollPane.setPrefViewportWidth(Integer.parseInt(width_str));
-                        pkgEditorScrollPane.setPrefViewportHeight(Integer.parseInt(height_str));
-                        JavaFXUtil.onceNotNull(stageProperty, Stage::sizeToScene);
-                    });
-                }
-                
-                String objectBench_height_str = p.getProperty("objectbench.height");
-                String objectBench_width_str = p.getProperty("objectbench.width");
-                if (objectBench_height_str != null && objectBench_width_str != null) {
-                    Platform.runLater(() -> {
-                        objbench.setPrefViewportWidth(Integer.parseInt(objectBench_width_str));
-                        objbench.setPrefViewportHeight(Integer.parseInt(objectBench_height_str));
-                        JavaFXUtil.onceNotNull(stageProperty, s -> {
-                            s.sizeToScene();
-                            // We must only stop resizing after our preferred size
-                            // has taken effect:
-                            JavaFXUtil.runPlatformLater(() -> {
-                                SplitPane.setResizableWithParent(bottomPane, false);
-                            });
-                        });
-                    });
-                }
-                
                 String x_str = p.getProperty("package.editor.x", "30");
                 String y_str = p.getProperty("package.editor.y", "30");
                 
@@ -988,10 +968,50 @@ public class PkgMgrFrame
 
                 int xFinal = x;
                 int yFinal = y;
+                
+                String width = p.getProperty("package.frame.width");
+                String height = p.getProperty("package.frame.height");
+                
+                String mainDivPos = p.getProperty("package.divider.vertical");
+                String bottomDivPos = p.getProperty("package.divider.horizontal");
+                
                 Platform.runLater(() -> {
                     JavaFXUtil.onceNotNull(stageProperty, s -> {
                         s.setX(xFinal);
                         s.setY(yFinal);
+                        if (width != null && height != null)
+                        {
+                            s.setWidth(Integer.parseInt(width));
+                            s.setHeight(Integer.parseInt(height));
+                        }
+                        else
+                        {
+                            // Reasonable default size:
+                            s.setWidth(800.0);
+                            s.setHeight(600.0);
+                        }
+                        if (mainDivPos != null)
+                        {
+                            topBottomSplit.setDividerPositions(Double.parseDouble(mainDivPos));
+                        }
+                        else
+                        {
+                            topBottomSplit.setDividerPositions(0.8);
+                        }
+                        if (bottomDivPos != null)
+                        {
+                            // If code pad is already showing, just set the divider position:
+                            if (bottomPane.getDividers().size() == 1)
+                            {
+                                bottomPane.setDividerPositions(Double.parseDouble(bottomDivPos));
+                            }
+                            else
+                            {
+                                // Set the last pos; our listener added to bottomPane's dividers
+                                // will pick it up once a divider shows.
+                                bottomPaneLastDividerPos = Double.parseDouble(bottomDivPos);
+                            }
+                        }
                     });
                 });
             } catch (NumberFormatException e) {
@@ -1042,12 +1062,6 @@ public class PkgMgrFrame
             showTestingTools(wantToSeeTestingTools());
             
             aPkg.getProject().scheduleCompilation(true, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE, aPkg);
-
-            Platform.runLater(() -> {
-                JavaFXUtil.onceNotNull(stageProperty, s -> {
-                    s.sizeToScene();
-                });
-            });
         }
         
         DataCollector.packageOpened(aPkg);
@@ -1798,14 +1812,32 @@ public class PkgMgrFrame
         }
         
         if(!Config.isGreenfoot()) {
+            // When we were using Swing, we stored the package editor width and height
+            // and set them on load.  We don't do that any more in FX, but in case
+            // this project is saved in BlueJ 4 and loaded in BlueJ 3, we don't want to 
+            // have the position go wild, so we still store them even though we never use them:
             p.put("package.editor.width", Integer.toString((int)pkgEditorScrollPane.getViewportBounds().getWidth()));
             p.put("package.editor.height", Integer.toString((int)pkgEditorScrollPane.getViewportBounds().getHeight()));
+            p.put("objectbench.width", Integer.toString((int)objbench.getViewportBounds().getWidth()));
+            p.put("objectbench.height", Integer.toString((int)objbench.getViewportBounds().getHeight()));
 
+            // These are the actual ones we use in FX:
             p.put("package.editor.x", Integer.toString((int)stageProperty.getValue().getX()));
             p.put("package.editor.y", Integer.toString((int)stageProperty.getValue().getY()));
 
-            p.put("objectbench.width", Integer.toString((int)objbench.getViewportBounds().getWidth()));
-            p.put("objectbench.height", Integer.toString((int)objbench.getViewportBounds().getHeight()));
+            p.put("package.frame.width", Integer.toString((int)stageProperty.getValue().getWidth()));
+            p.put("package.frame.height", Integer.toString((int)stageProperty.getValue().getHeight()));
+
+            p.put("package.divider.vertical", Double.toString(topBottomSplit.getDividerPositions()[0]));
+            if (bottomPane.getDividers().size() == 1)
+            {
+                p.put("package.divider.horizontal", Double.toString(bottomPane.getDividerPositions()[0]));
+            }
+            else
+            {
+                // If it's not showing, use the position from last time it was showing:
+                p.put("package.divider.horizontal", Double.toString(bottomPaneLastDividerPos));
+            }
     
             p.put("package.showUses", Boolean.toString(showUsesProperty.get()));
             p.put("package.showExtends", Boolean.toString(showInheritsProperty.get()));
