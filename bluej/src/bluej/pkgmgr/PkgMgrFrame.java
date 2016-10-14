@@ -109,6 +109,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -312,8 +313,6 @@ public class PkgMgrFrame
     private ProjectPrintDialog projectPrintDialog = null;
     private ExportManager exporter;
 
-    private final NoProjectMessagePanel noProjectMessagePanel = new NoProjectMessagePanel();
-
     @OnThread(Tag.FX)
     private Property<Stage> stageProperty;
     @OnThread(Tag.FX)
@@ -376,10 +375,16 @@ public class PkgMgrFrame
                 addCtrlTabShortcut(objbench);
                 
                 BorderPane topPane = new BorderPane();
-                pkgEditorScrollPane = new ScrollPane(editor);
+                pkgEditorScrollPane = new ScrollPane(null);
+                pkgEditorScrollPane.setVisible(false);
+                pkgEditorScrollPane.visibleProperty().bind(pkgEditorScrollPane.contentProperty().isNotNull());
                 pkgEditorScrollPane.setFitToWidth(true);
                 pkgEditorScrollPane.setFitToHeight(true);
-                topPane.setCenter(pkgEditorScrollPane);
+                Label emptyProjectMessage = new Label(Config.getString("pkgmgr.noProjectOpened.message"));
+                JavaFXUtil.addStyleClass(emptyProjectMessage, "pmf-empty-project-msg");
+                StackPane centralPane = new StackPane(emptyProjectMessage, pkgEditorScrollPane);
+                JavaFXUtil.addStyleClass(centralPane, "pmf-central-pane");
+                topPane.setCenter(centralPane);
                 //topPane.setMinHeight(minSize.getHeight());
                 topPane.setLeft(toolPanel);
                 bottomPane = new SplitPane(objbench);
@@ -411,13 +416,18 @@ public class PkgMgrFrame
                 Scene scene = new Scene(rootPlusMenu);
                 Config.addPMFStylesheets(scene);
                 stage.setScene(scene);
+                stage.setWidth(800.0);
+                stage.setHeight(600.0);
                 stage.show();
                 //org.scenicview.ScenicView.show(stage.getScene());
                 stageProperty.setValue(stage);
                 paneProperty.setValue(rootPlusMenu);
                 // If it should already be showing, do that now:
                 if (showingTextEval.get())
+                {
+                    // This will enable it if it ends up showing:
                     showHideTextEval(true);
+                }
                 // Listen for future updates:
                 JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
                 updateWindow();
@@ -924,6 +934,7 @@ public class PkgMgrFrame
         if(! Config.isGreenfoot()) {
             this.editor = new PackageEditor(this, aPkg, this, showUsesProperty, showInheritsProperty);
             Platform.runLater(() -> {
+                pkgEditorScrollPane.setContent(editor);
                 editor.setOnDragOver(event -> {
                         Dragboard db = event.getDragboard();
                         if (db.hasFiles()) {
@@ -1121,6 +1132,8 @@ public class PkgMgrFrame
             Platform.runLater(() -> {
                 bench.removeAllObjects(uniqueId);
                 clearTextEval();
+                if (codePad != null)
+                    codePad.setDisable(true);
             });
 
             // Take a copy because we're about to null it:
@@ -1128,6 +1141,7 @@ public class PkgMgrFrame
             Platform.runLater(() -> {
                 oldEd.removeEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);
                 oldEd.graphClosed();
+                pkgEditorScrollPane.setContent(null);
             });
         }
 
@@ -2713,11 +2727,15 @@ public class PkgMgrFrame
     {
         if (show)
         {
-            codePad = new CodePad(this);
-            CodePad cpFinal = codePad;
-            SwingUtilities.invokeLater(() -> itemsToDisable.add(cpFinal));
-            bottomPane.getItems().add(codePad);
-            codePad.requestFocus();
+            if (codePad == null)
+            {
+                codePad = new CodePad(this);
+                CodePad cpFinal = codePad;
+                SwingUtilities.invokeLater(() -> itemsToDisable.add(cpFinal));
+                bottomPane.getItems().add(codePad);
+                codePad.requestFocus();
+            }
+            codePad.setDisable(false);
         }
         else
         {

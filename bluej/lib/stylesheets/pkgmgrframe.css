@@ -4,6 +4,14 @@
 .pmf-root > .split-pane {
     -fx-background-insets: 0;
 }
+.pmf-central-pane {
+    -fx-border-width: 1;
+    -fx-border-color: gray;
+}
+.pmf-empty-project-msg {
+    -fx-text-fill: gray;
+    -fx-font-size: 14pt;
+}
 
 .pmf-tools {
     -fx-padding: 0 0 8px 0;
