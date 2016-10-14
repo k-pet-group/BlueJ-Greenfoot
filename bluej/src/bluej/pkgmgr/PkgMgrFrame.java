@@ -94,9 +94,11 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
@@ -254,9 +256,11 @@ public class PkgMgrFrame
     private @OnThread(Tag.FX) ButtonBase commitButton;
     private @OnThread(Tag.FX) ButtonBase teamStatusButton;
     private TeamActionGroup teamActions;
-    private JMenuItem showTestResultsItem;
-    private List<Object> itemsToDisable;
-    private List<Action> actionsToDisable;
+    @OnThread(Tag.FX)
+    private final List<Node> itemsToDisable = new ArrayList<>();
+    @OnThread(Tag.FX)
+    private final List<MenuItem> menuItemsToDisable = new ArrayList<>();
+    private final List<Action> actionsToDisable = new ArrayList<>();
     @OnThread(Tag.Any)
     private MachineIcon machineIcon;
     /* UI actions */
@@ -282,7 +286,13 @@ public class PkgMgrFrame
     private final RestartVMAction restartVMAction = new RestartVMAction(this);
     private final Action useLibraryAction = new UseLibraryAction(this);
     private final Action generateDocsAction = new GenerateDocsAction(this);
-    private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this);
+    private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this) {
+        @Override
+        public void setEnabled(boolean newValue)
+        {
+            super.setEnabled(newValue);
+        }
+    };
     private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
     @OnThread(Tag.Any)
     private final Action runTestsAction = new RunTestsAction(this);
@@ -373,6 +383,7 @@ public class PkgMgrFrame
 
                 objbench = new ObjectBench(this);
                 addCtrlTabShortcut(objbench);
+                itemsToDisable.add(objbench);
                 
                 BorderPane topPane = new BorderPane();
                 pkgEditorScrollPane = new ScrollPane(null);
@@ -432,6 +443,11 @@ public class PkgMgrFrame
                 JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
                 updateWindow();
             });
+
+            // grey out certain functions if package not open.
+            if (isEmptyFrame()) {
+                enableFunctions(false);
+            }
         }
         else
         {
@@ -1143,6 +1159,7 @@ public class PkgMgrFrame
                 oldEd.graphClosed();
                 pkgEditorScrollPane.setContent(null);
             });
+            enableFunctions(false);
         }
 
         getPackage().closeAllEditors();
@@ -1779,7 +1796,6 @@ public class PkgMgrFrame
                     closePackage();
                     testRecordingEnded(); // disable test controls
                     updateRecentProjects();
-                    enableFunctions(false);
                 }); // changes menu items
                 updateWindow();
 
@@ -2731,7 +2747,7 @@ public class PkgMgrFrame
             {
                 codePad = new CodePad(this);
                 CodePad cpFinal = codePad;
-                SwingUtilities.invokeLater(() -> itemsToDisable.add(cpFinal));
+                itemsToDisable.add(cpFinal);
                 bottomPane.getItems().add(codePad);
                 codePad.requestFocus();
             }
@@ -2740,7 +2756,7 @@ public class PkgMgrFrame
         else
         {
             CodePad cpFinal = codePad;
-            SwingUtilities.invokeLater(() -> itemsToDisable.remove(cpFinal));
+            itemsToDisable.remove(cpFinal);
             bottomPane.getItems().remove(codePad);
             codePad = null;
         }
@@ -2886,12 +2902,15 @@ public class PkgMgrFrame
             VBox topButtons = new VBox();
             JavaFXUtil.addStyleClass(topButtons, "pmf-tools-top");
             ButtonBase button = createButton(newClassAction, false, false);
+            itemsToDisable.add(button);
             topButtons.getChildren().add(button);
             imgExtendsButton = createButton(newInheritsAction, false, true);
+            itemsToDisable.add(imgExtendsButton);
             imgExtendsButton.setText(null);
             imgExtendsButton.setGraphic(new ImageView(Config.getImageAsFXImage("image.build.extends")));
             topButtons.getChildren().add(imgExtendsButton);
             button = createButton(compileAction, false, false);
+            itemsToDisable.add(button);
             topButtons.getChildren().add(button);
             toolPanel.getChildren().add(topButtons);
 
@@ -2963,23 +2982,10 @@ public class PkgMgrFrame
             testPanel.setExpanded(true);
             toolPanel.getChildren().add(new UntitledCollapsiblePane(foldout, true));
             machineIcon = new MachineIcon(this, restartVMAction);
-            SwingUtilities.invokeLater(() -> itemsToDisable.add(machineIcon));
+            itemsToDisable.add(machineIcon);
             toolPanel.getChildren().add(machineIcon);
         });
-        //mainPanel.add(toolPanel, BorderLayout.WEST);
         
-        /*
-        classScroller.setBorder(Config.getNormalBorder());
-        classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-        classScroller.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-        classScroller.setFocusable(false);
-        classScroller.getVerticalScrollBar().setUnitIncrement(10);
-        classScroller.getHorizontalScrollBar().setUnitIncrement(20);
-        if (!Config.isRaspberryPi()) classScroller.setOpaque(false);
-        mainPanel.add(classScroller, BorderLayout.CENTER);
-*/
-        itemsToDisable.add(objbench);
-
         // create the bottom status area
 
         JPanel statusArea = new JPanel(new BorderLayout());
@@ -3018,11 +3024,6 @@ public class PkgMgrFrame
         Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> {
             stage.setOnCloseRequest(e -> PkgMgrFrame.this.doClose(false, true));
         }));
-
-        // grey out certain functions if package not open.
-        if (isEmptyFrame()) {
-            enableFunctions(false);
-        }
     }
 
     /**
@@ -3080,8 +3081,7 @@ public class PkgMgrFrame
     private void setupMenus()
     {
         List<JavaFXUtil.SwingOrFXMenu> menubar = new ArrayList<>();
-        itemsToDisable = new ArrayList<>();
-
+        
         {
             JMenu menu = new JMenu(Config.getString("menu.package"));
             int mnemonic = Config.getMnemonicKey("menu.package");
@@ -3216,8 +3216,16 @@ public class PkgMgrFrame
                 viewMenuManager.set(new FXMenuManager(fxMenu, extMgr, null));
                 return fxMenu;
             });
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), showUsesProperty, null));
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showInherits"), showInheritsProperty, null));
+            mixedMenu.addFX(() -> {
+                CheckMenuItem item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), showUsesProperty, null);
+                menuItemsToDisable.add(item);
+                return item;
+            });
+            mixedMenu.addFX(() -> {
+                CheckMenuItem item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showInherits"), showInheritsProperty, null);
+                menuItemsToDisable.add(item);
+                return item;
+            });
             mixedMenu.addFX(SeparatorMenuItem::new);
             List<JMenuItem> swingItems = new ArrayList<>();
             createCheckboxMenuItem(showDebuggerAction, swingItems, false);
@@ -3227,7 +3235,7 @@ public class PkgMgrFrame
             mixedMenu.addFX(SeparatorMenuItem::new);
 
             swingItems = new ArrayList<>();
-            showTestResultsItem = createCheckboxMenuItem(new ShowTestResultsAction(this), swingItems, false);
+            createCheckboxMenuItem(new ShowTestResultsAction(this), swingItems, false);
             mixedMenu.addSwing(swingItems);
 
             // (Otherwise, it will be created during project open.)
@@ -3341,7 +3349,6 @@ public class PkgMgrFrame
      */
     private void setupActionDisableSet()
     {
-        actionsToDisable = new ArrayList<>();
         actionsToDisable.add(closeProjectAction);
         actionsToDisable.add(saveProjectAction);
         actionsToDisable.add(saveProjectAsAction);
@@ -3416,13 +3423,14 @@ public class PkgMgrFrame
         if (! enable) {
             teamActions.setAllDisabled(this);
         }
-        
-        itemsToDisable.stream().forEach((component) -> {
-            if (component instanceof JComponent)
-                ((JComponent)component).setEnabled(enable);
-            else if (component instanceof Node)
-                Platform.runLater(() -> ((Node)component).setDisable(!enable));
+
+        Platform.runLater(() -> {
+            for (Node component : itemsToDisable)
+                component.setDisable(!enable);
+            for (MenuItem component : menuItemsToDisable)
+                component.setDisable(!enable);
         });
+    
         actionsToDisable.stream().forEach((action) -> {
             action.setEnabled(enable);
         });

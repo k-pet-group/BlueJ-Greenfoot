@@ -30,9 +30,9 @@ import bluej.pkgmgr.PkgMgrFrame;
  * so that it can be tied to a check-box.
  * 
  * @author Davin McCall
- * @version $Id: ShowDebuggerAction.java 16593 2016-09-21 15:54:38Z nccb $
+ * @version $Id: ShowDebuggerAction.java 16754 2016-10-14 14:44:41Z nccb $
  */
-final public class ShowDebuggerAction extends PkgMgrToggleAction
+public class ShowDebuggerAction extends PkgMgrToggleAction
 {
     public ShowDebuggerAction(PkgMgrFrame pmf)
     {
