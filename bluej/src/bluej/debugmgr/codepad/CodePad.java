@@ -80,7 +80,7 @@ import threadchecker.Tag;
  */
 @OnThread(Tag.FX)
 public class CodePad extends ListView<CodePad.CodePadRow>
-    implements ValueCollection
+    implements ValueCollection, PkgMgrFrame.PkgMgrPane
 {
     /**
      * The last row in the listview, which is always in an editing
@@ -324,7 +324,9 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     public CodePad(PkgMgrFrame frame)
     {
         super();
+        
         this.frame = frame;
+        setFocusTraversable(false);
         //defineKeymap();
         history = new IndexHistory(20);
 
@@ -949,6 +951,14 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         if(line != null) {
             setInput(line);
         }
+    }
+
+    public void focusEditRow()
+    {
+        int index = getItems().size() - 1;
+        scrollTo(index);
+        getFocusModel().focus(index);
+        editRow.textField.requestFocus();
     }
 
     @OnThread(Tag.Any)

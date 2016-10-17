@@ -26,6 +26,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import bluej.pkgmgr.target.Target;
@@ -155,7 +156,7 @@ public final class SelectionSet
         return null;
     }
 
-    public Collection<Target> getSelected()
+    public List<Target> getSelected()
     {
         return new ArrayList<>(elements);
     }

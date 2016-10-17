@@ -77,12 +77,19 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Canvas to allow editing of packages
+ * The main class diagram in the BlueJ package manager frame, supporting
+ * dragging/resizing of classes (incl multi-select), and drawing/creation of relations.
  *
- * @author  Andrew Patterson
+ * The PackageEditor is a StackPane with four child panes.  The back one is a Canvas,
+ * on which we draw the arrows (this way, the arrows always appear behind the classes).
+ * The second is a layer which contains classes which appear underneath other classes:
+ * currently, this is just test classes (which always appear behind the class they
+ * are testing).  The third is a layer for all other targets.  The fourth is a pane
+ * on which we draw the class selection rectangle, so that it always appears on top of
+ * the classes.
  */
 @OnThread(Tag.FXPlatform)
-public final class PackageEditor extends StackPane implements MouseTrackingOverlayPane.MousePositionListener
+public final class PackageEditor extends StackPane implements MouseTrackingOverlayPane.MousePositionListener, PkgMgrFrame.PkgMgrPane
 {
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
@@ -506,6 +513,35 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     {
         if (extendsSuperClassHover == target)
             extendsSuperClassHover = null;
+    }
+
+    public void checkForLossOfFocus()
+    {
+        // If none of our children have focus any more
+        // after processing has completed, select none:
+        JavaFXUtil.runAfterCurrent(() -> {
+            if (!pkg.getVertices().stream().anyMatch(Target::isFocused))
+                selectionController.clearSelection();
+        });
+    }
+
+    public boolean focusSelectedOrArbitrary()
+    {
+        if (selectionController.getSelection().isEmpty())
+        {
+            if (pkg.getVertices().isEmpty())
+                return false;
+            else
+            {
+                pkg.getVertices().get(0).requestFocus();
+                return true;
+            }
+        }
+        else
+        {
+            selectionController.getSelection().get(0).requestFocus();
+            return true;
+        }
     }
 
     @OnThread(Tag.FXPlatform)

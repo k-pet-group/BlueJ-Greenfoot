@@ -107,6 +107,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -386,6 +388,7 @@ public class PkgMgrFrame
             SwingNode statusSwingNode = new SwingNodeFixed();
             statusSwingNode.setContent(statusbar);
             Platform.runLater(() -> {
+                statusSwingNode.setFocusTraversable(false);
                 Stage stage = new Stage();
                 BlueJTheme.setWindowIconFX(stage);
 
@@ -989,9 +992,9 @@ public class PkgMgrFrame
                 editorMousePressed = e -> clearStatus();
                 editor.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);  // This mouse listener MUST be before
                 editor.startMouseListening();   //  the editor's listener itself!
+                addCtrlTabShortcut(editor);
             });
             aPkg.setEditor(this.editor);
-            addCtrlTabShortcut(editor);
             
             // fetch some properties from the package that interest us
             Properties p = aPkg.getLastSavedProperties();
@@ -2762,6 +2765,7 @@ public class PkgMgrFrame
             if (codePad == null)
             {
                 codePad = new CodePad(this);
+                addCtrlTabShortcut(codePad);
                 CodePad cpFinal = codePad;
                 itemsToDisable.add(cpFinal);
                 bottomPane.getItems().add(codePad);
@@ -2932,6 +2936,7 @@ public class PkgMgrFrame
 
             dummySwingNode = new SwingNode();
             dummySwingNode.setContent(dummyContent);
+            dummySwingNode.setFocusTraversable(false);
             toolPanel.getChildren().add(dummySwingNode);
             
             Pane space = new Pane();
@@ -2939,6 +2944,7 @@ public class PkgMgrFrame
             toolPanel.getChildren().add(space);
             
             testPanel = new TitledPane();
+            testPanel.setFocusTraversable(false);
             JavaFXUtil.addStyleClass(testPanel, "pmf-tools-test");
             testPanel.setText(Config.getString("pkgmgr.test.title"));
             VBox testPanelItems = new VBox();
@@ -2975,6 +2981,7 @@ public class PkgMgrFrame
             //testItems.add(testPanel);
 
             teamPanel = new TitledPane();
+            teamPanel.setFocusTraversable(false);
             teamPanel.setText(Config.getString("pkgmgr.team.title"));
             JavaFXUtil.addStyleClass(teamPanel, "pmf-tools-team");
             VBox teamPanelItems = new VBox();
@@ -3456,37 +3463,94 @@ public class PkgMgrFrame
      * Adds shortcuts for Ctrl-TAB and Ctrl-Shift-TAB to the given pane, which move to the
      * next/previous pane of the main three (package editor, object bench, code pad) that are visible
      */
+    @OnThread(Tag.FX)
+    private void addCtrlTabShortcut(final PkgMgrPane srcPane)
+    {
+        srcPane.asNode().addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.TAB && e.isControlDown())
+            {
+                if (!e.isShiftDown())
+                {
+                    // Try to focus next pane.
+                    if (srcPane == editor)
+                    {
+                        if (!tryFocusObjBench())
+                            tryFocusCodePad();
+                        // If codepad can't be focused, do nothing
 
-    @OnThread(Tag.Any)
-    private void addCtrlTabShortcut(final Node toPane)
-    {
-    }
-    private void addCtrlTabShortcut(final JComponent toPane)
-    {
-        /*
-        toPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.CTRL_DOWN_MASK), "nextPMFPane");
-        toPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK), "prevPMFPane");
-        toPane.getActionMap().put("nextPMFPane", new AbstractAction() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                movePaneFocus(toPane, +1);
+                    }
+                    else if (srcPane == objbench)
+                    {
+                        if (!tryFocusCodePad())
+                            tryFocusClassDiagram();
+                    }
+                    else
+                    {
+                        if (!tryFocusClassDiagram())
+                            tryFocusObjBench();
+                    }
+                }
+                else
+                {
+                    // Try to focus prev pane
+                    if (srcPane == editor)
+                    {
+                        if (!tryFocusCodePad())
+                            tryFocusObjBench();
+                    }
+                    else if (srcPane == objbench)
+                    {
+                        if (!tryFocusClassDiagram())
+                            tryFocusCodePad();
+                    }
+                    else
+                    {
+                        if (!tryFocusObjBench())
+                            tryFocusClassDiagram();
+                    }
+                }
+                e.consume();
             }
         });
-        toPane.getActionMap().put("prevPMFPane", new AbstractAction() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                movePaneFocus(toPane, -1);
-            }
-        });
-        */
     }
-    
+
+    @OnThread(Tag.FXPlatform)
+    private boolean tryFocusClassDiagram()
+    {
+        if (editor != null)
+        {
+            return editor.focusSelectedOrArbitrary();
+        }
+        return false;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private boolean tryFocusCodePad()
+    {
+        if (codePad != null)
+        {
+            if (!codePad.isDisabled())
+            {
+                codePad.focusEditRow();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private boolean tryFocusObjBench()
+    {
+        // Focus first object, if bench is non-empty:
+        if (objbench.getObjectCount() > 0)
+        {
+            objbench.getObjects().get(0).requestFocus();
+            return true;
+        }
+        
+        return false;
+    }
+
     @OnThread(Tag.FX)
     public Stage getFXWindow()
     {
@@ -3557,4 +3621,10 @@ public class PkgMgrFrame
         }
     }
     
+    // Used as a way to tag the three main panes in the PkgMgrFrame window
+    public static interface PkgMgrPane
+    {
+        @OnThread(Tag.FX)
+        public default Node asNode() { return (Node)this;}
+    }
 }

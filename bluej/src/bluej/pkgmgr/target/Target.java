@@ -113,6 +113,21 @@ public abstract class Target
             JavaFXUtil.addStyleClass(pane, "target");
             pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
             
+            pane.setFocusTraversable(true);
+            JavaFXUtil.addFocusListener(pane, hasFocus -> {
+                // Here's the logic.  If we are focused after a mouse click,
+                // the click listener will already have selected us before the
+                // focus.  In which case this guard won't fire because we are selected.
+                // This only fires if we received focus some other way while not being selected,
+                // which should only be via keyboard traversal (tab, or ctrl-tab),
+                // in which case we should cancel the selection and only select the focused item:
+                if (hasFocus && !isSelected())
+                    pkg.getEditor().selectOnly(this);
+                
+                if (!hasFocus)
+                    pkg.getEditor().checkForLossOfFocus();
+            });
+            
             pane.setOnMouseClicked(e -> {
                 if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
                     doubleClick();
@@ -131,7 +146,8 @@ public abstract class Target
                         }
                     }
                     updateCursor(e);
-                    pane.requestFocus();
+                    if (isSelected())
+                        pane.requestFocus();
                 }
                 e.consume();    
             });

@@ -67,7 +67,7 @@ import threadchecker.Tag;
  */
 @OnThread(Tag.FXPlatform)
 public class ObjectBench extends javafx.scene.control.ScrollPane implements ValueCollection,
-    ObjectBenchInterface
+    ObjectBenchInterface, PkgMgrFrame.PkgMgrPane
 {
     private static final Color TRANSPARENT = new Color(0f, 0f, 0f, 0.0f);
 

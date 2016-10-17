@@ -233,6 +233,8 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             setMinHeight(HEIGHT);
             setCursor(Cursor.HAND);
             
+            setFocusTraversable(true);
+            
             setOnMouseClicked(this::clicked);
     
             JavaFXUtil.addFocusListener(this, focused -> {

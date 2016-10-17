@@ -25,6 +25,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -191,6 +192,7 @@ public class SelectionController
         Target currentTarget = findSingleVertex();
         currentTarget = traverseStragegiImpl.findNextVertex(graph, currentTarget, evt.getCode());
         selection.selectOnly(currentTarget);
+        currentTarget.requestFocus();
     }
 
     /**
@@ -288,7 +290,7 @@ public class SelectionController
         selection.selectOnly(target);
     }
 
-    public Collection<Target> getSelection()
+    public List<Target> getSelection()
     {
         return selection.getSelected();
     }
