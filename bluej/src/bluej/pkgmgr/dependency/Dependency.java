@@ -278,13 +278,13 @@ public abstract class Dependency
      * (start point, end point, angle) concisely.
      */
     @OnThread(Tag.FXPlatform)
-    public class Line
+    public static class Line
     {
         public Point2D from;
         public Point2D to;
         double angle;
 
-        Line(Point2D from, Point2D to, double angle)
+        public Line(Point2D from, Point2D to, double angle)
         {
             this.from = from;
             this.to = to;

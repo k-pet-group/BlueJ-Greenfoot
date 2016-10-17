@@ -51,6 +51,9 @@
 .class-diagram, .package-target-preview {
     -fx-background-color: rgb(247, 245, 222);
 }
+.class-diagram:bj-drawing-extends {
+    -fx-background-color: derive(rgb(247, 245, 222), -15%);
+}
 .package-target-preview-wrapper {
     -fx-padding: 5;
 }
@@ -65,7 +68,7 @@
     -fx-border-color: black;
     -fx-border-style: solid outside; /* Prevents relayout when border gets thicker */
     /* We set this programatically because we vary it when the mouse moves to the bottom corner: */
-        /*-fx-cursor: hand; */
+    /*-fx-cursor: hand; */
 }
 .class-target, .class-target:bj-resizing, .class-target:bj-resizing:hover,
   .package-target-preview-item {
@@ -113,6 +116,12 @@
     -fx-stroke: black;
     -fx-stroke-type: outside;
     -fx-fill: rgba(0, 0, 0, 0.2);
+}
+.pmf-create-extends-tip {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-label-padding: 3px;
+    -fx-background-radius: 4px;
 }
 
 

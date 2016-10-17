@@ -1718,13 +1718,12 @@ public final class Package
      *
      * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
      */
-    public void userAddImplementsClassDependency(Dependency d)
+    public void userAddImplementsClassDependency(ClassTarget from, ClassTarget to)
     {
-        ClassTarget from = (ClassTarget) d.getFrom(); // a class
-        ClassTarget to = (ClassTarget) d.getTo(); // an interface
         ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
         if (info != null) {
             from.getEditor().addImplements(to.getBaseName(), info);
+            from.analyseSource();
         }
     }
 
@@ -1734,12 +1733,11 @@ public final class Package
      *
      * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
      */
-    public void userAddImplementsInterfaceDependency(Dependency d)
+    public void userAddExtendsInterfaceDependency(ClassTarget from, ClassTarget to)
     {
-        ClassTarget from = (ClassTarget) d.getFrom(); // an interface
-        ClassTarget to = (ClassTarget) d.getTo(); // an interface
         ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
         from.getEditor().addExtendsInterface(to.getBaseName(), info);
+        from.analyseSource();
     }
 
     /**
@@ -1748,11 +1746,10 @@ public final class Package
      *
      * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
      */
-    public void userAddExtendsClassDependency(Dependency d)
+    public void userAddExtendsClassDependency(ClassTarget from, ClassTarget to)
     {
-        ClassTarget from = (ClassTarget)d.getFrom();
-        ClassTarget to = (ClassTarget)d.getTo();
         from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getJavaSourceFile(), this));
+        from.analyseSource();
     }
 
     /**

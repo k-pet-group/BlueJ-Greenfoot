@@ -27,26 +27,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Action;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.extmgr.FXMenuManager;
+import bluej.pkgmgr.dependency.ExtendsDependency;
+import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Utility;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -64,13 +65,10 @@ import bluej.extensions.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.PackageExtensionMenu;
 import bluej.graph.SelectionController;
-import bluej.pkgmgr.actions.NewClassAction;
-import bluej.pkgmgr.actions.NewPackageAction;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.DependentTarget;
 import bluej.pkgmgr.target.Target;
-import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
@@ -84,7 +82,7 @@ import threadchecker.Tag;
  * @author  Andrew Patterson
  */
 @OnThread(Tag.FXPlatform)
-public final class PackageEditor extends StackPane
+public final class PackageEditor extends StackPane implements MouseTrackingOverlayPane.MousePositionListener
 {
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
@@ -116,12 +114,30 @@ public final class PackageEditor extends StackPane
     private boolean aboutToRepaint = false;
     @OnThread(Tag.FXPlatform)
     private ContextMenu showingContextMenu;
+    
+    // For showing info about the arrow-drawing in progress:
+    @OnThread(Tag.FXPlatform)
+    private MouseTrackingOverlayPane overlay;
+    @OnThread(Tag.FXPlatform)
+    private Label arrowCreationTip;
+    @OnThread(Tag.FXPlatform)
+    private boolean creatingExtends = false;
+    @OnThread(Tag.FXPlatform)
+    private ClassTarget extendsSubClass;
+    @OnThread(Tag.FXPlatform)
+    private ClassTarget extendsSuperClassHover;
+    // X Y coordinates local to the pane for where the mouse is when
+    // drawing new dependency.
+    @OnThread(Tag.FXPlatform)
+    private double newExtendsDestX;
+    @OnThread(Tag.FXPlatform)
+    private double newExtendsDestY;
 
     /**
      * Construct a package editor for the given package.
      */
     @OnThread(Tag.Any)
-    public PackageEditor(PkgMgrFrame pmf, Package pkg, PackageEditorListener listener, BooleanProperty showUses, BooleanProperty showInherits)
+    public PackageEditor(PkgMgrFrame pmf, Package pkg, PackageEditorListener listener, BooleanProperty showUses, BooleanProperty showInherits, MouseTrackingOverlayPane overlay)
     {
         this.pmf = pmf;
         this.pkg = pkg;
@@ -129,6 +145,7 @@ public final class PackageEditor extends StackPane
         this.selectionController = new SelectionController(this);
         this.showUses = showUses;
         this.showExtends = showInherits;
+        this.overlay = overlay;
         Platform.runLater(() -> {
             JavaFXUtil.addStyleClass(this, "class-diagram");
             frontClassLayer.setBackground(null);
@@ -148,6 +165,12 @@ public final class PackageEditor extends StackPane
 
             JavaFXUtil.addChangeListener(showUses, e -> JavaFXUtil.runNowOrLater(this::repaint));
             JavaFXUtil.addChangeListener(showExtends, e -> JavaFXUtil.runNowOrLater(this::repaint));
+            
+            addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+                if (e.getCode() == KeyCode.ESCAPE && creatingExtends)
+                    stopNewInherits();
+                // Don't consume either way
+            });
         });
     }
 
@@ -473,6 +496,72 @@ public final class PackageEditor extends StackPane
         }
     }
 
+    public void setMouseIn(Target target)
+    {
+        if (creatingExtends && extendsSubClass != null && target instanceof ClassTarget)
+            extendsSuperClassHover = (ClassTarget)target;
+    }
+
+    public void setMouseLeft(Target target)
+    {
+        if (extendsSuperClassHover == target)
+            extendsSuperClassHover = null;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private static class ExtendsDepInfo
+    {
+        private final Dependency.Line line;
+        private final boolean selected;
+        private final boolean creating;
+
+        public ExtendsDepInfo(Dependency d)
+        {
+            this.line = d.computeLine();
+            this.selected = d.isSelected();
+            this.creating = false;
+        }
+
+        // When we have a firm from, but the to point is not currently
+        // over any target
+        public ExtendsDepInfo(DependentTarget from, double toX, double toY)
+        {
+            // Compute centre points of source and dest target
+            Point2D pFrom = new Point2D(from.getX() + from.getWidth() / 2, from.getY() + from.getHeight() / 2);
+            Point2D pTo = new Point2D(toX, toY);
+
+            // Get the angle of the line from pFrom to pTo.
+            double angle = Math.atan2(-(pFrom.getY() - pTo.getY()), pFrom.getX() - pTo.getX());
+
+            // Compute intersection points with target border
+            pFrom = from.getAttachment(angle + Math.PI);
+
+            line = new Dependency.Line(pFrom, pTo, angle);
+            selected = false;
+            creating = true;
+        }
+
+        // When we have a firm from, and the mouse is hovering over an
+        // actual target for a to.
+        public ExtendsDepInfo(DependentTarget from, DependentTarget to)
+        {
+            // Compute centre points of source and dest target
+            Point2D pFrom = new Point2D(from.getX() + from.getWidth() / 2, from.getY() + from.getHeight() / 2);
+            Point2D pTo = new Point2D(to.getX() + to.getWidth() / 2, to.getY() + to.getHeight() / 2);
+
+            // Get the angle of the line from pFrom to pTo.
+            double angle = Math.atan2(-(pFrom.getY() - pTo.getY()), pFrom.getX() - pTo.getX());
+
+            // Compute intersection points with target border
+            pFrom = from.getAttachment(angle + Math.PI);
+            pTo = to.getAttachment(angle);
+
+            line = new Dependency.Line(pFrom, pTo, angle);
+            selected = false;
+            creating = true;
+        }
+    }
+
     private void actualRepaint()
     {
         aboutToRepaint = false;
@@ -484,15 +573,30 @@ public final class PackageEditor extends StackPane
             extendsDeps = isShowExtends() ? new ArrayList<>(this.extendsArrows) : Collections.emptyList();
             usesDeps = isShowUses() ? new ArrayList<>(this.usesArrows) : Collections.emptyList();
         }
+        List<ExtendsDepInfo> extendsLines = new ArrayList<>(Utility.mapList(extendsDeps, ExtendsDepInfo::new));
+        if (extendsSubClass != null)
+        {
+            if (extendsSuperClassHover != null)
+            {
+                extendsLines.add(new ExtendsDepInfo(extendsSubClass, extendsSuperClassHover));
+            }
+            else
+            {
+                Point2D p = arrowLayer.sceneToLocal(newExtendsDestX, newExtendsDestY);
+                extendsLines.add(new ExtendsDepInfo(extendsSubClass, p.getX(), p.getY()));
+            }
+        }
+        
+        
         GraphicsContext g = arrowLayer.getGraphicsContext2D();
         g.clearRect(0, 0, arrowLayer.getWidth(), arrowLayer.getHeight());
 
-        for (Dependency d : extendsDeps)
+        for (ExtendsDepInfo d : extendsLines)
         {
-            g.setStroke(Color.BLACK);
-            g.setLineWidth(d.isSelected() ? 3.0 : 1.0);
+            g.setStroke(d.creating ? Color.BLUE : Color.BLACK);
+            g.setLineWidth(d.selected ? 3.0 : 1.0);
             g.setLineDashes();
-            Dependency.Line line = d.computeLine();
+            Dependency.Line line = d.line;
             double fromY = line.from.getY();
             double fromX = line.from.getX();
             double toY = line.to.getY();
@@ -833,12 +937,35 @@ public final class PackageEditor extends StackPane
 
     public void clearState()
     {
-        // TODO
+        if (creatingExtends)
+            stopNewInherits();
     }
 
     public void doNewInherits()
     {
-        // TODO
+        arrowCreationTip = new Label("Select subclass (child class) of extends");
+        JavaFXUtil.addStyleClass(arrowCreationTip, "pmf-create-extends-tip");
+        overlay.addMouseTrackingOverlay(arrowCreationTip, false, new ReadOnlyDoubleWrapper(5.0), arrowCreationTip.heightProperty().negate().add(-5.0));
+        creatingExtends = true;
+        extendsSubClass = null;
+        JavaFXUtil.setPseudoclass("bj-drawing-extends", true, this);
+        for (Target t : pkg.getVertices())
+            t.setCreatingExtends(true);
+        repaint();
+    }
+    
+    private void stopNewInherits()
+    {
+        overlay.removeMouseListener(this);
+        overlay.remove(arrowCreationTip);
+        arrowCreationTip = null;
+        creatingExtends = false;
+        extendsSubClass = null;
+        extendsSuperClassHover = null;
+        JavaFXUtil.setPseudoclass("bj-drawing-extends", false, this);
+        for (Target t : pkg.getVertices())
+            t.setCreatingExtends(false);
+        repaint();
     }
 
     public boolean doRemoveDependency()
@@ -947,5 +1074,60 @@ public final class PackageEditor extends StackPane
     public void selectAll()
     {
         selectionController.selectAll();
+    }
+
+    /**
+     * The given target has been clicked.  If we are creating a new extends
+     * arrow then select this target and return true.  If we are not creating
+     * a new extends arrow, return false.
+     */
+    public boolean clickForExtends(Target target, double sceneX, double sceneY)
+    {
+        if (creatingExtends && target instanceof ClassTarget)
+        {
+            if (extendsSubClass == null)
+            {
+                extendsSubClass = (ClassTarget)target;
+                arrowCreationTip.setText("Select superclass/interface to extend");
+                overlay.addMouseListener(this); 
+                newExtendsDestX = sceneX;
+                newExtendsDestY = sceneY;
+                repaint();
+            }
+            else
+            {
+                // Finished; we can actually add the dependency
+                // Take a copy because we're going to null it:
+                ClassTarget subClassFinal = this.extendsSubClass;
+                ClassTarget superClass = (ClassTarget)target;
+                SwingUtilities.invokeLater(() -> {
+                    if (subClassFinal.isInterface())
+                    {
+                        if (superClass.isInterface())
+                            pkg.userAddExtendsInterfaceDependency(subClassFinal, superClass);
+                        // TODO else give an error about why this won't work?
+                    }
+                    else
+                    {
+                        if (superClass.isInterface())
+                            pkg.userAddImplementsClassDependency(subClassFinal, superClass);
+                        else
+                            pkg.userAddExtendsClassDependency(subClassFinal, superClass);
+                    }
+                    pkg.compile(subClassFinal, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
+                });
+                
+                stopNewInherits();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void mouseMoved(double localX, double localY)
+    {
+        newExtendsDestX = localX;
+        newExtendsDestY = localY;
+        repaint();
     }
 }

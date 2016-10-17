@@ -125,6 +125,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import javafx.scene.paint.Color;
@@ -252,6 +253,8 @@ public class ClassTarget extends DependentTarget
     private static final Color GREY_STRIPE = Color.rgb(158, 139, 116);
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean showingInterface;
+    @OnThread(Tag.FXPlatform)
+    private boolean drawingExtends = false;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -2698,5 +2701,19 @@ public class ClassTarget extends DependentTarget
     public synchronized void showingInterface(boolean showing)
     {
         this.showingInterface = showing;
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) void setCreatingExtends(boolean drawingExtends)
+    {
+        // Don't call super; we don't want to darken ourselves
+        this.drawingExtends = drawingExtends;
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) boolean cursorAtResizeCorner(MouseEvent e)
+    {
+        // Don't allow resize if we are picking an extends arrow:
+        return super.cursorAtResizeCorner(e) && !drawingExtends;
     }
 }

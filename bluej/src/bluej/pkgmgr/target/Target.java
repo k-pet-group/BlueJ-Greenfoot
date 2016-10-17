@@ -25,6 +25,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.input.KeyEvent;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -117,14 +118,17 @@ public abstract class Target
                     doubleClick();
                 else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
                 {
-                    // Single left-click.  Is modifier down?
-                    if (e.isShiftDown() || e.isShortcutDown())
+                    if (!pkg.getEditor().clickForExtends(this, e.getSceneX(), e.getSceneY()))
                     {
-                        pkg.getEditor().toggleSelection(this);
-                    }
-                    else
-                    {
-                        pkg.getEditor().selectOnly(this);
+                        // Single left-click.  Is modifier down?
+                        if (e.isShiftDown() || e.isShortcutDown())
+                        {
+                            pkg.getEditor().toggleSelection(this);
+                        }
+                        else
+                        {
+                            pkg.getEditor().selectOnly(this);
+                        }
                     }
                     updateCursor(e);
                     pane.requestFocus();
@@ -133,6 +137,10 @@ public abstract class Target
             });
             pane.setOnMouseMoved(e -> {
                 updateCursor(e);
+                pkg.getEditor().setMouseIn(this);
+            });
+            pane.setOnMouseExited(e -> {
+                pkg.getEditor().setMouseLeft(this);
             });
 
             pane.setOnMousePressed(e -> {
@@ -180,7 +188,7 @@ public abstract class Target
                 pkg.getEditor().endResize();
             });
             pane.setOnKeyTyped(e -> {
-                if ("+-".contains(e.getCharacter()) && isResizable())
+                if (e.getCharacter().length() > 0 && "+-".contains(e.getCharacter()) && isResizable())
                 {
                     pkg.getEditor().startedResize();
                     int delta = e.getCharacter().equals("+") ? PackageEditor.GRID_SIZE : -PackageEditor.GRID_SIZE;
@@ -676,5 +684,12 @@ public abstract class Target
     public void requestFocus()
     {
         pane.requestFocus();
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public void setCreatingExtends(boolean drawingExtends)
+    {
+        // By default , we darken ourselves:
+        pane.setEffect(drawingExtends ? new ColorAdjust(0, 0, -0.2, 0): null);
     }
 }

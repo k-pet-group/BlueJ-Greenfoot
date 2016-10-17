@@ -341,14 +341,22 @@ public class PkgMgrFrame
     private SimpleBooleanProperty showUsesProperty;
     @OnThread(Tag.Any)
     private SimpleBooleanProperty showInheritsProperty;
+    // The horizontal split pane containing the object bench and (sometimes) codepad.
     @OnThread(Tag.FX)
     private SplitPane bottomPane;
     @OnThread(Tag.FX)
     private double bottomPaneLastDividerPos = 0.6; // default split
+    // A dummy SwingNode to enable us to get the AWT frame ancestor which underpins
+    // the JavaFX window, mainly for the extensions
     @OnThread(Tag.Any)
     private SwingNode dummySwingNode;
+    // The vertical split pane with controls+class diagram on top,
+    // and bench+codepad split pane on the bottom.
     @OnThread(Tag.FX)
     private SplitPane topBottomSplit;
+    // The overlay in front of the top half of topBottomSplit, which we draw on when creating extends arrows.
+    @OnThread(Tag.Any)
+    private final MouseTrackingOverlayPane topOverlay = new MouseTrackingOverlayPane();
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -415,9 +423,8 @@ public class PkgMgrFrame
                         bottomPaneLastDividerPos = c.getRemoved().get(0).getPosition();
                     }
                 });
-                
-                
-                topBottomSplit = new SplitPane(topPane, bottomPane);
+
+                topBottomSplit = new SplitPane(new StackPane(topPane, topOverlay), bottomPane);
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
                 BorderPane contentRoot = new BorderPane(topBottomSplit);
                 JavaFXUtil.addStyleClass(contentRoot, "pmf-root");
@@ -948,7 +955,7 @@ public class PkgMgrFrame
         this.pkg = aPkg;
 
         if(! Config.isGreenfoot()) {
-            this.editor = new PackageEditor(this, aPkg, this, showUsesProperty, showInheritsProperty);
+            this.editor = new PackageEditor(this, aPkg, this, showUsesProperty, showInheritsProperty, topOverlay);
             Platform.runLater(() -> {
                 pkgEditorScrollPane.setContent(editor);
                 editor.setOnDragOver(event -> {
