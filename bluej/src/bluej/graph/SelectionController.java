@@ -106,12 +106,6 @@ public class SelectionController
      */
     public void mouseReleased(MouseEvent evt)
     {
-        if (isDrawingDependency()) {
-            //Target selectedElement = graph.findGraphElement(evt.getX(), evt.getY());
-            //notifyPackage(selectedElement);
-            graphEditor.repaint();
-        }
-
         marquee.stop();     // may or may not have had a marquee...
         graphEditor.repaint();
         
@@ -172,16 +166,6 @@ public class SelectionController
         else
             ((Package)graph).targetSelected(null);
     }
-    
-    /**
-     * Tell whether the package is currently drawing a dependency.
-     */
-    @OnThread(Tag.FXPlatform)
-    public boolean isDrawingDependency()
-    {
-        return graphEditor.isDrawingDependency();
-    }
-
 
     /**
      * Move the current selection to another selected class, depending on
@@ -285,11 +269,17 @@ public class SelectionController
 
     }
 
+    /**
+     * Selects the one given target, and no others.
+     */
     public void selectOnly(Target target)
     {
         selection.selectOnly(target);
     }
 
+    /**
+     * Gets an unordered list of all currently selected targets.
+     */
     public List<Target> getSelection()
     {
         return selection.getSelected();

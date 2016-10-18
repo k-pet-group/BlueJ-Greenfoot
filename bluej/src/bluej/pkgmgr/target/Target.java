@@ -62,6 +62,9 @@ public abstract class Target
     private static final double SHADOW_RADIUS = 3.0;
     protected static final double RESIZE_CORNER_SIZE = 16;
 
+    // Store the position before moving, and size before resizing.
+    // Not because we allow cancelling (we don't), but because we move/resize
+    // by deltas, so we need to know the start position/size.
     @OnThread(Tag.FXPlatform)
     private int preMoveX;
     @OnThread(Tag.FXPlatform)
@@ -70,12 +73,17 @@ public abstract class Target
     private int preResizeWidth;
     @OnThread(Tag.FXPlatform)
     private int preResizeHeight;
+    // Keeps track of whether a mouse button press at the current position
+    // would be a resize.
     @OnThread(Tag.FXPlatform)
     private boolean pressIsResize;
+    // The position of the mouse press (e.g. for positioning/sizing)
+    // relative to the pane:
     @OnThread(Tag.FXPlatform)
     private double pressDeltaX;
     @OnThread(Tag.FXPlatform)
     private double pressDeltaY;
+    // The currently showing context menu (if any).  Null if no menu showing.
     @OnThread(Tag.FXPlatform)
     private ContextMenu showingContextMenu;
 
@@ -87,14 +95,16 @@ public abstract class Target
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private Package pkg; // the package this target belongs to
 
-    protected boolean disabled;
-
+    // Is the current node selected?
     @OnThread(Tag.Any)
     protected boolean selected;
+    // Is the current node queued for compilation?
     protected boolean queued;
 
+    // The graphical item in the class diagram
     @OnThread(Tag.FXPlatform)
     protected BorderPane pane;
+    // Is the target directly resizable?  Readmes and test classes are not.
     @OnThread(Tag.FX)
     private boolean resizable = true;
 
@@ -108,7 +118,7 @@ public abstract class Target
             pane = new BorderPane();
             pane.setPrefWidth(calculateWidth(identifierName));
             pane.setPrefHeight(DEF_HEIGHT);
-            // We set this here not from CSS because we vary it dynamically:
+            // We set this here rather than via CSS because we vary it dynamically:
             pane.setCursor(Cursor.HAND);
             JavaFXUtil.addStyleClass(pane, "target");
             pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
@@ -133,8 +143,12 @@ public abstract class Target
                     doubleClick();
                 else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
                 {
+                    // We first check if the user was drawing an extends arrow,
+                    // in which case a click will finish that off.
                     if (!pkg.getEditor().clickForExtends(this, e.getSceneX(), e.getSceneY()))
                     {
+                        // Not drawing; proceed with normal click handling.
+                        
                         // Single left-click.  Is modifier down?
                         if (e.isShiftDown() || e.isShortcutDown())
                         {
@@ -160,6 +174,10 @@ public abstract class Target
             });
 
             pane.setOnMousePressed(e -> {
+                // Dismiss context menu if the user clicks on the target:
+                // (Usual JavaFX behaviour is to keep the menu showing if you
+                // click the menu's parent but I think users will expect it to
+                // dismiss if they click anywhere besides the menu.) 
                 showingMenu(null);
                 if (e.getButton() == MouseButton.PRIMARY)
                 {
@@ -167,7 +185,8 @@ public abstract class Target
                     pressDeltaY = e.getY();
                     // Check if it's in the corner (and selected), in which case it will be a resize:
                     pressIsResize = isSelected() && cursorAtResizeCorner(e);
-                    // This will save the positions, including ours:
+                    // This will save the positions of everything currently selected,
+                    // including us (by calling us back via savePreMove/savePreResize):
                     if (pressIsResize && isResizable())
                         pkg.getEditor().startedResize();
                     else
@@ -183,9 +202,11 @@ public abstract class Target
                         int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
                         int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
                         pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
-                    } else if (isMoveable())
+                    }
+                    else if (isMoveable())
                     {
-                        // They didn't select us yet, but we still allow a drag-mvoe:
+                        // They didn't select us yet, but we still allow a drag-move.
+                        // Select us as they start dragging:
                         if (!isSelected())
                         {
                             pkg.getEditor().selectOnly(this);
@@ -204,6 +225,7 @@ public abstract class Target
                 pkg.getEditor().endResize();
             });
             pane.setOnKeyTyped(e -> {
+                // + or - on the keyboard do a resize:
                 if (e.getCharacter().length() > 0 && "+-".contains(e.getCharacter()) && isResizable())
                 {
                     pkg.getEditor().startedResize();
@@ -222,6 +244,7 @@ public abstract class Target
             pane.setOnKeyPressed(e -> {
                 if (isArrowKey(e))
                 {
+                    // Ctrl and arrow keys does a resize:
                     if (e.isControlDown())
                     {
                         if (isResizable())
@@ -237,6 +260,7 @@ public abstract class Target
                     }
                     else if (e.isShiftDown())
                     {
+                        // Shift and arrow keys does a move:
                         if (isMoveable())
                         {
                             // Move:
@@ -248,8 +272,10 @@ public abstract class Target
                         }
                     }
                     else
+                    {
+                        // If no modifiers then navigate around the diagram:
                         pkg.getEditor().navigate(e);
-
+                    }
 
                     e.consume();
                 }
@@ -278,7 +304,7 @@ public abstract class Target
     }
 
     @OnThread(Tag.FXPlatform)
-    public void updateCursor(MouseEvent e)
+    private void updateCursor(MouseEvent e)
     {
         if (isSelected() && isResizable() && cursorAtResizeCorner(e))
         {
@@ -292,7 +318,7 @@ public abstract class Target
     }
 
     @OnThread(Tag.FXPlatform)
-    public boolean cursorAtResizeCorner(MouseEvent e)
+    protected boolean cursorAtResizeCorner(MouseEvent e)
     {
         // Check if it's in the 45-degree corner in the bottom right:
         return e.getX() + e.getY() >= getWidth() + getHeight() - RESIZE_CORNER_SIZE;

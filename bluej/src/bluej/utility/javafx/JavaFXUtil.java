@@ -73,6 +73,7 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -89,6 +90,7 @@ import javafx.scene.control.Labeled;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
@@ -112,6 +114,7 @@ import javafx.util.Duration;
 
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.WindowOverlayPane;
+import bluej.pkgmgr.target.ClassTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -611,6 +614,17 @@ public class JavaFXUtil
     public static void bindPseudoclass(Node node, String pseudoClass, BooleanBinding on)
     {
         addChangeListener(on, b -> setPseudoclass(pseudoClass, b, node));
+    }
+
+    public static void scrollTo(ScrollPane scrollPane, Node target)
+    {
+        double scrollWidth = scrollPane.getContent().getBoundsInLocal().getWidth();
+        double scrollHeight = scrollPane.getContent().getBoundsInLocal().getHeight();
+        
+        Bounds b = scrollPane.getContent().sceneToLocal(target.localToScene(target.getBoundsInLocal()));
+        
+        scrollPane.setHvalue(b.getMinX() / scrollWidth);
+        scrollPane.setVvalue(b.getMinY() / scrollHeight);
     }
 
     /**

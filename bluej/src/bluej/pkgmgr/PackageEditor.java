@@ -36,7 +36,6 @@ import bluej.Config;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.extmgr.FXMenuManager;
-import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Utility;
 import javafx.application.Platform;
@@ -101,7 +100,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     private final Package pkg;
     private final SelectionController selectionController;
     private boolean hasPermFocus;
+    // Are we showing extends/inherits arrows?
     private final BooleanProperty showExtends;
+    // Are we showing uses arrows?
     private final BooleanProperty showUses;
 
     /** all the uses-arrows in a package */
@@ -116,24 +117,34 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     // and one back (for test classes)
     private final AnchorPane frontClassLayer = new AnchorPane();
     private final AnchorPane backClassLayer = new AnchorPane();
+    // The layer at the front on which we draw the selection rectangle:
     private Pane selectionLayer = new Pane();
+    // The layer at the back where we draw the arrows:
     private final Canvas arrowLayer = new ResizableCanvas();
+    // Boolean remembering whether we've already scheduled a repaint.
     private boolean aboutToRepaint = false;
+    // The ContextMenu that is currently being shown on screen (null if not visible)
     @OnThread(Tag.FXPlatform)
     private ContextMenu showingContextMenu;
     
-    // For showing info about the arrow-drawing in progress:
+    // For showing info about the arrow-drawing in progress; the overlay pane:
     @OnThread(Tag.FXPlatform)
     private MouseTrackingOverlayPane overlay;
+    // The tooltip shown when creating an arrow (null if not showing):
     @OnThread(Tag.FXPlatform)
     private Label arrowCreationTip;
+    // Are we currently creating a new extends arrow?
     @OnThread(Tag.FXPlatform)
     private boolean creatingExtends = false;
+    // If we are creating a new extends arrow, this is the "from" class which
+    // has been selected, or null if we have not yet selected the from.
     @OnThread(Tag.FXPlatform)
     private ClassTarget extendsSubClass;
+    // If we are creating a new extends arrow, and we're on to selecting a "to" class,
+    // this indicates which class we are hovering over (or null if none):
     @OnThread(Tag.FXPlatform)
     private ClassTarget extendsSuperClassHover;
-    // X Y coordinates local to the pane for where the mouse is when
+    // X, Y coordinates local to the pane for where the mouse is when
     // drawing new dependency.
     @OnThread(Tag.FXPlatform)
     private double newExtendsDestX;
@@ -155,9 +166,13 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         this.overlay = overlay;
         Platform.runLater(() -> {
             JavaFXUtil.addStyleClass(this, "class-diagram");
+            // Both class layers have transparent background to see through to lower layers:
             frontClassLayer.setBackground(null);
-            frontClassLayer.setPickOnBounds(false);
             backClassLayer.setBackground(null);
+            // We need to be able to click through the holes in the front class layer
+            // in order to click on the back layer:
+            frontClassLayer.setPickOnBounds(false);
+            
             JavaFXUtil.addChangeListenerPlatform(arrowLayer.widthProperty(), s -> repaint());
             JavaFXUtil.addChangeListenerPlatform(arrowLayer.heightProperty(), s -> repaint());
             selectionLayer = new Pane();
@@ -270,7 +285,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     {
         ContextMenu menu = new ContextMenu();
         Point2D graphLoc = screenToLocal(screenX, screenY);
-        for (Dependency d : getEdges())
+        for (Dependency d : getVisibleEdges())
         {
             if (d.isRemovable() && d.contains((int)graphLoc.getX(), (int)graphLoc.getY()))
             {
@@ -334,6 +349,8 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         return true;
     }
 
+    // Record that we are showing this new context menu.
+    // If a context menu was already showing, dismiss it.
     private void showingMenu(ContextMenu menu)
     {
         if (showingContextMenu != null)
@@ -363,35 +380,12 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         return hasPermFocus;
     }
 
+    // Gets the FX window in which this package editor lies.
     @OnThread(Tag.FXPlatform)
     public Window getFXWindow()
     {
         return pmf.getFXWindow();
     }
-
-    /**
-     * Finds the Edge that covers the coordinate x,y and is visible. If no
-     * (visible) edge is found, null is returned.
-     *
-     * @param x
-     *            the x coordinate
-     * @param y
-     *            the y coordinate
-     * @return an edge at that position, or null
-     */
-    /*
-    private Dependency findEdge(int x, int y)
-    {
-        Dependency element = null;
-        for (Iterator<? extends Dependency> it = getEdges(); it.hasNext();) {
-            element = it.next();
-            if (element.isVisible() && element.contains(x, y)) {
-                return element;
-            }
-        }
-        return null;
-    }
-    */
 
     /**
      * Position the given vertex nicely in the graph. Thsi usually means that it
@@ -494,6 +488,12 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     private static final double ARROW_ANGLE = Math.PI / 6; // radians
     private static final double DASHES[] = {5.0f, 2.0f};
 
+    /**
+     * Schedules a repaint.  The repaint is done with a runLater,
+     * but using this method avoids a double repaint in common cases,
+     * e.g. we have a listener on X and Y or width and height, and both change
+     * in one go; we want to redraw once, not twice.
+     */
     public void repaint()
     {
         if (!aboutToRepaint)
@@ -503,18 +503,24 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
     }
 
+    /** Records that the mouse is now hovering over the given target */
     public void setMouseIn(Target target)
     {
         if (creatingExtends && extendsSubClass != null && target instanceof ClassTarget)
             extendsSuperClassHover = (ClassTarget)target;
     }
 
+    /** Records that the mouse has stopped hovering over the given target. */
     public void setMouseLeft(Target target)
     {
         if (extendsSuperClassHover == target)
             extendsSuperClassHover = null;
     }
 
+    /**
+     * Check whether the focus is still on one of the vertices in the graph.
+     * If not, clears the selection.
+     */
     public void checkForLossOfFocus()
     {
         // If none of our children have focus any more
@@ -525,6 +531,12 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         });
     }
 
+    /**
+     * Tries to focus a target in the class diagram.  If there is
+     * already a selection, we focus one of the selected items.
+     * If not, we select an arbitrart target.
+     * @return true if we found something to focus, false if there was nothing to focus.
+     */
     public boolean focusSelectedOrArbitrary()
     {
         if (selectionController.getSelection().isEmpty())
@@ -544,6 +556,10 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
     }
 
+    /** 
+     * A class caching the vital details needed to draw an extends dependency line,
+     * which could be either real and finished, or in-progress of being created.
+     */
     @OnThread(Tag.FXPlatform)
     private static class ExtendsDepInfo
     {
@@ -598,6 +614,10 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
     }
 
+    /**
+     * Does the actual repaint of the arrowLayer (do not call directly;
+     * see repaint method).
+     */
     private void actualRepaint()
     {
         aboutToRepaint = false;
@@ -656,27 +676,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
 
         for (UsesDependency d : usesDeps)
         {
-            /*
-
-            private static final BasicStroke dashedUnselected = new BasicStroke(strokeWidthDefault, BasicStroke.CAP_BUTT,
-                    BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
-            private static final BasicStroke dashedSelected = new BasicStroke(strokeWidthSelected, BasicStroke.CAP_BUTT,
-                    BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
-            private static final BasicStroke normalSelected = new BasicStroke(strokeWidthSelected);
-            private static final BasicStroke normalUnselected = new BasicStroke(strokeWidthDefault);
-            */
-/*
-                double[] dashedStroke, normalStroke;
-                boolean isSelected = d.isSelected() && hasFocus;
-                if (isSelected) {
-                    dashedStroke = dashedSelected;
-                    normalStroke = normalSelected;
-                }
-                else {
-                    dashedStroke = dashedUnselected;
-                    normalStroke = normalUnselected;
-                }*/
-
             g.setLineWidth(1.0);
             g.setLineDashes(DASHES);
             // These should all be rounded to the nearest integer+0.5 value:
@@ -744,6 +743,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         selectionController.addToSelection(element);
     }
 
+    /**
+     * Toggles whether the given element is selected or not.
+     */
     public void toggleSelection(Target element)
     {
         if (!element.isSelected())
@@ -761,6 +763,8 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     /**
      * Start our mouse listener. This is not done in the constructor, because we want 
      * to give others (the PkgMgrFrame) the chance to listen first.
+     * 
+     * NB: I'm not sure this is true now that we are in JavaFX.
      */
     public void startMouseListening()
     {
@@ -774,19 +778,11 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         JavaFXUtil.listenForContextMenu(this, this::popupMenu);
     }
 
-    public void scrollTo(Target target)
-    {
-        //TODO
-    }
-
-    public boolean isDrawingDependency()
-    {
-        return false;
-    }
-
-
+    /**
+     * Gets all the currently visible edges (depending on showUses/showExtends settings).
+     */
     @OnThread(Tag.FXPlatform)
-    public synchronized Collection<Dependency> getEdges()
+    public synchronized Collection<Dependency> getVisibleEdges()
     {
         List<Dependency> deps = new ArrayList<>();
 
@@ -797,27 +793,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
 
         return deps;
     }
-
-    /**
-     * Get the selected Dependencies.
-     *
-     * @return The currently selected dependency or null.
-     */
-    /*
-    @OnThread(Tag.FXPlatform)
-    public Dependency getSelectedDependency()
-    {
-        for (Iterator<? extends Dependency> it = getEdges(); it.hasNext();) {
-            Dependency edge = it.next();
-            if (edge.isSelected()) {
-                return edge;
-            }
-        }
-        return null;
-    }
-    */
-
-
 
     /**
      * Returns the {@link Dependency} with the specified <code>origin</code>,
@@ -971,15 +946,21 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         return new ArrayList<>(usesArrows);
     }
 
+    /**
+     * Clears the state: stops creating a new extends arrow.
+     */
     public void clearState()
     {
         if (creatingExtends)
             stopNewInherits();
     }
 
+    /**
+     * Called to start creating a new inherits arrow.
+     */
     public void doNewInherits()
     {
-        arrowCreationTip = new Label("Select subclass (child class) of extends");
+        arrowCreationTip = new Label(Config.getString("pkgmgr.chooseInhFrom"));
         JavaFXUtil.addStyleClass(arrowCreationTip, "pmf-create-extends-tip");
         overlay.addMouseTrackingOverlay(arrowCreationTip, false, new ReadOnlyDoubleWrapper(5.0), arrowCreationTip.heightProperty().negate().add(-5.0));
         creatingExtends = true;
@@ -989,7 +970,10 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             t.setCreatingExtends(true);
         repaint();
     }
-    
+
+    /**
+     * Stops creating a new inherits arrow.
+     */
     private void stopNewInherits()
     {
         overlay.removeMouseListener(this);
@@ -1009,16 +993,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         return false;
     }
 
-    public BooleanProperty showUsesProperty()
-    {
-        return showUses;
-    }
-
-    public BooleanProperty showInheritsProperty()
-    {
-        return showExtends;
-    }
-
+    /**
+     * Selects the given single target, and no others.
+     */
     public void selectOnly(Target target)
     {
         selectionController.selectOnly(target);
@@ -1093,6 +1070,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
     }
 
+    /**
+     * Finishes a resize operation.
+     */
     public void endResize()
     {
         for (Target element : selectionController.getSelection())
@@ -1102,11 +1082,17 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
     }
 
+    /**
+     * Navigates the diagram according to the given key press.
+     */
     public void navigate(KeyEvent event)
     {
         selectionController.navigate(event);
     }
 
+    /**
+     * Select everything in the diagram.
+     */
     public void selectAll()
     {
         selectionController.selectAll();
@@ -1124,7 +1110,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             if (extendsSubClass == null)
             {
                 extendsSubClass = (ClassTarget)target;
-                arrowCreationTip.setText("Select superclass/interface to extend");
+                arrowCreationTip.setText(Config.getString("pkgmgr.chooseInhTo"));
                 overlay.addMouseListener(this); 
                 newExtendsDestX = sceneX;
                 newExtendsDestY = sceneY;

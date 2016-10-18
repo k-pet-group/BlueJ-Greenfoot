@@ -21,12 +21,7 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -51,14 +46,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.ButtonModel;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import bluej.classmgr.BPClassLoader;
@@ -203,9 +195,6 @@ import bluej.views.MethodView;
 public class PkgMgrFrame
     implements BlueJEventListener, PackageEditorListener
 {
-    static final int DEFAULT_WIDTH = 560;
-    static final int DEFAULT_HEIGHT = 400;
-    private static final Font pkgMgrFont = PrefMgr.getStandardFont();
     private static boolean testToolsShown = wantToSeeTestingTools();
     private static boolean teamToolsShown = wantToSeeTeamTools();
     
@@ -1639,7 +1628,7 @@ public class PkgMgrFrame
                     editor.findSpaceForVertex(target);
                 else
                     target.setPos((int)x, (int)y);
-                editor.scrollTo(target);
+                JavaFXUtil.scrollTo(pkgEditorScrollPane, target.getNode());
             }
         });
 
@@ -2914,17 +2903,8 @@ public class PkgMgrFrame
     // --- the following methods set up the GUI frame ---
 
     private void makeFrame()
-    {
-        Image icon = BlueJTheme.getIconImage();
-        if (icon != null) {
-            //TODOPMF
-            //setIconImage(icon);
-        }
-        
+    {   
         setupMenus();
-
-        // Install keystroke to restart the VM
-        Action action = new RestartVMAction(this);
 
         UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
