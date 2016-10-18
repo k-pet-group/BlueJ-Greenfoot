@@ -70,6 +70,7 @@ import bluej.extmgr.FXMenuManager;
 import bluej.groupwork.actions.CommitCommentAction;
 import bluej.groupwork.actions.StatusAction;
 import bluej.groupwork.actions.UpdateDialogAction;
+import bluej.groupwork.ui.ActivityIndicatorFX;
 import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
@@ -89,6 +90,7 @@ import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -227,11 +229,13 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     private ButtonBase imgExtendsButton;
     private @OnThread(Tag.FX) ButtonBase runButton;
-    private JLabel statusbar;
+    @OnThread(Tag.FX)
+    private Label statusbar;
     // Initialised once, effectively final thereafter:
     @OnThread(Tag.Any)
-    private ActivityIndicator progressbar;
-    private JLabel testStatusMessage;
+    private ActivityIndicatorFX progressbar;
+    @OnThread(Tag.FX)
+    private Label testStatusMessage;
     @OnThread(Tag.FXPlatform)
     private Label recordingLabel;
     private @OnThread(Tag.FX) ButtonBase endTestButton;
@@ -385,10 +389,7 @@ public class PkgMgrFrame
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
             new JFXPanel();
-            SwingNode statusSwingNode = new SwingNodeFixed();
-            statusSwingNode.setContent(statusbar);
             Platform.runLater(() -> {
-                statusSwingNode.setFocusTraversable(false);
                 Stage stage = new Stage();
                 BlueJTheme.setWindowIconFX(stage);
 
@@ -440,8 +441,24 @@ public class PkgMgrFrame
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
                 BorderPane contentRoot = new BorderPane(topBottomSplit);
                 JavaFXUtil.addStyleClass(contentRoot, "pmf-root");
+
+                statusbar = new Label();
+                statusbar.setAlignment(Pos.CENTER_LEFT);
+                BorderPane.setAlignment(statusbar, Pos.CENTER_LEFT);
                 
-                contentRoot.setBottom(statusSwingNode);
+                // create the bottom status area
+
+                BorderPane statusArea = new BorderPane();
+                statusArea.setCenter(statusbar);
+
+                testStatusMessage = new Label("");
+                statusArea.setLeft(testStatusMessage);
+
+                progressbar = new ActivityIndicatorFX();
+                progressbar.setRunning(false);
+                statusArea.setRight(progressbar);
+                
+                contentRoot.setBottom(statusArea);
                 BorderPane rootPlusMenu = new BorderPane(contentRoot);
                 Scene scene = new Scene(rootPlusMenu);
                 Config.addPMFStylesheets(scene);
@@ -1297,10 +1314,10 @@ public class PkgMgrFrame
      * Display a message in the status bar of the frame
      * @param status The status to display
      */
-    @OnThread(value = Tag.Any, ignoreParent = true)
+    @OnThread(value = Tag.Any)
     public final void setStatus(final String status)
     {
-         EventQueue.invokeLater(() -> {
+         JavaFXUtil.runNowOrLater(() -> {
              if (statusbar != null)
                  statusbar.setText(status);
          });
@@ -1313,7 +1330,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     public void startProgress()
     {
-        progressbar.setRunning(true);
+        JavaFXUtil.runNowOrLater(() -> progressbar.setRunning(true));
     }
 
     /**
@@ -1322,7 +1339,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     public void stopProgress()
     {
-        progressbar.setRunning(false);
+        JavaFXUtil.runNowOrLater(() -> progressbar.setRunning(false));
     }
 
     /**
@@ -1331,7 +1348,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     public void clearStatus()
     {
-       EventQueue.invokeLater(() -> {
+       JavaFXUtil.runNowOrLater(() -> {
            if (statusbar != null)
                statusbar.setText(" ");
        });
@@ -2576,8 +2593,8 @@ public class PkgMgrFrame
      */
     public void testRecordingStarted(String message)
     {
-        testStatusMessage.setText(message);
         Platform.runLater(() -> {
+            testStatusMessage.setText(message);
             endTestButton.setDisable(false);
             cancelTestButton.setDisable(false);
             recordingLabel.setDisable(false);
@@ -2593,8 +2610,8 @@ public class PkgMgrFrame
      */
     private void testRecordingEnded()
     {
-        testStatusMessage.setText("");
         Platform.runLater(() -> {
+            testStatusMessage.setText("");
             recordingLabel.setDisable(true);
             endTestButton.setDisable(true);
             cancelTestButton.setDisable(true);
@@ -3009,26 +3026,6 @@ public class PkgMgrFrame
             toolPanel.getChildren().add(machineIcon);
         });
         
-        // create the bottom status area
-
-        JPanel statusArea = new JPanel(new BorderLayout());
-        if (!Config.isRaspberryPi()) statusArea.setOpaque(false);
-        {
-            statusArea.setBorder(BorderFactory.createEmptyBorder(2, 0, 4, 6));
-
-            statusbar = new JLabel(" ");
-            statusbar.setFont(pkgMgrFont);
-            statusArea.add(statusbar, BorderLayout.CENTER);
-
-            testStatusMessage = new JLabel(" ");
-            testStatusMessage.setFont(pkgMgrFont);
-            statusArea.add(testStatusMessage, BorderLayout.WEST);
-            
-            progressbar = new ActivityIndicator();
-            progressbar.setRunning(false);
-            statusArea.add(progressbar, BorderLayout.EAST);
-        }
-
         // hide testing tools if not wanted
         if (!testToolsShown) {
             showTestingTools(false);
