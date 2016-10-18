@@ -72,11 +72,19 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A modified editor pane for the text evaluation area.
- * The standard JEditorPane is adjusted to take the tag line to the left into
- * account in size computations.
+ * A code pad which can evaluate fragments of Java code.
  * 
- * @author Michael Kolling
+ * In JavaFX this is built using a ListView.  ListViews have virtualised
+ * cells, which means that only enough rows are created to display
+ * the currently visible portion of the scroll pane, not every row in the list.
+ * So if the user has a history 200 lines long, but only 8 lines are visible
+ * in the codepad, then no matter where they scroll to, only 8 display lines will be
+ * created, not 200.
+ * 
+ * ListViews allow editing of any individual cell, but we hack it here so that
+ * (a) only the last row can be edited, and (b) the last row is *always* in an editing state.
+ * This means the users see one text field at the bottom of the list, and rows
+ * above that with the history (styled as we like).
  */
 @OnThread(Tag.FX)
 public class CodePad extends ListView<CodePad.CodePadRow>
@@ -119,13 +127,23 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             private RowStyle(String pseudo) { this.pseudo = pseudo; }
         }
         
+        /**
+         * Gets the text which is showing for the row.
+         * Note that EditRow overrides this to use the text from
+         * the textfield, so there is a difference between row.text and row.getText()
+         */
         public String getText() { return text; }
+        /** Is the row editable?  Only true for the single edit row. */
         public boolean isEditable() { return false; }
+        /** Gets the graphic to display alongside the row */
         public Node getGraphic() { return r; }
+        /** Records the text field for the row (only used for EditRow) */
         public void setTextField(TextField textField) { }
+        /** Gets the graphical style that should be used for displaying this row. */
         public abstract RowStyle getStyle();
     }
 
+    // Handy array with all the different row pseudo-class styles.
     private static final String[] allRowStyles;
     static {
         allRowStyles = new String[CodePadRow.RowStyle.values().length];
@@ -134,7 +152,13 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             allRowStyles[i] = CodePadRow.RowStyle.values()[i].getPseudoClass();
         }
     }
-    
+
+    /**
+     * A row with a previously entered command.  This may be a single
+     * complete row (e.g. 1+2) or it may be part of a multi-row
+     * command.  We have a different pseudo-class for the last row
+     * of commands, but currently don't use it differently in the CSS file.
+     */
     @OnThread(Tag.FX)
     private static class CommandRow extends CodePadRow
     {
@@ -144,6 +168,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             this.text = text; this.isFinalLine = isFinalLine;
         }
 
+        // No indent spacer on command rows in our current style:
         @Override
         public Node getGraphic()
         {
@@ -156,6 +181,10 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             return isFinalLine ? RowStyle.COMMAND_END : RowStyle.COMMAND_PARTIAL;
         }
     }
+
+    /**
+     * The single final editable row.
+     */
     @OnThread(Tag.FX)
     private static class EditRow extends CodePadRow
     {
@@ -206,6 +235,11 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             return null;
         }
     }
+
+    /**
+     * The successful output of a previous command.  It may or may not
+     * have an object as an output.
+     */
     @OnThread(Tag.FX)
     private class OutputRow extends CodePadRow
     {
@@ -255,6 +289,8 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 graphic = null;
         }
 
+        // Graphic is an object icon if applicable, otherwise
+        // we use the invisible spacer from the parent:
         @Override
         public Node getGraphic()
         {
@@ -267,6 +303,10 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             return RowStyle.OUTPUT;
         }
     }
+
+    /**
+     * A row with an error output of a previous command.
+     */
     @OnThread(Tag.FX)
     private static class ErrorRow extends CodePadRow
     {
