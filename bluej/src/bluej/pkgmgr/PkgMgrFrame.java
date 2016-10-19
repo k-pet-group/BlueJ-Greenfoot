@@ -21,10 +21,8 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.Frame;
-import java.awt.SecondaryLoop;
-import java.awt.Toolkit;
-import java.awt.Window;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PageFormat;
@@ -44,39 +42,14 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import javax.swing.Action;
-import javax.swing.ButtonModel;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
-
-import bluej.classmgr.BPClassLoader;
-import bluej.compiler.CompileReason;
-import bluej.compiler.CompileType;
-import bluej.debugmgr.codepad.CodePad;
-import bluej.extensions.SourceType;
-import bluej.extmgr.FXMenuManager;
-import bluej.groupwork.actions.CommitCommentAction;
-import bluej.groupwork.actions.StatusAction;
-import bluej.groupwork.actions.UpdateDialogAction;
-import bluej.groupwork.ui.ActivityIndicatorFX;
-import bluej.pkgmgr.actions.OpenArchiveAction;
-import bluej.pkgmgr.actions.OpenNonBlueJAction;
-import bluej.pkgmgr.actions.PkgMgrToggleAction;
-import bluej.pkgmgr.target.PackageTarget;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SwingNodeFixed;
+import javafx.animation.Animation;
+import javafx.animation.FillTransition;
 import javafx.application.Platform;
-import javafx.beans.binding.When;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
@@ -98,7 +71,6 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -109,17 +81,20 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import bluej.utility.javafx.UntitledCollapsiblePane;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
@@ -129,14 +104,20 @@ import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.LibraryCallDialog;
 import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.codepad.CodePad;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.SourceType;
 import bluej.extmgr.ExtensionsManager;
+import bluej.extmgr.FXMenuManager;
 import bluej.extmgr.ToolsExtensionMenu;
 import bluej.extmgr.ViewExtensionMenu;
 import bluej.groupwork.actions.CheckoutAction;
+import bluej.groupwork.actions.CommitCommentAction;
+import bluej.groupwork.actions.StatusAction;
 import bluej.groupwork.actions.TeamActionGroup;
-import bluej.groupwork.ui.ActivityIndicator;
+import bluej.groupwork.actions.UpdateDialogAction;
+import bluej.groupwork.ui.ActivityIndicatorFX;
 import bluej.pkgmgr.actions.AddClassAction;
 import bluej.pkgmgr.actions.CancelTestRecordAction;
 import bluej.pkgmgr.actions.CheckExtensionsAction;
@@ -153,8 +134,11 @@ import bluej.pkgmgr.actions.NewClassAction;
 import bluej.pkgmgr.actions.NewInheritsAction;
 import bluej.pkgmgr.actions.NewPackageAction;
 import bluej.pkgmgr.actions.NewProjectAction;
+import bluej.pkgmgr.actions.OpenArchiveAction;
+import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.OpenProjectAction;
 import bluej.pkgmgr.actions.PageSetupAction;
+import bluej.pkgmgr.actions.PkgMgrToggleAction;
 import bluej.pkgmgr.actions.PreferencesAction;
 import bluej.pkgmgr.actions.PrintAction;
 import bluej.pkgmgr.actions.QuitAction;
@@ -174,6 +158,7 @@ import bluej.pkgmgr.actions.UseLibraryAction;
 import bluej.pkgmgr.actions.WebsiteAction;
 import bluej.pkgmgr.print.PackagePrintManager;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
@@ -185,9 +170,15 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.UntitledCollapsiblePane;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The main user interface frame which allows editing of packages
@@ -2951,11 +2942,35 @@ public class PkgMgrFrame
             runButton.setText(Config.getString("pkgmgr.test.run"));
             testPanelItems.getChildren().add(runButton);
 
-            ImageView recordingIcon = new ImageView(Config
-                .getFixedImageAsFXImage("record.gif"));
+            Shape recordingIcon = new Ellipse(7.0, 7.0);
+            recordingIcon.setFill(Color.RED);
             recordingLabel = new Label(Config.getString("pkgmgr.test.record"), recordingIcon);
-            ColorAdjust desaturate = new ColorAdjust(0, -1, -0.5, 0);
-            recordingIcon.effectProperty().bind(new When(recordingLabel.disabledProperty()).then(desaturate).otherwise((ColorAdjust)null));
+            recordingLabel.disabledProperty().addListener(new ChangeListener<Boolean>()
+            {
+                private Animation pulseAnimation;
+
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+                {
+                    if (pulseAnimation != null)
+                    {
+                        pulseAnimation.stop();
+                        pulseAnimation = null;
+                    }
+
+                    if (newValue == false) // enabled
+                    {
+                        pulseAnimation = new FillTransition(Duration.millis(2000), recordingIcon, new Color(1.0, 0.2, 0.2, 1.0), Color.DARKRED);
+                        pulseAnimation.setAutoReverse(true);
+                        pulseAnimation.setCycleCount(Animation.INDEFINITE);
+                        pulseAnimation.playFromStart();
+                    }
+                    else
+                    {
+                        recordingIcon.setFill(Color.DARKGRAY);
+                    }
+                }
+            });
             recordingLabel.setDisable(true);
             testPanelItems.getChildren().add(recordingLabel);
             
