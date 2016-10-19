@@ -21,26 +21,16 @@
  */
 package bluej.debugmgr.objectbench;
 
-import java.awt.*;
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.accessibility.Accessible;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-
 import javafx.animation.FadeTransition;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
-import javafx.scene.control.Label;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
@@ -69,8 +59,6 @@ import threadchecker.Tag;
 public class ObjectBench extends javafx.scene.control.ScrollPane implements ValueCollection,
     ObjectBenchInterface, PkgMgrFrame.PkgMgrPane
 {
-    private static final Color TRANSPARENT = new Color(0f, 0f, 0f, 0.0f);
-
     @OnThread(Tag.Any)
     private final List<ObjectBenchListener> listenerList = new ArrayList<>();
     private ObjectBenchPanel obp;
@@ -530,34 +518,8 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         obp = new ObjectBenchPanel();
         JavaFXUtil.addStyleClass(this, "object-bench");
         JavaFXUtil.bindList(obp.getChildren(), objects);
-        
-        /*
-        Dimension sz = obp.getMinimumSize();
-        Insets in = scroll.getInsets();
-        sz.setSize(sz.getWidth()+in.left+in.right, sz.getHeight()+in.top+in.bottom);
-        scroll.setMinimumSize(sz);
-        scroll.setPreferredSize(sz);
-        scroll.getVerticalScrollBar().setUnitIncrement(20);
-        */
-        StackPane stack = new StackPane();
-        Text obLabel = new Text("Object Bench");
-        JavaFXUtil.addStyleClass(obLabel, "object-bench-back-text");
-        stack.getChildren().addAll(obLabel, obp);
-        // Use object not lambda because we remove:
-        objects.addListener(new ListChangeListener<ObjectWrapper>()
-        {
-            @Override
-            @OnThread(Tag.FX)
-            public void onChanged(Change<? extends ObjectWrapper> c)
-            {
-                FadeTransition t = new FadeTransition(Duration.millis(200), obLabel);
-                t.setToValue(0.0);
-                t.setOnFinished(e -> stack.getChildren().remove(obLabel));
-                t.play();
-                objects.removeListener(this);
-            }
-        });
-        setContent(stack);
+
+        setContent(obp);
         setFitToWidth(true);
         setFitToHeight(true);
         setMinViewportWidth(ObjectWrapper.WIDTH);

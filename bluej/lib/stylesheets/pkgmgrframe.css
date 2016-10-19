@@ -134,16 +134,8 @@
 .object-bench > .viewport {
     -fx-background-color: rgb(242, 233, 227);
 }
-.object-bench-back-text {
-    -fx-font-size: 50px;
-    -fx-font-weight: bold;
-/*    -fx-fill: rgb(226, 219, 215);
-    -fx-effect: innershadow(gaussian, rgb(204, 196, 191), 10, 0.5, 2.0, 2.0);*/
-    -fx-fill: rgb(234, 228, 225);
-    -fx-effect: innershadow(gaussian, rgb(226, 219, 215), 3.0, 0.8, 1.0, 1.0);    
-}
 .object-bench-panel {
-    -fx-background-color: transparent;
+    -fx-background-color: rgb(234, 228, 225);
 }
 .object-wrapper {
     -fx-padding: 5px;
