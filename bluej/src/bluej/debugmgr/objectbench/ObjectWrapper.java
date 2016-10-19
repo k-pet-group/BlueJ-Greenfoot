@@ -139,7 +139,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     public static final double CORNER_SIZE = 10.0;
     public static final double FOCUSED_BORDER = 6.0;
     public static final double UNFOCUSED_BORDER = 2.0;
-    public static final double SHADOW_RADIUS = 6.0;
+    public static final double SHADOW_RADIUS = 3.0;
 
     private static int itemHeight = 19;   // wild guess until we find out
     private static boolean itemHeightKnown = false;

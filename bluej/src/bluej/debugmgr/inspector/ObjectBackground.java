@@ -46,19 +46,9 @@ public class ObjectBackground extends ResizableCanvas
         double w = getWidth();
         double h = getHeight();
 
-        final Paint bottomColor =
-            new LinearGradient(w / 2, h / 2, w / 2, h, false, CycleMethod.NO_CYCLE,
-                new Stop(0.0, new javafx.scene.paint.Color(227.0 / 255.0, 71.0 / 255.0, 71.0 / 255.0, 1.0)),
-                new Stop(1.0, new javafx.scene.paint.Color(205.0 / 255.0, 39.0 / 255.0, 39.0 / 255.0, 1.0)));
-        final Paint topColor =
-            new LinearGradient(w / 2, 0, w / 2, h / 2, false, CycleMethod.NO_CYCLE,
-                new Stop(0.0, new javafx.scene.paint.Color(248.0 / 255.0, 120.0 / 255.0, 120.0 / 255.0, 1.0)),
-                new Stop(1.0, new javafx.scene.paint.Color(231.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0, 1.0)));
-
-        gc.setFill(bottomColor);
+        final Paint fill = new javafx.scene.paint.Color(227.0 / 255.0, 71.0 / 255.0, 71.0 / 255.0, 1.0);
+        gc.setFill(fill);
         gc.fillRect(0, 0, w, h);
-        gc.setFill(topColor);
-        gc.fillOval(-2.0 * w, -2.5 * h, 5.0 * w, 3.0 * h);
 
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(lineWidth.get());
