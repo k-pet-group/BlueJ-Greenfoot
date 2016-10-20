@@ -50,11 +50,6 @@ import threadchecker.Tag;
 public class InterfacePanel extends VBox
         implements PrefPanelListener
 {
-    private static final String toolkitDir = "bluej.javame.toolkit.dir";
-
-    private CheckBox showTestBox;
-    private CheckBox showTeamBox;
-    
     private ArrayList<String> allLangsInternal;
     private ComboBox langDropdown;
     
@@ -63,20 +58,7 @@ public class InterfacePanel extends VBox
     public InterfacePanel()
     {
         JavaFXUtil.addStyleClass(this, "prefmgr-pref-panel");
-        
-        if(!Config.isGreenfoot()) {
-            Pane testPanel = new HBox();
-            JavaFXUtil.addStyleClass(testPanel, "prefmgr-interface-checkboxes");
-            {
-                showTestBox = new CheckBox(Config.getString("prefmgr.misc.showTesting"));
-                testPanel.getChildren().add(showTestBox);
 
-                showTeamBox = new CheckBox(Config.getString("prefmgr.misc.showTeam"));
-                testPanel.getChildren().add(showTeamBox);
-            }
-            getChildren().add(PrefMgrDialog.headedVBox("prefmgr.misc.tools.title", Arrays.asList(testPanel)));
-        }
-        
         List<Node> langPanel = new ArrayList<>();
         {
             
@@ -135,11 +117,6 @@ public class InterfacePanel extends VBox
     @Override
     public void beginEditing()
     {
-        if(!Config.isGreenfoot()) {
-            showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
-            showTeamBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS));
-        }
-
         String currentLang = Config.getPropString("bluej.language", "english");
         int curLangIndex = allLangsInternal.indexOf(currentLang);
         if (curLangIndex == -1) {
@@ -153,16 +130,6 @@ public class InterfacePanel extends VBox
     @Override
     public void commitEditing()
     {
-        if(!Config.isGreenfoot()) {
-            PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
-            PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, showTeamBox.isSelected());
-
-            SwingUtilities.invokeLater(() -> {
-                PkgMgrFrame.updateTestingStatus();
-                PkgMgrFrame.updateTeamStatus();
-            });
-        }
-        
         Config.putPropString("bluej.language", allLangsInternal.get(langDropdown.getSelectionModel().getSelectedIndex()));
         
         PrefMgr.setFlag(PrefMgr.ACCESSIBILITY_SUPPORT, accessibility.isSelected());

@@ -4,7 +4,10 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -40,6 +43,7 @@ public class UntitledCollapsiblePane extends Pane
     };
     private final Node content;
     private final Rectangle clipRect;
+    private final BooleanProperty collapsed = new SimpleBooleanProperty();
     private Animation animation;
 
     public UntitledCollapsiblePane(Node content, boolean startCollapsed)
@@ -57,6 +61,7 @@ public class UntitledCollapsiblePane extends Pane
         gc.fillPolygon(new double[] { 1, ARROW_WIDTH * 0.5, ARROW_WIDTH - 1, 1}, new double[] {ARROW_HEIGHT - 1, 1, ARROW_HEIGHT - 1, ARROW_HEIGHT - 1}, 4);
         Scale scale = new Scale(1.0, -1.0, ARROW_WIDTH / 2.0, ARROW_HEIGHT / 2.0);
         arrow.getTransforms().add(scale);
+        collapsed.set(startCollapsed);
         arrow.setOnMouseClicked(e -> {
             if (animation != null)
             {
@@ -66,6 +71,9 @@ public class UntitledCollapsiblePane extends Pane
             double destScale = getTransition() > 0 ? 1 : -1;
             animation = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(transitionProperty, 1.0 - dest), new KeyValue(scale.yProperty(), -destScale)),
                 new KeyFrame(Duration.millis(300), new KeyValue(transitionProperty, dest), new KeyValue(scale.yProperty(), destScale)));
+            animation.setOnFinished(ev -> {
+                collapsed.set(dest == 0.0);
+            });
             animation.playFromStart();
         });
         if (startCollapsed)
@@ -73,6 +81,11 @@ public class UntitledCollapsiblePane extends Pane
             transitionProperty.set(0.0);
             scale.yProperty().set(1.0);
         }
+    }
+
+    public BooleanProperty collapsedProperty()
+    {
+        return collapsed;
     }
 
     @Override

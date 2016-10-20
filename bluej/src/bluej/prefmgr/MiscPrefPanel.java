@@ -218,10 +218,6 @@ public class MiscPrefPanel extends VBox
             String expId = experimentIdentifierField.getText();
             String partId = participantIdentifierField.getText();
             SwingUtilities.invokeLater(() -> {
-                PkgMgrFrame.updateTestingStatus();
-                PkgMgrFrame.updateTeamStatus();
-
-                
                 DataCollector.setExperimentIdentifier(expId);
                 DataCollector.setParticipantIdentifier(partId);
             });

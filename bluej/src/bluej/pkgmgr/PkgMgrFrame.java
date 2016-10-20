@@ -186,8 +186,8 @@ import threadchecker.Tag;
 public class PkgMgrFrame
     implements BlueJEventListener, PackageEditorListener
 {
-    private static boolean testToolsShown = wantToSeeTestingTools();
-    private static boolean teamToolsShown = wantToSeeTeamTools();
+    private static boolean testToolsShown = PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS);
+    private static boolean teamToolsShown = PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS);
     
     /** Frame most recently having focus */
     @OnThread(Tag.Any)
@@ -343,6 +343,8 @@ public class PkgMgrFrame
     // The overlay in front of the top half of topBottomSplit, which we draw on when creating extends arrows.
     @OnThread(Tag.Any)
     private final MouseTrackingOverlayPane topOverlay = new MouseTrackingOverlayPane();
+    @OnThread(Tag.FX)
+    private UntitledCollapsiblePane teamAndTestFoldout;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -698,49 +700,6 @@ public class PkgMgrFrame
     public static void handleQuit()
     {
         new QuitAction(getMostRecent()).actionPerformed(getMostRecent());
-    }
-
-    /**
-     * Check whether the status of the 'Show unit test tools' preference has
-     * changed, and if it has, show or hide them as requested.
-     */
-    public static void updateTestingStatus()
-    {
-        if (testToolsShown != wantToSeeTestingTools()) {
-            for (PkgMgrFrame pmf : getAllFrames())
-                pmf.showTestingTools(!testToolsShown);
-            testToolsShown = !testToolsShown;
-        }
-    }
-    
-    /**
-     * Tell whether unit testing tools should be shown.
-     */
-    private static boolean wantToSeeTestingTools()
-    {
-        return PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS);
-    }
-
-     /**
-     * Check whether the status of the 'Show teamwork tools' preference has
-     * changed, and if it has, show or hide them as requested.
-     */
-    public static void updateTeamStatus()
-    {
-        if (teamToolsShown != wantToSeeTeamTools()) {
-            for (PkgMgrFrame pmf : getAllFrames()) {
-                pmf.showTeamTools(!teamToolsShown);
-            }
-            teamToolsShown = !teamToolsShown;
-        }
-    }
-  
-    /**
-     * Tell whether teamwork tools should be shown.
-     */
-    private static boolean wantToSeeTeamTools()
-    {
-        return PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS);
     }
 
     /**
@@ -1101,9 +1060,7 @@ public class PkgMgrFrame
             } else {
                 commitMenuItem.setText(Config.getString("team.menu.commit"));
             }
-           
-            showTestingTools(wantToSeeTestingTools());
-            
+
             aPkg.getProject().scheduleCompilation(true, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE, aPkg);
         }
         
@@ -2271,7 +2228,7 @@ public class PkgMgrFrame
         if (target.getRole() instanceof UnitTestClassRole) {
             UnitTestClassRole utcr = (UnitTestClassRole) target.getRole();
             if (!testToolsShown)
-                showTestingTools(true);
+                teamAndTestFoldout.collapsedProperty().set(false);
             Platform.runLater(() -> utcr.doMakeTestCase(this, target));
         }
     }
@@ -2722,24 +2679,6 @@ public class PkgMgrFrame
     }
 
     /**
-     * Show or hide the testing tools.
-     * @param show True to show; false to hide
-     */
-    public void showTestingTools(boolean show)
-    {
-        //Platform.runLater(() -> testPanel.setExpanded(show));
-    }
-    
-    /**
-     * Show or hide the teamwork tools.
-     * @param show True to show; false to hide
-     */
-    public void showTeamTools(boolean show)
-    {
-        //Platform.runLater(() -> teamPanel.setExpanded(show));
-    }
-
-    /**
      * Notify the frame that the "shared" status of the project has changed,
      * i.e. the project has become shared or unshared.
      * 
@@ -3016,22 +2955,21 @@ public class PkgMgrFrame
             teamPanel.setExpanded(true);
             testPanel.setCollapsible(false);
             testPanel.setExpanded(true);
-            toolPanel.getChildren().add(new UntitledCollapsiblePane(foldout, true));
+            teamAndTestFoldout = new UntitledCollapsiblePane(foldout, !testToolsShown && !teamToolsShown);
+            // When the user toggles the pane, we record that as the new preference.
+            // But we deliberately don't toggle the pane when the preference changes;
+            // each PkgMgrFrame is independent while showing, but we store the last user-triggered
+            // state as the future default.
+            JavaFXUtil.addChangeListener(teamAndTestFoldout.collapsedProperty(), collapsed -> {
+                PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, !collapsed);
+                PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, !collapsed);
+            });
+            toolPanel.getChildren().add(teamAndTestFoldout);
             machineIcon = new MachineIcon(this, restartVMAction);
             itemsToDisable.add(machineIcon);
             toolPanel.getChildren().add(machineIcon);
         });
-        
-        // hide testing tools if not wanted
-        if (!testToolsShown) {
-            showTestingTools(false);
-        }
 
-        // hide team tools if not wanted
-        if (! teamToolsShown) {
-            showTeamTools(false);
-        }
-        
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
             Platform.runLater(() -> {showingTextEval.set(true);});
