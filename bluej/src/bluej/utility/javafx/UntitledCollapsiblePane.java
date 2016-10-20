@@ -45,6 +45,7 @@ public class UntitledCollapsiblePane extends Pane
     private final Rectangle clipRect;
     private final BooleanProperty collapsed = new SimpleBooleanProperty();
     private Animation animation;
+    private final Scale scale;
 
     public UntitledCollapsiblePane(Node content, boolean startCollapsed)
     {
@@ -59,22 +60,11 @@ public class UntitledCollapsiblePane extends Pane
         GraphicsContext gc = arrow.getGraphicsContext2D();
         gc.setFill(Color.DARKGRAY);
         gc.fillPolygon(new double[] { 1, ARROW_WIDTH * 0.5, ARROW_WIDTH - 1, 1}, new double[] {ARROW_HEIGHT - 1, 1, ARROW_HEIGHT - 1, ARROW_HEIGHT - 1}, 4);
-        Scale scale = new Scale(1.0, -1.0, ARROW_WIDTH / 2.0, ARROW_HEIGHT / 2.0);
+        scale = new Scale(1.0, -1.0, ARROW_WIDTH / 2.0, ARROW_HEIGHT / 2.0);
         arrow.getTransforms().add(scale);
         collapsed.set(startCollapsed);
         arrow.setOnMouseClicked(e -> {
-            if (animation != null)
-            {
-                animation.stop();
-            }
-            double dest = getTransition() > 0 ? 0 : 1;
-            double destScale = getTransition() > 0 ? 1 : -1;
-            animation = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(transitionProperty, 1.0 - dest), new KeyValue(scale.yProperty(), -destScale)),
-                new KeyFrame(Duration.millis(300), new KeyValue(transitionProperty, dest), new KeyValue(scale.yProperty(), destScale)));
-            animation.setOnFinished(ev -> {
-                collapsed.set(dest == 0.0);
-            });
-            animation.playFromStart();
+            toggleCollapsed();
         });
         if (startCollapsed)
         {
@@ -83,9 +73,33 @@ public class UntitledCollapsiblePane extends Pane
         }
     }
 
-    public BooleanProperty collapsedProperty()
+    private void toggleCollapsed()
+    {
+        if (animation != null)
+        {
+            animation.stop();
+        }
+        double dest = getTransition() > 0 ? 0 : 1;
+        double destScale = getTransition() > 0 ? 1 : -1;
+        animation = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(transitionProperty, 1.0 - dest), new KeyValue(scale.yProperty(), -destScale)),
+            new KeyFrame(Duration.millis(300), new KeyValue(transitionProperty, dest), new KeyValue(scale.yProperty(), destScale)));
+        animation.setOnFinished(ev -> {
+            collapsed.set(dest == 0.0);
+            animation = null;
+        });
+        animation.playFromStart();
+    }
+
+    public BooleanExpression collapsedProperty()
     {
         return collapsed;
+    }
+
+
+    public void expand()
+    {
+        if (collapsed.get() && animation == null)
+            toggleCollapsed();
     }
 
     @Override

@@ -114,6 +114,7 @@ import bluej.extmgr.ToolsExtensionMenu;
 import bluej.extmgr.ViewExtensionMenu;
 import bluej.groupwork.actions.CheckoutAction;
 import bluej.groupwork.actions.CommitCommentAction;
+import bluej.groupwork.actions.ImportAction;
 import bluej.groupwork.actions.StatusAction;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.actions.UpdateDialogAction;
@@ -186,9 +187,6 @@ import threadchecker.Tag;
 public class PkgMgrFrame
     implements BlueJEventListener, PackageEditorListener
 {
-    private static boolean testToolsShown = PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS);
-    private static boolean teamToolsShown = PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS);
-    
     /** Frame most recently having focus */
     @OnThread(Tag.Any)
     private static PkgMgrFrame recentFrame = null;
@@ -241,6 +239,7 @@ public class PkgMgrFrame
     private @OnThread(Tag.FX) ButtonBase updateButton;
     private @OnThread(Tag.FX) ButtonBase commitButton;
     private @OnThread(Tag.FX) ButtonBase teamStatusButton;
+    private @OnThread(Tag.FX) ButtonBase teamShareButton;
     private TeamActionGroup teamActions;
     @OnThread(Tag.FX)
     private final List<Node> itemsToDisable = new ArrayList<>();
@@ -1083,10 +1082,12 @@ public class PkgMgrFrame
         StatusAction statusAction = teamActions.getStatusAction(this);
         UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
+        ImportAction shareAction = teamActions.getImportAction(this);
         Platform.runLater(() -> {
             setButtonAction(statusAction, teamStatusButton, false);
             setButtonAction(updateAction, updateButton, false);
             setButtonAction(commitCommentAction, commitButton, false);
+            setButtonAction(shareAction, teamShareButton, false);
         });
         teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction(this));
         
@@ -2227,9 +2228,10 @@ public class PkgMgrFrame
     {
         if (target.getRole() instanceof UnitTestClassRole) {
             UnitTestClassRole utcr = (UnitTestClassRole) target.getRole();
-            if (!testToolsShown)
-                teamAndTestFoldout.collapsedProperty().set(false);
-            Platform.runLater(() -> utcr.doMakeTestCase(this, target));
+            Platform.runLater(() -> {
+                teamAndTestFoldout.expand();
+                utcr.doMakeTestCase(this, target);
+            });
         }
     }
 
@@ -2839,6 +2841,7 @@ public class PkgMgrFrame
         UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
         StatusAction statusAction = teamActions.getStatusAction(this);
+        ImportAction shareAction = teamActions.getImportAction(this);
 
         JLabel dummyContent = new JLabel("");
         Platform.runLater(() -> {
@@ -2936,26 +2939,37 @@ public class PkgMgrFrame
             teamPanel.setFocusTraversable(false);
             teamPanel.setText(Config.getString("pkgmgr.team.title"));
             JavaFXUtil.addStyleClass(teamPanel, "pmf-tools-team");
-            VBox teamPanelItems = new VBox();
-            JavaFXUtil.addStyleClass(teamPanelItems, "pmf-tools-team-items");
-            teamPanel.setContent(teamPanelItems);
+            VBox teamPanelItemsOnceShared = new VBox();
+            JavaFXUtil.addStyleClass(teamPanelItemsOnceShared, "pmf-tools-team-items");
+            teamPanelItemsOnceShared.setPickOnBounds(false);
+            VBox teamPanelItemsUnshared = new VBox();
+            JavaFXUtil.addStyleClass(teamPanelItemsUnshared, "pmf-tools-team-items");
+            teamPanelItemsUnshared.setPickOnBounds(false);
+            teamPanel.setContent(new StackPane(teamPanelItemsUnshared, teamPanelItemsOnceShared));
             
             updateButton = createButton(updateAction, false, false);
-            teamPanelItems.getChildren().add(updateButton);
+            updateButton.visibleProperty().bind(updateButton.disableProperty().not());
+            teamPanelItemsOnceShared.getChildren().add(updateButton);
             
             commitButton = createButton(commitCommentAction, false, false);
-            teamPanelItems.getChildren().add(commitButton);
+            commitButton.visibleProperty().bind(commitButton.disableProperty().not());
+            teamPanelItemsOnceShared.getChildren().add(commitButton);
             
             teamStatusButton = createButton(statusAction, false, false);
-            teamPanelItems.getChildren().add(teamStatusButton);
-            //teamItems.add(teamPanel);
+            teamStatusButton.visibleProperty().bind(teamStatusButton.disableProperty().not());
+            teamPanelItemsOnceShared.getChildren().add(teamStatusButton);
+
+            teamShareButton = createButton(shareAction, false, false);
+            teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
+            teamPanelItemsUnshared.getChildren().add(teamShareButton);
+
 
             VBox foldout = new VBox(teamPanel, testPanel);
             teamPanel.setCollapsible(false);
             teamPanel.setExpanded(true);
             testPanel.setCollapsible(false);
             testPanel.setExpanded(true);
-            teamAndTestFoldout = new UntitledCollapsiblePane(foldout, !testToolsShown && !teamToolsShown);
+            teamAndTestFoldout = new UntitledCollapsiblePane(foldout, !PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS) && !PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS));
             // When the user toggles the pane, we record that as the new preference.
             // But we deliberately don't toggle the pane when the preference changes;
             // each PkgMgrFrame is independent while showing, but we store the last user-triggered
@@ -3015,10 +3029,19 @@ public class PkgMgrFrame
             SwingUtilities.invokeLater(() ->
             {
                 String name = (String) action.getValue(Action.NAME);
+                boolean startEnabled = action.isEnabled();
+                action.addPropertyChangeListener(c -> {
+                    if (c.getPropertyName().equals("enabled"))
+                    {
+                        boolean enabled = action.isEnabled();
+                        Platform.runLater(() -> button.setDisable(!enabled));
+                    }
+                });
                 Platform.runLater(() ->
                 {
                     if (button.getText() == null || button.getText().isEmpty())
                         button.setText(name);
+                    button.setDisable(!startEnabled);
                 });
             });
         }
