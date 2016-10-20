@@ -74,6 +74,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
                 return moeFXMenu;
             }
         };
+        JavaFXUtil.addStyleClass(this, "moe-tab");
     }
 
     public void setWindowTitle(String title)

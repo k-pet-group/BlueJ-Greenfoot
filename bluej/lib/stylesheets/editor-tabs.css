@@ -10,7 +10,11 @@
     -fx-border-width : 0 0 2 0;
     -fx-border-color: red;
 }
-
+.tabbed-editor > .tab-header-area .moe-tab:selected {
+    /* Remove border at bottom of tab when selected: */
+    -fx-background-color: rgb(214, 217, 223) !important;
+    -fx-border-color: transparent !important;
+}
 .tabbed-editor > .tab-header-area  {
     -fx-padding: 2 5 -1 5;
 }
