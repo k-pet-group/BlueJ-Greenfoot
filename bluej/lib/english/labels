@@ -628,7 +628,7 @@ menu.view.showTextEval=Show Code Pad@E
 menu.view.showTestDisplay=Show Test _Results
 #menu.view.showTeamControls=Show Team Controls@G
 
-codepad.prompt=Evaluate Java code, such as: "hello".length()
+codepad.prompt=Enter Java code to evaluate
 
 team.project.marker=Shared Project
 team.commit=Commit@I

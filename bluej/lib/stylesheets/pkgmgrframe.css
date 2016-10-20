@@ -1,3 +1,13 @@
+.root {
+    class-target: rgb(232, 196, 123);
+    test-target: rgb(166, 191, 137);
+    class-diagram: rgb(247, 245, 222);
+    object-bench: rgb(235, 225, 197);
+    codepad: rgb(239, 240, 209);
+    codepad-prompt: rgb(160, 160, 160);
+}
+
+
 .pmf-root {
     -fx-padding: 10px;
 }
@@ -49,10 +59,10 @@
 
 /* Class Diagram */
 .class-diagram, .package-target-preview {
-    -fx-background-color: rgb(247, 245, 222);
+    -fx-background-color: class-diagram;
 }
 .class-diagram:bj-drawing-extends {
-    -fx-background-color: derive(rgb(247, 245, 222), -15%);
+    -fx-background-color: derive(class-diagram, -15%);
 }
 .package-target-preview-wrapper {
     -fx-padding: 5;
@@ -72,16 +82,16 @@
 }
 .class-target, .class-target:bj-resizing, .class-target:bj-resizing:hover,
   .package-target-preview-item {
-    -fx-background-color: rgb(237, 182, 87);
+    -fx-background-color: class-target;
 }
 .class-target:hover {
-    -fx-background-color: derive(rgb(237, 182, 87), 25%);
+    -fx-background-color: derive(class-target, 25%);
 }
 .class-target:bj-unittest {
-    -fx-background-color: rgb(145, 170, 116);
+    -fx-background-color: test-target;
 }
 .class-target:bj-unittest:hover {
-    -fx-background-color: derive(rgb(145, 170, 116), 25%);
+    -fx-background-color: derive(test-target, 25%);
 }
 .class-target:bj-selected, .package-target:bj-selected {
     -fx-border-width: 3;
@@ -132,10 +142,10 @@
     /*TODO different border when disabled and when focused or child is focused (see ObjectBench history) */
 }
 .object-bench > .viewport {
-    -fx-background-color: rgb(242, 233, 227);
+    -fx-background-color: object-bench;
 }
 .object-bench-panel {
-    -fx-background-color: rgb(234, 228, 225);
+    -fx-background-color: object-bench;
 }
 .object-wrapper {
     -fx-padding: 5px;
@@ -151,7 +161,7 @@
 }
 .codepad-row:even, .codepad-row:odd {
     /* Make sure all empty cells are white: */
-    -fx-background-color: white;
+    -fx-background-color: codepad;
 }
 .codepad-row:bj-codepad-error {
     -fx-text-fill: red;
@@ -161,9 +171,24 @@
 }
 .codepad-row:bj-codepad-error:even, .codepad-row:bj-codepad-error:odd,
 .codepad-row:bj-codepad-output:even, .codepad-row:bj-codepad-output:odd {
-    -fx-background-color: rgb(220, 247, 245);
+    -fx-background-color: codepad; /* Same colour as other rows */
     -fx-graphic-text-gap: 5px;
 }
 .codepad-row:bj-codepad-edit {
     -fx-padding: 0;
+}
+
+.codepad-row .text-field {
+    /* This is the modena.css version:
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
+            linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
+       And here's our translation to use our background colour:*/
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
+        linear-gradient(from 0px 0px to 0px 5px, derive(codepad, -9%), codepad);
+    -fx-prompt-text-fill: codepad-prompt;
+}
+.codepad-row .text-field:focused {
+    -fx-background-color: black,
+        linear-gradient(from 0px 0px to 0px 5px, derive(codepad, -9%), codepad);
+    -fx-prompt-text-fill: codepad-prompt;
 }

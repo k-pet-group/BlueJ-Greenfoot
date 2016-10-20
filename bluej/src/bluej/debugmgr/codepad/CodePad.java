@@ -186,7 +186,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      * The single final editable row.
      */
     @OnThread(Tag.FX)
-    private static class EditRow extends CodePadRow
+    private class EditRow extends CodePadRow
     {
         private TextField textField;
 
@@ -214,7 +214,10 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         public void setTextField(TextField textField)
         {
             this.textField = textField;
-            textField.setPromptText(Config.getString("codepad.prompt"));
+            if (getItems().size() == 1)
+                textField.setPromptText(Config.getString("codepad.prompt"));
+            else
+                textField.setPromptText("");
         }
         
         public void setText(String text)
