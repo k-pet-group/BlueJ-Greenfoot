@@ -23,6 +23,10 @@
     -fx-font-size: 14pt;
 }
 
+.team-test-foldout-content {
+    -fx-padding: 10px 0 0 0;
+    -fx-spacing: 10px;
+}
 .pmf-tools {
     -fx-padding: 0 0 8px 0;
     -fx-alignment: center;
@@ -43,11 +47,13 @@
 }
 
 .pmf-tools-test > .title, .pmf-tools-team > .title {
-    -fx-background-radius: 0;
-    -fx-background-insets: 0 0 0 0, 1 0 1 1, 2 0 2 2;
+    -fx-text-fill: darkgray;
+    -fx-padding: 0.3333em 0.75em 0em 0; /* remove left padding and bottom padding */
+    -fx-background-color: transparent;
 }
 .pmf-tools-test > .content, .pmf-tools-team > .content {
     -fx-border-width: 0;
+    -fx-background-color: transparent;
 }
 .pmf-tools-test-recording-button {
     -fx-padding: 0 0 0 16px;

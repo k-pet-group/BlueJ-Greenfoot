@@ -2970,6 +2970,7 @@ public class PkgMgrFrame
             testPanel.setCollapsible(false);
             testPanel.setExpanded(true);
             teamAndTestFoldout = new UntitledCollapsiblePane(foldout, !PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS) && !PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS));
+            JavaFXUtil.addStyleClass(foldout, "team-test-foldout-content");
             // When the user toggles the pane, we record that as the new preference.
             // But we deliberately don't toggle the pane when the preference changes;
             // each PkgMgrFrame is independent while showing, but we store the last user-triggered
