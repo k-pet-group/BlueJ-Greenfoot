@@ -556,6 +556,11 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
     }
 
+    public boolean isCreatingExtends()
+    {
+        return creatingExtends;
+    }
+
     /** 
      * A class caching the vital details needed to draw an extends dependency line,
      * which could be either real and finished, or in-progress of being created.

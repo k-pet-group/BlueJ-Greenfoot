@@ -2950,6 +2950,7 @@ public class PkgMgrFrame
                 private Animation pulseAnimation;
 
                 @Override
+                @OnThread(Tag.FX)
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
                 {
                     if (pulseAnimation != null)

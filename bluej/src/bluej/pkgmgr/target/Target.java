@@ -195,7 +195,7 @@ public abstract class Target
                 e.consume();
             });
             pane.setOnMouseDragged(e -> {
-                if (e.getButton() == MouseButton.PRIMARY)
+                if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends())
                 {
                     if (pressIsResize && isResizable())
                     {
