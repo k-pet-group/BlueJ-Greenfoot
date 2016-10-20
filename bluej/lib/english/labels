@@ -667,6 +667,7 @@ team.history.title=Project History
 team.history.filefilter=Show file:
 team.history.userfilter=Show user:
 team.import=Share this Project
+team.import.short=Share...
 team.import.statusMessage=Sharing this project
 team.includeLayout=Include diagram layout when updating
 team.settings=Teamwork Settings...

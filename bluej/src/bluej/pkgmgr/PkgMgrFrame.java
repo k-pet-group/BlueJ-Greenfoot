@@ -216,10 +216,8 @@ public class PkgMgrFrame
     private Label testStatusMessage;
     @OnThread(Tag.FXPlatform)
     private Label recordingLabel;
-    private @OnThread(Tag.FX) ButtonBase endTestButton;
-    private @OnThread(Tag.FX) ButtonBase cancelTestButton;
-    private JMenuItem endTestMenuItem;
-    private JMenuItem cancelTestMenuItem;
+    @OnThread(Tag.Any) private final EndTestRecordAction endTestRecordAction = new EndTestRecordAction(this);
+    @OnThread(Tag.Any) private final CancelTestRecordAction cancelTestRecordAction = new CancelTestRecordAction(this);
     private ClassTarget testTarget = null;
     private String testTargetMethod;
     private int testIdentifier = 0;
@@ -2534,12 +2532,10 @@ public class PkgMgrFrame
     {
         Platform.runLater(() -> {
             testStatusMessage.setText(message);
-            endTestButton.setDisable(false);
-            cancelTestButton.setDisable(false);
             recordingLabel.setDisable(false);
         });
-        endTestMenuItem.setEnabled(true);
-        cancelTestMenuItem.setEnabled(true);
+        endTestRecordAction.setEnabled(true);
+        cancelTestRecordAction.setEnabled(true);
 
         getProject().setTestMode(true);
     }
@@ -2552,11 +2548,9 @@ public class PkgMgrFrame
         Platform.runLater(() -> {
             testStatusMessage.setText("");
             recordingLabel.setDisable(true);
-            endTestButton.setDisable(true);
-            cancelTestButton.setDisable(true);
         });
-        endTestMenuItem.setEnabled(false);
-        cancelTestMenuItem.setEnabled(false);
+        endTestRecordAction.setEnabled(false);
+        cancelTestRecordAction.setEnabled(false);
 
         Project proj = getProject();
         if (proj != null) {
@@ -2843,6 +2837,9 @@ public class PkgMgrFrame
         StatusAction statusAction = teamActions.getStatusAction(this);
         ImportAction shareAction = teamActions.getImportAction(this);
 
+        endTestRecordAction.setEnabled(false);
+        cancelTestRecordAction.setEnabled(false);
+
         JLabel dummyContent = new JLabel("");
         Platform.runLater(() -> {
             // create the left hand side toolbar
@@ -2916,20 +2913,18 @@ public class PkgMgrFrame
             });
             recordingLabel.setDisable(true);
             testPanelItems.getChildren().add(recordingLabel);
-            
-            endTestButton = createButton(new EndTestRecordAction(this), false, false);
+
+            ButtonBase endTestButton = createButton(endTestRecordAction, false, false);
             //make the button use a different label than the one from
-            // action
+            // action:
             endTestButton.setText(Config.getString("pkgmgr.test.end"));
-            endTestButton.setDisable(true);
 
             testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(endTestButton), "pmf-tools-test-recording-button"));
-            
-            cancelTestButton = createButton(new CancelTestRecordAction(this), false, false);
+
+            ButtonBase cancelTestButton = createButton(cancelTestRecordAction, false, false);
             //make the button use a different label than the one from
             // action
             cancelTestButton.setText(Config.getString("cancel"));
-            cancelTestButton.setDisable(true);
 
             testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(cancelTestButton), "pmf-tools-test-recording-button"));
 
@@ -2962,6 +2957,7 @@ public class PkgMgrFrame
             teamShareButton = createButton(shareAction, false, false);
             teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
             teamPanelItemsUnshared.getChildren().add(teamShareButton);
+            teamShareButton.setText(Config.getString("team.import.short"));
 
 
             VBox foldout = new VBox(teamPanel, testPanel);
@@ -3131,10 +3127,8 @@ public class PkgMgrFrame
             testingMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
             {
                 createMenuItem(runTestsAction, testingMenu);
-                endTestMenuItem = createMenuItem(new EndTestRecordAction(this), testingMenu);
-                cancelTestMenuItem = createMenuItem(new CancelTestRecordAction(this), testingMenu);
-                endTestMenuItem.setEnabled(false);
-                cancelTestMenuItem.setEnabled(false);
+                createMenuItem(endTestRecordAction, testingMenu);
+                createMenuItem(cancelTestRecordAction, testingMenu);
             }
             swingItems.add(testingMenu);
             
