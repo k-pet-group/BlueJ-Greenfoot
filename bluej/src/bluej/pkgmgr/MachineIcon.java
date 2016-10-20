@@ -38,6 +38,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -47,9 +48,15 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcTo;
 import javafx.scene.shape.ArcType;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -58,10 +65,12 @@ import threadchecker.Tag;
 public class MachineIcon extends HBox
 {
     private static final int NUM_BARS = 12;
-    private final Canvas indicator;
+    private static final double MIN_INTENSITY = 0.3;
+
+    private final Pane barContainer;
+    private final Rectangle bar;
     private final ButtonBase resetButton;
     private final DoubleProperty indicatorPosition = new SimpleDoubleProperty(0.0);
-    private final BooleanProperty forwards = new SimpleBooleanProperty(true);
     private final BooleanProperty running = new SimpleBooleanProperty(false);
     private final RestartVMAction resetAction;
     private ContextMenu contextMenu;
@@ -69,9 +78,21 @@ public class MachineIcon extends HBox
 
     public MachineIcon(PkgMgrFrame pmf, RestartVMAction resetAction)
     {
-        setAlignment(Pos.CENTER);
-        indicator = new ResizableCanvas();
-        HBox.setHgrow(indicator, Priority.ALWAYS);
+        JavaFXUtil.addStyleClass(this, "machine-icon-container");
+        barContainer = new Pane();
+        HBox.setHgrow(barContainer, Priority.ALWAYS);
+        HBox.setMargin(barContainer, new Insets(2,0,1,0));
+        JavaFXUtil.addStyleClass(barContainer, "machine-icon-bar-holder");
+        bar = new Rectangle();
+        JavaFXUtil.addStyleClass(bar, "machine-icon-bar");
+        barContainer.getChildren().add(bar);
+        bar.setManaged(false);
+        double width = 0.3;
+        bar.layoutXProperty().bind(indicatorPosition.multiply(barContainer.widthProperty().multiply(1.0 - width)).add(2.0));
+        bar.layoutYProperty().set(2.0);
+        bar.widthProperty().bind(barContainer.widthProperty().multiply(width).subtract(4.0));
+        bar.heightProperty().bind(barContainer.heightProperty().subtract(4.0));
+        JavaFXUtil.bindPseudoclass(bar, "bj-active", running);
         this.resetAction = resetAction;
         resetButton = PkgMgrFrame.createButton(this.resetAction, false, true);
         resetButton.setGraphic(drawResetArrow());
@@ -80,59 +101,38 @@ public class MachineIcon extends HBox
         JavaFXUtil.setPseudoclass("bj-no-hover", true, resetButton);
         resetButton.setOnMouseEntered(e -> JavaFXUtil.setPseudoclass("bj-no-hover", false, resetButton));
         resetButton.setOnMouseExited(e -> JavaFXUtil.setPseudoclass("bj-no-hover", true, resetButton));
-        getChildren().addAll(indicator, resetButton);
-        JavaFXUtil.addChangeListenerPlatform(indicatorPosition, x -> redraw());
-        redraw();
-        Tooltip.install(indicator, new Tooltip(Config.getString("tooltip.progress")));
+        getChildren().addAll(barContainer, resetButton);
+        Tooltip.install(barContainer, new Tooltip(Config.getString("tooltip.progress")));
         resetButton.setTooltip(new Tooltip(Config.getString("workIndicator.resetMachine")));
-        JavaFXUtil.listenForContextMenu(indicator, (x, y) -> {
+        JavaFXUtil.listenForContextMenu(barContainer, (x, y) -> {
             if (contextMenu != null)
                 contextMenu.hide();
             MenuItem item = new MenuItem(Config.getString("workIndicator.resetMachine"));
             item.setOnAction(e -> SwingUtilities.invokeLater(() -> this.resetAction.actionPerformed(pmf)));
             contextMenu = new ContextMenu(item);
-            contextMenu.show(indicator, x, y);
+            contextMenu.show(barContainer, x, y);
             return true;
         });
     }
 
     private static Node drawResetArrow()
     {
-        Canvas c = new Canvas(16, 15);
-        GraphicsContext gc = c.getGraphicsContext2D();
+        Path path = new Path();
+        JavaFXUtil.addStyleClass(path, "reset-vm-button-arrow");
 
-        gc.setLineWidth(2.0);
-        gc.setStroke(Color.gray(0.5));
-        gc.strokeLine(1, 1, 9, 1);
-        gc.strokeLine(1, 11, 9, 11);
-        gc.strokeArc(7, 1, 8, 10, 270, 180, ArcType.OPEN);
-        gc.strokeLine(1, 11, 4, 8);
-        gc.strokeLine(1, 11, 4, 14);
+        path.getElements().addAll(
+            new MoveTo(1, 1),
+            new LineTo(9, 1),
+            new MoveTo(9, 1),
+            new ArcTo(5, 5, 180.0, 9.0, 11.0, false, true),
+            new MoveTo(9, 11),
+            new LineTo(1, 11),
+            new LineTo(4, 8),
+            new MoveTo(1, 11),
+            new LineTo(4, 14)
+        );
 
-        return c;
-    }
-
-    private void redraw()
-    {
-        double w = indicator.getWidth();
-        double h = indicator.getHeight();
-        GraphicsContext gc = indicator.getGraphicsContext2D();
-        gc.clearRect(0, 0, w, h);
-        gc.setLineWidth(3);
-        for (int i = 0; i < NUM_BARS; i++)
-        {
-            double pos = (double)i / (double)(NUM_BARS - 1);
-            // The intensity is a function of distance from the current progress
-            double intensity = 0.8 - 1.0 * Math.pow(Math.abs(pos - indicatorPosition.get()), 0.5);
-            if (intensity < 0 || ((pos - indicatorPosition.get() <= 0) != forwards.get()))
-                intensity = 0;
-            if (running.get())
-                gc.setStroke(Color.rgb(0, 0, 255, intensity));
-            else
-                gc.setStroke(Color.gray(0.0, intensity));
-            double x = 2.5 + pos * (w-5);
-            gc.strokeLine(x, 0, x, h);
-        }
+        return path;
     }
 
     private void cancelAnimation()
@@ -153,9 +153,8 @@ public class MachineIcon extends HBox
         Platform.runLater(() ->
         {
             cancelAnimation();
-            forwards.setValue(true);
             running.set(false);
-            indicatorPosition.set(0.5);
+            indicatorPosition.set(0.0);
         });
     }
 
@@ -168,12 +167,10 @@ public class MachineIcon extends HBox
         Platform.runLater(() -> {
             cancelAnimation();
             running.set(true);
-            animation = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(indicatorPosition, 0.5, Interpolator.LINEAR), new KeyValue(forwards, true, Interpolator.DISCRETE)),
-                new KeyFrame(Duration.millis(500), new KeyValue(indicatorPosition, 1.0, Interpolator.LINEAR), new KeyValue(forwards, false, Interpolator.DISCRETE)),
-                new KeyFrame(Duration.millis(1500), new KeyValue(indicatorPosition, 0.0, Interpolator.LINEAR), new KeyValue(forwards, true, Interpolator.DISCRETE)),
-                new KeyFrame(Duration.millis(2000), new KeyValue(indicatorPosition, 0.5, Interpolator.LINEAR), new KeyValue(forwards, true, Interpolator.DISCRETE))
-            );
+            animation = new Timeline(30.0,
+                new KeyFrame(Duration.ZERO, new KeyValue(indicatorPosition, 0, Interpolator.LINEAR)),
+                new KeyFrame(Duration.millis(1000), new KeyValue(indicatorPosition, 1.0, Interpolator.LINEAR)));
+            animation.setAutoReverse(true);
             animation.setCycleCount(Animation.INDEFINITE);
             animation.playFromStart();
         });

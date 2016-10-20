@@ -59,9 +59,38 @@
 .pmf-tools-test-recording-button {
     -fx-padding: 0 0 0 16px;
 }
+.machine-icon-container {
+    -fx-min-width: 160px;
+    -fx-alignment: center;
+    -fx-spacing: 3px;
+}
+.machine-icon-bar-holder {
+    -fx-border-width: 1;
+    -fx-border-style: solid inside;
+    -fx-border-color: lightgray;
+    -fx-border-radius: 4;
+}
+.machine-icon-bar:bj-active {
+    -fx-stroke: lightgray;
+    -fx-fill: navy;
+}
+.machine-icon-bar {
+    -fx-arc-height: 6;
+    -fx-arc-width: 6;
+    -fx-stroke-width: 1;
+    -fx-stroke: lightgray;
+    -fx-fill: lightgray;
+    -fx-stroke-type: inside;
+}
+.reset-vm-button {
+    -fx-padding: 2 5 1 5;
+}
 .reset-vm-button:bj-no-hover {
-    -fx-background-insets: 0;
-    -fx-background-color: transparent;
+    -fx-background-color: transparent, transparent, transparent, transparent;
+}
+.reset-vm-button-arrow {
+    -fx-stroke-width: 2;
+    -fx-stroke: rgb(140, 140, 140);
 }
 
 .test-status-message {

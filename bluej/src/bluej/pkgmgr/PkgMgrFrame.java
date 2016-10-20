@@ -77,6 +77,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -439,7 +440,7 @@ public class PkgMgrFrame
 
                 progressbar = new ActivityIndicatorFX();
                 progressbar.setRunning(false);
-                statusArea.setRight(progressbar);
+                statusArea.setRight(new HBox(progressbar, machineIcon));
                 
                 contentRoot.setBottom(statusArea);
                 BorderPane rootPlusMenu = new BorderPane(contentRoot);
@@ -2982,7 +2983,6 @@ public class PkgMgrFrame
             toolPanel.getChildren().add(teamAndTestFoldout);
             machineIcon = new MachineIcon(this, restartVMAction);
             itemsToDisable.add(machineIcon);
-            toolPanel.getChildren().add(machineIcon);
         });
 
         // show the text evaluation pane if needed
