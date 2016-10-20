@@ -422,7 +422,6 @@ public class PkgMgrFrame
                 JavaFXUtil.addStyleClass(contentRoot, "pmf-root");
 
                 statusbar = new Label();
-                statusbar.setAlignment(Pos.CENTER_LEFT);
                 BorderPane.setAlignment(statusbar, Pos.CENTER_LEFT);
                 
                 // create the bottom status area
@@ -430,7 +429,12 @@ public class PkgMgrFrame
                 BorderPane statusArea = new BorderPane();
                 statusArea.setCenter(statusbar);
 
-                testStatusMessage = new Label("");
+                testStatusMessage = new Label();
+                JavaFXUtil.addStyleClass(testStatusMessage, "test-status-message");
+                // Hide when empty so padding doesn't show:
+                testStatusMessage.managedProperty().bind(testStatusMessage.textProperty().isNotEmpty());
+                testStatusMessage.visibleProperty().bind(testStatusMessage.textProperty().isNotEmpty());
+                BorderPane.setAlignment(testStatusMessage, Pos.CENTER_LEFT);
                 statusArea.setLeft(testStatusMessage);
 
                 progressbar = new ActivityIndicatorFX();

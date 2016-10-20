@@ -9,7 +9,8 @@
 
 
 .pmf-root {
-    -fx-padding: 10px;
+    /* Less padding at bottom because status bar is there anyway */
+    -fx-padding: 10px 10px 4px 10px;
 }
 .pmf-root > .split-pane {
     -fx-background-insets: 0;
@@ -61,6 +62,10 @@
 .reset-vm-button:bj-no-hover {
     -fx-background-insets: 0;
     -fx-background-color: transparent;
+}
+
+.test-status-message {
+    -fx-label-padding: 0 20px 0 0;
 }
 
 /* Class Diagram */
