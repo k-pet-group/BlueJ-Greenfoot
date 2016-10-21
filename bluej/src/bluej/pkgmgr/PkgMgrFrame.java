@@ -2339,7 +2339,7 @@ public class PkgMgrFrame
         if (target.getRole() instanceof UnitTestClassRole) {
             UnitTestClassRole utcr = (UnitTestClassRole) target.getRole();
             Platform.runLater(() -> {
-                teamAndTestFoldout.expand();
+                teamAndTestFoldout.expandedProperty().set(true);
                 utcr.doMakeTestCase(this, target);
             });
         }
@@ -3083,9 +3083,9 @@ public class PkgMgrFrame
             // But we deliberately don't toggle the pane when the preference changes;
             // each PkgMgrFrame is independent while showing, but we store the last user-triggered
             // state as the future default.
-            JavaFXUtil.addChangeListener(teamAndTestFoldout.collapsedProperty(), collapsed -> {
-                PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, !collapsed);
-                PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, !collapsed);
+            JavaFXUtil.addChangeListener(teamAndTestFoldout.expandedProperty(), expanded -> {
+                PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, expanded);
+                PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, expanded);
             });
             toolPanel.getChildren().add(teamAndTestFoldout);
             machineIcon = new MachineIcon(this, restartVMAction);
@@ -3315,6 +3315,7 @@ public class PkgMgrFrame
             createCheckboxMenuItem(showTerminalAction, swingItems, false);
             mixedMenu.addSwing(swingItems);
             mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, Config.hasAcceleratorKey("menu.view.showTextEval") ? Config.getAcceleratorKeyFX("menu.view.showTextEval") : null));
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTeamTest"), teamAndTestFoldout.expandedProperty(), Config.hasAcceleratorKey("menu.view.showTeamTest") ? Config.getAcceleratorKeyFX("menu.view.showTeamTest") : null));
             mixedMenu.addFX(SeparatorMenuItem::new);
 
             swingItems = new ArrayList<>();

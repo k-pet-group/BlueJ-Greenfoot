@@ -25,7 +25,6 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -33,16 +32,9 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
-import javafx.scene.transform.Scale;
 import javafx.util.Duration;
 
 /**
@@ -64,7 +56,7 @@ public class UntitledCollapsiblePane extends Pane
     };
     private final Node content;
     private final Rectangle clipRect;
-    private final BooleanProperty collapsed = new SimpleBooleanProperty();
+    private final BooleanProperty expanded = new SimpleBooleanProperty();
     private Animation animation;
 
     public UntitledCollapsiblePane(Node content, boolean startCollapsed)
@@ -76,9 +68,9 @@ public class UntitledCollapsiblePane extends Pane
         clipRect.widthProperty().bind(widthProperty());
         JavaFXUtil.addStyleClass(this, "untitled-pane");
 
-        collapsed.set(startCollapsed);
+        expanded.set(!startCollapsed);
         arrow.setOnMouseClicked(e -> {
-            toggleCollapsed();
+            expanded.set(!expanded.get());
         });
         if (startCollapsed)
         {
@@ -90,35 +82,27 @@ public class UntitledCollapsiblePane extends Pane
             transitionProperty.set(1.0);
             arrow.scaleProperty().set(-1.0);
         }
+        JavaFXUtil.addChangeListener(expanded, this::runAnimation);
     }
 
-    private void toggleCollapsed()
+    private void runAnimation(boolean toExpanded)
     {
         if (animation != null)
         {
             animation.stop();
         }
-        double dest = getTransition() > 0 ? 0 : 1;
-        double destScale = getTransition() > 0 ? 1 : -1;
-        animation = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(transitionProperty, 1.0 - dest), new KeyValue(arrow.scaleProperty(), -destScale)),
-            new KeyFrame(Duration.millis(300), new KeyValue(transitionProperty, dest), new KeyValue(arrow.scaleProperty(), destScale)));
+        double dest = toExpanded ? 1 : 0;
+        double destScale = toExpanded ? -1 : 1;
+        animation = new Timeline(new KeyFrame(Duration.millis(300), new KeyValue(transitionProperty, dest), new KeyValue(arrow.scaleProperty(), destScale)));
         animation.setOnFinished(ev -> {
-            collapsed.set(dest == 0.0);
             animation = null;
         });
         animation.playFromStart();
     }
 
-    public BooleanExpression collapsedProperty()
+    public BooleanProperty expandedProperty()
     {
-        return collapsed;
-    }
-
-
-    public void expand()
-    {
-        if (collapsed.get() && animation == null)
-            toggleCollapsed();
+        return expanded;
     }
 
     @Override

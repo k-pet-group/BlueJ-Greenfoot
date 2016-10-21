@@ -626,7 +626,7 @@ menu.view.showExecControls=Show Debugger@D
 menu.view.showTerminal=Show Terminal@T
 menu.view.showTextEval=Show Code Pad@E
 menu.view.showTestDisplay=Show Test _Results
-#menu.view.showTeamControls=Show Team Controls@G
+menu.view.showTeamTest=Show Team and Test Controls@G
 
 codepad.prompt=Enter Java code to evaluate
 
