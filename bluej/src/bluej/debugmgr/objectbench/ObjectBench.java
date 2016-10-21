@@ -521,7 +521,6 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
 
         setContent(obp);
         setFitToWidth(true);
-        setFitToHeight(true);
         setMinViewportWidth(ObjectWrapper.WIDTH);
         setMinViewportHeight(ObjectWrapper.HEIGHT);
         // start with a clean slate recording invocations
