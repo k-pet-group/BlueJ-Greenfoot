@@ -7,6 +7,14 @@
     codepad-prompt: rgb(160, 160, 160);
 }
 
+.triangle-arrow {
+    -fx-cursor: hand;
+    -fx-fill: darkgray;
+}
+.triangle-arrow:hover {
+    -fx-fill: derive(darkgray, 20%);
+}
+
 
 .pmf-root {
     /* Less padding at bottom because status bar is there anyway */

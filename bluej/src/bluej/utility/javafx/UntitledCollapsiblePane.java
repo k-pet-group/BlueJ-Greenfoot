@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program.
+ Copyright (C) 2016 Michael Kölling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.utility.javafx;
 
 import javafx.animation.Animation;
@@ -10,6 +31,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.HPos;
+import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -19,6 +41,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.transform.Scale;
 import javafx.util.Duration;
 
@@ -31,9 +54,7 @@ import javafx.util.Duration;
  */
 public class UntitledCollapsiblePane extends Pane
 {
-    private static double ARROW_WIDTH = 14;
-    private static double ARROW_HEIGHT = 10;
-    private final Canvas arrow = new Canvas(ARROW_WIDTH, ARROW_HEIGHT); 
+    private final TriangleArrow arrow = new TriangleArrow(Orientation.VERTICAL);
     private final DoubleProperty transitionProperty = new SimpleDoubleProperty(1.0) {
         @Override
         protected void invalidated()
@@ -45,7 +66,6 @@ public class UntitledCollapsiblePane extends Pane
     private final Rectangle clipRect;
     private final BooleanProperty collapsed = new SimpleBooleanProperty();
     private Animation animation;
-    private final Scale scale;
 
     public UntitledCollapsiblePane(Node content, boolean startCollapsed)
     {
@@ -56,12 +76,6 @@ public class UntitledCollapsiblePane extends Pane
         clipRect.widthProperty().bind(widthProperty());
         JavaFXUtil.addStyleClass(this, "untitled-pane");
 
-        arrow.setCursor(Cursor.HAND);
-        GraphicsContext gc = arrow.getGraphicsContext2D();
-        gc.setFill(Color.DARKGRAY);
-        gc.fillPolygon(new double[] { 1, ARROW_WIDTH * 0.5, ARROW_WIDTH - 1, 1}, new double[] {ARROW_HEIGHT - 1, 1, ARROW_HEIGHT - 1, ARROW_HEIGHT - 1}, 4);
-        scale = new Scale(1.0, -1.0, ARROW_WIDTH / 2.0, ARROW_HEIGHT / 2.0);
-        arrow.getTransforms().add(scale);
         collapsed.set(startCollapsed);
         arrow.setOnMouseClicked(e -> {
             toggleCollapsed();
@@ -69,7 +83,7 @@ public class UntitledCollapsiblePane extends Pane
         if (startCollapsed)
         {
             transitionProperty.set(0.0);
-            scale.yProperty().set(1.0);
+            arrow.scaleProperty().set(1.0);
         }
     }
 
@@ -81,8 +95,8 @@ public class UntitledCollapsiblePane extends Pane
         }
         double dest = getTransition() > 0 ? 0 : 1;
         double destScale = getTransition() > 0 ? 1 : -1;
-        animation = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(transitionProperty, 1.0 - dest), new KeyValue(scale.yProperty(), -destScale)),
-            new KeyFrame(Duration.millis(300), new KeyValue(transitionProperty, dest), new KeyValue(scale.yProperty(), destScale)));
+        animation = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(transitionProperty, 1.0 - dest), new KeyValue(arrow.scaleProperty(), -destScale)),
+            new KeyFrame(Duration.millis(300), new KeyValue(transitionProperty, dest), new KeyValue(arrow.scaleProperty(), destScale)));
         animation.setOnFinished(ev -> {
             collapsed.set(dest == 0.0);
             animation = null;
@@ -112,7 +126,7 @@ public class UntitledCollapsiblePane extends Pane
                                             final double w, final double h) {
 
         // header
-        double headerHeight = snapSize(ARROW_HEIGHT);
+        double headerHeight = snapSize(arrow.TRIANGLE_DEPTH);
 
         arrow.resize(w, headerHeight);
         positionInArea(arrow, x, y,
@@ -138,7 +152,7 @@ public class UntitledCollapsiblePane extends Pane
     @Override
     protected double computePrefHeight(double width)
     {
-        return content.prefHeight(width) * getTransition() + ARROW_HEIGHT;
+        return content.prefHeight(width) * getTransition() + arrow.TRIANGLE_DEPTH;
     }
 
     @Override
@@ -150,7 +164,7 @@ public class UntitledCollapsiblePane extends Pane
     @Override
     protected double computeMinHeight(double width)
     {
-        return content.minHeight(width) * getTransition() + ARROW_HEIGHT;
+        return content.minHeight(width) * getTransition() + arrow.TRIANGLE_DEPTH;
     }
 
     private double getTransition()
