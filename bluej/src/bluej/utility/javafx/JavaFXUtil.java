@@ -108,7 +108,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
@@ -576,11 +578,13 @@ public class JavaFXUtil
      * @return True if the user clicked OK, false if the user clicked Cancel or otherwise closed the dialog.
      */
     @OnThread(Tag.FXPlatform)
-    public static boolean confirmDialog(String titleLabel, String messageLabel)
+    public static boolean confirmDialog(String titleLabel, String messageLabel, Stage parent)
     {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, Config.getString(messageLabel), ButtonType.OK, ButtonType.CANCEL);
         alert.setTitle(Config.getString(titleLabel));
         alert.setHeaderText(alert.getTitle());
+        alert.initOwner(parent);
+        alert.initModality(Modality.WINDOW_MODAL);
         Optional<ButtonType> pressed = alert.showAndWait();
         return ButtonType.OK == pressed.orElse(ButtonType.CANCEL);
     }

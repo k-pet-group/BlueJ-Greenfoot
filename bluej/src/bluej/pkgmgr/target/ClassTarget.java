@@ -131,6 +131,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.transform.Affine;
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -2193,7 +2194,7 @@ public class ClassTarget extends DependentTarget
 
         private void actionPerformed(ActionEvent e)
         {
-            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message"))
+            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", (Stage)ClassTarget.this.pane.getScene().getWindow()))
             {
                 SwingUtilities.invokeLater(() -> removeStride());
             }
@@ -2216,7 +2217,7 @@ public class ClassTarget extends DependentTarget
     {
         File javaSourceFile = getJavaSourceFile();
         Platform.runLater(() -> {
-            if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message"))
+            if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", (Stage)ClassTarget.this.pane.getScene().getWindow()))
             {
                 try
                 {
