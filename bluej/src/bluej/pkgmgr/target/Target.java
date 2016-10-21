@@ -159,14 +159,14 @@ public abstract class Target
                             pkg.getEditor().selectOnly(this);
                         }
                     }
-                    updateCursor(e);
+                    updateCursor(e, false);
                     if (isSelected())
                         pane.requestFocus();
                 }
                 e.consume();    
             });
             pane.setOnMouseMoved(e -> {
-                updateCursor(e);
+                updateCursor(e, false);
                 pkg.getEditor().setMouseIn(this);
             });
             pane.setOnMouseExited(e -> {
@@ -217,6 +217,7 @@ public abstract class Target
                         int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX));
                         int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
                         pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
+                        updateCursor(e, true);
                     }
                 }
                 e.consume();
@@ -304,9 +305,13 @@ public abstract class Target
     }
 
     @OnThread(Tag.FXPlatform)
-    private void updateCursor(MouseEvent e)
+    private void updateCursor(MouseEvent e, boolean moving)
     {
-        if (isSelected() && isResizable() && cursorAtResizeCorner(e))
+        if (moving)
+        {
+            pane.setCursor(Cursor.MOVE);
+        }
+        else if (isSelected() && isResizable() && cursorAtResizeCorner(e))
         {
             pane.setCursor(Cursor.SE_RESIZE);
         }
