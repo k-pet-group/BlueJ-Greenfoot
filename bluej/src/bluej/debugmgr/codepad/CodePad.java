@@ -370,6 +370,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         super();
         
         this.frame = frame;
+        setMinWidth(100.0);
         setFocusTraversable(false);
         //defineKeymap();
         history = new IndexHistory(20);

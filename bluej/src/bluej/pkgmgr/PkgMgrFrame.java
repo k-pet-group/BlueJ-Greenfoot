@@ -42,9 +42,13 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.TriangleArrow;
 import javafx.animation.Animation;
 import javafx.animation.FillTransition;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -55,9 +59,8 @@ import javafx.collections.ListChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -83,10 +86,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.*;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -402,7 +407,44 @@ public class PkgMgrFrame
                 topPane.setCenter(centralPane);
                 //topPane.setMinHeight(minSize.getHeight());
                 topPane.setLeft(toolPanel);
-                bottomPane = new SplitPane(objbench);
+                TriangleArrow triangleLabel = new TriangleArrow(Orientation.HORIZONTAL);
+                StackPane.setAlignment(triangleLabel, Pos.CENTER_RIGHT);
+                StackPane.setMargin(triangleLabel, new Insets(0, 5, 0, 0));
+                triangleLabel.setOnMouseClicked(e -> {
+                    // Toggle it:
+                    showingTextEval.set(!showingTextEval.get());
+                });
+                triangleLabel.scaleProperty().bind(Bindings.when(showingTextEval).then(-1.0).otherwise(1.0));
+                FXPlatformRunnable addScrollBarListener = new FXPlatformRunnable()
+                {
+                    @Override
+                    public @OnThread(Tag.FXPlatform) void run()
+                    {
+                        Region scrollBar = (Region)objbench.lookup(".scroll-bar:horizontal");
+                        if (scrollBar == null)
+                        {
+                            // Keep going until the scroll bar is ready:
+                            JavaFXUtil.runAfterCurrent(this);
+                            return;
+                        }
+                        // The visibility of the scrollbar is set mid-layout pass so we run
+                        // afterwards to make sure everything is up-to-date:
+                        FXConsumer<Object> update = showing -> JavaFXUtil.runPlatformLater(() ->
+                        {
+                            if (scrollBar.isVisible())
+                                StackPane.setMargin(triangleLabel, new Insets(0, 5 + scrollBar.getWidth(), 0, 0));
+                            else
+                                StackPane.setMargin(triangleLabel, new Insets(0, 5, 0, 0));
+                        });
+                        JavaFXUtil.addChangeListener(scrollBar.visibleProperty(), update);
+                        // Not sure if scroll bar can change width, but guard against it:
+                        JavaFXUtil.addChangeListener(scrollBar.widthProperty(), update);
+                    }
+                };
+                JavaFXUtil.runAfterCurrent(addScrollBarListener);
+
+
+                bottomPane = new SplitPane(new StackPane(objbench, triangleLabel));
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
                 SplitPane.setResizableWithParent(bottomPane, false);
                 // Wait until the codepad appears, then set it:
@@ -433,6 +475,7 @@ public class PkgMgrFrame
                     private boolean isResizingBoth;
 
                     @Override
+                    @OnThread(Tag.FXPlatform)
                     public void handle(MouseEvent e)
                     {
                         if (cursorProperty == null)

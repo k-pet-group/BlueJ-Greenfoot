@@ -194,6 +194,8 @@
 }
 .object-bench-panel {
     -fx-background-color: object-bench;
+    /* Padding so that the fold-out arrow doesn't appear in front of any objects: */
+    -fx-padding: 0 12px 0 0;
 }
 .object-wrapper {
     -fx-padding: 5px;

@@ -36,6 +36,7 @@ public class TriangleArrow extends Polygon
     // The opposite dimension to the base (vertical: height, horizontal: width)
     public static final double TRIANGLE_DEPTH = 10;
     private final Scale scale;
+    private final Orientation orientation;
 
     /**
      * Makes a triangle arrow, used in foldout containers.
@@ -45,7 +46,8 @@ public class TriangleArrow extends Polygon
     public TriangleArrow(Orientation orientation)
     {
         JavaFXUtil.addStyleClass(this, "triangle-arrow");
-        scale = new Scale(1.0, -1.0);
+        scale = new Scale(1.0, 1.0);
+        this.orientation = orientation;
         switch (orientation)
         {
             case HORIZONTAL:
@@ -67,6 +69,11 @@ public class TriangleArrow extends Polygon
         }
 
         getTransforms().add(scale);
+        // If we pick using the shape, it's quite a hard target to hit
+        // especially at the pointy end of the triangle.  So we make it
+        // a rectangle for hit detection purposes to make it a bit easier
+        // to hit:
+        setPickOnBounds(true);
     }
 
     /**
@@ -77,6 +84,9 @@ public class TriangleArrow extends Polygon
      */
     public DoubleProperty scaleProperty()
     {
-        return scale.yProperty();
+        if (orientation == Orientation.HORIZONTAL)
+            return scale.xProperty();
+        else
+            return scale.yProperty();
     }
 }

@@ -1205,7 +1205,7 @@ public class JavaFXUtil
      * @param <T>      The type in the observable.
      * @return An action which, if run, removes the change listener from the property.
      */
-    public static <T> FXRunnable addChangeListener(ObservableValue<T> property, FXConsumer<T> listener)
+    public static <T> FXRunnable addChangeListener(ObservableValue<T> property, FXConsumer<? super T> listener)
     {
         ChangeListener<T> wrapped = (a, b, newVal) -> listener.accept(newVal);
         property.addListener(wrapped);

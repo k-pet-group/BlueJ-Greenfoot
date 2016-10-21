@@ -85,6 +85,11 @@ public class UntitledCollapsiblePane extends Pane
             transitionProperty.set(0.0);
             arrow.scaleProperty().set(1.0);
         }
+        else
+        {
+            transitionProperty.set(1.0);
+            arrow.scaleProperty().set(-1.0);
+        }
     }
 
     private void toggleCollapsed()
