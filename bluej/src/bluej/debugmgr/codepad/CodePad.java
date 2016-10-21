@@ -367,9 +367,8 @@ public class CodePad extends ListView<CodePad.CodePadRow>
 
     public CodePad(PkgMgrFrame frame)
     {
-        super();
-        
         this.frame = frame;
+        JavaFXUtil.addStyleClass(this, "codepad");
         setMinWidth(100.0);
         setFocusTraversable(false);
         //defineKeymap();
