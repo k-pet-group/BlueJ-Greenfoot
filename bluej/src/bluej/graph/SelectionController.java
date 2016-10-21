@@ -89,7 +89,6 @@ public class SelectionController
      */
     public void mousePressed(javafx.scene.input.MouseEvent evt)
     {
-        graphEditor.requestFocus();
         int clickX = (int)evt.getX();
         int clickY = (int)evt.getY();
 

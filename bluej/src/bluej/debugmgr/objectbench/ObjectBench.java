@@ -577,4 +577,12 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         }
 
     }
+
+    @Override
+    public void requestFocus()
+    {
+        // Override default behaviour (in which clicking on scroll pane
+        // gives it focus).
+        // Don't let the pane request focus.
+    }
 }
