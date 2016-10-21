@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -491,6 +492,10 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         });
 
         editRow = new EditRow("");
+        getItems().addListener((ListChangeListener<? super CodePadRow>) c -> {
+            // Whenever a new item is added, make sure the edit row is kept in view:
+            scrollTo(editRow);
+        });
         getItems().add(editRow);
         setEditable(true);
     }
