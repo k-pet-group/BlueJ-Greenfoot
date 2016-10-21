@@ -579,6 +579,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     }
 
     @Override
+    @OnThread(Tag.FX)
     public void requestFocus()
     {
         // Override default behaviour (in which clicking on scroll pane
