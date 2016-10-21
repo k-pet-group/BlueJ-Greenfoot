@@ -2159,8 +2159,8 @@ public final class Package
             if (pkg != null) {
                 PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
 
-                if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
-                    pmf = PkgMgrFrame.createFrame(pkg);
+                if (pmf == null) {
+                    pmf = PkgMgrFrame.createFrame(pkg, null);
                 }
 
                 pmf.setVisible(true);

@@ -182,7 +182,7 @@ public class Main
                         // checking all is well (project exists)
                         if ((openProj = Project.openProject(exists)) != null) {
                             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-                            PkgMgrFrame.createFrame(pkg);
+                            PkgMgrFrame.createFrame(pkg, null);
                             oneOpened = true;
                         }
                     }

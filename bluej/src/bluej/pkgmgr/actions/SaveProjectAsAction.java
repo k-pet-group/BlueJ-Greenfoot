@@ -93,7 +93,7 @@ final public class SaveProjectAsAction extends PkgMgrAction
                     if (openProj != null)
                     {
                         Package pkg = openProj.getPackage("");
-                        PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
+                        PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg, null);
                         pmf.setVisible(true);
                     } else
                     {

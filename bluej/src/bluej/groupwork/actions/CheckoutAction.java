@@ -211,7 +211,7 @@ public class CheckoutAction extends TeamAction
 
                 project.setTeamSettingsController(tsc);
                 Package initialPackage = project.getPackage(project.getInitialPackageName());
-                newFrame.openPackage(initialPackage);
+                newFrame.openPackage(initialPackage, newFrame);
             }
             else {
                 Platform.runLater(() -> TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow()));

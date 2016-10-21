@@ -156,7 +156,7 @@ class Identifier
         Package thisPkg = getBluejPackage();
 
         // Get a frame for the package.
-        final PkgMgrFrame pmf = PkgMgrFrame.createFrame(thisPkg);
+        final PkgMgrFrame pmf = PkgMgrFrame.createFrame(thisPkg, null);
 
         EventQueue.invokeLater(new Runnable() {
             public void run()

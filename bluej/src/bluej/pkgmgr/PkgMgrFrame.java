@@ -449,10 +449,13 @@ public class PkgMgrFrame
                 stage.setScene(scene);
                 stage.setWidth(800.0);
                 stage.setHeight(600.0);
-                stage.show();
-                //org.scenicview.ScenicView.show(stage.getScene());
+                // This sets the window position so call it before showing:
                 stageProperty.setValue(stage);
                 paneProperty.setValue(rootPlusMenu);
+                // Delay to let window positioner be ready:
+                JavaFXUtil.runAfterCurrent(() -> stage.show());
+                //org.scenicview.ScenicView.show(stage.getScene());
+
                 // If it should already be showing, do that now:
                 if (showingTextEval.get())
                 {
@@ -512,7 +515,7 @@ public class PkgMgrFrame
      * @return The new frame
      */
     @OnThread(Tag.Swing)
-    public static PkgMgrFrame createFrame(Package aPkg)
+    public static PkgMgrFrame createFrame(Package aPkg, PkgMgrFrame parentWindow)
     {
         PkgMgrFrame pmf = findFrame(aPkg);
 
@@ -530,7 +533,7 @@ public class PkgMgrFrame
             if ((pmf == null) || !pmf.isEmptyFrame())
                 pmf = createFrame();
 
-            pmf.openPackage(aPkg);
+            pmf.openPackage(aPkg, parentWindow);
         }
 
         return pmf;
@@ -910,7 +913,7 @@ public class PkgMgrFrame
      * @param aPkg The package to edit
      */
     @OnThread(Tag.Swing)
-    public void openPackage(Package aPkg)
+    public void openPackage(Package aPkg, PkgMgrFrame parentWindow)
     {
         if (aPkg == null) {
             throw new NullPointerException();
@@ -958,8 +961,9 @@ public class PkgMgrFrame
             Properties p = aPkg.getLastSavedProperties();
             
             try {
-                String x_str = p.getProperty("package.editor.x", "30");
-                String y_str = p.getProperty("package.editor.y", "30");
+                // -1 means use parent window
+                String x_str = p.getProperty("package.editor.x", parentWindow == null ? "30" : "-1");
+                String y_str = p.getProperty("package.editor.y", parentWindow == null ? "30" : "-1");
                 
                 int x = Integer.parseInt(x_str);
                 int y = Integer.parseInt(y_str);
@@ -981,8 +985,16 @@ public class PkgMgrFrame
                 
                 Platform.runLater(() -> {
                     JavaFXUtil.onceNotNull(stageProperty, s -> {
-                        s.setX(xFinal);
-                        s.setY(yFinal);
+                        if (xFinal == -1 || yFinal == -1)
+                        {
+                            s.setX(parentWindow.stageProperty.getValue().getX() + 20.0);
+                            s.setY(parentWindow.stageProperty.getValue().getY() + 20.0);
+                        }
+                        else
+                        {
+                            s.setX(xFinal);
+                            s.setY(yFinal);
+                        }
                         if (width != null && height != null)
                         {
                             s.setWidth(Integer.parseInt(width));
@@ -1462,11 +1474,10 @@ public class PkgMgrFrame
             Package unNamedPkg = proj.getPackage("");
             
             if (isEmptyFrame()) {
-                openPackage( unNamedPkg );
+                openPackage( unNamedPkg, this );
             }
             else {
-                PkgMgrFrame pmf = createFrame( unNamedPkg );
-                DialogManager.tileWindow(pmf.getWindow(), getWindow());
+                PkgMgrFrame pmf = createFrame( unNamedPkg, this);
                 pmf.setVisible(true);
             }    
             return true;
@@ -1672,12 +1683,10 @@ public class PkgMgrFrame
             if (pmf == null) {
                 if (isEmptyFrame()) {
                     pmf = this;
-                    openPackage(initialPkg);
+                    openPackage(initialPkg, this);
                 }
                 else {
-                    pmf = createFrame(initialPkg);
-
-                    DialogManager.tileWindow(pmf.getWindow(), getWindow());
+                    pmf = createFrame(initialPkg, this);
                 }
             }
 
@@ -2193,8 +2202,7 @@ public class PkgMgrFrame
         Package p = getPackage().getProject().getPackage(newname);
 
         if ((pmf = findFrame(p)) == null) {
-            pmf = createFrame(p);
-            DialogManager.tileWindow(pmf.getWindow(), this.getWindow());
+            pmf = createFrame(p, this);
         }
         pmf.setVisible(true);
     }

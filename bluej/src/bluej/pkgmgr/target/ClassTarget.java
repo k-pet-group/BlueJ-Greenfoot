@@ -2530,7 +2530,7 @@ public class ClassTarget extends DependentTarget
      */
     private boolean checkDebuggerState()
     {
-        return PkgMgrFrame.createFrame(getPackage()).checkDebuggerState();
+        return PkgMgrFrame.createFrame(getPackage(), null).checkDebuggerState();
     }
 
     /**
