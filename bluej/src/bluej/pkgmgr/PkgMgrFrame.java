@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import javafx.animation.Animation;
 import javafx.animation.FillTransition;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -54,6 +55,7 @@ import javafx.collections.ListChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -75,6 +77,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -418,7 +421,60 @@ public class PkgMgrFrame
                 });
 
                 topBottomSplit = new SplitPane(new StackPane(topPane, topOverlay), bottomPane);
+                JavaFXUtil.addStyleClass(topBottomSplit, "top-bottom-split");
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
+                // We add a mouse handler so that if you drag at the intersection of the split
+                // panes' dividers, you move both dividers at once.
+                EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>()
+                {
+                    // We only want to do the CSS lookup once; then we stash the cursor property:
+                    public ObjectProperty<Cursor> cursorProperty;
+                    // Are we resizing both when dragging?
+                    private boolean isResizingBoth;
+
+                    @Override
+                    public void handle(MouseEvent e)
+                    {
+                        if (cursorProperty == null)
+                        {
+                            cursorProperty = topBottomSplit.lookup(".top-bottom-split > .split-pane-divider").cursorProperty();
+                        }
+
+                        if (codePad == null)
+                        {
+                            cursorProperty.set(Cursor.V_RESIZE);
+                            isResizingBoth = false;
+                            return; // No special consideration needed.
+                        }
+                        if (e.getEventType() == MouseEvent.MOUSE_MOVED)
+                        {
+                            // Are we on top of the divider of the bottom pane?
+                            double sceneX = bottomPane.getItems().get(0).localToScene(bottomPane.getItems().get(0).getBoundsInLocal()).getMaxX();
+                            if (e.getSceneX() >= sceneX - 1 && e.getSceneX() <= sceneX + 8)
+                            {
+                                isResizingBoth = true;
+                                // Show four pointed arrow:
+                                cursorProperty.set(Cursor.MOVE);
+                            }
+                            else
+                            {
+                                isResizingBoth = false;
+                                cursorProperty.set(Cursor.V_RESIZE);
+                            }
+                        }
+                        else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
+                        {
+                            if (isResizingBoth)
+                            {
+                                Bounds bottomBounds = bottomPane.localToScene(bottomPane.getBoundsInLocal());
+                                bottomPane.setDividerPositions((e.getSceneX() - bottomBounds.getMinX()) / bottomBounds.getWidth());
+                            }
+                        }
+                    }
+                };
+                topBottomSplit.addEventFilter(MouseEvent.MOUSE_MOVED, handler);
+                topBottomSplit.addEventFilter(MouseEvent.MOUSE_DRAGGED, handler);
+
                 BorderPane contentRoot = new BorderPane(topBottomSplit);
                 JavaFXUtil.addStyleClass(contentRoot, "pmf-root");
 
