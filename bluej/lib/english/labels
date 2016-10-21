@@ -371,12 +371,12 @@ pkgmgr.parentpackagetarget.openunamed=Open unnamed package
 pkgmgr.noProjectOpened.message=\u2196 Use the Project menu to create or open a project
 
 pkgmgr.packagemenu.open=Open
-pkgmgr.packagemenu.remove=Remove
+pkgmgr.packagemenu.remove=Delete
 
 pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.inspect=Inspect
-pkgmgr.classmenu.remove=Remove
+pkgmgr.classmenu.remove=Delete
 pkgmgr.classmenu.convertToJava=Convert to Java
 pkgmgr.classmenu.convertToStride=Convert to Stride
 pkgmgr.classmenu.createTest=Create Test Class
@@ -599,10 +599,10 @@ menu.edit=_Edit
 menu.edit.newClass=New Class...@N
 menu.edit.newPackage=New Package...@R
 menu.edit.addClass=_Add Class from File...
-menu.edit.remove=Remove@BACK_SPACE
+menu.edit.remove=Delete@BACK_SPACE
 menu.edit.newUses=New _Uses Arrow...
 menu.edit.newInherits=New _Inheritance Arrow...
-menu.edit.removeArrow=Remove Arrow...
+menu.edit.removeArrow=Delete Arrow...
 
 menu.tools=_Tools
 menu.tools.compile=Compile@K
