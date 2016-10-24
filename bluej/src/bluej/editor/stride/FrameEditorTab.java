@@ -407,7 +407,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         windowOverlayPane = new WindowOverlayPane();
         bannerPane = new VBox();
         bannerPane.setPickOnBounds(false);
-        scroll = new ScrollPane();
+        scroll = new ScrollPane() {
+            @Override
+            public void requestFocus() {
+                // Do nothing
+            }
+        };
+
+
         scroll.getStyleClass().add("frame-editor-scroll-pane");
         scroll.setFitToWidth(true);
         observableScroll = scroll.vvalueProperty();
