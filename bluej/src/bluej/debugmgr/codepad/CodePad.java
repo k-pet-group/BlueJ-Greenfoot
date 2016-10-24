@@ -31,14 +31,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -50,6 +54,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -346,6 +351,24 @@ public class CodePad extends VBox
         historyView = new ListView<>();
         historyView.setFocusTraversable(false);
         historyView.setEditable(false);
+        // We can't lookup the scroll bar until we're in the scene and showing.
+        // But also, we don't care about showing the shadow until there are items in the history
+        // to be scrolled.  So a neat solution is to add the effect the first time items
+        // appear in the history (which can only happen once it's on screen).
+        historyView.getItems().addListener(new ListChangeListener<HistoryRow>()
+        {
+            @Override
+            public void onChanged(Change<? extends HistoryRow> c)
+            {
+                // When the codepad history is not at the very bottom, add a shadow to indicate
+                // that there is more beneath.  Otherwise, if you scroll to just the right point,
+                // it looks like you are looking at the most recent item when in fact you're scrolled up.
+                ScrollBar scrollBar = (ScrollBar)historyView.lookup(".scroll-bar");
+                inputField.effectProperty().bind(Bindings.when(scrollBar.valueProperty().isNotEqualTo(1.0, 0.01)).<Effect>then(new DropShadow(6.0, 0.0, -3.0, Color.GRAY)).otherwise((Effect)null));
+                historyView.getItems().removeListener(this);
+            }
+        });
+
         JavaFXUtil.addStyleClass(historyView, "codepad-history");
 
         getChildren().setAll(historyView, inputField);
