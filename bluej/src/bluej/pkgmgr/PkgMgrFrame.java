@@ -2813,7 +2813,7 @@ public class PkgMgrFrame
                 CodePad cpFinal = codePad;
                 itemsToDisable.add(cpFinal);
                 bottomPane.getItems().add(codePad);
-                codePad.requestFocus();
+                codePad.focusInputField();
             }
             codePad.setDisable(false);
         }
