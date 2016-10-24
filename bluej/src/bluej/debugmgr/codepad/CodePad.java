@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -100,12 +101,16 @@ import threadchecker.Tag;
 public class CodePad extends VBox
     implements ValueCollection, PkgMgrFrame.PkgMgrPane
 {
+    /**
+     * The list view containing all the history items:
+     */
     private final ListView<HistoryRow> historyView;
 
     /**
      * The edit field for input
      */
     private final TextField inputField;
+    private BooleanBinding shadowShowing;
 
     /**
      * A data item which backs a single row in the code pad.
@@ -364,7 +369,9 @@ public class CodePad extends VBox
                 // that there is more beneath.  Otherwise, if you scroll to just the right point,
                 // it looks like you are looking at the most recent item when in fact you're scrolled up.
                 ScrollBar scrollBar = (ScrollBar)historyView.lookup(".scroll-bar");
-                inputField.effectProperty().bind(Bindings.when(scrollBar.valueProperty().isNotEqualTo(1.0, 0.01)).<Effect>then(new DropShadow(6.0, 0.0, -3.0, Color.GRAY)).otherwise((Effect)null));
+                // Need to keep a permanent reference to avoid GCing weak reference:
+                shadowShowing = scrollBar.visibleProperty().and(scrollBar.valueProperty().isNotEqualTo(1.0, 0.01));
+                inputField.effectProperty().bind(Bindings.when(shadowShowing).<Effect>then(new DropShadow(6.0, 0.0, -3.0, Color.GRAY)).otherwise((Effect)null));
                 historyView.getItems().removeListener(this);
             }
         });
@@ -380,9 +387,18 @@ public class CodePad extends VBox
         historyView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         
         // Add context menu with copy:
-        historyView.setContextMenu(new ContextMenu(JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"), () -> {
-            copySelectedRows();
-        }, null)));
+        historyView.setContextMenu(new ContextMenu(
+            JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"), () -> copySelectedRows(), null),
+            JavaFXUtil.makeMenuItem(Config.getString("codepad.copyAll"), () -> {
+                historyView.getSelectionModel().selectAll();
+                copySelectedRows();
+            }, null),
+
+            JavaFXUtil.makeMenuItem(Config.getString("codepad.clear"), () -> {
+                historyView.getSelectionModel().clearSelection();
+                historyView.getItems().clear();
+            }, null)
+        ));
         
         // Add keyboard shortcut ourselves:
         historyView.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -454,8 +470,13 @@ public class CodePad extends VBox
 
     private void copySelectedRows()
     {
+        // If they right click on background with no items selected,
+        // copy all items:
+        if (historyView.getSelectionModel().isEmpty())
+            historyView.getSelectionModel().selectAll();
         String copied = historyView.getSelectionModel().getSelectedItems().stream().map(HistoryRow::getText).collect(Collectors.joining("\n"));
         Clipboard.getSystemClipboard().setContent(Collections.singletonMap(DataFormat.PLAIN_TEXT, copied));
+        historyView.getSelectionModel().clearSelection();
     }
 
     /**
@@ -808,6 +829,7 @@ public class CodePad extends VBox
 
     private void addRow(HistoryRow row)
     {
+        historyView.getSelectionModel().clearSelection();
         historyView.getItems().add(row);
         historyView.scrollTo(historyView.getItems().size() - 1);
     }

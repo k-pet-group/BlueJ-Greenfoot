@@ -629,6 +629,8 @@ menu.view.showTestDisplay=Show Test _Results
 menu.view.showTeamTest=Show Team and Test Controls@G
 
 codepad.prompt=Enter Java code to evaluate
+codepad.copyAll=Copy All
+codepad.clear=Clear
 
 team.project.marker=Shared Project
 team.commit=Commit@I

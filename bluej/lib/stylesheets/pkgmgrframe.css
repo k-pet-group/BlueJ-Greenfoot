@@ -218,8 +218,11 @@
     -fx-wrap-text: false;
 }
 .codepad-row:even, .codepad-row:odd {
-    /* Make sure all empty cells are white: */
+    /* Make sure all empty cells are background colour: */
     -fx-background-color: codepad;
+}
+.codepad-row:selected:even, .codepad-row:selected:odd {
+    -fx-background-color: lightblue;
 }
 .codepad-row:bj-codepad-error {
     -fx-text-fill: hsb(355, 95%, 50%);
@@ -228,12 +231,10 @@
 .codepad-row:bj-codepad-output {
     -fx-text-fill: hsb(110, 95%, 45%);
 }
-.codepad-row:bj-codepad-error:even, .codepad-row:bj-codepad-error:odd,
-.codepad-row:bj-codepad-output:even, .codepad-row:bj-codepad-output:odd {
-    -fx-background-color: codepad; /* Same colour as other rows */
+.codepad-row:bj-codepad-error,
+.codepad-row:bj-codepad-output {
     -fx-graphic-text-gap: 5px;
 }
-
 
 .codepad .text-field {
     /* This is the modena.css version:
