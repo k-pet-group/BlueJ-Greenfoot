@@ -46,8 +46,6 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -57,7 +55,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -136,14 +133,10 @@ public class WorldHandlerDelegateIDE
 
             // "remove" menu item
             m = new JMenuItem(Config.getString("world.handlerDelegate.remove"));
-            m.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    worldHandler.getWorld().removeObject(obj);
-                    removedActor(obj);
-                    worldHandler.repaint();
-                }
+            m.addActionListener(e -> {
+                worldHandler.getWorld().removeObject(obj);
+                removedActor(obj);
+                worldHandler.repaint();
             });
             m.setFont(PrefMgr.getStandoutMenuFont());
             m.setForeground(envOpColour);
@@ -190,23 +183,19 @@ public class WorldHandlerDelegateIDE
     private JMenuItem getInspectMenuItem(final Object obj)
     {
         JMenuItem m = new JMenuItem(Config.getString("world.handlerDelegate.inspect"));
-        m.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                JFrame parent = (JFrame) worldHandler.getWorldCanvas().getTopLevelAncestor();
-                DebuggerObject dObj = LocalObject.getLocalObject(obj);
-                String instanceName = "";
-                try {
-                    RObject rObject = ObjectTracker.getRObject(obj);
-                    if (rObject != null) {
-                        instanceName = rObject.getInstanceName();
-                    }
+        m.addActionListener(e -> {
+            DebuggerObject dObj = LocalObject.getLocalObject(obj);
+            String instanceName = "";
+            try {
+                RObject rObject = ObjectTracker.getRObject(obj);
+                if (rObject != null) {
+                    instanceName = rObject.getInstanceName();
                 }
-                catch (RemoteException e1) {
-                    Debug.reportError("Could not get instance name for inspection", e1);
-                }
-                inspectorManager.getInspectorInstance(dObj, instanceName, null, null, null);
             }
+            catch (RemoteException e1) {
+                Debug.reportError("Could not get instance name for inspection", e1);
+            }
+            inspectorManager.getInspectorInstance(dObj, instanceName, null, null, null);
         });
         m.setFont(PrefMgr.getStandoutMenuFont());
         m.setForeground(envOpColour);
@@ -361,7 +350,7 @@ public class WorldHandlerDelegateIDE
     public void mouseMoved(MouseEvent e)
     {
         // While dragging, other methods set the mouse cursor instead:
-        if (false == worldHandler.isDragging()) {
+        if (!worldHandler.isDragging()) {
             Actor actor = worldHandler.getObject(e.getX(), e.getY());
             if (actor == null) {
                 worldHandler.getWorldCanvas().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -414,8 +403,7 @@ public class WorldHandlerDelegateIDE
                     cls = wclass;
                     break;
                 }
-                catch (LinkageError le) { }
-                catch (NoSuchMethodException nsme) { }
+                catch (LinkageError | NoSuchMethodException e) { }
             }
             if (cls == null) {
                 // Couldn't find a world with a suitable constructor
@@ -430,56 +418,51 @@ public class WorldHandlerDelegateIDE
         }
 
         frame.updateBackgroundMessage();
-        frame.beginExecution();;
+        frame.beginExecution();
 
         final Class<? extends World> icls = cls;
-        Simulation.getInstance().runLater(new Runnable() {
-
-            @Override
-            public void run()
-            {
-                try {
-                    Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
-                    WorldHandler.getInstance().clearWorldSet();
-                    World newWorld = (World) Simulation.newInstance(cons);
-                    if (! WorldHandler.getInstance().checkWorldSet()) {
-                        ImageCache.getInstance().clearImageCache();
-                        WorldHandler.getInstance().setWorld(newWorld);
-                    }
-                    saveWorldAction.setRecordingValid(true);
-                    project.setLastWorldClassName(icls.getName());
+        Simulation.getInstance().runLater(() -> {
+            try {
+                Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
+                WorldHandler.getInstance().clearWorldSet();
+                World newWorld = (World) Simulation.newInstance(cons);
+                if (! WorldHandler.getInstance().checkWorldSet()) {
+                    ImageCache.getInstance().clearImageCache();
+                    WorldHandler.getInstance().setWorld(newWorld);
                 }
-                catch (LinkageError e) { }
-                catch (NoSuchMethodException | IllegalAccessException nsme) {
-                    EventQueue.invokeLater(() -> {
-                        missingConstructor = true;                        
-                    });
-                }
-                catch (InstantiationException e) {
-                    // abstract class; shouldn't happen
-                }
-                catch (InvocationTargetException ite) {
-                    // This can happen if a static initializer block throws a Throwable.
-                    // Or for other reasons.
-                    ite.getCause().printStackTrace();
-                    EventQueue.invokeLater(() -> {
-                        worldInvocationError = true;
-                        frame.updateBackgroundMessage();
-                    });
-                }
-                catch (Exception e) {
-                    System.err.println("Exception during World initialisation:");
-                    e.printStackTrace();
-                    EventQueue.invokeLater(() -> {
-                        worldInvocationError = true;
-                        frame.updateBackgroundMessage();
-                    });
-                }
+                saveWorldAction.setRecordingValid(true);
+                project.setLastWorldClassName(icls.getName());
+            }
+            catch (LinkageError e) { }
+            catch (NoSuchMethodException | IllegalAccessException nsme) {
                 EventQueue.invokeLater(() -> {
-                    worldInitialising = false;
-                    frame.endExecution();
+                    missingConstructor = true;
                 });
             }
+            catch (InstantiationException e) {
+                // abstract class; shouldn't happen
+            }
+            catch (InvocationTargetException ite) {
+                // This can happen if a static initializer block throws a Throwable.
+                // Or for other reasons.
+                ite.getCause().printStackTrace();
+                EventQueue.invokeLater(() -> {
+                    worldInvocationError = true;
+                    frame.updateBackgroundMessage();
+                });
+            }
+            catch (Exception e) {
+                System.err.println("Exception during World initialisation:");
+                e.printStackTrace();
+                EventQueue.invokeLater(() -> {
+                    worldInvocationError = true;
+                    frame.updateBackgroundMessage();
+                });
+            }
+            EventQueue.invokeLater(() -> {
+                worldInitialising = false;
+                frame.endExecution();
+            });
         });
     }
 
@@ -690,12 +673,10 @@ public class WorldHandlerDelegateIDE
     @Override
     public String ask(final String prompt)
     {
-        final AtomicReference<Callable<String>> c = new AtomicReference<Callable<String>>();
+        final AtomicReference<Callable<String>> c = new AtomicReference<>();
         try
         {
-            EventQueue.invokeAndWait(new Runnable() {public void run() {
-                c.set(frame.ask(prompt));
-            }});
+            EventQueue.invokeAndWait(() -> c.set(frame.ask(prompt)));
         }
         catch (InvocationTargetException e)
         {
