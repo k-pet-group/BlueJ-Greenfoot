@@ -222,10 +222,11 @@
     -fx-background-color: codepad;
 }
 .codepad-row:bj-codepad-error {
-    -fx-text-fill: red;
+    -fx-text-fill: hsb(355, 95%, 50%);
+
 }
 .codepad-row:bj-codepad-output {
-    -fx-text-fill: green;
+    -fx-text-fill: hsb(110, 95%, 45%);
 }
 .codepad-row:bj-codepad-error:even, .codepad-row:bj-codepad-error:odd,
 .codepad-row:bj-codepad-output:even, .codepad-row:bj-codepad-output:odd {
