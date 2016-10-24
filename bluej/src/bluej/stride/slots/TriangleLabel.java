@@ -23,13 +23,7 @@ package bluej.stride.slots;
 
 import java.util.List;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
@@ -45,10 +39,8 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
@@ -67,7 +59,7 @@ public class TriangleLabel extends HBox implements HeaderItem
     private final SimpleBooleanProperty expanded;
     private final Canvas canvas = new Canvas(8, 10);
     
-    private final SimpleStyleableObjectProperty<Color> cssColorProperty = new SimpleStyleableObjectProperty<Color>(COLOR_META_DATA);
+    private final SimpleStyleableObjectProperty<Color> cssColorProperty = new SimpleStyleableObjectProperty<>(COLOR_META_DATA);
     public final SimpleStyleableObjectProperty<Color> cssColorProperty() { return cssColorProperty; }
     
     private static final CssMetaData<TriangleLabel, Color> COLOR_META_DATA =
@@ -96,7 +88,7 @@ public class TriangleLabel extends HBox implements HeaderItem
         getChildren().add(this.canvas);
         setAlignment(Pos.BASELINE_LEFT);
         setFillHeight(false);
-        
+
         addEventFilter(MouseEvent.MOUSE_CLICKED, e -> { expanded.set(!expanded.get()); e.consume(); });
         JavaFXUtil.addChangeListener(expanded, new FXConsumer<Boolean>() {
             private SharedTransition transition = null;
