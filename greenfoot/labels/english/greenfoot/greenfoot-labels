@@ -62,8 +62,8 @@ stride.new.project=New Stride Scenario...
 java.new.project=New Java Scenario...
 open.project=Open...
 open.recentProject=Open recent
-remove.class=Remove
-remove.selected=Remove Class
+remove.class=Delete
+remove.selected=Delete Class
 convert.to.java.class=Convert to Java
 convert.to.java.selected=Convert class to Java
 inspect.class=Inspect
@@ -79,8 +79,8 @@ show.apidoc=Open Documentation
 save.world=Save the World
 
 # Remove class confirmation
-remove.confirm.title=Confirm removal of class
-remove.confirm.text1=About to remove class
+remove.confirm.title=Confirm deleting of class
+remove.confirm.text1=About to delete class
 remove.confirm.text2=Continue?
 
 # Convert to Java class confirmation
@@ -109,7 +109,7 @@ export.publish.complete=Publish complete
 export.publish.proxyAuth=Proxy Authentication
 export.publish.needProxyAuth=Proxy authentication is required.
 export.app.help=Create an executable jar file that can be run on its own.
-export.app.location=Save to: 
+export.app.location=Save to:
 export.app.browse=Browse
 export.app.choose=Save executable jar file
 export.project.help=Create a standalone project gfar file.
@@ -148,7 +148,7 @@ export.publish.password=Password:
 export.publish.createAccount=Create account
 export.publish.includeSource=Publish source code
 export.web.help=Create a web page with an applet.
-export.web.exportLocation=Export location: 
+export.web.exportLocation=Export location:
 export.web.browse=Browse
 export.web.choose=Choose Export Directory Name
 export.icontab.publish=Publish
@@ -159,13 +159,13 @@ export.noworld.dialog.title=Error: No world class found.
 export.noworld.dialog.msg=No world class could be found in the scenario. To export, a subclass of World is required.
 export.noconstructor.dialog.title=Error: No suitable constructor
 export.noconstructor.dialog.msg=The world class has no default constructor. To export, a zero-argument constructor is required.
-export.fileExists.message=already exists. Overwrite? 
+export.fileExists.message=already exists. Overwrite?
 
-publish.event.error=Error: 
-publish.event.status=Status: 
+publish.event.error=Error:
+publish.event.status=Status:
 
 world.handlerDelegate.inspect=Inspect
-world.handlerDelegate.remove=Remove
+world.handlerDelegate.remove=Delete
 
 record.method.comment1=Prepare the world for the start of the program.
 record.method.comment2=That is: create the initial objects and add them to the world.
