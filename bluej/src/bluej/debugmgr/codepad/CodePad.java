@@ -411,6 +411,8 @@ public class CodePad extends VBox
         });
         inputField.setOnAction(e -> {
             String line = inputField.getText();
+            if (line.trim().isEmpty())
+                return; // Don't allow entry of blank lines
             command(line, true);
             inputField.setEditable(false);    // don't allow input while we're thinking
             inputField.setText("");
@@ -918,6 +920,8 @@ public class CodePad extends VBox
     private void softReturn()
     {
         String line = inputField.getText();
+        if (line.trim().isEmpty())
+            return; // Don't allow entry of blank lines
         currentCommand += line + " ";
         history.add(line);
         command(line, false);
@@ -935,6 +939,9 @@ public class CodePad extends VBox
     private void setInput(String line)
     {
         inputField.setText(line);
+        // When going back in history, seems best to put cursor at the end of the field
+        // but by default it gets put at the beginning when setting new text.:
+        inputField.end();
     }
 
     private void historyForward()
