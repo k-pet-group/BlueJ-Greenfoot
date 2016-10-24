@@ -209,7 +209,12 @@
     -fx-border-width: 1;
     -fx-border-color: -fx-box-border;
 }
+.codepad-history {
+    -fx-min-height: 50;
+    -fx-background-color: codepad;
+}
 .codepad-row {
+    -fx-text-fill: black;
     -fx-wrap-text: false;
 }
 .codepad-row:even, .codepad-row:odd {
@@ -227,11 +232,9 @@
     -fx-background-color: codepad; /* Same colour as other rows */
     -fx-graphic-text-gap: 5px;
 }
-.codepad-row:bj-codepad-edit {
-    -fx-padding: 0;
-}
 
-.codepad-row .text-field {
+
+.codepad .text-field {
     /* This is the modena.css version:
     -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
             linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
@@ -240,7 +243,7 @@
         linear-gradient(from 0px 0px to 0px 5px, derive(codepad, -9%), codepad);
     -fx-prompt-text-fill: codepad-prompt;
 }
-.codepad-row .text-field:focused {
+.codepad .text-field:focused {
     -fx-background-color: black,
         linear-gradient(from 0px 0px to 0px 5px, derive(codepad, -9%), codepad);
     -fx-prompt-text-fill: codepad-prompt;

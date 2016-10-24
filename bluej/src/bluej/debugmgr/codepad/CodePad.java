@@ -35,6 +35,7 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
@@ -43,8 +44,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -66,7 +71,6 @@ import bluej.parser.TextAnalyzer;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
@@ -88,31 +92,26 @@ import threadchecker.Tag;
  * above that with the history (styled as we like).
  */
 @OnThread(Tag.FX)
-public class CodePad extends ListView<CodePad.CodePadRow>
+public class CodePad extends VBox
     implements ValueCollection, PkgMgrFrame.PkgMgrPane
 {
+    private final ListView<HistoryRow> historyView;
+
     /**
-     * The last row in the listview, which is always in an editing
-     * state.
+     * The edit field for input
      */
-    private final EditRow editRow;
+    private final TextField inputField;
 
     /**
      * A data item which backs a single row in the code pad.
      * This might be the currently edited row (the last row), or
      * a read-only item detailing a past command or command outcome;
      */
-    public abstract static @OnThread(Tag.FX) class CodePadRow
+    private abstract static @OnThread(Tag.FX) class HistoryRow
     {
         // Text content of the row
-        protected String text = "";
-        // Crude way of making sure all lines are spaced the same as ones with an object image;
-        // use an invisible rectangle as a spacer:
-        protected Rectangle r = new Rectangle(objectImage.getWidth(), objectImage.getHeight());
-        {
-            r.setVisible(false);
-        }
-        
+        private final String text;
+
         // Different styles used for the rows
         @OnThread(Tag.Any)
         public static enum RowStyle
@@ -120,37 +119,64 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             COMMAND_PARTIAL("bj-codepad-cmd-partial"),
             COMMAND_END("bj-codepad-cmd-end"),
             ERROR("bj-codepad-error"),
-            OUTPUT("bj-codepad-output"),
-            EDIT("bj-codepad-edit");
-            
+            OUTPUT("bj-codepad-output");
+
             private final String pseudo;
-            public String getPseudoClass() { return pseudo;}
-            private RowStyle(String pseudo) { this.pseudo = pseudo; }
+
+            public String getPseudoClass()
+            {
+                return pseudo;
+            }
+
+            private RowStyle(String pseudo)
+            {
+                this.pseudo = pseudo;
+            }
         }
-        
-        /**
-         * Gets the text which is showing for the row.
-         * Note that EditRow overrides this to use the text from
-         * the textfield, so there is a difference between row.text and row.getText()
-         */
-        public String getText() { return text; }
-        /** Is the row editable?  Only true for the single edit row. */
-        public boolean isEditable() { return false; }
-        /** Gets the graphic to display alongside the row */
-        public Node getGraphic() { return r; }
-        /** Records the text field for the row (only used for EditRow) */
-        public void setTextField(TextField textField) { }
+
+        public HistoryRow(String text)
+        {
+            this.text = text;
+        }
+
+        public final String getText() { return text; }
+
+        @Override
+        public String toString()
+        {
+            return getText();
+        }
+
+        public abstract Node getGraphic();
         /** Gets the graphical style that should be used for displaying this row. */
         public abstract RowStyle getStyle();
+    }
+
+    public static abstract class IndentedRow extends HistoryRow
+    {
+        // Crude way of making sure all lines are spaced the same as ones with an object image;
+        // use an invisible rectangle as a spacer:
+        protected Rectangle r;
+
+        public IndentedRow(String text)
+        {
+            super(text);
+            r  = new Rectangle(objectImage.getWidth(), objectImage.getHeight());
+            r.setVisible(false);
+        }
+
+        /** Gets the graphic to display alongside the row */
+        @Override
+        public Node getGraphic() { return r; }
     }
 
     // Handy array with all the different row pseudo-class styles.
     private static final String[] allRowStyles;
     static {
-        allRowStyles = new String[CodePadRow.RowStyle.values().length];
-        for (int i = 0; i < CodePadRow.RowStyle.values().length; i++)
+        allRowStyles = new String[HistoryRow.RowStyle.values().length];
+        for (int i = 0; i < HistoryRow.RowStyle.values().length; i++)
         {
-            allRowStyles[i] = CodePadRow.RowStyle.values()[i].getPseudoClass();
+            allRowStyles[i] = HistoryRow.RowStyle.values()[i].getPseudoClass();
         }
     }
 
@@ -161,12 +187,13 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      * of commands, but currently don't use it differently in the CSS file.
      */
     @OnThread(Tag.FX)
-    private static class CommandRow extends CodePadRow
+    private static class CommandRow extends HistoryRow
     {
         private final boolean isFinalLine;
         public CommandRow(String text, boolean isFinalLine)
         {
-            this.text = text; this.isFinalLine = isFinalLine;
+            super(text);
+            this.isFinalLine = isFinalLine;
         }
 
         // No indent spacer on command rows in our current style:
@@ -184,74 +211,17 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     }
 
     /**
-     * The single final editable row.
-     */
-    @OnThread(Tag.FX)
-    private class EditRow extends CodePadRow
-    {
-        private TextField textField;
-
-        public EditRow(String text)
-        {
-            this.text = text;
-        }
-
-        @Override
-        public String getText()
-        {
-            if (textField != null)
-                return textField.getText();
-            else
-                return super.getText();
-        }
-
-        @Override
-        public boolean isEditable()
-        {
-            return true;
-        }
-
-        @Override
-        public void setTextField(TextField textField)
-        {
-            this.textField = textField;
-            if (getItems().size() == 1)
-                textField.setPromptText(Config.getString("codepad.prompt"));
-            else
-                textField.setPromptText("");
-        }
-        
-        public void setText(String text)
-        {
-            if (this.textField != null)
-                this.textField.setText(text);
-        }
-
-        @Override
-        public RowStyle getStyle()
-        {
-            return RowStyle.EDIT;
-        }
-
-        @Override
-        public Node getGraphic()
-        {
-            return null;
-        }
-    }
-
-    /**
      * The successful output of a previous command.  It may or may not
      * have an object as an output.
      */
     @OnThread(Tag.FX)
-    private class OutputRow extends CodePadRow
+    private class OutputSuccessRow extends IndentedRow
     {
         private final ImageView graphic;
 
-        public OutputRow(String text, ObjectInfo objInfo)
+        public OutputSuccessRow(String text, ObjectInfo objInfo)
         {
-            this.text = text;
+            super(text);
             if (objInfo != null)
             {
                 graphic = new ImageView(objectImage);
@@ -312,11 +282,11 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      * A row with an error output of a previous command.
      */
     @OnThread(Tag.FX)
-    private static class ErrorRow extends CodePadRow
+    private static class ErrorRow extends IndentedRow
     {
         public ErrorRow(String text)
         {
-            this.text = text;
+            super(text);
         }
 
         @Override
@@ -370,25 +340,37 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         this.frame = frame;
         JavaFXUtil.addStyleClass(this, "codepad");
         setMinWidth(100.0);
-        setFocusTraversable(false);
+        inputField = new TextField();
+        inputField.setFocusTraversable(true);
+        inputField.setEditable(true);
+        historyView = new ListView<>();
+        historyView.setFocusTraversable(false);
+        historyView.setEditable(false);
+        JavaFXUtil.addStyleClass(historyView, "codepad-history");
+
+        getChildren().setAll(historyView, inputField);
+        VBox.setVgrow(historyView, Priority.ALWAYS);
+
         //defineKeymap();
         history = new IndexHistory(20);
 
-        getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        historyView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         
         // Add context menu with copy:
-        setContextMenu(new ContextMenu(JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"), () -> {
+        historyView.setContextMenu(new ContextMenu(JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"), () -> {
             copySelectedRows();
         }, null)));
         
         // Add keyboard shortcut ourselves:
-        addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+        historyView.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.C && e.isShortcutDown())
             {
                 copySelectedRows();
                 e.consume();
             }
-            else if (e.getCode() == KeyCode.UP)
+        });
+        inputField.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.UP)
             {
                 historyBack();
                 e.consume();
@@ -404,105 +386,50 @@ public class CodePad extends ListView<CodePad.CodePadRow>
                 e.consume();
             }
         });
-        
-        StringConverter<CodePadRow> converter = new StringConverter<CodePadRow>()
-        {
-            @Override
-            @OnThread(Tag.FX)
-            public String toString(CodePadRow object)
+        inputField.setOnAction(e -> {
+            String line = inputField.getText();
+            command(line, true);
+            inputField.setEditable(false);    // don't allow input while we're thinking
+            inputField.setText("");
+            currentCommand = (currentCommand + line).trim();
+            if(currentCommand.length() != 0)
             {
-                return object == null ? "" : object.text;
+                history.add(line);
+                String cmd = currentCommand;
+                currentCommand = "";
+                SwingUtilities.invokeLater(() -> executeCommand(cmd));
             }
+        });
 
-            @Override
-            @OnThread(Tag.FX)
-            public CodePadRow fromString(String string)
-            {
-                // This is only called on commitEdit, in which case it must be an edit row:
-                editRow.text = string;
-                return editRow;
-            }
-        };
-        setCellFactory(lv -> new TextFieldListCellWithGraphic<CodePadRow>(converter) {
+        historyView.setCellFactory(lv -> new ListCell<HistoryRow>() {
             {
                 JavaFXUtil.addStyleClass(this, "codepad-row");
             }
-            @Override
-            @OnThread(Tag.FX)
-            public void commitEdit(CodePadRow newValue)
-            {
-                String text = newValue.getText();
-                ((EditRow)newValue).text = "";
-                super.commitEdit(newValue);
-                setEditable(false);    // don't allow input while we're thinking
-                command(text, true);
-                currentCommand = (currentCommand + text).trim();
-                if(currentCommand.length() != 0)
-                {
-                    history.add(text);
-                    String cmd = currentCommand;
-                    currentCommand = "";
-                    SwingUtilities.invokeLater(() -> executeCommand(cmd));
-                }
-            }
 
             @Override
             @OnThread(Tag.FX)
-            public void updateItem(CodePadRow item, boolean empty)
+            public void updateItem(HistoryRow item, boolean empty)
             {
-                // Must set it before calling super method:
-                tagGraphic = item != null ? item.getGraphic() : null;
                 super.updateItem(item, empty);
                 if (!empty && item != null)
                 {
-                    setEditable(item.isEditable());
-
-                    if (isEditable())
-                    {
-                        // Must startEdit first, as that may be what initialises
-                        // textField (if we haven't edited this cell before):
-                        super.startEdit();
-                        item.setTextField(textField);
-                    }
-                    else
-                    {
-                        super.cancelEdit();
-                    }
+                    setGraphic(item.getGraphic());
+                    setText(item.getText());
                     JavaFXUtil.selectPseudoClass(this, Arrays.asList(allRowStyles).indexOf(item.getStyle().getPseudoClass()), allRowStyles);
                 }
                 else
                 {
-                    setEditable(false);
-                    super.cancelEdit();
+                    setGraphic(null);
+                    setText("");
                     JavaFXUtil.selectPseudoClass(this, -1, allRowStyles);
                 }
             }
-
-            @Override
-            @OnThread(Tag.FX)
-            public void cancelEdit()
-            {
-            }
-
-            @Override
-            @OnThread(Tag.FX)
-            public void startEdit()
-            {
-            }
         });
-
-        editRow = new EditRow("");
-        getItems().addListener((ListChangeListener<? super CodePadRow>) c -> {
-            // Whenever a new item is added, make sure the edit row is kept in view:
-            scrollTo(editRow);
-        });
-        getItems().add(editRow);
-        setEditable(true);
     }
 
     private void copySelectedRows()
     {
-        String copied = getSelectionModel().getSelectedItems().stream().map(CodePadRow::getText).collect(Collectors.joining("\n"));
+        String copied = historyView.getSelectionModel().getSelectedItems().stream().map(HistoryRow::getText).collect(Collectors.joining("\n"));
         Clipboard.getSystemClipboard().setContent(Collections.singletonMap(DataFormat.PLAIN_TEXT, copied));
     }
 
@@ -683,7 +610,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
             textParser.confirmCommand();
-            Platform.runLater(() -> setEditable(true));    // allow next input
+            Platform.runLater(() -> inputField.setEditable(true));    // allow next input
             busy = false;
         }
 
@@ -841,7 +768,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
     @OnThread(Tag.Swing)
     private void completeExecution()
     {
-        Platform.runLater(() -> setEditable(true));
+        Platform.runLater(() -> inputField.setEditable(true));
         busy = false;
     }
 
@@ -851,7 +778,13 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      */
     private void command(String s, boolean isFinalLine)
     {
-        getItems().add(getItems().size() - 1, new CommandRow(s, isFinalLine));
+        addRow(new CommandRow(s, isFinalLine));
+    }
+
+    private void addRow(HistoryRow row)
+    {
+        historyView.getItems().add(row);
+        historyView.scrollTo(historyView.getItems().size() - 1);
     }
 
     /**
@@ -860,7 +793,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      */
     private void output(String s)
     {
-        getItems().add(getItems().size() - 1, new OutputRow(s, null));
+        addRow(new OutputSuccessRow(s, null));
     }
     
     /**
@@ -869,8 +802,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      */
     private void objectOutput(String s, ObjectInfo objInfo)
     {
-        getItems().add(getItems().size() - 1, new OutputRow(s, objInfo));
-//        markAs(TextEvalSyntaxView.OBJECT, objInfo);
+        addRow(new OutputSuccessRow(s, objInfo));
     }
     
     /**
@@ -879,18 +811,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
      */
     private void error(String s)
     {
-        getItems().add(getItems().size() - 1, new ErrorRow(s));
-    }
-
-    /**
-     * Return the object stored with the line at position 'pos'.
-     * If that line does not have an object, return null.
-     */
-    private ObjectInfo objectAtPosition(int pos)
-    {
-        //Element line = getLineAt(pos);
-        //return (ObjectInfo) line.getAttributes().getAttribute(TextEvalSyntaxView.OBJECT);
-        return null;
+        addRow(new ErrorRow(s));
     }
 
     public void clear()
@@ -973,11 +894,11 @@ public class CodePad extends ListView<CodePad.CodePadRow>
 
     private void softReturn()
     {
-        String line = editRow.getText();
+        String line = inputField.getText();
         currentCommand += line + " ";
         history.add(line);
         command(line, false);
-        editRow.setText("");
+        inputField.setText("");
     }
 
     private void historyBack()
@@ -990,7 +911,7 @@ public class CodePad extends ListView<CodePad.CodePadRow>
 
     private void setInput(String line)
     {
-        editRow.setText(line);
+        inputField.setText(line);
     }
 
     private void historyForward()
@@ -1001,12 +922,9 @@ public class CodePad extends ListView<CodePad.CodePadRow>
         }
     }
 
-    public void focusEditRow()
+    public void focusInputField()
     {
-        int index = getItems().size() - 1;
-        scrollTo(index);
-        getFocusModel().focus(index);
-        editRow.textField.requestFocus();
+        inputField.requestFocus();
     }
 
     @OnThread(Tag.Any)

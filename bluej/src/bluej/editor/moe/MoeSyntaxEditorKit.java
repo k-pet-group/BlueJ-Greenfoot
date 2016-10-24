@@ -39,22 +39,16 @@ import bluej.parser.entity.EntityResolver;
 public class MoeSyntaxEditorKit extends DefaultEditorKit
         implements ViewFactory
 {
-    private boolean isTextEval;
     private EntityResolver projectResolver;
     private MoeDocumentListener documentListener;
     private MoeErrorManager errorMgr;
 
     /**
-     * Create a moe editor kit. There are two modes in which this can operate:
-     * as an editor kit for the standard editor (textEval == false) or as an
-     * editor kit for the text evaluation area (textEval == true).
-     * 
-     * @param textEval  Indicate whether to operate for the text eval area
+     * Create a moe editor kit for the standard editor.
      */
-    public MoeSyntaxEditorKit(boolean textEval, EntityResolver projectResolver)
+    public MoeSyntaxEditorKit(EntityResolver projectResolver)
     {
         super();
-        isTextEval = textEval;
         this.projectResolver = projectResolver;
     }
     
@@ -65,7 +59,6 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
     public MoeSyntaxEditorKit(EntityResolver projectResolver, MoeDocumentListener documentListener, MoeErrorManager errorMgr)
     {
         super();
-        isTextEval = false;
         this.projectResolver = projectResolver;
         this.documentListener = documentListener;
         this.errorMgr = errorMgr;
@@ -92,12 +85,7 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      */
     public View create(Element elem)
     {
-        if(isTextEval) {
-            return new bluej.debugmgr.codepad.TextEvalSyntaxView(elem);
-        }
-        else {
-            return new MoeSyntaxView(elem, errorMgr);
-        }
+        return new MoeSyntaxView(elem, errorMgr);
     }
 
     /**

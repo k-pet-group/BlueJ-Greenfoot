@@ -3592,7 +3592,7 @@ public class PkgMgrFrame
         {
             if (!codePad.isDisabled())
             {
-                codePad.focusEditRow();
+                codePad.focusInputField();
                 return true;
             }
         }
