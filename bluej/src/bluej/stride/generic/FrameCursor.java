@@ -48,8 +48,6 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -70,7 +68,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import bluej.editor.stride.FrameEditorTab;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.CodeFrame;
@@ -388,17 +385,15 @@ public class FrameCursor implements RecallableFocus
         });
         
         JavaFXUtil.listenForContextMenu(node, this::showContextMenu);
-        getNode().focusedProperty().addListener(new ChangeListener<Boolean>(){
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, final Boolean nowFocused) {
+        getNode().focusedProperty().addListener((observable, oldValue, nowFocused) -> {
+        {
+            if (!nowFocused)
             {
-                if (!nowFocused.booleanValue())
-                {
-                    //Resets error count for this cursor point, so it doesn't remember errors from previous edits
-                    consecutiveErrors = 0;
-                }
+                //Resets error count for this cursor point, so it doesn't remember errors from previous edits
+                consecutiveErrors = 0;
             }
-        }});
+        }
+    });
 
 
 
@@ -803,7 +798,7 @@ public class FrameCursor implements RecallableFocus
 
     private List<MenuItem> getAcceptedFramesMenuItems()
     {
-        List<MenuItem> items = new ArrayList<MenuItem>();
+        List<MenuItem> items = new ArrayList<>();
         List<Entry<StrideCategory>> entries = StrideDictionary.getDictionary().getAllBlocks();
         for (Entry<StrideCategory> entry : entries) {
             if ( check().canInsert(entry.getCategory()) ) {
