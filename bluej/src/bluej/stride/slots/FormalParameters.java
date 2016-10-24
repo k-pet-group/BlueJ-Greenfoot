@@ -66,7 +66,8 @@ public class FormalParameters
     private boolean normalView = true;
     private FXRunnable updateSlots;
 
-    public FormalParameters(InteractionManager editor, Frame parentFrame, CodeFrame<? extends CodeElement> codeParentFrame, FrameContentRow row, String stylePrefix)
+    public FormalParameters(InteractionManager editor, Frame parentFrame, CodeFrame<? extends CodeElement> codeParentFrame,
+                            FrameContentRow row, String stylePrefix)
     {
         this.editor = editor;
         this.parentFrame = parentFrame;
@@ -337,7 +338,7 @@ public class FormalParameters
 
 
     /**
-     * Here's the outcome of a brief design decision discussion.  Given params:
+     * Here's the outcome of an updated design decision discussion.  Given params:
      *
      * void foo(int a, String b)
      *
@@ -353,7 +354,7 @@ public class FormalParameters
      * 3 [start of name of any param]:
      *   Move cursor left to end of type name, don't delete anything
      * 5 [start of type of non-first param]:
-     *   If parameter we are in is totally blank, delete our current one and move left.
+     *   If current parameter is totally blank, delete it and move left.
      *   Otherwise, delete parameter beforehand.
      *   (Note: if both are blank, it doesn't matter which we delete)
      */
@@ -362,18 +363,18 @@ public class FormalParameters
         FormalParameter formal = findFormal(slot);
         if (formal.getType() == slot)
         {
-            // Backspace at beginning of type.
+            // (1, 5) Backspace at beginning of type.
             int index = params.indexOf(formal);
-            // Delete prev slot, if we are not the first:
+            // Are we first?
             if (index == 0)
             {
-                // We are first parameter, just move left from us into method name:
+                // (1) We are first parameter, just move left from us into method name:
                 row.focusLeft(formal.getType());
                 return true;
             }
             else
             {
-                // We are not first.  Are we blank?
+                // (5) We are not first.  Are we blank?
                 if (formal.getName().isAlmostBlank() && formal.getType().isAlmostBlank())
                 {
                     // We are; delete us and focus the right hand end of parameter before us:
@@ -390,7 +391,7 @@ public class FormalParameters
         }
         else
         {
-            // Backspace at beginning of name.
+            // (3) Backspace at beginning of name.
             // Just move left, to end of type slot:
             formal.getType().requestFocus(Focus.RIGHT);
             return true;
@@ -399,7 +400,7 @@ public class FormalParameters
     }
 
     /**
-     * Here's the outcome of a brief design decision discussion.  Given params:
+     * Here's the outcome of an updated design decision discussion.  Given params:
      *
      * void foo(int a, String b)
      *
@@ -415,7 +416,9 @@ public class FormalParameters
      * 2 [end of type of any param]:
      *   Do nothing
      * 4 [end of name of non-last param]:
-     *   Delete parameter to the right
+     *   If the current parameter is empty, delete it.
+     *   Otherwise, delete the parameter to the right.
+     *   (Note: if both are blank, it doesn't matter which we delete)
      * 6 [end of name of last param]:
      *   Do nothing
      */
@@ -424,16 +427,31 @@ public class FormalParameters
         FormalParameter formal = findFormal(slot);
         if (formal.getType() == slot)
         {
-            // End of type, do nothing
+            // (2) End of type, do nothing
         }
         else
         {
-            // End of name.  Are we last?
+            // (4 or 6) Delete at the end of name.
             int index = params.indexOf(formal);
-            // If we're not the last parameter, delete the one after us:
-            if (index < params.size() - 1)
+            // Are we last?
+            if (index == params.size() - 1)
             {
-                deleteFormal(params.get(index+1));
+                // (6) we are last do nothing
+            }
+            else
+            {
+                // (4) We're not the last parameter. Are we blank?
+                if (formal.getName().isAlmostBlank() && formal.getType().isAlmostBlank())
+                {
+                    // We are; delete us and focus the left hand end of parameter after us:
+                    deleteFormal(formal);
+                    params.get(index + 1).getType().requestFocus(Focus.LEFT);
+                    return true;
+                }
+                else {
+                    // We're not blank; delete the one after us:
+                    deleteFormal(params.get(index + 1));
+                }
             }
         }
         return false;
@@ -441,14 +459,6 @@ public class FormalParameters
     
     private void deleteFormal(FormalParameter param)
     {
-        //if (index > 0) {
-            // TODO 
-            //SLOT prevSlot = slots.get(index - 1);
-            // Copy remaining content into previous slot:
-            //mergeTwoSlotsContents(slot, prevSlot);
-            //prevSlot.requestFocus(Focus.RIGHT);
-        //}
-
         // Remove the formal:
         param.cleanup();
         params.remove(param);
