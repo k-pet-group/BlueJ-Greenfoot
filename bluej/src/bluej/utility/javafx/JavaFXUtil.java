@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import bluej.editor.stride.CodeOverlayPane.WidthLimit;
@@ -103,6 +104,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -629,6 +631,29 @@ public class JavaFXUtil
         
         scrollPane.setHvalue(b.getMinX() / scrollWidth);
         scrollPane.setVvalue(b.getMinY() / scrollHeight);
+    }
+
+    /**
+     * Runs some FX initialisation on any thread.
+     *
+     * We probably need to revisit the threading model.  Nowadays, FXPlatform means actually
+     * on the FX Platform thread, and FX means messing with FX, but this can happen in a background
+     * thread to support faster loading, as long as you don't add it to the scene.  But really,
+     * this means Tag.FX code should be executable on the Swing event thread, because
+     * there's no problem if you're just loading.  But if we let Tag.Swing call Tag.FX
+     * then we're going to mask all sorts of problems in existing code at the moment.
+     * So I've made this method for now, which lets you initialise FX items on
+     * the Swing thread, but at least makes it explicit that you're meaning to do it.
+     *
+     * @param initCode
+     * @param <T>
+     * @return
+     */
+    @OnThread(Tag.Any)
+    public static <T> T initFX(FXSupplier<T> initCode)
+    {
+        // Defeat thread checker:
+        return ((Supplier<T>)initCode::get).get();
     }
 
     /**

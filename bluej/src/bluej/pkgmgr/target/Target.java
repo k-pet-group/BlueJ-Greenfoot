@@ -103,7 +103,7 @@ public abstract class Target
 
     // The graphical item in the class diagram
     @OnThread(Tag.FXPlatform)
-    protected BorderPane pane;
+    protected BorderPane pane = JavaFXUtil.initFX(BorderPane::new);
     // Is the target directly resizable?  Readmes and test classes are not.
     @OnThread(Tag.FX)
     private boolean resizable = true;
@@ -115,7 +115,6 @@ public abstract class Target
     public Target(Package pkg, String identifierName)
     {
         Platform.runLater(() -> {
-            pane = new BorderPane();
             pane.setPrefWidth(calculateWidth(identifierName));
             pane.setPrefHeight(DEF_HEIGHT);
             // We set this here rather than via CSS because we vary it dynamically:

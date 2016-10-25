@@ -162,6 +162,7 @@ public class CodePad extends VBox
         public abstract RowStyle getStyle();
     }
 
+    @OnThread(Tag.FX)
     public static abstract class IndentedRow extends HistoryRow
     {
         // Crude way of making sure all lines are spaced the same as ones with an object image;
@@ -363,6 +364,7 @@ public class CodePad extends VBox
         historyView.getItems().addListener(new ListChangeListener<HistoryRow>()
         {
             @Override
+            @OnThread(Tag.FX)
             public void onChanged(Change<? extends HistoryRow> c)
             {
                 // When the codepad history is not at the very bottom, add a shadow to indicate
@@ -385,7 +387,7 @@ public class CodePad extends VBox
         history = new IndexHistory(20);
 
         historyView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        
+
         // Add context menu with copy:
         historyView.setContextMenu(new ContextMenu(
             JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"), () -> copySelectedRows(), null),
