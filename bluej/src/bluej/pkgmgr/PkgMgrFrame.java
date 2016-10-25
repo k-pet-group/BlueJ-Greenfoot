@@ -338,6 +338,8 @@ public class PkgMgrFrame
     private SplitPane bottomPane;
     @OnThread(Tag.FX)
     private double bottomPaneLastDividerPos = 0.6; // default split
+    @OnThread(Tag.FX)
+    private Pane bottomOverlay;
     // A dummy SwingNode to enable us to get the AWT frame ancestor which underpins
     // the JavaFX window, mainly for the extensions
     @OnThread(Tag.Any)
@@ -444,6 +446,8 @@ public class PkgMgrFrame
                 JavaFXUtil.runAfterCurrent(addScrollBarListener);
 
 
+                bottomOverlay = new Pane();
+                bottomOverlay.setMouseTransparent(true);
                 bottomPane = new SplitPane(new StackPane(objbench, triangleLabel));
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
                 SplitPane.setResizableWithParent(bottomPane, false);
@@ -462,7 +466,7 @@ public class PkgMgrFrame
                     }
                 });
 
-                topBottomSplit = new SplitPane(new StackPane(topPane, topOverlay), bottomPane);
+                topBottomSplit = new SplitPane(new StackPane(topPane, topOverlay), new StackPane(bottomPane, bottomOverlay));
                 JavaFXUtil.addStyleClass(topBottomSplit, "top-bottom-split");
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
                 // We add a mouse handler so that if you drag at the intersection of the split
@@ -2811,7 +2815,7 @@ public class PkgMgrFrame
         {
             if (codePad == null)
             {
-                codePad = new CodePad(this);
+                codePad = new CodePad(this, bottomOverlay);
                 addCtrlTabShortcut(codePad);
                 CodePad cpFinal = codePad;
                 itemsToDisable.add(cpFinal);

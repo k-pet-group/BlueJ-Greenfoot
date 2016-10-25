@@ -23,7 +23,6 @@
 package bluej.debugmgr.codepad;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +33,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -52,13 +52,16 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.QuadCurveTo;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -110,6 +113,11 @@ public class CodePad extends VBox
      * The edit field for input
      */
     private final TextField inputField;
+    /**
+     * The pane on which to draw the arrows indicating what happens
+     * to clicked objects.
+     */
+    private final Pane arrowOverlay;
     private BooleanBinding shadowShowing;
 
     /**
@@ -229,6 +237,7 @@ public class CodePad extends VBox
     private class OutputSuccessRow extends IndentedRow
     {
         private final ImageView graphic;
+        private Path arrow;
 
         public OutputSuccessRow(String text, ObjectInfo objInfo)
         {
@@ -252,7 +261,8 @@ public class CodePad extends VBox
                         graphic.setMouseTransparent(false);
                 });
                 graphic.setCursor(Cursor.HAND);
-                graphic.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                // Use pressed so if they try a drag, it still works:
+                graphic.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
                     // Don't really care about click count; double click can do it too, that's fine.
                     if (e.getButton() == MouseButton.PRIMARY)
                     {
@@ -265,9 +275,28 @@ public class CodePad extends VBox
                 });
                 graphic.setOnMouseEntered(e -> {
                     graphic.setImage(objectImageHighlight);
+                    if (arrow == null)
+                    {
+                        arrow = new Path();
+                        JavaFXUtil.addStyleClass(arrow, "codepad-add-object-arrow");
+                        double centreAngle = 35.0;
+                        arrow.getElements().addAll(
+                                new MoveTo(40.0, 10.0),
+                                new QuadCurveTo(25.0, -10.0, 0.0, 10.0), //new LineTo(0.0, 10.0),
+                                new LineTo(0 + Math.cos(Math.toRadians(centreAngle + 45.0))*10.0, 10.0 - Math.sin(Math.toRadians(centreAngle + 45.0))*10.0),
+                                new MoveTo(0.0, 10.0),
+                                new LineTo(0 + Math.cos(Math.toRadians(centreAngle - 45.0))*10.0, 10.0 - Math.sin(Math.toRadians(centreAngle - 45.0))*10.0)
+                        );
+                        Bounds b = arrowOverlay.sceneToLocal(graphic.localToScene(graphic.getBoundsInLocal()));
+                        arrow.setLayoutX(b.getMinX() - 40.0);
+                        arrow.setLayoutY(b.getMinY() - 10.0 + b.getHeight()*0.5);
+                    }
+                    arrowOverlay.getChildren().add(arrow);
+
                 });
                 graphic.setOnMouseExited(e -> {
                     graphic.setImage(objectImage);
+                    arrowOverlay.getChildren().remove(arrow);
                 });
             }
             else
@@ -346,9 +375,10 @@ public class CodePad extends VBox
     // The action which removes the hover state on the object icon
     private Runnable removeHover;
 
-    public CodePad(PkgMgrFrame frame)
+    public CodePad(PkgMgrFrame frame, Pane arrowOverlay)
     {
         this.frame = frame;
+        this.arrowOverlay = arrowOverlay;
         JavaFXUtil.addStyleClass(this, "codepad");
         setMinWidth(100.0);
         inputField = new TextField();

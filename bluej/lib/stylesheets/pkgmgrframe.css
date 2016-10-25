@@ -250,3 +250,10 @@
         linear-gradient(from 0px 0px to 0px 5px, derive(codepad, -4%), derive(codepad, 15%));
     -fx-prompt-text-fill: codepad-prompt;
 }
+
+.codepad-add-object-arrow {
+    -fx-stroke: rgb(80, 80, 80);
+    -fx-stroke-width: 2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
