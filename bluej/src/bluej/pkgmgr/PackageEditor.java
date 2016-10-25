@@ -267,6 +267,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      * @param ir   The invoker record for the invocation used to create this object
      * @param animateFromScenePoint
      */
+    @OnThread(Tag.Swing)
     public void raisePutOnBenchEvent(Window src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir, Optional<Point2D> animateFromScenePoint)
     {
         fireTargetEvent(
