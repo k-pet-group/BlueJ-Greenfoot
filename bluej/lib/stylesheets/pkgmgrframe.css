@@ -252,7 +252,7 @@
 }
 
 .codepad-add-object-arrow {
-    -fx-stroke: rgb(80, 80, 80);
+    -fx-stroke: rgb(50, 50, 50);
     -fx-stroke-width: 2;
     -fx-stroke-line-cap: round;
     -fx-stroke-line-join: round;

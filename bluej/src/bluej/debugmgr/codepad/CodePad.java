@@ -42,6 +42,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
@@ -256,7 +257,7 @@ public class CodePad extends VBox
                 // true by that code.  To ward this off, we add a listener that always
                 // sets it back to false whenever it has been turned true:
                 JavaFXUtil.addChangeListener(graphic.mouseTransparentProperty(), b -> {
-                    // Won't infinitely recurse, only change back to true once:
+                    // Won't infinitely recurse, we always change back to false:
                     if (b.booleanValue())
                         graphic.setMouseTransparent(false);
                 });
@@ -275,6 +276,7 @@ public class CodePad extends VBox
                 });
                 graphic.setOnMouseEntered(e -> {
                     graphic.setImage(objectImageHighlight);
+                    graphic.setEffect(new ColorAdjust(0.0, -0.2, 0.45, 0.0));
                     if (arrow == null)
                     {
                         arrow = new Path();
@@ -287,15 +289,16 @@ public class CodePad extends VBox
                                 new MoveTo(0.0, 10.0),
                                 new LineTo(0 + Math.cos(Math.toRadians(centreAngle - 45.0))*10.0, 10.0 - Math.sin(Math.toRadians(centreAngle - 45.0))*10.0)
                         );
-                        Bounds b = arrowOverlay.sceneToLocal(graphic.localToScene(graphic.getBoundsInLocal()));
-                        arrow.setLayoutX(b.getMinX() - 40.0);
-                        arrow.setLayoutY(b.getMinY() - 10.0 + b.getHeight()*0.5);
                     }
+                    Bounds b = arrowOverlay.sceneToLocal(graphic.localToScene(graphic.getBoundsInLocal()));
+                    arrow.setLayoutX(b.getMinX() - 40.0);
+                    arrow.setLayoutY(b.getMinY() - 10.0 + b.getHeight()*0.5);
                     arrowOverlay.getChildren().add(arrow);
 
                 });
                 graphic.setOnMouseExited(e -> {
                     graphic.setImage(objectImage);
+                    graphic.setEffect(null);
                     arrowOverlay.getChildren().remove(arrow);
                 });
             }
@@ -341,9 +344,9 @@ public class CodePad extends VBox
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
 
     private static final Image objectImage =
-            Config.getImageAsFXImage("image.eval.object.add");
+            Config.getImageAsFXImage("image.eval.object");
     private static final Image objectImageHighlight =
-            Config.getImageAsFXImage("image.eval.object.add.highlight");
+            Config.getImageAsFXImage("image.eval.object");
     
     private final PkgMgrFrame frame;
     @OnThread(Tag.FX)
