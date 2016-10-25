@@ -204,6 +204,15 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         importCanvas = createImportsCanvas(imports);// TODO delete this and uncomment it in saved() if it cause NPE in future
         //importCanvas.addToLeftMargin(10.0);
         importCanvas.getShowingProperty().set(false);
+        JavaFXUtil.addChangeListener(importCanvas.getShowingProperty(), showing -> {
+            if (!showing) {
+                FrameCursor focusedCursor = editor.getFocusedCursor();
+                if (focusedCursor != null && focusedCursor.getParentCanvas().equals(importCanvas)) {
+                    getfieldsCanvas().getFirstCursor().requestFocus();
+                }
+            }
+        });
+
         importTriangleLabel = new TriangleLabel(editor, t -> importCanvas.growUsing(t.getProgress()),
                 t -> importCanvas.shrinkUsing(t.getOppositeProgress()), importCanvas.getShowingProperty());
         JavaFXUtil.addChangeListener(importTriangleLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
