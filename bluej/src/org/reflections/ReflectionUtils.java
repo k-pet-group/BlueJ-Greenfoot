@@ -143,7 +143,7 @@ public abstract class ReflectionUtils {
 
     /** filter all given {@code elements} with {@code predicates}, if given */
     public static <T extends AnnotatedElement> Set<T> getAll(final Set<T> elements, Predicate<? super T>... predicates) {
-        return isEmpty(predicates) ? elements : Sets.newHashSet(Iterables.filter(elements, Predicates.and(predicates)));
+        return isEmpty(predicates) ? elements : Sets.newHashSet(Iterables.filter(elements, Predicates.<T>and(predicates)));
     }
 
     //predicates
@@ -462,11 +462,11 @@ public abstract class ReflectionUtils {
 
     //
     private static <T> Set<T> filter(final T[] elements, Predicate<? super T>... predicates) {
-        return isEmpty(predicates) ? Sets.newHashSet(elements) : Sets.filter(Sets.newHashSet(elements), Predicates.and(predicates));
+        return isEmpty(predicates) ? Sets.newHashSet(elements) : Sets.filter(Sets.newHashSet(elements), Predicates.<T>and(predicates));
     }
 
     private static <T> Set<T> filter(final Set<T> elements, Predicate<? super T>... predicates) {
-        return isEmpty(predicates) ? elements : Sets.filter(elements, Predicates.and(predicates));
+        return isEmpty(predicates) ? elements : Sets.filter(elements, Predicates.<T>and(predicates));
     }
 
     private static boolean areAnnotationMembersMatching(Annotation annotation1, Annotation annotation2) {
