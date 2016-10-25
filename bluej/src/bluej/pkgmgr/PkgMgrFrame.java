@@ -1532,7 +1532,7 @@ public class PkgMgrFrame
                         {
                             SwingUtilities.invokeLater(() -> {
                                 DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
-                                putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord());
+                                putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord(), e.getAnimateFromScenePoint());
                             });
                             tryAgain = false;
                         }
@@ -2365,11 +2365,11 @@ public class PkgMgrFrame
      * @param ir    The invoker record (for recording interaction). May be null.
      * @return The actual instance name (which might be different from parameter, if there was a name clash)
      */
-    public String putObjectOnBench(String newInstanceName, DebuggerObject object, GenTypeClass iType, InvokerRecord ir)
+    public String putObjectOnBench(String newInstanceName, DebuggerObject object, GenTypeClass iType, InvokerRecord ir, Optional<Point2D> animateFromScenePoint)
     {
         if (!object.isNullObject()) {
             ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, iType, newInstanceName);
-            getObjectBench().addObject(wrapper); // might change name
+            getObjectBench().addObject(wrapper, animateFromScenePoint); // might change name
             newInstanceName = wrapper.getName();
 
             // load the object into runtime scope

@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.swing.Action;
@@ -43,10 +44,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
 import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
@@ -965,14 +969,37 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         menu.show(this, Side.LEFT, 5, 5);
     }
 
-    public void animateIn()
+    public void animateIn(Optional<Point2D> animateFromScenePoint)
     {
-        ScaleTransition t = new ScaleTransition(Duration.millis(300), this);
-        t.setFromX(0.2);
-        t.setFromY(0.2);
-        t.setToX(1.0);
-        t.setToY(1.0);
-        t.play();
+        // Don't start the animations until we are in our right position:
+        JavaFXUtil.addSelfRemovingListener(layoutYProperty(), layoutY -> {
+            setVisible(true);
+            ScaleTransition scale = new ScaleTransition(Duration.millis(300), this);
+            scale.setFromX(0.2);
+            scale.setFromY(0.2);
+            scale.setToX(1.0);
+            scale.setToY(1.0);
+            if (animateFromScenePoint.isPresent())
+            {
+                TranslateTransition move = new TranslateTransition(Duration.millis(300), this);
+                Point2D local = sceneToLocal(animateFromScenePoint.get());
+                move.setFromX(local.getX());
+                move.setFromY(local.getY());
+                move.setToX(0.0);
+                move.setToY(0.0);
+
+                // If we are moving a long way, increase the animation time:
+                if (Math.hypot(local.getX(), local.getY()) >= 300.0)
+                {
+                    scale.setDuration(Duration.millis(600.0));
+                    move.setDuration(Duration.millis(600.0));
+                }
+
+                new ParallelTransition(scale, move).play();
+            } else
+                scale.play();
+        });
+
     }
     
     public void animateOut(FXPlatformRunnable after)

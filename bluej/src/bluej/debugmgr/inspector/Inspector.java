@@ -345,7 +345,7 @@ public abstract class Inspector extends Stage
             SwingUtilities.invokeLater(() -> {
                 PackageEditor pkgEd = pkg.getEditor();
                 pkgEd.recordInteraction(getIr);
-                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr);
+                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, null);
             });
         }
     }

@@ -21,43 +21,21 @@
  */
 package bluej.debugmgr.inspector;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -65,7 +43,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.StageStyle;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
@@ -78,7 +55,6 @@ import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaUtils;
-import bluej.utility.MultiLineLabel;
 import bluej.utility.javafx.FXFormattedPrintWriter;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.Comment;
@@ -386,7 +362,7 @@ public class ResultInspector extends Inspector
     {
         if (selectedField != null) {
             GenTypeClass resultClass = resultType.asClass();
-            SwingUtilities.invokeLater(() -> pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultClass, ir));
+            SwingUtilities.invokeLater(() -> pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultClass, ir, null));
         }
     }
 }

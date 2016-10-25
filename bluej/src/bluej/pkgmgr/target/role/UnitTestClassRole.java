@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -489,7 +490,7 @@ public class UnitTestClassRole extends ClassRole
                             DebuggerObject objVal = mapent.getValue();
                             
                             if (! objVal.isNullObject()) {
-                                String actualName = pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null);
+                                String actualName = pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null, Optional.empty());
                                 recordObjects.add(new DataCollector.NamedTyped(actualName, objVal.getClassName()));
                             }
                         }

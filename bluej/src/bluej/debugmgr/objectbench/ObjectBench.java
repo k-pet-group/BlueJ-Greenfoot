@@ -27,10 +27,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import javafx.animation.FadeTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
@@ -113,6 +115,12 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     @OnThread(Tag.Any)
     public void addObject(ObjectWrapper wrapper)
     {
+        addObject(wrapper, Optional.empty());
+    }
+
+    @OnThread(Tag.Any)
+    public void addObject(ObjectWrapper wrapper, Optional<Point2D> animateFromScene)
+    {
         // check whether name is already taken
 
         String newname = wrapper.getName();
@@ -130,11 +138,15 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
 
         // wrapper.addFocusListener(this); -- not needed
         JavaFXUtil.runNowOrLater(() -> {
+            // Keep it invisible until positioned:
+            wrapper.setVisible(false);
+            // Allows us to know when it has been positioned:
+            wrapper.setLayoutY(-1);
             synchronized (ObjectBench.this)
             {
                 objects.add(wrapper);
             }
-            wrapper.animateIn();
+            wrapper.animateIn(animateFromScene);
             updateAccessibleName();
         });
         

@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.SwingUtilities;
 
@@ -262,14 +263,14 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      * @param src  The source of the event
      * @param obj    The object to be put on the event
      * @param iType  The "interface" type of the object (declared type, used as a
-     *               fallback if the runtime type is not accessible)
+ *               fallback if the runtime type is not accessible)
      * @param ir   The invoker record for the invocation used to create this object
+     * @param animateFromScenePoint
      */
-    @OnThread(Tag.Swing)
-    public void raisePutOnBenchEvent(Window src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir)
+    public void raisePutOnBenchEvent(Window src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir, Optional<Point2D> animateFromScenePoint)
     {
         fireTargetEvent(
-            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir));
+            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir, animateFromScenePoint));
     }
     
     /**

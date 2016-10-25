@@ -29,7 +29,6 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -356,7 +355,7 @@ public class ObjectInspector extends Inspector
                 PackageEditor pkgEd = pkg.getEditor();
                 pkgEd.recordInteraction(getIr);
 
-                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr);
+                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, null);
             });
         }
     }

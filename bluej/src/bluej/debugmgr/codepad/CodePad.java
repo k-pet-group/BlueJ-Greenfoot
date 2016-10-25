@@ -28,12 +28,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -268,8 +270,9 @@ public class CodePad extends VBox
                     if (e.getButton() == MouseButton.PRIMARY)
                     {
                         Stage fxWindow = frame.getFXWindow();
+                        Point2D from = graphic.localToScene(new Point2D(0.0, 0.0));
                         SwingUtilities.invokeLater(() -> {
-                            frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir);
+                            frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir, Optional.of(from));
                         });
                         e.consume();
                     }
