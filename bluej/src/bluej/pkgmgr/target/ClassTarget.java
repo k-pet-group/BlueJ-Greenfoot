@@ -340,7 +340,11 @@ public class ClassTarget extends DependentTarget
         else if (getJavaSourceFile().canRead())
             sourceAvailable = SourceType.Java;
         else
+        {
             sourceAvailable = SourceType.NONE;
+            // Can't have been modified since compile since there's no source to modify:
+            modifiedSinceCompile = false;
+        }
     }
 
     private BClass singleBClass;  // Every Target has none or one BClass
@@ -1064,7 +1068,9 @@ public class ClassTarget extends DependentTarget
      */
     public File getDocumentationFile()
     {
-        String filename = getSourceFile().getPath();
+        // We ask for Java source file, regardless of source type,
+        // because we're only using it to derive the .html file with the same stub:
+        String filename = getJavaSourceFile().getPath();
         String docFilename = getPackage().getProject().getDocumentationFile(filename);
         return new File(docFilename);
     }
@@ -1130,8 +1136,8 @@ public class ClassTarget extends DependentTarget
     {
         // ClassTarget must have source code if it is to provide an editor
         if (editor == null) {
-            String filename = getSourceFile().getPath();
-            String docFilename = getPackage().getProject().getDocumentationFile(filename);
+            final String filename;
+            String docFilename = getDocumentationFile().getPath();
             if (sourceAvailable == SourceType.NONE) {
                 filename = null; // no source - show docs only
                 showInterface = true;
@@ -1139,12 +1145,16 @@ public class ClassTarget extends DependentTarget
                     return null;
                 }
             }
+            else
+            {
+                filename = getSourceFile().getPath();
+            }
 
             Project project = getPackage().getProject();
             EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
                     getPackage().getQualifiedName());
 
-            if (sourceAvailable == SourceType.Java) {
+            if (sourceAvailable == SourceType.Java || sourceAvailable == SourceType.NONE) {
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
                         getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), resolver,

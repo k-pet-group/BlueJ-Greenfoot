@@ -143,10 +143,6 @@ public abstract class DependentTarget extends EditableTarget
                 || (d instanceof ImplementsDependency)) {
             parents.add(d);
         }
-
-        if(recalc) {
-            SwingUtilities.invokeLater(() -> {setState(State.INVALID);});
-        }
     }
 
     @OnThread(Tag.FXPlatform)
@@ -174,11 +170,6 @@ public abstract class DependentTarget extends EditableTarget
         else if((d instanceof ExtendsDependency)
                 || (d instanceof ImplementsDependency)) {
             parents.remove(d);
-        }
-        
-        if(recalc)
-        {
-            SwingUtilities.invokeLater(() -> {setState(State.INVALID);});
         }
     }
 
