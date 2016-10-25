@@ -86,7 +86,7 @@ int WINAPI WinMain
     LPTSTR cmdLine = new TCHAR[executablePath.length() + 1];
     std::copy(executablePathSTR, executablePathSTR + execPathLen, cmdLine);
 
-    if (!CreateProcess(executablePathSTR, cmdLine, NULL, NULL, TRUE, 0, NULL,
+    if (!CreateProcess(executablePathSTR, NULL, NULL, NULL, TRUE, 0, NULL,
             launcherPath.c_str() /* working dir */, &startupInfo, &processInfo)) {
         MessageBox(0, TEXT("Couldn't find " APPNAME " folder."), TEXT(APPNAME), MB_ICONERROR | MB_OK);
         return 1;
