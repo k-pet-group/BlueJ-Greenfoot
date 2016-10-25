@@ -205,7 +205,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         //importCanvas.addToLeftMargin(10.0);
         importCanvas.getShowingProperty().set(false);
         JavaFXUtil.addChangeListener(importCanvas.getShowingProperty(), showing -> {
-            if (!showing && isImportCanvasFocused()) {
+            if (!showing && isCanvasHasFocus(importCanvas)) {
                 getfieldsCanvas().getFirstCursor().requestFocus();
             }
         });
@@ -240,15 +240,24 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         frameEnabledProperty.set(enabled);
     }
 
-    private boolean isImportCanvasFocused()
+    /**
+     * Returns true if the focus inside a canvas, this is one of two cases:
+     *      1- One of the FrameCursors inside the canvas is focused
+     *      2- One of the focusable slots in one of the frames inside the canvas is focused
+     *
+     * @param canvas the FrameCanvas we are looking into
+     * @return True only if one of focuasble targets inside the canvas is focused.
+     */
+
+    protected boolean isCanvasHasFocus(FrameCanvas canvas)
     {
-        if (importCanvas.getFocusableCursors().stream().anyMatch(c -> c.isFocused()) ) {
-            // a FrameCursor inside the ImportCanvas is focused
+        if (canvas.getFocusableCursors().stream().anyMatch(c -> c.isFocused()) ) {
+            // a FrameCursor inside 'canvas' is focused
             return true;
         }
 
-        if (importCanvas.getBlockContents().stream().anyMatch(b -> b.getFocusablesInclContained().anyMatch(s -> s.isFocused()))) {
-            // a slot in a Frame inside the ImportCanvas is focused
+        if (canvas.getBlockContents().stream().anyMatch(b -> b.getFocusablesInclContained().anyMatch(s -> s.isFocused()))) {
+            // a slot in a Frame inside 'canvas' is focused
             return true;
         }
         return false;
