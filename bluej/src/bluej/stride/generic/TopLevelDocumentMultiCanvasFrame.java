@@ -205,11 +205,8 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         //importCanvas.addToLeftMargin(10.0);
         importCanvas.getShowingProperty().set(false);
         JavaFXUtil.addChangeListener(importCanvas.getShowingProperty(), showing -> {
-            if (!showing) {
-                FrameCursor focusedCursor = editor.getFocusedCursor();
-                if (focusedCursor != null && focusedCursor.getParentCanvas().equals(importCanvas)) {
-                    getfieldsCanvas().getFirstCursor().requestFocus();
-                }
+            if (!showing && isImportCanvasFocused()) {
+                getfieldsCanvas().getFirstCursor().requestFocus();
             }
         });
 
@@ -241,6 +238,20 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         addCanvas(methodsLabelRow, methodsCanvas);
 
         frameEnabledProperty.set(enabled);
+    }
+
+    private boolean isImportCanvasFocused()
+    {
+        if (importCanvas.getFocusableCursors().stream().anyMatch(c -> c.isFocused()) ) {
+            // a FrameCursor inside the ImportCanvas is focused
+            return true;
+        }
+
+        if (importCanvas.getBlockContents().stream().anyMatch(b -> b.getFocusablesInclContained().anyMatch(s -> s.isFocused()))) {
+            // a slot in a Frame inside the ImportCanvas is focused
+            return true;
+        }
+        return false;
     }
 
     protected SlotLabel makeLabel(String content)
