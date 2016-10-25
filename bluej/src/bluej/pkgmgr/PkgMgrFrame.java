@@ -1283,7 +1283,10 @@ public class PkgMgrFrame
         else if (!Config.isGreenfoot()) {
             //setState(Frame.NORMAL);
             Platform.runLater(() -> {
-                JavaFXUtil.onceNotNull(stageProperty, Stage::show);
+                JavaFXUtil.onceNotNull(stageProperty, s -> {
+                    s.show();
+                    s.toFront();
+                });
             });
         }
     }
