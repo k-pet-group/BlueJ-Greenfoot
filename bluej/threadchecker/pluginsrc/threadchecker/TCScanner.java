@@ -21,6 +21,10 @@
  */
 package threadchecker;
 
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -127,6 +131,16 @@ class TCScanner extends TreePathScanner<Void, Void>
 
     public TCScanner(JavacTask task, List<String> ignorePackages) throws NoSuchMethodException
     {
+        // Code for redirecting stderr if you need it:
+        /*
+        try
+        {
+            System.setErr(new PrintStream(new BufferedOutputStream(new FileOutputStream("J:\\tc.txt"))));
+        } catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        */
         trees = Trees.instance(task);
         types = task.getTypes();
         elements = task.getElements();
@@ -147,6 +161,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         // for example, will have all its methods tagged as Swing.  (You can always
         // override this with a tag on the particular method)
         Arrays.asList(
+                "javafx.application",
                 "javafx.beans.binding",
                 "javafx.beans.value",
                 "javafx.collections",
@@ -182,7 +197,8 @@ class TCScanner extends TreePathScanner<Void, Void>
         methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "<init>", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
         methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "setContent", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
         methodAnns.add(new MethodRef("javafx.embed.swing.SwingNode", "getContent", new LocatedTag(Tag.Any, false, false, "<SwingNode>")));
-        
+
+        methodAnns.add(new MethodRef("javafx.application.Application", "launch", new LocatedTag(Tag.Any, false, false, "<FX launch>")));
         methodAnns.add(new MethodRef("javafx.animation.AnimationTimer", "handle", new LocatedTag(Tag.FXPlatform, false, false, "<AnimationTimer>")));
         
         // This one isn't actually true!  But it's used during printing so let's live:
@@ -778,13 +794,19 @@ class TCScanner extends TreePathScanner<Void, Void>
                         classAnns.get(types.erasure(e.getEnclosingElement().asType()).toString()),
                         classTag, packageDirectTag, packagePriorTag, overridden, superInherit);
                 invokedOnTag = tagList.stream().filter(t -> t != null).findFirst().orElse(null);
-                /*if (e.getEnclosingElement().getSimpleName() != null && e.getEnclosingElement().getSimpleName().toString().contains("OutputStream"))
+                if (inDebugClass())
                 {
-                    System.err.println("TCScanner for " + invokeTargetType.toString() + "," + e.toString() + "; All super tags: " + invokeTargetSuperTypes.stream()
-                        .map(ty -> ty.toString() + ": " + getTag(types.asElement(ty), ty.toString(), invocation)).collect(Collectors.joining(", ")));
+                    for (MethodRef m : methodAnns)
+                        System.err.println("Method " + m.classType.toString() + " . \"" + m.methodName + "\""
+                            + " class match: " + isSameType(types.erasure(m.classType), types.erasure(invokeTargetTypeFinal))
+                            + " name match: " + m.methodName.equals(name.toString())
+                            + " .matches: " + m.matches(invokeTargetTypeFinal, name, null));
+                    System.err.println("Is thread: " + types.isSameType(types.erasure(elements.getTypeElement("java.lang.Thread").asType()), types.erasure(invokeTargetTypeFinal)));
+
+                    System.err.println("TCScanner for " + invokeTargetTypeFinal.toString() + " . \"" + name + "\"," + e.toString() + "; All super tags: " + invokeTargetSuperTypes.stream()
+                        .map(ty -> ty.toString() + ": " + getRemoteTag(types.asElement(ty), () -> ty.toString(), lhs)).collect(Collectors.joining(", ")));
                     System.err.println("Tag list: " + tagList.stream().map(t -> "" + t).collect(Collectors.joining(", ")));
                 }
-                */
             }
         }
         
@@ -1391,7 +1413,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         // then we must be making an anonymous inner class
         TypeMirror lambdaClassType = calculatedExpectedLambdaType(parent, node);
         boolean matchesLambda = false;
-        if (lambdaClassType != null && types.isSameType(lambdaClassType, trees.getTypeMirror(trees.getPath(cu, node.getIdentifier())))
+        if (lambdaClassType != null && isSameType(lambdaClassType, trees.getTypeMirror(trees.getPath(cu, node.getIdentifier())))
                 && node.getClassBody() != null)
         {
             Optional<LocatedTag> lambdaAnn = lambdaClassToAnn(parent, lambdaClassType, node, false);
@@ -1445,7 +1467,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         {
             // Check methodName first as it's quickest:
             return this.methodName.equals(methodName.toString()) &&
-                     types.isSameType(types.erasure(this.classType), types.erasure(classType)) &&
+                     isSameType(types.erasure(this.classType), types.erasure(classType)) &&
                      // TODO should we re-enable parameter comparison?
                      (true || this.methodType.contains(methodType));
         }        
@@ -1597,5 +1619,15 @@ class TCScanner extends TreePathScanner<Void, Void>
             fields.put(node.getName().toString(), ann.orElse(null));
         }
         return super.visitVariable(node, aVoid);
+    }
+
+    private boolean isSameType(TypeMirror a, TypeMirror b)
+    {
+        // So if you use the checker framework null checker, and ask for java.lang.Thread,
+        // you may get a different one than is in the JDK.  So as a backup we use qualified name
+        // comparison if the types aren't found to be the same:
+        return types.isSameType(a, b)
+             || a.toString().equals(b.toString());
+
     }
 }
