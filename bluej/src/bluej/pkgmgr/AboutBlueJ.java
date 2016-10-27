@@ -56,11 +56,11 @@ import threadchecker.Tag;
  * @author  Michael Kolling
  */
 @OnThread(Tag.FXPlatform)
-class AboutBlue extends Dialog<Void>
+class AboutBlueJ extends Dialog<Void>
 {
     private static final String BLUEJ_URL = "http://www.bluej.org/";
     
-    public AboutBlue(Window parent, String version)
+    public AboutBlueJ(Window parent, String version)
     {
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);

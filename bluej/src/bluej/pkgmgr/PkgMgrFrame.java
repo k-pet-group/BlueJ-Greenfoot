@@ -91,7 +91,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -2094,7 +2093,7 @@ public class PkgMgrFrame
     public void aboutBlueJ()
     {
         Platform.runLater(() -> {
-            AboutBlue about = new AboutBlue(stageProperty.getValue(), bluej.Boot.BLUEJ_VERSION);
+            AboutBlueJ about = new AboutBlueJ(stageProperty.getValue(), bluej.Boot.BLUEJ_VERSION);
             about.showAndWait();
         });
     }
