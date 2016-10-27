@@ -85,7 +85,11 @@ public class PrefMgrDialog
      */
     public static void showDialog()
     {
-        getInstance().prepareDialogThen(() -> dialog.window.show());
+        getInstance().prepareDialogThen(() -> {
+            dialog.window.show();
+            // Work around bug where every other time dialog is shown, it would have wrong size:
+            dialog.tabbedPane.getScene().getWindow().sizeToScene();
+        });
     }
 
     /**
@@ -98,6 +102,8 @@ public class PrefMgrDialog
         getInstance().prepareDialogThen(() -> {
             dialog.selectTab(paneNumber);
             dialog.window.show();
+            // Work around bug where every other time dialog is shown, it would have wrong size:
+            dialog.tabbedPane.getScene().getWindow().sizeToScene();
         });
     }
     /**
