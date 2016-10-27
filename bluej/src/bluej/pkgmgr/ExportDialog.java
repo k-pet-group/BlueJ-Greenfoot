@@ -137,7 +137,7 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
     {
         setTitle(dialogTitle);
         initOwner(parent);
-        initModality(Modality.APPLICATION_MODAL);
+        initModality(Modality.WINDOW_MODAL);
         Config.addDialogStylesheets(getDialogPane());
         setResultConverter(this::calculateResult);
         VBox mainPanel = new VBox();

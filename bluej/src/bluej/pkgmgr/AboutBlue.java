@@ -63,7 +63,7 @@ class AboutBlue extends Dialog<Void>
     public AboutBlue(Window parent, String version)
     {
         initOwner(parent);
-        initModality(Modality.APPLICATION_MODAL);
+        initModality(Modality.WINDOW_MODAL);
         setTitle(Config.getString("menu.help.about"));
         setDialogPane(new DialogPane() {
             @Override

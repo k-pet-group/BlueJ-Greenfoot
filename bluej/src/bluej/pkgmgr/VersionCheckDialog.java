@@ -74,7 +74,7 @@ final public class VersionCheckDialog extends Dialog<Void>
     {
         setTitle(dialogTitle);
         initOwner(parent);
-        initModality(Modality.APPLICATION_MODAL);
+        initModality(Modality.WINDOW_MODAL);
         setDialogPane(new DialogPane() {
             @Override
             protected @OnThread(Tag.FX) Node createButtonBar()

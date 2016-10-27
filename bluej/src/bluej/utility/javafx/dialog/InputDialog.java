@@ -75,7 +75,7 @@ public abstract class InputDialog<R>
     protected InputDialog(String title, String label, String prompt, String styleClass)
     {
         dialog = new Dialog<>();
-        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initModality(Modality.WINDOW_MODAL);
         dialog.setTitle(title);
         VBox content = new VBox();
         this.prompt = new Label(label);

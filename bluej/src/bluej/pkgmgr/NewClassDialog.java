@@ -116,7 +116,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     {
         setTitle(Config.getString("pkgmgr.newClass.title"));
         initOwner(parent);
-        initModality(Modality.APPLICATION_MODAL);
+        initModality(Modality.WINDOW_MODAL);
         errorLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
         dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton(true));
         setDialogPane(dialogPane);
