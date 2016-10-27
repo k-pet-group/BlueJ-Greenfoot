@@ -30,6 +30,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
@@ -80,6 +81,13 @@ public abstract class InputDialog<R>
         this.prompt = new Label(label);
         field = new TextField();
         field.setPromptText(prompt);
+        field.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE && dialog.getDialogPane().getButtonTypes().contains(ButtonType.CANCEL))
+            {
+                dialog.hide();
+                e.consume();
+            }
+        });
         error = new Label();
         // By default, error label is shown
         content.getChildren().addAll(this.prompt, field, error);
