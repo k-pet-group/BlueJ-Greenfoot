@@ -475,6 +475,8 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
                 //e.getKey().removeKeyListener(selectionController);
             }
         }
+
+        SwingUtilities.invokeLater(() -> pmf.graphChanged());
         
         //TODO make sure removed items aren't still in the selection
 

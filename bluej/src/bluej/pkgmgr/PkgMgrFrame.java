@@ -2961,15 +2961,12 @@ public class PkgMgrFrame
             VBox topButtons = new VBox();
             JavaFXUtil.addStyleClass(topButtons, "pmf-tools-top");
             ButtonBase button = createButton(newClassAction, false, false);
-            itemsToDisable.add(button);
             topButtons.getChildren().add(button);
             imgExtendsButton = createButton(newInheritsAction, false, true);
-            itemsToDisable.add(imgExtendsButton);
             imgExtendsButton.setText(null);
             imgExtendsButton.setGraphic(new ImageView(Config.getImageAsFXImage("image.build.extends")));
             topButtons.getChildren().add(imgExtendsButton);
             button = createButton(compileAction, false, false);
-            itemsToDisable.add(button);
             topButtons.getChildren().add(button);
             toolPanel.getChildren().add(topButtons);
 
@@ -3132,27 +3129,24 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     private static void setButtonAction(Action action, ButtonBase button, boolean noText)
     {
-        if (!noText)
+        SwingUtilities.invokeLater(() ->
         {
-            SwingUtilities.invokeLater(() ->
-            {
-                String name = (String) action.getValue(Action.NAME);
-                boolean startEnabled = action.isEnabled();
-                action.addPropertyChangeListener(c -> {
-                    if (c.getPropertyName().equals("enabled"))
-                    {
-                        boolean enabled = action.isEnabled();
-                        Platform.runLater(() -> button.setDisable(!enabled));
-                    }
-                });
-                Platform.runLater(() ->
+            String name = (String) action.getValue(Action.NAME);
+            boolean startEnabled = action.isEnabled();
+            action.addPropertyChangeListener(c -> {
+                if (c.getPropertyName().equals("enabled"))
                 {
-                    if (button.getText() == null || button.getText().isEmpty())
-                        button.setText(name);
-                    button.setDisable(!startEnabled);
-                });
+                    boolean enabled = action.isEnabled();
+                    Platform.runLater(() -> button.setDisable(!enabled));
+                }
             });
-        }
+            Platform.runLater(() ->
+            {
+                if (!noText && (button.getText() == null || button.getText().isEmpty()))
+                    button.setText(name);
+                button.setDisable(!startEnabled);
+            });
+        });
         button.setOnAction(e -> {
             SwingUtilities.invokeLater(() -> {
                 action.actionPerformed(new ActionEvent(button, ActionEvent.ACTION_PERFORMED, null));
@@ -3651,6 +3645,30 @@ public class PkgMgrFrame
             PackageEditor pkgEg = pkg.getEditor();
             Platform.runLater(() -> {pkgEg.doNewInherits();});
         }
+    }
+
+    @OnThread(Tag.Swing)
+    public void graphChanged()
+    {
+        int numClassTargets;
+        int numClassTargetsWithSource;
+        synchronized (this)
+        {
+            if (pkg != null)
+            {
+                ArrayList<ClassTarget> classTargets = pkg.getClassTargets();
+                numClassTargets = classTargets.size();
+                numClassTargetsWithSource = (int) classTargets.stream().filter(ClassTarget::hasSourceCode).count();
+
+            }
+            else
+                return;
+        }
+        // Can only compile if you have a class target with source:
+        compileAction.setEnabled(numClassTargetsWithSource > 0);
+        // Isn't a perfect detection of whether inherits is possible, but close enough
+        // You must have two targets, one of which must have source code:
+        newInheritsAction.setEnabled(numClassTargets >= 2 && numClassTargetsWithSource >= 1);
     }
 
     class URLDisplayer
