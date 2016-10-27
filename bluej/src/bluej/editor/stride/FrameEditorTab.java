@@ -360,6 +360,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             }
             catch (Throwable t)
             {
+                Debug.reportError("Exception while scanning for import " + x, t);
                 f.complete(Collections.emptyList());
             }
         });

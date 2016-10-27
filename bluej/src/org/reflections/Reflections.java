@@ -218,8 +218,8 @@ public class Reflections {
                             }
                             catch (Throwable t)
                             {
-                                Debug.reportError(t);
-                                throw t;
+                                Debug.reportError("Error while scanning URL for imports", t);
+                                // Do not rethrow!
                             }
                         }
                     }));

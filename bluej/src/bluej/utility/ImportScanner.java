@@ -264,7 +264,7 @@ public class ImportScanner
         }
         catch (InterruptedException | ExecutionException e)
         {
-            Debug.reportError(e);
+            Debug.reportError("Exception in getImportedTypes", e);
             return Collections.emptyList();
         }
     }
