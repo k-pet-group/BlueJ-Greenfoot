@@ -36,8 +36,8 @@ import threadchecker.Tag;
  * There's not really a good name for this, but essentially it is a subclass of Tab
  * which adds some methods which FXTabbedEditor needs to call on its contained tabs.
  *
- * The two subclasses of this class (at the moment) are FrameEditorTab for Stride classes,
- * and WebTab for web browser (for documentation).
+ * The three subclasses of this class (at the moment) are FrameEditorTab for Stride classes,
+ * MoeFXTab for Java classes, and WebTab for web browser (for documentation).
  */
 @OnThread(Tag.FX)
 abstract class FXTab extends Tab
