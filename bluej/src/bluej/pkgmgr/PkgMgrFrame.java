@@ -3069,6 +3069,9 @@ public class PkgMgrFrame
             teamPanelItemsUnshared.getChildren().add(teamShareButton);
             teamShareButton.setText(Config.getString("team.import.short"));
 
+            // Don't reserve space for all three once-shared buttons if we are not yet shared:
+            teamPanelItemsOnceShared.managedProperty().bind(teamShareButton.disableProperty());
+
 
             VBox foldout = new VBox(teamPanel, testPanel);
             teamPanel.setCollapsible(false);
