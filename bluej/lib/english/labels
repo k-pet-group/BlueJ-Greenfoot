@@ -369,6 +369,7 @@ pkgmgr.parentpackagetarget.open=Open
 pkgmgr.parentpackagetarget.openunamed=Open unnamed package
 
 pkgmgr.noProjectOpened.message=\u2196 Use the Project menu to create or open a project
+pkgmgr.noClassesExisted.message=\u2196 Use the Edit menu to create or add a class
 
 pkgmgr.packagemenu.open=Open
 pkgmgr.packagemenu.remove=Delete

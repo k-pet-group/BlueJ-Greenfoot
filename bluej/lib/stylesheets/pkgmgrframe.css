@@ -31,6 +31,10 @@
     -fx-text-fill: gray;
     -fx-font-size: 14pt;
 }
+.pmf-no-classes-msg {
+    -fx-text-fill: gray;
+    -fx-font-size: 14pt;
+}
 
 .team-test-foldout-content {
     -fx-padding: 10px 0 0 0;

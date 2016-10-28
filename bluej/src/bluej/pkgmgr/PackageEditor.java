@@ -120,6 +120,8 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     private final AnchorPane backClassLayer = new AnchorPane();
     // The layer at the front on which we draw the selection rectangle:
     private Pane selectionLayer = new Pane();
+    // The label to show a massage to create or add a class
+    protected Label noClassesExistedMessage;
     // The layer at the back where we draw the arrows:
     private final Canvas arrowLayer = new ResizableCanvas();
     // Boolean remembering whether we've already scheduled a repaint.
@@ -184,7 +186,10 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             JavaFXUtil.addStyleClass(rect, "marquee");
             selectionLayer.getChildren().add(rect);
 
-            getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer, selectionLayer);
+            noClassesExistedMessage = new Label(Config.getString("pkgmgr.noClassesExisted.message"));
+            JavaFXUtil.addStyleClass(noClassesExistedMessage, "pmf-no-classes-msg");
+
+            getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer, selectionLayer, noClassesExistedMessage);
 
             JavaFXUtil.addChangeListener(showUses, e -> JavaFXUtil.runNowOrLater(this::repaint));
             JavaFXUtil.addChangeListener(showExtends, e -> JavaFXUtil.runNowOrLater(this::repaint));

@@ -3643,7 +3643,7 @@ public class PkgMgrFrame
         if (pkg != null && pkg.getEditor() != null)
         {
             PackageEditor pkgEg = pkg.getEditor();
-            Platform.runLater(() -> {pkgEg.doNewInherits();});
+            Platform.runLater(() -> pkgEg.doNewInherits());
         }
     }
 
@@ -3652,6 +3652,7 @@ public class PkgMgrFrame
     {
         int numClassTargets;
         int numClassTargetsWithSource;
+        int numPackagesNested;
         synchronized (this)
         {
             if (pkg != null)
@@ -3659,7 +3660,7 @@ public class PkgMgrFrame
                 ArrayList<ClassTarget> classTargets = pkg.getClassTargets();
                 numClassTargets = classTargets.size();
                 numClassTargetsWithSource = (int) classTargets.stream().filter(ClassTarget::hasSourceCode).count();
-
+                numPackagesNested = pkg.getChildren(true).size();
             }
             else
                 return;
@@ -3669,6 +3670,8 @@ public class PkgMgrFrame
         // Isn't a perfect detection of whether inherits is possible, but close enough
         // You must have two targets, one of which must have source code:
         newInheritsAction.setEnabled(numClassTargets >= 2 && numClassTargetsWithSource >= 1);
+
+        pkg.getEditor().noClassesExistedMessage.setVisible(numClassTargets + numPackagesNested == 0);
     }
 
     class URLDisplayer
