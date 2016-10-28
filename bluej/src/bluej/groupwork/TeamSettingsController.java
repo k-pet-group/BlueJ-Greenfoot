@@ -484,7 +484,8 @@ public class TeamSettingsController
 
     public void setPropString(String key, String value)
     {
-        teamProperties.setProperty(key, value);
+        if (key != null && value != null)
+            teamProperties.setProperty(key, value);
     }
     
     public void updateSettings(TeamSettings newSettings, boolean useAsDefault)
