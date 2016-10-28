@@ -268,6 +268,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private final Set<Node> execNodesListenedTo = new HashSet<>();
     private final SimpleBooleanProperty debugVarVisibleProperty = new SimpleBooleanProperty(false);
     private List<HighlightedBreakpoint> latestExecHistory;
+    // Set to true when making an automated edit, so that changes are noticed
+    // even when the editor is not showing.
+    private boolean automatedEdit = false;
 
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
@@ -924,22 +927,55 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     public void addExtends(String className)
     {
-        withTopLevelFrame(f -> f.addExtendsClassOrInterface(className));
+        withTopLevelFrame(f -> {
+            automatedEdit = true;
+            f.addExtendsClassOrInterface(className);
+            automatedEdit = false;
+            saveAfterAutomatedEdit();
+        });
     }
 
     public void removeExtendsClass()
     {
-        withTopLevelFrame(f -> f.removeExtendsClass());
+        withTopLevelFrame(f -> {
+            automatedEdit = true;
+            f.removeExtendsClass();
+            automatedEdit = false;
+            saveAfterAutomatedEdit();
+        });
     }
 
     public void addImplements(String className)
     {
-        withTopLevelFrame(f -> f.addImplements(className));
+        withTopLevelFrame(f -> {
+            automatedEdit = true;
+            f.addImplements(className);
+            automatedEdit = false;
+            saveAfterAutomatedEdit();
+        });
     }
 
     public void removeExtendsOrImplementsInterface(String interfaceName)
     {
-        withTopLevelFrame(f -> f.removeExtendsOrImplementsInterface(interfaceName));
+        withTopLevelFrame(f -> {
+            automatedEdit = true;
+            f.removeExtendsOrImplementsInterface(interfaceName);
+            automatedEdit = false;
+            saveAfterAutomatedEdit();
+        });
+    }
+
+    private void saveAfterAutomatedEdit()
+    {
+        SwingUtilities.invokeLater(() -> {
+            try
+            {
+                editor.save();
+            } catch (IOException e)
+            {
+                Debug.reportError("Problem saving after automated edit", e);
+            }
+        });
     }
 
     @OnThread(Tag.Any)
@@ -1775,7 +1811,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         if (f != null)
             f.trackBlank(); // Do this even if loading
-        if (isLoading() || getParent() == null)
+        if ((isLoading() || getParent() == null) && !automatedEdit)
             return;
         editor.codeModified();
         registerStackHighlight(null);
