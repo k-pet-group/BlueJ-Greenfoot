@@ -488,7 +488,7 @@ details (user name and password) if needed, if this protocol
 does not require a user name, then the repository was not exported.
 
 team-noRepository-uri
-Repository not found: the informed URI does not contain a repository
+Repository not found: $
 
 team-project-exists
 The project already exists on the server. Maybe you 

@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.application.Platform;
@@ -113,6 +114,7 @@ public class ImportAction extends TeamAction
 
                 if (! result.isError()) {
                     final AtomicReference<Set<File>> files = new AtomicReference<>();
+                    final AtomicBoolean isDVCS = new AtomicBoolean();
                     try
                     {
                         EventQueue.invokeAndWait(() -> {
@@ -120,6 +122,7 @@ public class ImportAction extends TeamAction
                             Set<File> projFiles = tsc.getProjectFiles(true);
                             // Make copy, to ensure thread safety:
                             files.set(new HashSet<File>(projFiles));
+                            isDVCS.set(tsc.isDVCS());
                         });
                     }
                     catch (InvocationTargetException | InterruptedException e)
@@ -132,7 +135,7 @@ public class ImportAction extends TeamAction
                             files.get(), Config.getString("team.import.initialMessage"));
                     result = command.getResult();
                     //In DVCS, we need an aditional command: pushChanges.
-                    if (tsc.isDVCS()){
+                    if (isDVCS.get()){
                         command = repository.pushChanges();
                         result = command.getResult();
                     }

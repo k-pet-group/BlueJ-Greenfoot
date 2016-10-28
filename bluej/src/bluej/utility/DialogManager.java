@@ -404,7 +404,7 @@ public class DialogManager
      * dialogue text file (language dependent).
      */
     @OnThread(Tag.Any)
-    public static String getMessage(String msgID)
+    public static String getMessage(String msgID, String... subs)
     {
         String message = null;
         
@@ -434,6 +434,12 @@ public class DialogManager
         if (message == null) {
             message = "BlueJ configuration problem:\n" + "text not found for message ID\n" + msgID;
             Debug.message(message);
+        }
+        else
+        {
+            for (String sub : subs) {
+                message = message.replace("$", sub);
+            }
         }
         return message;
     }

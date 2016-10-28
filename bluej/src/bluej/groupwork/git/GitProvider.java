@@ -140,11 +140,13 @@ public class GitProvider implements TeamworkProvider
                         return new TeamworkCommandError(DialogManager.getMessage("team-denied-invalidUser"), DialogManager.getMessage("team-denied-invalidUser"));
                     }
                     if (ex.getLocalizedMessage().contains("does not appear to be a git repository")){
-                        return new TeamworkCommandError( DialogManager.getMessage("team-noRepository-uri"), DialogManager.getMessage("team-noRepository-uri"));
+                        String message = DialogManager.getMessage("team-noRepository-uri", ex.getLocalizedMessage());
+                        return new TeamworkCommandError( message, message);
                     }
                     //http, https and git protocols does not need username nor password.
-                    if (settings.getProtocol().contains("http") || settings.getProtocol().contains("git")){
-                        return new TeamworkCommandError(DialogManager.getMessage("team-noRepository-uri"), DialogManager.getMessage("team-noRepository-uri"));
+                    if (settings.getProtocol().contains("file") || settings.getProtocol().contains("http") || settings.getProtocol().contains("git")){
+                        String message = DialogManager.getMessage("team-noRepository-uri", ex.getLocalizedMessage());
+                        return new TeamworkCommandError(message, message);
                     }
                 }
                 return diagnosis;
@@ -230,6 +232,8 @@ public class GitProvider implements TeamworkProvider
     {
         try {
             URI uri = new URI(gitUrlString);
+            if (uri.getScheme().equals("file"))
+                return new TeamworkCommandResult(); // It ain't a connection problem...
             int port = uri.getPort();
             if (port <= 0) {
                 switch (uri.getScheme().toLowerCase()) {

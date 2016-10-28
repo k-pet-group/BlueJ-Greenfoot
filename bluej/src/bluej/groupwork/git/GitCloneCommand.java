@@ -74,7 +74,8 @@ public class GitCloneCommand extends GitCommand
             return new TeamworkCommandAborted();
         } catch (GitAPIException | IOException ex) {
             if (ex.getCause() instanceof NoRemoteRepositoryException){
-                return new TeamworkCommandError( DialogManager.getMessage("team-noRepository-uri"), DialogManager.getMessage("team-noRepository-uri"));
+                String message = DialogManager.getMessage("team-noRepository-uri", ex.getLocalizedMessage());
+                return new TeamworkCommandError(message, message);
             }
             if (ex instanceof InvalidRemoteException) {
                 return new TeamworkCommandError(DialogManager.getMessage("team-cant-connect"), DialogManager.getMessage("team-cant-connect"));
