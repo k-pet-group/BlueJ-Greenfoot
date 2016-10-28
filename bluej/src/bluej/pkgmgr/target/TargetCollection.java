@@ -48,11 +48,11 @@ public class TargetCollection implements Iterable<Target>
     }
 
     /**
-     * Get an array of the targets currently in the collection.
+     * Get a list of the targets currently in the collection.
      */
-    public Target[] toArray()
+    public List<Target> toList()
     {
-        return targets.values().toArray(new Target[targets.size()]);
+        return new ArrayList<>(targets.values());
     }
 
     public Target get(String identifierName)

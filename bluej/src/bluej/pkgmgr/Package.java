@@ -648,7 +648,7 @@ public final class Package
      * Refresh the targets and dependency arrows in the package, based on whatever
      * is actually on disk.
      */
-    public synchronized void refreshPackage()
+    public void refreshPackage()
     {
         // read in all the targets contained in this package
         // into this temporary map
@@ -661,8 +661,10 @@ public final class Package
             numDependencies = Integer.parseInt(lastSavedProps.getProperty("package.numDependencies", "0"));
         }
         catch (Exception e) {
-            Debug.reportError("Error loading from package file " + packageFile + ": " + e);
-            e.printStackTrace();
+            synchronized (this)
+            {
+                Debug.reportError("Error loading from package file " + packageFile + ": " + e, e);
+            }
             return;
         }
 
@@ -727,11 +729,17 @@ public final class Package
         // Find an empty spot for any targets which didn't already have
         // a position
         for (Target t : targetsToPlace) {
-            Platform.runLater(() -> {editor.findSpaceForVertex(t);});
+            Platform.runLater(() -> {getEditor().findSpaceForVertex(t);});
+        }
+
+        List<Target> targetsCopy;
+        synchronized (this)
+        {
+            targetsCopy = targets.toList();
         }
         
         // Start with all classes in the normal (compiled) state.
-        for (Target target : targets) {
+        for (Target target : targetsCopy) {
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 ct.setState(DependentTarget.State.NORMAL);
@@ -747,9 +755,9 @@ public final class Package
                 try
                 {
                     UsesDependency newDep = new UsesDependency(this, lastSavedProps, "dependency" + (i + 1));
-                    if (editor != null)
+                    if (getEditor() != null)
                     {
-                        editor.addDependency(newDep, false);
+                        getEditor().addDependency(newDep, false);
                     }
                     else
                     {
@@ -768,7 +776,7 @@ public final class Package
         // which analyses the source) because the analysis does symbol resolution, and
         // that depends on having the correct compiled state.
         LinkedList<ClassTarget> invalidated = new LinkedList<ClassTarget>();
-        for (Target target : targets) {
+        for (Target target : targetsCopy) {
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -794,7 +802,7 @@ public final class Package
         }
         
         // Update class roles
-        for (Target target : targets) {
+        for (Target target : targetsCopy) {
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -919,7 +927,7 @@ public final class Package
      * Any new source files will have their package lines updated to match the
      * package we are in.
      */
-    public synchronized void reload()
+    public void reload()
     {
         File subDirs[] = getPath().listFiles(new SubPackageFilter());
 
@@ -928,11 +936,15 @@ public final class Package
             if (!JavaNames.isIdentifier(subDirs[i].getName()))
                 continue;
 
-            Target target = targets.get(subDirs[i].getName());
+            Target target;
+            synchronized (this)
+            {
+                target = targets.get(subDirs[i].getName());
+            }
 
             if (target == null) {
                 Target newtarget = addPackage(subDirs[i].getName());
-                Platform.runLater(() -> {editor.findSpaceForVertex(newtarget);});
+                Platform.runLater(() -> {getEditor().findSpaceForVertex(newtarget);});
             }
         }
 
@@ -941,27 +953,35 @@ public final class Package
         for (Iterator<String> it = interestingSet.iterator(); it.hasNext();) {
             String targetName = it.next();
 
-            Target target = targets.get(targetName);
+            Target target;
+            synchronized (this)
+            {
+                target = targets.get(targetName);
+            }
 
             if (target == null) {
                 Target newtarget = addClass(targetName);
-                Platform.runLater(() -> {editor.findSpaceForVertex(newtarget);});
+                Platform.runLater(() -> {getEditor().findSpaceForVertex(newtarget);});
             }
         }
 
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = it.next();
+        List<Target> targetsCopy;
+        synchronized (this)
+        {
+            targetsCopy = targets.toList();
+        }
 
+        for (Target target : targetsCopy)
+        {
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 ct.analyseSource();
             }
         }
-        
-        //Update class roles, and their state
-        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
-            Target target = it.next();
 
+        //Update class roles, and their state
+        for (Target target : targetsCopy)
+        {
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
 
@@ -978,7 +998,7 @@ public final class Package
             }
         }
 
-        Platform.runLater(() -> {editor.graphChanged();});
+        Platform.runLater(() -> {getEditor().graphChanged();});
     }
     
     /**
