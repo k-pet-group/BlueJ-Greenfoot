@@ -80,13 +80,13 @@ import threadchecker.Tag;
  * The main class diagram in the BlueJ package manager frame, supporting
  * dragging/resizing of classes (incl multi-select), and drawing/creation of relations.
  *
- * The PackageEditor is a StackPane with four child panes.  The back one is a Canvas,
+ * The PackageEditor is a StackPane with five child panes.  The back one is a Canvas,
  * on which we draw the arrows (this way, the arrows always appear behind the classes).
  * The second is a layer which contains classes which appear underneath other classes:
  * currently, this is just test classes (which always appear behind the class they
  * are testing).  The third is a layer for all other targets.  The fourth is a pane
  * on which we draw the class selection rectangle, so that it always appears on top of
- * the classes.
+ * the classes. The fifth is just a label to show a message when the current package is empty.
  */
 @OnThread(Tag.FXPlatform)
 public final class PackageEditor extends StackPane implements MouseTrackingOverlayPane.MousePositionListener, PkgMgrFrame.PkgMgrPane
