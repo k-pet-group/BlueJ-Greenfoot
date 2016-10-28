@@ -3091,10 +3091,15 @@ public class PkgMgrFrame
 
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
-            Platform.runLater(() -> {showingTextEval.set(true);});
+            Platform.runLater(() -> showingTextEval.set(true));
         }
 
         Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> {
+            stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue)
+                    getProject().scheduleCompilation(true, CompileReason.USER, CompileType.ERROR_CHECK_ONLY, getPackage());
+            });
+
             stage.setOnCloseRequest(e -> PkgMgrFrame.this.doClose(false, true));
         }));
     }
