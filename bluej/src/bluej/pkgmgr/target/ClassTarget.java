@@ -246,7 +246,7 @@ public class ClassTarget extends DependentTarget
     private static Image redStripeImage;
     private static final int GREY_STRIPE_SEPARATION = 12;
     // How far between rows of stripes:
-    private static final double RED_STRIPE_SEPARATION = 12;
+    private static final double RED_STRIPE_SEPARATION = 18;
     // How long between each up and down:
     private static final double RED_STRIPE_ZIG_LENGTH = 6;
     // How high each up and down is above the middle
