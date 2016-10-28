@@ -171,7 +171,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
             topPanel.add(updateFilesLabel, BorderLayout.NORTH);
 
             updateFiles = new JList(updateListModel);
-            if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+            if (project.getTeamSettingsController().isDVCS()){
                 updateFiles.setCellRenderer(new FileRenderer(project, true));
             } else {
                 updateFiles.setCellRenderer(new FileRenderer(project));
@@ -466,7 +466,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
                         updateListModel.addElement(noFilesToUpdate);
                     }
                     else {
-                        if (project.getRepository().isDVCS() && pullWithNoChanges && updateListModel.isEmpty()){
+                        if (project.getTeamSettingsController().isDVCS() && pullWithNoChanges && updateListModel.isEmpty()){
                             updateListModel.addElement(needUpdate);
                         }
                         updateAction.setEnabled(true);
@@ -492,7 +492,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
             for (Iterator<TeamStatusInfo> it = info.iterator(); it.hasNext();) {
                 TeamStatusInfo statusInfo = it.next();
                 //update must look in the remoteStatus in a DVCS. if not DVCS, look into the local status.
-                int status = repository.isDVCS()?statusInfo.getRemoteStatus():statusInfo.getStatus(); 
+                int status = project.getTeamSettingsController().isDVCS()?statusInfo.getRemoteStatus():statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) { 
                         updateListModel.addElement(statusInfo);

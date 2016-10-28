@@ -199,14 +199,6 @@ public class GitRepository implements Repository
     }
 
     @Override
-    public boolean isDVCS()
-    {
-        return true;
-    }
-    
-    
-
-    @Override
     public String getVCSProtocol() 
     {
         return protocol;

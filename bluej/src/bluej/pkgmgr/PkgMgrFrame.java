@@ -1172,7 +1172,7 @@ public class PkgMgrFrame
             resetTeamActions();
             
             //update TeamSettings menu items.
-            if (aPkg.getProject().getTeamSettingsController() != null && aPkg.getProject().getTeamSettingsController().getRepository(false).isDVCS()) {
+            if (aPkg.getProject().getTeamSettingsController() != null && aPkg.getProject().getTeamSettingsController().isDVCS()) {
                 commitMenuItem.setText(Config.getString("team.menu.commitPush"));
             } else {
                 commitMenuItem.setText(Config.getString("team.menu.commit"));

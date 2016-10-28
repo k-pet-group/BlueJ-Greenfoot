@@ -98,4 +98,10 @@ public interface TeamworkProvider
     public default double getWorkingCopyVersion(File projectDir){
         return -1;
     }
+
+    /**
+     * Is this a distributed version control system?
+     * @return
+     */
+    public boolean isDVCS();
 }

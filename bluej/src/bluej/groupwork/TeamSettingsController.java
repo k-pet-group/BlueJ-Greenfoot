@@ -637,4 +637,19 @@ public class TeamSettingsController
         return settings.getProvider().getWorkingCopyVersion(projectDir);
     }
 
+    public boolean isDVCS()
+    {
+        // We should possibly show the dialog here to get the settings,
+        // but right now (preparing for BlueJ 4.0.0-preview2 release,
+        // and with a lot of isDVCS calls on the repository which could be null),
+        // I'd rather return false and thus get a button label wrong than
+        // to have a NullPointerException thrown if the settings are wrong.
+        if (settings != null)
+        {
+            TeamworkProvider provider = settings.getProvider();
+            if (provider != null)
+                return provider.isDVCS();
+        }
+        return false;
+    }
 }

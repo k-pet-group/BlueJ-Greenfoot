@@ -301,7 +301,7 @@ public class Project implements DebuggerListener, InspectorManager
             TeamSettingsController tsc = new TeamSettingsController(this);
             isSharedProject = Optional.of(TeamSettingsController.isValidVCSfound(projectDir));
             if (isSharedProject.get()){
-                isDVCS = tsc.getRepository(false).isDVCS();
+                isDVCS = tsc.isDVCS();
             }
         }
         
@@ -494,7 +494,7 @@ public class Project implements DebuggerListener, InspectorManager
                 proj = new Project(projectDir);
 
             //if is shared project, check for svn working copy version.
-            if (proj.isTeamProject() && !proj.getTeamSettingsController().getRepository(false).isDVCS() && proj.getTeamSettingsController().getWorkingCopyVersion() != 1.6) {
+            if (proj.isTeamProject() && !proj.getTeamSettingsController().isDVCS() && proj.getTeamSettingsController().getWorkingCopyVersion() != 1.6) {
                 Platform.runLater(() -> DialogManager.showMessageFX(null, "SVNWorkingCopyNot16"));
             }
 
@@ -2010,7 +2010,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         // lazy instantiation of commit comments frame
         if (commitCommentsFrame == null) {
-            if (this.teamSettingsController.getRepository(false).isDVCS()) {
+            if (this.teamSettingsController.isDVCS()) {
                 //a dcvs repository uses a different window.
                 commitCommentsFrame = new CommitAndPushFrame(this);
             } else {
@@ -2043,7 +2043,7 @@ public class Project implements DebuggerListener, InspectorManager
         //check if it is a dcvs.
         if (shared){
             TeamSettingsController tsc = new TeamSettingsController(this);
-            isDVCS = tsc.getRepository(false).isDVCS();
+            isDVCS = tsc.isDVCS();
         }
         teamActions.setTeamMode(PkgMgrFrame.findFrame(getUnnamedPackage()), shared, isDVCS);
         

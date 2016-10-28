@@ -89,7 +89,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         int status = 0;
         Object val;
         
-        int localStatusColumn = project.getRepository().isDVCS()? 
+        int localStatusColumn = project.getTeamSettingsController().isDVCS()?
                 table.getColumnModel().getColumnIndex(Config.getString("team.status.status"))
                 :table.getColumnModel().getColumnIndex(Config.getString("team.status"));
         
@@ -118,7 +118,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
             return value.toString();
         }
         
-        if (project.getRepository().isDVCS()) {
+        if (project.getTeamSettingsController().isDVCS()) {
             if (colName.equals(Config.getString("team.status.remoteStatus"))) {
                 return TeamStatusInfo.getDCVSStatusString(statusValue,true);
             }
@@ -177,7 +177,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
     {
         int result = -1;
 
-        if (project.getRepository().isDVCS()) {
+        if (project.getTeamSettingsController().isDVCS()) {
             result = jTable.getColumnModel().getColumnIndex(Config.getString("team.status.remoteStatus"));
         }
         return result;

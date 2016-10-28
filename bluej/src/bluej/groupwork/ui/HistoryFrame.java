@@ -125,7 +125,7 @@ public class HistoryFrame extends SwingNodeDialog
         // Find a suitable size for the history list
         List<HistoryInfo> tempList = new ArrayList<>(5);
         HistoryInfo tempInfo;
-        if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+        if (project.getTeamSettingsController().isDVCS()){
             tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "", "2006/11/34 12:34:56", "John Smith J. Doe", "this is the expected comment length of comments");
         } else {
             tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "1.1", "2006/11/34 12:34:56", "abraham", "this is the expected comment length of comments");
@@ -199,7 +199,7 @@ public class HistoryFrame extends SwingNodeDialog
         
         if (vis) {
             Repository repository;
-            if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+            if (project.getTeamSettingsController().isDVCS()){
                 //don't connect to the remote repository if git.
                 repository = project.getTeamSettingsController().getRepository(false);
             } else {

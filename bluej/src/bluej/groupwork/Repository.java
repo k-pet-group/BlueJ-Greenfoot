@@ -147,13 +147,4 @@ public interface Repository
      * Gets the version control protocol, for data collection purposes
      */
     public String getVCSProtocol();
-    
-    /**
-     * Checks if this is a Distributed Version Control System
-     * @return true if this is a Distributed Version Control (e.g.: Git)
-     */
-    default public boolean isDVCS()
-    {
-        return false;
-    }
 }

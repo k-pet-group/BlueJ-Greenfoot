@@ -57,7 +57,7 @@ public class StatusTableModel extends AbstractTableModel
         for(int i = 0; i < initialRows; i++) {
             resources.add(new TeamStatusInfo());
         }
-        if (project.getRepository().isDVCS()){
+        if (project.getTeamSettingsController().isDVCS()){
             statusLabel = Config.getString("team.status.status");
         } else {
             statusLabel = Config.getString("team.status");
@@ -72,7 +72,7 @@ public class StatusTableModel extends AbstractTableModel
      */
     public String getColumnName(int col)
     {
-        if (project.getRepository().isDVCS()) {
+        if (project.getTeamSettingsController().isDVCS()) {
             switch (col) {
                 case 0:
                     return resourceLabel;
@@ -130,7 +130,7 @@ public class StatusTableModel extends AbstractTableModel
     public Object getValueAt(int row, int col)
     {
         TeamStatusInfo info = (TeamStatusInfo) resources.get(row);
-        if (project.getRepository().isDVCS()) {
+        if (project.getTeamSettingsController().isDVCS()) {
             switch (col) {
                 case 0:
                     return ResourceDescriptor.getResource(project, info, false);

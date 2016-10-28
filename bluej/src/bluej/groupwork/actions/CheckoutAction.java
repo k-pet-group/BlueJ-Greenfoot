@@ -93,7 +93,7 @@ public class CheckoutAction extends TeamAction
                 });
             };
 
-            if (!tsc.getRepository(true).isDVCS()) {
+            if (!tsc.isDVCS()) {
                 //if not DVCS, we need to select module.
                 ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame::getFXWindow, tsc.getRepository(true));
                 Platform.runLater(() -> moduleDialog.setLocationRelativeTo(oldFrame.getFXWindow()));

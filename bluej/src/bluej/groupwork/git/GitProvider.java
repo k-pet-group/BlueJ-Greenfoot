@@ -318,4 +318,9 @@ public class GitProvider implements TeamworkProvider
         return result;
     }
 
+    @Override
+    public boolean isDVCS()
+    {
+        return true;
+    }
 }

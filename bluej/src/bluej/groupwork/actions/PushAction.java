@@ -188,7 +188,7 @@ public class PushAction extends AbstractAction
 
             if (!aborted) {
                 setEnabled(true);
-                if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+                if (project.getTeamSettingsController().isDVCS()){
                     //do not close window, just update its contents.
                     commitCommentsFrame.setVisible(true);
                 } else {

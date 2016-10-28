@@ -229,5 +229,10 @@ public class SubversionProvider implements TeamworkProvider
         }
         return result;
     }
-        
+
+    @Override
+    public boolean isDVCS()
+    {
+        return false;
+    }
 }

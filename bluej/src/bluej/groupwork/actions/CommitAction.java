@@ -125,7 +125,7 @@ public class CommitAction extends AbstractAction
         
         if (project != null) {
             commitCommentsFrame.startProgress();
-            if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+            if (project.getTeamSettingsController().isDVCS()){
                 //if DVCS, display message on commit/push window.
                 commitCommentsFrame.displayMessage(Config.getString("team.commit.statusMessage"));
             } else {
@@ -204,7 +204,7 @@ public class CommitAction extends AbstractAction
                 if (! result.isError() && ! result.wasAborted()) {
                     DataCollector.teamCommitProject(project, statusHandle.getRepository(), files);
                     EventQueue.invokeLater(() -> {
-                            if (project.getTeamSettingsController().getRepository(false).isDVCS()) {
+                            if (project.getTeamSettingsController().isDVCS()) {
                                 //if DVCS, display message on commit/push window.
                                 commitCommentsFrame.displayMessage(Config.getString("team.commit.statusDone"));
                             } else {
@@ -219,7 +219,7 @@ public class CommitAction extends AbstractAction
             
             if (! aborted) {
                 setEnabled(true);
-                if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+                if (project.getTeamSettingsController().isDVCS()){
                     commitCommentsFrame.setVisible(true);
                 } else {
                     commitCommentsFrame.setVisible(false);

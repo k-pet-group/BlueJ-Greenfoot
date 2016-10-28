@@ -132,7 +132,7 @@ public class ImportAction extends TeamAction
                             files.get(), Config.getString("team.import.initialMessage"));
                     result = command.getResult();
                     //In DVCS, we need an aditional command: pushChanges.
-                    if (repository.isDVCS()){
+                    if (tsc.isDVCS()){
                         command = repository.pushChanges();
                         result = command.getResult();
                     }

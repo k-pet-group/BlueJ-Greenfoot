@@ -58,7 +58,7 @@ public class FileRenderer extends DefaultListCellRenderer
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
     {
         String status;
-        if (project.getTeamSettingsController().getRepository(false).isDVCS()){
+        if (project.getTeamSettingsController().isDVCS()){
             status = ResourceDescriptor.getDCVSResource(project, value, true, remote);
         } else {
             status = ResourceDescriptor.getResource(project, value, true);
