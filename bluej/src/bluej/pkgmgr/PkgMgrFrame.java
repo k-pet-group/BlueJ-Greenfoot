@@ -449,7 +449,6 @@ public class PkgMgrFrame
                 bottomOverlay.setMouseTransparent(true);
                 bottomPane = new SplitPane(new StackPane(objbench, triangleLabel));
                 bottomPane.setOrientation(Orientation.HORIZONTAL);
-                SplitPane.setResizableWithParent(bottomPane, false);
                 // Wait until the codepad appears, then set it:
                 bottomPane.getDividers().addListener((ListChangeListener<? super SplitPane.Divider>)c -> {
                     c.next();
@@ -465,7 +464,9 @@ public class PkgMgrFrame
                     }
                 });
 
-                topBottomSplit = new SplitPane(new StackPane(topPane, topOverlay), new StackPane(bottomPane, bottomOverlay));
+                StackPane bottomPaneAndOverlay = new StackPane(bottomPane, bottomOverlay);
+                SplitPane.setResizableWithParent(bottomPaneAndOverlay, false);
+                topBottomSplit = new SplitPane(new StackPane(topPane, topOverlay), bottomPaneAndOverlay);
                 JavaFXUtil.addStyleClass(topBottomSplit, "top-bottom-split");
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
                 // We add a mouse handler so that if you drag at the intersection of the split
