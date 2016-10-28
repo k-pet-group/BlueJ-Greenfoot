@@ -183,16 +183,7 @@ public class TeamSettingsController
      */
     public boolean initRepository()
     {
-        if (repository == null) {
-            TeamworkProvider provider = settings.getProvider();
-            if (password == null) {
-                if (getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
-                    return false;
-                }
-            }
-            repository = provider.getRepository(projectDir, settings);
-        }
-        return true;
+        return initRepository(true);
     }
     
     public boolean initRepository(boolean auth)
