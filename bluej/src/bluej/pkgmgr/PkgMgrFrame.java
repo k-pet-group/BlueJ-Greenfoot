@@ -3105,9 +3105,10 @@ public class PkgMgrFrame
         }
 
         Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> {
-            stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue)
+            JavaFXUtil.addChangeListener(stage.focusedProperty(), newValue -> {
+                if (newValue) {
                     getProject().scheduleCompilation(true, CompileReason.USER, CompileType.ERROR_CHECK_ONLY, getPackage());
+                }
             });
 
             stage.setOnCloseRequest(e -> PkgMgrFrame.this.doClose(false, true));
