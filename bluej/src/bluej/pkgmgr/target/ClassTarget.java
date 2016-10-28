@@ -135,6 +135,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -2038,18 +2040,20 @@ public class ClassTarget extends DependentTarget
         {
             if (Application.class.isAssignableFrom(cl))
             {
-                //#error TODO add object to bench, like in Invoker.  (Is it easiest to just add an invoker instance?)
-                menu.getItems().add(JavaFXUtil.makeMenuItem(launchFXStr,() -> SwingUtilities.invokeLater(() -> {
-                    DebuggerResult result = getPackage().getDebugger().launchFXApp(cl.getName());
-                    switch (result.getExitStatus())
-                    {
-                        case Debugger.NORMAL_EXIT:
-                            DebuggerObject obj = result.getResultObject();
-                            @OnThread(Tag.Any) PackageEditor ed = getPackage().getEditor();
-                            ed.raisePutOnBenchEvent(ed.getFXWindow(), obj, obj.getGenType(), null, false, Optional.empty());
-                            break;
-                    }
-                }), null));
+                menu.getItems().add(JavaFXUtil.makeMenuItem(launchFXStr,() -> {
+                    PackageEditor ed = getPackage().getEditor();
+                    Window fxWindow = ed.getFXWindow();
+                    SwingUtilities.invokeLater(() -> {
+                        DebuggerResult result = getPackage().getDebugger().launchFXApp(cl.getName());
+                        switch (result.getExitStatus())
+                        {
+                            case Debugger.NORMAL_EXIT:
+                                DebuggerObject obj = result.getResultObject();
+                                ed.raisePutOnBenchEvent(fxWindow, obj, obj.getGenType(), null, false, Optional.empty());
+                                break;
+                        }
+                    });
+                }, null));
             }
             
             if (roleRef.createClassConstructorMenu(menu.getItems(), this, cl)) {

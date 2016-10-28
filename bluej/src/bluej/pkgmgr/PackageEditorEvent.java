@@ -30,6 +30,8 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.views.CallableView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The event which occurs while editing a package
@@ -47,6 +49,7 @@ public class PackageEditorEvent extends EventObject
     public final static int TARGET_MAKETESTCASE = 7;    // only for unit tests
 
     public final static int OBJECT_PUTONBENCH = 8;
+    @OnThread(Tag.Any)
     private boolean askForName = true;
     private Optional<Point2D> animateFromScenePoint = Optional.empty();
 
@@ -144,6 +147,7 @@ public class PackageEditorEvent extends EventObject
         return ir;
     }
 
+    @OnThread(Tag.Any)
     public boolean askForName()
     {
         return askForName;
