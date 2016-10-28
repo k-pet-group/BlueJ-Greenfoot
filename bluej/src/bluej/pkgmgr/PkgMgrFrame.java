@@ -3080,6 +3080,7 @@ public class PkgMgrFrame
             testPanel.setExpanded(true);
             teamAndTestFoldout = new UntitledCollapsiblePane(foldout, !PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS) && !PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS)) {
                 @Override
+                @OnThread(Tag.FX)
                 protected double computeMinHeight(double width)
                 {
                     return TriangleArrow.TRIANGLE_DEPTH;
@@ -3687,7 +3688,9 @@ public class PkgMgrFrame
         // You must have two targets, one of which must have source code:
         newInheritsAction.setEnabled(numClassTargets >= 2 && numClassTargetsWithSource >= 1);
 
-        pkg.getEditor().noClassesExistedMessage.setVisible(numClassTargets + numPackagesNested == 0);
+        Platform.runLater(() -> {
+            getPackage().getEditor().noClassesExistedMessage.setVisible(numClassTargets + numPackagesNested == 0);
+        });
     }
 
     class URLDisplayer
