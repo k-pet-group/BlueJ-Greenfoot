@@ -268,10 +268,10 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      * @param animateFromScenePoint
      */
     @OnThread(Tag.Swing)
-    public void raisePutOnBenchEvent(Window src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir, Optional<Point2D> animateFromScenePoint)
+    public void raisePutOnBenchEvent(Window src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir, boolean askForName, Optional<Point2D> animateFromScenePoint)
     {
         fireTargetEvent(
-            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir, animateFromScenePoint));
+            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir, askForName, animateFromScenePoint));
     }
     
     /**

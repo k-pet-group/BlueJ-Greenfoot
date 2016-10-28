@@ -43,9 +43,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.application.Preloader;
+import javafx.stage.Stage;
+
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
@@ -243,7 +250,8 @@ public class ExecServer
                     if (source instanceof Window) {
                         addWindow((Window) source);
                         Utility.bringToFront((Window) source);
-                        // To make sure that screen readers announce the window being open,
+                        // To make sure that screen readers an
+                        // nounce the window being open,
                         // we de-focus and re-focus it once the right application has focus:
                         // Disabling this code due to it causing issues, see ticket #516.
                         //     KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
@@ -778,10 +786,29 @@ public class ExecServer
                             break;
                         }
                         case LAUNCH_FX_APP:
+                            // The preloaded will tell us the Application reference:
+                            CompletableFuture<Application> theApp = new CompletableFuture<>();
                             new Thread(() -> {
+                                FXPreloader.theApp = theApp;
+                                // Use a preloader to be able to find out the Application reference:
+                                System.setProperty("javafx.preloader", FXPreloader.class.getName());
                                 Application.launch((Class<? extends Application>)loadAndInitClass(classToRun));
+                                // launch only returns when FX is done, at which point we need to
+                                // reset the VM to enable running again:
                                 System.exit(0);
                             }).start();
+                            // Return null if it takes too long to initialise.  This is most likely
+                            // due to the Application class's constructor doing a lot of work,
+                            // but it may also be related to a failure in loading.
+                            try
+                            {
+                                methodReturn = theApp.get(3000, TimeUnit.MILLISECONDS);
+                            }
+                            catch (InterruptedException | TimeoutException | ExecutionException e)
+                            {
+                                // If anything goes wrong, we just won't add to the object bench:
+                                methodReturn = null;
+                            }
                             break;
                         case TEST_SETUP:
                             methodReturn = runTestSetUp(classToRun);
@@ -898,5 +925,31 @@ public class ExecServer
     public static void setClassLoader(ClassLoader newLoader)
     {
         currentLoader = newLoader;
+    }
+
+    // A preloader for FX, only used to find out the reference of the Application instance.
+    public static class FXPreloader extends Preloader
+    {
+        // This should only be filled once per VM run because we exit afterwards.
+        // But just in case, we initialise it when we start each Application
+        public static CompletableFuture<Application> theApp;
+
+        @Override
+        public void start(Stage primaryStage) throws Exception
+        {
+            // Nothing special to do, we just want the notifications
+        }
+
+        @Override
+        public void handleStateChangeNotification(StateChangeNotification info)
+        {
+            super.handleStateChangeNotification(info);
+            switch (info.getType())
+            {
+                case BEFORE_START:
+                    theApp.complete(info.getApplication());
+                    break;
+            }
+        }
     }
 }

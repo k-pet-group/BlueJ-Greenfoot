@@ -47,6 +47,7 @@ public class PackageEditorEvent extends EventObject
     public final static int TARGET_MAKETESTCASE = 7;    // only for unit tests
 
     public final static int OBJECT_PUTONBENCH = 8;
+    private boolean askForName = true;
     private Optional<Point2D> animateFromScenePoint = Optional.empty();
 
     protected int id;
@@ -106,10 +107,11 @@ public class PackageEditorEvent extends EventObject
         this.ir = ir;
     }
 
-    public PackageEditorEvent(Object source, int id, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir, Optional<Point2D> animateFromScenePoint)
+    public PackageEditorEvent(Object source, int id, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir, boolean askForName, Optional<Point2D> animateFromScenePoint)
     {
         this(source, id, obj, iType, ir);
         this.animateFromScenePoint = animateFromScenePoint;
+        this.askForName = askForName;
     }
 
     public int getID()
@@ -140,6 +142,11 @@ public class PackageEditorEvent extends EventObject
     public InvokerRecord getInvokerRecord()
     {
         return ir;
+    }
+
+    public boolean askForName()
+    {
+        return askForName;
     }
 
     public Optional<Point2D> getAnimateFromScenePoint()

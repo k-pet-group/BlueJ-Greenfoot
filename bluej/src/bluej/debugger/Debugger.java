@@ -249,7 +249,7 @@ public abstract class Debugger
     public abstract DebuggerClass getClass(String className, boolean initialize)
         throws ClassNotFoundException;
 
-    public abstract void launchFXApp(String className);
+    public abstract DebuggerResult launchFXApp(String className);
 
     /**
      * Get a reference to a string in the remote machine whose value is the

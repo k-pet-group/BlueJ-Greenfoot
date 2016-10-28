@@ -1520,8 +1520,8 @@ public class PkgMgrFrame
                     boolean tryAgain = true;
                     do
                     {
-                        String newObjectName = DialogManager.askStringFX((javafx.stage.Window)e.getSource(), "getobject-new-name",
-                            name);
+                        String newObjectName = e.askForName() ? DialogManager.askStringFX((javafx.stage.Window)e.getSource(), "getobject-new-name",
+                            name) : name;
 
                         if (newObjectName == null)
                         {

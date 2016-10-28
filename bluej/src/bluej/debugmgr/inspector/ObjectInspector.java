@@ -25,6 +25,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.SwingUtilities;
 
@@ -355,7 +356,7 @@ public class ObjectInspector extends Inspector
                 PackageEditor pkgEd = pkg.getEditor();
                 pkgEd.recordInteraction(getIr);
 
-                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, null);
+                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, true, Optional.empty());
             });
         }
     }

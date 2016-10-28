@@ -193,7 +193,7 @@ public class LocalDebugger extends Debugger
     }
 
     @Override
-    public void launchFXApp(String className)
+    public DebuggerResult launchFXApp(String className)
     {
         throw new UnsupportedOperationException();
     }

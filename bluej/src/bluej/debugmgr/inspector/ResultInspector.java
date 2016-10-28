@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.SwingUtilities;
 
@@ -362,7 +363,7 @@ public class ResultInspector extends Inspector
     {
         if (selectedField != null) {
             GenTypeClass resultClass = resultType.asClass();
-            SwingUtilities.invokeLater(() -> pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultClass, ir, null));
+            SwingUtilities.invokeLater(() -> pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultClass, ir, true, Optional.empty()));
         }
     }
 }

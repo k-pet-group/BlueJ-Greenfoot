@@ -554,6 +554,7 @@ public class JdiDebugger extends Debugger
      *            the name of the method
      * @return a DebuggerTestResult object
      */
+    @Override
     public DebuggerTestResult runTestMethod(String className, String methodName)
     {
         ArrayReference arrayRef = null;
@@ -610,6 +611,7 @@ public class JdiDebugger extends Debugger
     /**
      * Dispose all top level windows in the remote machine.
      */
+    @Override
     public void disposeWindows()
     {
         VMReference vmr = getVMNoWait();
@@ -629,6 +631,7 @@ public class JdiDebugger extends Debugger
      * @param classname
      *            the class to start
      */
+    @Override
     public DebuggerResult runClassMain(String className)
         throws ClassNotFoundException
     {
@@ -643,19 +646,25 @@ public class JdiDebugger extends Debugger
         }
     }
 
-    public void launchFXApp(String className)
+    @Override
+    public DebuggerResult launchFXApp(String className)
     {
         VMReference vmr = getVM();
         if (vmr != null) {
             synchronized (serverThreadLock) {
-                vmr.launchFXApp(className);
+                return vmr.launchFXApp(className);
             }
+        }
+        else
+        {
+            return new DebuggerResult(Debugger.TERMINATED);
         }
     }
     
     /**
      * Construct a class instance using the default constructor.
      */
+    @Override
     public DebuggerResult instantiateClass(String className)
     {
         VMReference vmr = getVM();
@@ -672,6 +681,7 @@ public class JdiDebugger extends Debugger
     /* (non-Javadoc)
      * @see bluej.debugger.Debugger#instantiateClass(java.lang.String, java.lang.String[], bluej.debugger.DebuggerObject[])
      */
+    @Override
     public DebuggerResult instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
     {
         // If there are no arguments, use the default constructor
@@ -700,6 +710,7 @@ public class JdiDebugger extends Debugger
     /*
      * @see bluej.debugger.Debugger#getClass(java.lang.String, boolean)
      */
+    @Override
     public DebuggerClass getClass(String className, boolean initialize)
         throws ClassNotFoundException
     {

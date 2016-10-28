@@ -1720,7 +1720,34 @@ class VMReference
         catch(InterruptedException ie) {}
     }
 
-    public void launchFXApp(String className)
+    public DebuggerResult launchFXApp(String className)
+    {
+        ObjectReference obj = null;
+        exitStatus = Debugger.NORMAL_EXIT;
+        try {
+            obj = launchFXAppHelper(className);
+        }
+        catch (VMDisconnectedException e) {
+            exitStatus = Debugger.TERMINATED;
+            // return null; // debugger state change handled elsewhere
+            return new DebuggerResult(Debugger.TERMINATED);
+        }
+        catch (Exception e) {
+            // remote invocation failed
+            Debug.reportError("Launch FX app failed: " + e);
+            e.printStackTrace();
+            exitStatus = Debugger.EXCEPTION;
+            lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
+        }
+        if (obj == null) {
+            return new DebuggerResult(lastException);
+        }
+        else {
+            return new DebuggerResult(JdiObject.getDebuggerObject(obj));
+        }
+    }
+
+    public ObjectReference launchFXAppHelper(String className)
     {
         // Calls to this method are serialized via serverThreadLock in JdiDebugger
         serverThreadStartWait();
@@ -1733,6 +1760,16 @@ class VMReference
         serverThreadStarted = false;
         resumeServerThread();
         serverThreadStartWait();
+
+        // Get return value and check for exceptions
+        Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
+        if (rval == null) {
+            ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
+            if (exception != null) {
+                exceptionEvent(new InvocationException(exception));
+            }
+        }
+        return (ObjectReference) rval;
     }
 
     /**
