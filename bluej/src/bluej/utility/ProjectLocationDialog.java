@@ -72,8 +72,10 @@ class ProjectLocationDialog
             if (chosen != null)
                 parentField.setText(chosen.getAbsolutePath());
         });
+        chooseParent.setMinWidth(Region.USE_PREF_SIZE);
         gridPane.add(chooseParent, 2, 1);
         compoundPath = new Label();
+        compoundPath.setMinWidth(250.0);
         compoundPath.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
         JavaFXUtil.addStyleClass(compoundPath, "compound-path");
         compoundPath.textProperty().bind(new StringBinding()
