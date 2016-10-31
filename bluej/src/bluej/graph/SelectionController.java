@@ -108,9 +108,25 @@ public class SelectionController
         marquee.stop();     // may or may not have had a marquee...
         graphEditor.repaint();
         
-        if(moving || resizing) {
+        if (moving || resizing) {
             endMove();
             graphEditor.repaint();
+        }
+
+        // We deselected the focused class while mouse was dragging,
+        // now we need to reselect it if there is a focused class:
+        for (Target t : graph.getVertices())
+        {
+            // If it is focused and selected, it must have been in the marquee
+            // so don't ruin the multi-select.
+            // We only need to handle the case where it was focused (i.e. was
+            // selected pre-marquee) and is not now selected (i.e. was not
+            // in the final marquee):
+            if (t.isFocused() && !t.isSelected())
+            {
+                selectOnly(t);
+                break;
+            }
         }
     }
     

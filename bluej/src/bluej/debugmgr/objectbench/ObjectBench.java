@@ -285,7 +285,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         }
         selectedObject = aWrapper;
         
-        if (selectedObject != null) {
+        if (selectedObject != null && !selectedObject.isFocused()) {
             selectedObject.requestFocus();
         }
     }
@@ -303,7 +303,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         if (selectedObject != null) {
             selectedObject.setSelected(false);
         }
-        
+
         selectedObject = aWrapper;
         selectedObject.setSelected(true);
     }
@@ -541,7 +541,6 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         SwingUtilities.invokeLater(() -> {resetRecordingInteractions();});
 
         setOnKeyPressed(this::keyPressed);
-        obp.setOnMouseClicked(e -> setSelectedObject(null));
     }
 
     
@@ -594,5 +593,13 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         // Override default behaviour (in which clicking on scroll pane
         // gives it focus).
         // Don't let the pane request focus.
+    }
+
+    /**
+     * Does one of the objects contained within have focus?
+     */
+    public synchronized boolean objectHasFocus()
+    {
+        return objects.stream().anyMatch(w -> w.isFocused());
     }
 }

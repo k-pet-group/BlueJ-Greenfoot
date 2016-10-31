@@ -514,9 +514,18 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         // If none of our children have focus any more
         // after processing has completed, select none:
         JavaFXUtil.runAfterCurrent(() -> {
-            if (!pkg.getVertices().stream().anyMatch(Target::isFocused))
+            if (!targetHasFocus())
                 selectionController.clearSelection();
         });
+    }
+
+    /**
+     * Does one of the targets in the class diagram have focus?
+     * @return
+     */
+    public boolean targetHasFocus()
+    {
+        return pkg.getVertices().stream().anyMatch(Target::isFocused);
     }
 
     /**

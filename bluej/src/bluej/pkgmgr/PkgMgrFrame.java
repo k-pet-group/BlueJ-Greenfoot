@@ -2494,13 +2494,13 @@ public class PkgMgrFrame
         Package pkgFinal = getPackage();
         String pkgId = pkgFinal.getId();
         Platform.runLater(() -> {
-            if (editor.isFocused())
+            if (editor.targetHasFocus())
             {
                 if (!(doRemoveTargets(pkgFinal) || editor.doRemoveDependency())) {
                     DialogManager.showErrorFX(getFXWindow(), "no-class-selected");
                 }
             }
-            else if (objbench.isFocused()) { // focus in object bench
+            else if (objbench.objectHasFocus()) { // focus in object bench
                 objbench.removeSelectedObject(pkgId);
             }
         });
