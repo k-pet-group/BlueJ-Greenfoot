@@ -134,7 +134,7 @@ public class ProjectPrintDialog extends SwingNodeDialog
         DialogManager.centreDialog(this);
 
         //close button to solve the cross icon button not working
-        Platform.runLater(() -> setCloseIsButton(BlueJTheme.getCloseButton()));
+        Platform.runLater(() -> setCloseIsButton(cancelButton));
     }
 
     /**
