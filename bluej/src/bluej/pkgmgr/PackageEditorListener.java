@@ -37,16 +37,4 @@ public interface PackageEditorListener extends EventListener
     void targetEvent(PackageEditorEvent e);
     
     void recordInteraction(InvokerRecord ir);
-    
-    /**
-     * The package editor received focus
-     */
-    @OnThread(Tag.FXPlatform)
-    void pkgEditorGotFocus();
-    
-    /**
-     * The package editor lost permanent focus
-     */
-    @OnThread(Tag.FXPlatform)
-    void pkgEditorLostFocus();
 }

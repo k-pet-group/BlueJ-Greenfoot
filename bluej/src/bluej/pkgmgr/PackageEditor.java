@@ -100,7 +100,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     private final PackageEditorListener listener;
     private final Package pkg;
     private final SelectionController selectionController;
-    private boolean hasPermFocus;
     // Are we showing extends/inherits arrows?
     private final BooleanProperty showExtends;
     // Are we showing uses arrows?
@@ -365,26 +364,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             showingContextMenu.hide();
         }
         showingContextMenu = menu;
-    }
-
-    public void setPermFocus(boolean focus)
-    {
-        boolean wasFocussed = hasPermFocus;
-        this.hasPermFocus = focus;
-        if (focus && ! wasFocussed) {
-            listener.pkgEditorGotFocus();
-        }
-        else if (! focus && wasFocussed) {
-            listener.pkgEditorLostFocus();
-        }
-    }
-
-    /**
-     * Check whether the editor has focus within its parent.
-     */
-    public boolean hasPermFocus()
-    {
-        return hasPermFocus;
     }
 
     // Gets the FX window in which this package editor lies.
