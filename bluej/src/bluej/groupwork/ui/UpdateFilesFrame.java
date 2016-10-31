@@ -207,6 +207,8 @@ public class UpdateFilesFrame extends SwingNodeDialog
                         setVisible(false);
                     }
                 });
+            Platform.runLater(() -> setCloseIsButton(closeButton));
+
            
             DBox buttonPanel = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
             buttonPanel.setBorder(BlueJTheme.generalBorder);

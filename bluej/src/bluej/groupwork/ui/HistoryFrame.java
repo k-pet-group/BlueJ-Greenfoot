@@ -185,6 +185,7 @@ public class HistoryFrame extends SwingNodeDialog
                 dispose();
             }
         });
+        Platform.runLater(() -> setCloseIsButton(closeButton));
         buttonBox.add(closeButton);
         buttonBox.setAlignmentX(0f);
         contentPane.add(buttonBox);

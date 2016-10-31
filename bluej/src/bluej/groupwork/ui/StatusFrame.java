@@ -166,6 +166,8 @@ public class StatusFrame extends SwingNodeDialog
 
             buttonPanel.add(refreshButton);
             buttonPanel.add(closeButton);
+
+            Platform.runLater(() -> setCloseIsButton(closeButton));
         }
 
         return buttonPanel;

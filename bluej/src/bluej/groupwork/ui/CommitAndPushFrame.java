@@ -173,6 +173,7 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
         middlePanel = new JPanel();
         JButton closeButton = BlueJTheme.getCancelButton();
         closeButton.setText(Config.getString("close"));
+        Platform.runLater(() -> setCloseIsButton(closeButton));
 
         {
             middlePanel.setLayout(new BorderLayout());
