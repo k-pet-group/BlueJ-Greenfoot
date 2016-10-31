@@ -466,7 +466,25 @@ public class PkgMgrFrame
 
                 StackPane bottomPaneAndOverlay = new StackPane(bottomPane, bottomOverlay);
                 SplitPane.setResizableWithParent(bottomPaneAndOverlay, false);
-                topBottomSplit = new SplitPane(new StackPane(topPane, topOverlay), bottomPaneAndOverlay);
+                StackPane topPaneAndOverlay = new StackPane(topPane, topOverlay);
+                // SplitPane has a really odd behaviour.  If you set the divider position
+                // and it starts a layout pass where the top and bottom both have enough
+                // room to be their min sizes, but not enough for preferred, SplitPane
+                // will resize, even if the bottom pane has setResizableWithParent set to false.
+                // Which just seems wrong -- and it causes the divider to not resume
+                // in the position which we faithfully saved and restored.  Over time the divider
+                // creeps upward.  Here's the work-around: we set the top pane to also
+                // not be resizable, which prevents SplitPane messing with the divider position.
+                // But we only want to disable resizing of the top during loading; if the user
+                // later resizes the pane, we do want to resize the top.  There's not an obvious
+                // event to listen for to decide when to allow resizing (showing isn't the right time
+                // because a layout pulse happens later), so here we use a timer.  Ugly but can't
+                // see a better option.  5 seconds seems to be enough even on my slow machine
+                // that it's loaded up, but hopefully short enough it doesn't interfere with actual
+                // user resizes:
+                SplitPane.setResizableWithParent(topPaneAndOverlay, false);
+                JavaFXUtil.runAfter(Duration.seconds(5.0), () -> SplitPane.setResizableWithParent(topPaneAndOverlay, true));
+                topBottomSplit = new SplitPane(topPaneAndOverlay, bottomPaneAndOverlay);
                 JavaFXUtil.addStyleClass(topBottomSplit, "top-bottom-split");
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
                 // We add a mouse handler so that if you drag at the intersection of the split
