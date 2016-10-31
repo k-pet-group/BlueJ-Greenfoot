@@ -331,7 +331,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         JavaFXUtil.addChangeListener(tabPane.focusedProperty(), focused -> {
             // Very specific work around for Moe editor inside JavaFX SwingNode on Linux:
             // Must make sure focus doesn't remain in the tab header area.
-            if (focused && Config.isLinux())
+            if (focused)
             {
                 FXTab tab = (FXTab)tabPane.getSelectionModel().getSelectedItem();
                 tab.focusWhenShown();
