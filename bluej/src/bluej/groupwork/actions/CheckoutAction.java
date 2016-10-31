@@ -214,8 +214,10 @@ public class CheckoutAction extends TeamAction
                 newFrame.openPackage(initialPackage, newFrame);
             }
             else {
-                Platform.runLater(() -> TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow()));
-                cleanup();
+                Platform.runLater(() -> {
+                    TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow());
+                    SwingUtilities.invokeLater(() -> cleanup());
+                });
             }
         }
 
