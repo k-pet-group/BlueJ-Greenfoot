@@ -235,6 +235,8 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             
             setMinWidth(WIDTH);
             setMinHeight(HEIGHT);
+            setMaxWidth(WIDTH);
+            setMaxHeight(HEIGHT);
             setCursor(Cursor.HAND);
             
             setFocusTraversable(true);
