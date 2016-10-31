@@ -2040,7 +2040,7 @@ public class ClassTarget extends DependentTarget
         {
             if (Application.class.isAssignableFrom(cl))
             {
-                menu.getItems().add(JavaFXUtil.makeMenuItem(launchFXStr,() -> {
+                menu.getItems().add(JavaFXUtil.withStyleClass(JavaFXUtil.makeMenuItem(launchFXStr,() -> {
                     PackageEditor ed = getPackage().getEditor();
                     Window fxWindow = ed.getFXWindow();
                     SwingUtilities.invokeLater(() -> {
@@ -2053,7 +2053,7 @@ public class ClassTarget extends DependentTarget
                                 break;
                         }
                     });
-                }, null));
+                }, null), MENU_STYLE_INBUILT));
             }
             
             if (roleRef.createClassConstructorMenu(menu.getItems(), this, cl)) {
