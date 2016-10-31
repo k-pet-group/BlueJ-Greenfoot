@@ -450,11 +450,17 @@ public class TeamSettingsPanel extends JPanel
     {
         boolean newOkEnabled = (userField.getText().length() != 0);
 
-        if (yourEmailField.isEnabled() && yourNameField.isEnabled()){
+        if (yourEmailField.isEnabled() && yourNameField.isEnabled())
+        {
             newOkEnabled &= (yourEmailField.getText().length() != 0) && (yourEmailField.getText().contains("@"));
             newOkEnabled &= yourNameField.getText().length() != 0;
+        }
+        if (uriField.isVisible())
+        {
             newOkEnabled &= uriField.getText().length() != 0;
-        } else {
+        }
+        else
+        {
             newOkEnabled &= serverField.getText().length() != 0;
         }
         if (newOkEnabled != okEnabled) {
