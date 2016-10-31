@@ -31,6 +31,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import bluej.utility.javafx.SwingNodeDialog;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJTheme;
@@ -126,6 +127,9 @@ public class ProjectPrintDialog extends SwingNodeDialog
         pack();
 
         DialogManager.centreDialog(this);
+
+        //close button to solve the cross icon button not working
+        Platform.runLater(() -> setCloseIsButton(BlueJTheme.getCloseButton()));
     }
 
     /**
