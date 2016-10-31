@@ -47,7 +47,9 @@ import bluej.utility.DialogManager;
 public class ProjectPrintDialog extends SwingNodeDialog
 {
     private boolean ok = false; // result: which button?
-    private JCheckBox printDiagram;
+
+    // Hidden temporary for the preview version
+//    private JCheckBox printDiagram;
     private JCheckBox printSource;
     private JCheckBox printReadme;
     
@@ -55,8 +57,10 @@ public class ProjectPrintDialog extends SwingNodeDialog
     private JCheckBox printHighlighting;
     
     // We store these values for use afterwards, off the Swing thread:
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private boolean printDiagramSelected;
+
+    // Hidden temporary for the preview version
+//    @OnThread(value = Tag.Any, requireSynchronized = true)
+//    private boolean printDiagramSelected;
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean printSourceSelected;
     @OnThread(value = Tag.Any, requireSynchronized = true)
@@ -86,9 +90,10 @@ public class ProjectPrintDialog extends SwingNodeDialog
         mainPanel.add(Box.createVerticalStrut(
                               BlueJTheme.dialogCommandButtonsVertical));
 
-        printDiagram = new JCheckBox(Config.getString("pkgmgr.printDialog.printDiagram"));
-        printDiagram.setSelected(true);
-        mainPanel.add(printDiagram);
+        // Hidden temporary for the preview version
+//        printDiagram = new JCheckBox(Config.getString("pkgmgr.printDialog.printDiagram"));
+//        printDiagram.setSelected(true);
+//        mainPanel.add(printDiagram);
                 
         printSource = new JCheckBox(Config.getString("pkgmgr.printDialog.printSource"));
         mainPanel.add(printSource);
@@ -175,7 +180,9 @@ public class ProjectPrintDialog extends SwingNodeDialog
     @OnThread(Tag.Any)
     public synchronized boolean printDiagram()
     {
-        return printDiagramSelected;
+        // Hidden temporary for the preview version
+//        return printDiagramSelected;
+        return false;
     }
 
     /**
@@ -205,7 +212,8 @@ public class ProjectPrintDialog extends SwingNodeDialog
     // While on Swing thread, store selections ready for later retrieval from another thread:
     private synchronized void storeValues()
     {
-        printDiagramSelected = printDiagram.isSelected();
+        // Hidden temporary for the preview version
+//        printDiagramSelected = printDiagram.isSelected();
         printSourceSelected = printSource.isSelected();
         printReadmeSelected = (printReadme != null && printReadme.isSelected());
         printLineNumbersSelected = printLineNumbers.isSelected();
