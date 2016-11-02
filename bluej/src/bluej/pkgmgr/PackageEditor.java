@@ -846,7 +846,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     }
 
     /**
-     * Add a dependancy in this package. The dependency is also added to the
+     * Add a dependency in this package. The dependency is also added to the
      * individual targets involved.
      */
     @OnThread(Tag.Swing)
@@ -868,7 +868,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
                 int index = usesArrows.indexOf(d);
                 if (index != -1)
                 {
-                    ((UsesDependency)usesArrows.get(index)).setFlag(true);
+                    usesArrows.get(index).setFlag(true);
                     return;
                 }
                 else
@@ -1005,10 +1005,10 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
 
 
     /**
-     * Modify the given point to be one of the deined grid points.
+     * Modify the given point to be one of the defined grid points.
      *
-     * @param point  The original point
-     * @return      A point close to the original which is on the grid.
+     * @param x  The original point's x coordinate.
+     * @return      The x coordinate of a point close to the original which is on the grid.
      */
     public int snapToGrid(int x)
     {
