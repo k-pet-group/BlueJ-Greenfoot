@@ -971,6 +971,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             try
             {
                 editor.save();
+                modifiedFrame(null);
             } catch (IOException e)
             {
                 Debug.reportError("Problem saving after automated edit", e);
