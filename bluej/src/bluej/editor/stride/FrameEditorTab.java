@@ -1811,12 +1811,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         if (f != null)
             f.trackBlank(); // Do this even if loading
-        if ((isLoading() || getParent() == null) && !automatedEdit)
-            return;
-        editor.codeModified();
-        registerStackHighlight(null);
-        JavaFXUtil.runNowOrLater(() -> updateErrorOverviewBar(true));
-        SuggestedFollowUpDisplay.modificationIn(this);
+
+        if ( (!isLoading() && getParent() != null) || automatedEdit) {
+            editor.codeModified();
+            registerStackHighlight(null);
+            JavaFXUtil.runNowOrLater(() -> updateErrorOverviewBar(true));
+            SuggestedFollowUpDisplay.modificationIn(this);
+        }
     }
 
     @OnThread(Tag.FXPlatform)
