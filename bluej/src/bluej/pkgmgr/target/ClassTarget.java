@@ -261,6 +261,8 @@ public class ClassTarget extends DependentTarget
     private boolean showingInterface;
     @OnThread(Tag.FXPlatform)
     private boolean drawingExtends = false;
+    @OnThread(Tag.FXPlatform)
+    private Label nameLabel;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -293,15 +295,15 @@ public class ClassTarget extends DependentTarget
         Platform.runLater(() -> {
             JavaFXUtil.addStyleClass(pane, "class-target");
 
-            Label name = new Label(baseName);
-            JavaFXUtil.addStyleClass(name, "class-target-name");
-            name.setMaxWidth(9999.0);
+            nameLabel = new Label(baseName);
+            JavaFXUtil.addStyleClass(nameLabel, "class-target-name");
+            nameLabel.setMaxWidth(9999.0);
             stereotypeLabel = new Label();
             stereotypeLabel.setMaxWidth(9999.0);
             stereotypeLabel.visibleProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
             stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
             JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
-            pane.setTop(new VBox(stereotypeLabel, name));
+            pane.setTop(new VBox(stereotypeLabel, nameLabel));
             canvas = new ResizableCanvas() {
                 @Override
                 @OnThread(Tag.FX)
@@ -2744,5 +2746,14 @@ public class ClassTarget extends DependentTarget
     {
         // Don't allow resize if we are picking an extends arrow:
         return super.cursorAtResizeCorner(e) && !drawingExtends;
+    }
+
+    @Override
+    public void setDisplayName(String name)
+    {
+        super.setDisplayName(name);
+        // Don't just use name; getDisplayName adds template params info
+        String newDisplayName = getDisplayName();
+        Platform.runLater(() -> nameLabel.setText(newDisplayName));
     }
 }
