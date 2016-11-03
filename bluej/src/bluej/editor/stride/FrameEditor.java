@@ -220,7 +220,16 @@ public class FrameEditor implements Editor
         //Debug.message("&&&&&& Creating panel: " + System.currentTimeMillis());
         this.panel = new FrameEditorTab(pkg.getProject(), resolver, this, lastSource);
         //Debug.message("&&&&&& Adding panel to editor: " + System.currentTimeMillis());
-        pkg.getProject().getDefaultFXTabbedEditor().addTab(this.panel, visible, toFront);
+        if (visible)
+        {
+            // This calls initialiseFX:
+            pkg.getProject().getDefaultFXTabbedEditor().addTab(this.panel, visible, toFront);
+        }
+        else
+        {
+            // This is ok to call multiple times:
+            this.panel.initialiseFX();
+        }
         //Debug.message("&&&&&& Done! " + System.currentTimeMillis());
         // Saving Java will trigger any pending actions like jumping to a stack trace location:
         panel.initialisedProperty().addListener((a, b, newVal) -> {
@@ -235,9 +244,6 @@ public class FrameEditor implements Editor
             }
         });
         debugInfo.bindVarVisible(panel.debugVarVisibleProperty());
-        
-        if (callbackOnOpen != null)
-            SwingUtilities.invokeLater(callbackOnOpen);  
     }
 
     // Editor methods:
@@ -1023,6 +1029,8 @@ public class FrameEditor implements Editor
         if (panel != null)
         {
             panel.setWindowVisible(show, bringToFront);
+            if (callbackOnOpen != null && show)
+                SwingUtilities.invokeLater(callbackOnOpen);
         }
 
 
