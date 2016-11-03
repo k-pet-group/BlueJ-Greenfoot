@@ -104,12 +104,16 @@ public class FieldList extends TableView<FieldInfo>
         JavaFXUtil.addStyleClass(this, "field-list");
 
         javafx.scene.control.TableColumn<FieldInfo, String> description = new javafx.scene.control.TableColumn<FieldInfo, String>();
+        description.setMinWidth(180.0);
         JavaFXUtil.addStyleClass(description, "inspector-field-description");
         description.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().getDescription()));
         javafx.scene.control.TableColumn<FieldInfo, StringOrRef> value = new javafx.scene.control.TableColumn<>();
         JavaFXUtil.addStyleClass(value, "inspector-field-value");
         value.setCellValueFactory(v -> new ReadOnlyObjectWrapper(new StringOrRef(v.getValue().getValue())));
         value.setCellFactory(col -> new ValueCell());
+        value.setMinWidth(100.0);
+        value.setPrefWidth(100.0);
+        value.setMaxWidth(100.0);
         getColumns().setAll(description, value);
         
         // Turn off header, from https://community.oracle.com/thread/2321823
