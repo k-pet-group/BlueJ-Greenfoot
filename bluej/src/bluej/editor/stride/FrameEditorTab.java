@@ -930,7 +930,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         withTopLevelFrame(f -> {
             automatedEdit = true;
             f.addExtendsClassOrInterface(className);
-            automatedEdit = false;
             saveAfterAutomatedEdit();
         });
     }
@@ -940,7 +939,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         withTopLevelFrame(f -> {
             automatedEdit = true;
             f.removeExtendsClass();
-            automatedEdit = false;
             saveAfterAutomatedEdit();
         });
     }
@@ -950,7 +948,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         withTopLevelFrame(f -> {
             automatedEdit = true;
             f.addImplements(className);
-            automatedEdit = false;
             saveAfterAutomatedEdit();
         });
     }
@@ -960,18 +957,18 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         withTopLevelFrame(f -> {
             automatedEdit = true;
             f.removeExtendsOrImplementsInterface(interfaceName);
-            automatedEdit = false;
             saveAfterAutomatedEdit();
         });
     }
 
     private void saveAfterAutomatedEdit()
     {
+        modifiedFrame(null);
+        automatedEdit = false;
         SwingUtilities.invokeLater(() -> {
             try
             {
                 editor.save();
-                modifiedFrame(null);
             } catch (IOException e)
             {
                 Debug.reportError("Problem saving after automated edit", e);
