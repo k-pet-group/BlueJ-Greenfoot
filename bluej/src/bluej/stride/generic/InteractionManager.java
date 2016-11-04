@@ -102,7 +102,6 @@ public interface InteractionManager
      * e.g. classes from java.util, java.io, and so on.
      *
      * This list will not feature any class that is already imported in the program.
-     * @param common
      */
     @OnThread(Tag.Any)
     Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions();
@@ -227,6 +226,12 @@ public interface InteractionManager
     public WindowOverlayPane getWindowOverlayPane();
     public CodeOverlayPane getCodeOverlayPane();
 
+    /**
+     * Register a Frame as modified to trigger/allow some operations needed after edits.
+     * @param f the modified frame
+     * @param force a boolean flag, which is only true when we need the modification to be registered,
+     *              even if the editor tab is loading or with no window (hidden).
+     */
     public void modifiedFrame(Frame f, boolean force);
 
     @OnThread(Tag.FXPlatform)
