@@ -97,7 +97,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         setFocusTraversable(true);
         editor.setupFocusableSlotComponent(this, super.getNode(), false, Collections::emptyList, Collections.emptyList());
         textProperty().addListener((e, oldValue, newValue) -> {
-            if (!hacking) editor.modifiedFrame(frameParent);
+            if (!hacking) editor.modifiedFrame(frameParent, false);
         });
 
         // TOSO set insets to new Insets(0, 6, 4, 6)

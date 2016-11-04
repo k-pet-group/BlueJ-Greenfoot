@@ -648,7 +648,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     protected void modified()
     {
         beenModified = true;
-        editor.modifiedFrame(parentFrame);
+        editor.modifiedFrame(parentFrame, false);
         JavaFXUtil.runNowOrLater(() -> editor.afterRegenerateAndReparse(null));
     }
     

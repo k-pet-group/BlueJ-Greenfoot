@@ -227,7 +227,7 @@ public interface InteractionManager
     public WindowOverlayPane getWindowOverlayPane();
     public CodeOverlayPane getCodeOverlayPane();
 
-    public void modifiedFrame(Frame f);
+    public void modifiedFrame(Frame f, boolean force);
 
     @OnThread(Tag.FXPlatform)
     public void recordEdits(StrideEditReason reason);

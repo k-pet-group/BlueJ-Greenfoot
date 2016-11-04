@@ -488,7 +488,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                             }
                         }
                     });
-                    editor.modifiedFrame(frameParent);
+                    editor.modifiedFrame(frameParent, false);
                 }
             });
             

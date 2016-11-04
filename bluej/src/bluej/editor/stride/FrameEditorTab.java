@@ -268,9 +268,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private final Set<Node> execNodesListenedTo = new HashSet<>();
     private final SimpleBooleanProperty debugVarVisibleProperty = new SimpleBooleanProperty(false);
     private List<HighlightedBreakpoint> latestExecHistory;
-    // Set to true when making an automated edit, so that changes are noticed
-    // even when the editor is not showing.
-    private boolean automatedEdit = false;
 
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
@@ -928,7 +925,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void addExtends(String className)
     {
         withTopLevelFrame(f -> {
-            automatedEdit = true;
             f.addExtendsClassOrInterface(className);
             saveAfterAutomatedEdit();
         });
@@ -937,7 +933,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void removeExtendsClass()
     {
         withTopLevelFrame(f -> {
-            automatedEdit = true;
             f.removeExtendsClass();
             saveAfterAutomatedEdit();
         });
@@ -946,7 +941,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void addImplements(String className)
     {
         withTopLevelFrame(f -> {
-            automatedEdit = true;
             f.addImplements(className);
             saveAfterAutomatedEdit();
         });
@@ -955,7 +949,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void removeExtendsOrImplementsInterface(String interfaceName)
     {
         withTopLevelFrame(f -> {
-            automatedEdit = true;
             f.removeExtendsOrImplementsInterface(interfaceName);
             saveAfterAutomatedEdit();
         });
@@ -963,8 +956,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     private void saveAfterAutomatedEdit()
     {
-        modifiedFrame(null);
-        automatedEdit = false;
+        modifiedFrame(null, true);
         SwingUtilities.invokeLater(() ->
                 editor.getWatcher().scheduleCompilation(false, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE)
         );
@@ -1799,12 +1791,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
-    public void modifiedFrame(Frame f)
+    public void modifiedFrame(Frame f, boolean force)
     {
         if (f != null)
             f.trackBlank(); // Do this even if loading
 
-        if ( (!isLoading() && getParent() != null) || automatedEdit) {
+        if ( (!isLoading() && getParent() != null) || force) {
             editor.codeModified();
             registerStackHighlight(null);
             JavaFXUtil.runNowOrLater(() -> updateErrorOverviewBar(true));

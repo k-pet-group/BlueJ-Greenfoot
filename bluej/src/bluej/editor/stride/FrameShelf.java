@@ -318,7 +318,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
-    public void modifiedFrame(Frame f)
+    public void modifiedFrame(Frame f, boolean force)
     {
         // Not applicable
     }

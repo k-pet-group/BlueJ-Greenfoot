@@ -126,7 +126,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         super(editor, projectResolver, "class", "class-", packageName, imports, documentation, className, enabled);
 
         this.abstractModifier.set(abstractModifierParam);
-        JavaFXUtil.addChangeListener(this.abstractModifier, abs -> editor.modifiedFrame(this));
+        JavaFXUtil.addChangeListener(this.abstractModifier, abs -> editor.modifiedFrame(this, false));
 
         showingExtends = new SimpleBooleanProperty(extendsName != null);
         SlotLabel extendsLabel = new SlotLabel("extends");
@@ -306,7 +306,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         showingExtends.set(false);
         paramClassName.requestFocus(Focus.RIGHT);
         extendsSlot.setText("");
-        editor.modifiedFrame(this);
+        editor.modifiedFrame(this, false);
     }
 */
     @Override

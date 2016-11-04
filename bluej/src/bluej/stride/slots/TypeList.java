@@ -230,7 +230,7 @@ public class TypeList
         // Remove the formal:
         slot.cleanup();
         typeSlots.remove(slot);
-        editor.modifiedFrame(parentFrame);
+        editor.modifiedFrame(parentFrame, false);
         return slot.getText();
     }
 

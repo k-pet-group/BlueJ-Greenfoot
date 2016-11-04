@@ -331,7 +331,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         futureDisplay.setText(curDisplay.getText());
         JavaFXUtil.runNowOrLater(() -> refreshError());
         JavaFXUtil.setPseudoclass("bj-transparent", isValid.apply(selection) && !dummyField.isFocused(), pane);
-        editor.modifiedFrame(parentFrame);
+        editor.modifiedFrame(parentFrame, false);
     }
 
     @OnThread(Tag.FXPlatform)

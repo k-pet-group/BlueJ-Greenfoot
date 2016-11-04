@@ -178,7 +178,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
                 superThisParams.setText(params);
             }
             superThisParams.requestFocus();
-            getEditor().modifiedFrame(this);
+            getEditor().modifiedFrame(this, false);
             JavaFXUtil.setPseudoclass("bj-super-this", true, getNode());
         }
         st.registerSlot(superThis);
@@ -197,7 +197,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             superThisParams = null;
             contents.setAll(documentationPane, getHeaderRow(), getCanvas());
             getCanvas().getFirstCursor().requestFocus();
-            getEditor().modifiedFrame(this);
+            getEditor().modifiedFrame(this, false);
             JavaFXUtil.setPseudoclass("bj-super-this", false, getNode());
         }
     }

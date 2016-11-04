@@ -176,7 +176,7 @@ public class SwitchFrame extends MultiCanvasFrame
             getCursorBefore().insertFramesAfter(defaultContents);
         }
         //notify the editor that a change has been occurred. That will trigger a file save
-        editor.modifiedFrame(this);
+        editor.modifiedFrame(this, false);
     }
 
     public void pullUpInnerCaseContents(CaseFrame frame)
@@ -198,7 +198,7 @@ public class SwitchFrame extends MultiCanvasFrame
             casesCanvas.removeBlock(frame);
         }
         //notify the editor that a change has been occurred. That will trigger a file save
-        editor.modifiedFrame(this);
+        editor.modifiedFrame(this, false);
     }
 
     private void pullUpDefaultContents()
@@ -224,7 +224,7 @@ public class SwitchFrame extends MultiCanvasFrame
             removeDefault();
         }
         //notify the editor that a change has been occurred. That will trigger a file save
-        editor.modifiedFrame(this);
+        editor.modifiedFrame(this, false);
     }
 
     @Override

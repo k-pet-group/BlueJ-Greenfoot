@@ -227,14 +227,14 @@ public class FormalParameters
     private FormalParameter insertBefore(FormalParameter before, FormalParameter slot)
     {
         params.add(before == null ? 0 : params.indexOf(before), slot);
-        editor.modifiedFrame(parentFrame);
+        editor.modifiedFrame(parentFrame, false);
         return slot;
     }
     
     private FormalParameter insertAfter(FormalParameter after, FormalParameter slot)
     {
         params.add(after == null ? 0 : params.indexOf(after) + 1, slot);
-        editor.modifiedFrame(parentFrame);
+        editor.modifiedFrame(parentFrame, false);
         return slot;
     }
 
@@ -462,7 +462,7 @@ public class FormalParameters
         // Remove the formal:
         param.cleanup();
         params.remove(param);
-        editor.modifiedFrame(parentFrame);
+        editor.modifiedFrame(parentFrame, false);
     }
     
     public void checkForEmptySlot()

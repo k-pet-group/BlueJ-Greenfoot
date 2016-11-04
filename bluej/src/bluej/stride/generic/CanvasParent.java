@@ -77,7 +77,7 @@ public interface CanvasParent extends CursorFinder
     default void modifiedCanvasContent()
     {
         // By default, notify editor of all changes:
-        getEditor().modifiedFrame(null);
+        getEditor().modifiedFrame(null, false);
     }
 
     // package-visible

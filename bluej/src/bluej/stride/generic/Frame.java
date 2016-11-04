@@ -264,7 +264,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         // When we are enabled/disabled, update our child slot states and trigger a compilation.
         frameEnabledProperty.addListener((a, b, enabled) -> {
             getEditableSlotsDirect().forEach(e -> e.setEditable(enabled));
-            editor.modifiedFrame(this);
+            editor.modifiedFrame(this, false);
         });
         
         //Debug.time("&&&&&&   Binding effect");
@@ -1094,7 +1094,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      */
     public void pullUpContents()
     {
-        editor.modifiedFrame(this); //notify the editor that a change has been occured. That will trigger a file save
+        editor.modifiedFrame(this, false); //notify the editor that a change has been occured. That will trigger a file save
         getCursorBefore().insertFramesAfter(Utility.<Frame>concat(getCanvases().<List<Frame>>map(canvas -> {
             // Make copy because we're about to modify the contents:
             List<Frame> contents = new ArrayList<>(canvas.getBlockContents());

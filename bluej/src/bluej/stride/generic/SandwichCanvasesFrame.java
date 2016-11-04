@@ -125,7 +125,7 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         if (!intermediateHeader.focusLeftEndFromPrev())
             intermediateCanvas.getFirstCursor().requestFocus();
         intermediateCanvases.add(at - 1, intermediateCanvas);
-        editor.modifiedFrame(this); //notify the editor that a change has been occurred. That will trigger a file save
+        editor.modifiedFrame(this, false); //notify the editor that a change has been occurred. That will trigger a file save
     }
 
     protected abstract FrameContentRow getFrameContentRow(List<SlotFragment> slots, JavaCanvas canvas, int at);
@@ -144,7 +144,7 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
             cursor.insertBlockAfter(new BlankFrame(editor));
         }
         removeCanvas(canvas);
-        editor.modifiedFrame(this); //notify the editor that a change has been occurred. That will trigger a file save
+        editor.modifiedFrame(this, false); //notify the editor that a change has been occurred. That will trigger a file save
     }
 
     public boolean addTailCanvas()
@@ -158,7 +158,7 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         JavaFXUtil.addStyleClass(tailCanvasLabel, "divider-" + tailCanvasCaption);
         addCanvas(new FrameContentRow(this, tailCanvasLabel), tailCanvas);
         tailCanvas.getFirstCursor().requestFocus();
-        editor.modifiedFrame(this);
+        editor.modifiedFrame(this, false);
         return true;
     }
 
@@ -191,7 +191,7 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         if (tailCanvas == canvas){
             tailCanvas = null;
         }
-        editor.modifiedFrame(this);
+        editor.modifiedFrame(this, false);
     }
 
     @Override

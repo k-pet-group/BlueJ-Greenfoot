@@ -169,8 +169,8 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
                 FXCollections.observableArrayList(overrideLabel)
         ));
 
-        JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this));
-        JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this));
+        JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this, false));
+        JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,

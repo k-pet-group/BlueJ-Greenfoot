@@ -180,7 +180,7 @@ public class FrameCursor implements RecallableFocus
                         insertBlockBefore(newFrame);
                     }
                     editor.recordEdits(selection ? StrideEditReason.SELECTION_WRAP_KEY : StrideEditReason.SINGLE_FRAME_INSERTION_KEY);
-                    editor.modifiedFrame(newFrame);
+                    editor.modifiedFrame(newFrame, false);
                     newFrame.markFresh();
 
                     // Must ask for scroll before focusing (which will also attempt scroll):
@@ -463,7 +463,7 @@ public class FrameCursor implements RecallableFocus
                     editor.showUndoDeleteBanner(target.calculateEffort());
                     parentCanvas.removeBlock(target);
                     editor.recordEdits(StrideEditReason.DELETE_FRAMES_KEY_BKSP);
-                    editor.modifiedFrame(target);
+                    editor.modifiedFrame(target, false);
                     cursorBeforeTarget.requestFocus();
                     editor.endRecordingState(cursorBeforeTarget);
                 }
@@ -503,7 +503,7 @@ public class FrameCursor implements RecallableFocus
                     editor.showUndoDeleteBanner(target.calculateEffort());
                     parentCanvas.removeBlock(target);
                     editor.recordEdits(StrideEditReason.DELETE_FRAMES_KEY_DELETE);
-                    editor.modifiedFrame(target);
+                    editor.modifiedFrame(target, false);
                     editor.endRecordingState(FrameCursor.this);
                 }
             }

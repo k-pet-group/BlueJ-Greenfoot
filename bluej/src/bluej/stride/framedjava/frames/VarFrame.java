@@ -184,8 +184,8 @@ public class VarFrame extends SingleLineFrame
                 FXCollections.observableArrayList(previewSemi)
         ));
 
-        JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this));
-        JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this));
+        JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this, false));
+        JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
 
         hasKeyboardFocus.bind(
                 (accessModifier.and(access.effectivelyFocusedProperty()))
