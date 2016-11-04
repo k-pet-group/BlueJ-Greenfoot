@@ -1355,7 +1355,7 @@ public class FrameEditor implements Editor
             if (panel == null) {
                 createPanel(false, false);
             }
-            panel.addImplements(className);
+            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addImplements(className));
         });
     }
 
@@ -1366,7 +1366,7 @@ public class FrameEditor implements Editor
             if (panel == null) {
                 createPanel(false, false);
             }
-            panel.addExtends(className);
+            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(className));
         });
     }
 
@@ -1377,7 +1377,7 @@ public class FrameEditor implements Editor
             if (panel == null) {
                 createPanel(false, false);
             }
-            panel.removeExtendsClass();
+            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsClass());
         });
     }
 
@@ -1388,7 +1388,7 @@ public class FrameEditor implements Editor
             if (panel == null) {
                 createPanel(false, false);
             }
-            panel.addExtends(interfaceName);
+            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(interfaceName));
         });
     }
 
@@ -1399,7 +1399,7 @@ public class FrameEditor implements Editor
             if (panel == null) {
                 createPanel(false, false);
             }
-            panel.removeExtendsOrImplementsInterface(interfaceName);
+            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsOrImplementsInterface(interfaceName));
         });
     }
 }

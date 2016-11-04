@@ -1078,7 +1078,40 @@ public class JavaFXUtil
             }
         };
         observable.addListener(listener);
-        
+    }
+
+    /**
+     * Waits for the observable value to become true, then calls the given function on the value once.
+     *
+     * @param observable The value to wait to become true.
+     * @param callback The callback to call with the true value.
+     *                 If observable's value is already true, call immediately before returning
+     */
+    public static void onceTrue(ObservableValue<Boolean> observable, FXConsumer<Boolean> callback)
+    {
+        boolean value = observable.getValue();
+
+        if (value)
+        {
+            callback.accept(value);
+            return;
+        }
+
+        // Can't be a lambda because we need a reference to ourselves to self-remove:
+        ChangeListener<Boolean> listener = new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable,
+                                Boolean oldValue, Boolean newVal)
+            {
+                if (newVal)
+                {
+                    callback.accept(newVal);
+                    observable.removeListener(this);
+                }
+            }
+        };
+        observable.addListener(listener);
     }
 
     /**
