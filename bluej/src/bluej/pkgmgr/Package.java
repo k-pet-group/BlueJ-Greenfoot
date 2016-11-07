@@ -1281,8 +1281,11 @@ public final class Package
 
             if (!toCompile.isEmpty())
             {
-                project.removeClassLoader();
-                project.newRemoteClassLoaderLeavingBreakpoints();
+                if (type.keepClasses())
+                {
+                    project.removeClassLoader();
+                    project.newRemoteClassLoaderLeavingBreakpoints();
+                }
                 doCompile(toCompile, new PackageCompileObserver(compObserver), reason, type);
             }
             else {

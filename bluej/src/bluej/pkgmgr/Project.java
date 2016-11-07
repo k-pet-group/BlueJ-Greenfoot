@@ -818,6 +818,7 @@ public class Project implements DebuggerListener, InspectorManager
             inspector = new ObjectInspector(obj, this, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
             inspector.show();
+            //org.scenicview.ScenicView.show(inspector.getScene());
         }
         else {
             updateInspector(inspector);
