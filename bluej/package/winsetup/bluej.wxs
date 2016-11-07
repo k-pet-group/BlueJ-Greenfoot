@@ -5,7 +5,7 @@
      If you get a build failure here with a message about ${bluej-3.1.7} or similar not being a legal
       guid value, then it is because you failed to make a new GUID for this version: see the
       update-version-number task in ant for details on what to do. -->
-<Product Version='4.0.0' Id='2a773cf8-c347-4a90-a21f-49ba9494c2cf'
+<Product Version='4.0.0' Id='91682a6f-c139-4ea2-b86c-8af81a5a0bc2'
     Name='BlueJ' UpgradeCode='f4b4357e-6101-4cb1-8e38-3d4f3afb4be2'
     Language='1033' Codepage='1252' Manufacturer='BlueJ Team'>
     
