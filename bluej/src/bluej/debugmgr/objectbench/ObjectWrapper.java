@@ -973,6 +973,10 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
     public void animateIn(Optional<Point2D> animateFromScenePoint)
     {
+        // Set scale now; otherwise you can briefly see a flash of
+        // full size on screen before it scales back down with animation start:
+        setScaleX(0.2);
+        setScaleY(0.2);
         // Don't start the animations until we are in our right position:
         JavaFXUtil.addSelfRemovingListener(layoutYProperty(), layoutY -> {
             setVisible(true);
