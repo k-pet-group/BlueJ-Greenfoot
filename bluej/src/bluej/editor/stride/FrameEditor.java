@@ -233,7 +233,7 @@ public class FrameEditor implements Editor
         //Debug.message("&&&&&& Done! " + System.currentTimeMillis());
         // Saving Java will trigger any pending actions like jumping to a stack trace location:
         panel.initialisedProperty().addListener((a, b, newVal) -> {
-            if (newVal.booleanValue())
+            if (newVal)
             {
                 // runLater so that the panel will have been added:
                 JavaFXUtil.runPlatformLater(() -> {
@@ -347,7 +347,7 @@ public class FrameEditor implements Editor
                 SaveJavaResult javaResult = saveJava(lastSource, true);
                 return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()), javaResult);
             }
-            
+
             panel.regenerateAndReparse();
             TopLevelCodeElement source = panel.getSource();
             
@@ -1366,7 +1366,9 @@ public class FrameEditor implements Editor
             if (panel == null) {
                 createPanel(false, false);
             }
-            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(className));
+            JavaFXUtil.onceTrue(panel.initialisedProperty(), p ->
+                JavaFXUtil.runPlatformLater( () -> panel.addExtends(className))
+            );
         });
     }
 
