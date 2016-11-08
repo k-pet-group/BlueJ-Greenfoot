@@ -2274,7 +2274,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             return;
         }
         
-        // Still might be no errors, if the whole file is error free:
         while (errors.hasNext())
         {
             CodeError e = errors.next();
@@ -2284,6 +2283,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 return;
             }
         }
+        // If we still didn't find one, cancel our fresh state:
+        cancelFreshState();
     }
     
     // You can pass null.
