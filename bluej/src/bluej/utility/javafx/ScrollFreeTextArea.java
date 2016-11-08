@@ -99,78 +99,88 @@ public class ScrollFreeTextArea
         SimpleDoubleProperty contentHeight = new SimpleDoubleProperty();
 
         // We can't snapshot textArea until it is in a Scene, so we wait until its Scene is set:
-        JavaFXUtil.addSelfRemovingListener(textArea.sceneProperty(), s -> {
-            if (s != null && !initialised)
+        //JavaFXUtil.addSelfRemovingListener(textArea.sceneProperty(), s -> { JavaFXUtil.addSelfRemovingListener(textArea.skinProperty(), sk -> {
+        ChangeListener<Object> listener = new ChangeListener<Object>()
+        {
+            @Override
+            public void changed(ObservableValue<?> observable, Object oldValue, Object newValue)
             {
-                initialised = true;
-
-                recalculateOneTwoLineHeights(editor.getFontSizeCSS().get());
-                textArea.getStyleClass().addListener((ListChangeListener<String>) c -> recalculateOneTwoLineHeights(editor.getFontSizeCSS().get()));
-
-
-                // Snapshot to make sure textArea internals are all created:
-                textArea.snapshot(null, null);
-
-
-                // Make sure the on-screen textArea never shows a scroll bar, and never lets
-                // its content be less than the available space:
-                ScrollPane p = ((ScrollPane) textArea.lookup(".scroll-pane"));
-                p.setFitToHeight(true);
-                p.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
-                // Bind our contentHeight property to be the height calculated via the offScreen
-                // TextArea:
-                contentHeight.bind(new DoubleBinding()
+                if (textArea.getScene() != null && textArea.getSkin() != null && !initialised)
                 {
-                    private boolean accessedInternals = false;
-                    private Region content;
+                    initialised = true;
+                    textArea.sceneProperty().removeListener(this);
+                    textArea.skinProperty().removeListener(this);
 
-                    @Override
-                    protected double computeValue()
+                    ScrollFreeTextArea.this.recalculateOneTwoLineHeights(editor.getFontSizeCSS().get());
+                    textArea.getStyleClass().addListener((ListChangeListener<String>) c -> ScrollFreeTextArea.this.recalculateOneTwoLineHeights(editor.getFontSizeCSS().get()));
+
+
+                    // Snapshot to make sure textArea internals are all created:
+                    textArea.snapshot(null, null);
+
+
+                    // Make sure the on-screen textArea never shows a scroll bar, and never lets
+                    // its content be less than the available space:
+                    ScrollPane p = ((ScrollPane) textArea.lookup(".scroll-pane"));
+                    p.setFitToHeight(true);
+                    p.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+                    // Bind our contentHeight property to be the height calculated via the offScreen
+                    // TextArea:
+                    contentHeight.bind(new DoubleBinding()
                     {
-                        // We have to add offScreen to a Scene, both to set the stylesheets correctly, and because
-                        // snapshot doesn't work correctly unless an object is in a Scene
-                        scene.setRoot(new Pane(offScreen));
+                        private boolean accessedInternals = false;
+                        private Region content;
 
-                        // Instead of snapshotting, I think CSS and layout is enough:
-                        //offScreen.snapshot(null, null);
-                        offScreen.applyCss();
-                        scene.getRoot().layout();
-
-                        // Only need to do this part once:
-                        if (!accessedInternals)
+                        @Override
+                        protected double computeValue()
                         {
-                            ((ScrollPane) offScreen.lookup(".scroll-pane")).setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                            ((ScrollPane) offScreen.lookup(".scroll-pane")).setFitToWidth(true);
-                            content = (Region) offScreen.lookup(".content");
-                            accessedInternals = true;
-                        }
-                        // We need to invalidate any caches of the previous preferred height,
-                        // by calculating it for a different width:
-                        double prev = content.getPrefHeight();
-                        content.setPrefHeight(Region.USE_COMPUTED_SIZE);
-                        content.prefHeight(content.getWidth() + 1.0);
-                        // Then we can do the real calculation:
-                        double r = content.prefHeight(content.getWidth());
-                        content.setPrefHeight(r);
-                        // Remove us from the Scene:
-                        scene.setRoot(new VBox());
-                        if (r <= blankHeight)
-                            return scale.get() * (suggestedOneLineHeight + textArea.getPadding().getTop() + textArea.getPadding().getBottom());
-                        else
-                            return scale.get() * (r + textArea.getPadding().getTop() + textArea.getPadding().getBottom());
-                    }
+                            // We have to add offScreen to a Scene, both to set the stylesheets correctly, and because
+                            // snapshot doesn't work correctly unless an object is in a Scene
+                            scene.setRoot(new Pane(offScreen));
 
-                    {
-                        bind(scale);
-                        bind(textArea.widthProperty());
-                        bind(textProperty());
-                        bind(offScreen.styleProperty());
-                        bind(textArea.paddingProperty());
-                    }
-                });
+                            // Instead of snapshotting, I think CSS and layout is enough:
+                            //offScreen.snapshot(null, null);
+                            offScreen.applyCss();
+                            scene.getRoot().layout();
+
+                            // Only need to do this part once:
+                            if (!accessedInternals)
+                            {
+                                ((ScrollPane) offScreen.lookup(".scroll-pane")).setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                                ((ScrollPane) offScreen.lookup(".scroll-pane")).setFitToWidth(true);
+                                content = (Region) offScreen.lookup(".content");
+                                accessedInternals = true;
+                            }
+                            // We need to invalidate any caches of the previous preferred height,
+                            // by calculating it for a different width:
+                            double prev = content.getPrefHeight();
+                            content.setPrefHeight(Region.USE_COMPUTED_SIZE);
+                            content.prefHeight(content.getWidth() + 1.0);
+                            // Then we can do the real calculation:
+                            double r = content.prefHeight(content.getWidth());
+                            content.setPrefHeight(r);
+                            // Remove us from the Scene:
+                            scene.setRoot(new VBox());
+                            if (r <= blankHeight)
+                                return scale.get() * (suggestedOneLineHeight + textArea.getPadding().getTop() + textArea.getPadding().getBottom());
+                            else
+                                return scale.get() * (r + textArea.getPadding().getTop() + textArea.getPadding().getBottom());
+                        }
+
+                        {
+                            bind(scale);
+                            bind(textArea.widthProperty());
+                            bind(textProperty());
+                            bind(offScreen.styleProperty());
+                            bind(textArea.paddingProperty());
+                        }
+                    });
+                }
             }
-        });
+        };
+        textArea.sceneProperty().addListener(listener);
+        textArea.skinProperty().addListener(listener);
 
         textArea.setWrapText(true);
         offScreen.setWrapText(true);
