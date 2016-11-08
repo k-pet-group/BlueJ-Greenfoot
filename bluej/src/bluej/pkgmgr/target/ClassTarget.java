@@ -1221,25 +1221,24 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Ensure that the source file of this class is up-to-date (i.e.
-     * that any possible unsaved changes in an open editor window are 
+     * that any possible unsaved changes in an open editor window are
      * saved).
-     * 
+     *
      * <p>This can cause saveEvent() to be generated, which might move
      * the class to a new package (if the package line has been changed).
      */
     @Override
     public void ensureSaved() throws IOException
     {
-        // getEditor() is added to solve bugs caused when compile happens before saving,
-        // e.g. when creating a new class, it will be marked with red strips.
-        // If it causes a problem, move it to compile(CompileObserver, CompileReason, CompileType)
-        // @ Package class.
-        if(editor == null) {
+        // When creating a Stride class, we need to load the editor
+        // in order to save and generate the Java code (or at least,
+        // that's an easy way to do it).  Not necessary for Java classes:
+        if(editor == null && sourceAvailable == SourceType.Stride) {
             getEditor();
         }
-        editor.save();
+        super.ensureSaved();
     }
-    
+
     // --- end of EditableTarget interface ---
 
     // --- user interface function implementation ---
