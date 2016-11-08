@@ -1711,7 +1711,7 @@ public class PkgMgrFrame
         }
 
         // Schedule compilation of new class:
-        thePkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE, thePkg);
+        thePkg.getProject().scheduleCompilation(false, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE, target);
         
         DataCollector.addClass(thePkg, target);
         

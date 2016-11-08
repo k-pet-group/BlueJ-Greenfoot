@@ -212,6 +212,9 @@ public class Project implements DebuggerListener, InspectorManager
     /** Packages scheduled for autocompilation */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private Set<Package> scheduledPkgs = new HashSet<>();
+    /** Targets scheduled for autocompilation */
+    @OnThread(value = Tag.Any,requireSynchronized = true)
+    private Set<ClassTarget> scheduledTargets = new HashSet<>();
 
     private BProject singleBProject;  // Every Project has none or one BProject
     private boolean closing = false;
@@ -2152,26 +2155,60 @@ public class Project implements DebuggerListener, InspectorManager
     {
         this.closing = closing;
     }
-    
+
     @OnThread(Tag.Any)
     public synchronized void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, Package pkg)
     {
+        scheduleCompilation(immediate, reason, type, pkg, null);
+    }
+    
+    @OnThread(Tag.Any)
+    public synchronized void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, ClassTarget target)
+    {
+        scheduleCompilation(immediate, reason, type, null, target);
+    }
+
+    /**
+     * Schedules a compilation within the project, of the given package (if not null) and/or the given target (if not null)
+     * @param immediate Whether to compile right now, or whether to compile after 1 seconds (this timer will be extended by
+     *                  every later call of scheduleCompilation to 1s again)
+     * @param reason Why we are compiling (used for Blackbox data collection)
+     * @param type The type of compilation (used for deciding whether to keep class files, whether to open editors to show errors)
+     * @param pkg The package in which to compile all targets (or null if don't want full-package compilation)
+     * @param target The target to compile (or null if you don't want specific target compiled)
+     *               
+     * Note: only one of pkg or target should be non-null.                  
+     */
+    @OnThread(Tag.Any)
+    private synchronized void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, Package pkg, ClassTarget target)
+    {
         if (immediate)
         {
+            // Take this package and target out of the list to compile later on:
             if (compilerTimer != null) {
-                scheduledPkgs.remove(pkg);
-                if (scheduledPkgs.isEmpty()) {
+                if (pkg != null)
+                    scheduledPkgs.remove(pkg);
+                if (target != null)
+                    scheduledTargets.remove(target);
+                // If nothing else to compile, cancel scheduled:
+                if (scheduledPkgs.isEmpty() && scheduledTargets.isEmpty()) {
                     compilerTimer.stop();
                 }
             }
 
             // We must use invokeLater, even if already on event queue,
             // to make sure all actions are resolved (e.g. auto-indent post-newline)
-            EventQueue.invokeLater(() -> pkg.compileOnceIdle(reason, type));
+            if (pkg != null)
+                EventQueue.invokeLater(() -> pkg.compileOnceIdle(null, reason, type));
+            else if (target != null)
+                EventQueue.invokeLater(() -> target.getPackage().compileOnceIdle(target, reason, type));
         }
         else
         {
-            scheduledPkgs.add(pkg);
+            if (pkg != null)
+                scheduledPkgs.add(pkg);
+            if (target != null)
+                scheduledTargets.add(target);
 
             latestCompileReason.set(reason);
             latestCompileType.set(type);
@@ -2184,6 +2221,7 @@ public class Project implements DebuggerListener, InspectorManager
             {
                 ActionListener listener = e -> {
                     Set<Package> pkgsToCompile;
+                    Set<ClassTarget> targetsToCompile;
 
                     synchronized (Project.this)
                     {
@@ -2191,12 +2229,17 @@ public class Project implements DebuggerListener, InspectorManager
                         // lock-protected set now:
                         pkgsToCompile = scheduledPkgs;
                         scheduledPkgs = new HashSet<>();
-                        scheduledPkgs.clear();
+                        targetsToCompile = scheduledTargets;
+                        scheduledTargets = new HashSet<>();
                     }
 
                     for (Package p : pkgsToCompile)
                     {
-                        p.compileOnceIdle(latestCompileReason.get(), latestCompileType.get());
+                        p.compileOnceIdle(null, latestCompileReason.get(), latestCompileType.get());
+                    }
+                    for (ClassTarget t : targetsToCompile)
+                    {
+                        t.getPackage().compileOnceIdle(t, latestCompileReason.get(), latestCompileType.get());
                     }
                 };
                 compilerTimer = new Timer(1000, listener);

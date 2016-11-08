@@ -1582,13 +1582,17 @@ public final class Package
     
     /**
      * Compile the package, but only when the debugger is in an idle state.
+     * @param specificTarget The single classtarget to compile; if null then will compile whole package.
      */
-    public void compileOnceIdle(CompileReason reason, CompileType type)
+    public void compileOnceIdle(ClassTarget specificTarget, CompileReason reason, CompileType type)
     {
         if (! waitingForIdleToCompile) {
             if (isDebuggerIdle())
             {
-                compile(reason, type);
+                if (specificTarget == null)
+                    compile(reason, type);
+                else
+                    compile(specificTarget, reason, type);
             }
             else {
                 waitingForIdleToCompile = true;
@@ -1607,7 +1611,7 @@ public final class Package
                             SwingUtilities.invokeLater(() -> {
                                 if (waitingForIdleToCompile) {
                                     waitingForIdleToCompile = false;
-                                    compileOnceIdle(reason, type);
+                                    compileOnceIdle(specificTarget, reason, type);
                                 }
                             });
                         }

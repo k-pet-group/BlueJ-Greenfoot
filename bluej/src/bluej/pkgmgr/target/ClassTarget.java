@@ -1428,7 +1428,10 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type)
     {
-        getPackage().getProject().scheduleCompilation(immediate, reason, type, getPackage());
+        if (Config.isGreenfoot())
+            getPackage().getProject().scheduleCompilation(immediate, reason, type, getPackage());
+        else
+            getPackage().getProject().scheduleCompilation(immediate, reason, type, this);
     }
 
     /**
