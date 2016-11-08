@@ -159,7 +159,7 @@ class FrameMenuManager extends TabMenuManager
             menus = Arrays.asList(
                     JavaFXUtil.makeMenu(Config.getString("frame.classmenu.title")
                             , mainMoveMenu
-                            , JavaFXUtil.makeMenuItem("print", () -> editor.getFrameEditor().printTo(null,false,false), new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN))
+                            , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.print"), () -> editor.getFrameEditor().printTo(null,false,false), new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN))
                             , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> editor.getParent().close(editor), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
                     ),
                     editMenu,

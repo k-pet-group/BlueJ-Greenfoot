@@ -29,6 +29,7 @@ frame.classmenu.close=Close
 frame.classmenu.move=Move tab...
 frame.classmenu.move.new=To new window
 frame.classmenu.move.existing=Window
+frame.classmenu.print=Print
 
 # Web/documentation menu
 frame.webmenu.title=Documentation
