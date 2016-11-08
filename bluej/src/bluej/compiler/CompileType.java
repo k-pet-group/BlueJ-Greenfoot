@@ -44,4 +44,9 @@ public enum CompileType
     {
         return Config.isGreenfoot() || this != ERROR_CHECK_ONLY;
     }
+
+    public boolean showEditorOnError()
+    {
+        return this != ERROR_CHECK_ONLY;
+    }
 }

@@ -537,9 +537,9 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.Swing)
-            public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex)
+            public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
             {
-                return FrameEditor.this.displayDiagnostic(diagnostic, errorIndex);
+                return FrameEditor.this.displayDiagnostic(diagnostic, errorIndex, compileType);
             }
             
             @Override
@@ -797,7 +797,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public boolean displayDiagnostic(final Diagnostic diagnostic, int errorIndex)
+    public boolean displayDiagnostic(final Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
         if (lastSavedJavaSwing != null && lastSavedJavaSwing.javaSource != null && lastSavedJavaSwing.xpathLocations != null)
         {
@@ -817,8 +817,6 @@ public class FrameEditor implements Editor
             // Don't show javac errors if we are not valid for compilation:
             if (panel != null && panel.getSource() != null)
             {
-                panel.setWindowVisible(true, false);
-
                 JavaFXUtil.onceNotNull(javaSource, js ->
                         js.handleError((int) diagnostic.getStartLine(), (int) diagnostic.getStartColumn(),
                             (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), true, diagnostic.getIdentifier())
@@ -827,6 +825,11 @@ public class FrameEditor implements Editor
             else
             {
                 queuedErrors.add(new QueuedError(diagnostic.getStartLine(), diagnostic.getStartColumn(), diagnostic.getEndLine(), diagnostic.getEndColumn(), diagnostic.getMessage(), diagnostic.getIdentifier()));
+            }
+            
+            if (compileType.showEditorOnError())
+            {
+                setVisibleFX(true, true);
             }
         });
         return false;

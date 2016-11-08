@@ -2211,8 +2211,9 @@ public final class Package
      * @param messageCalc  The message "calculator", which returns a modified version of the message;
      *                     may be null, in which case the original message is shown unmodified.
      * @param errorIndex The index of the error (first is 0, second is 1, etc)
+     * @param compileType The type of the compilation which caused the error.
      */
-    private ErrorShown showEditorDiagnostic(Diagnostic diagnostic, MessageCalculator messageCalc, int errorIndex)
+    private ErrorShown showEditorDiagnostic(Diagnostic diagnostic, MessageCalculator messageCalc, int errorIndex, CompileType compileType)
     {
         String fileName = diagnostic.getFileName();
         if (fileName == null) {
@@ -2236,7 +2237,7 @@ public final class Package
                 return ErrorShown.ERROR_NOT_SHOWN;
             }
             t.markKnownError();
-            boolean shown = targetEditor.displayDiagnostic(diagnostic, errorIndex);
+            boolean shown = targetEditor.displayDiagnostic(diagnostic, errorIndex, compileType);
             return shown ? ErrorShown.ERROR_SHOWN : ErrorShown.ERROR_NOT_SHOWN;
         }
         else {
@@ -2761,7 +2762,7 @@ public final class Package
         {
             super.compilerMessage(diagnostic, type);
             if (diagnostic.getType() == Diagnostic.ERROR) {
-                return errorMessage(diagnostic);
+                return errorMessage(diagnostic, type);
             }
             else {
                 return warningMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
@@ -2774,7 +2775,7 @@ public final class Package
          * This is done by opening the class's source, highlighting the line and
          * showing the message in the editor's information area.
          */
-        private boolean errorMessage(Diagnostic diagnostic)
+        private boolean errorMessage(Diagnostic diagnostic, CompileType type)
         {
                 numErrors += 1;
                 ErrorShown messageShown;
@@ -2791,9 +2792,9 @@ public final class Package
                             new MisspeltMethodChecker(message,
                                     (int) diagnostic.getStartColumn(),
                                     (int) diagnostic.getStartLine(),
-                                    project), numErrors - 1);
+                                    project), numErrors - 1, type);
                 } else {
-                    messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1);
+                    messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
                 }
                 // Display the error message in the source editor
                 switch (messageShown)

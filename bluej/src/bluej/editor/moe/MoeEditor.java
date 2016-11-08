@@ -309,7 +309,7 @@ public final class MoeEditor extends JPanel
 
         initWindow(parameters.getProjectResolver());
         if (watcher != null) {
-            watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE);
+            watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
         }
         callbackOnOpen = parameters.getCallbackOnOpen();
 
@@ -891,8 +891,11 @@ public final class MoeEditor extends JPanel
     }
 
     @Override
-    public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex)
+    public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
+        if (compileType.showEditorOnError())
+            setVisible(true);
+        
         switchToSourceView();
         
         Element line = getSourceLine((int) diagnostic.getStartLine());
@@ -2844,7 +2847,7 @@ public final class MoeEditor extends JPanel
             
             scheduleReparseRunner();
             if (watcher != null) {
-                watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE);
+                watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
             }
         }
         catch (FileNotFoundException ex) {
@@ -4131,7 +4134,7 @@ public final class MoeEditor extends JPanel
                 // If we are closing, force a compilation in case there are pending changes:
                 if (parent == null)
                 {
-                    watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
+                    watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
                 }
             }
         });

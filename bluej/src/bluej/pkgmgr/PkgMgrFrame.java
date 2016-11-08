@@ -1196,7 +1196,7 @@ public class PkgMgrFrame
                 commitMenuItem.setText(Config.getString("team.menu.commit"));
             }
 
-            aPkg.getProject().scheduleCompilation(true, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE, aPkg);
+            aPkg.getProject().scheduleCompilation(true, CompileReason.LOADED, Config.isGreenfoot() ? CompileType.INDIRECT_USER_COMPILE : CompileType.ERROR_CHECK_ONLY, aPkg);
         }
         
         DataCollector.packageOpened(aPkg);

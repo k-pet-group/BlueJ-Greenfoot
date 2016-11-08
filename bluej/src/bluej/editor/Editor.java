@@ -25,6 +25,7 @@ import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.stride.FrameEditor;
@@ -111,10 +112,11 @@ public interface Editor
      * 
      * @param diagnostic  The diagnostic to be displayed.
      * @param errorIndex The index of the error (first is 0, second is 1, etc)
+     * @param compileType The type of the compilation which caused the error to show
      * @return Whether the error was shown to the user (true) or not (false).  Some editors
      *          only show the first error, for example, or the first N.
      */
-    boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex);
+    boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType);
     
     /**
      * Set a step mark due to execution hitting a break point / completing a step, or selection
