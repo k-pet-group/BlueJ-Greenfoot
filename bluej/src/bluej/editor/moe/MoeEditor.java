@@ -2984,11 +2984,7 @@ public final class MoeEditor extends JPanel
         {
             recordEdit(true);
 
-            if (madeChangeOnCurrentLine && watcher != null)
-            {
-                watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-            }
-            madeChangeOnCurrentLine = false;
+            cancelFreshState();
         }
         oldCaretLineNumber = getLineNumberAt(caretPos);
     }
@@ -3018,7 +3014,7 @@ public final class MoeEditor extends JPanel
     {
         if (madeChangeOnCurrentLine)
         {
-            if (fxTabbedEditor != null && watcher != null) {
+            if (watcher != null) {
                 watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
             madeChangeOnCurrentLine = false;

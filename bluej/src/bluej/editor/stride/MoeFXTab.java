@@ -154,7 +154,10 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     @Override
     public void notifyUnselected()
     {
-        SwingUtilities.invokeLater(() -> moeEditor.notifyVisibleTab(false));
+        SwingUtilities.invokeLater(() -> {
+            moeEditor.notifyVisibleTab(false);
+            moeEditor.cancelFreshState();
+        });
     }
 
     @Override

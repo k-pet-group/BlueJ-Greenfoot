@@ -321,6 +321,8 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
             if (focused)
                 ((FXTab)tabPane.getSelectionModel().getSelectedItem()).notifySelected();
+            else
+                ((FXTab)tabPane.getSelectionModel().getSelectedItem()).notifyUnselected();
         });
 
         JavaFXUtil.addChangeListenerPlatform(stage.iconifiedProperty(), minimised -> {

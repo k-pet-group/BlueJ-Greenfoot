@@ -3111,16 +3111,6 @@ public class PkgMgrFrame
         }
 
         Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> {
-            JavaFXUtil.addChangeListener(stage.focusedProperty(), newValue -> {
-                if (newValue) {
-                    @OnThread(Tag.Any)
-                    Project project = getProject();
-                    if (project != null) {
-                        project.scheduleCompilation(true, CompileReason.USER, CompileType.ERROR_CHECK_ONLY, getPackage());
-                    }
-                }
-            });
-
             stage.setOnCloseRequest(e -> PkgMgrFrame.this.doClose(false, true));
         }));
     }

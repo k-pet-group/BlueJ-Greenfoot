@@ -2695,7 +2695,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @Override
     public void notifyUnselected()
     {
-        // Nothing to do
+        cancelFreshState();
     }
 
     @Override
