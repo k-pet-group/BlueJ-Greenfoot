@@ -156,7 +156,7 @@ public class ErrorOverviewBar extends VBox
     private void updateShowingCount()
     {
         showingCount.set(bar.calculateShowing());
-        // Errors only ever switch from not-showing to showing:
+        // Errors only ever switch from not-visible to visible:
         if (showingCount.get() > 0)
         {
             setState(ErrorState.ERRORS);
@@ -185,7 +185,7 @@ public class ErrorOverviewBar extends VBox
             double posTop = codeContainer.sceneToLocal(info.node.localToScene(0, 0)).getY() / codeContainer.getHeight();
             //double posBottom = codeContainer.sceneToLocal(ref.localToScene(0, ref.getHeight())).getY() / codeContainer.getHeight();
             
-            Error e = new Error(info.message, info.focused, info.giveFocus);
+            Error e = new Error(info.message, info.focused, info.visible, info.giveFocus);
             e.visibleProperty().bind(info.visible);
             e.setManaged(false);
             e.setX(1.0);
@@ -203,28 +203,34 @@ public class ErrorOverviewBar extends VBox
     
     private class Error extends Rectangle implements ChangeListener<Boolean>
     {
-        private final ObservableBooleanValue showing;
+        private final ObservableBooleanValue focused;
+        private final ObservableBooleanValue visible;
 
-        public Error(String message, ObservableBooleanValue showing, FXPlatformRunnable onClick)
+        public Error(String message, ObservableBooleanValue focused, ObservableBooleanValue visible, FXPlatformRunnable onClick)
         {
             JavaFXUtil.addStyleClass(this, "error-overview-error");
             setOnMouseClicked(e -> {onClick.run(); e.consume();});
-            this.showing = showing;
-            this.showing.addListener(this);
+            this.focused = focused;
+            this.visible = visible;
+            this.focused.addListener(this);
+            this.visible.addListener(this);
             Tooltip.install(this, new Tooltip(message));
         }
         
         public void cleanup()
         {
-            showing.removeListener(this);
+            focused.removeListener(this);
+            visible.removeListener(this);
         }
 
         @Override
         public void changed(ObservableValue<? extends Boolean> observable,
                 Boolean oldValue, Boolean newValue)
         {
-            JavaFXUtil.setPseudoclass("bj-showing", newValue, this);
-            updateShowingCount();
+            if (observable == focused)
+                JavaFXUtil.setPseudoclass("bj-showing", newValue, this);
+            else if (observable == visible)
+                updateShowingCount();
         }
     }
 }
