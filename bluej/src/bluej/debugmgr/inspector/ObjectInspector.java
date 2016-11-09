@@ -242,6 +242,13 @@ public class ObjectInspector extends Inspector
      */
     protected void listElementSelected(int slot)
     {
+        if (slot == -1)
+        {
+            setCurrentObj(null, null, null);
+            setButtonsEnabled(false, false);
+            return;
+        }
+        
         // add index to slot method for truncated arrays
         if (obj.isArray()) {
             slot = indexToSlot(slot);
