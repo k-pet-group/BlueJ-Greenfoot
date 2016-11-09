@@ -487,6 +487,8 @@ public class PkgMgrFrame
                 topBottomSplit = new SplitPane(topPaneAndOverlay, bottomPaneAndOverlay);
                 JavaFXUtil.addStyleClass(topBottomSplit, "top-bottom-split");
                 topBottomSplit.setOrientation(Orientation.VERTICAL);
+                // Default position:
+                topBottomSplit.setDividerPositions(0.8);
                 // We add a mouse handler so that if you drag at the intersection of the split
                 // panes' dividers, you move both dividers at once.
                 EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>()
