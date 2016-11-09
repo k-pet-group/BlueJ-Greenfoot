@@ -186,6 +186,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             selectionLayer.getChildren().add(rect);
 
             noClassesExistedMessage = new Label(Config.getString("pkgmgr.noClassesExisted.message"));
+            noClassesExistedMessage.setVisible(false);
             JavaFXUtil.addStyleClass(noClassesExistedMessage, "pmf-no-classes-msg");
 
             getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer, selectionLayer, noClassesExistedMessage);
