@@ -1923,7 +1923,7 @@ public class JavaFXUtil
     /**
      * Draw stripes over a rectangle - yet another thing missing from the AWT
      */
-    public static void stripeRect(GraphicsContext g, int x, int y, int width, int height, int separation, int thickness, Color color)
+    public static void stripeRect(GraphicsContext g, int x, int y, int width, int height, int separation, int thickness, boolean backslash, Color color)
     {
         Paint prev = g.getStroke();
         g.setStroke(color);
@@ -1947,6 +1947,12 @@ public class JavaFXUtil
             else {
                 x2 = x + width;
                 y2 = y + offset - width;
+            }
+            
+            if (backslash)
+            {
+                x1 = width - x1;
+                x2 = width - x2;
             }
 
             g.strokeLine(x1, y1, x2, y2);

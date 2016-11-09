@@ -246,15 +246,10 @@ public class ClassTarget extends DependentTarget
     private static Image redStripeImage;
     private static final int GREY_STRIPE_SEPARATION = 12;
     // How far between rows of stripes:
-    private static final double RED_STRIPE_SEPARATION = 18;
-    // How long between each up and down:
-    private static final double RED_STRIPE_ZIG_LENGTH = 6;
-    // How high each up and down is above the middle
-    // (Thus each up and down are 2*height apart from each other):
-    private static final double RED_STRIPE_ZIG_HEIGHT = 2;
+    private static final int RED_STRIPE_SEPARATION = 16;
     private static final int STRIPE_THICKNESS = 3;
     @OnThread(Tag.FX)
-    private static final Color RED_STRIPE = Color.rgb(180, 50, 20);
+    private static final Color RED_STRIPE = Color.rgb(170, 80, 60);
     @OnThread(Tag.FX)
     private static final Color GREY_STRIPE = Color.rgb(158, 139, 116);
     @OnThread(value = Tag.Any, requireSynchronized = true)
@@ -2338,32 +2333,12 @@ public class ClassTarget extends DependentTarget
             if (knownError.get())
             {
                 // Red stripes
-                double size = RED_STRIPE_SEPARATION * 10;
+                int size = RED_STRIPE_SEPARATION * 10;
                 if (redStripeImage == null)
                 {
                     redStripeImage = JavaFXUtil.createImage((int)size, (int)size, gImage -> {
-                        gImage.setStroke(RED_STRIPE);
-                        gImage.setLineWidth(STRIPE_THICKNESS);
-                        Affine transform = new Affine();
-                        //transform.appendRotation(-45);
-                        gImage.setTransform(transform);
-
-                        for (int i = 0; i < size*2; i += RED_STRIPE_SEPARATION)
-                        {
-                            double startX = 0;
-                            double startY = i + RED_STRIPE_SEPARATION/2.0;
-                            int n = (int)(size / RED_STRIPE_ZIG_LENGTH) + 1;
-                            double[] xPoints = new double[n + 1];
-                            double[] yPoints = new double[n + 1];
-                            for (int j = 0; j <= n; j++)
-                            {
-                                boolean up = j % 2 == 0;
-                                xPoints[j] = startX + j * RED_STRIPE_ZIG_LENGTH;
-                                yPoints[j] = startY + (up ? -RED_STRIPE_ZIG_HEIGHT : RED_STRIPE_ZIG_HEIGHT);
-                            }
-                            gImage.strokePolyline(xPoints, yPoints, n + 1);
-                        }
-
+                        JavaFXUtil.stripeRect(gImage, 0, 0, size, size, RED_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, false, RED_STRIPE);
+                        JavaFXUtil.stripeRect(gImage, 0, 0, size, size, RED_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, true, RED_STRIPE);
                     });
                 }
                 g.setFill(new ImagePattern(redStripeImage, 0, 0, size, size, false));
@@ -2376,7 +2351,7 @@ public class ClassTarget extends DependentTarget
                 if (greyStripeImage == null)
                 {
                     greyStripeImage = JavaFXUtil.createImage(size, size, gImage -> {
-                        JavaFXUtil.stripeRect(gImage, 0, 0, size, size, GREY_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, GREY_STRIPE);
+                        JavaFXUtil.stripeRect(gImage, 0, 0, size, size, GREY_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, false, GREY_STRIPE);
                     });
                 }
                 g.setFill(new ImagePattern(greyStripeImage, 0, 0, size, size, false));
