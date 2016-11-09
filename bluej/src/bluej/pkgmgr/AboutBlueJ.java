@@ -116,8 +116,6 @@ class AboutBlueJ extends Dialog<Void>
         bottom.getChildren().add(new Label(Config.getString("about.runningOn") + " " + System.getProperty("os.name") +
                 " " + System.getProperty("os.version") +
                 " (" + System.getProperty("os.arch") + ")"));
-        bottom.getChildren().add(new Label(Config.getString("about.javahome") + " " + System.getProperty("java.home")));
-
         Button debugLogShow = new Button(Config.getString("about.openFolder"));
         debugLogShow.setOnAction(e -> SwingUtilities.invokeLater(() -> {
             try

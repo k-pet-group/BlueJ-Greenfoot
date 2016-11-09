@@ -856,7 +856,6 @@ about.bluej.version=BlueJ version
 about.java.version=Java version
 about.vm=Virtual machine:
 about.runningOn=Running on:
-about.javahome=Java Home:
 about.logfile=Debug log file:
 about.moreInformation=For more information, see
 about.theTeam=The BlueJ team:
