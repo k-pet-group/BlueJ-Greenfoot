@@ -123,21 +123,19 @@ public class ObjectInspector extends Inspector
         this.obj = obj;
         this.objName = name;
 
-        final ObjectInspector thisInspector = this;
-
         makeFrame();
         update();
         
-        /*
+        
         if (parent instanceof Inspector) {
-            DialogManager.tileWindow(thisInspector, parent);
+            setX(parent.getX() + 40);
+            setY(parent.getY() + 40);
         }
         else {
-            DialogManager.centreWindow(thisInspector, parent);
+            //DialogManager.centreWindow(thisInspector, parent);
         }
-        */
 
-        thisInspector.installListenersForMoveDrag(20.0);
+        installListenersForMoveDrag(20.0);
     }
 
     /**
