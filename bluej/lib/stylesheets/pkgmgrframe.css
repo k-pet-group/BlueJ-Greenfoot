@@ -90,8 +90,8 @@
     -fx-arc-height: 6;
     -fx-arc-width: 6;
     -fx-stroke-width: 1;
-    -fx-stroke: lightgray;
-    -fx-fill: lightgray;
+    -fx-stroke: transparent;
+    -fx-fill: transparent;
     -fx-stroke-type: inside;
 }
 .reset-vm-button {
