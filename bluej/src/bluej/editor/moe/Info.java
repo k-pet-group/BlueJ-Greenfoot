@@ -25,13 +25,11 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
-import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
 
 import javafx.application.Platform;
 
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
-import java.awt.Window;
 import java.awt.event.*;        // New Event model
 
 import javax.swing.*;           // all the GUI components
@@ -42,15 +40,12 @@ import javax.swing.border.EmptyBorder;
 
 /**
  * An information panel, displayed at the bottom of a MoeEditor window. The panel can
- * display error messages / notices to the user, and has a "?" button which can be
- * used to request additional help on compiler errors.
+ * display error messages / notices to the user.
  *
  * @author Michael Kolling
  */
 public final class Info extends JPanel implements ActionListener
 {
-    static final ImageIcon helpImage = Config.getFixedImageAsIcon("help.png");
-
     private static Font infoFont = new Font("SansSerif", Font.BOLD, PrefMgr.getEditorFontSize() - 1);
     private final FXPlatformSupplier<javafx.stage.Window> fxParent;
 
@@ -60,7 +55,6 @@ public final class Info extends JPanel implements ActionListener
     private JLabel line2;
     String originalMsg;
     boolean isClear;
-    JButton helpButton;
     String helpGroup;
 
     // ------------- METHODS --------------
@@ -94,18 +88,6 @@ public final class Info extends JPanel implements ActionListener
         if (!Config.isRaspberryPi()) body.setOpaque(false);
         add(body, BorderLayout.CENTER);
 
-        helpButton = new JButton(helpImage);
-        if (!Config.isMacOS()) {
-            helpButton.setMargin(new Insets(0,0,0,0));
-        }
-        else {
-            Utility.changeToMacButton(helpButton);
-        }
-        helpButton.addActionListener(this);
-        helpButton.setRequestFocusEnabled(false);   // never get focus
-        add(helpButton, BorderLayout.EAST);
-        helpButton.setVisible(false);
-
         isClear = true;
         helpGroup = "";
         refresh();
@@ -129,7 +111,6 @@ public final class Info extends JPanel implements ActionListener
         originalMsg = msg;
         rebreakLine();
         isClear = false;
-        hideHelp();
     }
     
     /**
@@ -288,15 +269,6 @@ public final class Info extends JPanel implements ActionListener
     public void setHelp(String helpGroup)
     {
         this.helpGroup = helpGroup;
-        helpButton.setVisible(true);
-    }
-
-    /**
-     * Hide the "additional error message help" button.
-     */
-    private void hideHelp()
-    {
-        helpButton.setVisible(false);
     }
 
     // ---- ActionListener interface ----
