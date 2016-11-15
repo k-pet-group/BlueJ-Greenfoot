@@ -26,13 +26,15 @@ Procedure:
 
  4. To make the MSI installer using WiX:
 
-     Run "ant windows-msi-dist" from the root of the BlueJ project.
+     Run "ant windows-msi-bundled-dist" from the root of the BlueJ project. Currently, we build bundled version only.
      You'll need to have WiX installed (wix.sf.net) and set wix_bin in build.properties
      to the appropriate directory (something like: C:/Program Files/Windows Installer XML v3.5/bin)
      You'll also need to set the mingw_bash variable in build.properties
      The resulting winsetup/blueJ-VERSION.msi is the distributable file
      (where VERSION is the version number).
      
-     To make the MSI package with a bundled JDK, use the "windows-msi-bundled-dist" target instead.
+     To make the MSI package without a bundled JDK, use the "windows-msi-dist" target instead.
+
+ 5. Run "ant windows-standalone"
 
 Done.
