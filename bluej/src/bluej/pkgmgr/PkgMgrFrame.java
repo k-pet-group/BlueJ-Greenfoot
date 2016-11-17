@@ -353,6 +353,7 @@ public class PkgMgrFrame
     private final MouseTrackingOverlayPane topOverlay = new MouseTrackingOverlayPane();
     @OnThread(Tag.FX)
     private UntitledCollapsiblePane teamAndTestFoldout;
+    @OnThread(Tag.FX)
     private BooleanExpression teamShowSharedButtons;
 
     /**
