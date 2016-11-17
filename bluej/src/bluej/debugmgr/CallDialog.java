@@ -218,7 +218,7 @@ public abstract class CallDialog extends Dialog<Void>
             ObservableList<? extends Node> components = parameterList.getNodesForFormal(i);
             contents.add(components);
             
-            Label type = new Label(" " + parameterList.getType(i));
+            Label type = new Label("");
             type.setAlignment(Pos.BASELINE_LEFT);
             HangingFlowPane.setBreakBefore(type, false);
             if (i == (parameterList.formalCount() - 1)) {
@@ -346,7 +346,7 @@ public abstract class CallDialog extends Dialog<Void>
         VBox dialogPanel = new VBox();
         JavaFXUtil.addStyleClass(dialogPanel, "call-dialog-content");
         descPanel = new VBox();
-        errorLabel = JavaFXUtil.withStyleClass(new Label("\n\n"), "dialog-error-label");
+        errorLabel = JavaFXUtil.withStyleClass(new Label(" "), "dialog-error-label");
         dialogPanel.getChildren().addAll(descPanel, new Separator(), centerPanel, errorLabel);
         dialogPane = new DialogPaneAnimateError(errorLabel, () -> {});
         Config.addDialogStylesheets(dialogPane);

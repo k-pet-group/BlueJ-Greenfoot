@@ -183,7 +183,7 @@
     -fx-spacing: 1em;
 }
 .call-dialog-content .combo-box {
-    -fx-pref-width: 10em;
+    -fx-pref-width: 14em;
 }
 .call-dialog-content .combo-box .text-input {
     -fx-prompt-text-fill: hsb(0, 0%, 70%);

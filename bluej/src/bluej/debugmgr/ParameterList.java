@@ -58,11 +58,6 @@ public class ParameterList
     /** The varargs history.  Only relevant if varArgsList != null */
     private ObservableList<String> varArgsHistory = FXCollections.observableArrayList();
     /**
-     * The types for the formal parameters.  If no varargs, equal in size to parameters.
-     * If varargs, one larger than size of parameters.
-     */
-    private List<String> types;
-    /**
      * The default parameter value
      */
     private String defaultParamValue;
@@ -72,7 +67,6 @@ public class ParameterList
     public ParameterList(int initialSize, String defaultParamValue, FXConsumer<TextField> setLastFocused, FXPlatformRunnable fireOK) 
     {            
         parameters = new ArrayList<>(initialSize);
-        types = new ArrayList<>(initialSize);
         this.defaultParamValue = defaultParamValue;
         this.setLastFocused = setLastFocused;
         this.fireOK = fireOK;
@@ -99,21 +93,10 @@ public class ParameterList
             return FXCollections.observableArrayList(parameters.get(index));
     }
 
-    public String getType(int index)
-    {
-        if (varArgsList != null && index >= parameters.size()) {
-            return types.get(types.size() - 1);
-        } 
-        else {
-            return types.get(index);
-        }
-    }
-
     public void addNormalParameter(String paramType, String paramName, List<String> history)
     {
         String paramString = paramType + (paramName == null ? "" : " " + paramName);
-        parameters.add(createComboBox(paramName == null ? "" : paramName, history == null ? null : FXCollections.observableArrayList(history)));
-        types.add(paramString);
+        parameters.add(createComboBox(paramString, history == null ? null : FXCollections.observableArrayList(history)));
     }
 
     public int formalCount()
@@ -175,7 +158,6 @@ public class ParameterList
     public void addVarArgsTypes(String paramType, String paramName)
     {
         String paramString = paramType + (paramName == null ? "" : " " + paramName);
-        types.add(paramString);
-        varArgsList = new GrowableList(() -> createComboBox(paramName == null ? "" : paramName, varArgsHistory));
+        varArgsList = new GrowableList(() -> createComboBox(paramString, varArgsHistory));
     }
 }
