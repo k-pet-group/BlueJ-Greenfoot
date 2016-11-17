@@ -116,10 +116,10 @@ public abstract class DependentTarget extends EditableTarget
     {
         assoc = t;
         //assoiated classes are not allowed to move on their own
-        if (assoc.isMoveable()){
+        if (assoc != null && assoc.isMoveable()){
             assoc.setIsMoveable(false);
         }
-        if (assoc.isResizable())
+        if (assoc != null && assoc.isResizable())
         {
             assoc.setResizable(false);
         }
