@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -631,6 +632,11 @@ class TCScanner extends TreePathScanner<Void, Void>
     
     private WrapDescent checkInvocation(Name name, Tree lhs, TypeMirror invokeTargetType, String methodSelect, List<TypeMirror> invokeArgTypes, Void arg1, Tree errorLocation)
     {
+        if (inDebugClass())
+        {
+            System.err.println("Checking invocation: " + lhs + " # " + name + " # " + invokeTargetType + " # " + methodSelect);
+        }
+        
         if (invokeTargetType == null)
         {
             // Odd javac-added method (e.g. access method), skip:
@@ -722,28 +728,45 @@ class TCScanner extends TreePathScanner<Void, Void>
             else if (candidates.size() == 0)
             {
                 // Method doesn't exist in that class, only in a parent, so look in first parent:
-                //System.err.println("Looking for method " + methodSelect + " in super type of " + invokeTargetType);
+                if (inDebugClass())
+                    System.err.println("Looking for method " + methodSelect + " in super type of " + invokeTargetType);
                 List<? extends TypeMirror> directSupers = types.directSupertypes(invokeTargetType);
                 if (directSupers.size() > 0)
                 {
-                    //if (cu.getSourceFile().getName().contains("MethodWithBody"))
-                    //    System.err.println("Can't find method " + name + "{" + (invokeArgTypes == null ? "?" : invokeArgTypes.size()) + "} in " + invokeTargetType + "; trying super");
+                    if (inDebugClass())
+                        System.err.println("Can't find method " + name + "{" + (invokeArgTypes == null ? "?" : invokeArgTypes.size()) + "} in " + invokeTargetType + "; trying super");
                     for (int i = 0; i < directSupers.size(); i++)
                     {
-                        //if (cu.getSourceFile().getName().contains("MethodWithBody"))
-                        //    System.err.println("  Super " + i + ": " + directSupers.get(i));
+                        if (inDebugClass())
+                            System.err.println("  Super " + i + ": " + directSupers.get(i));
                         WrapDescent r = checkInvocation(name, lhs, directSupers.get(i), methodSelect, invokeArgTypes, arg1, errorLocation);
                         if (r != defaultReturn)
                             return r;
                     }
-                    return defaultReturn;
+                    // Fall through to check outer classes...
                 }
-                else
+                if (inDebugClass())
+                    System.err.println("Can't find method " + name + " in " + invokeTargetType + " or supers; looking for outer classes: " + typeScopeStack.size());
+                if (lhs == null && typeScopeStack.size() > 1)
                 {
-                    //if (cu.getSourceFile().getName().contains("MethodWithBody"))
-                    //    System.err.println("Can't find method " + name + " in " + invokeTargetType + " or supers");
-                    return defaultReturn; // TODO give error ?
+                    Iterator<PathAnd<ClassTree>> it = typeScopeStack.descendingIterator();
+                    if (trees.getTypeMirror(it.next().path).equals(invokeTargetType)) // Check we were on first item, and move past
+                    {
+                        while (it.hasNext())
+                        {
+                            WrapDescent r = checkInvocation(name, lhs, trees.getTypeMirror(it.next().path), methodSelect, invokeArgTypes, arg1, errorLocation);
+                            if (r != defaultReturn)
+                                return r;
+                        }
+                    }
+                    else
+                    {
+                        if (inDebugClass())
+                            System.err.println("Weren't on the outermost class so no need to check");
+                    }
                 }
+                //trees.printMessage(Kind.ERROR, "\nCould not find declaration of method " + name + " in " + invokedOn.asType().toString() + " or any super-classes", errorLocation, cu);
+                return defaultReturn;
             }
             else
             {
@@ -1189,7 +1212,7 @@ class TCScanner extends TreePathScanner<Void, Void>
 
     private boolean inDebugClass()
     {
-        return false; //typeScopeStack.stream().anyMatch(pa -> pa.item.getSimpleName().toString().contains("ErrorUnderlineCanvas"));
+        return false; //typeScopeStack.stream().anyMatch(pa -> pa.item.getSimpleName().toString().contains("CreateTestAction"));
     }
 
     // Null if error,
