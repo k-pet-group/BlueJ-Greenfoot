@@ -34,6 +34,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -193,30 +194,16 @@ public abstract class Inspector extends Stage
             }
         });
         
-        /*TODO
-        //to make it possible to close dialogs with the keyboard (ENTER or ESCAPE), we
-        // grab the key event from the fieldlist. 
-        fieldList.addKeyListener(new KeyListener() {            
-            public void keyPressed(KeyEvent e)
-            {
+        // To make it possible to close dialogs with the keyboard (ENTER), we
+        // grab the key event from the fieldlist which otherwise consumes it
+        // as part of the edit action (even though it's not editable)
+        fieldList.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            // Enter or escape?
+            if (e.getCode() == KeyCode.ENTER) {
+                doClose(true);
+                e.consume();    
             }
-
-            public void keyReleased(KeyEvent e)
-            {
-            }
-
-            public void keyTyped(KeyEvent e)
-            {
-                // Enter or escape?
-                if (e.getKeyChar() == '\n' || e.getKeyChar() == 27) {
-                    // On MacOS, we'll never see escape here. We have set up an
-                    // action on the root pane which will handle it instead.
-                    doClose(true);
-                    e.consume();
-                }    
-            }
-        });   
-             */
+        });
     }
 
     protected boolean isGetEnabled()
