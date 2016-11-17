@@ -2113,16 +2113,21 @@ public class ClassTarget extends DependentTarget
                 // class would not. This prevents a non unit test becoming
                 // associated with a class unintentionally
                 Target target = getPackage().getTarget(testClassName);
-                ClassTarget ct = null;
+                DependentTarget assoc = null;
                 if (target instanceof ClassTarget) {
-                    ct = (ClassTarget) target;
+                    ClassTarget ct = (ClassTarget) target;
                     if (ct != null && ct.isUnitTest()) {
-                        setAssociation((DependentTarget) getPackage().getTarget(getIdentifierName() + "Test"));
+                        assoc = (DependentTarget) getPackage().getTarget(getIdentifierName() + "Test");
                     }
                 }
-                updateAssociatePosition();
+                DependentTarget assocFinal = assoc;
                 PackageEditor pkgEd = getPackage().getEditor();
-                Platform.runLater(() -> {pkgEd.repaint();});
+                Platform.runLater(() -> {
+                    if (assocFinal != null)
+                        setAssociation(assocFinal);
+                    updateAssociatePosition();
+                    pkgEd.repaint();
+                });
 
             }
         }
