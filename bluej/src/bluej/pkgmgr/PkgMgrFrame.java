@@ -49,6 +49,7 @@ import javafx.animation.Animation;
 import javafx.animation.FillTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -352,6 +353,7 @@ public class PkgMgrFrame
     private final MouseTrackingOverlayPane topOverlay = new MouseTrackingOverlayPane();
     @OnThread(Tag.FX)
     private UntitledCollapsiblePane teamAndTestFoldout;
+    private BooleanExpression teamShowSharedButtons;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -3077,7 +3079,8 @@ public class PkgMgrFrame
             teamShareButton.setText(Config.getString("team.import.short"));
 
             // Don't reserve space for all three once-shared buttons if we are not yet shared:
-            teamPanelItemsOnceShared.managedProperty().bind(teamShareButton.disableProperty());
+            teamShowSharedButtons = teamShareButton.disableProperty().and(teamStatusButton.disableProperty().not());
+            teamPanelItemsOnceShared.managedProperty().bind(teamShowSharedButtons);
 
 
             VBox foldout = new VBox(teamPanel, testPanel);
