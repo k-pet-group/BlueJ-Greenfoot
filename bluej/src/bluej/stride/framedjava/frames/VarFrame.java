@@ -71,6 +71,8 @@ import bluej.stride.slots.VariableNameDefTextSlot;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A variable/object declaration block (with optional init)
@@ -139,6 +141,7 @@ public class VarFrame extends SingleLineFrame
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void backSpacePressedAtStart(HeaderItem slot)
             {
                 backspaceAtStart(getHeaderRow(), slot);

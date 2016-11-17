@@ -160,6 +160,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         importField.addValueListener(new SlotTraversalChars()
         {
             @Override
+            @OnThread(Tag.FXPlatform)
             public void backSpacePressedAtStart(HeaderItem slot)
             {
                 backspaceAtStart(getHeaderRow(), slot);
