@@ -141,17 +141,19 @@ public class ImportAction extends TeamAction
                     }
                 }
 
-                stopProgressBar();
-
-                EventQueue.invokeLater(() -> {
+                Platform.runLater(() -> {
                     handleServerResponse(result);
-                    if(! result.isError()) {
-                        setStatus(Config.getString("team.shared"));
-                        DataCollector.teamShareProject(project, repository);
-                    }
-                    else {
-                        clearStatus();
-                    }
+                    EventQueue.invokeLater(() -> {
+                        stopProgressBar();
+                        if (!result.isError())
+                        {
+                            setStatus(Config.getString("team.shared"));
+                            DataCollector.teamShareProject(project, repository);
+                        } else
+                        {
+                            clearStatus();
+                        }
+                    });
                 });
             }
         };
