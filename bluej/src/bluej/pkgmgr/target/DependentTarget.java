@@ -490,6 +490,8 @@ public abstract class DependentTarget extends EditableTarget
         if (t != null) {
             //TODO magic numbers. Should also take grid size in to account.
             t.setPos(getX() + 30, getY() - 30);
+            if (isResizable())
+                t.setSize(getWidth(), getHeight());
             t. recalcDependentPositions();
         }
     }
