@@ -323,7 +323,7 @@ public class ObjectInspector extends Inspector
      */
     protected void showClass()
     {
-        inspectorManager.getClassInspectorInstance(obj.getClassRef(), pkg, this);
+        inspectorManager.getClassInspectorInstance(obj.getClassRef(), pkg, this, null);
     }
 
     @Override

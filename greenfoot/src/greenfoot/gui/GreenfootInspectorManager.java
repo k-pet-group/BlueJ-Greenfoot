@@ -90,7 +90,7 @@ public class GreenfootInspectorManager implements InspectorManager
 
     @Override
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-            Package pkg, Window parent)
+                                                    Package pkg, Window parent, Node animateFromCentre)
     {
         ClassInspector inspector = (ClassInspector) classInspectors.get(clss.getName());
 

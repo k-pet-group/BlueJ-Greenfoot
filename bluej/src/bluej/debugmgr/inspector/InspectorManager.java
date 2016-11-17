@@ -80,21 +80,22 @@ public interface InspectorManager
     /**
      * Return a ClassInspector for a class. The inspector is visible.
      *
-     * @param clss
-     *            The class displayed by this viewer
      * @param name
      *            The name of this object or "null" if it is not on the object
      *            bench
-     * @param pkg
-     *            The package all this belongs to
      * @param getEnabled
      *            if false, the "get" button is permanently disabled
+     * @param clss
+     *            The class displayed by this viewer
+     * @param pkg
+     *            The package all this belongs to
      * @param parent
      *            The parent frame of this frame
+     * @param animateFromCentre
      * @return The Viewer value
      */
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-            Package pkg, Window parent);
+                                                    Package pkg, Window parent, Node animateFromCentre);
 
     /**
      * Return an ObjectInspector for an object. The inspector is visible.

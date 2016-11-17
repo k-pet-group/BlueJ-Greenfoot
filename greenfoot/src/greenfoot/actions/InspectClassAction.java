@@ -53,6 +53,6 @@ public class InspectClassAction extends AbstractAction
     
     public void actionPerformed(ActionEvent e)
     {
-        inspectorManager.getClassInspectorInstance(cls, pkg, null);
+        inspectorManager.getClassInspectorInstance(cls, pkg, null, null);
     }
 }

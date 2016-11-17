@@ -49,7 +49,6 @@ import threadchecker.Tag;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 16920 2016-11-17 17:34:32Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class ClassInspector extends Inspector
@@ -158,7 +157,9 @@ public class ClassInspector extends Inspector
         JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-class");
 
         button.setDefaultButton(true);
-        setScene(new Scene(contentPane));
+        Scene scene = new Scene(contentPane);
+        scene.setFill(null);
+        setScene(scene);
     }
 
     /**

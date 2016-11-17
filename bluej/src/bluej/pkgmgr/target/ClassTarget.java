@@ -22,7 +22,6 @@
 package bluej.pkgmgr.target;
 
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -133,7 +132,6 @@ import javafx.scene.layout.VBox;
 
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
-import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -1255,7 +1253,7 @@ public class ClassTarget extends DependentTarget
                     PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
                     Project proj = getPackage().getProject();
                     Platform.runLater(() -> {
-                        proj.getClassInspectorInstance(clss, getPackage(), pmf.getFXWindow());
+                        proj.getClassInspectorInstance(clss, getPackage(), pmf.getFXWindow(), ClassTarget.this.getNode());
                     });
                 }
                 catch (ClassNotFoundException cnfe) {}
