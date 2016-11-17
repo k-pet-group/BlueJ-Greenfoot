@@ -1,31 +1,32 @@
 .root {
-    class-target: rgb(232, 196, 123);
+    class-target: rgb(239, 204, 149);
     test-target: rgb(166, 191, 137);
-    class-diagram: rgb(247, 245, 222);
-    object-bench: rgb(235, 225, 197);
-    codepad: rgb(239, 240, 209);
-    codepad-prompt: rgb(160, 160, 160);
+    window-background: rgb(229, 229, 229);
+    class-diagram: rgb(249,247,242);
+    object-bench: rgb(239,237,232);
+    codepad: rgb(239,237,232);
+    codepad-input: rgb(249,247,242);
+    pane-border-color: gray;
 }
-
-.triangle-arrow {
-    -fx-cursor: hand;
-    -fx-fill: darkgray;
-}
-.triangle-arrow:hover {
-    -fx-fill: derive(darkgray, 20%);
-}
-
 
 .pmf-root {
     /* Less padding at bottom because status bar is there anyway */
     -fx-padding: 10px 10px 4px 10px;
+    -fx-background-color: window-background;
 }
-.pmf-root > .split-pane {
-    -fx-background-insets: 0;
+.split-pane {
+    -fx-padding: 0;
+    -fx-background-insets: 20;
+    -fx-background-color: window-background;
+}
+.split-pane > .split-pane-divider {
+   -fx-border-color:  transparent;
+   -fx-background-color: transparent;
+   -fx-padding: 2px 2px 2px 2px;
 }
 .pmf-central-pane {
     -fx-border-width: 1;
-    -fx-border-color: gray;
+    -fx-border-color: pane-border-color;
 }
 .pmf-empty-project-msg {
     -fx-text-fill: gray;
@@ -36,6 +37,13 @@
     -fx-font-size: 14pt;
 }
 
+.triangle-arrow {
+    -fx-cursor: hand;
+    -fx-fill: darkgray;
+}
+.triangle-arrow:hover {
+    -fx-fill: derive(darkgray, 20%);
+}
 .team-test-foldout-content {
     -fx-padding: 10px 0 0 0;
     -fx-spacing: 10px;
@@ -65,7 +73,8 @@
 }
 .pmf-tools-test > .title > .text, .pmf-tools-team > .title > .text {
     /* Despite JavaFX documentation, we must use -fx-fill not -fx-text-fill: */
-    -fx-fill: rgb(100, 100, 100);
+    -fx-fill: gray;
+    -fx-font-weight: bold;
 }
 .pmf-tools-test > .content, .pmf-tools-team > .content {
     -fx-border-width: 0;
@@ -82,7 +91,7 @@
 .machine-icon-bar-holder {
     -fx-border-width: 1;
     -fx-border-style: solid inside;
-    -fx-border-color: lightgray;
+    -fx-border-color: rgb(190, 190, 190);
     -fx-border-radius: 4;
 }
 .machine-icon-bar:bj-active {
@@ -193,7 +202,7 @@
 /* Object Bench */
 .object-bench {
     -fx-border-width: 1;
-    -fx-border-color: -fx-box-border;
+    -fx-border-color: pane-border-color;
 }
 .object-bench > .viewport {
     -fx-background-color: object-bench;
@@ -214,7 +223,7 @@
 /* Code Pad */
 .codepad {
     -fx-border-width: 1;
-    -fx-border-color: -fx-box-border;
+    -fx-border-color: pane-border-color;
 }
 .codepad-history {
     -fx-min-height: 50;
@@ -223,12 +232,10 @@
 .codepad-row {
     -fx-text-fill: black;
     -fx-wrap-text: false;
-}
-.codepad-row:even, .codepad-row:odd {
-    /* Make sure all empty cells are background colour: */
     -fx-background-color: codepad;
+    -fx-padding: 4px 0px 0px 10px;
 }
-.codepad-row:selected:even, .codepad-row:selected:odd {
+.codepad-row:selected {
     -fx-background-color: lightblue;
 }
 .codepad-row:bj-codepad-error {
@@ -240,7 +247,8 @@
 }
 .codepad-row:bj-codepad-error,
 .codepad-row:bj-codepad-output {
-    -fx-graphic-text-gap: 5px;
+    -fx-padding: 0px 0px 0px 10px;
+    -fx-graphic-text-gap: 10px;
 }
 
 .codepad .text-field {
@@ -248,19 +256,15 @@
     -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
             linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
        And here's our translation to use our background colour:*/
-    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -10%), -fx-text-box-border),
-        linear-gradient(from 0px 0px to 0px 5px, derive(codepad, -4%), derive(codepad, 15%));
-    -fx-prompt-text-fill: codepad-prompt;
+    -fx-background-color: lightgray, codepad-input;
 }
 .codepad .text-field:focused {
-    -fx-background-color: black,
-        linear-gradient(from 0px 0px to 0px 5px, derive(codepad, -4%), derive(codepad, 15%));
-    -fx-prompt-text-fill: codepad-prompt;
+    -fx-background-color: black, codepad-input;
 }
 
 .codepad-add-object-arrow {
-    -fx-stroke: rgb(50, 50, 50);
-    -fx-stroke-width: 2;
-    -fx-stroke-line-cap: round;
+    -fx-stroke: rgba(120, 80, 80, 0.8);
+    -fx-stroke-width: 6;
+    /*-fx-stroke-line-cap: round;*/
     -fx-stroke-line-join: round;
 }
