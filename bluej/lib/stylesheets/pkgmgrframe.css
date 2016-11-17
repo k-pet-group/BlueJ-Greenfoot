@@ -60,9 +60,12 @@
 }
 
 .pmf-tools-test > .title, .pmf-tools-team > .title {
-    -fx-text-fill: darkgray;
     -fx-padding: 0.3333em 0.75em 0em 0; /* remove left padding and bottom padding */
     -fx-background-color: transparent;
+}
+.pmf-tools-test > .title > .text, .pmf-tools-team > .title > .text {
+    /* Despite JavaFX documentation, we must use -fx-fill not -fx-text-fill: */
+    -fx-fill: rgb(100, 100, 100);
 }
 .pmf-tools-test > .content, .pmf-tools-team > .content {
     -fx-border-width: 0;
