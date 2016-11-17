@@ -327,7 +327,7 @@ public class ResultInspector extends Inspector
     {
         if (selectedField != null) {
             boolean isPublic = !getButton.isDisable();
-            inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? ir : null, this);
+            inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? ir : null, this, null);
         }
     }
     

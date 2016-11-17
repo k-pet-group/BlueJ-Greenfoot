@@ -317,7 +317,7 @@ public abstract class Inspector extends Stage
             boolean isPublic = !getButton.isDisable();
             
             InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, ir);
-            inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
+            inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this, null);
         }
     }
 

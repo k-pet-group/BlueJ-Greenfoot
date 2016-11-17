@@ -98,9 +98,9 @@ public class FieldList extends TableView<FieldInfo>
         this.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
         int rowHeight = 30;
         this.setFixedCellSize(rowHeight);
-        prefHeightProperty().bind(fixedCellSizeProperty().multiply(Bindings.size(getItems())).add(JavaFXUtil.ofD(paddingProperty(), Insets::getTop)).add(JavaFXUtil.ofD(paddingProperty(), Insets::getBottom)));
-        setMinHeight(3 * rowHeight);
-        setMaxHeight(400.0);
+        prefHeightProperty().bind(Bindings.min(400.0, fixedCellSizeProperty().multiply(Bindings.size(getItems())).add(JavaFXUtil.ofD(paddingProperty(), Insets::getTop)).add(JavaFXUtil.ofD(paddingProperty(), Insets::getBottom))));
+        setMinHeight(3.5 * (double)rowHeight);
+        setMinWidth(350.0);
         JavaFXUtil.addStyleClass(this, "field-list");
 
         javafx.scene.control.TableColumn<FieldInfo, String> description = new javafx.scene.control.TableColumn<FieldInfo, String>();

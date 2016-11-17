@@ -199,7 +199,7 @@ public class WorldInvokeListener
                                 }
                             }
                             else {
-                                inspectorManager.getInspectorInstance(result, "result", null, null, null);
+                                inspectorManager.getInspectorInstance(result, "result", null, null, null, null);
                             }
                         }
                     }

@@ -51,6 +51,9 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
+
+import javafx.animation.Interpolator;
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
@@ -108,6 +111,14 @@ import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.views.View;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -809,18 +820,46 @@ public class Project implements DebuggerListener, InspectorManager
      *            null, the "get" button is permanently disabled
      * @param parent
      *            The parent frame of this frame
+     * @param animateFromCentre If non-null, animate from the centre of this node.
      * @return The Viewer value
      */
     @OnThread(Tag.FXPlatform)
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-        String name, Package pkg, InvokerRecord ir, javafx.stage.Window parent)
+                                                String name, Package pkg, InvokerRecord ir, Window parent, Node animateFromCentre)
     {
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
 
         if (inspector == null) {
             inspector = new ObjectInspector(obj, this, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
+            if (animateFromCentre != null)
+            {
+                // First we must get the root and make sure it's sized for our later calculations:
+                Parent root = inspector.getScene().getRoot();
+                root.applyCss();
+                root.layout();
+                // Start it at zero size, animating to full size:
+                root.setScaleX(0.0);
+                root.setScaleY(0.0);
+                ScaleTransition t = new ScaleTransition(Duration.millis(600), root);
+                t.setInterpolator(Interpolator.EASE_OUT);
+                t.setToX(1.0);
+                t.setToY(1.0);
+                // To animate from left, need to start at position -0.5 of width, then animate to 0.0
+                root.translateXProperty().bind(inspector.getScene().widthProperty().multiply(root.scaleXProperty().multiply(0.5).add(-0.5)));
+                // To animate from bottom, need to start at position 0.5 of height, then animate to 0.0
+                root.translateYProperty().bind(inspector.getScene().heightProperty().multiply(root.scaleYProperty().multiply(-0.5).add(0.5)));
+                // Position its bottom left at centre of animateFromCentre:
+                Scene afcScene = animateFromCentre.getScene();
+                final Point2D windowCoord = new Point2D(afcScene.getWindow().getX(), afcScene.getWindow().getY());
+                final Point2D sceneCoord = new Point2D(afcScene.getX(), afcScene.getY());
+                final Point2D nodeCoord = animateFromCentre.localToScene(animateFromCentre.getBoundsInLocal().getWidth()/2.0, animateFromCentre.getBoundsInLocal().getHeight()/2.0);
+                inspector.setX(windowCoord.getX() + sceneCoord.getX() + nodeCoord.getX());
+                inspector.setY(windowCoord.getY() + sceneCoord.getY() + nodeCoord.getY() - root.prefHeight(-1));
+                t.play();
+            }
             inspector.show();
+
             //org.scenicview.ScenicView.show(inspector.getScene());
         }
         else {

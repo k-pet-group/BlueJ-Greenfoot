@@ -29,6 +29,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -48,7 +49,7 @@ import threadchecker.Tag;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 16210 2016-07-26 16:34:55Z nccb $
+ * @version $Id: ClassInspector.java 16920 2016-11-17 17:34:32Z nccb $
  */
 @OnThread(Tag.FXPlatform)
 public class ClassInspector extends Inspector
@@ -153,6 +154,7 @@ public class ClassInspector extends Inspector
         */
         VBox contentPane = new VBox();
         contentPane.getChildren().addAll(header, mainPanel, buttonPanel);
+        VBox.setVgrow(mainPanel, Priority.ALWAYS);
         JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-class");
 
         button.setDefaultButton(true);

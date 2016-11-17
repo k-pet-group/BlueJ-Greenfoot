@@ -25,13 +25,11 @@ import greenfoot.gui.inspector.GreenfootClassInspector;
 import greenfoot.gui.inspector.GreenfootObjectInspector;
 import greenfoot.gui.inspector.GreenfootResultInspector;
 
-import java.awt.Frame;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.JFrame;
-
+import javafx.scene.Node;
 import javafx.stage.Window;
 
 import bluej.debugger.DebuggerClass;
@@ -45,7 +43,6 @@ import bluej.debugmgr.inspector.ResultInspector;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.DialogManager;
 
 /**
  * An inspector manager for Greenfoot projects.
@@ -73,7 +70,7 @@ public class GreenfootInspectorManager implements InspectorManager
 
     @Override
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-            String name, Package pkg, InvokerRecord ir, Window parent)
+                                                String name, Package pkg, InvokerRecord ir, Window parent, Node animateFromCentre)
     {
         ObjectInspector inspector = (ObjectInspector) objectInspectors.get(obj);
         

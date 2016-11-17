@@ -195,7 +195,7 @@ public class WorldHandlerDelegateIDE
             catch (RemoteException e1) {
                 Debug.reportError("Could not get instance name for inspection", e1);
             }
-            inspectorManager.getInspectorInstance(dObj, instanceName, null, null, null);
+            inspectorManager.getInspectorInstance(dObj, instanceName, null, null, null, null);
         });
         m.setFont(PrefMgr.getStandoutMenuFont());
         m.setForeground(envOpColour);

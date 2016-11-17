@@ -35,6 +35,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -190,6 +191,7 @@ public class ObjectInspector extends Inspector
         contentPane.setBackground(null);
 
         contentPane.getChildren().addAll(header, mainPanel, bottomPanel);
+        VBox.setVgrow(mainPanel, Priority.ALWAYS);
 
         JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-object");
         JavaFXUtil.addStyleClass(header, "inspector-object-header", "inspector-header");
@@ -335,11 +337,11 @@ public class ObjectInspector extends Inspector
             
             if (! obj.isArray()) {
                 InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, ir);
-                inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
+                inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this, null);
             }
             else {
                 InvokerRecord newIr = new ArrayElementInspectorRecord(ir, selectedIndex);
-                inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
+                inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this, null);
             }
         }
     }
@@ -394,7 +396,7 @@ public class ObjectInspector extends Inspector
                         InvokerRecord newIr = new ArrayElementInspectorRecord(ir, slot);
                         setCurrentObj(obj.getElementObject(slot), "[" + slot + "]", obj.getElementType().toString());
                         inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg,
-                                isPublic ? newIr : null, this);
+                                isPublic ? newIr : null, this, null);
                     }
                     else {
                         // it is not an object - a primitive, so lets

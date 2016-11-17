@@ -29,16 +29,11 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +82,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -104,9 +98,7 @@ import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
 import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.pkgmgr.Project;
-import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
-import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -595,7 +587,7 @@ public class ExecControls
     {
         DebuggerField field = currentClass.getStaticField(index);
         if(field.isReferenceType() && ! field.isNull()) {
-            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, getFXWindow()));
+            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, getFXWindow(), null));
         }
     }
 
@@ -605,7 +597,7 @@ public class ExecControls
     private void viewInstanceField(DebuggerField field)
     {
         if(field.isReferenceType() && ! field.isNull()) {
-            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, getFXWindow()));
+            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, getFXWindow(), null));
         }
     }
 
@@ -617,7 +609,7 @@ public class ExecControls
         if(selectedThread.varIsObject(currentFrame, index)) {
             DebuggerObject obj = selectedThread.getStackObject(currentFrame, index);
             Platform.runLater(() -> project.getInspectorInstance(obj,
-                           null, null, null, getFXWindow()));
+                           null, null, null, getFXWindow(), null));
         }
     }
     

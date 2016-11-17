@@ -27,6 +27,7 @@ import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 
+import javafx.scene.Node;
 import javafx.stage.Window;
 
 
@@ -57,6 +58,8 @@ public interface InspectorManager
     /**
      * Return an ObjectInspector for an object. The inspector is visible.
      *
+     * @param info
+     *            The information about the the expression that gave this result
      * @param obj
      *            The object displayed by this viewer
      * @param name
@@ -66,14 +69,13 @@ public interface InspectorManager
      * @param ir
      *            the InvokerRecord explaining how we got this result/object if
      *            null, the "get" button is permanently disabled
-     * @param info
-     *            The information about the the expression that gave this result
      * @param parent
      *            The parent frame of this frame
+     * @param animateFromCentre
      * @return The Viewer value
      */
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-            String name, Package pkg, InvokerRecord ir, Window parent);
+                                                String name, Package pkg, InvokerRecord ir, Window parent, Node animateFromCentre);
     
     /**
      * Return a ClassInspector for a class. The inspector is visible.

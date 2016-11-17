@@ -53,7 +53,7 @@ public class ReferenceDebugVarInfo implements DebugVarInfo
         Image img = Config.getImageAsFXImage("image.eval.object");
         ImageView view = new ImageView(img);
         view.setOnMouseClicked(e -> {
-            pkg.getProject().getInspectorInstance(field.getValueObject(null), null, pkg, null, editorFrame);
+            pkg.getProject().getInspectorInstance(field.getValueObject(null), null, pkg, null, editorFrame, null);
             // Stop event being passed through to canvas:
             e.consume();
         });
