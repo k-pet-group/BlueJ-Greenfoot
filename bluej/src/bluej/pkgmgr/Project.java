@@ -982,7 +982,8 @@ public class Project implements DebuggerListener, InspectorManager
         final ResultInspector inspector = new ResultInspector(obj, this, name, pkg, ir, info);
         inspectors.put(obj, inspector);
 
-        //DialogManager.centreWindow(inspector, parent);
+        inspector.initOwner(parent);
+        inspector.centerOnOwner();
         inspector.show();
         inspector.bringToFront();
 

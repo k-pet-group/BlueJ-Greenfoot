@@ -41,6 +41,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.debugger.DebuggerField;
@@ -441,6 +442,42 @@ public abstract class Inspector extends Stage
     public int getUniqueId()
     {
         return uniqueId;
+    }
+
+    // Adapted from HeavyweightDialog.positionStage
+    public void centerOnOwner()
+    {
+        // Firstly we need to force CSS and layout to happen, as the window
+        // may not have been shown yet (so it has no dimensions)
+        getScene().getRoot().applyCss();
+        getScene().getRoot().layout();
+
+        final Window owner = getOwner();
+        if (owner == null)
+        {
+            centerOnScreen();
+            return;
+        }
+        final Scene ownerScene = owner.getScene();
+
+        // scene.getY() seems to represent the y-offset from the top of the titlebar to the
+        // start point of the scene, so it is the titlebar height
+        final double titleBarHeight = ownerScene.getY();
+
+        // because Stage does not seem to centre itself over its owner, we
+        // do it here.
+
+        // then we can get the dimensions and position the dialog appropriately.
+        final double dialogWidth = getScene().getRoot().prefWidth(-1);
+        final double dialogHeight = getScene().getRoot().prefHeight(dialogWidth);
+
+//        stage.sizeToScene();
+
+        double x = owner.getX() + (ownerScene.getWidth() / 2.0) - (dialogWidth / 2.0);
+        double y = owner.getY() + titleBarHeight / 2.0 + (ownerScene.getHeight() / 2.0) - (dialogHeight / 2.0);
+
+        setX(x);
+        setY(y);
     }
 
     /**
