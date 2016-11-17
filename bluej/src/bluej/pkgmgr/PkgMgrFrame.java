@@ -553,6 +553,7 @@ public class PkgMgrFrame
                 // create the bottom status area
 
                 BorderPane statusArea = new BorderPane();
+                BorderPane.setMargin(statusArea, new Insets(2, 0, 0, 0));
                 statusArea.setCenter(statusbar);
 
                 testStatusMessage = new Label();

@@ -107,7 +107,7 @@
     -fx-stroke-type: inside;
 }
 .reset-vm-button {
-    -fx-padding: 2 5 1 5;
+    -fx-padding: 3 5 0 5;
 }
 .reset-vm-button:bj-no-hover {
     -fx-background-color: transparent, transparent, transparent, transparent;
