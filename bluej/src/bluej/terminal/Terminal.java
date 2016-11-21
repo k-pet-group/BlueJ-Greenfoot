@@ -556,7 +556,9 @@ public final class Terminal
             case '\r':  // carriage return
             case '\n':  // newline
                 if (buffer.putChar('\n')) {
-                    writeToTerminal(String.valueOf(ch));
+                    // SwingNode gives us '\r' as the character for pressing Enter,
+                    // but we want a newline in that case, so pass '\n' to the terminal:
+                    writeToTerminal(String.valueOf('\n'));
                     buffer.notifyReaders();
                 }
                 event.consume();
