@@ -525,13 +525,20 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     @OnThread(Tag.Swing)
     public Reflective findSuperMethod(String name, List<String> qualParamTypes)
     {
-        if (extendsName == null || extendsName.getContent().isEmpty() || classKeyword == null)
+        if (classKeyword == null)
             return null;
 
-        // Make sure source document has been created:
+        String superClass;
+
+        if (extendsName == null || extendsName.getContent().isEmpty())
+            superClass = "Object";
+        else
+            superClass = extendsName.getContent();
+
+                // Make sure source document has been created:
         getSourceDocument(null);
         
-        Reflective qualSuper = qualifyType(extendsName.getContent(), classKeyword.getPosInSourceDoc());
+        Reflective qualSuper = qualifyType(superClass, classKeyword.getPosInSourceDoc());
         while (qualSuper != null)
         {
             Set<MethodReflective> overloads = qualSuper.getDeclaredMethods().get(name);
