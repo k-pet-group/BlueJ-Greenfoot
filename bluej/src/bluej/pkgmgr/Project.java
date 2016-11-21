@@ -873,33 +873,44 @@ public class Project implements DebuggerListener, InspectorManager
         Parent root = inspector.getScene().getRoot();
         root.applyCss();
         root.layout();
-        // Start it at zero size, animating to full size:
-        root.setScaleX(0.0);
-        root.setScaleY(0.0);
-        ScaleTransition t = new ScaleTransition(Duration.millis(600), root);
-        t.setInterpolator(Interpolator.EASE_OUT);
-        t.setToX(1.0);
-        t.setToY(1.0);
-        // To animate from left, need to start at position -0.5 of width, then animate to 0.0
-        root.translateXProperty().bind(inspector.getScene().widthProperty().multiply(root.scaleXProperty().multiply(0.5).add(-0.5)));
-        if (fromBottom)
+        
+        ScaleTransition t = null;
+        // Odd JavaFX behaviour on Linux messes up animation, so don't animate on Linux:
+        if (!Config.isLinux())
         {
-            // To animate from bottom, need to start at position 0.5 of height, then animate to 0.0
-            root.translateYProperty().bind(inspector.getScene().heightProperty().multiply(root.scaleYProperty().multiply(-0.5).add(0.5)));
-        }
-        else
-        {
-            // To animate from top, need to start at position -0.5 of height, then animate to 0.0
-            root.translateYProperty().bind(inspector.getScene().heightProperty().multiply(root.scaleYProperty().multiply(0.5).add(-0.5)));
+            // Start it at zero size, animating to full size:
+            root.setScaleX(0.0);
+            root.setScaleY(0.0);
+            t = new ScaleTransition(Duration.millis(600), root);
+            t.setInterpolator(Interpolator.EASE_OUT);
+            t.setToX(1.0);
+            t.setToY(1.0);
+            // To animate from left, need to start at position -0.5 of width, then animate to 0.0
+            root.translateXProperty().bind(inspector.getScene().widthProperty().multiply(root.scaleXProperty().multiply(0.5).add(-0.5)));
+            if (fromBottom)
+            {
+                // To animate from bottom, need to start at position 0.5 of height, then animate to 0.0
+                root.translateYProperty().bind(inspector.getScene().heightProperty().multiply(root.scaleYProperty().multiply(-0.5).add(0.5)));
+            } else
+            {
+                // To animate from top, need to start at position -0.5 of height, then animate to 0.0
+                root.translateYProperty().bind(inspector.getScene().heightProperty().multiply(root.scaleYProperty().multiply(0.5).add(-0.5)));
+            }
         }
         // Position its bottom left at centre of animateFromCentre:
         Scene afcScene = animateFromCentre.getScene();
         final Point2D windowCoord = new Point2D(afcScene.getWindow().getX(), afcScene.getWindow().getY());
         final Point2D sceneCoord = new Point2D(afcScene.getX(), afcScene.getY());
         final Point2D nodeCoord = animateFromCentre.localToScene(animateFromCentre.getBoundsInLocal().getWidth()/2.0, animateFromCentre.getBoundsInLocal().getHeight()/2.0);
+        
+        // Set position:
         inspector.setX(windowCoord.getX() + sceneCoord.getX() + nodeCoord.getX());
         inspector.setY(windowCoord.getY() + sceneCoord.getY() + nodeCoord.getY() + (fromBottom ? -root.prefHeight(-1) : 0));
-        t.play();
+        
+        if (t != null)
+        {
+            t.play();
+        }
     }
 
     /**
