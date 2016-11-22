@@ -222,14 +222,13 @@ public class JavaFXUtil
      * makes sure that all copies of a class are removed (effectively models the classes on a node as a 
      * set, not a list). 
      * 
-     * Generally, you should try to avoid dynamically turning classes on
-     * or off, anyway, and use pseudo-classes instead.  Therefore, eventually we
-     * should remove this method, hence the deprecation.
+     * Generally, you should try to avoid dynamically turning classes on or off, anyway,
+     * and use pseudo-classes instead. Therefore, eventually we should remove this method.
+     * It has been kept for now as one JavaFX control (Tab) doesn't accept pseudo-classes.
      * 
      * @param node The node to apply to.
      * @param styleClasses The style-classes to remove.
      */
-    @Deprecated
     public static void removeStyleClass(Styleable node, String... styleClasses)
     {
         //removeAll gets rid of all instances of all of styleClasses:
