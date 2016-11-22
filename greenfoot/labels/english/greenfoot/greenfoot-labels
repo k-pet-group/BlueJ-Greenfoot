@@ -43,6 +43,7 @@ project.version.changes.11=2.5.0 The 'isTouching' and 'removeTouching' methods w
 project.version.changes.12=2.6.0 The 'showText' method was added to the World class, and a new constructor added to GreenfootImage.
 project.version.changes.13=2.7.0 The 'ask' method was added to the Greenfoot class.
 project.version.changes.14=2.8.0 The 'getWorldOfType' method was added to the Actor class, and generics were added to API.
+project.version.changes.15=3.0.0 The greenfoot.Color and greenfoot.Font classes were introduced, to replace the java.awt classes.
 
 project.version.newer.part1=The scenario being opened has been written using a newer version of Greenfoot (API version 
 # project version inserted here by Greenfoot

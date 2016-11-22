@@ -14,8 +14,8 @@
 
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="3"/>
-    <property name="greenfoot.version.minor" value="0"/>
-    <property name="greenfoot.version.micro" value="3"/>
+    <property name="greenfoot.version.minor" value="1"/>
+    <property name="greenfoot.version.micro" value="0"/>
     <property name="greenfoot.version.suffix" value="" />
     
     <!-- Greenfoot version to API mapping:        -->
@@ -27,14 +27,14 @@
     A warning will be shown to the user - update the greenfoot-labels file to
     specify the breaking changes introduced in this version. -->
     <!-- YOU MUST UPDATE THE GREENFOOT LABELS if you change this -->
-    <property name="greenfoot.apiversion.breaking" value="2"/>
+    <property name="greenfoot.apiversion.breaking" value="3"/>
     
     <!-- Change when API has changed in a way that is visible to the user, but is very 
     unlikely to break scenarios (documentation changes, addition of method).
     Changing this number will stripe the user's classes and require a recompile.
     Do not change this number if the changes cannot break older scenarios. -->
     <!-- YOU SHOULD UPDATE THE GREENFOOT LABELS if you change this -->
-    <property name="greenfoot.apiversion.nonbreaking" value="8"/>
+    <property name="greenfoot.apiversion.nonbreaking" value="0"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
     It should not be possible for this change to break existing scenarios. 
