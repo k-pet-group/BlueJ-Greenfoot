@@ -206,7 +206,7 @@ public final class MoeEditor extends JPanel
     //private StringProperty titleProperty;
     //private final AtomicBoolean panelOpen = new AtomicBoolean();
     public MoeUndoManager undoManager;
-    
+
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
     
@@ -4150,6 +4150,12 @@ public final class MoeEditor extends JPanel
     public List<Menu> getFXMenu()
     {
         return fxMenus;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public EditorWatcher getWatcher()
+    {
+        return watcher;
     }
 
     @OnThread(Tag.Any)

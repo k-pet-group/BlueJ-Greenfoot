@@ -173,4 +173,9 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     {
         return windowTitleProperty;
     }
+
+    public MoeEditor getMoeEditor()
+    {
+        return moeEditor;
+    }
 }

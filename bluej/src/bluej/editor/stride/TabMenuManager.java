@@ -23,7 +23,6 @@ package bluej.editor.stride;
 
 import java.util.ArrayList;
 import java.util.List;
-import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.scene.control.ContextMenu;
@@ -31,6 +30,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.Config;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
@@ -65,6 +66,18 @@ public abstract class TabMenuManager
                     contextMoveMenu
                     , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> tab.getParent().close(tab), null)
             ));
+
+            if (tab instanceof FrameEditorTab)
+                tab.getContextMenu().getItems().add(JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.compile"),
+                        () ->  ((FrameEditorTab)tab).getFrameEditor().getWatcher().scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE)
+                        , null
+                ));
+
+            if (tab instanceof MoeFXTab)
+                tab.getContextMenu().getItems().add(JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.compile"),
+                        () ->  ((MoeFXTab)tab).getMoeEditor().getWatcher().scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE)
+                        , null
+                ));
         });
     }
 

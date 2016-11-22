@@ -30,6 +30,7 @@ frame.classmenu.move=Move tab...
 frame.classmenu.move.new=To new window
 frame.classmenu.move.existing=Window
 frame.classmenu.print=Print
+frame.classmenu.compile=Compile
 
 # Web/documentation menu
 frame.webmenu.title=Documentation
