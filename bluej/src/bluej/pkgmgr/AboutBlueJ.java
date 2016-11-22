@@ -135,7 +135,7 @@ class AboutBlueJ extends Dialog<Void>
         try {
             final URL bluejURL = new URL(BLUEJ_URL);
             Hyperlink link = new Hyperlink(bluejURL.toString());
-            link.setOnMouseClicked(e -> Utility.openWebBrowser(bluejURL.toExternalForm()));
+            link.setOnMouseClicked(e -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(bluejURL.toExternalForm())));
             
             HBox hbox = new HBox(new Label(Config.getString("about.moreInformation")), link);
             hbox.setAlignment(Pos.CENTER);

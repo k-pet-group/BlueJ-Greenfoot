@@ -252,6 +252,9 @@ class TCScanner extends TreePathScanner<Void, Void>
         classAnns.put("javax.swing.UIManager", new LocatedTag(Tag.Any, false, true, "<Swing UIManager>"));
         classAnns.put("javax.swing.UIManager.LookAndFeelInfo", new LocatedTag(Tag.Any, false, true, "<Swing UIManager>"));
         methodAnns.add(new MethodRef("javax.swing.plaf.metal.MetalLookAndFeel", "setCurrentTheme", new LocatedTag(Tag.Any,  false, false, "<Swing UIManager>")));
+
+        // Desktop should be AWT-only, it seems:
+        classAnns.put("java.awt.Desktop", new LocatedTag(Tag.Swing, false, true, "<AWT Desktop>"));
         
         // Threads always run in their own unique thread, of course:
         // Could do: methodAnns.add(new MethodRef("java.lang.Thread", "run", new LocatedTag(Tag.Unique, false, true, "<Thread.run>")));

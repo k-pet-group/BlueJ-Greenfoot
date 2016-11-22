@@ -21,6 +21,7 @@
  */
 package bluej.collect;
 
+import javax.swing.*;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -80,7 +81,7 @@ class DataCollectionDialog extends Dialog<Boolean>
 
         Hyperlink link = new Hyperlink(Config.getString("collect.dialog.ethics.seemore") + ".");
         link.setOnAction(e -> {
-            Utility.openWebBrowser("http://www.bluej.org/blackbox.html");
+            SwingUtilities.invokeLater(() -> Utility.openWebBrowser("http://www.bluej.org/blackbox.html"));
         });
 
         text.getChildren().addAll(

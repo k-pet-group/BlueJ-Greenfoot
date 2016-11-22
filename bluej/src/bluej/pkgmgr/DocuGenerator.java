@@ -353,7 +353,7 @@ public class DocuGenerator
                 int result = DialogManager.askQuestionFX(null, "show-or-generate");
                 if (result == 0)
                 {  // show only
-                    Utility.openWebBrowser(startPage.getPath());
+                    SwingUtilities.invokeLater(() -> Utility.openWebBrowser(startPage.getPath()));
                     return;
                 }
                 if (result == 2)

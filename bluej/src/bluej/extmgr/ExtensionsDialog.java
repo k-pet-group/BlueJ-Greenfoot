@@ -21,6 +21,8 @@
  */
 package bluej.extmgr;
 
+import javax.swing.*;
+
 import bluej.*;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -133,7 +135,7 @@ public class ExtensionsDialog
         if (url != null)
         {
             Hyperlink link = new Hyperlink(url.toExternalForm());
-            link.setOnAction(e -> Utility.openWebBrowser(url.toExternalForm()));
+            link.setOnAction(e -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(url.toExternalForm())));
             mainPanel.getChildren().add(link);
         }
 

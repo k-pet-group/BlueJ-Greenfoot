@@ -310,6 +310,7 @@ public class Utility
      * @param url the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
+    @OnThread(Tag.Swing)
     public static boolean openWebBrowser(String url)
     {
         if (Config.isWinOS()) { // Windows
@@ -356,6 +357,7 @@ public class Utility
      * @param url the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
+    @OnThread(Tag.Swing)
     public static boolean openWebBrowser(URL url)
     {
         if (Config.isWinOS()) {
@@ -457,6 +459,7 @@ public class Utility
      * @param file the file to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
+    @OnThread(Tag.Swing)
     public static boolean openWebBrowser(File file)
     {
         if (Config.isWinOS()) { // Windows
