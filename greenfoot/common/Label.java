@@ -1,13 +1,5 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Graphics2D;
-import java.awt.FontMetrics;
-import java.awt.font.TextLayout;
-
 
 /**
  * A Label class that allows you to display a textual value on screen.
