@@ -156,7 +156,7 @@ public class FrameCursor implements RecallableFocus
             else if (available.size() == 1) {
                 Entry<?> frameType = available.get(0);
 
-                if (!selection || frameType.validOnSelection()) {
+                if (!selection || frameType.isValidOnSelection()) {
                     editor.beginRecordingState(FrameCursor.this);
                     editor.recordEdits(StrideEditReason.FLUSH);
 

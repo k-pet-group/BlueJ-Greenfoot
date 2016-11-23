@@ -198,7 +198,7 @@ public class FrameCatalogue extends VBox
             final SnapshotParameters params = new SnapshotParameters();
             params.setFill(Color.TRANSPARENT);
 
-            for (Entry<StrideCategory> e : Utility.iterableStream(dictionary.getAllBlocks().stream().sorted(comparator)))
+            for (Entry<StrideCategory> e : Utility.iterableStream(dictionary.getAllBlocks().stream().filter(b -> b.isShowingInCatalogue()).sorted(comparator)))
             {
                 Frame f = e.getFactory().createBlock(editor);
                 p.setCenter(f.getNode());
@@ -243,7 +243,7 @@ public class FrameCatalogue extends VBox
                 standardItems.add(item);
 
                 catalogueUpdate.add((c, code, hasSelection, birdseye) -> {
-                    boolean show = c != null && c.canInsert() && c.check().canInsert(e.getCategory()) && (!hasSelection || e.validOnSelection());
+                    boolean show = c != null && c.canInsert() && c.check().canInsert(e.getCategory()) && (!hasSelection || e.isValidOnSelection());
                     item.setVisible(show);
                     item.setManaged(show);
 

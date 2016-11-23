@@ -42,22 +42,36 @@ public abstract class FrameDictionary<CATEGORY>
         private final String description;
         private final CATEGORY category;
         private final boolean validOnSelection;
-        
+        private final boolean showingInCatalogue;
+
         public Entry(List<Character> shortcutKeys, FrameFactory<? extends Frame> factory, boolean validOnSelection,
-                CATEGORY category, String name, String description)
+                     CATEGORY category, String name, String description)
         {
-            this.shortcutKeys = new ArrayList<Character>(shortcutKeys);
-            this.factory = factory;
-            this.category = category;
-            this.name = name;
-            this.description = description;
-            this.validOnSelection = validOnSelection;
+            this(shortcutKeys, factory, validOnSelection, category, name, description, true);
         }
         
         public Entry(char shortcutKey, FrameFactory<? extends Frame> factory, boolean validOnSelection,
                 CATEGORY category, String name, String description)
         {
-            this(Arrays.asList(shortcutKey), factory, validOnSelection, category, name, description);
+            this(Arrays.asList(shortcutKey), factory, validOnSelection, category, name, description, true);
+        }
+
+        public Entry(char shortcutKey, FrameFactory<? extends Frame> factory, boolean validOnSelection,
+                     CATEGORY category, String name, String description, boolean showingInCatalogue)
+        {
+            this(Arrays.asList(shortcutKey), factory, validOnSelection, category, name, description, showingInCatalogue);
+        }
+
+        private Entry(List<Character> shortcutKeys, FrameFactory<? extends Frame> factory, boolean validOnSelection,
+                      CATEGORY category, String name, String description, boolean showingInCatalogue)
+        {
+            this.shortcutKeys = new ArrayList<>(shortcutKeys);
+            this.factory = factory;
+            this.category = category;
+            this.name = name;
+            this.description = description;
+            this.validOnSelection = validOnSelection;
+            this.showingInCatalogue = showingInCatalogue;
         }
 
         public boolean inCategory(CATEGORY c) { return category.equals(c); }
@@ -78,7 +92,9 @@ public abstract class FrameDictionary<CATEGORY>
 
         public Class<? extends Frame> getBlockClass() { return factory.getBlockClass(); }
 
-        public boolean validOnSelection() { return validOnSelection; }
+        public boolean isValidOnSelection() { return validOnSelection; }
+
+        public boolean isShowingInCatalogue() { return showingInCatalogue; }
         
         public String getShortcuts()
         {

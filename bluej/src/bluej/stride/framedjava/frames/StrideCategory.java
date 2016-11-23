@@ -47,7 +47,6 @@ public enum StrideCategory
     CONSTRUCTOR,
     IMPORT,
 
-    NORMAL_METHOD,
-    ABSTRACT_METHOD,
+    CLASS_METHOD,
 
 }
