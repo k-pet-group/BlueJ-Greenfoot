@@ -1,1 +1,0 @@
-Builds a maze by having an actor carve out the maze.

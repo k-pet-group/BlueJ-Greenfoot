@@ -47,6 +47,9 @@ import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.TriangleArrow;
 import javafx.animation.Animation;
 import javafx.animation.FillTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
@@ -458,7 +461,9 @@ public class PkgMgrFrame
                     if (c.wasAdded())
                     {
                         // Use last saved divider positions:
-                        c.getAddedSubList().get(0).setPosition(bottomPaneLastDividerPos);
+                        c.getAddedSubList().get(0).setPosition(1.0);
+                        Timeline t = new Timeline(new KeyFrame(Duration.millis(2000), new KeyValue(c.getAddedSubList().get(0).positionProperty(), bottomPaneLastDividerPos)));
+                        t.play();
                     }
                     else if (c.wasRemoved())
                     {

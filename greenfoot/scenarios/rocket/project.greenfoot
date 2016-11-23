@@ -1,9 +1,0 @@
-#Greenfoot properties
-#Mon Jan 29 12:09:24 GMT 2007
-simulation.speed=0
-class.Space.superclass=greenfoot.World
-class.Rocket.superclass=greenfoot.Actor
-class.Speeder.superclass=greenfoot.Actor
-version=1.1.0
-class.Rocket.image=rocket.gif
-class.Speeder.image=speeder.gif
