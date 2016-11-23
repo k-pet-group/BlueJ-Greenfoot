@@ -30,11 +30,14 @@ import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.Window;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -43,6 +46,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1384,6 +1388,35 @@ public class Utility
     {
         // Simplest implementation I could think of:
         return 0.5 + Math.round(x - 0.5);
+    }
+
+    public static void removeLine(Path fromFile, Predicate<String> removeLine) throws IOException
+    {
+        File inputFile = fromFile.toFile();
+        File tempFile = File.createTempFile("bluej", "tmp");
+
+        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+        String currentLine;
+        boolean removedOne = false;
+
+        while((currentLine = reader.readLine()) != null) {
+            // trim newline when comparing with lineToRemove
+            String trimmedLine = currentLine.trim();
+            if (!removeLine.test(trimmedLine))
+            {
+                writer.write(currentLine + System.getProperty("line.separator"));
+            }
+            else
+                removedOne = true;
+        }
+        writer.close();
+        reader.close();
+        // Only need to actually overwrite if we made a change:
+        if (removedOne)
+            tempFile.renameTo(inputFile);
+        
     }
 
     @FunctionalInterface
