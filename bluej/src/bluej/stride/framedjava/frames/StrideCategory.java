@@ -42,11 +42,12 @@ public enum StrideCategory
     THROW,
     
     CASE,
-    
-    ABSTRACT,
+
+    INTERFACE_METHOD,
     CONSTRUCTOR,
     IMPORT,
-    
-    METHOD,
-    
+
+    NORMAL_METHOD,
+    ABSTRACT_METHOD,
+
 }

@@ -58,7 +58,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
             new Entry<>('/', CommentFrame.getFactory(), false, StrideCategory.COMMENT, "Comment", "A code comment"),
             new Entry<>('=', AssignFrame.getFactory(), false, StrideCategory.ASSIGNMENT, "Assignment", "Assignment"),
             //case '*': return new MultiCommentBlock(editor);
-            new Entry<>('a', MethodProtoFrame.getFactory(), false, StrideCategory.ABSTRACT, "Abstract method", "An abstract method of a class"),
+            new Entry<>('a', MethodProtoFrame.getFactory(), false, StrideCategory.ABSTRACT_METHOD, "Abstract method", "An abstract method of a class or interface"),
             new Entry<>('b', BreakFrame.getFactory(), false, StrideCategory.BREAK, "Break", "Breaks out of loop"),
             new Entry<>('c', ConstructorFrame.getFactory(), false, StrideCategory.CONSTRUCTOR, "Constructor", "A constructor of a class"),
             new Entry<>('c', CaseFrame.getFactory(), false, StrideCategory.CASE, "Case (Switch)", "Handles specific value"),
@@ -70,7 +70,8 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
             new Entry<>('i', IfFrame.getFactory(), true, StrideCategory.CONDITIONAL, "If", "Conditional execution"),
 //            new Entry<>('e', IfFrame.getFactory(), false, StrideCategory.CONDITIONAL, "Else", "Else execution"),
             new Entry<>('i', ImportFrame.getFactory(), false, StrideCategory.IMPORT, "Import", "Import a class or package"),
-            new Entry<>('m', NormalMethodFrame.getFactory(), false, StrideCategory.METHOD, "Method", "A method of a class"),
+            new Entry<>('m', NormalMethodFrame.getFactory(), false, StrideCategory.NORMAL_METHOD, "Method", "A method of a class"),
+            new Entry<>('m', MethodProtoFrame.getFactory(), false, StrideCategory.INTERFACE_METHOD, "Abstarct Method", "A method of an interface"),
             //case 'o': return new ObjectBlock(editor);
             new Entry<>('r', ReturnFrame.getFactory(), false, StrideCategory.RETURN, "Return", "Returns from method"),
             new Entry<>('s', SwitchFrame.getFactory(), false, StrideCategory.SWITCH, "Switch", "Chooses from several cases"),
@@ -170,15 +171,16 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
     public static FrameTypeCheck checkClassMethod()
     {
         return checkCategories(
-                StrideCategory.ABSTRACT,
-                StrideCategory.METHOD,
+                StrideCategory.ABSTRACT_METHOD,
+                StrideCategory.NORMAL_METHOD,
                 StrideCategory.COMMENT);
     }
 
     public static FrameTypeCheck checkInterfaceMethod()
     {
         return checkCategories(
-                StrideCategory.ABSTRACT,
+                StrideCategory.INTERFACE_METHOD,
+                StrideCategory.ABSTRACT_METHOD,
                 StrideCategory.COMMENT);
     }
     
