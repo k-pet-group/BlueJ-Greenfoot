@@ -1,7 +1,5 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
-import java.awt.Color;
-
 /**
  * A moon.
  * 

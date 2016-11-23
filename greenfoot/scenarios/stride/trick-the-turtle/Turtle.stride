@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class name="Turtle" extends="Actor" enable="true" strideversion="1">
+<class name="Turtle" extends="Actor" extends-java="Actor" enable="true" strideversion="1">
     <javadoc xml:space="preserve">This class defines a turtle. Turtles like lettuce 
 (very yummy, especially the green ones).
 </javadoc>
     <imports>
         <import target="java.util.*" enable="true"/>
         <import target="greenfoot.*" enable="true"/>
-        <import target="java.awt.Color" enable="true"/>
         <import target="java.util.List" enable="true"/>
         <import target="java.util.Set" enable="true"/>
     </imports>
     <implements/>
     <fields>
-        <variable access="private" type="int" name="lettucesEaten" enable="true"/>
+        <variable access="private" type="int" type-java="int" name="lettucesEaten" enable="true"/>
     </fields>
     <constructors>
         <constructor access="public" enable="true">
@@ -25,7 +24,7 @@
         </constructor>
     </constructors>
     <methods>
-        <method access="public" type="void" name="act" enable="true">
+        <method access="public" type="void" type-java="void" name="act" enable="true">
             <javadoc xml:space="preserve">Act - do whatever the turtle wants to do. This method is called whenever
 the 'Act' or 'Run' button gets pressed in the environment. </javadoc>
             <params/>
@@ -36,7 +35,7 @@ the 'Act' or 'Run' button gets pressed in the environment. </javadoc>
                 <call expression="lookForLettuce()" expression-java="lookForLettuce()" enable="true"/>
             </body>
         </method>
-        <method access="public" type="void" name="checkKeyPress" enable="true">
+        <method access="public" type="void" type-java="void" name="checkKeyPress" enable="true">
             <javadoc xml:space="preserve">Check whether a control key on the keyboard has been pressed.
 If it has, react accordingly.</javadoc>
             <params/>
@@ -54,7 +53,7 @@ If it has, react accordingly.</javadoc>
                 </if>
             </body>
         </method>
-        <method access="public" type="void" name="lookForLettuce" enable="true">
+        <method access="public" type="void" type-java="void" name="lookForLettuce" enable="true">
             <javadoc xml:space="preserve">Check whether we have stumbled upon a lettuce.
 If we have, eat it. If not, do nothing. If we have eaten eight lettuces, we win.</javadoc>
             <params/>

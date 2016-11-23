@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class name="Pengu" extends="Mover" enable="true" strideversion="1">
+<class name="Pengu" extends="Mover" extends-java="Mover" enable="true" strideversion="1">
     <javadoc xml:space="preserve">A little penguin that wants to get to the other side.</javadoc>
     <imports>
         <import target="java.util.*" enable="true"/>
         <import target="greenfoot.*" enable="true"/>
-        <import target="java.awt.Color" enable="true"/>
     </imports>
     <implements/>
     <fields>
-        <variable access="private" static="true" final="true" type="int" name="jumpStrength" value="16" value-java="16" enable="true"/>
+        <variable access="private" static="true" final="true" type="int" type-java="int" name="jumpStrength" value="16" value-java="16" enable="true"/>
     </fields>
     <constructors/>
     <methods>
-        <method access="public" type="void" name="act" enable="true">
+        <method access="public" type="void" type-java="void" name="act" enable="true">
             <javadoc xml:space="preserve">Check keyboard input and react accordingly.</javadoc>
             <params/>
             <throws/>
@@ -21,7 +20,7 @@
                 <call expression="checkFall()" expression-java="checkFall()" enable="true"/>
             </body>
         </method>
-        <method access="private" type="void" name="checkKeys" enable="true">
+        <method access="private" type="void" type-java="void" name="checkKeys" enable="true">
             <javadoc xml:space="preserve"/>
             <params/>
             <throws/>
@@ -49,7 +48,7 @@
                 </if>
             </body>
         </method>
-        <method access="private" type="void" name="jump" enable="true">
+        <method access="private" type="void" type-java="void" name="jump" enable="true">
             <javadoc xml:space="preserve">Start a jump action.</javadoc>
             <params/>
             <throws/>
@@ -58,7 +57,7 @@
                 <call expression="fall()" expression-java="fall()" enable="true"/>
             </body>
         </method>
-        <method access="private" type="void" name="checkFall" enable="true">
+        <method access="private" type="void" type-java="void" name="checkFall" enable="true">
             <javadoc xml:space="preserve">Check whether we are falling. If so, fall. If we're on ground, stop the fall.</javadoc>
             <params/>
             <throws/>

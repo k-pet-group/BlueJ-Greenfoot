@@ -1,7 +1,6 @@
 // WARNING: This file is auto-generated and any changes to it will be overwritten
 import java.util.*;
 import greenfoot.*;
-import java.awt.Color;
 
 /**
  * Create the turtle world. 
@@ -25,41 +24,41 @@ public class TurtleWorld extends World
      */
     private void prepare()
     {
-        Lettuce lettuce =  new Lettuce();
+        Lettuce lettuce =  new  Lettuce();
         addObject(lettuce, 115, 506);
-        Lettuce lettuce2 =  new Lettuce();
+        Lettuce lettuce2 =  new  Lettuce();
         addObject(lettuce2, 255, 495);
-        Lettuce lettuce3 =  new Lettuce();
+        Lettuce lettuce3 =  new  Lettuce();
         addObject(lettuce3, 491, 489);
-        Lettuce lettuce4 =  new Lettuce();
+        Lettuce lettuce4 =  new  Lettuce();
         addObject(lettuce4, 394, 325);
-        Lettuce lettuce5 =  new Lettuce();
+        Lettuce lettuce5 =  new  Lettuce();
         addObject(lettuce5, 84, 341);
-        Lettuce lettuce6 =  new Lettuce();
+        Lettuce lettuce6 =  new  Lettuce();
         addObject(lettuce6, 243, 252);
-        Lettuce lettuce7 =  new Lettuce();
+        Lettuce lettuce7 =  new  Lettuce();
         addObject(lettuce7, 191, 411);
-        Lettuce lettuce8 =  new Lettuce();
+        Lettuce lettuce8 =  new  Lettuce();
         addObject(lettuce8, 466, 148);
-        Lettuce lettuce9 =  new Lettuce();
+        Lettuce lettuce9 =  new  Lettuce();
         addObject(lettuce9, 352, 71);
-        Lettuce lettuce10 =  new Lettuce();
+        Lettuce lettuce10 =  new  Lettuce();
         addObject(lettuce10, 124, 75);
-        Lettuce lettuce11 =  new Lettuce();
+        Lettuce lettuce11 =  new  Lettuce();
         addObject(lettuce11, 64, 197);
-        Lettuce lettuce12 =  new Lettuce();
+        Lettuce lettuce12 =  new  Lettuce();
         addObject(lettuce12, 225, 148);
-        Lettuce lettuce13 =  new Lettuce();
+        Lettuce lettuce13 =  new  Lettuce();
         addObject(lettuce13, 344, 454);
-        Lettuce lettuce14 =  new Lettuce();
+        Lettuce lettuce14 =  new  Lettuce();
         addObject(lettuce14, 378, 198);
-        Snake snake =  new Snake();
+        Snake snake =  new  Snake();
         addObject(snake, 435, 453);
-        Snake snake2 =  new Snake();
+        Snake snake2 =  new  Snake();
         addObject(snake2, 93, 259);
-        Snake snake3 =  new Snake();
+        Snake snake3 =  new  Snake();
         addObject(snake3, 467, 61);
-        Turtle turtle =  new Turtle();
+        Turtle turtle =  new  Turtle();
         addObject(turtle, 273, 337);
     }
 }

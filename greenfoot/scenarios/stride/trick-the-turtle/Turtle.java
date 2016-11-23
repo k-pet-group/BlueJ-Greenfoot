@@ -1,7 +1,6 @@
 // WARNING: This file is auto-generated and any changes to it will be overwritten
 import java.util.*;
 import greenfoot.*;
-import java.awt.Color;
 import java.util.List;
 import java.util.Set;
 

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class name="Scene" extends="World" enable="true" strideversion="1">
+<class name="Scene" extends="World" extends-java="World" enable="true" strideversion="1">
     <javadoc xml:space="preserve">This is the whole scene. It creates and contains the objects that are in it.</javadoc>
     <imports>
         <import target="java.util.*" enable="true"/>
         <import target="greenfoot.*" enable="true"/>
-        <import target="java.awt.Color" enable="true"/>
     </imports>
     <implements/>
     <fields/>
