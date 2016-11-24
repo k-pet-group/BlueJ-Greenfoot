@@ -30,6 +30,7 @@ import greenfoot.event.ValidityListener;
 import greenfoot.gui.ClassNameVerifier;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.images.ImageLibList.ImageListEntry;
+import greenfoot.util.EscapeDialog;
 import greenfoot.util.ExternalAppLauncher;
 import greenfoot.util.GreenfootUtil;
 
@@ -52,9 +53,9 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-//import javax.swing.Icon;
-//import javax.swing.ImageIcon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -74,10 +75,7 @@ import bluej.Config;
 import bluej.extensions.SourceType;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
-import greenfoot.util.EscapeDialog;
 import bluej.utility.FileUtility;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
 
 /**
  * A (modal) dialog for selecting a class image. The image can be selected from either the
@@ -106,7 +104,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
     private JTextField classNameField;
     private SourceType language;
-    
+
     /** Menu items that are in the drop down button,
      *  which we want to alter the enabled state of. */
     private JMenuItem editItem;
@@ -419,7 +417,17 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 errorMsgLabel.setVisible(false);
                 errorMsgLabel.setForeground(Color.RED);
 
-                final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg);
+                b.add(Box.createHorizontalStrut(spacingLarge));
+                b.add(fixHeight(classNameField));
+                b.add(Box.createHorizontalStrut(spacingLarge));
+                
+                SourceType[] items = { SourceType.Stride, SourceType.Java };
+                JComboBox<SourceType> languageSelectionBox = new JComboBox<>(items);
+                language = pkg.getDefaultSourceType();
+                languageSelectionBox.setSelectedItem(language);
+                b.add(languageSelectionBox);
+
+                final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg, language);
                 classNameVerifier.addValidityListener(new ValidityListener() {
                     @Override
                     public void changedToInvalid(ValidityEvent e)
@@ -436,25 +444,14 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                         okAction.setEnabled(true);
                     }
                 });
-
-                b.add(Box.createHorizontalStrut(spacingLarge));
-
-                b.add(fixHeight(classNameField));
-                
-                b.add(Box.createHorizontalStrut(spacingLarge));
-                
-                SourceType[] items = { SourceType.Stride, SourceType.Java };
-                
-                JComboBox<SourceType> languageSelectionBox = new JComboBox<SourceType>(items);
-                languageSelectionBox.addActionListener(e -> {language = (SourceType) languageSelectionBox.getSelectedItem();});
-                languageSelectionBox.setSelectedItem(pkg.getDefaultSourceType());
-                b.add(languageSelectionBox);
+                languageSelectionBox.addActionListener(e -> {
+                    language = (SourceType) languageSelectionBox.getSelectedItem();
+                    classNameVerifier.change(language);
+                });
                 
                 b.setAlignmentX(0.0f);
                 classDetailsPanel.add(b);
-
                 classDetailsPanel.add(errorMsgLabel);
-
                 classDetailsPanel.add(Box.createVerticalStrut(spacingLarge));
             }
 

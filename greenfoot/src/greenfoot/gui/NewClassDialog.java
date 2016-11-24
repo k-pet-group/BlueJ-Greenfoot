@@ -21,9 +21,14 @@
  */
 package greenfoot.gui;
 
+import bluej.BlueJTheme;
+import bluej.Config;
+import bluej.extensions.SourceType;
+
 import greenfoot.core.GPackage;
 import greenfoot.event.ValidityEvent;
 import greenfoot.event.ValidityListener;
+import greenfoot.util.EscapeDialog;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -37,11 +42,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import bluej.BlueJTheme;
-import bluej.Config;
-import bluej.extensions.SourceType;
-import greenfoot.util.EscapeDialog;
 
 /**
  * Dialog that asks for the name of a new class. This is only used for non Actor
@@ -159,7 +159,7 @@ public class NewClassDialog extends EscapeDialog
         buttonPanelMax.height = buttonPanel.getPreferredSize().height;
         buttonPanel.setMaximumSize(buttonPanelMax);
         
-        ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameTextField, pkg);
+        ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameTextField, pkg, (SourceType) languageSelectionBox.getSelectedItem());
         classNameVerifier.addValidityListener(new ValidityListener(){
             @Override
             public void changedToInvalid(ValidityEvent e)
@@ -175,7 +175,8 @@ public class NewClassDialog extends EscapeDialog
                 errorMsgLabel.setVisible(false);
                 okButton.setEnabled(true);
             }});
-        
+        languageSelectionBox.addActionListener(e -> classNameVerifier.change((SourceType) languageSelectionBox.getSelectedItem()));
+
         mainPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         mainPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS,  2 * BlueJTheme.generalSpacingWidth));
         mainPanel.add(Box.createVerticalGlue());
@@ -214,7 +215,7 @@ public class NewClassDialog extends EscapeDialog
     {
         return (SourceType) languageSelectionBox.getSelectedItem();
     }
-    
+
     /**
      * select the language of the class.
      */

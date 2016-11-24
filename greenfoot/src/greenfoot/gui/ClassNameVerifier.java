@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,19 +21,21 @@
  */
 package greenfoot.gui;
 
+import bluej.Config;
+import bluej.extensions.SourceType;
+import bluej.utility.JavaNames;
+
 import greenfoot.core.GPackage;
 import greenfoot.event.ValidityEvent;
 import greenfoot.event.ValidityListener;
 
+import java.util.Properties;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.EventListenerList;
-
-import bluej.Config;
-import bluej.utility.JavaNames;
 
 /**
  * Class that verifies a class name typed into a TextField. It checks that the
@@ -48,7 +50,8 @@ public class ClassNameVerifier extends InputVerifier
 {
     private EventListenerList listenerList = new EventListenerList();
     private String classExists = Config.getString("newclass.dialog.err.classExists");
-    private String illegalClassName = Config.getString("newclass.dialog.err.classNameIllegal");
+    private String illegalClassName;
+    private Properties localProperties = new Properties();
     
     /** Is the text field currently in a valid state? */
     private boolean valid = false;
@@ -77,20 +80,26 @@ public class ClassNameVerifier extends InputVerifier
      *            Package containing the user classes for which to check
      *            against.
      */
-    public ClassNameVerifier(JTextField textField, GPackage pkg)
+    public ClassNameVerifier(JTextField textField, GPackage pkg, SourceType sourceType)
     {
         this.pkg = pkg;
         this.textField = textField;
         textField.getDocument().addDocumentListener(this);
         textField.setInputVerifier(this);
         textField.setVerifyInputWhenFocusTarget(true);
+        buildTheErrorMessage(sourceType);
+    }
+
+    private void buildTheErrorMessage(SourceType sourceType)
+    {
+        localProperties.put("LANGUAGE", sourceType!= null ? sourceType.toString() : "");
+        illegalClassName = Config.getString("newclass.dialog.err.classNameIllegal", null,  localProperties);
     }
 
     /**
-     * Verifies that the TextField doesn't contain the name of an existing
-     * class.
+     * Verifies that the TextField doesn't contain the name of an existing class.
      * 
-     * @param jTextField
+     * @param textField
      *            The component must be of the type JTextField.
      */
     @Override
@@ -196,8 +205,10 @@ public class ClassNameVerifier extends InputVerifier
         }
     }
 
-    private void change()
+    public void change(SourceType sourceType)
     {
+        buildTheErrorMessage(sourceType);
+        firstCheck = true;
         checkValidity();
     }
 
@@ -208,11 +219,11 @@ public class ClassNameVerifier extends InputVerifier
 
     public void insertUpdate(DocumentEvent e)
     {
-        change();
+        checkValidity();
     }
 
     public void removeUpdate(DocumentEvent e)
     {
-        change();
+        checkValidity();
     }
 }
