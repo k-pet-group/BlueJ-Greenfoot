@@ -42,11 +42,11 @@ public class Font
     }
 
     /**
-     * Creates a font from the specified name and size, bold, italic or regular.
+     * Creates a font from the specified font name, size and style.
      *
      * @param name The font name
      * @param bold True if the font is meant to be bold
-     * @param italic True if the font si meant to be italic
+     * @param italic True if the font is meant to be italic
      * @param size The size of the font
      */
     public Font(String name, boolean bold, boolean italic, int size)
@@ -62,43 +62,36 @@ public class Font
     }
 
     /**
-     * Creates a font from the specified size, bold, italic or regular.
+     * Creates a sans serif font with the specified size and style.
      *
      * @param bold True if the font is meant to be bold
-     * @param italic True if the font si meant to be italic
+     * @param italic True if the font is meant to be italic
      * @param size The size of the font
      */
     public Font(boolean bold, boolean italic, int size)
     {
-        int style = java.awt.Font.PLAIN;
-        if (bold) {
-            style = java.awt.Font.BOLD;
-        }
-        if (italic) {
-            style = style | java.awt.Font.ITALIC;
-        }
-        this.font = new java.awt.Font("SansSerif", style, size);
+        this("SansSerif", bold, italic, size);
     }
 
     /**
-     * Creates a font of a given size.
+     * Creates a font from the specified font name and size.
      *
      * @param name The font name
      * @param size The size of the font
      */
     public Font(String name, int size)
     {
-        this.font = new java.awt.Font(name, java.awt.Font.PLAIN, size);
+        this(name, false, false, size);
     }
 
     /**
-     * Creates a font of a given size.
+     * Creates a sans serif font of a given size.
      *
      * @param size The size of the font
      */
     public Font(int size)
     {
-        this.font = new java.awt.Font("SansSerif", java.awt.Font.PLAIN, size);
+        this(false, false, size);
     }
 
     /**
