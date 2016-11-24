@@ -76,6 +76,7 @@ stride.convert.whole.errors.title=Conversion to Stride: Error
 stride.convert.whole.errors=Conversion from Java to Stride failed, with the following errors
 stride.convert.error.stride=Error while trying to unpack Stride code
 stride.convert.error.java=Error while trying to parse Java for conversion to Stride
+convert.to.stride.class=Convert to Stride
 convert.to.java.title=Convert to Java?
 convert.to.java.message=This will convert the Stride class to Java.  Continue?
 convert.to.stride.title=Convert to Stride?

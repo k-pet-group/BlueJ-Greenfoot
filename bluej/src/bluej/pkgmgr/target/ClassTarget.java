@@ -2247,7 +2247,10 @@ public class ClassTarget extends DependentTarget
     {
         File javaSourceFile = getJavaSourceFile();
         Platform.runLater(() -> {
-            if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", (Stage)ClassTarget.this.pane.getScene().getWindow()))
+            Stage window = null;
+            if (pane.getScene() != null)
+                window = (Stage)pane.getScene().getWindow();
+            if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", window))
             {
                 try
                 {
