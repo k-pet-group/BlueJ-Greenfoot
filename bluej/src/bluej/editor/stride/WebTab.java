@@ -62,6 +62,12 @@ public class WebTab extends FXTab
         super(false);
         browser = new WebView();
         browser.getEngine().load(url);
+        // When user selects Open in New Window, make a new web tab and open there:
+        browser.getEngine().setCreatePopupHandler(p -> {
+            WebTab newTab = new WebTab(null);
+            parent.addTab(newTab, true, true);
+            return newTab.browser.getEngine();
+        });
         setGraphic(getWebIcon());
         setContent(browser);
         textProperty().bind(browser.getEngine().titleProperty());
