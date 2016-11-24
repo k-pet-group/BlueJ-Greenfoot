@@ -65,15 +65,14 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     private final List<ObjectBenchListener> listenerList = new ArrayList<>();
     private ObjectBenchPanel obp;
     /**
-     * The threading status of this list is complicated.  It must always be accessed
-     * synchronized.  It can be read from any thread, but should only be modified
-     * on the FXPlatform thread.  The thread-checker can't get this involved
-     * so you need to make sure you obey this rule yourself.
+     * This list maintains the correct internal state of the object bench.  Whenever you
+     * modify this list, you must manually mirror the change into obp.getChildren()
+     * using correct threading rules.
      */
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private final ObservableList<ObjectWrapper> objects = FXCollections.observableArrayList();;
+    @OnThread(Tag.Any)
+    private final List<ObjectWrapper> objects = new ArrayList<>();
     /**
-     * As for objects above; read from any thread, only alter on FXPlatform thread.
+     * This can be read from any thread, but should only be altered on FXPlatform thread.
      */
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private ObjectWrapper selectedObject;
@@ -136,16 +135,18 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         }
         wrapper.setName(newname);
 
+        synchronized (ObjectBench.this)
+        {
+            objects.add(wrapper);
+        }
+
         // wrapper.addFocusListener(this); -- not needed
         JavaFXUtil.runNowOrLater(() -> {
             // Keep it invisible until positioned:
             wrapper.setVisible(false);
             // Allows us to know when it has been positioned:
             wrapper.setLayoutY(-1);
-            synchronized (ObjectBench.this)
-            {
-                objects.add(wrapper);
-            }
+            obp.getChildren().add(wrapper);
             wrapper.animateIn(animateFromScene);
             updateAccessibleName();
         });
@@ -235,6 +236,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
         }
         objects.clear();
+        JavaFXUtil.runNowOrLater(() -> obp.getChildren().clear());
         SwingUtilities.invokeLater(() -> resetRecordingInteractions());
         updateAccessibleName();
     }
@@ -255,7 +257,8 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         
         wrapper.prepareRemove();
         wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
-        wrapper.animateOut(() -> objects.remove(wrapper));
+        objects.remove(wrapper);
+        wrapper.animateOut(() -> obp.getChildren().remove(wrapper));
 
         updateAccessibleName();
     }
@@ -529,7 +532,6 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
         JavaFXUtil.addStyleClass(this, "object-bench");
-        JavaFXUtil.bindList(obp.getChildren(), objects);
 
         setContent(obp);
         setFitToWidth(true);
@@ -598,6 +600,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     /**
      * Does one of the objects contained within have focus?
      */
+    @OnThread(Tag.FXPlatform)
     public synchronized boolean objectHasFocus()
     {
         return objects.stream().anyMatch(w -> w.isFocused());
