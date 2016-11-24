@@ -1044,7 +1044,7 @@ public class FrameEditor implements Editor
             // shown.
             // We need this runLater to make sure we only run after we've finished setting up the editor
             // (and it case it uses any runLaters)
-            panel.withTopLevelFrame(f -> JavaFXUtil.runAfterCurrent(() -> {
+            panel.withTopLevelFrame(f -> JavaFXUtil.runPlatformLater(() -> {
                 // We only need to worry about queued errors from the latest compile:
                 if (!queuedErrors.isEmpty())
                 {
