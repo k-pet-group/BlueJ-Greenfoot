@@ -998,7 +998,11 @@ public final class Package
             }
         }
 
-        Platform.runLater(() -> {getEditor().graphChanged();});
+        Platform.runLater(() -> {
+            PackageEditor ed = getEditor();
+            if (ed != null)
+                ed.graphChanged();
+        });
     }
     
     /**
