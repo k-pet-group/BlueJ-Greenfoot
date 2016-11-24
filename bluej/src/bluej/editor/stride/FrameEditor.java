@@ -1039,9 +1039,12 @@ public class FrameEditor implements Editor
 
         if (show)
         {
+            // We wait to try to show errors until the frame has finished loading, because
+            // otherwise we won't have the correct references to work out where the error should be
+            // shown.
             // We need this runLater to make sure we only run after we've finished setting up the editor
             // (and it case it uses any runLaters)
-            JavaFXUtil.runAfterCurrent(() -> {
+            panel.withTopLevelFrame(f -> JavaFXUtil.runAfterCurrent(() -> {
                 // We only need to worry about queued errors from the latest compile:
                 if (!queuedErrors.isEmpty())
                 {
@@ -1058,6 +1061,7 @@ public class FrameEditor implements Editor
                     queuedErrors.clear();
                     // We can only show the errors once the Java source is available.  I believe it will now
                     // (after r15373) actually always be available, but that means the code will just run immediately so that's fine:
+
                     JavaFXUtil.onceNotNull(javaSource, js -> {
                         for (QueuedError e : queueCopy)
                         {
@@ -1074,7 +1078,7 @@ public class FrameEditor implements Editor
                         JavaFXUtil.runPlatformLater(() -> panel.updateErrorOverviewBar(false));
                     });
                 }
-            });
+            }));
         }
     }
 
@@ -1121,6 +1125,8 @@ public class FrameEditor implements Editor
     {
         panel.removeOldErrors();
         TopLevelCodeElement el = panel.getSource();
+        if (el == null)
+            return;
         Stream<CodeElement> allElements = Stream.concat(Stream.of((CodeElement)el), el.streamContained());
         LocationMap rootPathMap = el.toXML().buildLocationMap();
         // We must start these futures going on the FX thread

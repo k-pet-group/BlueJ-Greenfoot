@@ -802,7 +802,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return topLevelFrameProperty.getValue();
     }
 
-    private void withTopLevelFrame(FXConsumer<TopLevelFrame<? extends TopLevelCodeElement>> action)
+    //package-visible
+    void withTopLevelFrame(FXConsumer<TopLevelFrame<? extends TopLevelCodeElement>> action)
     {
         JavaFXUtil.onceNotNull(topLevelFrameProperty, action);
     }
@@ -1749,7 +1750,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.FXPlatform)
     public void removeOldErrors()
     {
-        getTopLevelFrame().removeOldErrors();
+        if (getTopLevelFrame() != null)
+            getTopLevelFrame().removeOldErrors();
         errors = null;
         // TODO we should only really update the state when late errors arrive: 
         updateErrorOverviewBar(false);
