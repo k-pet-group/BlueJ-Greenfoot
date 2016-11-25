@@ -533,7 +533,9 @@ public class FrameCursor implements RecallableFocus
                 shrinkingHeightBindings.get(editor).grow(FrameCursor.this, FULL_HEIGHT, animate);
             }
             else {
-                shrinkingHeightBindings.get(editor).shrink(FrameCursor.this, HIDE_HEIGHT, animate);
+                TotalHeightBinding heightBinding = shrinkingHeightBindings.get(editor);
+                if (heightBinding != null) // Can be null when closing the editor
+                    heightBinding.shrink(FrameCursor.this, HIDE_HEIGHT, animate);
             }
         }
     }
