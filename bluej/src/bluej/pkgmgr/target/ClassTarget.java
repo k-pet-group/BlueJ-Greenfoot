@@ -2444,6 +2444,12 @@ public class ClassTarget extends DependentTarget
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
         DataCollector.removeClass(pkg, srcFile);
+
+
+        // In Greenfoot we don't do detailed dependency tracking, so we just recompile the whole
+        // package if any class is removed:
+        if (Config.isGreenfoot())
+            pkg.rebuild();
     }
     
     public void removeStride()
