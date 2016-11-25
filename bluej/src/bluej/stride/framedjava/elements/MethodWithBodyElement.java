@@ -136,7 +136,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
     public MethodWithBodyElement(String access, List<Entry<String,String>> params, List<CodeElement> contents, String documentation)
     {
         this.access = new AccessPermissionFragment(AccessPermission.fromString(access));
-        this.contents = contents;
+        this.contents = new ArrayList<>(contents);
         this.documentation = new JavadocUnit(documentation);
         
         this.throwsTypes = new ArrayList<>();
