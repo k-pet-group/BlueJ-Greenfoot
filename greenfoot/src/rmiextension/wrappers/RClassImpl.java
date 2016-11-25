@@ -157,7 +157,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     @Override
-    public void insertAppendMethod(final String method, final boolean showEditorOnCreate, final boolean showEditorOnAppend)
+    public void insertAppendMethod(final String method, final boolean showEditorOnCreate, final boolean showEditorOnAppend, final boolean compileAfter)
             throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         final Editor e = bClass.getEditor();
@@ -171,6 +171,9 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                     else if (!inserted && showEditorOnCreate) {
                         EventQueue.invokeLater(() -> e.setVisible(true));
                     }
+
+                    if (compileAfter)
+                        compile(false, true);
                 })
         );
     }

@@ -69,24 +69,17 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
     {
         NormalMethodElement method = recorder.getPrepareMethod();
         CallElement methodCall = recorder.getPrepareMethodCall();
-        
-        try {
-            GClass lastWorld = getLastWorldGClass();
-            lastWorld.insertMethodCallInConstructor(methodCall.toXML().toXML(), false);
-            lastWorld.insertAppendMethod(method.toXML().toXML(), true, false);
-            // Now that we've inserted the code, we must reset the recorder,
-            // so that if the user saves the world again before re-compiling,
-            // it doesn't insert the same code twice.  If the user scrubs our method
-            // and saves the world before re-compiling this will then go wrong
-            // (by inserting code depending on objects no longer there) but that
-            // seems less likely:
-            recorder.clearCode(false);
-            
-            lastWorld.compile(false, true);
-        }
-        catch (ProjectNotOpenException|PackageNotFoundException|RemoteException|CompilationNotStartedException e) {
-            Debug.reportError("Error trying to get editor for world class and insert method (with call)", e);
-        }
+
+        GClass lastWorld = getLastWorldGClass();
+        lastWorld.insertMethodCallInConstructor(methodCall.toXML().toXML(), false);
+        lastWorld.insertAppendMethod(method.toXML().toXML(), true, false, true);
+        // Now that we've inserted the code, we must reset the recorder,
+        // so that if the user saves the world again before re-compiling,
+        // it doesn't insert the same code twice.  If the user scrubs our method
+        // and saves the world before re-compiling this will then go wrong
+        // (by inserting code depending on objects no longer there) but that
+        // seems less likely:
+        recorder.clearCode(false);
     }
 
     /**

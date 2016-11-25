@@ -267,10 +267,10 @@ public class GClass
      * Method body should have no curly braces, it should just be
      * "foo.bar();\n        if(true) return;\n" or similar, and should end in a newline
      */
-    public void insertAppendMethod(String method, boolean showEditorOnCreate, boolean showEditorOnAppend)
+    public void insertAppendMethod(String method, boolean showEditorOnCreate, boolean showEditorOnAppend, boolean compileAfter)
     {
         try {
-            rmiClass.insertAppendMethod(method, showEditorOnCreate, showEditorOnAppend);
+            rmiClass.insertAppendMethod(method, showEditorOnCreate, showEditorOnAppend, compileAfter);
         }
         catch (ProjectNotOpenException e) {
             Debug.reportError("Could not insert code", e);
