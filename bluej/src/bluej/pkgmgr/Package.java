@@ -2676,18 +2676,18 @@ public final class Package
             
             String missing = chopAtOpeningBracket(message.substring(message.lastIndexOf(' ') + 1));
 
-            String lineText = getLine(e);
-            
             ParsedCUNode pcuNode = e.getParsedNode();
             if (pcuNode == null) {
                 return message;
             }
-            
-            // The column from the diagnostic object assumes tabs are 8 spaces; convert to
-            // a line position:
-            int pos = convertColumn(lineText, column) + getLineStart(e);
 
-            LinkedList<String> maybeTheyMeant = new LinkedList<String>();
+            // If it is a frameEditor, pcuNode above will be null, so the next lines won't be reached. If this change,
+            // i.e. pcuNode is not null for frameEditor, next lines should be fixed
+
+            // The column from the diagnostic object assumes tabs are 8 spaces; convert to a line position:
+            int pos = convertColumn(getLine(e), column) + getLineStart(e);
+
+            LinkedList<String> maybeTheyMeant = new LinkedList<>();
             CodeSuggestions suggests = pcuNode.getExpressionType(pos, e.getSourceDocument());
             AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, project.getJavadocResolver(), null);
             if (values != null) {
