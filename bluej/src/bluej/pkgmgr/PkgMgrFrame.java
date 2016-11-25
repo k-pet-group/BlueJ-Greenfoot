@@ -585,7 +585,13 @@ public class PkgMgrFrame
                 stageProperty.setValue(stage);
                 paneProperty.setValue(rootPlusMenu);
                 // Delay to let window positioner be ready:
-                JavaFXUtil.runAfterCurrent(() -> stage.show());
+                JavaFXUtil.runAfterCurrent(() -> {
+                    if (stage.getX() < 0)
+                        stage.setX(10);
+                    if (stage.getY() < 0)
+                        stage.setY(10);
+                    stage.show();
+                });
                 //org.scenicview.ScenicView.show(stage.getScene());
 
                 // If it should already be showing, do that now:
