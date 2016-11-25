@@ -508,8 +508,11 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    public void markCompiling()
+    public void markCompiling(boolean clearErrorState)
     {
+        if (clearErrorState && getState() == State.HAS_ERROR)
+            setState(State.NEEDS_COMPILE);
+
         if (getSourceType() == SourceType.Stride) {
             getEditor(); // Create editor if necessary
         }

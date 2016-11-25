@@ -2462,7 +2462,7 @@ public final class Package
             this.chainObserver = chainObserver;
         }
         
-        private void markAsCompiling(CompileInputFile[] sources)
+        private void markAsCompiling(CompileInputFile[] sources, boolean clearErrorState)
         {
             for (int i = 0; i < sources.length; i++) {
                 String fileName = sources[i].getJavaCompileInputFile().getPath();
@@ -2473,7 +2473,7 @@ public final class Package
 
                     if (t instanceof ClassTarget) {
                         ClassTarget ct = (ClassTarget) t;
-                        ct.markCompiling();
+                        ct.markCompiling(clearErrorState);
                     }
                 }
             }
@@ -2512,8 +2512,9 @@ public final class Package
                 setStatus(compiling);
             }
 
-            // Change view of source classes
-            markAsCompiling(sources);
+            // Change view of source classes.  Reset the error state if we are
+            // going to keep the classes.
+            markAsCompiling(sources, type.keepClasses());
         }
 
         @Override
