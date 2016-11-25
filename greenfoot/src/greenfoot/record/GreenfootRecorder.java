@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2014,2015 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2014,2015,2016 Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,7 +31,6 @@ import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import rmiextension.wrappers.RObject;
 import bluej.Config;
 import bluej.debugger.gentype.JavaType;
 import bluej.stride.framedjava.elements.CallElement;
@@ -91,9 +90,8 @@ public class GreenfootRecorder
     public synchronized String nameActor(Object actor)
     {
         try {
-            RObject rObject = ObjectTracker.getRObject(actor);
-            if (rObject != null) {
-                String name = rObject.getInstanceName();
+            String name = ObjectTracker.getRObjectName(actor);
+            if (name != null) {
                 objectNames.put(actor, name);
                 return name;
             } else {

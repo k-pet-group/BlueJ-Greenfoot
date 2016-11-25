@@ -275,7 +275,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      * @see rmiextension.wrappers.RProject#getRemoteObject()
      */
     @Override
-    public synchronized RObject getRemoteObject() throws RemoteException
+    public synchronized String getRemoteObjectName() throws RemoteException
     {
         try {
             while (transportObject == null) {
@@ -304,7 +304,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
                 }
             });
 
-            return WrapperPool.instance().getWrapper(val_a[0]);
+            return val_a[0].getInstanceName();
         }
         catch (InterruptedException ie) { }
         catch (InvocationTargetException ite) {

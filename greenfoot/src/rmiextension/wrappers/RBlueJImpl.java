@@ -43,8 +43,6 @@ import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RClassListenerWrapper;
 import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RCompileListenerWrapper;
-import rmiextension.wrappers.event.RInvocationListener;
-import rmiextension.wrappers.event.RInvocationListenerWrapper;
 
 import java.awt.*;
 import java.io.File;
@@ -69,8 +67,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     // do not require external synchronization.
     private Map<RCompileListener,RCompileListenerWrapper> compileListeners =
         new Hashtable<RCompileListener,RCompileListenerWrapper>();
-    private Map<RInvocationListener,RInvocationListenerWrapper> invocationListeners =
-        new Hashtable<RInvocationListener,RInvocationListenerWrapper>();
     private Map<RClassListener,RClassListenerWrapper> classListeners =
         new Hashtable<RClassListener,RClassListenerWrapper>();
     
@@ -148,16 +144,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         RCompileListenerWrapper wrapper = new RCompileListenerWrapper(listener, bProjectRef.bProject, this);
         compileListeners.put(listener, wrapper);
         blueJ.addCompileListener(wrapper);
-    }
-    
-    /*
-     * @see rmiextension.wrappers.RBlueJ#addInvocationListener(rmiextension.wrappers.event.RInvocationListener)
-     */
-    public void addInvocationListener(RInvocationListener listener)
-    {
-        RInvocationListenerWrapper wrapper = new RInvocationListenerWrapper(listener);
-        invocationListeners.put(listener, wrapper);
-        blueJ.addInvocationListener(wrapper);
     }
 
     /*
@@ -310,15 +296,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         RCompileListenerWrapper wrapper = compileListeners.remove(listener);
         blueJ.removeCompileListener(wrapper);
-    }
-    
-    /*
-     * @see rmiextension.wrappers.RBlueJ#removeInvocationListener(rmiextension.wrappers.event.RInvocationListener)
-     */
-    public void removeInvocationListener(RInvocationListener listener)
-    {
-        RInvocationListenerWrapper wrapper = invocationListeners.remove(listener);
-        blueJ.removeInvocationListener(wrapper);
     }
 
     /*

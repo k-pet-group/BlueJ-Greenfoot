@@ -63,7 +63,6 @@ import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RApplicationListenerImpl;
 import rmiextension.wrappers.event.RCompileEvent;
-import rmiextension.wrappers.event.RInvocationListener;
 import rmiextension.wrappers.event.RProjectListener;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
@@ -129,9 +128,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     /** Listens for instantiations of Actor objects. */
     private ActorInstantiationListener instantiationListener;
-
-    /** List of invocation listeners that has been registered. */
-    private List<RInvocationListener> invocationListeners = new ArrayList<RInvocationListener>();
 
     /** History of parameters passed to methods. */
     private CallHistory callHistory = new CallHistory();
@@ -472,9 +468,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 rBlueJ.removeCompileListener(compileListenerForwarder);
                 rBlueJ.removeClassListener(classStateManager);
                 storeFrameState();
-                for (RInvocationListener element : invocationListeners) {
-                    rBlueJ.removeInvocationListener(element);
-                }
             }
         }
         catch (RemoteException re) {
@@ -521,18 +514,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         synchronized (compileListeners) {
             compileListeners.add(0, listener);
         }
-    }
-
-    /**
-     * Adds a listener for invocation events
-     * 
-     * @param listener
-     */
-    public void addInvocationListener(RInvocationListener listener)
-        throws RemoteException
-    {
-        invocationListeners.add(listener);
-        rBlueJ.addInvocationListener(listener);
     }
 
     /**

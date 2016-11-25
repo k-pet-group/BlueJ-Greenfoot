@@ -29,7 +29,6 @@ import bluej.extensions.SourceType;
 import rmiextension.wrappers.event.RApplicationListener;
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RCompileListener;
-import rmiextension.wrappers.event.RInvocationListener;
 
 /**
  * 
@@ -50,12 +49,6 @@ public interface RBlueJ
      * Register a Compile event listener for the project identified by the given path.
      */
     public void addCompileListener(RCompileListener listener, File projectPath)
-        throws RemoteException;
-
-    /**
-     * Register an invocation event listener
-     */
-    public void addInvocationListener(RInvocationListener listener)
         throws RemoteException;
 
     /**
@@ -118,13 +111,6 @@ public interface RBlueJ
      * @param listener  The listener to remove
      */
     public void removeCompileListener(RCompileListener listener)
-        throws RemoteException;
-
-    /**
-     * Remove an invocation listener.
-     * @param listener  The listener to remove
-     */
-    public void removeInvocationListener(RInvocationListener listener)
         throws RemoteException;
 
     /**

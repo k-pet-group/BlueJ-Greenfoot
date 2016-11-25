@@ -130,7 +130,7 @@ public interface RProject
      * @return  A remote reference to the transport field object.
      * @throws RemoteException  If an RMI exception occurs.
      */
-    public abstract RObject getRemoteObject()
+    public abstract String getRemoteObjectName()
         throws RemoteException;
 
     /**

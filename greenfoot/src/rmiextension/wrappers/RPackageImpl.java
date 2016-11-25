@@ -240,18 +240,6 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     /* (non-Javadoc)
-     * @see rmiextension.wrappers.RPackage#getObject(java.lang.String)
-     */
-    @Override
-    public RObject getObject(String instanceName)
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
-    {
-        BObject wrapped = getBPackage().getObject(instanceName);
-        RObject wrapper = WrapperPool.instance().getWrapper(wrapped);
-        return wrapper;
-    }
-
-    /* (non-Javadoc)
      * @see rmiextension.wrappers.RPackage#getObjects()
      */
     @Override

@@ -199,64 +199,6 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     {
         return Loader.loadElement(elementString);
     }
-    
-    @Override
-    public RConstructor getConstructor(Class<?>[] signature)
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-
-        BConstructor bConstructor = bClass.getConstructor(signature);
-
-        RConstructor rConstructor = WrapperPool.instance().getWrapper(bConstructor);
-        return rConstructor;
-    }
-
-    @Override
-    public RConstructor[] getConstructors()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-
-        BConstructor[] bConstructors = bClass.getConstructors();
-        int length = bConstructors.length;
-        RConstructor[] rConstructors = new RConstructor[length];
-        for (int i = 0; i < length; i++) {
-            rConstructors[i] = WrapperPool.instance().getWrapper(bConstructors[i]);
-        }
-
-        return rConstructors;
-    }
-
-    @Override
-    public BMethod getDeclaredMethod(String methodName, Class<?>[] params)
-        throws ProjectNotOpenException, ClassNotFoundException
-    {
-        return null;
-    }
-
-    @Override
-    public BMethod[] getDeclaredMethods()
-        throws ProjectNotOpenException, ClassNotFoundException
-    {
-        return bClass.getDeclaredMethods();
-
-    }
-
-    @Override
-    public RField getField(String fieldName)
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
-    {
-
-        BField wrapped = bClass.getField(fieldName);
-        RField wrapper = WrapperPool.instance().getWrapper(wrapped);
-        return wrapper;
-    }
-
-    @Override
-    public BField[] getFields()
-        throws ProjectNotOpenException, ClassNotFoundException
-    {
-        return bClass.getFields();
-    }
 
     @Override
     public RPackage getPackage()

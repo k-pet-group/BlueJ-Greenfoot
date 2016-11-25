@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,9 +27,10 @@ import greenfoot.core.GreenfootMain;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.Map;
 
-import rmiextension.wrappers.RObject;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
@@ -45,7 +46,7 @@ import bluej.utility.JavaUtils;
  */
 public class ObjectTracker
 {
-    private static HashMap<Object,RObject> cachedObjects = new HashMap<Object,RObject>();
+    private static Map<Object, String> cachedObjects = new IdentityHashMap<>();
 
     /**
      * Gets the remote reference to an object. If there is currently no remote reference,
@@ -53,22 +54,22 @@ public class ObjectTracker
      *  
      * @throws RemoteException  if an exception occurred in the remote VM
      */
-    public static RObject getRObject(Object obj) throws RemoteException
+    public static String getRObjectName(Object obj) throws RemoteException
     {
         synchronized (cachedObjects) {
-            RObject rObject = cachedObjects.get(obj);
-            if (rObject != null) {
-                return rObject;
+            String rObjectName = cachedObjects.get(obj);
+            if (rObjectName != null) {
+                return rObjectName;
             }
             
             GreenfootLauncherDebugVM.getInstance().setTransportField(obj);
-            RObject rObj = GreenfootMain.getInstance().getProject().getRProject().getRemoteObject();
+            rObjectName = GreenfootMain.getInstance().getProject().getRProject().getRemoteObjectName();
             
-            if (rObj != null) {
-                cachedObjects.put(obj,rObj);
+            if (rObjectName != null) {
+                cachedObjects.put(obj, rObjectName);
             }
             
-            return rObj;
+            return rObjectName;
         }
     }    
 
@@ -133,20 +134,6 @@ public class ObjectTracker
                 };
             }
         };
-    }
-    
-    /**
-     * Get the local object corresponding to a remote object.
-     */
-    public static Object getRealObject(RObject remoteObj)
-    {
-        try {
-            return ExecServer.getObject(remoteObj.getInstanceName());
-        }
-        catch (RemoteException e) {
-           Debug.reportError("Unexpected exception getting remote object name", e);
-        }
-        return null;
     }
 
     /**

@@ -77,12 +77,6 @@ public interface RPackage
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     /**
-     * Get the object with the given instance name from the object bench of this package.
-     */
-    public abstract RObject getObject(String instanceName)
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
-    /**
      * Get all objects from the object bench of this package.
      */
     public abstract BObject[] getObjects()

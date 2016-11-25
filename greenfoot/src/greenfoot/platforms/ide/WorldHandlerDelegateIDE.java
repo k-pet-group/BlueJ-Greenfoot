@@ -60,7 +60,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-import rmiextension.wrappers.RObject;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
@@ -187,10 +186,9 @@ public class WorldHandlerDelegateIDE
             DebuggerObject dObj = LocalObject.getLocalObject(obj);
             String instanceName = "";
             try {
-                RObject rObject = ObjectTracker.getRObject(obj);
-                if (rObject != null) {
-                    instanceName = rObject.getInstanceName();
-                }
+                instanceName = ObjectTracker.getRObjectName(obj);
+                if (instanceName == null)
+                    instanceName = "";
             }
             catch (RemoteException e1) {
                 Debug.reportError("Could not get instance name for inspection", e1);
@@ -293,9 +291,9 @@ public class WorldHandlerDelegateIDE
     {
         GNamedValue value =null;
         try {
-            RObject rObj = ObjectTracker.getRObject(actor);
-            if (rObj != null) {
-                value =  new GNamedValue(rObj.getInstanceName(), null);
+            String instanceName = ObjectTracker.getRObjectName(actor);
+            if (instanceName != null) {
+                value =  new GNamedValue(instanceName, null);
             }
         }
         catch (RemoteException e) {

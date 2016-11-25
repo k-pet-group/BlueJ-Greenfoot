@@ -60,24 +60,6 @@ public interface RClass
 
     void insertMethodCallInConstructor(String methodCall, boolean showEditor)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-    
-    RConstructor getConstructor(Class<?>[] signature)
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
-
-    RConstructor[] getConstructors()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
-
-    BMethod getDeclaredMethod(String methodName, Class<?>[] params)
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
-
-    BMethod[] getDeclaredMethods()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
-
-    RField getField(String fieldName)
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
-
-    BField[] getFields()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
     RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;

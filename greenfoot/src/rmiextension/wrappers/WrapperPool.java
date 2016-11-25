@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2012,2016  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -115,77 +115,6 @@ public class WrapperPool
         if (wrapper == null) {
             wrapper = new RClassImpl(wrapped);
             pool.put(wrapped, new WeakReference<RClass>(wrapper));
-        }
-        return wrapper;
-    }
-
-    /**
-     * Get a remote wrapper for a BConstructor.
-     */
-    public synchronized RConstructor getWrapper(BConstructor wrapped)
-        throws RemoteException
-    {
-        if (wrapped == null) {
-            return null;
-        }
-        
-        RConstructor wrapper = null;
-        WeakReference<?> wrCons = (WeakReference<?>) pool.get(wrapped);
-        if (wrCons != null) {
-            wrapper = (RConstructor) wrCons.get();
-        }
-        
-        if (wrapper == null) {
-            wrapper = new RConstructorImpl(wrapped);
-            pool.put(wrapped, new WeakReference<RConstructor>(wrapper));
-        }
-        
-        return wrapper;
-    }
-
-    /**
-     * Get a remote wrapper for a BObject.
-     */
-    public synchronized RObject getWrapper(BObject wrapped)
-        throws RemoteException
-    {
-        if (wrapped == null) {
-            return null;
-        }
-        
-        RObject wrapper = null;
-        WeakReference<?> wrObj = (WeakReference<?>) pool.get(wrapped);
-        if (wrObj != null) {
-            wrapper = (RObject) wrObj.get();
-        }
-
-        if (wrapper == null) {
-            wrapper = new RObjectImpl(wrapped);
-            pool.put(wrapped, new WeakReference<RObject>(wrapper));
-        }
-        
-        return wrapper;
-    }
-
-    /**
-     * Get a remote wrapper for a BField.
-     */
-    public synchronized RField getWrapper(BField wrapped)
-        throws RemoteException
-    {
-        if (wrapped == null) {
-            return null;
-        }
-        
-        RField wrapper = null;
-        WeakReference<?> wrField = (WeakReference<?>) pool.get(wrapped);
-        if (wrField != null) {
-            wrapper = (RField) wrField.get();
-        }
-        
-        if (wrapper == null) {
-            wrapper = new RFieldImpl(wrapped);
-            pool.put(wrapped, new WeakReference<RField>(wrapper));
         }
         return wrapper;
     }

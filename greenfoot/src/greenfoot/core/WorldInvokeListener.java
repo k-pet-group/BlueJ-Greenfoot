@@ -38,7 +38,6 @@ import javax.swing.JFrame;
 
 import javafx.application.Platform;
 
-import rmiextension.wrappers.RObject;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
@@ -78,7 +77,7 @@ public class WorldInvokeListener
 {
     /** The object on which we are listening. Null if we are listening on a class. */
     private Object obj;
-    private RObject rObj;
+    private String rObj;
     private Class<?> cl;
     private InspectorManager inspectorManager;
     private ObjectBenchInterface objectBench;
@@ -123,7 +122,7 @@ public class WorldInvokeListener
     {
         if (obj != null) {
             try {
-                rObj = ObjectTracker.getRObject(obj);
+                rObj = ObjectTracker.getRObjectName(obj);
             }
             catch (RemoteException e) {
                 Debug.reportError("Error getting remote object", e);
@@ -135,110 +134,105 @@ public class WorldInvokeListener
         Debugger debugger = new LocalDebugger();
         CallHistory ch = GreenfootMain.getInstance().getCallHistory();
         final MouseEvent event = LocationTracker.instance().getMouseButtonEvent();
-        try {
-            final String instanceName = rObj != null ? rObj.getInstanceName() : cl.getName();
-            ResultWatcher watcher = new ResultWatcher() {
-                @Override
-                public void beginCompile()
-                {
-                }
-                
-                @Override
-                public void beginExecution(InvokerRecord ir)
-                {
-                    interactionListener.beginCallExecution(callable);
-                    WorldHandler.getInstance().clearWorldSet();
-                }
-                
-                @Override
-                public void putError(String message, InvokerRecord ir)
-                {
-                }
-                
-                @Override
-                public void putException(ExceptionDescription exception,
-                        InvokerRecord ir)
-                {
-                }
-                
-                @Override
-                public void putResult(DebuggerObject result, String name,
-                        InvokerRecord ir)
-                {
-                    JavaType[] paramTypes = callable.getParamTypes(false);
-                    if (result instanceof LocalObject) {
-                        Object o = ((LocalObject) result).getObject();
 
-                        if (callable instanceof MethodView) {
-                            MethodView mv = (MethodView) callable;
-                            if (! mv.isVoid()) {
-                                // Display a result inspector for the method result
-                                ExpressionInformation ei = new ExpressionInformation((MethodView) callable, instanceName);
-                                ei.setArgumentValues(ir.getArgumentValues());
-                                Platform.runLater(() -> {
-                                    ResultInspector ri = inspectorManager.getResultInspectorInstance(result,
-                                            instanceName, null, null, ei, null);
-                                    ri.show();
-                                });
+        final String instanceName = rObj != null ? rObj : cl.getName();
+        ResultWatcher watcher = new ResultWatcher() {
+            @Override
+            public void beginCompile()
+            {
+            }
+
+            @Override
+            public void beginExecution(InvokerRecord ir)
+            {
+                interactionListener.beginCallExecution(callable);
+                WorldHandler.getInstance().clearWorldSet();
+            }
+
+            @Override
+            public void putError(String message, InvokerRecord ir)
+            {
+            }
+
+            @Override
+            public void putException(ExceptionDescription exception,
+                    InvokerRecord ir)
+            {
+            }
+
+            @Override
+            public void putResult(DebuggerObject result, String name,
+                    InvokerRecord ir)
+            {
+                JavaType[] paramTypes = callable.getParamTypes(false);
+                if (result instanceof LocalObject) {
+                    Object o = ((LocalObject) result).getObject();
+
+                    if (callable instanceof MethodView) {
+                        MethodView mv = (MethodView) callable;
+                        if (! mv.isVoid()) {
+                            // Display a result inspector for the method result
+                            ExpressionInformation ei = new ExpressionInformation((MethodView) callable, instanceName);
+                            ei.setArgumentValues(ir.getArgumentValues());
+                            Platform.runLater(() -> {
+                                ResultInspector ri = inspectorManager.getResultInspectorInstance(result,
+                                        instanceName, null, null, ei, null);
+                                ri.show();
+                            });
+                        }
+                    }
+                    else {
+                        WorldHandler worldHandler = WorldHandler.getInstance();
+                        if(o instanceof Actor) {
+                            interactionListener.createdActor(o, ir.getArgumentValues(), paramTypes);
+                            worldHandler.addObjectAtEvent((Actor) o, event);
+                            worldHandler.repaint();
+                        }
+                        else if(o instanceof greenfoot.World) {
+                            interactionListener.worldConstructed(o);
+                            // We cleared the "world set" flag at the start of the invocation, so if
+                            // it is set now, it means the world was set programmatically during the
+                            // invocation. In that case we don't want to replace it:
+                            if (! worldHandler.checkWorldSet()) {
+                                worldHandler.setWorld((World) o);
                             }
                         }
                         else {
-                            WorldHandler worldHandler = WorldHandler.getInstance();
-                            if(o instanceof Actor) {
-                                interactionListener.createdActor(o, ir.getArgumentValues(), paramTypes);
-                                worldHandler.addObjectAtEvent((Actor) o, event);
-                                worldHandler.repaint();
-                            }
-                            else if(o instanceof greenfoot.World) {
-                                interactionListener.worldConstructed(o);
-                                // We cleared the "world set" flag at the start of the invocation, so if
-                                // it is set now, it means the world was set programmatically during the
-                                // invocation. In that case we don't want to replace it:
-                                if (! worldHandler.checkWorldSet()) {
-                                    worldHandler.setWorld((World) o);
-                                }
-                            }
-                            else {
-                                inspectorManager.getInspectorInstance(result, "result", null, null, null, null);
-                            }
+                            inspectorManager.getInspectorInstance(result, "result", null, null, null, null);
                         }
                     }
-
-                    update();
-                    if (callable instanceof MethodView) {
-                        MethodView m = (MethodView) callable;
-                        interactionListener.methodCall(obj, instanceName, m.getMethod(), ir.getArgumentValues(), paramTypes);
-                    }
                 }
 
-                @Override
-                public void putVMTerminated(InvokerRecord ir)
-                {
-                    // What, the VM was terminated? *this* VM? then how am I still executing...?
+                update();
+                if (callable instanceof MethodView) {
+                    MethodView m = (MethodView) callable;
+                    interactionListener.methodCall(obj, instanceName, m.getMethod(), ir.getArgumentValues(), paramTypes);
                 }
-            };
-            InvokerCompiler compiler = project.getDefaultPackage().getCompiler();
-            
-            // Find project character set
-            String csName = project.getProjectProperties().getString("project.charset");
-            if (csName == null) {
-                csName = "UTF-8";
             }
-            Charset cs;
-            try {
-                cs = Charset.forName(csName);
+
+            @Override
+            public void putVMTerminated(InvokerRecord ir)
+            {
+                // What, the VM was terminated? *this* VM? then how am I still executing...?
             }
-            catch (IllegalCharsetNameException icsne) {
-                cs = Charset.forName("UTF-8");
-            }
-            
-            return new Invoker(null, callable, watcher, project.getDir(), "", project.getDir().getPath(),
-                    ch, objectBenchVars, objectBench, debugger, compiler, instanceName, cs);
+        };
+        InvokerCompiler compiler = project.getDefaultPackage().getCompiler();
+
+        // Find project character set
+        String csName = project.getProjectProperties().getString("project.charset");
+        if (csName == null) {
+            csName = "UTF-8";
         }
-        catch (RemoteException re) {
-            Debug.reportError("Error getting invoker instance", re);
-            return null;
+        Charset cs;
+        try {
+            cs = Charset.forName(csName);
         }
+        catch (IllegalCharsetNameException icsne) {
+            cs = Charset.forName("UTF-8");
+        }
+
+        return new Invoker(null, callable, watcher, project.getDir(), "", project.getDir().getPath(),
+                ch, objectBenchVars, objectBench, debugger, compiler, instanceName, cs);
     }
 
     /**
