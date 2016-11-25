@@ -1438,7 +1438,7 @@ public final class Package
                 // we don't want to try and compile if it is a class target without src
                 if (ct.hasSourceCode()) {
                     ct.ensureSaved();
-                    ct.setState(State.NEEDS_COMPILE);
+                    ct.markModified();
                     ct.setQueued(true);
                 }
                 else {

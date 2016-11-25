@@ -899,7 +899,7 @@ public class ClassTarget extends DependentTarget
      */
     public void invalidate()
     {
-        setState(State.NEEDS_COMPILE);
+        markModified();
         for (Dependency d : dependents()) {
             ClassTarget dependent = (ClassTarget) d.getFrom();
             
@@ -1752,7 +1752,7 @@ public class ClassTarget extends DependentTarget
             if (superclass != null) {
                 getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass));
                 if (superclass.getState() != State.COMPILED) {
-                    setState(State.NEEDS_COMPILE);
+                    markModified();
                 }
             }
         }
@@ -1774,7 +1774,7 @@ public class ClassTarget extends DependentTarget
             if (interfce != null) {
                 getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce));
                 if (interfce.getState() != State.COMPILED) {
-                    setState(State.NEEDS_COMPILE);
+                    markModified();
                 }
             }
         }
