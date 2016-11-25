@@ -55,7 +55,6 @@ import bluej.stride.slots.MethodNameDefTextSlot;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.Throws;
-import bluej.stride.slots.TypeCompletionCalculator;
 import bluej.utility.javafx.JavaFXUtil;
 
 public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeFrame<MethodProtoElement>

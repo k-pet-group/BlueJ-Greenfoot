@@ -54,12 +54,6 @@ public abstract class DocumentedSingleLineFrame extends SingleLineFrame
     }
 
     @Override
-    protected void focusPrevTarget()
-    {
-        documentationPane.requestFocus();
-    }
-
-    @Override
     @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animate)
     {
