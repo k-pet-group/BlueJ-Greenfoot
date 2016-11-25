@@ -47,6 +47,7 @@ import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameEditor;
+import bluej.pkgmgr.target.DependentTarget.State;
 import javafx.application.Platform;
 
 import bluej.pkgmgr.dependency.ExtendsDependency;
@@ -742,7 +743,7 @@ public final class Package
         for (Target target : targetsCopy) {
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                ct.setState(DependentTarget.State.NORMAL);
+                ct.setState(State.COMPILED);
             }
         }
 
@@ -781,7 +782,7 @@ public final class Package
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 if (ct.isCompiled() && !ct.upToDate()) {
-                    ct.setState(DependentTarget.State.INVALID);
+                    ct.setState(State.NEEDS_COMPILE);
                     invalidated.add(ct);
                 }
             }
@@ -794,7 +795,7 @@ public final class Package
                 if (dt instanceof ClassTarget) {
                     ClassTarget dep = (ClassTarget) dt;
                     if (dep.isCompiled()) {
-                        dep.setState(DependentTarget.State.INVALID);
+                        dep.setState(State.NEEDS_COMPILE);
                         invalidated.add(dep);
                     }
                 }
@@ -811,7 +812,7 @@ public final class Package
                     ct.determineRole(cl);
                     ct.analyseDependencies(cl);
                     if (cl == null) {
-                        ct.setState(DependentTarget.State.INVALID);
+                        ct.setState(State.NEEDS_COMPILE);
                     }
                 }
                 else {
@@ -989,10 +990,10 @@ public final class Package
                 if (cl != null) {
                     ct.determineRole(cl);
                     if (ct.upToDate()) {
-                        ct.setState(DependentTarget.State.NORMAL);
+                        ct.setState(State.COMPILED);
                     }
                     else {
-                        ct.setState(DependentTarget.State.INVALID);
+                        ct.setState(State.NEEDS_COMPILE);
                     }
                 }
             }
@@ -1270,7 +1271,7 @@ public final class Package
             }
             for (ClassTarget ct : classTargets)
             {
-                if (ct.isInvalidState() && !ct.isQueued())
+                if (!ct.isCompiled() && !ct.isQueued())
                 {
                     // Next line is to solve bugs caused when compile happens before saving,
                     // e.g. when creating a new class, it will be marked with red strips.
@@ -1370,15 +1371,8 @@ public final class Package
 
         // we don't want to try and compile if it is a class target without src
         // it may be better to avoid calling this method on such targets
-        if (ct.hasSourceCode()) {
-            ct.setInvalidState(); // to force compile
-        }
-        else {
+        if (!ct.hasSourceCode()) {
             ct = null;
-        }
-
-        if (assocTarget != null) {
-            assocTarget.setInvalidState();
         }
 
         if (ct != null || assocTarget != null) {
@@ -1410,7 +1404,6 @@ public final class Package
             return;
         }
 
-        ct.setInvalidState(); // to force compile
         searchCompile(ct, new QuietPackageCompileObserver(null), reason, type);
     }
 
@@ -1445,7 +1438,7 @@ public final class Package
                 // we don't want to try and compile if it is a class target without src
                 if (ct.hasSourceCode()) {
                     ct.ensureSaved();
-                    ct.setState(DependentTarget.State.INVALID);
+                    ct.setState(State.NEEDS_COMPILE);
                     ct.setQueued(true);
                 }
                 else {
@@ -1493,7 +1486,7 @@ public final class Package
      */
     private void searchCompile(ClassTarget t, EDTCompileObserver observer, CompileReason reason, CompileType type)
     {
-        if (! t.isInvalidState() || t.isQueued()) {
+        if (t.isQueued()) {
             return;
         }
 
@@ -1515,7 +1508,7 @@ public final class Package
                     }
 
                     ClassTarget to = (ClassTarget) d.getTo();
-                    if (to.isInvalidState() && ! to.isQueued() && toCompile.add(to)) {
+                    if (!to.isCompiled() && ! to.isQueued() && toCompile.add(to)) {
                         to.ensureSaved();
                         to.setQueued(true);
                         queue.add(to);
@@ -2479,7 +2472,7 @@ public final class Package
 
                     if (t instanceof ClassTarget) {
                         ClassTarget ct = (ClassTarget) t;
-                        ct.setState(DependentTarget.State.COMPILING);
+                        ct.markCompiling();
                     }
                 }
             }
@@ -2613,7 +2606,8 @@ public final class Package
                     newCompiledState &= type.keepClasses();
                 }
 
-                t.setState(newCompiledState ? DependentTarget.State.NORMAL : DependentTarget.State.INVALID);
+                if (newCompiledState)
+                    t.markCompiled();
                 t.setQueued(false);
                 if (successful && t.editorOpen())
                     t.getEditor().setCompiled(true);

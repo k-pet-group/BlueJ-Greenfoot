@@ -24,6 +24,7 @@ package bluej.pkgmgr.target;
 import javax.swing.SwingUtilities;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.application.Platform;
 
@@ -42,14 +43,20 @@ import threadchecker.Tag;
  */
 public abstract class DependentTarget extends EditableTarget
 {
-    /** States * */
+    /**
+     * States.  A compile target has two pieces of information.
+     *   It can be up-to-date (i.e. class file matches latest source state)
+     *   or it can need a compile (i.e. class file lags source state) with unknown error state,
+     *   or it can need a compile and be known to have an error.
+     */
     @OnThread(Tag.Any)
     public static enum State
     {
-        NORMAL, INVALID, COMPILING;
+        COMPILED, NEEDS_COMPILE, HAS_ERROR;
     }
 
-    protected State state = State.INVALID;
+    @OnThread(Tag.Any)
+    private final AtomicReference<State> state = new AtomicReference<>(State.NEEDS_COMPILE);
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<UsesDependency> inUses;
@@ -506,19 +513,17 @@ public abstract class DependentTarget extends EditableTarget
      * Return the current state of the target (one of S_NORMAL, S_INVALID,
      * S_COMPILING)
      */
+    @OnThread(Tag.Any)
     public State getState()
     {
-        return state;
+        return state.get();
     }
 
-    public boolean isInvalidState()
+    public void markModified()
     {
-        return getState() == State.INVALID;
-    }
-
-    public void setInvalidState()
-    {
-        setState(State.INVALID);
+        // If it's already NEEDS_COMPILE or HAS_ERROR, no need to change:
+        if (getState() == State.COMPILED)
+            setState(State.NEEDS_COMPILE);
     }
     
     /**
@@ -529,7 +534,7 @@ public abstract class DependentTarget extends EditableTarget
      */
     public void setState(State newState)
     {
-        state = newState;
+        state.set(newState);
         Platform.runLater(() -> {repaint();});
     }
 

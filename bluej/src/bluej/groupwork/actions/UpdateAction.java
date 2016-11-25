@@ -264,7 +264,7 @@ public class UpdateAction extends AbstractAction
                        
                        ClassTarget ct = (ClassTarget) t;
                        if (ct.hasSourceCode() && ! fileName.endsWith(".java")) {
-                           ct.setInvalidState();
+                           ct.markModified();
                        }
                        else {
                            ct.remove();

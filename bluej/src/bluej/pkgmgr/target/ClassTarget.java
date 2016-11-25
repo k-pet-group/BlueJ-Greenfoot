@@ -210,11 +210,6 @@ public class ClassTarget extends DependentTarget
     private SourceType sourceAvailable;
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
-    
-    // Whether the source has been modified since it was last compiled. This
-    // starts off as "true", which is a lie, but it prevents setting breakpoints
-    // in an initially uncompiled class.
-    private boolean modifiedSinceCompile = true;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private String typeParameters = "";
@@ -343,15 +338,13 @@ public class ClassTarget extends DependentTarget
         {
             sourceAvailable = SourceType.NONE;
             // Can't have been modified since compile since there's no source to modify:
-            modifiedSinceCompile = false;
+            setState(State.COMPILED);
         }
     }
 
     private BClass singleBClass;  // Every Target has none or one BClass
     private BClassTarget singleBClassTarget; // Every Target has none or one BClassTarget
     // Set from Swing thread but read on FX for display:
-    @OnThread(Tag.Any)
-    private final AtomicBoolean knownError = new AtomicBoolean(false);
     
     /**
      * Return the extensions BProject associated with this Project.
@@ -489,49 +482,42 @@ public class ClassTarget extends DependentTarget
     @Override
     public void setState(State newState)
     {
-        if (state != newState) {
-            boolean oldKnownError = knownError.get();
+        if (getState() != newState)
+        {
             String qualifiedName = getQualifiedName();
             @OnThread(Tag.Any) Project proj = getPackage().getProject();
             Platform.runLater(() -> proj.removeInspectorInstance(qualifiedName));
             
-            if (newState == State.COMPILING)
+            if (editor != null) {
+                editor.compileFinished(newState == State.COMPILED);
+            }
+            
+            // Notify extensions if necessary.
+            if (newState == State.COMPILED)
             {
-                knownError.set(false);
-                if (getSourceType() == SourceType.Stride) {
-                    getEditor(); // Create editor if necessary
-                }
                 if (editor != null)
                 {
-                    if (editor.compileStarted()) {
-                        knownError.set(true);
-                    }
-                }
-            }
-            else
-            {
-                if (editor != null) {
-                    editor.compileFinished(newState == State.NORMAL);
-                }
-            }
-            
-            // Notify extensions if necessary. Note extensions can't distinguish S_COMPILING and S_INVALID;
-            // they are informed only if the class is currently compiled.
-            if (newState == State.NORMAL) {
-                modifiedSinceCompile = false;
-                if (editor != null) {
                     editor.reInitBreakpoints();
                 }
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), true, false);
-                ExtensionsManager.getInstance().delegateEvent(event);
             }
-            else if (state == State.NORMAL || newState == State.INVALID || knownError.get() != oldKnownError) {
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), false, hasKnownError());
-                ExtensionsManager.getInstance().delegateEvent(event);
-            }
-            
-            state = newState;
+            ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), newState == State.COMPILED, newState == State.HAS_ERROR);
+            ExtensionsManager.getInstance().delegateEvent(event);
+
             Platform.runLater(() -> {redraw();});
+            super.setState(newState);
+        }
+    }
+
+    public void markCompiling()
+    {
+        if (getSourceType() == SourceType.Stride) {
+            getEditor(); // Create editor if necessary
+        }
+        if (editor != null)
+        {
+            if (editor.compileStarted()) {
+                markKnownError();
+            }
         }
     }
 
@@ -913,11 +899,11 @@ public class ClassTarget extends DependentTarget
      */
     public void invalidate()
     {
-        setState(State.INVALID);
+        setState(State.NEEDS_COMPILE);
         for (Dependency d : dependents()) {
             ClassTarget dependent = (ClassTarget) d.getFrom();
             
-            if (! dependent.isInvalidState()) {    
+            if (dependent.isCompiled()) {
                 // Invalidate the dependent only if it is not already invalidated. 
                 // Will avoid going into an infinite circular loop.
                 dependent.invalidate();
@@ -1018,6 +1004,11 @@ public class ClassTarget extends DependentTarget
     public boolean isVisible()
     {
         return visible.get();
+    }
+
+    public void markCompiled()
+    {
+        setState(State.COMPILED);
     }
 
     public static class SourceFileInfo
@@ -1267,13 +1258,13 @@ public class ClassTarget extends DependentTarget
     public void modificationEvent(Editor editor)
     {
         invalidate();
-        if (! modifiedSinceCompile) {
+        if (isCompiled()) {
             removeBreakpoints();
             if (getPackage().getProject().getDebugger() != null)
             {
                 getPackage().getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
             }
-            modifiedSinceCompile = true;
+            setState(State.NEEDS_COMPILE);
         }
         sourceInfo.setSourceModified();
     }
@@ -1291,7 +1282,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public String breakpointToggleEvent(int lineNo, boolean set)
     {
-        if (isCompiled() || ! modifiedSinceCompile) {
+        if (isCompiled()) {
             String possibleError = getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set, null);
             Debug.message("Setting breakpoint: " + getQualifiedName() + ":" + lineNo);
             
@@ -1370,7 +1361,7 @@ public class ClassTarget extends DependentTarget
      */
     public boolean isCompiled()
     {
-        return (state == State.NORMAL);
+        return getState() == State.COMPILED;
     }
 
     /**
@@ -1403,7 +1394,7 @@ public class ClassTarget extends DependentTarget
         if (Config.isGreenfoot()) {
             //In Greenfoot compiling always compiles the whole package, and at least
             // compiles this target:
-            setState(State.INVALID);
+            setState(State.NEEDS_COMPILE);
 
             // Even though we do a package compile, we must let the editor know when
             // the compile finishes, so that it updates its status correctly:
@@ -1470,7 +1461,7 @@ public class ClassTarget extends DependentTarget
 
             if (success) {
                 // skeleton successfully generated
-                setState(State.INVALID);
+                setState(State.NEEDS_COMPILE);
                 sourceAvailable = sourceType;
                 return true;
             }
@@ -1758,8 +1749,8 @@ public class ClassTarget extends DependentTarget
             DependentTarget superclass = getPackage().getDependentTarget(superName);
             if (superclass != null) {
                 getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass));
-                if (superclass.getState() != State.NORMAL) {
-                    setState(State.INVALID);
+                if (superclass.getState() != State.COMPILED) {
+                    setState(State.NEEDS_COMPILE);
                 }
             }
         }
@@ -1780,8 +1771,8 @@ public class ClassTarget extends DependentTarget
 
             if (interfce != null) {
                 getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce));
-                if (interfce.getState() != State.NORMAL) {
-                    setState(State.INVALID);
+                if (interfce.getState() != State.COMPILED) {
+                    setState(State.NEEDS_COMPILE);
                 }
             }
         }
@@ -1976,7 +1967,7 @@ public class ClassTarget extends DependentTarget
         {
             Class<?> cl = null;
 
-            if (state == State.NORMAL)
+            if (getState() == State.COMPILED)
             {
                 // handle error causes when loading classes which are compiled
                 // but not loadable in the current VM. (Eg if they were compiled
@@ -1997,7 +1988,7 @@ public class ClassTarget extends DependentTarget
             }
 
             // check that the class loading hasn't changed out state
-            if (state != State.NORMAL)
+            if (getState() != State.COMPILED)
                 cl = null;
             // Need a bunch of info from the Swing thread before hopping to FX:
             Class<?> clFinal = cl;
@@ -2031,7 +2022,7 @@ public class ClassTarget extends DependentTarget
         final ContextMenu menu = new ContextMenu();
 
         // call on role object to add any options needed at top
-        roleRef.createRoleMenu(menu.getItems(), this, cl, state);
+        roleRef.createRoleMenu(menu.getItems(), this, cl, getState());
 
         if (cl != null)
         {
@@ -2072,7 +2063,7 @@ public class ClassTarget extends DependentTarget
             menu.getItems().add(new ConvertToStrideAction());
 
         // call on role object to add any options needed at bottom
-        roleRef.createRoleMenuEnd(menu.getItems(), this, state);
+        roleRef.createRoleMenuEnd(menu.getItems(), this, getState());
 
         FXMenuManager menuManager = new FXMenuManager(menu, extMgr, new ClassExtensionMenu(this));
         SwingUtilities.invokeLater(() -> {
@@ -2330,13 +2321,13 @@ public class ClassTarget extends DependentTarget
         g.clearRect(0, 0, width, height);
 
         // Draw either grey or red stripes:
-        if (state != State.NORMAL)
+        if (getState() != State.COMPILED)
         {
             // We could draw the stripes manually each time, but that
             // could get quite time-consuming when we have lots of classes.
             // Instead, we create an image of the given stripes which
             // we can draw tiled to save time.
-            if (knownError.get())
+            if (hasKnownError())
             {
                 // Red stripes
                 int size = RED_STRIPE_SEPARATION * 10;
@@ -2638,17 +2629,17 @@ public class ClassTarget extends DependentTarget
     {
         // Errors are marked as part of compilation, so we expect that a suitable ClassEvent
         // is generated when compilation finishes; no need for it here.
-        knownError.set(true);
+        setState(State.HAS_ERROR);
     }
     
     /**
      * Check whether there was a compilation error for this target, last time
      * compilation was attempted.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     public boolean hasKnownError()
     {
-        return knownError.get();
+        return getState() == State.HAS_ERROR;
     }
 
     @Override

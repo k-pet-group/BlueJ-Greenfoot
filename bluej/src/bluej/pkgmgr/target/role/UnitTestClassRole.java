@@ -200,7 +200,7 @@ public class UnitTestClassRole extends ClassRole
     {
         boolean enableTestAll = false;
 
-        if (state == ClassTarget.State.NORMAL && cl != null && ! ct.isAbstract()) {
+        if (state == State.COMPILED && cl != null && ! ct.isAbstract()) {
             Method[] allMethods = cl.getMethods();
 
             for (int i=0; i < allMethods.length; i++) {
