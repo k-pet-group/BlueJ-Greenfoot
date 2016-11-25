@@ -2791,7 +2791,7 @@ public final class Package
                 
                 String message = diagnostic.getMessage();
                 // See if we can help the user a bit more if they've mis-spelt a method:
-                if (message.contains("cannot find symbol - method")) {
+            if (message.contains("cannot find symbol") && message.contains("method")) {
                     messageShown = showEditorDiagnostic(diagnostic,
                             new MisspeltMethodChecker(message,
                                     (int) diagnostic.getStartColumn(),
