@@ -217,7 +217,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             Debug.reportError("Error when opening scenario", exc);
                         }
                     }
-                    
+
+                    // Initialise JavaFX:
+                    new JFXPanel();
+
                     frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager);
 
                     // Config is initialized in GreenfootLauncherDebugVM
