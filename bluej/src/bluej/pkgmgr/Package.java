@@ -1700,7 +1700,8 @@ public final class Package
     {
         targets.remove(t.getIdentifierName());
         t.setRemoved();
-        Platform.runLater(() -> {editor.graphChanged();});
+        if (editor != null)
+            Platform.runLater(() -> {editor.graphChanged();});
     }
 
     /**

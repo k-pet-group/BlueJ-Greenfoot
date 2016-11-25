@@ -1301,7 +1301,9 @@ public class ClassTarget extends DependentTarget
     @Override
     public void clearAllBreakpoints()
     {
-        getPackage().getDebugger().removeBreakpointsForClass(getQualifiedName());
+        Package pkg = getPackage();
+        if (pkg != null) // Can happen during removal
+            pkg.getDebugger().removeBreakpointsForClass(getQualifiedName());
     }
 
     // --- end of EditorWatcher interface ---
