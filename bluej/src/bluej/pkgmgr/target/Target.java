@@ -542,9 +542,9 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public void repaint()
     {
-        Package pkg = getPackage();
-        if (pkg != null) // Can happen during removal
-            pkg.repaint();
+        Package thePkg = getPackage();
+        if (thePkg != null) // Can happen during removal
+            thePkg.repaint();
     }
 
     /**
