@@ -353,7 +353,7 @@ sound-line-unavailable=Cannot get access to the sound card. If you have a sound 
 # MainFrame central messages
 centrePanel.message.openScenario=\u2196 Create or Open a scenario using the Scenario menu
 centrePanel.message.createWorldClass=Create a new subclass of World
-centrePanel.message.compile=The world class may have an error, check it to initialize the scenario \u2197
+centrePanel.message.compile=The world can't be initialized. One of the classes may have an error, check them \u2197
 centrePanel.message.initialising=The world is being constructed...
 centrePanel.message.initialisingTooLong1=The constructor for the world is taking a long time.
 centrePanel.message.initialisingTooLong2=You may have an infinite loop.
