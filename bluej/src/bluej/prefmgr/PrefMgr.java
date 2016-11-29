@@ -161,11 +161,13 @@ public class PrefMgr
         return recentProjects;
     }
 
-    public static void addRecentProject(String projectName)
+    public static void addRecentProject(File projectDir)
     {
-        if(projectName == null)
-            return;
-            
+        if (Config.isGreenfoot() && Config.isGreenfootStartupProject(projectDir))
+            return; // Don't add startup project to recent projects
+
+        String projectName = projectDir.getAbsolutePath();
+
         recentProjects.remove(projectName);
         
         if(recentProjects.size() == NUM_RECENT_PROJECTS)

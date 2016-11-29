@@ -2053,6 +2053,16 @@ public final class Config
         return null;
     }
 
+    public static boolean isGreenfootStartupProject(File projectDir)
+    {
+        return getGreenfootStartupProjectPath().equals(projectDir.getAbsolutePath());
+    }
+
+    public static String getGreenfootStartupProjectPath()
+    {
+        return new File(getBlueJLibDir(), "greenfoot/startupProject").getAbsolutePath();
+    }
+
     /**
      * This is almost equivalent to the SourceType in bluej.extensions, but we 
      * don't want Config to depend on that class so we re-create the same idea here.

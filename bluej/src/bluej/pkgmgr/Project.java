@@ -441,10 +441,8 @@ public class Project implements DebuggerListener, InspectorManager
         else if (!projectDir.canWrite()) {
             readOnly = true;
         }
-        
-        String greenfootStartupProjectDir = new File(Config.getBlueJLibDir(), "greenfoot/startupProject").getAbsolutePath();
-        
-        boolean isGreenfootStartupProject = greenfootStartupProjectDir.equals(projectDir.getAbsolutePath()); 
+
+        boolean isGreenfootStartupProject = Config.isGreenfootStartupProject(projectDir); 
         // Suppress the read-only warning if we know they are opening the Greenfoot startup project
         
         if (readOnly && !isGreenfootStartupProject) {
@@ -569,7 +567,7 @@ public class Project implements DebuggerListener, InspectorManager
         project.getDebugger().removeDebuggerListener(project);
         project.getDebugger().close(false);
 
-        PrefMgr.addRecentProject(project.getProjectDir().getAbsolutePath());
+        PrefMgr.addRecentProject(project.getProjectDir());
         projects.remove(project.getProjectDir());
     }
 
