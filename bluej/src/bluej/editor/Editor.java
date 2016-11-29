@@ -95,14 +95,12 @@ public interface Editor
      * Display a message (used for compile/runtime errors). An editor must
      * support at least two lines of message text, so the message can contain
      * a newline character.
-     * 
-     * @param message    the message to be displayed
+     *  @param message    the message to be displayed
      * @param lineNumber    the line to move the cursor to (the line is also
      *        highlighted)
      * @param column        the column to move the cursor to
-     * @param beep        if true, do a system beep
      */
-    void displayMessage(String message, int lineNumber, int column, boolean beep);
+    void displayMessage(String message, int lineNumber, int column);
 
     /**
      * Display a diagnostic message from the compiler.

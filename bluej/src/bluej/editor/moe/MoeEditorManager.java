@@ -137,18 +137,6 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
     // ------------------------------------------------------------------------
     
     /**
-     * Sound a beep if the "beep with warning" option is true
-     */
-    public static void beep()
-    {
-        // TODO if beepWarning option is on... 
-        //if(true) 
-            Toolkit.getDefaultToolkit().beep();
-    }
-
-    // ------------------------------------------------------------------------
-    
-    /**
      * Discard the given editor and leave it to be collected by the garbage
      * collector.
      */

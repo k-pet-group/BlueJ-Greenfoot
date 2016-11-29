@@ -813,7 +813,7 @@ public final class MoeEditor extends JPanel
             }
             catch (IOException ex) {
                 failureException = ex;
-                info.messageAndBeep(Config.getString("editor.info.errorSaving") + " - " + ex.getLocalizedMessage());
+                info.message (Config.getString("editor.info.errorSaving") + " - " + ex.getLocalizedMessage());
             }
             finally {
                 try {
@@ -829,8 +829,8 @@ public final class MoeEditor extends JPanel
         // If an error occurred, set a message in the editor status bar, and
         // re-throw the exception.
         if (failureException != null) {
-            info.messageAndBeep(Config.getString("editor.info.errorSaving")
-                    + " - " + failureException.getLocalizedMessage());
+            info.message (Config.getString("editor.info.errorSaving")
+                        + " - " + failureException.getLocalizedMessage());
             throw failureException;
         }
     }
@@ -854,14 +854,12 @@ public final class MoeEditor extends JPanel
      * Display a message (used for compile/runtime errors). An editor must
      * support at least two lines of message text, so the message can contain a
      * newline character.
-     * 
-     * @param message  the message to be displayed
+     *  @param message  the message to be displayed
      * @param lineNumber  The line to highlight
      * @param column   the column to move the cursor to
-     * @param beep   if true, do a system beep
      */
     @Override
-    public void displayMessage(String message, int lineNumber, int column, boolean beep)
+    public void displayMessage(String message, int lineNumber, int column)
     {
         switchToSourceView();
 
@@ -876,9 +874,6 @@ public final class MoeEditor extends JPanel
 
         // display the message
         info.messageImportant(message);
-        if (beep) {
-            MoeEditorManager.beep();
-        }
     }
 
     @Override
@@ -1580,7 +1575,7 @@ public final class MoeEditor extends JPanel
                 break;
             case BlueJEvent.DOCU_ABORTED :
                 BlueJEvent.removeListener(this);
-                info.messageAndBeep(Config.getString("editor.info.docAborted"));
+                info.message (Config.getString("editor.info.docAborted"));
                 break;
         }
     }
@@ -1712,7 +1707,7 @@ public final class MoeEditor extends JPanel
      */
     public void writeWarningMessage(String msg)
     {
-        info.messageAndBeep(msg);
+        info.message (msg);
     }
 
     /**
@@ -1738,8 +1733,7 @@ public final class MoeEditor extends JPanel
     public void reload()
     {
         if (filename == null) {
-            info.messageAndBeep(Config.getString("editor.info.cannotReload"), 
-                    Config.getString("editor.info.reload"));
+            info.message (Config.getString("editor.info.cannotReload"), Config.getString("editor.info.reload"));
         }
         else if (saveState.isChanged()) {
             Platform.runLater(() ->
@@ -1952,7 +1946,7 @@ public final class MoeEditor extends JPanel
             info.message(msg.toString());
         }
         else {
-            info.messageAndBeep(msg.toString(), Config.getString("editor.info.notFound"));
+            info.message (msg.toString(), Config.getString("editor.info.notFound"));
         }
 
         return found;
@@ -2350,7 +2344,7 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (IOException | BadLocationException exc) {
-            info.messageAndBeep(Config.getString("editor.info.docDisappeared"), getDocPath());
+            info.message (Config.getString("editor.info.docDisappeared"), getDocPath());
             Debug.reportError("loading class interface failed: " + exc);
             if (fis != null) {
                 try {
@@ -2595,7 +2589,7 @@ public final class MoeEditor extends JPanel
                     pane.setPage(e.getURL());
                 }
                 catch (Throwable t) {
-                    info.messageAndBeep("cannot display hyperlink: " + e.getURL());
+                    info.message ("cannot display hyperlink: " + e.getURL());
                     Debug.reportError("hyperlink failed: " + t);
                 }
             }
@@ -2610,7 +2604,7 @@ public final class MoeEditor extends JPanel
     public void toggleBreakpoint()
     {
         if (!viewingCode()) {
-            info.messageAndBeep(" ");            // cause a beep
+            info.message (" ");
             return;
         }
         toggleBreakpoint(sourcePane.getCaretPosition());
@@ -2700,14 +2694,14 @@ public final class MoeEditor extends JPanel
                 sourceDocument.setParagraphAttributes(pos, a);
             }
             else {
-                info.messageAndBeep(result);
+                info.message (result);
             }
 
             // force an update of UI
             repaint();
         }
         else {
-            info.messageAndBeep(Config.getString("editor.info.cannotSetBreak"));
+            info.message (Config.getString("editor.info.cannotSetBreak"));
         }
     }
 
@@ -2839,10 +2833,10 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (FileNotFoundException ex) {
-            info.messageAndBeep(Config.getString("editor.info.fileDisappeared"));
+            info.message (Config.getString("editor.info.fileDisappeared"));
         }
         catch (IOException ex) {
-            info.messageAndBeep(Config.getString("editor.info.fileReadError"));
+            info.message (Config.getString("editor.info.fileReadError"));
             setChanged();
         }
         finally {
@@ -3697,8 +3691,8 @@ public final class MoeEditor extends JPanel
             worker.execute();
         } else {
             //no completions found. no need to search.
-             info.messageAndBeep("No completions available.");
-             CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, watcher,
+            info.message ("No completions available.");
+            CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, watcher,
                             null, new AssistContent[0], null);
             initialiseContentAssist(codeCompletionDlg, xpos, ypos);
         }
@@ -4645,7 +4639,7 @@ public final class MoeEditor extends JPanel
                 if (result != null && result.length == 0)
                 {
                     //set message on status bar
-                    info.messageAndBeep("No completions available.");
+                    info.message ("No completions available.");
                 } else
                 {
                     // No need to update the JList, as all results have been

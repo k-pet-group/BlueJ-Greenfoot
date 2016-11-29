@@ -2119,7 +2119,7 @@ public final class Package
     {
         Editor targetEditor = editorForTarget(filename, bringToFront);
         if (targetEditor != null) {
-            targetEditor.displayMessage(message, lineNo, 0, beep);
+            targetEditor.displayMessage(message, lineNo, 0);
         }
         else {
             Debug.message(filename + ", line" + lineNo + ": " + message);
