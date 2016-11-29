@@ -859,11 +859,9 @@ public final class MoeEditor extends JPanel
      * @param lineNumber  The line to highlight
      * @param column   the column to move the cursor to
      * @param beep   if true, do a system beep
-     * @param help  name of help group (may be null)
      */
     @Override
-    public void displayMessage(String message, int lineNumber, int column, boolean beep, 
-            String help)
+    public void displayMessage(String message, int lineNumber, int column, boolean beep)
     {
         switchToSourceView();
 
@@ -883,10 +881,6 @@ public final class MoeEditor extends JPanel
         }
         else {
             info.messageImportant(message);
-        }
-
-        if (help != null) {
-            info.setHelp(help);
         }
     }
 
@@ -936,9 +930,6 @@ public final class MoeEditor extends JPanel
             repaint();
         }
 
-        // display the message
-        info.setHelp("javac"); // TODO the compiler name, or the additional help text,
-                               // should really be a property of the diagnostic object.
         return true;
     }
     

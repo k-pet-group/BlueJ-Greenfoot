@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2014,2015,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -59,15 +59,14 @@ public class BlueJFileReader
      * The files are expected to be in ISO 8859-1 character encoding, with "slash-u-XXXX" unicode
      * escape sequences.
      *
-     * @param baseFileName  Base name of the help file
+     * @param file          The help file
      * @param textID        ID string for the help message
      * @param exactMatch    If true, match ID string exactly. If false,
      *                      wildcards are used.
      *
      * @return              The help text or null.
      */
-    public static String readHelpText(File file, String textID,
-                                      boolean exactMatch)
+    public static String readHelpText(File file, String textID, boolean exactMatch)
     {
         BufferedReader in = null;
 

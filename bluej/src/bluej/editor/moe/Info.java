@@ -24,18 +24,12 @@ package bluej.editor.moe;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
-import bluej.utility.BlueJFileReader;
 import bluej.utility.javafx.FXPlatformSupplier;
 
-import javafx.application.Platform;
-
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
-import java.awt.event.*;        // New Event model
 
+import javafx.application.Platform;
 import javax.swing.*;           // all the GUI components
-
-import java.io.*;
-
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -44,7 +38,7 @@ import javax.swing.border.EmptyBorder;
  *
  * @author Michael Kolling
  */
-public final class Info extends JPanel implements ActionListener
+public final class Info extends JPanel
 {
     private static Font infoFont = new Font("SansSerif", Font.BOLD, PrefMgr.getEditorFontSize() - 1);
     private final FXPlatformSupplier<javafx.stage.Window> fxParent;
@@ -55,7 +49,6 @@ public final class Info extends JPanel implements ActionListener
     private JLabel line2;
     String originalMsg;
     boolean isClear;
-    String helpGroup;
 
     // ------------- METHODS --------------
 
@@ -89,10 +82,9 @@ public final class Info extends JPanel implements ActionListener
         add(body, BorderLayout.CENTER);
 
         isClear = true;
-        helpGroup = "";
         refresh();
     }
-    
+
     /**
      * Reset the font size for all Info instances - each instance must be
      * individually refresh()ed after calling this.
@@ -134,9 +126,9 @@ public final class Info extends JPanel implements ActionListener
     private void rebreakLine()
     {
         int newline = originalMsg.indexOf('\n');
-        
+
         String firstLine, secondLine;
-        
+
         if (newline == -1) {
             int ipos = breakLine(originalMsg);
             if(originalMsg.length() <= ipos) {
@@ -153,7 +145,7 @@ public final class Info extends JPanel implements ActionListener
                     // don't do it.
                     ipos = space;
                 }
-                
+
                 firstLine = originalMsg.substring(0, ipos);
                 secondLine = originalMsg.substring(ipos);
             }
@@ -162,7 +154,7 @@ public final class Info extends JPanel implements ActionListener
             firstLine = originalMsg.substring(0, newline);
             secondLine = originalMsg.substring(newline+1);
         }
-        
+
         secondLine = secondLine.replace("\n", ";  ");
         line1.setText(firstLine);
         line2.setText(secondLine);
@@ -176,7 +168,7 @@ public final class Info extends JPanel implements ActionListener
         if (msg.length() <= 2) {
             return msg.length(); // don't even bother
         }
-        
+
         FontMetrics metrics = line1.getFontMetrics(line1.getFont());
         Insets insets = line1.getInsets();
         int hInsets = 0;
@@ -184,17 +176,17 @@ public final class Info extends JPanel implements ActionListener
             hInsets = insets.left + insets.right;
         }
         int lineWidth = line1.getWidth() - hInsets;
-        
+
         char [] charBuf = new char[msg.length()];
         msg.getChars(0, msg.length(), charBuf, 0);
         int curWidth = metrics.charsWidth(charBuf, 0, charBuf.length);
         if (curWidth < lineWidth) {
             return charBuf.length;
         }
-        
+
         int lowerBound = 1;
         int upperBound = charBuf.length;
-        
+
         while (lowerBound != upperBound) {
             int mid = (lowerBound + upperBound + 1) / 2; // favour towards the upper bound
             curWidth = metrics.charsWidth(charBuf, 0, mid);
@@ -205,7 +197,7 @@ public final class Info extends JPanel implements ActionListener
                 upperBound = Math.min(mid, upperBound - 1);
             }
         }
-        
+
         return lowerBound;
     }
     
@@ -226,7 +218,7 @@ public final class Info extends JPanel implements ActionListener
         message (msg);
         MoeEditorManager.beep();
     }
-    
+
     public void warningImportant(String msg)
     {
         messageImportant(msg);
@@ -260,52 +252,5 @@ public final class Info extends JPanel implements ActionListener
     {
         line1.setFont(infoFont);
         line2.setFont(infoFont);
-    }
-    
-    /**
-     * Set the "help group" (the name of the compiler, used to locate the additional
-     * help text for error messages)
-     */
-    public void setHelp(String helpGroup)
-    {
-        this.helpGroup = helpGroup;
-    }
-
-    // ---- ActionListener interface ----
-
-    @Override
-    public void actionPerformed(ActionEvent evt)
-    {
-        displayHelp(helpGroup);
-    }
-
-    private void displayHelp(String helpGroup)
-    {
-        File fileName = Config.getLanguageFile(helpGroup + ".help");
-        int i = originalMsg.indexOf('\n');
-        
-        String line;
-        if (i<0) {
-            line = originalMsg;
-        }
-        else {
-            line = originalMsg.substring(0,i);   
-        }
-        
-        String helpText = BlueJFileReader.readHelpText(fileName, line.trim(),
-                                                       false);
-
-        String originalMsgCopy = originalMsg;
-        Platform.runLater(() ->
-        {
-            if (helpText == null)
-            {
-                DialogManager.showMessageWithTextFX(null, "no-help",
-                    "\n" + originalMsgCopy);
-            } else
-            {
-                DialogManager.showTextFX(null, originalMsgCopy + "\n\n" + helpText);
-            }
-        });
     }
 }

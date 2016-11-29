@@ -101,11 +101,8 @@ public interface Editor
      *        highlighted)
      * @param column        the column to move the cursor to
      * @param beep        if true, do a system beep
-     * @param help        name of help group (may be null); this should be the compiler
-     *                    name such as "javac".
      */
-    void displayMessage(String message, int lineNumber, int column, 
-                        boolean beep, String help);
+    void displayMessage(String message, int lineNumber, int column, boolean beep);
 
     /**
      * Display a diagnostic message from the compiler.

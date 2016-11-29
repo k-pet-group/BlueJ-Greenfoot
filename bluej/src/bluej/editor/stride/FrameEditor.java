@@ -532,8 +532,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.Swing)
-            public void displayMessage(String message, int lineNumber, int column,
-                    boolean beep, String help) { FrameEditor.this.displayMessage(message, lineNumber, column, beep, help); }
+            public void displayMessage(String message, int lineNumber, int column, boolean beep) { FrameEditor.this.displayMessage(message, lineNumber, column, beep); }
 
             @Override
             @OnThread(Tag.Swing)
@@ -786,8 +785,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void displayMessage(String message, final int lineNumber, int column,
-            boolean beep, String help)
+    public void displayMessage(String message, final int lineNumber, int column, boolean beep)
     {
         //This is a message from a clickable stack trace following an exception
         Platform.runLater(() -> JavaFXUtil.onceNotNull(javaSource, js -> JavaFXUtil.runNowOrLater(() -> {

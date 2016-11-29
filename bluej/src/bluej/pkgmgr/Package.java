@@ -2092,8 +2092,7 @@ public final class Package
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
-        showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront,
-                null);
+        showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront);
     }
     
     /**
@@ -2116,12 +2115,11 @@ public final class Package
      * is done by opening the class's source, highlighting the line and showing
      * the message in the editor's information area.
      */
-    private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep,
-            boolean bringToFront, String help)
+    private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep, boolean bringToFront)
     {
         Editor targetEditor = editorForTarget(filename, bringToFront);
         if (targetEditor != null) {
-            targetEditor.displayMessage(message, lineNo, 0, beep, help);
+            targetEditor.displayMessage(message, lineNo, 0, beep);
         }
         else {
             Debug.message(filename + ", line" + lineNo + ": " + message);
@@ -2329,7 +2327,7 @@ public final class Package
             if (locFileName != null) {
                 String filename = new File(getPath(), locFileName).getPath();
                 int lineNo = loc.getLineNumber();
-                done = showEditorMessage(filename, lineNo, message, true, true, "exception");
+                done = showEditorMessage(filename, lineNo, message, true, true);
                 if (firstTime && !done) {
                     message += " (in " + loc.getClassName() + ")";
                     firstTime = false;
@@ -2349,7 +2347,7 @@ public final class Package
      */
     public void exceptionMessage(String className, int lineNumber)
     {
-        showEditorMessage(className, lineNumber, "", false, true, "exception");
+        showEditorMessage(className, lineNumber, "", false, true);
     }
 
     /**
