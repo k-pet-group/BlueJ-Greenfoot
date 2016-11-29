@@ -813,7 +813,7 @@ public final class MoeEditor extends JPanel
             }
             catch (IOException ex) {
                 failureException = ex;
-                info.warning(Config.getString("editor.info.errorSaving") + " - " + ex.getLocalizedMessage());
+                info.messageAndBeep(Config.getString("editor.info.errorSaving") + " - " + ex.getLocalizedMessage());
             }
             finally {
                 try {
@@ -829,7 +829,7 @@ public final class MoeEditor extends JPanel
         // If an error occurred, set a message in the editor status bar, and
         // re-throw the exception.
         if (failureException != null) {
-            info.warning(Config.getString("editor.info.errorSaving")
+            info.messageAndBeep(Config.getString("editor.info.errorSaving")
                     + " - " + failureException.getLocalizedMessage());
             throw failureException;
         }
@@ -875,12 +875,9 @@ public final class MoeEditor extends JPanel
         moeCaret.setPersistentHighlight();
 
         // display the message
-
+        info.messageImportant(message);
         if (beep) {
-            info.warningImportant(message);
-        }
-        else {
-            info.messageImportant(message);
+            MoeEditorManager.beep();
         }
     }
 
@@ -1583,7 +1580,7 @@ public final class MoeEditor extends JPanel
                 break;
             case BlueJEvent.DOCU_ABORTED :
                 BlueJEvent.removeListener(this);
-                info.warning(Config.getString("editor.info.docAborted"));
+                info.messageAndBeep(Config.getString("editor.info.docAborted"));
                 break;
         }
     }
@@ -1715,7 +1712,7 @@ public final class MoeEditor extends JPanel
      */
     public void writeWarningMessage(String msg)
     {
-        info.warning(msg);
+        info.messageAndBeep(msg);
     }
 
     /**
@@ -1741,7 +1738,7 @@ public final class MoeEditor extends JPanel
     public void reload()
     {
         if (filename == null) {
-            info.warning(Config.getString("editor.info.cannotReload"), 
+            info.messageAndBeep(Config.getString("editor.info.cannotReload"), 
                     Config.getString("editor.info.reload"));
         }
         else if (saveState.isChanged()) {
@@ -1955,7 +1952,7 @@ public final class MoeEditor extends JPanel
             info.message(msg.toString());
         }
         else {
-            info.warning(msg.toString(), Config.getString("editor.info.notFound"));
+            info.messageAndBeep(msg.toString(), Config.getString("editor.info.notFound"));
         }
 
         return found;
@@ -2353,7 +2350,7 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (IOException | BadLocationException exc) {
-            info.warning(Config.getString("editor.info.docDisappeared"), getDocPath());
+            info.messageAndBeep(Config.getString("editor.info.docDisappeared"), getDocPath());
             Debug.reportError("loading class interface failed: " + exc);
             if (fis != null) {
                 try {
@@ -2598,7 +2595,7 @@ public final class MoeEditor extends JPanel
                     pane.setPage(e.getURL());
                 }
                 catch (Throwable t) {
-                    info.warning("cannot display hyperlink: " + e.getURL());
+                    info.messageAndBeep("cannot display hyperlink: " + e.getURL());
                     Debug.reportError("hyperlink failed: " + t);
                 }
             }
@@ -2613,7 +2610,7 @@ public final class MoeEditor extends JPanel
     public void toggleBreakpoint()
     {
         if (!viewingCode()) {
-            info.warning(" ");            // cause a beep
+            info.messageAndBeep(" ");            // cause a beep
             return;
         }
         toggleBreakpoint(sourcePane.getCaretPosition());
@@ -2703,14 +2700,14 @@ public final class MoeEditor extends JPanel
                 sourceDocument.setParagraphAttributes(pos, a);
             }
             else {
-                info.warning(result);
+                info.messageAndBeep(result);
             }
 
             // force an update of UI
             repaint();
         }
         else {
-            info.warning(Config.getString("editor.info.cannotSetBreak"));
+            info.messageAndBeep(Config.getString("editor.info.cannotSetBreak"));
         }
     }
 
@@ -2842,10 +2839,10 @@ public final class MoeEditor extends JPanel
             }
         }
         catch (FileNotFoundException ex) {
-            info.warning(Config.getString("editor.info.fileDisappeared"));
+            info.messageAndBeep(Config.getString("editor.info.fileDisappeared"));
         }
         catch (IOException ex) {
-            info.warning(Config.getString("editor.info.fileReadError"));
+            info.messageAndBeep(Config.getString("editor.info.fileReadError"));
             setChanged();
         }
         finally {
@@ -3700,7 +3697,7 @@ public final class MoeEditor extends JPanel
             worker.execute();
         } else {
             //no completions found. no need to search.
-             info.warning("No completions available.");
+             info.messageAndBeep("No completions available.");
              CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, watcher,
                             null, new AssistContent[0], null);
             initialiseContentAssist(codeCompletionDlg, xpos, ypos);
@@ -4648,7 +4645,7 @@ public final class MoeEditor extends JPanel
                 if (result != null && result.length == 0)
                 {
                     //set message on status bar
-                    info.warning("No completions available.");
+                    info.messageAndBeep("No completions available.");
                 } else
                 {
                     // No need to update the JList, as all results have been

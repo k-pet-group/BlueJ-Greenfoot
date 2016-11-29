@@ -213,22 +213,16 @@ public final class Info extends JPanel
      * display a one- or two-line warning (message with beep). Separate lines should
      * be delimited with '\n'.
      */
-    public void warning(String msg)
+    public void messageAndBeep(String msg)
     {
         message (msg);
-        MoeEditorManager.beep();
-    }
-
-    public void warningImportant(String msg)
-    {
-        messageImportant(msg);
         MoeEditorManager.beep();
     }
 
     /**
      * display a two line warning (message with beep)
      */
-    public void warning(String msg1, String msg2)
+    public void messageAndBeep(String msg1, String msg2)
     {
         message (msg1, msg2);
         MoeEditorManager.beep();
