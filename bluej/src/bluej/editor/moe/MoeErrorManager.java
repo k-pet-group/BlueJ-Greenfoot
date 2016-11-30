@@ -110,7 +110,8 @@ public class MoeErrorManager implements MoeDocumentListener
         editor.updateHeaderHasErrors(false);
     }
     
-    public int getNextErrorPos(int from)
+    // Returns null if there is no next error.
+    public ErrorDetails getNextErrorPos(int from)
     {
         int lowestDist = Integer.MIN_VALUE; // Negative means before the given position
         ErrorDetails next = null;
@@ -135,10 +136,7 @@ public class MoeErrorManager implements MoeDocumentListener
                 lowestDist = dist;
             }
         }
-        if (next == null)
-            return -1;
-        else
-            return next.startPos;
+        return next;
     }
     
     /**

@@ -112,11 +112,6 @@ public final class Info extends JPanel
     public void messageImportant(String msg)
     {
         message(msg);
-        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
-        {
-            // Pop up in a dialog:
-            Platform.runLater(() -> DialogManager.showTextWithCopyButtonFX(fxParent.get(), msg, "BlueJ"));
-        }
     }
     
     /**

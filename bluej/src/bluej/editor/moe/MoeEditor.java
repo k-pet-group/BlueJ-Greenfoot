@@ -4063,14 +4063,29 @@ public final class MoeEditor extends JPanel
         if (watcher != null) {
             if (madeChangeOnCurrentLine || !errorManager.hasErrorHighlights())
             {
+                if (!madeChangeOnCurrentLine)
+                {
+                    if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
+                    {
+                        // Pop up in a dialog:
+                        Platform.runLater(() -> DialogManager.showTextWithCopyButtonFX(getWindow(), Config.getString("pkgmgr.accessibility.compileDone"), "BlueJ"));
+                    }
+                }
                 watcher.scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
                 madeChangeOnCurrentLine = false;
             }
             else
             {
-                int pos = errorManager.getNextErrorPos(sourcePane.getCaretPosition());
-                if (pos >= 0) {
-                    sourcePane.setCaretPosition(pos);
+                ErrorDetails err = errorManager.getNextErrorPos(sourcePane.getCaretPosition());
+                if (err != null)
+                {
+                    sourcePane.setCaretPosition(err.startPos);
+
+                    if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
+                    {
+                        // Pop up in a dialog:
+                        Platform.runLater(() -> DialogManager.showTextWithCopyButtonFX(getWindow(), err.message, "BlueJ"));
+                    }
                 }
             }
         }

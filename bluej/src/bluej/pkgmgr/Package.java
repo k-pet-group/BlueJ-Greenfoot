@@ -2824,23 +2824,6 @@ public final class Package
         {
             return true;
         }
-        
-        @Override
-        public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
-        {
-            super.endCompile(sources, successful, type);
-            
-            // Display status dialog for accessibility. If chainObserver is set, we assume
-            // that the chained observer will fulfill this responsibility instead.
-            if (successful && chainObserver == null && PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
-                Platform.runLater(() -> {
-                    // editor can be null in Greenfoot
-                    if (editor != null && editor.isVisible()) {
-                        DialogManager.showTextFX(editor.getFXWindow(), Config.getString("pkgmgr.accessibility.compileDone"));
-                    }
-                });
-            }
-        }
     }
 
     // ---- end of bluej.compiler.CompileObserver interfaces ----
