@@ -65,6 +65,7 @@ public class CallFrame extends SingleLineFrame
         setHeaderRow(content, previewSemi);
 
         content.onTextPropertyChange(s -> checkForTopLevelEquals());
+        content.addFocusListener(this);
     }
     
     // For replacement of AssignFrame:
@@ -137,14 +138,27 @@ public class CallFrame extends SingleLineFrame
         {
             if (isAlmostBlank())
             {
-                // Delete ourselves
-                FrameCanvas parentCanvas = getParentCanvas();
-                FrameCursor cursorBefore = getCursorBefore();
-                parentCanvas.removeBlock(this);
-                cursorBefore.requestFocus();
+                deleteOurselves();
                 return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public void checkForEmptySlot()
+    {
+        if (isAlmostBlank())
+        {
+            deleteOurselves();
+        }
+    }
+
+    private void deleteOurselves()
+    {
+        FrameCanvas parentCanvas = getParentCanvas();
+        FrameCursor cursorBefore = getCursorBefore();
+        parentCanvas.removeBlock(this);
+        cursorBefore.requestFocus();
     }
 }
