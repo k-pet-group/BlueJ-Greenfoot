@@ -26,23 +26,19 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.List;
-
 import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
-import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.HighlightedBreakpoint;
-import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.slots.CallExpressionSlot;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
-import bluej.stride.framedjava.slots.FilledExpressionSlot;
 import bluej.stride.generic.FrameCanvas;
+import bluej.stride.generic.FrameContentItem;
+import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
+import bluej.stride.slots.HeaderItem;
 
 /**
  * A method call, e.g. "do x(param y)"
@@ -132,5 +128,23 @@ public class CallFrame extends SingleLineFrame
         // but we won't have replaced it yet because our parent canvas was null.
         // So we check again here once our parentCanvas is not null:
         checkForTopLevelEquals();
+    }
+
+    @Override
+    public boolean deleteAtEnd(FrameContentItem row, HeaderItem src)
+    {
+        if (contents.size() > 0 && (src == contents.get(0) || row == contents.get(0)))
+        {
+            if (isAlmostBlank())
+            {
+                // Delete ourselves
+                FrameCanvas parentCanvas = getParentCanvas();
+                FrameCursor cursorBefore = getCursorBefore();
+                parentCanvas.removeBlock(this);
+                cursorBefore.requestFocus();
+                return true;
+            }
+        }
+        return false;
     }
 }
