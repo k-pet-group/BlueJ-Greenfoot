@@ -23,7 +23,6 @@ package bluej.stride.generic;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javafx.beans.binding.DoubleExpression;
 import javafx.scene.Cursor;
@@ -274,12 +273,6 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
     protected FrameCanvas createCanvas(InteractionManager editor, String stylePrefix)
     {
         return new FrameCanvas(editor, this, stylePrefix);
-    }
-
-    @Override
-    public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
-    {
-        return Collections.emptyList();
     }
 
     @Override
