@@ -178,7 +178,10 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     @Override
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
-        return Arrays.asList(new ExtensionDescription('t', "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER));
+        ArrayList<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(innerCanvas, cursorInCanvas));
+        extensions.add(new ExtensionDescription('t', "Add throws declaration",
+                () -> throwsPane.addTypeSlotAtEnd("", true), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER));
+        return extensions;
     }
 
     @Override
