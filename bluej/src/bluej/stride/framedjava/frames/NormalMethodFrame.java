@@ -327,7 +327,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     @Override
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
-        final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
+        final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(innerCanvas, cursorInCanvas));
         getStaticFinalOperations().stream().forEach(op -> extensions.add(new ExtensionDescription(op, this, true,
                 ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION)));
         return extensions;
