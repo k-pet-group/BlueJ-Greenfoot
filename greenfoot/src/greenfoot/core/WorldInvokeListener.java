@@ -198,7 +198,9 @@ public class WorldInvokeListener
                             }
                         }
                         else {
-                            inspectorManager.getInspectorInstance(result, "result", null, null, null, null);
+                            Platform.runLater(() -> {
+                                inspectorManager.getInspectorInstance(result, "result", null, null, null, null);
+                            });
                         }
                     }
                 }

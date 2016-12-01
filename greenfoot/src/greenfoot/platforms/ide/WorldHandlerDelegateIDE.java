@@ -71,6 +71,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.views.CallableView;
+import javafx.application.Platform;
 
 
 /**
@@ -193,7 +194,10 @@ public class WorldHandlerDelegateIDE
             catch (RemoteException e1) {
                 Debug.reportError("Could not get instance name for inspection", e1);
             }
-            inspectorManager.getInspectorInstance(dObj, instanceName, null, null, null, null);
+            String instanceNameFinal = instanceName;
+            Platform.runLater(() -> {
+                inspectorManager.getInspectorInstance(dObj, instanceNameFinal, null, null, null, null);
+            });
         });
         m.setFont(PrefMgr.getStandoutMenuFont());
         m.setForeground(envOpColour);
