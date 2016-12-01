@@ -239,11 +239,25 @@ public class FrameCursor implements RecallableFocus
     private static class TotalHeightBinding extends IntegerBinding
     {
         private static final Duration DEFAULT_DURATION = Duration.millis(100);
+        // The shortest between cursor movements that we will not animate:
+        public static final long ANIMATE_GAP = 800L;
         private Set<NumberExpressionBase> shrinkingSpace = new HashSet<>();
         private FrameCursor growing;
+        // Note we must track shrink and grow separately because they usually
+        // come in pairs, so we don't want the cursor losing focus on the shrink
+        // to prevent animating the grow of the cursor gaining focus:
+        private long lastShrink = 0;
+        private long lastGrow = 0;
         
         public synchronized void shrink(FrameCursor c, double target, boolean animate)
         {
+            if (animate && System.currentTimeMillis() - lastShrink < ANIMATE_GAP)
+            {
+                // Don't animate if they user is going fast up and down,
+                // as it costs a lot of time in large canvases:
+                animate = false;
+            }
+
             // If we were previously growing, untag ourselves:
             if (growing == c) {
                 growing = null;
@@ -265,6 +279,8 @@ public class FrameCursor implements RecallableFocus
             
             shrinkingSpace.add(c.node.maxHeightProperty()); //Must match remove() in remove()
             bind(c.node.maxHeightProperty()); // Must match unbind() in remove()
+
+            lastShrink = System.currentTimeMillis();
         }
         
         private synchronized void remove(FrameCursor c)
@@ -301,6 +317,13 @@ public class FrameCursor implements RecallableFocus
 
         public synchronized void grow(FrameCursor c, int target, boolean animate)
         {
+            if (animate && System.currentTimeMillis() - lastGrow < ANIMATE_GAP)
+            {
+                // Don't animate if they user is going fast up and down,
+                // as it costs a lot of time in large canvases:
+                animate = false;
+            }
+
             remove(c);
             growing = c;
             
@@ -322,6 +345,8 @@ public class FrameCursor implements RecallableFocus
             }
             
             growing.node.maxHeightProperty().bind(Bindings.max(HIDE_HEIGHT, new ReadOnlyIntegerWrapper(target).subtract(this)));
+
+            lastGrow = System.currentTimeMillis();
         }
     }
 
