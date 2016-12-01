@@ -29,6 +29,7 @@ package bluej.stride.framedjava.frames;
 import java.util.List;
 
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
+import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameContentItem;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -46,6 +47,7 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
+import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -61,7 +63,8 @@ public class AssignFrame extends SingleLineFrame
     private final ExpressionSlot<FilledExpressionSlotFragment> slotLHS;
     private final ExpressionSlot<FilledExpressionSlotFragment> slotRHS;
     private AssignElement element;
-    
+    private SlotLabel assignLabel;
+
     /**
      * Default constructor.
      * @param editor 
@@ -74,7 +77,8 @@ public class AssignFrame extends SingleLineFrame
         slotRHS.setSimplePromptText("new-value");
         slotLHS = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "assign-lhs-");
         slotLHS.setSimplePromptText("variable");
-        setHeaderRow(slotLHS, new SlotLabel(ASSIGN_SYMBOL), slotRHS, previewSemi);
+        assignLabel = new SlotLabel(ASSIGN_SYMBOL);
+        setHeaderRow(slotLHS, assignLabel, slotRHS, previewSemi);
         
         slotLHS.addClosingChar('=');
         slotLHS.addClosingChar(' ');
@@ -167,5 +171,12 @@ public class AssignFrame extends SingleLineFrame
     private void collapseIntoMethodCall()
     {
         getParentCanvas().replaceBlock(this, new CallFrame(getEditor(), slotLHS.getText(), slotRHS.getText()));        
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) void setView(View oldView, View newView, SharedTransition animation)
+    {
+        super.setView(oldView, newView, animation);
+        assignLabel.setText(newView == View.JAVA_PREVIEW ? "=" : ASSIGN_SYMBOL);
     }
 }

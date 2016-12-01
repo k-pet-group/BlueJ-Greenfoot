@@ -40,10 +40,8 @@ import javafx.util.Duration;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
@@ -95,7 +93,7 @@ public class VarFrame extends SingleLineFrame
     private final TypeSlot slotType;
     private final VariableNameDefTextSlot slotName;
     private final BooleanProperty showingValue = new SimpleBooleanProperty(false);
-    private final SlotLabel equalLabel = new SlotLabel(AssignFrame.ASSIGN_SYMBOL);
+    private final SlotLabel assignLabel = new SlotLabel(AssignFrame.ASSIGN_SYMBOL);
     private final ExpressionSlot<FilledExpressionSlotFragment> slotValue; // not always valid
     private final BooleanProperty slotValueBlank = new SimpleBooleanProperty(true);
     private VarElement element;
@@ -183,7 +181,7 @@ public class VarFrame extends SingleLineFrame
                 JavaFXUtil.listBool(staticModifier, staticLabel),
                 JavaFXUtil.listBool(finalModifier, finalLabel),
                 FXCollections.observableArrayList(slotType, slotName),
-                JavaFXUtil.listBool(showingValue, equalLabel, slotValue),
+                JavaFXUtil.listBool(showingValue, assignLabel, slotValue),
                 FXCollections.observableArrayList(previewSemi)
         ));
 
@@ -398,6 +396,7 @@ public class VarFrame extends SingleLineFrame
             headerCaptionLabel.shrinkHorizontally(animateProgress);
         else
             headerCaptionLabel.growHorizontally(animateProgress);
+        assignLabel.setText(newView == View.JAVA_PREVIEW ? "=" : AssignFrame.ASSIGN_SYMBOL);
     }
 
     @Override
