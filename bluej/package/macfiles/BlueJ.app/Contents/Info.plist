@@ -69,6 +69,10 @@
 			<key>com.apple.macos.useScreenMenuBar</key>
 			<string>true</string>
 		</dict>
+		<key>VMOptions</key>
+        <array>
+           <string>Xmx512M</string>
+        </array>
 	</dict>
 	<key>NSHighResolutionCapable</key>
 	<true/>

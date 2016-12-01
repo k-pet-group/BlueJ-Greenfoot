@@ -33,7 +33,7 @@ if [ ! -e "$JAVAPATH/jre/lib/ext/jfxrt.jar" ]; then
 fi
 
 
-"$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -cp "$CP" bluej.Boot \
+"$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -Xmx512M -cp "$CP" bluej.Boot \
     -greenfoot=true -bluej.compiler.showunchecked=false \
     -greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \
     -greenfoot.tutorial=file:///usr/share/doc/Greenfoot/tutorial/tutorial.html \

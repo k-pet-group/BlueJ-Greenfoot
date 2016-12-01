@@ -528,7 +528,7 @@ bluej.vm.args=-ea -Djavafx.macosx.embedded=true
 ## Java defaults need to be modified.  
 #####################################################################
 
-#bluej.windows.vm.args=
+bluej.windows.vm.args=-Xmx512M
 
 
 #####################################################################

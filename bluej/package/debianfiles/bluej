@@ -28,4 +28,4 @@ if grep -q "BCM270" /proc/cpuinfo; then
 fi
 
 CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
-"$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -cp "$CP" bluej.Boot  "$@"
+"$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -Xmx512M -cp "$CP" bluej.Boot  "$@"
