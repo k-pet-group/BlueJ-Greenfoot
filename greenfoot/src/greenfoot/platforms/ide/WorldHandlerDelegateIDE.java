@@ -423,7 +423,7 @@ public class WorldHandlerDelegateIDE
         frame.beginExecution();
 
         final Class<? extends World> icls = cls;
-        Simulation.getInstance().runLater(() -> Debug.time("World construction", () -> {
+        Simulation.getInstance().runLater(() -> {
             try {
                 Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
                 WorldHandler.getInstance().clearWorldSet();
@@ -466,7 +466,7 @@ public class WorldHandlerDelegateIDE
                 greenfootRecorder.initialised();
                 frame.endExecution();
             });
-        }));
+        });
     }
 
     /**
