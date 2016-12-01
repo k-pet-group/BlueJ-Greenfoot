@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2016  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,9 +31,11 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import bluej.views.FieldView;
 import bluej.views.View;
 
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.BooleanValue;
 import com.sun.jdi.ByteValue;
 import com.sun.jdi.CharValue;
@@ -217,6 +219,12 @@ public class BField
      * @throws  PackageNotFoundException  if the package to which the field belongs has been deleted by the user.
      */
     public Object getValue(BObject onThis)
+        throws ProjectNotOpenException, PackageNotFoundException
+    {
+        return getValue(onThis, false);
+    }
+
+    Object getValue(BObject onThis, boolean unpackArray)
              throws ProjectNotOpenException, PackageNotFoundException
     {
         // If someone gives me a null it means that he wants a static field
@@ -234,7 +242,7 @@ public class BField
         }
 
         PkgMgrFrame aFrame = onThis.getPackageFrame();
-        return doGetVal(aFrame, bluej_view.getName(), objRef.getValue(thisField));
+        return doGetVal(aFrame, bluej_view.getName(), objRef.getValue(thisField), unpackArray);
     }
 
 
@@ -248,7 +256,7 @@ public class BField
      * @param  val           Description of the Parameter
      * @return               Description of the Return Value
      */
-    static Object doGetVal(PkgMgrFrame packageFrame, String instanceName, Value val)
+    private static Object doGetVal(PkgMgrFrame packageFrame, String instanceName, Value val, boolean unpackArray)
     {
         if (val == null) {
             return null;
@@ -282,6 +290,11 @@ public class BField
             return new Short(((ShortValue) val).value());
         }
 
+        if (unpackArray && val instanceof ArrayReference)
+        {
+            return Utility.mapList(((ArrayReference)val).getValues(), v -> doGetVal(packageFrame, instanceName, v, false));
+        }
+
         if (val instanceof ObjectReference) {
             JdiObject obj = JdiObject.getDebuggerObject((ObjectReference) val);
             ObjectWrapper objWrap = ObjectWrapper.getWrapper(packageFrame, packageFrame.getObjectBench(), obj, obj.getGenType(), instanceName);
@@ -289,5 +302,10 @@ public class BField
         }
 
         return val.toString();
+    }
+
+    static Object doGetVal(PkgMgrFrame packageFrame, String instanceName, Value val)
+    {
+        return doGetVal(packageFrame, instanceName, val, false);
     }
 }

@@ -23,6 +23,7 @@ package rmiextension.wrappers;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.List;
 
 import bluej.collect.GreenfootInterfaceEvent;
 import rmiextension.wrappers.event.RProjectListener;
@@ -131,6 +132,9 @@ public interface RProject
      * @throws RemoteException  If an RMI exception occurs.
      */
     public abstract String getRemoteObjectName()
+        throws RemoteException;
+
+    public abstract List<String> getRemoteObjectNames()
         throws RemoteException;
 
     /**

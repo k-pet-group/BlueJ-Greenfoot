@@ -282,21 +282,22 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
                 wait();
             }
 
-            BObject[] val_a = new BObject[1];
-            
+            BObject bObject = transportObject;
+            String[] val_a = new String[1];
             EventQueue.invokeAndWait(new Runnable() {
                 @Override
                 public void run()
                 {
                     try {
-                        BClass bClass = transportObject.getBClass();
+
+                        BClass bClass = bObject.getBClass();
                         BField field = bClass.getField("transportField");
-                        BObject value = (BObject) field.getValue(transportObject);
+                        BObject value = (BObject) field.getValue(bObject);
                         
                         String cName = value.getBClass().getName();
                         cName = cName.toLowerCase();
                         value.addToBench(cName);
-                        val_a[0] = value;
+                        val_a[0] = value.getInstanceName();
                     }
                     catch (bluej.extensions.ClassNotFoundException cnfe) { }
                     catch (PackageNotFoundException pnfe) { }
@@ -304,7 +305,50 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
                 }
             });
 
-            return val_a[0].getInstanceName();
+            return val_a[0];
+        }
+        catch (InterruptedException ie) { }
+        catch (InvocationTargetException ite) {
+            Debug.reportError("Error adding object to bench", ite);
+        }
+        return null;
+    }
+
+    @Override
+    public synchronized List<String> getRemoteObjectNames() throws RemoteException
+    {
+        try {
+            while (transportObject == null) {
+                wait();
+            }
+
+            BObject bObject = transportObject;
+            List<String> r = new ArrayList<>();
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run()
+                {
+                    try {
+
+                        BClass bClass = bObject.getBClass();
+                        BField field = bClass.getField("transportField");
+                        List<BObject> values = (List<BObject>) ExtensionBridge.getFieldValue(field, bObject, true);
+
+                        for (BObject value : values)
+                        {
+                            String cName = value.getBClass().getName();
+                            cName = cName.toLowerCase();
+                            value.addToBench(cName);
+                            r.add(value.getInstanceName());
+                        }
+                    }
+                    catch (bluej.extensions.ClassNotFoundException cnfe) { }
+                    catch (PackageNotFoundException pnfe) { }
+                    catch (ProjectNotOpenException pnoe) { }
+                }
+            });
+
+            return r;
         }
         catch (InterruptedException ie) { }
         catch (InvocationTargetException ite) {

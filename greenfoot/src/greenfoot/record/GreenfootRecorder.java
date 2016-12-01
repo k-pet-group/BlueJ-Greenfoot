@@ -27,6 +27,7 @@ import greenfoot.World;
 
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,8 +47,9 @@ import bluej.utility.Debug;
 public class GreenfootRecorder
 {
     /** A map of known objects to their name as it appears in the code */
-    private IdentityHashMap<Object, String> objectNames;
-    private LinkedList<CodeElement> code;
+    private final IdentityHashMap<Object, String> objectNames;
+    private final ArrayList<Object> actorNameQueue;
+    private final ArrayList<CodeElement> code;
     private World world;
     
     public static final String METHOD_ACCESS = "private";
@@ -59,8 +61,9 @@ public class GreenfootRecorder
      */
     public GreenfootRecorder()
     {
-        objectNames = new IdentityHashMap<Object, String>();
-        code = new LinkedList<CodeElement>();
+        objectNames = new IdentityHashMap<>();
+        actorNameQueue = new ArrayList<>();
+        code = new ArrayList<>();
     }
 
     /**
@@ -76,7 +79,6 @@ public class GreenfootRecorder
         if (name != null) {
             code.add(new VarElement(null, theClass.getCanonicalName(), name,  "new " + theClass.getCanonicalName()
                     + "(" + withCommas(args, paramTypes, false) + ")"));
-            assert( ((VarElement)code.getLast()).isEnable());
         }
     }
     
@@ -101,6 +103,20 @@ public class GreenfootRecorder
         catch (RemoteException e) {
             Debug.reportError("Error naming actor", e);
             return null;
+        }
+    }
+
+    private synchronized void nameActors(List<Object> actors)
+    {
+        try {
+            List<String> names = ObjectTracker.getRObjectNames(actors);
+            if (names != null && names.size() == actors.size()) {
+                for (int i = 0; i < actors.size(); i++)
+                    objectNames.put(actors.get(i), names.get(i));
+            }
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Error naming actors", e);
         }
     }
     
@@ -218,6 +234,7 @@ public class GreenfootRecorder
     public synchronized void reset()
     {
         objectNames.clear();
+        actorNameQueue.clear();
         clearCode(false);
     }
     
@@ -288,5 +305,16 @@ public class GreenfootRecorder
     private CallElement callElement(String content)
     {
         return new CallElement(content, content);
+    }
+
+    public void initialised()
+    {
+        nameActors(actorNameQueue);
+        actorNameQueue.clear();
+    }
+
+    public void queueNameActor(Actor object)
+    {
+        actorNameQueue.add(object);
     }
 }

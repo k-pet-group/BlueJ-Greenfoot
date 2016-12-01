@@ -21,15 +21,18 @@
  */
 package greenfoot;
 
+import bluej.utility.Utility;
 import greenfoot.core.GNamedValue;
 import greenfoot.core.GreenfootLauncherDebugVM;
 import greenfoot.core.GreenfootMain;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.NamedValue;
@@ -145,5 +148,30 @@ public class ObjectTracker
             cachedObjects.clear();
         }
     }
-    
+
+    public static List<String> getRObjectNames(List<Object> actors) throws RemoteException
+    {
+        List<Object> stillToName = new ArrayList<>();
+        synchronized (cachedObjects) {
+            for (Object actor : actors)
+            {
+                String rObjectName = cachedObjects.get(actor);
+                if (rObjectName == null)
+                {
+                    stillToName.add(actor);
+                }
+            }
+
+            GreenfootLauncherDebugVM.getInstance().setTransportField(stillToName.toArray());
+            List<String> rObj = GreenfootMain.getInstance().getProject().getRProject().getRemoteObjectNames();
+
+            for (int i = 0; i < stillToName.size();i++)
+            {
+                if (rObj.get(i) != null)
+                    cachedObjects.put(stillToName.get(i), rObj.get(i));
+            }
+
+            return Utility.mapList(actors, cachedObjects::get);
+        }
+    }
 }

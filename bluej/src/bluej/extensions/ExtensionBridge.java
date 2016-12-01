@@ -162,4 +162,9 @@ public final class ExtensionBridge
     {
         return pkg.getPkgMgrFrame();
     }
+
+    public static Object getFieldValue(BField field, BObject bObject, boolean unpackArray) throws ProjectNotOpenException, PackageNotFoundException
+    {
+        return field.getValue(bObject, unpackArray);
+    }
 }

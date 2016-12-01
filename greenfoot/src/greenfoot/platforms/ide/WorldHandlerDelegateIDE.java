@@ -419,7 +419,7 @@ public class WorldHandlerDelegateIDE
         frame.beginExecution();
 
         final Class<? extends World> icls = cls;
-        Simulation.getInstance().runLater(() -> {
+        Simulation.getInstance().runLater(() -> Debug.time("World construction", () -> {
             try {
                 Constructor<?> cons = icls.getConstructor(new Class<?>[0]);
                 WorldHandler.getInstance().clearWorldSet();
@@ -459,9 +459,10 @@ public class WorldHandlerDelegateIDE
             }
             EventQueue.invokeLater(() -> {
                 worldInitialising = false;
+                greenfootRecorder.initialised();
                 frame.endExecution();
             });
-        });
+        }));
     }
 
     /**
@@ -600,7 +601,7 @@ public class WorldHandlerDelegateIDE
                         item.getClassName().equals(lastWorldClassName)) {
                     // This call gives the object a name,
                     // which will be necessary for appending operations with the object to the world's code:
-                    greenfootRecorder.nameActor(object);
+                    greenfootRecorder.queueNameActor(object);
                     return;
                 }
 
