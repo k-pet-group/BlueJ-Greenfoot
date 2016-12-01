@@ -253,6 +253,20 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
             getDiagonalLineCanvas().opacityProperty().bind(animation.getProgress());
             animation.addOnStopped(getDiagonalLineCanvas().opacityProperty()::unbind);
         }
+        
+        if (newView == View.BIRDSEYE_NODOC)
+        {
+            getDiagonalLineCanvas().setVisible(false);
+            // We have to set this to unmanaged, rather than solely relying on DocumentationTextArea's own behaviour
+            // of collapsing itself, because HangingFlowPane with a non-zero baseline doesn't
+            // give zero height for a zero-height child, unless it's unmanaged:
+            comment.getNode().setManaged(false);
+        }
+        else
+        {
+            getDiagonalLineCanvas().setVisible(true);
+            comment.getNode().setManaged(true);
+        }
     }
 
     public boolean isEffectiveFrame()

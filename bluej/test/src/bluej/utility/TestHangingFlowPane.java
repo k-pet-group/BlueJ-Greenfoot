@@ -166,11 +166,23 @@ public class TestHangingFlowPane
 
         public TestNodeInfo(double width, double expectedX)
         {
-            this.width = width;
-            this.expectedX = expectedX;
-            this.node = new FixedSizeNode(width, 50);
+            this(width, expectedX, 50.0);
         }
 
+        public TestNodeInfo(double width, double expectedX, double height)
+        {
+            this.width = width;
+            this.expectedX = expectedX;
+            this.node = new FixedSizeNode(width, height);
+        }
+
+        public TestNodeInfo(double width, double expectedX, double height, double baseline)
+        {
+            this.width = width;
+            this.expectedX = expectedX;
+            this.node = new FixedSizeNode(width, height, baseline);
+        }
+        
         Node getNode()
         {
             return node;
@@ -354,6 +366,8 @@ public class TestHangingFlowPane
     public void testHeight()
     {
         checkHeight(0);
+        checkHeight(0,  new TestNodeInfo(10, 0, 0));
+        checkHeight(17,  new TestNodeInfo(10, 0, 0, 17));
         checkHeight(50, n(10, 0), n(20, 10));
         checkHeight(50, n(300, 0));
         checkHeight(50, n(300, 0), n(100, 300));
