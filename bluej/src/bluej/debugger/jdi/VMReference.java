@@ -253,6 +253,15 @@ class VMReference
             }
             
         }
+        /* // Uncomment this if you want to get a command window showing
+           // for the debug VM on Windows.  Useful to let you hit Ctrl+Break and see thread dump
+           // in case of deadlock
+        paramList.add("cmd.exe");
+        paramList.add("/C");
+        paramList.add("start");
+        paramList.add("cmd.exe");
+        paramList.add("/K");
+        */
         paramList.add(Config.getJDKExecutablePath(null, "java"));
         
         //check if any vm args are specified in Config, at the moment these

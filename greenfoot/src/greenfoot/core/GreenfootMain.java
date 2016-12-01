@@ -216,6 +216,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                     // Initialise JavaFX:
                     new JFXPanel();
+                    Platform.setImplicitExit(false);
 
                     frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager);
 
@@ -279,7 +280,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             {
                                 if (Boot.isTrialRecording())
                                 {
-                                    new JFXPanel();
                                     Platform.runLater(() -> {
                                         new DataSubmissionFailedDialog().show();
                                     });
@@ -291,7 +291,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     {
                         Debug.reportError(e);
                         // Show the dialog anyway; probably best to restart:
-                        new JFXPanel();
                         Platform.runLater(() -> {
                             new DataSubmissionFailedDialog().show();
                         });
