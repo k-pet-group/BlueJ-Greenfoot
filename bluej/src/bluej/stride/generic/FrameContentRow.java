@@ -455,4 +455,13 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
             Debug.message("Ambiguous alt keypress for " + parentFrame.getClass() + " for " + c);
         }
     }
+
+
+    /**
+     * Called when the editor font size has changed, to redraw the overlay
+     */
+    public void fontSizeChanged()
+    {
+        headerOverlay.redraw();
+    }
 }

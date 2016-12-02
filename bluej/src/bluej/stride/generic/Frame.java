@@ -1512,4 +1512,12 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         JavaFXUtil.onceNotNull(getNode().sceneProperty(), s -> action.run());
     }
+
+    /**
+     * Called when the editor font size has changed to redraw any overlays
+     */
+    public void fontSizeChanged()
+    {
+        header.fontSizeChanged();
+    }
 }

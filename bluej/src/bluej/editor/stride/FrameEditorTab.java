@@ -2036,6 +2036,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         // We don't bind because topLevelFrame may change
         getTopLevelFrame().getNode().setStyle("-fx-font-size: " + getFontSizeCSS().get() + ";");
+
+        JavaFXUtil.runAfter(Duration.millis(500),
+            () -> getTopLevelFrame().getAllFrames().forEach(Frame::fontSizeChanged));
     }
 
     //package-visible
