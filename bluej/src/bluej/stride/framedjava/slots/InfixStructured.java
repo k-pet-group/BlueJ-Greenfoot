@@ -259,7 +259,8 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     // Regex matching JLS "Digits"; underscores can appear within
     private final static String DIGITS_REGEX = "\\d([0-9_]*\\d)?";
     private final static String HEX_DIGITS_REGEX = "[0-9A-Fa-f]([0-9A-Fa-f_]*[0-9A-Fa-f])?";
-    
+    private static final String DEFAULT_RANGE_START = lang.stride.Utility.class.getName() + "(";
+
     // fields is always 1 longer than operators. Always an StructuredSlotField in first and last position (which may be same, when size 1).
     protected final ProtectedList<StructuredSlotComponent> fields = new ProtectedList<>();
     // Operator 0 is between field 0 and field 1.  Operator N trails field N.
@@ -279,7 +280,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     
     private final StringProperty textProperty = new SimpleStringProperty();
     private final BooleanProperty previewingJavaRange = new SimpleBooleanProperty(false);
-    private final StringProperty startRangeText = new SimpleStringProperty(lang.stride.Utility.class.getName() + "(");
+    private final StringProperty startRangeText = new SimpleStringProperty(DEFAULT_RANGE_START);
     private final StringProperty endRangeText = new SimpleStringProperty(")");
     /**
      * The caret position for the start of the selection (null if and only if no selection)
