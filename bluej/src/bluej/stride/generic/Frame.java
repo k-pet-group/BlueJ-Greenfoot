@@ -1523,6 +1523,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     /**
      * Called when the editor font size has changed to redraw any overlays
      */
+    @OnThread(Tag.FXPlatform)
     public void fontSizeChanged()
     {
         header.fontSizeChanged();

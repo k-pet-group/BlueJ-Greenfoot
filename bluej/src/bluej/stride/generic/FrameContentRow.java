@@ -460,6 +460,7 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
     /**
      * Called when the editor font size has changed, to redraw the overlay
      */
+    @OnThread(Tag.FXPlatform)
     public void fontSizeChanged()
     {
         headerOverlay.redraw();

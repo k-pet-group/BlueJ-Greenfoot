@@ -1033,7 +1033,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             }
             else
             {
-                ed.updateFontSize();
+                JavaFXUtil.runPlatformLater(() -> ed.updateFontSize());
             }
         }
     }
@@ -2032,6 +2032,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private void updateFontSize()
     {
         // We don't bind because topLevelFrame may change
