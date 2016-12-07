@@ -687,7 +687,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.Swing)
-            public void compileFinished(boolean successful)
+            public void compileFinished(boolean successful, boolean classesKept)
             {
                 throw new UnsupportedOperationException();                
             }
@@ -1105,7 +1105,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void compileFinished(boolean successful)
+    public void compileFinished(boolean successful, boolean classesKept)
     {
         Platform.runLater(() -> {
             if (panel != null && panel.isWindowVisible())

@@ -919,6 +919,7 @@ public final class MoeEditor extends JPanel
                 }
             }
             errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
+            info.messageImportant(Config.getString("editor.info.compileError"));
             repaint();
         }
 
@@ -1086,11 +1087,19 @@ public final class MoeEditor extends JPanel
     }
 
     @Override
-    public void compileFinished(boolean successful)
+    public void compileFinished(boolean successful, boolean classesKept)
     {
-        // Compilation requested via the editor interface has completed
-        if (successful && isVisible()) {
-            info.messageImportant(Config.getString("editor.info.compiled"));
+        if (isVisible())
+        {
+            // Compilation requested via the editor interface has completed
+            if (successful && classesKept)
+            {
+                info.messageImportant(Config.getString("editor.info.compiled"));
+            }
+            else if (!successful)
+            {
+                info.messageImportant(Config.getString("editor.info.compileError"));
+            }
         }
     }
 

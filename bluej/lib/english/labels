@@ -302,6 +302,7 @@ editor.keypressed.callsTheFunction=calls the function "
 editor.info.version = Moe version
 editor.info.errorSaving = Error in saving file!
 editor.info.compiled = Class compiled - no syntax errors
+editor.info.compileError = Error(s) found in class
 editor.info.noChanges = No changes need to be saved
 editor.info.cannotReload = Can not reload - this text was never saved!
 editor.info.reload = (\"Reload\" reloads the last saved state from disk.)

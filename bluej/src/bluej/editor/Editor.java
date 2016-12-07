@@ -166,10 +166,11 @@ public interface Editor
     
     /**
      * Informs the editor that a compilation requested via the EditorWatcher interface has finished.
-     * 
+     *
      * @param successful   whether the compilation was successful
+     * @param classesKept
      */
-    void compileFinished(boolean successful);
+    void compileFinished(boolean successful, boolean classesKept);
 
     /**
      * All breakpoints have been cleared for this class, update the

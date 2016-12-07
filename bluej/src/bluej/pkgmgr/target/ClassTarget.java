@@ -488,8 +488,8 @@ public class ClassTarget extends DependentTarget
             @OnThread(Tag.Any) Project proj = getPackage().getProject();
             Platform.runLater(() -> proj.removeInspectorInstance(qualifiedName));
             
-            if (editor != null) {
-                editor.compileFinished(newState == State.COMPILED);
+            if (editor != null && newState != State.NEEDS_COMPILE) {
+                editor.compileFinished(newState == State.COMPILED, true);
             }
             
             // Notify extensions if necessary.
@@ -1387,7 +1387,7 @@ public class ClassTarget extends DependentTarget
             @Override
             public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
             {
-                editor.compileFinished(successful);
+                editor.compileFinished(successful, type.keepClasses());
             }
 
             @Override
