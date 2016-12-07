@@ -557,6 +557,23 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         event.consume();
                     }
                     break;
+
+
+                //This is a workaround for a JDK bug on Mac.
+                //'='/'-' don't work as menu accelerators.
+                //TODO Remove when the JDK bug is fixed
+                case EQUALS:
+                    if (Config.isMacOS() && event.isMetaDown()) {
+                        increaseFontSize();
+                    }
+                    break;
+                case MINUS:
+                    if (Config.isMacOS() && event.isMetaDown()) {
+                        decreaseFontSize();
+                    }
+                    break;
+
+
                 default:
                     if (event.getCode() == Config.getKeyCodeForYesNo(ShortcutKey.YES_ANYWHERE))
                     {
