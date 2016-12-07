@@ -25,6 +25,7 @@ package greenfoot;
  * A representation of a Font. The Font can be used to write text on the screen.
  *
  * @author Fabio Heday
+ * @author Amjad Altadmri
  */
 public class Font
 {
@@ -142,6 +143,18 @@ public class Font
     public int getSize()
     {
         return this.font.getSize();
+    }
+
+    /**
+     * Returns a new <code>Font</code> object obtained by deriving the
+     * <code>java.awt.Font font</code> field applying a new size to it.
+     *
+     * @param size the size for the new <code>Font</code>
+     * @return a new <code>Font</code> object.
+     */
+    public Font deriveFont(float size)
+    {
+        return new Font(font.deriveFont(size));
     }
 
     /**
