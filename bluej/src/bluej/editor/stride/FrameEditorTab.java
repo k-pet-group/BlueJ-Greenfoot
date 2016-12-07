@@ -2407,7 +2407,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         // When we detect focus gain, or whenever the size/position changes and node is focused,
         // make sure we remain visible:
-        node.focusedProperty().addListener((a, b, focused) -> {
+        JavaFXUtil.addFocusListener(node, focused -> {
             if (focused)
             {
                 node.localToSceneTransformProperty().addListener(listener);
@@ -2461,7 +2461,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         // We tell all frames which are not the focused frame
                         // that they lost focus in order to do actions such as save-recent
                         if (f != focusedFrame)
-                            JavaFXUtil.runPlatformLater(() -> f.lostFocus());
+                            f.lostFocus();
                     }
                     
                     
