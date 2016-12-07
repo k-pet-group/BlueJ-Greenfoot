@@ -156,9 +156,9 @@ public abstract class SingleLineFrame extends Frame
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void compiled()
+    public void lostFocus()
     {
-        super.compiled();
+        super.lostFocus();
         saveAsRecent();
     }
 
