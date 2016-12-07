@@ -2444,7 +2444,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                         // We tell all frames which are not the focused frame
                         // that they lost focus in order to do actions such as save-recent
                         if (f != focusedFrame)
-                            f.lostFocus();
+                            JavaFXUtil.runPlatformLater(() -> f.lostFocus());
                     }
                     
                     

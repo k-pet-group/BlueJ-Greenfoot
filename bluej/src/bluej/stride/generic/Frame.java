@@ -149,6 +149,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
     // Called when frame has lost direct focus (i.e. is not in its own slots; it could
     // be in the slots or canvas of a child frame).  Overridden in subclasses.
+    @OnThread(Tag.FXPlatform)
     public void lostFocus()
     {
         
