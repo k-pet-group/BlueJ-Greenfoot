@@ -56,7 +56,9 @@ public class NameDefSlotFragment extends TextSlotFragment
         if (!dest.substitute() || (content != null && Parser.parseableAsNameDef(content)))
             return content;
         else
-            return dummyNameGenerator.generateNewDummyName();
+        // This one may be sensitive to Java compiler implementation as to where the error is reported.
+        // But at least in 8u111 it reports on the #, which is within the slot, which is what we want:
+            return "invalid#";
     }
     
     @Override

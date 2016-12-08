@@ -168,8 +168,9 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
         // If we are code completing, use the exact text:
         if (!dest.substitute() || slot == completing || (getJavaCode() != null && Parser.parseableAsExpression(wrapForParse(getJavaCode()))))
             return getJavaCode();
-        
-        return "true";
+        else
+            // This is syntactically valid but semantically invalid so will do:
+            return "0!=true";
     }
     
     @Override

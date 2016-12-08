@@ -71,7 +71,8 @@ public class TypeSlotFragment extends StructuredSlotFragment
         if (!dest.substitute() || (content != null && Parser.parseableAsType(content)))
             return content;
         else
-            return "int";
+            // Just need an undefined type name, so pick a random one:
+            return dummyNameGenerator.generateNewDummyName();
     }
 
     @Override

@@ -2598,11 +2598,6 @@ public final class Package
 
                 if (newCompiledState)
                     t.markCompiled();
-                // Otherwise, if it's not compiled successfully, but we wanted to keep class files,
-                // delete the class file.  This covers the case where there are Stride errors but 
-                // no Java errors and thus we don't want to keep the class file:
-                else if (!newCompiledState && type.keepClasses())
-                    t.getClassFile().delete();
                 t.setQueued(false);
                 if (successful && t.editorOpen())
                     t.getEditor().setCompiled(true);
