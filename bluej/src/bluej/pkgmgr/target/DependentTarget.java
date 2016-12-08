@@ -142,12 +142,16 @@ public abstract class DependentTarget extends EditableTarget
     public synchronized void addDependencyOut(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
+            if (outUses.contains(d))
+                return;
             outUses.add((UsesDependency) d);
             if(recalc)
                 recalcOutUses();
         }
         else if((d instanceof ExtendsDependency)
                 || (d instanceof ImplementsDependency)) {
+            if (parents.contains(d))
+                return;
             parents.add(d);
         }
     }
@@ -156,12 +160,16 @@ public abstract class DependentTarget extends EditableTarget
     public synchronized void addDependencyIn(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
+            if (inUses.contains(d))
+                return;
             inUses.add((UsesDependency) d);
             if(recalc)
                 recalcInUses();
         }
         else if((d instanceof ExtendsDependency)
                 || (d instanceof ImplementsDependency)) {
+            if (children.contains(d))
+                return;
             children.add(d);
         }
     }

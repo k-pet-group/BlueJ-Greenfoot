@@ -748,14 +748,7 @@ public final class Package
                 try
                 {
                     UsesDependency newDep = new UsesDependency(this, lastSavedProps, "dependency" + (i + 1));
-                    if (getEditor() != null)
-                    {
-                        getEditor().addDependency(newDep, false);
-                    }
-                    else
-                    {
-                        pendingDeps.add(newDep);
-                    }
+                    addDependency(newDep, false);
                 }
                 catch (Dependency.DependencyNotFoundException e)
                 {
@@ -1070,8 +1063,17 @@ public final class Package
         props.putAll(frameProperties);
 
         // save targets and dependencies in package
+        List<Dependency> usesArrows;
         if (editor != null)
-            props.put("package.numDependencies", String.valueOf(editor.getUsesArrows().size()));
+            usesArrows = editor.getUsesArrows();
+        else
+        {
+            usesArrows = new ArrayList<>();
+            // Just add outbound dependencies to make sure we don't duplicate:
+            for (ClassTarget ct : getClassTargets())
+                usesArrows.addAll(ct.usesDependencies());
+        }
+        props.put("package.numDependencies", String.valueOf(usesArrows.size()));
 
         int t_count = 0;
 
@@ -1091,13 +1093,11 @@ public final class Package
         Target t = getTarget(ReadmeTarget.README_ID);
         t.save(props, "readme");
 
-        if (editor != null)
-        {
-            for (int i = 0; i < editor.getUsesArrows().size(); i++)
-            { // uses arrows
-                Dependency d = editor.getUsesArrows().get(i);
-                d.save(props, "dependency" + (i + 1));
-            }
+
+        for (int i = 0; i < usesArrows.size(); i++)
+        { // uses arrows
+            Dependency d = usesArrows.get(i);
+            d.save(props, "dependency" + (i + 1));
         }
 
         try {
@@ -1108,8 +1108,6 @@ public final class Package
             return;
         }
         lastSavedProps = props;
-
-        return;
     }
 
     /**
@@ -2882,10 +2880,15 @@ public final class Package
 
     public void addDependency(Dependency dependency)
     {
+        addDependency(dependency, dependency instanceof UsesDependency);
+    }
+    
+    public void addDependency(Dependency dependency, boolean recalc)
+    {
         if (editor != null)
-            editor.addDependency(dependency, dependency instanceof UsesDependency);
+            editor.addDependency(dependency, recalc);
         else if (Config.isGreenfoot())
-            PackageEditor.addDependencyHeadless(dependency, dependency instanceof UsesDependency, this);
+            PackageEditor.addDependencyHeadless(dependency, recalc, this);
         else
             pendingDeps.add(dependency);
     }
