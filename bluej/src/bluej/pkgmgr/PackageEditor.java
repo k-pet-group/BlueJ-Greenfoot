@@ -857,7 +857,8 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         DependentTarget from = d.getFrom();
         DependentTarget to = d.getTo();
 
-        if (from == null || to == null) {
+        if (from == null || to == null)
+        {
             // Debug.reportError("Found invalid dependency - ignored.");
             return;
         }
@@ -871,11 +872,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
                 {
                     usesArrows.get(index).setFlag(true);
                     return;
-                }
-                else
-                    usesArrows.add((UsesDependency)d);
-            }
-            else
+                } else
+                    usesArrows.add((UsesDependency) d);
+            } else
             {
                 if (extendsArrows.contains(d))
                     return;
@@ -883,14 +882,20 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
                     extendsArrows.add(d);
             }
         }
-
+        addDependencyHeadless(d, recalc, pkg);
+    }
+    
+    public static void addDependencyHeadless(Dependency d, boolean recalc, Package thePkg)
+    {
+        DependentTarget from = d.getFrom();
+        DependentTarget to = d.getTo();
         Platform.runLater(() -> {
             from.addDependencyOut(d, recalc);
             to.addDependencyIn(d, recalc);
         });
 
         // Inform all listeners about the added dependency
-        DependencyEvent event = new DependencyEvent(d, pkg, DependencyEvent.Type.DEPENDENCY_ADDED);
+        DependencyEvent event = new DependencyEvent(d, thePkg, DependencyEvent.Type.DEPENDENCY_ADDED);
         ExtensionsManager.getInstance().delegateEvent(event);
     }
 
@@ -908,7 +913,11 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             else
                 extendsArrows.remove(d);
         }
+        removeDependencyHeadless(d, recalc, pkg);
+    }
 
+    public static void removeDependencyHeadless(Dependency d, boolean recalc, Package thePkg)
+    {
         DependentTarget from = d.getFrom();
         DependentTarget to = d.getTo();
         
@@ -918,7 +927,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         });
 
         // Inform all listeners about the removed dependency
-        DependencyEvent event = new DependencyEvent(d, pkg, DependencyEvent.Type.DEPENDENCY_REMOVED);
+        DependencyEvent event = new DependencyEvent(d, thePkg, DependencyEvent.Type.DEPENDENCY_REMOVED);
         ExtensionsManager.getInstance().delegateEvent(event);
     }
 

@@ -148,14 +148,6 @@ public final class Package
     public static final int CREATE_ERROR = 5;
     private final List<Dependency> pendingDeps = new ArrayList<>();
 
-    public void addDependency(Dependency dependency)
-    {
-        if (editor != null)
-            editor.addDependency(dependency, dependency instanceof UsesDependency);
-        else
-            pendingDeps.add(dependency);
-    }
-
     /** Reason code for displaying source line */
     private enum ShowSourceReason
     {
@@ -1731,7 +1723,7 @@ public final class Package
             if (!(d instanceof UsesDependency)) {
                 userRemoveDependency(d);
             }
-            getEditor().removeDependency(d, true);
+            removeDependency(d, true);
             Platform.runLater(() -> {getEditor().graphChanged();});
         });
     }
@@ -2885,5 +2877,26 @@ public final class Package
             return SourceType.Stride;
         else
             return SourceType.Java;
+    }
+
+
+    public void addDependency(Dependency dependency)
+    {
+        if (editor != null)
+            editor.addDependency(dependency, dependency instanceof UsesDependency);
+        else if (Config.isGreenfoot())
+            PackageEditor.addDependencyHeadless(dependency, dependency instanceof UsesDependency, this);
+        else
+            pendingDeps.add(dependency);
+    }
+    
+    public void removeDependency(Dependency dependency, boolean recalc)
+    {
+        if (editor != null)
+            editor.removeDependency(dependency, recalc);
+        else if (Config.isGreenfoot())
+            PackageEditor.removeDependencyHeadless(dependency, recalc, this);
+        else if (!pendingDeps.remove(dependency))
+            Debug.printCallStack("Error: trying to remove non-existent dependency with no package editor available: " + dependency);
     }
 }

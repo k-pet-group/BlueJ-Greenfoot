@@ -267,7 +267,7 @@ public abstract class DependentTarget extends EditableTarget
             Dependency[] outUsesArray = new Dependency[outUses.size()];
             outUses.toArray(outUsesArray);
             for(int i = 0; i < outUsesArray.length ; i++) {
-                getPackage().getEditor().removeDependency(outUsesArray[i], false);
+                getPackage().removeDependency(outUsesArray[i], false);
             }
         }
 
@@ -288,7 +288,7 @@ public abstract class DependentTarget extends EditableTarget
             Dependency[] parentsArray = new Dependency[ parents.size() ];
             parents.toArray(parentsArray);
             for(int i = 0; i < parentsArray.length ; i++)
-                getPackage().getEditor().removeDependency(parentsArray[i], false);
+                getPackage().removeDependency(parentsArray[i], false);
         }
     }
 
@@ -308,7 +308,7 @@ public abstract class DependentTarget extends EditableTarget
             Dependency[] inUsesArray = new Dependency[ inUses.size() ];
             inUses.toArray(inUsesArray);
             for(int i = 0; i < inUsesArray.length ; i++)
-                getPackage().getEditor().removeDependency(inUsesArray[i], false);
+                getPackage().removeDependency(inUsesArray[i], false);
         }
 
         // delete dependencies to child classes
@@ -316,7 +316,7 @@ public abstract class DependentTarget extends EditableTarget
             Dependency[] childrenArray = new Dependency[ children.size() ];
             children.toArray(childrenArray);
             for(int i = 0; i < childrenArray.length ; i++)
-                getPackage().getEditor().removeDependency(childrenArray[i], false);
+                getPackage().removeDependency(childrenArray[i], false);
         }
     }
 
