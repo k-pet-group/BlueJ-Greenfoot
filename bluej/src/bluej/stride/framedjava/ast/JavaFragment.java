@@ -51,9 +51,15 @@ public abstract class JavaFragment
         /** Source will be as-is, and no positions recorded */
         TEMPORARY; 
         
+        // Should we substitute invalid code (e.g. empty variable name in declaration) for valid code?
         public boolean substitute()
         {
-            return this == SOURCE_DOC_TO_ANALYSE;
+            // Previously we only subsituted when doing code completion and not when compiling properly,
+            // because substitution can turn invalid code into valid code.
+            // Now we now allow code substitution in all cases, but we monitor code for early errors,
+            // and if there's an early error we delete the class file, to prevent substitution causing 
+            // successful compilation in the presence of errors: 
+            return true;
         }
     };
     
