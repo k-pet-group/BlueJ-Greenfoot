@@ -148,7 +148,7 @@ public class CallFrame extends SingleLineFrame
     @Override
     public void checkForEmptySlot()
     {
-        if (isAlmostBlank())
+        if (content.isEmpty())
         {
             deleteOurselves();
         }
