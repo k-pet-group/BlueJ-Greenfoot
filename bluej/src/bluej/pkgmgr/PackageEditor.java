@@ -884,7 +884,8 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
         addDependencyHeadless(d, recalc, pkg);
     }
-    
+
+    @OnThread(Tag.Swing)
     public static void addDependencyHeadless(Dependency d, boolean recalc, Package thePkg)
     {
         DependentTarget from = d.getFrom();
@@ -916,6 +917,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         removeDependencyHeadless(d, recalc, pkg);
     }
 
+    @OnThread(Tag.Swing)
     public static void removeDependencyHeadless(Dependency d, boolean recalc, Package thePkg)
     {
         DependentTarget from = d.getFrom();

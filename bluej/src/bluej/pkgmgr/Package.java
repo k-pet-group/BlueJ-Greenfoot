@@ -1847,6 +1847,7 @@ public final class Package
      * Returns an ArrayList of ClassTargets holding all targets of this package.
      * @return a not null but possibly empty array list of ClassTargets for this package.
      */
+    @OnThread(Tag.Any)
     public synchronized final ArrayList<ClassTarget> getClassTargets()
     {
         ArrayList<ClassTarget> risul = new ArrayList<ClassTarget>();
@@ -2880,8 +2881,9 @@ public final class Package
     
     public void addDependency(Dependency dependency, boolean recalc)
     {
-        if (editor != null)
-            editor.addDependency(dependency, recalc);
+        PackageEditor ed = getEditor();
+        if (ed != null)
+            ed.addDependency(dependency, recalc);
         else if (Config.isGreenfoot())
             PackageEditor.addDependencyHeadless(dependency, recalc, this);
         else
@@ -2890,8 +2892,9 @@ public final class Package
     
     public void removeDependency(Dependency dependency, boolean recalc)
     {
-        if (editor != null)
-            editor.removeDependency(dependency, recalc);
+        PackageEditor ed = getEditor();
+        if (ed != null)
+            ed.removeDependency(dependency, recalc);
         else if (Config.isGreenfoot())
             PackageEditor.removeDependencyHeadless(dependency, recalc, this);
         else if (!pendingDeps.remove(dependency))
