@@ -1820,6 +1820,18 @@ public class PkgMgrFrame
 
             pmf.setVisible(true);
 
+            if (Config.isGreenfoot())
+            {
+                for (PkgMgrFrame pkgMgrFrame : getAllFrames())
+                {
+                    if (Config.isGreenfootStartupProject(pkgMgrFrame.getProject().getProjectDir()))
+                    {
+                        Platform.runLater(() -> pkgMgrFrame.doClose(false, false));
+                        break; // Will only be one, and don't want concurrent modification exception
+                    }
+                }
+            }
+
             return true;
         }
     }
