@@ -51,7 +51,7 @@
     <property name="greenfoot.version.nosuffix" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
 
     <!-- Suffix added after version number in output files -->
-    <property name="greenfoot.rcsuffix" value="-rc5"/>
+    <property name="greenfoot.rcsuffix" value="-rc1"/>
 
     <!-- Location of the bluej lib dir -->
     <property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
