@@ -453,7 +453,7 @@
         <delete dir="winsetup/SourceDir" />
     </target>
 
-	<target name="windows-msi-bundled-dist" depends="dist">
+	<target name="windows-msi-bundled-dist" depends="dist,windows-launcher">
 		<delete dir="winsetup/SourceDir" />
 		<delete dir="winsetup" includes="*.wixobj" />
 		<unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
