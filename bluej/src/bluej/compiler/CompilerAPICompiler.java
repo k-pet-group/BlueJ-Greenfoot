@@ -126,7 +126,17 @@ public class CompilerAPICompiler extends Compiler
                     if (diag.getEndPosition() == Diagnostic.NOPOS) {
                         endCol = beginCol;
                     }
-                    bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
+                    // It turns out that sometimes (not sure if bug or feature) java can
+                    // give back a diagnostic with a line number of -1.  In the case I've seen
+                    // (see GREENFOOT-596), it givens an error with -1 "'void' type not allowed here"
+                    // then gives a second error with actual line number and more helpful message
+                    // "bad operand types for binary operator '+'".  So I think we can just ignore
+                    // the -1 error instead of trying to display it:
+                    
+                    if (diag.getLineNumber() == -1)
+                        bjDiagnostic = null;
+                    else
+                        bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
                             diag.getLineNumber(), endCol, getNewErrorIdentifer());
                 }
@@ -166,7 +176,8 @@ public class CompilerAPICompiler extends Compiler
                     }
                 }
                 
-                observer.compilerMessage(bjDiagnostic, type);
+                if (bjDiagnostic != null)
+                    observer.compilerMessage(bjDiagnostic, type);
             }
         };
         
