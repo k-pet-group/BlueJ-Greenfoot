@@ -59,6 +59,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -671,6 +672,7 @@ public final class Terminal
             window.setTitle(title);
             MenuBar fxMenuBar = makeFXMenuBar.get();
             fxMenuBar.setUseSystemMenuBar(true);
+            VBox.setVgrow(swingNode, Priority.ALWAYS);
             window.setScene(new Scene(new VBox(fxMenuBar, swingNode)));
 
             // Close Action when close button is pressed
