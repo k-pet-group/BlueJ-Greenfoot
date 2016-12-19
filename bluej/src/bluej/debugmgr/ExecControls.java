@@ -82,6 +82,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -213,6 +214,7 @@ public class ExecControls
             window.setTitle(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
             BlueJTheme.setWindowIconFX(window);
             this.swingNode = new SwingNodeFixed();
+            VBox.setVgrow(swingNode, Priority.ALWAYS);
             this.fxContent = new VBox(swingNode);
             // Menu bar will be added later:
             window.setScene(new Scene(fxContent));
