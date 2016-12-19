@@ -46,7 +46,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1415,8 +1417,11 @@ public class Utility
         reader.close();
         // Only need to actually overwrite if we made a change:
         if (removedOne)
-            tempFile.renameTo(inputFile);
-        
+        {
+            // Make a backup; don't want to risk losing user's code during the conversion:
+            Files.move(fromFile, fromFile.resolveSibling(fromFile.getFileName() + ".bak"));
+            Files.move(tempFile.toPath(), fromFile, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 
     @FunctionalInterface

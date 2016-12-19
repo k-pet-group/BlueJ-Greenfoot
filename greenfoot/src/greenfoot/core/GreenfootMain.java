@@ -645,7 +645,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             try
             {
                 Files.find(projectDir.toPath(), 1, (path, attr) -> attr.isRegularFile() && javaMatcher.matches(path)).forEach(javaFile -> {
-                    Debug.message("Found file: " + javaFile);
                     try
                     {
                         Utility.removeLine(javaFile, s -> s.matches("\\s*import\\s+java\\.awt\\.(Color|Font)\\s*;\\s*"));
