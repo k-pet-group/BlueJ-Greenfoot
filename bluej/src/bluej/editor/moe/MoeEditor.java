@@ -4379,7 +4379,14 @@ public final class MoeEditor extends JPanel
 
                 SwingUtilities.invokeLater(() ->
                 {
-                    codeCompletionDlg.requestFocus();
+                    if (!Config.isMacOS())
+                    {
+                        // On Mac OS X, we don't need to request focus for the window, and if we do,
+                        // it causes code completion to go "dead", where keys have no effect until you
+                        // click the window.  On Windows, conversely, we have that problem if we *don't*
+                        // request focus!
+                        codeCompletionDlg.requestFocus();
+                    }
                     codeCompletionDlg.setReady(true);
 
                 });
