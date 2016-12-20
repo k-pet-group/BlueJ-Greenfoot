@@ -668,6 +668,8 @@ public final class Terminal
         FXPlatformSupplier<MenuBar> makeFXMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), mainPanel);
         Platform.runLater(() -> {
             window = new Stage();
+            window.setWidth(500);
+            window.setHeight(500);
             BlueJTheme.setWindowIconFX(window);
             window.setTitle(title);
             MenuBar fxMenuBar = makeFXMenuBar.get();
@@ -702,7 +704,7 @@ public final class Terminal
      */
     private void createErrorPane()
     {
-        errorText = new TermTextArea(Config.isGreenfoot() ? 20 : 5, 80, null, project, this, true);
+        errorText = new TermTextArea(Config.isGreenfoot() ? 15 : 5, 80, null, project, this, true);
         errorScrollPane = new JScrollPane(errorText);
         errorText.setFont(getTerminalFont());
         errorText.setEditable(false);
