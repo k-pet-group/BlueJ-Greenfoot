@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.parser.lexer.JavaTokenTypes;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.UnknownTypeError;
 import bluej.stride.generic.AssistContentThreadSafe;
@@ -71,16 +72,20 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
         
         Parser.parseAsExpression(new JavaParser(new StringReader(wrapForParse(this.getJavaCode())), false)
         {
+            // Used to ignore the method name following the "::" method reference operator:
+            boolean ignoreNext = false;
             @Override
             protected void gotIdentifier(LocatableToken token)
             {
-                plains.add(unwrapForParse(token));
+                if (!ignoreNext)
+                    plains.add(unwrapForParse(token));
+                ignoreNext = false;
             }
 
             @Override
             protected void gotIdentifierEOF(LocatableToken token)
             {
-                plains.add(unwrapForParse(token));
+                gotIdentifier(token);
             }
 
             @Override
@@ -93,6 +98,13 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
             protected void gotParentIdentifier(LocatableToken token)
             {
                 // Stop it calling gotIdentifier
+            }
+
+            @Override
+            protected void gotBinaryOperator(LocatableToken token)
+            {
+                if (token.getType() == JavaTokenTypes.METHOD_REFERENCE)
+                    ignoreNext = true;
             }
 
             @Override
