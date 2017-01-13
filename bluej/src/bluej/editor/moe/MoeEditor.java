@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -59,6 +59,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -89,6 +90,7 @@ import bluej.compiler.CompileType;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
+import bluej.parser.ImportsCollection;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -4328,6 +4330,41 @@ public final class MoeEditor extends JPanel
         }
         catch (IOException ioe) {
             Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
+        }
+    }
+
+    @Override
+    public void removeImports(List<String> importTargets)
+    {
+        List<ImportsCollection.LocatableImport> toRemove = new ArrayList<>();
+        for (String importTarget : importTargets)
+        {
+            ImportsCollection.LocatableImport details = getParsedNode().getImports().getImportInfo(importTarget);
+            
+            if (details != null)
+            {
+                toRemove.add(details);
+            }
+        }
+        
+        // Sort in reverse order of position, so that we can go down the list
+        // and remove in turn without a removal affecting a later removal.
+        // Hence we sort by negative start value:
+        Collections.sort(toRemove, Comparator.comparing(t -> -t.getStart()));
+
+        for (ImportsCollection.LocatableImport locatableImport : toRemove)
+        {
+            if (locatableImport.getStart() != -1)
+            {
+                try
+                {
+                    getSourcePane().getDocument().remove(locatableImport.getStart(), locatableImport.getLength());
+                }
+                catch (BadLocationException e)
+                {
+                    Debug.reportError(e);
+                }
+            }
         }
     }
 

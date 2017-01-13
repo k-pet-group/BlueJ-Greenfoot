@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -95,7 +95,7 @@ public class CodepadImportParser extends JavaParser
     }
 
     @Override
-    protected void gotImport(List<LocatableToken> tokens, boolean isStatic)
+    protected void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken)
     {
         importIsStatic = isStatic;
         
@@ -125,7 +125,7 @@ public class CodepadImportParser extends JavaParser
     
     @Override
     protected void gotWildcardImport(List<LocatableToken> tokens,
-            boolean isStatic)
+                                     boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken)
     {
         importEntity = getEntityForTokens(tokens);
         importIsWildcard = true;

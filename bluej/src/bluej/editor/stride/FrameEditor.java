@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -768,6 +768,12 @@ public class FrameEditor implements Editor
             {
                 FrameEditor.this.removeExtendsOrImplementsInterface(interfaceName, classInfo);
             }
+
+            @Override
+            public void removeImports(List<String> importTargets)
+            {
+                FrameEditor.this.removeImports(importTargets);
+            }
         };
     }
 
@@ -1260,7 +1266,18 @@ public class FrameEditor implements Editor
             panel.insertMethodCallInConstructor(className, methodName, after);
         });
     }
-    
+
+    @Override
+    public void removeImports(List<String> importTargets)
+    {
+        Platform.runLater(() -> {
+            if (panel == null) {
+                createPanel(false, false);
+            }
+            panel.removeImports(importTargets);
+        });
+    }
+
     @OnThread(Tag.FX)
     public TopLevelCodeElement getSource()
     {

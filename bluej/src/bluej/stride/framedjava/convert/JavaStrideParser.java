@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2017 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1275,16 +1275,16 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void gotImport(List<LocatableToken> tokens, boolean isStatic)
+    protected void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken)
     {
-        super.gotImport(tokens, isStatic);
+        super.gotImport(tokens, isStatic, importToken, semiColonToken);
         imports.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()));
     }
 
     @Override
-    protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic)
+    protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken)
     {
-        super.gotWildcardImport(tokens, isStatic);
+        super.gotWildcardImport(tokens, isStatic, importToken, semiColonToken);
         imports.add(tokens.stream().map(LocatableToken::getText).collect(Collectors.joining()) + ".*");
     }
 

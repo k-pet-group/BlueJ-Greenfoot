@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -62,6 +62,7 @@ import bluej.stride.framedjava.ast.links.PossibleMethodUseLink;
 import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.ast.links.PossibleVarLink;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
+import bluej.stride.framedjava.frames.ImportFrame;
 import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.stride.generic.ExtensionDescription;
@@ -2137,6 +2138,27 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void withTypes(BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler)
     {
         withTypes(null, true, Kind.all(), handler);
+    }
+    
+    public void removeImports(List<String> importTargets)
+    {
+        withTopLevelFrame(topLevelFrame -> JavaFXUtil.runNowOrLater(() -> {
+            // Take a copy because we're going to remove:
+            FrameCanvas importCanvas = topLevelFrame.getImportCanvas();
+            List<Frame> frames = new ArrayList<>(importCanvas.getBlockContents());
+            for (Frame frame : frames)
+            {
+                if (frame instanceof ImportFrame)
+                {
+                    ImportFrame importFrame = (ImportFrame)frame;
+                    
+                    if (importTargets.contains(importFrame.getImport()))
+                    {
+                        importCanvas.removeBlock(importFrame);
+                    }
+                }
+            }
+        }));
     }
     
     public void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after)

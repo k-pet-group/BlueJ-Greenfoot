@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2015,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,18 @@
  */
 package rmiextension;
 
+import bluej.extensions.BClass;
+import bluej.extensions.editor.Editor;
+import bluej.extensions.editor.EditorBridge;
 import greenfoot.core.GreenfootLauncherDebugVM;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
 
+import java.awt.*;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,11 +131,25 @@ public class ProjectManager
             // The project must have closed in the meantime
             return;
         }
-        int versionOK = checkVersion(projectDir);
-        if (versionOK != GreenfootMain.VERSION_BAD) {
+        GreenfootMain.VersionCheckInfo versionOK = checkVersion(projectDir);
+        if (versionOK.versionInfo != GreenfootMain.VersionInfo.VERSION_BAD) {
             try {
-                if (versionOK == GreenfootMain.VERSION_UPDATED) {
+                if (versionOK.versionInfo == GreenfootMain.VersionInfo.VERSION_UPDATED) {
                     project.getPackage("").reload();
+                    if (versionOK.removeAWTImports)
+                    {
+                        for (BClass bClass : project.getPackage("").getClasses())
+                        {
+                            Editor bClassEditor = bClass.getEditor();
+                            EventQueue.invokeLater(() -> {
+                                bluej.editor.Editor ed = EditorBridge.getEditor(bClassEditor);
+                                ed.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
+                            });
+                        }
+                        project.getPackage("").scheduleCompilation(true);
+                    }
+                    
+                    
                 }
 
                 // Add debugger listener. The listener will launch Greenfoot once the
@@ -272,7 +291,7 @@ public class ProjectManager
      * @param projectDir Directory of the project.
      * @return one of GreenfootMain.VERSION_OK, VERSION_UPDATED or VERSION_BAD
      */
-    private int checkVersion(File projectDir)
+    private GreenfootMain.VersionCheckInfo checkVersion(File projectDir)
     {
         if(isNewProject(projectDir)) {
             ProjectProperties newProperties = new ProjectProperties(projectDir);

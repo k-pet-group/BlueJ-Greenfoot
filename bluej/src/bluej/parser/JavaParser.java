@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -507,9 +507,9 @@ public class JavaParser
     
     protected void gotArrayElementAccess() { }
     
-    protected void gotImport(List<LocatableToken> tokens, boolean isStatic) { }
+    protected void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) { }
     
-    protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic) { }
+    protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) { }
     
     /**
      * We've seen a constructor declaration. The token supplied is the constructor name.
@@ -704,8 +704,9 @@ public class JavaParser
         }
     }
     
-    public void parseImportStatement(LocatableToken token)
+    public void parseImportStatement(final LocatableToken importToken)
     {
+        LocatableToken token = importToken;
         beginElement(token);
         boolean isStatic = false;
         token = tokenStream.nextToken();
@@ -738,7 +739,7 @@ public class JavaParser
                             lastToken.getEndLine(), lastToken.getEndColumn());
                 }
                 else {
-                    gotWildcardImport(tokens, isStatic);
+                    gotWildcardImport(tokens, isStatic, importToken, token);
                     gotImportStmtSemi(token);
                 }
             }
@@ -757,7 +758,7 @@ public class JavaParser
                         lastIdentToken.getEndLine(), lastIdentToken.getEndColumn());
             }
             else {
-                gotImport(tokens, isStatic);
+                gotImport(tokens, isStatic, importToken, token);
                 gotImportStmtSemi(token);
             }
         }

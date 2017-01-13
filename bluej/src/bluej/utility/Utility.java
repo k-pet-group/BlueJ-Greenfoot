@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1390,38 +1390,6 @@ public class Utility
     {
         // Simplest implementation I could think of:
         return 0.5 + Math.round(x - 0.5);
-    }
-
-    public static void removeLine(Path fromFile, Predicate<String> removeLine) throws IOException
-    {
-        File inputFile = fromFile.toFile();
-        File tempFile = File.createTempFile("bluej", "tmp");
-
-        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-
-        String currentLine;
-        boolean removedOne = false;
-
-        while((currentLine = reader.readLine()) != null) {
-            // trim newline when comparing with lineToRemove
-            String trimmedLine = currentLine.trim();
-            if (!removeLine.test(trimmedLine))
-            {
-                writer.write(currentLine + System.getProperty("line.separator"));
-            }
-            else
-                removedOne = true;
-        }
-        writer.close();
-        reader.close();
-        // Only need to actually overwrite if we made a change:
-        if (removedOne)
-        {
-            // Make a backup; don't want to risk losing user's code during the conversion:
-            Files.move(fromFile, fromFile.resolveSibling(fromFile.getFileName() + ".bak"));
-            Files.move(tempFile.toPath(), fromFile, StandardCopyOption.REPLACE_EXISTING);
-        }
     }
 
     @FunctionalInterface

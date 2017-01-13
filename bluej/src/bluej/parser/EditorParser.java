@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -371,7 +371,7 @@ public class EditorParser extends JavaParser
     }
 
     @Override
-    protected void gotImport(List<LocatableToken> tokens, boolean isStatic)
+    protected void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken)
     {
         EntityResolver parentResolver = pcuNode.getParentResolver();
         if (parentResolver == null) {
@@ -397,7 +397,7 @@ public class EditorParser extends JavaParser
                     currentQuerySource(), newList);
             TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
             if (tentity != null) {
-                pcuNode.getImports().addStaticImport(memberName, tentity);
+                pcuNode.getImports().addStaticImport(memberName, tentity, importToken, semiColonToken);
             }
         }
         else {
@@ -405,14 +405,14 @@ public class EditorParser extends JavaParser
             JavaEntity entity = ParseUtils.getImportEntity(parentResolver,
                     currentQuerySource(), tokens);
             if (entity != null) {
-                pcuNode.getImports().addNormalImport(memberName, entity);
+                pcuNode.getImports().addNormalImport(memberName, entity, importToken, semiColonToken);
             }
         }
     }
     
     @Override
     protected void gotWildcardImport(List<LocatableToken> tokens,
-            boolean isStatic)
+                                     boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken)
     {
         EntityResolver parentResolver = pcuNode.getParentResolver();
         if (parentResolver == null) {
@@ -425,12 +425,12 @@ public class EditorParser extends JavaParser
             return;
         }
         if (! isStatic) {
-            pcuNode.getImports().addWildcardImport(importEntity);
+            pcuNode.getImports().addWildcardImport(importEntity, importToken, semiColonToken);
         }
         else {
             TypeEntity tentity = importEntity.resolveAsType();
             if (tentity != null) {
-                pcuNode.getImports().addStaticWildcardImport(tentity);
+                pcuNode.getImports().addStaticWildcardImport(tentity, importToken, semiColonToken);
             }
         }
     }

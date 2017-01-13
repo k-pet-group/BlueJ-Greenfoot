@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.editor;
 
 import java.awt.print.PrinterJob;
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Consumer;
 
 import bluej.compiler.CompileType;
@@ -296,4 +297,10 @@ public interface Editor
      */
     void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo);
 
+    /**
+     * Removes any imports that exactly match the given imports (e.g. java,awt,Color, java.util.*)
+     * 
+     * Other imports which may overlap (e.g. java.awt.*, java.util.List) will not be altered.
+     */
+    void removeImports(List<String> importTargets);
 }

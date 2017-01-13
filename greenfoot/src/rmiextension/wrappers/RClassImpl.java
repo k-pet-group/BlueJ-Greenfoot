@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.util.List;
 
 import bluej.editor.moe.MoeEditor;
 import bluej.editor.moe.MoeIndent;
@@ -348,7 +349,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         EventQueue.invokeLater(() -> {
             MoeEditor bje = (MoeEditor) EditorBridge.getEditor(e);
             MoeSyntaxDocument doc = bje.getSourceDocument();
-
+            
             MoeIndent.calculateIndentsAndApply(doc,0);
         });
     }
@@ -357,5 +358,15 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     public void cancelFreshState() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         bClass.getEditor().cancelFreshState();
+    }
+
+    @Override
+    public void removeImports(List<String> importTargets) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        final Editor bClassEditor = bClass.getEditor();
+        EventQueue.invokeLater(() -> {
+            bluej.editor.Editor ed = EditorBridge.getEditor(bClassEditor);
+            ed.removeImports(importTargets);
+        });
     }
 }

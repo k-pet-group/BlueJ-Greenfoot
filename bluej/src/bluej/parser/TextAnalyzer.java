@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -306,22 +306,22 @@ public class TextAnalyzer
             if (parser.isStaticImport()) {
                 if (parser.isWildcardImport()) {
                     imports.addStaticWildcardImport(parser.getImportEntity()
-                            .resolveAsType());
+                            .resolveAsType(), null, null);
                 }
                 else {
                     imports.addStaticImport(parser.getMemberName(),
-                            parser.getImportEntity().resolveAsType());
+                            parser.getImportEntity().resolveAsType(), null, null);
                 }
             }
             else {
                 if (parser.isWildcardImport()) {
-                    imports.addWildcardImport(parser.getImportEntity().resolveAsPackageOrClass());
+                    imports.addWildcardImport(parser.getImportEntity().resolveAsPackageOrClass(), null, null);
                 }
                 else {
                     JavaEntity importEntity = parser.getImportEntity();
                     TypeEntity classEnt = importEntity.resolveAsType();
                     String name = classEnt.getType().toString(true);
-                    imports.addNormalImport(name, classEnt);
+                    imports.addNormalImport(name, classEnt, null, null);
                 }
             }
         }

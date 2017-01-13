@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2013,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package greenfoot.core;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
+import bluej.extensions.CompilationNotStartedException;
 import greenfoot.ObjectTracker;
 import greenfoot.actions.NewSubWorldAction;
 import greenfoot.event.ActorInstantiationListener;
@@ -49,6 +50,7 @@ import java.rmi.RemoteException;
 import java.rmi.ServerError;
 import java.rmi.ServerException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -87,13 +89,25 @@ import bluej.views.View;
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
-    /* Constants for return from updateApi method */
-    /** The project API version matches the greenfoot API version */
-    public static final int VERSION_OK = 0;
-    /** The project API version was different, and has been updated */
-    public static final int VERSION_UPDATED = 1;
-    /** The project was not a greenfoot project, or the user chose to cancel the open */
-    public static final int VERSION_BAD = 2;
+    public static enum VersionInfo {
+        /** The project API version matches the greenfoot API version */
+        VERSION_OK,
+        /** The project API version was different, and has been updated */
+        VERSION_UPDATED,
+        /** The project was not a greenfoot project, or the user chose to cancel the open */
+        VERSION_BAD }
+    
+    public static class VersionCheckInfo
+    {
+        public final VersionInfo versionInfo;
+        public final boolean removeAWTImports;
+
+        public VersionCheckInfo(VersionInfo versionInfo, boolean removeAWTImports)
+        {
+            this.removeAWTImports = removeAWTImports;
+            this.versionInfo = versionInfo;
+        }
+    }
 
     /** Version of the API for this Greenfoot release. */
     private static Version version = null;
@@ -361,22 +375,29 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
                 
-        int versionStatus = GreenfootMain.updateApi(projectDirFile, frame, getAPIVersion().toString());
-        boolean doOpen = versionStatus != VERSION_BAD;
+        VersionCheckInfo versionStatus = GreenfootMain.updateApi(projectDirFile, frame, getAPIVersion().toString());
+        boolean doOpen = versionStatus.versionInfo != VersionInfo.VERSION_BAD;
         if (doOpen) {
             RProject proj = rBlueJ.openProject(projectDirFile);
 
-            if (autoIndentAllFiles) {
+            if (autoIndentAllFiles || versionStatus.removeAWTImports) {
                 try {
                     for (RPackage pkg : proj.getPackages()) {
                         for (RClass cls : pkg.getRClasses()) {
-                            cls.autoIndent();
+                            if (autoIndentAllFiles)
+                                cls.autoIndent();
+                            if (versionStatus.removeAWTImports)
+                            {
+                                cls.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
+                            }
                         }
                     }
+                    proj.getPackage("").compileAll();
                 // If there any problems, never mind about it:
                 }
                 catch(ProjectNotOpenException e) { }
                 catch (PackageNotFoundException e) { }
+                catch (CompilationNotStartedException e) { }
             }
 
             // if this is the dummy startup project and there is a valid project to open, close it now
@@ -591,7 +612,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      *            needing a recompile in the Greenfoot class browser.
      */
     private static void prepareGreenfootProject(File greenfootLibDir, File projectDir,
-            ProjectProperties p, boolean deleteClassFiles, String greenfootApiVersion, boolean removeAWTImports)
+            ProjectProperties p, boolean deleteClassFiles, String greenfootApiVersion)
     {
         if (isStartupProject(greenfootLibDir, projectDir)) {
             return;
@@ -633,52 +654,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
         catch (SecurityException e) {
             Debug.reportError("SecurityException when trying to create images/sounds directories", e);
-        }
-        
-        if (removeAWTImports)
-        {
-            // We look for imports in java files or Stride files of java.awt.Color or java.awt.Font specifically.
-            // We don't look in the body of the code for fully-qualified uses, and nor do we do anything
-            // with imports of java.awt.*
-            
-            PathMatcher javaMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.java");
-            try
-            {
-                Files.find(projectDir.toPath(), 1, (path, attr) -> attr.isRegularFile() && javaMatcher.matches(path)).forEach(javaFile -> {
-                    try
-                    {
-                        Utility.removeLine(javaFile, s -> s.matches("\\s*import\\s+java\\.awt\\.(Color|Font)\\s*;\\s*"));
-                    }
-                    catch (IOException e)
-                    {
-                        Debug.reportError(e);
-                        // Not much more we can do; just move on to next file
-                    }
-                });
-            }
-            catch (IOException e)
-            {
-                Debug.reportError(e);
-            }
-            PathMatcher strideMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.stride");
-            try
-            {
-                Files.find(projectDir.toPath(), 1, (path, attr) -> attr.isRegularFile() && strideMatcher.matches(path)).forEach(strideFile -> {
-                    try
-                    {
-                        Utility.removeLine(strideFile, s -> s.matches("\\s*<\\s*import.*?target\\s*=\\s*\"java.awt.(Color|Font)\".*?/>\\s*"));
-                    }
-                    catch (IOException e)
-                    {
-                        Debug.reportError(e);
-                        // Not much more we can do; just move on to next file
-                    }
-                });
-            }
-            catch (IOException e)
-            {
-                Debug.reportError(e);
-            }
         }
         
         p.setApiVersion(greenfootApiVersion);
@@ -761,7 +736,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * @param parent Frame that should be used to place dialogs.
      * @return One of VERSION_OK, VERSION_UPDATED or VERSION_BAD
      */
-    public static int updateApi(File projectDir, Frame parent, String greenfootApiVersion)
+    public static VersionCheckInfo updateApi(File projectDir, Frame parent, String greenfootApiVersion)
     {
         File greenfootLibDir = Config.getGreenfootLibDir();
         ProjectProperties newProperties = new ProjectProperties(projectDir);
@@ -777,8 +752,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             dialog.displayModal();
             Debug.message("Bad version number in project: " + greenfootLibDir);
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, true, greenfootApiVersion, false);
-            return VERSION_UPDATED;
+                    newProperties, true, greenfootApiVersion);
+            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else if (projectVersion.isOlderAndBreaking(apiVersion)) {
             String message = projectVersion.getChangesMessage(apiVersion);
@@ -801,9 +776,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 removeAWTImports = false;
             }
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, true, greenfootApiVersion, removeAWTImports);
+                    newProperties, true, greenfootApiVersion);
 
-            return VERSION_UPDATED;
+            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, removeAWTImports);
         }
         else if (apiVersion.isOlderAndBreaking(projectVersion)) {
             String message = projectVersion.getNewerMessage();
@@ -815,25 +790,25 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             JButton pressed = dialog.displayModal();
 
             if (pressed == cancelButton) {
-                return VERSION_BAD;
+                return new VersionCheckInfo(VersionInfo.VERSION_BAD, false);
             }
-            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true, greenfootApiVersion, false);
-            return VERSION_UPDATED;
+            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true, greenfootApiVersion);
+            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else if (projectVersion.isNonBreaking(apiVersion) ) {
             prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, true, greenfootApiVersion, false);
-            return VERSION_UPDATED;
+                    newProperties, true, greenfootApiVersion);
+            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else if (projectVersion.isInternal(apiVersion)) {
             prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, false, greenfootApiVersion, false);
-            return VERSION_UPDATED;
+                    newProperties, false, greenfootApiVersion);
+            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else {       
             prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, false, greenfootApiVersion, false);
-            return VERSION_OK;            
+                    newProperties, false, greenfootApiVersion);
+            return new VersionCheckInfo(VersionInfo.VERSION_OK, false);            
         }
     }
 
