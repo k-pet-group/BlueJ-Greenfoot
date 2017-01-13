@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -105,6 +105,7 @@ import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -586,6 +587,8 @@ public class JavaFXUtil
         alert.setHeaderText(alert.getTitle());
         alert.initOwner(parent);
         alert.initModality(Modality.WINDOW_MODAL);
+        // Without this line, text will be truncated not wrapped:
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         Optional<ButtonType> pressed = alert.showAndWait();
         return ButtonType.OK == pressed.orElse(ButtonType.CANCEL);
     }
