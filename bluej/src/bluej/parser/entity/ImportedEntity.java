@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.parser.entity;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
@@ -54,7 +55,7 @@ public class ImportedEntity extends JavaEntity
     @Override
     public String getName()
     {
-        return names.get(names.size() - 1);
+        return names.stream().collect(Collectors.joining("."));
     }
 
     @Override
