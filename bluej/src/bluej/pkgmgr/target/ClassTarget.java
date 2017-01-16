@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -273,7 +273,6 @@ public class ClassTarget extends DependentTarget
     public ClassTarget(Package pkg, String baseName, String template)
     {
         super(pkg, baseName);
-        calcSourceAvailable();
 
         if (pseudos == null)
         {
@@ -303,6 +302,9 @@ public class ClassTarget extends DependentTarget
             };
             pane.setCenter(canvas);
         });
+
+        // This must come after GUI init because it might try to affect GUI:
+        calcSourceAvailable();
 
         // we can take a guess at what the role is going to be for the
         // object based on the start of the template name. If we get this
