@@ -770,6 +770,7 @@ public class FrameEditor implements Editor
             }
 
             @Override
+            @OnThread(Tag.Swing)
             public void removeImports(List<String> importTargets)
             {
                 FrameEditor.this.removeImports(importTargets);
