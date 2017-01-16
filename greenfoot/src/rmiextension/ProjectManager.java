@@ -141,10 +141,14 @@ public class ProjectManager
                         for (BClass bClass : project.getPackage("").getClasses())
                         {
                             Editor bClassEditor = bClass.getEditor();
-                            EventQueue.invokeLater(() -> {
-                                bluej.editor.Editor ed = EditorBridge.getEditor(bClassEditor);
-                                ed.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
-                            });
+                            if (bClassEditor != null)
+                            {
+                                EventQueue.invokeLater(() ->
+                                {
+                                    bluej.editor.Editor ed = EditorBridge.getEditor(bClassEditor);
+                                    ed.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
+                                });
+                            }
                         }
                         project.getPackage("").scheduleCompilation(true);
                     }
