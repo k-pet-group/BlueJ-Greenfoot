@@ -2079,7 +2079,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @Override
     public StringExpression getFontSizeCSS()
     {
-        return PrefMgr.strideFontSizeProperty().asString().concat("pt");
+
+        // A workaround due to a bug found calling StringFormatter.convert on IntegerPropety
+        // See: BLUEJ-861
+        return new SimpleStringProperty(PrefMgr.strideFontSizeProperty().getValue().toString().concat("pt"));
     }
 
     private void calculateBirdseyeRectangle()
