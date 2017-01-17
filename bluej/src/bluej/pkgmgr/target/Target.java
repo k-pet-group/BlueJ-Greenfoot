@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -173,13 +173,13 @@ public abstract class Target
             });
 
             pane.setOnMousePressed(e -> {
-                // Dismiss context menu if the user clicks on the target:
-                // (Usual JavaFX behaviour is to keep the menu showing if you
-                // click the menu's parent but I think users will expect it to
-                // dismiss if they click anywhere besides the menu.) 
-                showingMenu(null);
                 if (e.getButton() == MouseButton.PRIMARY)
                 {
+                    // Dismiss context menu if the user left-clicks on the target:
+                    // (Usual JavaFX behaviour is to keep the menu showing if you
+                    // click the menu's parent but I think users will expect it to
+                    // dismiss if they click anywhere besides the menu.)
+                    showingMenu(null);
                     pressDeltaX = e.getX();
                     pressDeltaY = e.getY();
                     // Check if it's in the corner (and selected), in which case it will be a resize:
