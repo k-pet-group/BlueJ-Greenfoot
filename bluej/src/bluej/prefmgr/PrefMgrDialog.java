@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2015,2016,2017  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -245,8 +245,11 @@ public class PrefMgrDialog
         window.setTitle(Config.getApplicationName() + ": " + Config.getString("prefmgr.title"));
         Config.addDialogStylesheets(window.getDialogPane());
         JavaFXUtil.addStyleClass(window.getDialogPane(), "prefmgr-dialog-pane");
+        
+        window.setResizable(true);
 
         tabbedPane = new TabPane();
+        tabbedPane.setPrefHeight(550.0);
         JavaFXUtil.addStyleClass(tabbedPane, "prefmgr-tab-pane");
 
         //window.setOnShown(e -> org.scenicview.ScenicView.show(tabbedPane.getScene()));
