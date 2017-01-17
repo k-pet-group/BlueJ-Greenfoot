@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,6 +47,7 @@ import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameEditor;
+import bluej.pkgmgr.target.CSSTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import javafx.application.Platform;
 
@@ -147,6 +148,7 @@ public final class Package
     /** error code */
     public static final int CREATE_ERROR = 5;
     private final List<Dependency> pendingDeps = new ArrayList<>();
+    private final List<Target> targetsToPlace = new ArrayList<>();
 
     /** Reason code for displaying source line */
     private enum ShowSourceReason
@@ -504,6 +506,12 @@ public final class Package
                 for (Target t : targets)
                     if (t instanceof ParentPackageTarget)
                         ed.findSpaceForVertex(t);
+                // Find an empty spot for any targets which didn't already have
+                // a position
+                for (Target t : targetsToPlace) {
+                    ed.findSpaceForVertex(t);
+                }
+                targetsToPlace.clear();
             }
             ed.graphChanged();
         });
@@ -667,8 +675,15 @@ public final class Package
             String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
 
             if ("PackageTarget".equals(type))
+            {
                 target = new PackageTarget(this, identifierName);
-            else {
+            }
+            else if ("CSSTarget".equals(type))
+            {
+                target = new CSSTarget(this, new File(getPath(), identifierName));
+            }
+            else
+            {
                 target = new ClassTarget(this, identifierName);
             }
 
@@ -677,7 +692,6 @@ public final class Package
         }
 
         addImmovableTargets();
-        List<Target> targetsToPlace = new ArrayList<Target>();
         
         // make our Package targets reflect what is actually on disk
         // note that we consider this on-disk version the master
@@ -700,6 +714,23 @@ public final class Package
 
             addTarget(target);
         }
+        
+        // If BlueJ, look for CSS targets:
+        if (!Config.isGreenfoot())
+        {
+            File cssFiles[] = getPath().listFiles(p -> p.getName().endsWith(".css"));
+            for (File cssFile : cssFiles)
+            {
+                Target target = propTargets.get(cssFile.getName());
+                if (target == null || !(target instanceof CSSTarget))
+                {
+                    target = new CSSTarget(this, cssFile);
+                    targetsToPlace.add(target);
+                }
+                addTarget(target);
+            }
+            
+        }        
 
         // now look for Java source files that may have been
         // added to the directory
@@ -717,12 +748,6 @@ public final class Package
                 targetsToPlace.add(target);
             }
             addTarget(target);
-        }
-        
-        // Find an empty spot for any targets which didn't already have
-        // a position
-        for (Target t : targetsToPlace) {
-            Platform.runLater(() -> {getEditor().findSpaceForVertex(t);});
         }
 
         List<Target> targetsCopy;

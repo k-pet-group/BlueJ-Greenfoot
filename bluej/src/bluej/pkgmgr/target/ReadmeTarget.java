@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,7 +56,7 @@ import threadchecker.Tag;
  *
  * @author  Andrew Patterson
  */
-public class ReadmeTarget extends EditableTarget
+public class ReadmeTarget extends NonCodeEditableTarget
 {
     private static final String openStr = Config.getString("pkgmgr.packagemenu.open");
     private static final Color envOpColour = Config.ENV_COLOUR;
@@ -201,76 +201,12 @@ public class ReadmeTarget extends EditableTarget
     {
         // The user is not permitted to remove the readmefile
     }
-    
-    @Override
-    public void generateDoc()
-    {
-        // meaningless
-    }
-
-    @Override
-    public String getProperty(String key) 
-    {
-        return null;
-    }
-
-    @Override
-    public void setProperty(String key, String value) { }
-    
-    @Override
-    public void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits, StrideEditReason reason) { }
-
-    @Override
-    public void recordClose() { }
-
-    @Override
-    public void recordOpen() { }
-
-    @Override
-    public void recordSelected() { }
-
-    @Override
-    public void recordShowErrorMessage(int identifier, List<String> quickFixes) { }
-
-    @Override
-    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics) { }
-
-    @Override
-    public void recordLateErrors(List<DiagnosticWithShown> diagnostics) { }
-
-    @Override
-    public void recordFix(int errorIdentifier, int fixIndex) { }
-
-    @Override
-    public void recordCodeCompletionStarted(Integer line, Integer column, String xpath, Integer index, String stem) { }
-
-    @Override
-    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement) { }
-
-    @Override
-    public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key) { }
-
-    @Override
-    public void recordShowErrorIndicator(int identifier) { }
-
-    @Override
-    public void compile(Editor editor, CompileReason reason, CompileType type) {}
-    
-    @Override
-    @OnThread(Tag.Any)
-    public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type) {}
-
+        
     @Override
     public @OnThread(Tag.FXPlatform) void setSelected(boolean selected)
     {
         super.setSelected(selected);
         imageView.setImage(selected ? selectedReadmeImage : readmeImage);
 
-    }
-
-    @Override
-    public void showingInterface(boolean showingInterface)
-    {
-        // Not applicable
     }
 }

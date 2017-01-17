@@ -137,7 +137,7 @@
     -fx-border-color: black;
     -fx-border-style: solid outside;
 }
-.class-target, .package-target, .package-target-preview-item {
+.class-target, .package-target, .package-target-preview-item, .css-target {
     -fx-border-width: 1;
     -fx-border-color: black;
     -fx-border-style: solid outside; /* Prevents relayout when border gets thicker */
@@ -145,7 +145,7 @@
     /*-fx-cursor: hand; */
 }
 .class-target, .class-target:bj-resizing, .class-target:bj-resizing:hover,
-  .package-target-preview-item {
+  .package-target-preview-item, .css-target {
     -fx-background-color: class-target;
 }
 .class-target:hover {
