@@ -22,7 +22,6 @@
 package bluej.utility.javafx;
 
 import java.awt.AWTKeyStroke;
-import java.awt.event.ActionListener;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +43,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -104,7 +102,6 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -113,13 +110,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.WindowOverlayPane;
-import bluej.pkgmgr.target.ClassTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -1684,7 +1679,6 @@ public class JavaFXUtil
     private static FXPlatformSupplier<MenuItemAndShow> swingMenuItemToFX(JMenuItem swingItem, Object source)
     {
         String menuText = swingItem.getText();
-        ActionListener[] actionListeners = swingItem.getActionListeners();
         AWTKeyStroke shortcut = swingItem.getAccelerator();
         if (swingItem instanceof JCheckBoxMenuItem)
         {
@@ -1697,17 +1691,7 @@ public class JavaFXUtil
                 item.setOnAction(e -> {
                     SwingUtilities.invokeLater(() -> {
                         checkBoxMenuItem.setSelected(!checkBoxMenuItem.isSelected());
-
-                        // Important we fetch action here not cache it earlier because
-                        // it may change after we make the menu item:
-                        Action action = swingItem.getAction();
-                        if (action != null) {
-                            action.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText));
-                        }
-                        else {
-                            // If no action, just call action listeners ourselves:
-                            Arrays.stream(actionListeners).forEach(a -> a.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText)));
-                        }
+                        fireSwingMenuItemAction(swingItem, source);
                     });
                 });
                 item.setAccelerator(swingKeyStrokeToFX(shortcut));
@@ -1756,21 +1740,26 @@ public class JavaFXUtil
             });
             
             return () -> {
-                item.setOnAction(e -> {
-                    SwingUtilities.invokeLater(() -> {
-                        // Important we fetch action here not cache it earlier because
-                        // it may change after we make the menu item:
-                        Action action = swingItem.getAction();
-                        if (action != null)
-                            action.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText));
-                        else
-                            // If no action, just call action listeners ourselves:
-                            Arrays.stream(actionListeners).forEach(a -> a.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText)));
-                    });
-                });
+                item.setOnAction(e -> SwingUtilities.invokeLater(() -> fireSwingMenuItemAction(swingItem, source)));
                 item.setAccelerator(swingKeyStrokeToFX(shortcut));
                 return new MenuItemAndShow(item);
             };
+        }
+    }
+
+    private static void fireSwingMenuItemAction(JMenuItem swingItem, Object source)
+    {
+        String menuText = swingItem.getText();
+
+        // Important we fetch action here not cache it earlier because
+        // it may change after we make the menu item:
+        Action action = swingItem.getAction();
+        if (action != null) {
+            action.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText));
+        }
+        else {
+            // If no action, just call action listeners ourselves:
+            Arrays.stream(swingItem.getActionListeners()).forEach(a -> a.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText)));
         }
     }
 
