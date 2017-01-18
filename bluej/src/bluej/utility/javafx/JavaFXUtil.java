@@ -1747,6 +1747,7 @@ public class JavaFXUtil
         }
     }
 
+    @OnThread(Tag.Swing)
     private static void fireSwingMenuItemAction(JMenuItem swingItem, Object source)
     {
         String menuText = swingItem.getText();

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2012,2014,2015,2016,2017  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,41 +37,35 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.List;
-import java.util.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
+
+import javafx.application.Platform;
+import javafx.embed.swing.SwingNode;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import bluej.Config;
 import bluej.editor.EditorWatcher;
@@ -83,20 +77,29 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SwingNodeFixed;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Code completion panel for the Moe editor.
  *
  * @author Marion Zalk
  */
-public class CodeCompletionDisplay extends JFrame
+public class CodeCompletionDisplay
         implements ListSelectionListener, MouseListener
 {
-    private static final Color msgTextColor = new Color(200,170,100);
     private final EditorWatcher watcher;
 
     private final MoeEditor editor;
     private final WindowListener editorListener;
+    @OnThread(Tag.FXPlatform)
+    private Text glassPaneLHS;
+    @OnThread(Tag.FXPlatform)
+    private Text glassPaneRHS;
+    @OnThread(Tag.FXPlatform)
+    private TilePane glassPaneReplacement;
     private TreeSet<AssistContent> values;
     private String prefix;
     private final String suggestionType;
@@ -109,11 +112,16 @@ public class CodeCompletionDisplay extends JFrame
     private JComponent pane;
     private TreeSet<AssistContent> jListData;
     
+    private final SwingNode swingNode;
+    @OnThread(Tag.FXPlatform)
+    private Stage window;
+    
     private ThreadPoolExecutor threadpool;
     /**
      * We only worry about losing focus after we've been explicitly marked
      * as ready.
      */
+    @OnThread(Tag.FXPlatform)
     private boolean ready;
 
     /**
@@ -134,7 +142,7 @@ public class CodeCompletionDisplay extends JFrame
         this.values.addAll(Arrays.asList(assistContents));
 
         this.suggestionType = suggestionType;
-        makePanel();
+        Dimension size = makePanel();
         editor= ed;
 
         if (location != null) {
@@ -149,22 +157,39 @@ public class CodeCompletionDisplay extends JFrame
         }
 
         populatePanel();
+        
+        swingNode = new SwingNodeFixed();
+        swingNode.setContent(pane);
 
-        addWindowFocusListener(new WindowFocusListener()
-        {
-            @Override
-            public void windowGainedFocus(WindowEvent e)
+        Platform.runLater(() -> {
+            glassPaneLHS = new Text();
+            glassPaneRHS = new Text();
+            glassPaneReplacement = new TilePane(glassPaneLHS, glassPaneRHS);
+            glassPaneReplacement.setPrefColumns(2);
+            glassPaneReplacement.setPrefRows(1);
+            glassPaneReplacement.setAlignment(Pos.CENTER);
+            glassPaneReplacement.setTileAlignment(Pos.CENTER);
+            glassPaneReplacement.setPrefTileWidth(size.getWidth());
+            for (Text t : Arrays.asList(glassPaneLHS, glassPaneRHS))
             {
-                methodList.requestFocusInWindow();
-                editor.getSourcePane().getCaret().setVisible(true);
+                t.setStyle("-fx-fill: rgb(200,170,100); -fx-font-size: 20px;");
             }
-
-            @Override
-            public void windowLostFocus(WindowEvent e)
-            {
-                if (ready)
-                    doClose();
-            }
+            window = new Stage(StageStyle.UNDECORATED);
+            window.setScene(new Scene(new StackPane(swingNode, glassPaneReplacement)));
+            JavaFXUtil.addFocusListener(window, focused -> {
+                if (focused)
+                {
+                    SwingUtilities.invokeLater(() -> {
+                        methodList.requestFocusInWindow();
+                        editor.getSourcePane().getCaret().setVisible(true);
+                    });
+                }
+                else
+                {
+                    if (ready)
+                        doClose();
+                }
+            });
         });
 
         editorListener = new WindowAdapter() {
@@ -191,19 +216,22 @@ public class CodeCompletionDisplay extends JFrame
     /**
      * Close the code completion display window.
      */
+    @OnThread(Tag.Any)
     public void doClose()
     {
-        dispose();
+        JavaFXUtil.runNowOrLater(() -> {
+            window.hide();
+        });
     }
 
     /**
      * Creates a component with a main panel (list of available methods & values)
      * and a text area where the description of the chosen value is displayed
      */
-    private void makePanel()
+    private Dimension makePanel()
     {
         GridLayout gridL=new GridLayout(1, 2);
-        pane = (JComponent) getContentPane();
+        pane = new JPanel();
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(gridL);
@@ -348,14 +376,14 @@ public class CodeCompletionDisplay extends JFrame
         pane.add(mainPanel);
 
         inputMap = new InputMap();
-        inputMap.setParent(pane.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+        inputMap.setParent(pane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
         inputMap.put(keyStroke, "escapeAction");
         keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
         inputMap.put(keyStroke, "completeAction");
 
-        pane.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
+        pane.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
 
         actionMap = new ActionMap() {
             @Override
@@ -379,12 +407,10 @@ public class CodeCompletionDisplay extends JFrame
                 codeComplete();
             }
         });
-        pane.getRootPane().setActionMap(actionMap);
+        pane.setActionMap(actionMap);
 
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setUndecorated(true);
-        setGlassPane(getCodeCompleteGlassPane());
-        pack();
+        //setGlassPane(getCodeCompleteGlassPane());
+        return size;
     }
 
     /*
@@ -406,8 +432,7 @@ public class CodeCompletionDisplay extends JFrame
         methodList.setListData(jListData.toArray(new AssistContent[jListData.size()]));
         methodList.setSelectedIndex(0);
 
-        getCodeCompleteGlassPane().setWorking(false);
-        getCodeCompleteGlassPane().setVisible(jListData.isEmpty());
+        Platform.runLater(() -> setWorking(false));
     }
     
     /**
@@ -488,7 +513,7 @@ public class CodeCompletionDisplay extends JFrame
             }
         }
 
-        setVisible(false);
+        Platform.runLater(() -> window.hide());
     }
 
     // ---------------- MouseListener -------------------
@@ -541,7 +566,7 @@ public class CodeCompletionDisplay extends JFrame
             setHtml(selected, jdHtml);
         }
         else {
-            setWorking(); // display glasspanel with "working" message.
+            Platform.runLater(() -> setWorking(true)); // display glasspanel with "working" message.
         }
     }
 
@@ -573,9 +598,26 @@ public class CodeCompletionDisplay extends JFrame
         methodDescription.setCaretPosition(0); // scroll to top
     }
 
+    @OnThread(Tag.FXPlatform)
     public void setReady(boolean ready)
     {
         this.ready = ready;
+    }
+
+    /**
+     * Unwieldy but accurate name.  Shows the window at the given position, brought to the front and focused. 
+     */
+    public void showFrontFocusedAt(int xpos, int ypos)
+    {
+        Platform.runLater(() -> {
+            setReady(false);
+            window.setX(xpos);
+            window.setY(ypos);
+            window.show();
+            window.toFront();
+            window.requestFocus();
+            setReady(true);
+        });
     }
 
     /**
@@ -666,48 +708,36 @@ public class CodeCompletionDisplay extends JFrame
         }
     }
 
-    
-
-    // ===== the glass pane for messages on this component =====
-
-    private CodeCompleteGlassPane myGlassPane;
-
-    public CodeCompleteGlassPane getCodeCompleteGlassPane()
+    @OnThread(Tag.FXPlatform)
+    public void setWorking(boolean isWorking)
     {
-        if (myGlassPane == null) {
-            myGlassPane = new CodeCompleteGlassPane();
+        if (isWorking)
+        {
+            SwingUtilities.invokeLater(() -> this.methodDescription.setText("")); //clear the text
+            glassPaneLHS.setText("");
+            glassPaneRHS.setText(Config.getString("editor.completion.working"));
+            glassPaneReplacement.setVisible(true);
         }
-        return myGlassPane;
-    }
-    
-    public void setCodeCompleteGlassPaneToWorkingPane(boolean isWorking)
-    {
-        if (myGlassPane == null){
-            myGlassPane = new CodeCompleteGlassPane();
+        else
+        {
+            if (glassPaneReplacement != null) // May be null during initialisation
+            {
+                SwingUtilities.invokeLater(() -> {
+                    boolean empty = jListData.isEmpty();
+                    Platform.runLater(() -> {
+                        glassPaneReplacement.setVisible(empty);
+                        glassPaneLHS.setText(Config.getString("editor.completion.noMatch"));
+                    });
+                });
+            }
         }
-        myGlassPane.setWorking(isWorking);
     }
     
-    public void setMethodDescriptionText(String text){
-        
-        this.getCodeCompleteGlassPane().setVisible(false);
-        this.getCodeCompleteGlassPane().setWorking(false); // put the panel back to the default position
-        this.methodDescription.setText(text);
-        this.methodDescription.setCaretPosition(0);
-        getCodeCompleteGlassPane().setVisible(jListData.isEmpty());
-    }
-    
-    public void setWorking(){
-        this.methodDescription.setText(""); //clear the text
-        this.setCodeCompleteGlassPaneToWorkingPane(true); //set panel to 'working mode'
-        this.setGlassPane(this.getCodeCompleteGlassPane());
-        this.getCodeCompleteGlassPane().setVisible(true);
-    }
-
     /**
      * A glass pane which displays a  message.
      * if not working, then there is no match.
      */
+    /*
     class CodeCompleteGlassPane extends JComponent
     {
         String message = Config.getString("editor.completion.noMatch");
@@ -738,8 +768,9 @@ public class CodeCompletionDisplay extends JFrame
             g.setFont(origFont);
         }
     }
+    */
 
-    private Comparator<AssistContent> getComparator()
+    private static Comparator<AssistContent> getComparator()
     {
         return Comparator.comparing(AssistContent::getName)
                 .thenComparing(AssistContent::getKind)

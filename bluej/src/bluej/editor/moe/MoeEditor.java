@@ -4396,39 +4396,7 @@ public final class MoeEditor extends JPanel
     @OnThread(Tag.Swing)
     private static void initialiseContentAssist(CodeCompletionDisplay codeCompletionDlg, int xpos, int ypos)
     {
-        codeCompletionDlg.setLocation(xpos, ypos);
-        codeCompletionDlg.setReady(false);
-        codeCompletionDlg.setVisible(true);
-        codeCompletionDlg.toFront();
-        // Seems we must wait after toFront before requesting focus:
-        new Thread()
-        {
-            @OnThread(Tag.Unique)
-            public void run()
-            {
-                try
-                {
-                    Thread.sleep(100);
-                }
-                catch (InterruptedException e)
-                {
-                }
-
-                SwingUtilities.invokeLater(() ->
-                {
-                    if (!Config.isMacOS())
-                    {
-                        // On Mac OS X, we don't need to request focus for the window, and if we do,
-                        // it causes code completion to go "dead", where keys have no effect until you
-                        // click the window.  On Windows, conversely, we have that problem if we *don't*
-                        // request focus!
-                        codeCompletionDlg.requestFocus();
-                    }
-                    codeCompletionDlg.setReady(true);
-
-                });
-            }
-        }.start();
+        codeCompletionDlg.showFrontFocusedAt(xpos, ypos);
     }
 
     @OnThread(Tag.FXPlatform)
