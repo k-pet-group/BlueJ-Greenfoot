@@ -1695,7 +1695,20 @@ public class JavaFXUtil
                 item.setSelected(selected);
                 // Clicking the icon crosses back to the Swing thread to attempt state change:
                 item.setOnAction(e -> {
-                    SwingUtilities.invokeLater(() -> checkBoxMenuItem.setSelected(!checkBoxMenuItem.isSelected()));
+                    SwingUtilities.invokeLater(() -> {
+                        checkBoxMenuItem.setSelected(!checkBoxMenuItem.isSelected());
+
+                        // Important we fetch action here not cache it earlier because
+                        // it may change after we make the menu item:
+                        Action action = swingItem.getAction();
+                        if (action != null) {
+                            action.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText));
+                        }
+                        else {
+                            // If no action, just call action listeners ourselves:
+                            Arrays.stream(actionListeners).forEach(a -> a.actionPerformed(new java.awt.event.ActionEvent(source, 0, menuText)));
+                        }
+                    });
                 });
                 item.setAccelerator(swingKeyStrokeToFX(shortcut));
                 // We must also check the state (on Swing thread) before showing, because it may
