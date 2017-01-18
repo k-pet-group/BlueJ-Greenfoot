@@ -21,10 +21,12 @@
  */
 package bluej.pkgmgr.target;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 
 import bluej.collect.DiagnosticWithShown;
@@ -52,14 +54,16 @@ public class CSSTarget extends NonCodeEditableTarget
         super(aPackage, file.getName());
         this.file = file;
 
-        JavaFXUtil.addStyleClass(pane, "css-target");
-        pane.setCenter(new Label(file.getName()));
+        Platform.runLater(() -> {
+            JavaFXUtil.addStyleClass(pane, "css-target");
+            pane.setCenter(new Label(file.getName()));
+        });
     }
 
     @Override
     public @OnThread(Tag.FXPlatform) void doubleClick()
     {
-        open();
+        SwingUtilities.invokeLater(() -> open());
     }
 
     @Override

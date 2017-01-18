@@ -148,6 +148,7 @@ public final class Package
     /** error code */
     public static final int CREATE_ERROR = 5;
     private final List<Dependency> pendingDeps = new ArrayList<>();
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private final List<Target> targetsToPlace = new ArrayList<>();
 
     /** Reason code for displaying source line */
@@ -709,7 +710,10 @@ public final class Package
 
             if (target == null || !(target instanceof PackageTarget)) {
                 target = new PackageTarget(this, subDirs[i].getName());
-                targetsToPlace.add(target);
+                synchronized (this)
+                {
+                    targetsToPlace.add(target);
+                }
             }
 
             addTarget(target);
@@ -725,7 +729,10 @@ public final class Package
                 if (target == null || !(target instanceof CSSTarget))
                 {
                     target = new CSSTarget(this, cssFile);
-                    targetsToPlace.add(target);
+                    synchronized (this)
+                    {
+                        targetsToPlace.add(target);
+                    }
                 }
                 addTarget(target);
             }
@@ -745,7 +752,10 @@ public final class Package
             Target target = propTargets.get(targetName);
             if (target == null || !(target instanceof ClassTarget)) {
                 target = new ClassTarget(this, targetName);
-                targetsToPlace.add(target);
+                synchronized (this)
+                {
+                    targetsToPlace.add(target);
+                }
             }
             addTarget(target);
         }
