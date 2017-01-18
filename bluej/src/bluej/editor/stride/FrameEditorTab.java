@@ -78,6 +78,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -269,6 +270,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private final Set<Node> execNodesListenedTo = new HashSet<>();
     private final SimpleBooleanProperty debugVarVisibleProperty = new SimpleBooleanProperty(false);
     private List<HighlightedBreakpoint> latestExecHistory;
+    private StringBinding strideFontSizeAsString;
+    private StringExpression strideFontSizeAsStringPT;
 
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
@@ -2079,10 +2082,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @Override
     public StringExpression getFontSizeCSS()
     {
-
-        // A workaround due to a bug found calling StringFormatter.convert on IntegerPropety
-        // See: BLUEJ-861
-        return new SimpleStringProperty(PrefMgr.strideFontSizeProperty().getValue().toString().concat("pt"));
+        if (strideFontSizeAsString == null)
+            strideFontSizeAsString = PrefMgr.strideFontSizeProperty().asString();
+        if (strideFontSizeAsStringPT == null)
+            strideFontSizeAsStringPT = strideFontSizeAsString.concat("pt");
+        return strideFontSizeAsStringPT;
     }
 
     private void calculateBirdseyeRectangle()
