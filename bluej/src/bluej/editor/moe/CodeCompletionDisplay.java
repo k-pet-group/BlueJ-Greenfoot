@@ -165,6 +165,7 @@ public class CodeCompletionDisplay
             glassPaneLHS = new Text();
             glassPaneRHS = new Text();
             glassPaneReplacement = new TilePane(glassPaneLHS, glassPaneRHS);
+            glassPaneReplacement.setMouseTransparent(true);
             glassPaneReplacement.setPrefColumns(2);
             glassPaneReplacement.setPrefRows(1);
             glassPaneReplacement.setAlignment(Pos.CENTER);
