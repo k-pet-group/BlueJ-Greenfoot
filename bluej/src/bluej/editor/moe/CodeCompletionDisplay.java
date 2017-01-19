@@ -293,7 +293,8 @@ public class CodeCompletionDisplay
                 if (keyStroke.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     return null;
                 }
-                if (keyStroke.getKeyChar() == 8 && keyStroke.getKeyEventType() == KeyEvent.KEY_TYPED) {
+                if (keyStroke.getKeyChar() == 8 && keyStroke.getKeyEventType() == KeyEvent.KEY_TYPED
+                    || (Config.isMacOS() && keyStroke.getKeyCode() == 8 && keyStroke.getKeyEventType() == KeyEvent.KEY_PRESSED)) {
                     // keyChar 8 = backspace
                     return new AbstractAction() {
                         public void actionPerformed(ActionEvent e)
