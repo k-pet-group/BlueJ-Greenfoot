@@ -588,3 +588,11 @@ image.extmgr.info=extmgr-info.gif
 
 #inspector object reference arrow
 image.inspector.objectref=objectref.gif
+
+
+#######################################################################
+## HiDPI screens.
+#######################################################################
+
+# Scaling factor needed to solve Swing issues on HiDPI screens
+screen.hidpi.scaling = 1

@@ -60,7 +60,6 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingNode;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.text.Text;
@@ -87,8 +86,7 @@ import threadchecker.Tag;
  *
  * @author Marion Zalk
  */
-public class CodeCompletionDisplay
-        implements ListSelectionListener, MouseListener
+public class CodeCompletionDisplay implements ListSelectionListener, MouseListener
 {
     private final EditorWatcher watcher;
 
@@ -123,6 +121,8 @@ public class CodeCompletionDisplay
      */
     @OnThread(Tag.FXPlatform)
     private boolean ready;
+
+    private static final int hiDpiScalingFactor = Config.getPropInteger("screen.hidpi.scaling", 1);
 
     /**
      * Construct a code completion display panel, for the given editor and with the given
@@ -170,7 +170,7 @@ public class CodeCompletionDisplay
             glassPaneReplacement.setPrefRows(1);
             glassPaneReplacement.setAlignment(Pos.CENTER);
             glassPaneReplacement.setTileAlignment(Pos.CENTER);
-            glassPaneReplacement.setPrefTileWidth(size.getWidth());
+            glassPaneReplacement.setPrefTileWidth(size.getWidth()/hiDpiScalingFactor);
             for (Text t : Arrays.asList(glassPaneLHS, glassPaneRHS))
             {
                 t.setStyle("-fx-fill: rgb(200,170,100); -fx-font-size: 20px;");
@@ -613,8 +613,8 @@ public class CodeCompletionDisplay
     {
         Platform.runLater(() -> {
             setReady(false);
-            window.setX(xpos);
-            window.setY(ypos);
+            window.setX(xpos/hiDpiScalingFactor);
+            window.setY(ypos/hiDpiScalingFactor);
             window.show();
             window.toFront();
             window.requestFocus();
