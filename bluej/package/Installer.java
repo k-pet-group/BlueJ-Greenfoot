@@ -104,8 +104,8 @@ public class Installer extends JFrame
                 }
             });
         }
-        catch (InterruptedException ie) { }
-        catch (InvocationTargetException ite) { }
+        catch (InterruptedException ie) { ie.printStackTrace(); }
+        catch (InvocationTargetException ite) { ite.printStackTrace(); }
     }
 
     // ===========================================================
@@ -857,7 +857,7 @@ public class Installer extends JFrame
         try {
             EventQueue.invokeAndWait(progressUpdater);
         }
-        catch (Exception e) { }
+        catch (Exception e) { e.printStackTrace(); }
     }
     
     /**
