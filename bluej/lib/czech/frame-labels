@@ -1,3 +1,6 @@
+#Text for BlueJ++ 4.0.Prev.0.0548
+#Saved: 2016-08-15 - 23:45
+
 # Frame Catalogue:
 frame.catalogue.title=Tah\u00e1k
 frame.catalogue.commands=P\u0159\u00edkazy
@@ -23,6 +26,21 @@ frame.error.overview.bar.error.plural=chyby
 frame.error.overview.bar.error.none=\u017d\u00e1dn\u00e9 chyby
 frame.error.overview.bar.error.editing=Editace
 
+# Class menu:
+frame.classmenu.title=T\u0159\u00edda
+frame.classmenu.close=Zav\u0159\u00edt
+frame.classmenu.move=P\u0159esu\u0148 z\u00e1lo\u017eku...
+frame.classmenu.move.new=Do nov\u00e9ho okna
+frame.classmenu.move.existing=Okno
+
+# Web/documentation menu
+frame.webmenu.title=Dokumentace
+frame.webmenu.open.external=Otev\u0159\u00edt v extern\u00edm prohl\u00ed\u017ee\u010di
+
+
+# Edit menu:
+frame.editmenu.title=Editace
+
 # Slot menu:
 frame.slot.cut=Vyjmout
 frame.slot.copy=Kop\u00edrovat
@@ -34,8 +52,51 @@ frame.slot.recent=P\u0159edchoz\u00ed hodnoty
 frame.viewmenu.title=N\u00e1hled
 frame.viewmenu.nextError=Dal\u0161\u00ed chyba
 frame.viewmenu.cheatsheet=Tah\u00e1k
-frame.viewmenu.birdseye=Pta\u010d\u00ed oko
+frame.viewmenu.birdseye=Pta\u010d\u00ed pohled
+frame.viewmenu.birdseye.doc=Pta\u010d\u00ed pohled (s dokumentac\u00ed)
 frame.viewmenu.java=Java n\u00e1hled
 frame.viewmenu.fontbigger=Zv\u011bt\u0161it velikost p\u00edsma
 frame.viewmenu.fontsmaller=Zmen\u0161it velikost p\u00edsma
 frame.viewmenu.fontdefault=Obnovit velikost p\u00edsma
+
+# Information:
+# The '$' will be replaced by the name of the superclass:
+frame.class.inherited.from=Zd\u011bd\u011bno z $
+
+frame.undobanner.text=Smazali jste velk\u00fd objem k\u00f3du. Nebylo-li to va\u0161\u00edm \u00famyslem, m\u016f\u017eete:
+frame.undobanner.button=Odvolat zm\u011bny
+frame.undobanner.close=Zav\u0159\u00edt
+
+stride.convert.unsupported.feature=Nepodporovan\u00e1 vlastnost pro Stride
+stride.convert.unsupported.modifier=Nepodporovan\u00fd modifik\u00e1tor pro Stride
+stride.convert.warnings.title=Java -> Stride: Nepodporovan\u00e1 vlastnost
+stride.convert.warnings=P\u0159evod Java -> Stride byl \u00fasp\u011b\u0161n\u00fd, ale s n\u00e1sleduj\u00edc\u00edmi varov\u00e1n\u00edmi:
+stride.convert.paste.errors.title=Vlo\u017een\u00ed Stride: Chyba
+
+stride.convert.paste.errors=Z\u00e1lo\u017eka neobsahuje platn\u00fd Stride-code \
+a pokus o konverzi Java -> Stride zhavaroval kv\u016fli n\u00e1sleduj\u00edc\u00edm chyb\u00e1m:
+
+stride.convert.whole.errors.title=P\u0159evod na Stride: Chyba
+stride.convert.whole.errors=P\u0159evod Java -> Stride zhavaroval kv\u016fli n\u00e1sleduj\u00edc\u00edm chyb\u00e1m:
+stride.convert.error.stride=Chyba p\u0159i pokusu rozbalit Stride-code
+stride.convert.error.java=Chyba p\u0159i pokusu analyzovat Java-k\u00f3d pro konverzi na Stride
+convert.to.java.title=P\u0159ev\u00e9st od jazyka Java?
+convert.to.java.message=Bude se p\u0159ev\u00e1d\u011bt t\u0159\u00edda Stride -> Java.  Pokra\u010dovat?
+convert.to.stride.title=P\u0159ev\u00e9st na Stride?
+
+convert.to.stride.message=Toto p\u0159evede t\u0159\u00eddu Javy na Stride. \
+Obsahuje-li k\u00f3d v Jav\u011b vlastnosti nepodporovan\u00e9 ve Stride, \
+nemus\u00ed b\u00fdt tato operace vratn\u00e1. M\u00e1m pokra\u010dovat?
+
+convert.to.stride.error.title=Ne\u010dekan\u00e1 chyba
+convert.to.stride.error.message=Ne\u010dekan\u00e1 chyba p\u0159i p\u0159evodu Java -> Stride.
+
+# Editor
+frame.editor.toplevel.doc.prompt=Zadejte popis t\u0159\u00eddy $CLASSNAME $CAPTION here...
+frame.editor.toplevel.package.prompt=N\u00e1zev bal\u00ed\u010dku
+frame.editor.param.prompt=N\u00e1zev $CAPTION
+
+
+
+#~+ ##### BlueJ++ additions ++++++++++++++++++++++++++++++++++++++++++++++++++++
+#~- ##### BlueJ++ additions ----------------------------------------------------

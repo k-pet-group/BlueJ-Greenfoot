@@ -1,6 +1,5 @@
-kotrola-kodovani
-P\u0159\u00edli\u0161 \u017elu\u0165ou\u010dk\u00fd k\u016f\u0148 \u00fap\u011bl \u010f\u00e1belsk\u00e9 \u00f3dy.
-P\u0158\u00cdLI\u0160 \u017dLU\u0164OU\u010cK\u00dd K\u016e\u0147 \u00daP\u011aL \u010e\u00c1BELSK\u00c9 \u00d3DY.
+#Text for BlueJ++ 4.0.Prev.0.0548
+#Saved: 2016-08-15 - 23:45
 
 compile-while-executing
 Nem\u016f\u017eete p\u0159ekl\u00e1dat,
@@ -8,7 +7,7 @@ dokud b\u011b\u017e\u00ed virtu\u00e1ln\u00ed stroj Javy.
 Mohly by nastat nep\u0159edv\u00eddateln\u00e9 probl\u00e9my!
 
 exception-thrown
-Byla vyvol\u00e1na v\u00fdjimka:
+Byla vyhozena v\u00fdjimka:
 
 break-no-source
 Chod programu se zastavil na zar\u00e1\u017ece v souboru,
@@ -44,9 +43,6 @@ Jm\u00e9no p\u0159eklada\u010de:
 
 compiler-error
 Chyba p\u0159ekladu:
-
-stream-incomplete
-Chyba p\u0159ekladu. Chybov\u00fd proud je nekompletn\u00ed.
 
 out-of-bounds
 Specifikovan\u00fd prvek le\u017e\u00ed
@@ -114,6 +110,10 @@ kladen\u00fdm na identifik\u00e1tory jazyka Java.
 directory-exists
 Soubor nebo slo\u017eka s t\u00edmto
 jm\u00e9nem ji\u017e existuje.
+
+directory-exists-non-empty
+Tato slo\u017eka nen\u00ed pr\u00e1zdn\u00e1,
+a proto v n\u00ed nen\u00ed mo\u017eno vytvo\u0159it nov\u00fd projekt.
 
 cannot-create-directory
 Nelze vytvo\u0159it slo\u017eku (adres\u00e1\u0159).
@@ -370,10 +370,6 @@ Nahradit
 Storno
 null
 
-no-search-string
-Nen\u00ed zad\u00e1n hledan\u00fd text.
-Vyberte text nebo zadejte "Hledat".
-
 default-keys
 Opravdu si p\u0159ejete zru\u0161it v\u00e1mi nastaven\u00e9
 kl\u00e1vesov\u00e9 zkratky a obnovit v\u00fdchoz\u00ed
@@ -388,6 +384,14 @@ b\u00fdt projekt spu\u0161t\u011bn. To je v\u00e1\u017en\u00fd probl\u00e9m - do
 nebudete moci vytv\u00e1\u0159et objekty ani spou\u0161t\u011bt metody.
 Tento probl\u00e9m je v\u011bt\u0161inou zp\u016fsobem p\u0159\u00edli\u0161 p\u0159\u00edsn\u00fdm nastaven\u00edm firewalu,
 V\u00edce informac\u00ed najdete na <http://www.bluej.org/help/faq.html#socket-exc>.
+
+project-is-readonly
+Otev\u0159en\u00fd projekt je ur\u010den pouze ke \u010dten\u00ed:
+:
+    $
+:
+Abyste jej mohli pou\u017e\u00edvat, mus\u00edte jej nejprve zkop\u00edrovat
+do n\u011bjak\u00e9 jin\u00e9 slo\u017eky
 
 project-is-virtualized
 Projekt, kter\u00fd jste otev\u0159eli, je virtualizov\u00e1n syst\u00e9mem Windows.
@@ -522,6 +526,10 @@ P\u0159i pokusu o ulo\u017een\u00ed projektu se objevila chyba:
 Operace odesl\u00e1n\u00ed (commit) \u010di aktualizace (update)
 mohou m\u00edt nep\u0159\u00edjemn\u00e9 d\u016fsledky.
 
+team-cannot-import-into-existing-project
+Nem\u016f\u017eete vlo\u017eit a projekt do existuj\u00edc\u00edho projektu.
+Vyberte jako c\u00edl oby\u010dejnou slo\u017eku neobsahuj\u00edc\u00ed soubory projektu.
+
 not-all-compiled
 V dan\u00e9m projektu nebyly n\u011bkter\u00e9 t\u0159\u00eddy p\u0159elo\u017eeny.
 Chcete-li ulo\u017eit skupinu MIDlet\u016f (MIDlet suite)
@@ -546,3 +554,61 @@ V\u00e1\u0161 program ji\u017e b\u011b\u017e\u00ed. Dokud neskon\u010d\u00ed, ne
 a nem\u016f\u017eete ani prohl\u00ed\u017eet atributy jeho t\u0159\u00edd.
 Pokud program uv\u00edzl v nekone\u010dn\u00e9 smy\u010dce, m\u016f\u017eete jej ukon\u010dit
 pomoc\u00ed lad\u00edc\u00edho programu (debuggeru).
+
+SVNWorkingCopyNot16
+Form\u00e1t metadat pro Subversion tohoto projektu nem\u016f\u017ee BlueJ pln\u011b podporovat.
+(M\u016f\u017ee to b\u00fdt zp\u016fsobeno t\u00edm, \u017ee projekt st\u00e1hl BlurJ 3.1.6,
+kter\u00fd vytv\u00e1\u0159el data v nepodporovan\u00e9m form\u00e1tu.
+ \u0020 \u0020
+Budete-li pokra\u010dovat v pr\u00e1ci s t\u00edmto projektem, n\u011bkter\u00e9 t\u00fdmov\u00e9 funkce
+(stav, odesl\u00e1n\u00ed, apod.) nemus\u00ed spr\u00e1vn\u011b pracovat.
+ \u0020 \u0020
+Probl\u00e9m m\u016f\u017eete vy\u0159e\u0161it tak, \u017ee projekt st\u00e1hnete znovu, ale do nov\u00e9 slo\u017eky.
+
+
+#~+ ##### BlueJ++ additions ++++++++++++++++++++++++++++++++++++++++++++++++++++
+#~+omatviichuk +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+change-object-value
+Zadejte v\u00fdraz pro novou hodnotu objektu
+Zm\u011bnit hodnotu objektu
+null
+
+object-already-exists
+Objekt s t\u00edmto jm\u00e9nem ji\u017e existuje.
+Chcete zm\u011bnit jeho hodnotu?
+Ano
+Ne
+null
+
+cannot-add-null
+Nen\u00ed povoleno ukl\u00e1dat pr\u00e1zdn\u00e9 (null) odkazy do z\u00e1sobn\u00edku odkaz\u016f!
+
+class-method-present
+Ve t\u0159\u00edd\u011b je ji\u017e definov\u00e1na metoda se stejnou signaturou.
+Budete li pokra\u010dovat, bude tato metoda nahrazena.
+Chcete pokra\u010dovat?
+Nahradit
+Storno
+null
+
+lambda-cannot-reference-ctor
+Nen\u00ed povoleno odkazovat na konstruktory!
+
+#~-omatviichuk -----------------------------------------------------------------
+
+#~+bobusky +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+class-field-present
+V t\u00e9to t\u0159\u00edd\u011b je ji\u017e deklarov\u00e1n atribut pojmenovan\u00fd '$'.
+Budete-li pokra\u010dovat, bude tato deklarace nahrazena.
+Chcete pokra\u010dovat a atribut nahradit?
+Nahradit
+Storno
+null
+
+recursive-constructor-call
+Definice kontruktoru vede na jeho rekurzivn\u00ed vol\u00e1n\u00ed!
+
+#~-bobusky ---------------------------------------------------------------------
+#~- ##### BlueJ++ additions ----------------------------------------------------

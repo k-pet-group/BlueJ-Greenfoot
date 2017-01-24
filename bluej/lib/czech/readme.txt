@@ -3,7 +3,7 @@ Soubor je ulozen v kodovani UTF-8.
 Kontrola kodovani: Příliš žluťoučký kůň úpěl ďábelské ódy.
 --------------------------------------------------------------------
 
-Česká lokalizace pro BlueJ 3.0.5
+Česká lokalizace pro BlueJ 3.1.6
 ================================
 
 Lokalizace pouziva kodovani UTF-8
