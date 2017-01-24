@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,10 @@
  */
 package rmiextension;
 
+import javax.swing.*;
 import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
@@ -71,12 +74,27 @@ public class ConstructorInvoker
     public void invokeConstructor(final String instanceNameOnObjectBench, final String[] args,
             final ResultWatcher resultWatcher)
     {
-        final ObjectBench objBench = pkgFrame.getObjectBench();
+        final AtomicReference<ObjectBench> objBench = new AtomicReference<>(pkgFrame.getObjectBench());
         final Package pkg = pkgFrame.getPackage(); 
         final Debugger debugger = pkgFrame.getProject().getDebugger();
-        
+                
         Thread t = new Thread() {
             public void run() {
+                // It's possible the FX thread hasn't had chance to initialise Object Bench by the time we asked.
+                // If so, keep asking until it is initialised:
+                while (objBench.get() == null)
+                {
+                    try
+                    {
+                        Thread.sleep(100);
+                        SwingUtilities.invokeAndWait(() -> {objBench.set(pkgFrame.getObjectBench()); });
+                    }
+                    catch (InterruptedException | InvocationTargetException e)
+                    {
+                    }
+                    
+                }
+                
                 String [] argTypes = new String[args.length];
                 DebuggerObject [] argObjects = new DebuggerObject[args.length];
                 for (int i = 0; i < args.length; i++) {
@@ -93,12 +111,12 @@ public class ConstructorInvoker
                     {
                         if (debugObject != null) {
                             ObjectWrapper wrapper = ObjectWrapper.getWrapper(
-                                    pkgFrame, objBench,
+                                    pkgFrame, objBench.get(),
                                     debugObject,
                                     debugObject.getGenType(),
                                     instanceNameOnObjectBench);       
 
-                            objBench.addObject(wrapper);
+                            objBench.get().addObject(wrapper);
                             pkg.getDebugger().addObject(pkg.getQualifiedName(), wrapper.getName(), debugObject);  
                         }
                         
