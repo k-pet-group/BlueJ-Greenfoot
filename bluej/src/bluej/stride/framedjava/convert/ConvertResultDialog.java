@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016, 2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package bluej.stride.framedjava.convert;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import bluej.utility.Utility;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -94,6 +96,7 @@ public class ConvertResultDialog
         alert = new Alert(Alert.AlertType.WARNING, Config.getString("stride.convert.warnings"), ButtonType.OK);
         alert.setTitle(Config.getString("stride.convert.warnings.title"));
         alert.setHeaderText(alert.getTitle());
+        alert.setOnShown(e -> Utility.bringToFrontFX(alert.getDialogPane().getScene().getWindow()));
         addDetails(warnings.stream().collect(Collectors.joining("\n")));
     }
 

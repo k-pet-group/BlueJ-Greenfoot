@@ -548,14 +548,15 @@ public class Utility
     }
 
     @OnThread(Tag.FX)
-    public static void bringToFrontFX(final Stage window)
+    public static void bringToFrontFX(final javafx.stage.Window window)
     {
         // If not showing at all we return now.
         if (window != null) {
             if (!window.isShowing()) {
                 return;
             }
-            window.toFront();
+            if (window instanceof Stage)
+                ((Stage)window).toFront();
         }
 
         appToFront();

@@ -2222,7 +2222,7 @@ public class ClassTarget extends DependentTarget
 
         private void actionPerformed(ActionEvent e)
         {
-            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", (Stage)ClassTarget.this.pane.getScene().getWindow()))
+            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", (Stage)ClassTarget.this.pane.getScene().getWindow(), true))
             {
                 SwingUtilities.invokeLater(() -> removeStride());
             }
@@ -2248,7 +2248,7 @@ public class ClassTarget extends DependentTarget
             Stage window = null;
             if (pane.getScene() != null)
                 window = (Stage)pane.getScene().getWindow();
-            if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", window))
+            if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", window, true))
             {
                 try
                 {
