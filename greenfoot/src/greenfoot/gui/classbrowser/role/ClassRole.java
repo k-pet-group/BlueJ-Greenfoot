@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -194,6 +194,10 @@ public abstract class ClassRole implements WorldListener
                 popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null,
                         classBrowser.getFrame().getInspectorManager(), classBrowser.getFrame())));
             }
+
+            popupMenu.addSeparator();
+            popupMenu.add(createMenuItem(new DuplicateClassAction(classView, classBrowser, interactionListener)));
+            
             if (srcType != null)
             {
                 if (srcType == SourceType.Stride )
@@ -202,10 +206,8 @@ public abstract class ClassRole implements WorldListener
                     popupMenu.add(createMenuItem(new ConvertToStrideClassAction(classView, classBrowser.getFrame())));
             }
 
-            popupMenu.addSeparator();
-
             popupMenu.add(createMenuItem(new RemoveClassAction(classView, classBrowser.getFrame())));
-            popupMenu.add(createMenuItem(new DuplicateClassAction(classView, classBrowser, interactionListener)));
+            
         }
         else {
             addPopupMenuItems(popupMenu, true);
