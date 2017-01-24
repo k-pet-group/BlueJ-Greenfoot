@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2014,2015,2017  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,26 +21,19 @@
  */
 package greenfoot.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.net.URL;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.MultiLineLabel;
 
@@ -94,8 +87,26 @@ public class AboutGreenfootDialog extends JDialog
                 + System.getProperty("os.version") + " (" + System.getProperty("os.arch") + ")");
         bottomtext.addText(Config.getString("about.moreInfo"));
         bottomtext.addText(" ");
-        bottomtext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.greenfootDebugLogName));
+        JLabel debugLogLabel = new JLabel(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.greenfootDebugLogName));
 
+        JButton debugLogShow = new JButton(Config.getString("about.openFolder"));
+        debugLogShow.addActionListener(e -> {
+            try
+            {
+                Desktop.getDesktop().open(Config.getUserConfigDir());
+            }
+            catch (IOException ex)
+            {
+                Debug.reportError(ex);
+            }
+        });
+        Box debugLogAndShow = new Box(BoxLayout.X_AXIS);
+        debugLogAndShow.add(debugLogLabel);
+        debugLogAndShow.add(Box.createHorizontalStrut(20));
+        debugLogAndShow.add(debugLogShow);
+        debugLogAndShow.setAlignmentX(LEFT_ALIGNMENT);
+        bottomtext.add(debugLogAndShow);
+        
         aboutPanel.add(bottomtext, BorderLayout.SOUTH);
 
         // Create Button Panel
