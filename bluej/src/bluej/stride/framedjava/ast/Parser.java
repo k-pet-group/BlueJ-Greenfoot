@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.stride.framedjava.ast;
 
 import java.io.StringReader;
 import java.util.List;
+import java.util.function.Consumer;
 
 import bluej.parser.JavaParser;
 import bluej.parser.ParseFailure;
@@ -38,17 +39,21 @@ public class Parser
 
     public static boolean parseableAsType(String s)
     {
+        return parseableAs(s, p -> p.parseTypeSpec(true));
+    }
+
+    public static boolean parseableAs(String s, Consumer<JavaParser> parse)
+    {
         JavaParser p = new JavaParser(new StringReader(s), false);
         try
         {
-            // TODO not sure this handles multidim arrays with a size
-            p.parseTypeSpec(true);
-            
+            parse.accept(p);
+
             // Only valid if we have parsed all the way to end of the String:
             LocatableToken tok = p.getTokenStream().nextToken();
             if (tok.getType() != JavaTokenTypes.EOF)
                 return false;
-            
+
             return true;
         }
         catch (ParseFailure pf)
@@ -56,28 +61,8 @@ public class Parser
             return false;
         }
     }
-    
-    // Checks if it can be parsed as the part following "import " and before the semi-colon
-    public static boolean parseableAsImportTarget(String s)
-    {
-        JavaParser p = new JavaParser(new StringReader("import " + s + ";"), false);
-        try
-        {
-            p.parseImportStatement();
-            
-            // Only valid if we have parsed all the way to end of the String:
-            
-            LocatableToken tok = p.getTokenStream().nextToken();
-            if (tok.getType() != JavaTokenTypes.EOF)
-                return false;
-            
-            return true;
-        }
-        catch (ParseFailure pf)
-        {
-            return false;
-        }
-    }
+
+
 
     private static final String DUMMY_STEM = "code__dummy__gf3gen__";
 

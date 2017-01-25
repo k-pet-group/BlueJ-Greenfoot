@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
@@ -74,6 +76,17 @@ public class ForeachElement extends ContainerCodeElement
     @Override
     public JavaSource toJavaSource()
     {
+        Pattern p = Pattern.compile("^\\s*([+-]?[0-9]+)\\s*\\.\\.\\s*([+-]?[0-9]+)\\s*$");
+        Matcher m = p.matcher(collection.getContent());
+        if (m.find())
+        {
+            String lower = m.group(1);
+            String upper = m.group(2);
+            // Going over range; we can translate to standard Java for
+            return JavaSource.createCompoundStatement(frame, this, this, this, Arrays.asList(f(frame, "for ("), type, space(), var, f(frame, " = "), f(frame, lower + ";"), var, f(frame, " <= "), f(frame, upper + ";"), var, f(frame, "++)")
+                    ), CodeElement.toJavaCodes(contents));
+        }
+        
         return JavaSource.createCompoundStatement(frame, this, this, this, Arrays.asList(f(frame, "for (final "), type, space(), var, f(frame, " : "), collection,
                 f(frame, ")")), CodeElement.toJavaCodes(contents));
     }

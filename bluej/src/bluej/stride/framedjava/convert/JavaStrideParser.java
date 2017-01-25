@@ -331,7 +331,7 @@ public class JavaStrideParser extends JavaParser
 
     private class ForHandler
     {
-        // The type of the for-each variable, or classic-for variable(s)
+        // The type of the for-each variable, or classic-for variable(s).  null if empty
         private String type;
         // Should always be at least one var for classic-for, or exactly one for for-each:
         private final List<String> vars = new ArrayList<>();
@@ -384,6 +384,18 @@ public class JavaStrideParser extends JavaParser
         {
             if (isEach)
                 return Arrays.asList(new ForeachElement(null, new TypeSlotFragment(type, type), new NameDefSlotFragment(vars.get(0)), eachVar.toFilled(), content, true));
+            else if (type != null && type.equals("int") && vars.size() == 1 && inits.size() == 1 && inits.get(0).isIntegerLiteral() && condition != null && condition.lessThanIntegerLiteral(vars.get(0)) && post != null && post.isIncrementByOne(vars.get(0)))
+            {
+                // Transform to for each:
+                String lowerBound = inits.get(0).getJava();
+                String upperBound = condition.getUpperBound();
+                return Collections.singletonList(new ForeachElement(null,
+                        new TypeSlotFragment("int", "int"),
+                        new NameDefSlotFragment(vars.get(0)),
+                        new FilledExpressionSlotFragment(lowerBound + ".." + upperBound, "lang.stride.Utility.makeRange(" + lowerBound + ", " + upperBound + ")"),
+                        content, true
+                    ));
+            }
             else
             {
                 List<CodeElement> initAndLoop = new ArrayList<>();

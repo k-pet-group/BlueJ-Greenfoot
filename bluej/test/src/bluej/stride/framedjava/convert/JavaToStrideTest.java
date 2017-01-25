@@ -99,19 +99,47 @@ public class JavaToStrideTest
         assertEquals("switch (0) { case 1: break; }", _switch("0", l(_case("1", new BreakElement(null, true))), null));
         assertEquals("switch (0) { default: break; }", _switch("0", l(), l(new BreakElement(null, true))));
 
-        assertEquals("for (int x : xs) return;", _forEach("int", "x", "xs", _return()));
-        assertEquals("for (int x : (int[])xs) return;", _forEach("int", "x", "( int [ ] ) xs", _return()));
+        assertEquals("for (int x : xs) return;", _forEach("int", "x", filled("xs"), _return()));
+        assertEquals("for (int x : (int[])xs) return;", _forEach("int", "x", filled("( int [ ] ) xs"), _return()));
 
-        // i = i + 1 gets turned into a call because we don't parse the expression
-        assertEquals("for (int i = 0; i < 10; i = i + 1) return;",
+        // i = i + 2 gets turned into an expression:
+        assertEquals("for (int i = 0; i < 10; i = i + 2) return;",
                 _var(null, false, false, "int", "i", filled("0")),
+                _while("i < 10", _return(), _assign("i", "i + 2"))
+        );
+        // Some become a for-each:
+        assertEquals("for (int i = 0; i < 10; i++) return;",
+            _forEach("int", "i", _range("0", "9"), _return())
+        );
+        assertEquals("for (int i = 0; i <= 10; i++) return;",
+                _forEach("int", "i", _range("0", "10"), _return())
+        );
+        assertEquals("for (int i = 0; i < 10; i = i + 1) return;",
+                _forEach("int", "i", _range("0", "9"), _return())
+        );
+        assertEquals("for (int i = 0; i < 10; i += 1) return;",
+                _forEach("int", "i", _range("0", "9"), _return())
+        );
+        // Non-literal upper bound must become while:
+        assertEquals("for (int i = 0; i < 10+1; i++) return;",
+                _var(null, false, false, "int", "i", filled("0")),
+                _while("i < 10 + 1", _return(), _assign("i", "i + 1"))
+        );
+        assertEquals("for (int i = 0; i < size; i++) return;",
+                _var(null, false, false, "int", "i", filled("0")),
+                _while("i < size", _return(), _assign("i", "i + 1"))
+        );
+        // Non-int becomes while:
+        assertEquals("for (byte i = 0; i < 10; i += 1) return;",
+                _var(null, false, false, "byte", "i", filled("0")),
                 _while("i < 10", _return(), _assign("i", "i + 1"))
         );
-        // However, i++ becomes an assignment because we do transform it:
-        assertEquals("for (int i = 0; i < 10; i++) return;",
-            _var(null, false, false, "int", "i", filled("0")),
-            _while("i < 10", _return(), _assign("i", "i + 1"))
+        // Backwards loop must become while:
+        assertEquals("for (int i = 0; i < 10; i--) return;",
+                _var(null, false, false, "int", "i", filled("0")),
+                _while("i < 10", _return(), _assign("i", "i - 1"))
         );
+        
         assertEquals("for (int i = 0, j, k = (double)7, l; i < 10; i = i + 1) {return 0; return 1;}",
                 _var(null, false, false, "int", "i", filled("0")),
                 _var(null, false, false, "int", "j", null),
@@ -131,7 +159,7 @@ public class JavaToStrideTest
         assertWarning("synchronized (this) { };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class));
         assertWarning("synchronized (this) { return; };", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _return());
     }
-    
+
     @Test
     public void testIncDec()
     {
@@ -183,9 +211,9 @@ public class JavaToStrideTest
         return new AssignElement(null, filled(lhs), filled(rhs), true);
     }
 
-    private CodeElement _forEach(String type, String var, String of, CodeElement... body)
+    private CodeElement _forEach(String type, String var, FilledExpressionSlotFragment of, CodeElement... body)
     {
-        return new ForeachElement(null, type(type), name(var), filled(of), l(body), true);
+        return new ForeachElement(null, type(type), name(var), of, l(body), true);
     }
 
     private static TypeSlotFragment type(String t)
@@ -809,7 +837,13 @@ public class JavaToStrideTest
     {
         return new FilledExpressionSlotFragment(e, e);
     }
-        
+
+    private FilledExpressionSlotFragment _range(String lower, String upper)
+    {
+        return new FilledExpressionSlotFragment(lower + ".." + upper, "lang.stride.Utility.makeRange(" + lower + ", " + upper + ")");
+    }
+
+
     // Short-hand for Arrays.asList
     private static <T> List<T> l(T... items)
     {

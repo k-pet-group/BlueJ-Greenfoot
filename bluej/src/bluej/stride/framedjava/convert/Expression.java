@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2017 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.OptionalExpressionSlotFragment;
+import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
 import bluej.stride.framedjava.convert.ConversionWarning.UnsupportedFeature;
 import bluej.stride.framedjava.elements.AssignElement;
@@ -166,5 +167,117 @@ class Expression
     {
         // If we need to display to the user, display the original Java:
         return java;
+    }
+    
+    public String getJava()
+    {
+        return java;
+    }
+
+    /**
+     * Is the expression an integer literal?  (Long literal will give false)
+     */
+    public boolean isIntegerLiteral()
+    {
+        JavaLexer lexer = new JavaLexer(new StringReader(java));
+        if (lexer.nextToken().getType() != JavaTokenTypes.NUM_INT)
+            return false;
+        return lexer.nextToken().getType() == JavaTokenTypes.EOF;
+    }
+
+    /**
+     * Given varName, is the expression of the exact form "varName < integer_literal"
+     * or "varName <= integer_literal" ?
+     */
+    public boolean lessThanIntegerLiteral(String varName)
+    {
+        JavaLexer lexer = new JavaLexer(new StringReader(java));
+        LocatableToken token = lexer.nextToken();
+        if (token.getType() != JavaTokenTypes.IDENT || !token.getText().equals(varName))
+            return false;
+        token = lexer.nextToken();
+        if (token.getType() != JavaTokenTypes.LT && token.getType() != JavaTokenTypes.LE)
+            return false;
+        if (lexer.nextToken().getType() != JavaTokenTypes.NUM_INT)
+            return false;
+        return lexer.nextToken().getType() == JavaTokenTypes.EOF;
+    }
+
+    /**
+     * Assuming lessThanIntegerLiteral has already returned true,
+     * what is the inclusive upper bound on the condition?
+     */
+    public String getUpperBound()
+    {
+        JavaLexer lexer = new JavaLexer(new StringReader(java));
+        LocatableToken token = lexer.nextToken();
+        if (token.getType() != JavaTokenTypes.IDENT)
+            return "";
+        LocatableToken comparisonToken = lexer.nextToken();
+        if (comparisonToken.getType() != JavaTokenTypes.LT && comparisonToken.getType() != JavaTokenTypes.LE)
+            return "";
+        token = lexer.nextToken();
+        if (token.getType() != JavaTokenTypes.NUM_INT)
+            return "";
+        // If it was < 10, we have to subtract one to get inclusive bound of 9:
+        return Integer.toString(Integer.decode(token.getText()) + (comparisonToken.getType() == JavaTokenTypes.LT ? -1 : 0)); 
+    }
+    
+    public boolean isIncrementByOne(String varName)
+    {
+        // Four different possibilities:
+        // varName++
+        // ++varName
+        // varName += 1
+        // varName = varName + 1
+        JavaLexer lexer = new JavaLexer(new StringReader(java));
+        LocatableToken token = lexer.nextToken();
+        // First token, can be varName, or ++
+        if (token.getType() == JavaTokenTypes.INC)
+        {
+            token = lexer.nextToken();
+            if (token.getType() != JavaTokenTypes.IDENT || !lexer.nextToken().getText().equals(varName))
+                return false;
+            // Fall through to EOF check
+        }
+        else if (token.getType() == JavaTokenTypes.IDENT && token.getText().equals(varName))
+        {
+            // Was varName
+            token = lexer.nextToken();
+            if (token.getType() == JavaTokenTypes.INC)
+            {
+                // Increment; fall through to EOF check
+            }
+            else if (token.getType() == JavaTokenTypes.PLUS_ASSIGN)
+            {
+                // +=.  Needs to be 1 on RHS:
+                token = lexer.nextToken();
+                if (token.getType() != JavaTokenTypes.NUM_INT || !token.getText().equals("1"))
+                    return false;
+                // Fall through to EOF check
+            }
+            else if (token.getType() == JavaTokenTypes.ASSIGN)
+            {
+                // =.  Look for varName + 1 on RHS:
+                // (We could look for 1 + varName, etc, but we don't bother:
+                token = lexer.nextToken();
+                if (token.getType() != JavaTokenTypes.IDENT || !token.getText().equals(varName))
+                    return false;
+                token = lexer.nextToken();
+                if (token.getType() != JavaTokenTypes.PLUS)
+                    return false;
+                token = lexer.nextToken();
+                if (token.getType() != JavaTokenTypes.NUM_INT || !token.getText().equals("1"))
+                    return false;
+                // Fall through to EOF check
+            }
+            else
+                return false;
+                    
+        }
+        else
+            return false;
+
+        return lexer.nextToken().getType() == JavaTokenTypes.EOF;
     }
 }
