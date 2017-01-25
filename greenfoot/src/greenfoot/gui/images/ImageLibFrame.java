@@ -87,7 +87,7 @@ import bluej.utility.FileUtility;
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
     private GClass gclass;
-    private GProject proj;
+    private GProject project;
     /** The default image icon - none, or parent's image */
     private BufferedImage defaultIcon;
     private JScrollPane imageScrollPane;
@@ -135,11 +135,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
         this.selectionWatcher = watcher;
         this.gclass = classView.getGClass();
-        this.proj = gclass.getPackage().getProject();
+        this.project = gclass.getPackage().getProject();
         GClass superClass = gclass.getSuperclass();
         defaultIcon = getClassImage(superClass);
 
-        buildUI(owner, proj, false, null);
+        buildUI(false, null);
         projImageList.select(getSpecifiedImage(gclass));
     }
 
@@ -156,10 +156,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         super(owner, title, true);
         this.gclass = superClass;
-        this.proj = gclass.getPackage().getProject();
+        this.project = gclass.getPackage().getProject();
         defaultIcon = getClassImage(superClass);
         
-        buildUI(owner, proj, true, description);
+        buildUI(true, description);
         projImageList.select(null);
         if (defaultName != null)
         {
@@ -168,7 +168,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         classNameField.requestFocus();
     }
 
-    private void buildUI(JFrame owner, GProject project, final boolean includeClassNameField, List<String> description)
+    private void buildUI(final boolean includeClassNameField, List<String> description)
     {
         this.addWindowListener(this);
         JPanel contentPane = new JPanel();
@@ -289,18 +289,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     confirmDelete(entry);
                 }
             });
-            
-//            JMenuItem pasteImageItem = new JMenuItem(Config.getString("paste.image"));
-//            pasteImageItem.setToolTipText(Config.getString("imagelib.paste.tooltip"));
-//            pasteImageItem.setEnabled(true);
-//            pasteImageItem.setFont(PrefMgr.getPopupMenuFont());
-//            pasteImageItem.addActionListener(e -> {
-//                if (PasteImageAction.pasteImage(owner, project))
-//                    projImageList.refresh();
-//            });
 
-            
-            
             JMenuItem newImageItem = new JMenuItem(Config.getString("imagelib.create.button"));
             newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip")); 
             newImageItem.setFont(PrefMgr.getPopupMenuFont());
@@ -573,7 +562,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      * hierarchy is searched.
      *
      * @param gclass   The class whose icon to get
-     * @param defaultIcon  The icon to return if none can be found
      */
     private static BufferedImage getClassImage(GClass gclass)
     {
