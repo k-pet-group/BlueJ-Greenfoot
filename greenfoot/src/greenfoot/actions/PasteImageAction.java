@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2014,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2014,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,11 +22,9 @@
 package greenfoot.actions;
 
 import greenfoot.core.GProject;
-import greenfoot.gui.GreenfootFrame;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -56,22 +54,24 @@ import greenfoot.util.EscapeDialog;
 
 public class PasteImageAction extends AbstractAction
 {
-    private final GreenfootFrame gfFrame;
-    
-    public PasteImageAction(GreenfootFrame gfFrame)
+    private final EscapeDialog parent;
+    private final GProject project;
+
+    public PasteImageAction(EscapeDialog parent, GProject project)
     {
         super(Config.getString("paste.image"));
-        setEnabled(false);
-        this.gfFrame = gfFrame;
+//        setEnabled(false);
+        this.parent = parent;
+        this.project = project;
     }
 
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        pasteImage(gfFrame, gfFrame.getProject());
+        pasteImage(parent, project);
     }
     
-    public static boolean pasteImage(Frame parent, GProject project)
+    public static boolean pasteImage(EscapeDialog parent, GProject project)
     {
         Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
         if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.imageFlavor))
@@ -112,7 +112,7 @@ public class PasteImageAction extends AbstractAction
     {
         private String fileName = null; 
 
-        public NameDialog(Frame parent, BufferedImage img)
+        public NameDialog(EscapeDialog parent, BufferedImage img)
         {
             super(parent, Config.getString("editor.paste.image.title"), true);
             makeDialog(img);

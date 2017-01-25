@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2013,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,6 @@ import greenfoot.actions.NewClassAction;
 import greenfoot.actions.NewWizardScenarioAction;
 import greenfoot.actions.OpenProjectAction;
 import greenfoot.actions.OpenRecentProjectAction;
-import greenfoot.actions.PasteImageAction;
 import greenfoot.actions.PauseSimulationAction;
 import greenfoot.actions.PreferencesAction;
 import greenfoot.actions.QuitAction;
@@ -179,7 +178,6 @@ public class GreenfootFrame extends JFrame
     
     private NewClassAction newClassAction;
     private ImportClassAction importClassAction;
-    private PasteImageAction pasteImageAction;
     private SaveProjectAction saveProjectAction;
     private SaveAsAction saveAsAction;
     private ShowReadMeAction showReadMeAction;
@@ -763,7 +761,6 @@ public class GreenfootFrame extends JFrame
         exportProjectAction = new ExportProjectAction(this, false);
         shareAction = new ExportProjectAction(this, true);
         importClassAction = new ImportClassAction(this, worldHandlerDelegate);
-        pasteImageAction = new PasteImageAction(this);
         closeProjectAction = new CloseProjectAction(this);
         removeSelectedClassAction = new RemoveSelectedClassAction(this);
         convertToJavaSelectedClassAction = new ConvertToJavaSelectedClassAction(this);
@@ -806,9 +803,7 @@ public class GreenfootFrame extends JFrame
         addMenuItem(importClassAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
         addMenuItem(convertToJavaSelectedClassAction, editMenu, KeyEvent.VK_Y, false, KeyEvent.VK_Y);
-        editMenu.addSeparator();
-        addMenuItem(pasteImageAction, editMenu, KeyEvent.VK_V, false, KeyEvent.VK_V);
-                
+
         if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
             // Mac
             editMenu.addSeparator();
@@ -966,7 +961,6 @@ public class GreenfootFrame extends JFrame
         saveAsAction.setEnabled(state);
         newClassAction.setEnabled(state);
         importClassAction.setEnabled(state);
-        pasteImageAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
         saveWorldAction.setEnabled(state);
         exportProjectAction.setEnabled(state);

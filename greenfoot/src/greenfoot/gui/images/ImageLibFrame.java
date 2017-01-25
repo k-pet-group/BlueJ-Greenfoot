@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009,2010,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -22,6 +22,7 @@
 package greenfoot.gui.images;
 
 import greenfoot.actions.BrowseImagesAction;
+import greenfoot.actions.PasteImageAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
@@ -313,7 +314,16 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     selectImage(file);
                 }                                           
             });
-            
+
+            JMenuItem pasteImageItem = new JMenuItem(Config.getString("paste.image"));
+            pasteImageItem.setToolTipText(Config.getString("imagelib.paste.tooltip"));//
+            pasteImageItem.setEnabled(true);
+            pasteImageItem.setFont(PrefMgr.getPopupMenuFont());
+            pasteImageItem.addActionListener(e -> {
+                if (PasteImageAction.pasteImage(this, project))
+                    projImageList.refresh();
+            });
+
             JMenuItem importImageItem = new JMenuItem(Config.getString("imagelib.browse.button"));
             importImageItem.setFont(PrefMgr.getPopupMenuFont());
             importImageItem.setAction(new BrowseImagesAction(Config.getString("imagelib.browse.button"), this,
@@ -323,6 +333,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             popupMenu.add(fixHeight(duplicateItem));
             popupMenu.add(fixHeight(deleteItem));
             popupMenu.add(fixHeight(newImageItem));
+            popupMenu.add(fixHeight(pasteImageItem));
             popupMenu.add(fixHeight(importImageItem));
 //            popupMenu.add(fixHeight(pasteImageItem));
             
