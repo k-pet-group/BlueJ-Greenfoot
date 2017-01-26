@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2013,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import javafx.application.Platform;
 import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.RApplicationListener;
 import rmiextension.wrappers.event.RClassListener;
@@ -363,14 +364,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     @Override
     public void showPreferences() throws RemoteException
     {
-        EventQueue.invokeLater(new Runnable() {
-           @Override
-           public void run()
-           {
-               PrefMgrDialog.showDialog();
-               //Utility.bringToFrontFX(PrefMgrDialog.getInstance().getWindow());
-           }
-        });
+        Platform.runLater(() -> PrefMgrDialog.showDialog());
     }
 
     @Override

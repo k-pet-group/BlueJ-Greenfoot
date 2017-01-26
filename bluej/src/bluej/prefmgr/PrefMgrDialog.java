@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import bluej.BlueJTheme;
+import bluej.utility.Utility;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -245,6 +246,7 @@ public class PrefMgrDialog
         window.setTitle(Config.getApplicationName() + ": " + Config.getString("prefmgr.title"));
         Config.addDialogStylesheets(window.getDialogPane());
         JavaFXUtil.addStyleClass(window.getDialogPane(), "prefmgr-dialog-pane");
+        window.setOnShown(e -> Utility.bringToFrontFX(window.getDialogPane().getScene().getWindow()));
         
         window.setResizable(true);
 
