@@ -92,7 +92,7 @@ remove.confirm.text2=Continue?
 convert.to.java.confirm.title=Confirm converting a class
 convert.to.java.confirm.text1=About to convert
 convert.to.java.confirm.text2=class from Stride to Java.
-convert.to.java.confirm.text3=This operation is irreversible, continue?
+convert.to.java.confirm.text3=This operation may not be reversible. Continue?
 
 # Save As project dialog
 project.saveAs.title=Save Scenario As
