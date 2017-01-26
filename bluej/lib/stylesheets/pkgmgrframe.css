@@ -44,6 +44,11 @@
 .triangle-arrow:hover {
     -fx-fill: derive(darkgray, 20%);
 }
+.pmf-triangle-foldout-wrapper:bj-hover-long {
+    -fx-background-color: white;
+    -fx-cursor: hand;
+}
+
 .team-test-foldout-content {
     -fx-padding: 10px 0 0 0;
     -fx-spacing: 10px;

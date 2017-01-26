@@ -16,10 +16,17 @@
 }
 .catalogue-collapse {
    -fx-background-color: hsb(103, 3%, 91%);
+}
+.catalogue-collapse > .triangle-arrow {
+   -fx-fill: darkgray;
    -fx-cursor: hand;
 }
 .catalogue-collapse:bj-hover-long {
    -fx-background-color: white;
+   -fx-cursor: hand;
+}
+.triangle-arrow:hover {
+    -fx-fill: derive(darkgray, 20%);
 }
 
 .catalogue-item {

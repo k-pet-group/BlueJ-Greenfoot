@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,19 +32,15 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import bluej.utility.javafx.UntitledCollapsiblePane;
+import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -56,8 +52,6 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
@@ -71,10 +65,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
@@ -96,8 +88,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 
 
 /**
@@ -150,7 +140,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     @OnThread(Tag.Any)
     private final AtomicBoolean stageShowingSwing = new AtomicBoolean(false);
     private StringProperty titleStatus = new SimpleStringProperty("");
-    private BorderPane collapsibleCatalogueScrollPane;
+    private UntitledCollapsiblePane collapsibleCatalogueScrollPane;
     private FrameShelf shelf;
     private boolean dragFromShelf;
     @OnThread(Tag.FXPlatform)
@@ -254,16 +244,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         BorderPane.setAlignment(title, Pos.BOTTOM_RIGHT);
         catalogueBackground.setBottom(title);
         StackPane catalogueScrollPaneStacked = new StackPane(catalogueBackground, catalogueScrollPane);
-        collapsibleCatalogueScrollPane = new BorderPane();
-        collapsibleCatalogueScrollPane.setCenter(catalogueScrollPaneStacked);
+        //collapsibleCatalogueScrollPane.setCenter(catalogueScrollPaneStacked);
         catalogueScrollPaneStacked.setMinWidth(0.0);
-        CollapseControl collapseControl = new CollapseControl(catalogueScrollPaneStacked, showing -> {
-            catalogueScrollPane.setVbarPolicy(showing ? ScrollBarPolicy.AS_NEEDED : ScrollBarPolicy.NEVER);
-        });
+        collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,  PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING));
+        collapsibleCatalogueScrollPane.addArrowWrapperStyleClass("catalogue-collapse");
         JavaFXUtil.addChangeListener(showingCatalogue, expanded -> PrefMgr.setFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING, expanded));
         // runLater, after it has been put in scene:
         JavaFXUtil.runAfterCurrent(() -> showingCatalogue.set(PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING)));
-        collapsibleCatalogueScrollPane.setLeft(collapseControl);
         JavaFXUtil.addStyleClass(collapsibleCatalogueScrollPane, "catalogue-scroll-collapsible");
         menuAndTabPane.setRight(collapsibleCatalogueScrollPane);
         scene = new Scene(new StackPane(menuAndTabPane, dragPane, dragCursorPane, overlayPane.getNode()), 800, 700);
@@ -968,80 +955,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     public static enum CodeCompletionState
     {
         NOT_POSSIBLE, SHOWING, POSSIBLE;
-    }
-            
-    /**
-     * The triangle control to the left of the frame catalogue.  Clicking on it
-     * toggles the visibility of the frame catalogue by sliding it in or out
-     */
-    private class CollapseControl extends BorderPane
-    {
-        private final Duration EXPAND_COLLAPSE_DURATION = Duration.millis(200);
-        private final Scale scale;
-        private FXPlatformRunnable cancelHover;
-        public CollapseControl(Region collapse, FXConsumer<Boolean> listener)
-        {
-            JavaFXUtil.addStyleClass(this, "catalogue-collapse");
-            Canvas control = new Canvas(8, 12);
-            GraphicsContext gc = control.getGraphicsContext2D();
-            gc.setFill(Color.DARKGRAY);
-            gc.fillPolygon(new double[] { 1, control.getWidth() - 1, 1, 1}, new double[] {1, 6, 11, 1}, 4);
-            setCenter(control);
-            setFocusTraversable(false);
-            setMinWidth(10.0);
-            scale = new Scale(1.0, 1.0, control.getWidth() / 2.0, control.getHeight() / 2.0);
-            control.getTransforms().add(scale);
-            
-            DoubleProperty shrinkExpand = new SimpleDoubleProperty(1.0);
-            collapse.maxWidthProperty().bind(shrinkExpand.multiply(collapse.getMaxWidth()));
-            collapse.prefWidthProperty().bind(collapse.maxWidthProperty());
-            
-            // Click can be anywhere down the divider:
-            setOnMouseClicked(e -> showingCatalogue.set(!showingCatalogue.get()));
-            JavaFXUtil.addChangeListener(showingCatalogue, new FXConsumer<Boolean>()
-            {
-                private Timeline animation = null;
-
-                @Override
-                public void accept(Boolean nowExpanded)
-                {
-                    listener.accept(nowExpanded);
-                    animate(nowExpanded);
-                }
-
-                private void animate(boolean expand)
-                {
-                    if (animation != null)
-                    {
-                        animation.stop();
-                        animation = null;
-                    }
-
-                    animation = new Timeline(
-                            new KeyFrame(EXPAND_COLLAPSE_DURATION,
-                                    new KeyValue(shrinkExpand, expand ? 1.0 : 0.0, Interpolator.EASE_OUT),
-                                    new KeyValue(scale.xProperty(), expand ? 1.0 : -1.0))
-                    );
-                    animation.play();
-                }
-            });
-            // We use a delay before setting our hover class, to avoid flashes as the user moves their mouse cursor
-            // across the screen, to and from the frame catalogue:
-            setOnMouseEntered(e -> {
-                // Shouldn't be non-null, but just in case:
-                if (cancelHover != null)
-                    cancelHover.run();
-                cancelHover = JavaFXUtil.runAfter(Duration.millis(200), () -> JavaFXUtil.setPseudoclass("bj-hover-long", true, this));
-            });
-            setOnMouseExited(e -> {
-                if (cancelHover != null)
-                {
-                    cancelHover.run();
-                    cancelHover = null;
-                }
-                JavaFXUtil.setPseudoclass("bj-hover-long", false, this);
-            });
-        }
     }
 
     @OnThread(Tag.FXPlatform)

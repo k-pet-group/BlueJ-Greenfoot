@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.TriangleArrow;
+import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import javafx.animation.Animation;
 import javafx.animation.FillTransition;
 import javafx.animation.KeyFrame;
@@ -3113,15 +3114,16 @@ public class PkgMgrFrame
             teamPanel.setExpanded(true);
             testPanel.setCollapsible(false);
             testPanel.setExpanded(true);
-            teamAndTestFoldout = new UntitledCollapsiblePane(foldout, !PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS) && !PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS)) {
+            teamAndTestFoldout = new UntitledCollapsiblePane(foldout, ArrowLocation.TOP, !PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS) && !PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS)) {
                 @Override
                 @OnThread(Tag.FX)
                 protected double computeMinHeight(double width)
                 {
-                    return TriangleArrow.TRIANGLE_DEPTH;
+                    return TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding;
                 }
             };
             JavaFXUtil.addStyleClass(foldout, "team-test-foldout-content");
+            teamAndTestFoldout.addArrowWrapperStyleClass("pmf-triangle-foldout-wrapper");
             // When the user toggles the pane, we record that as the new preference.
             // But we deliberately don't toggle the pane when the preference changes;
             // each PkgMgrFrame is independent while showing, but we store the last user-triggered
