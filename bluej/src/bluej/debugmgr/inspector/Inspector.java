@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2012,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -255,26 +255,15 @@ public abstract class Inspector extends Stage
     public void update()
     {
         final List<FieldInfo> listData = getListData();
+
+        int prevSelection = fieldList.getSelectionModel().getSelectedIndex();
         
         fieldList.setData(listData);
         //fieldList.setTableHeader(null);
-        
-        // Ensures that an element (if any exist) is always selected
-        if (fieldList.getSelectionModel().getSelectedIndex() == -1 && listData.size() > 0) {
-            fieldList.getSelectionModel().select(0);
-        }
-                
-        // if (assertPanel != null) {
-        //    assertPanel.updateWithResultData((String) listData[0]);
-        // }
-        
-        int slot = fieldList.getSelectionModel().getSelectedIndex();
-        
-        // occurs if valueChanged picked up a clearSelection event from
-        // the list
-        if (slot != -1) {
-            listElementSelected(slot);
-        }
+
+        // Ensures that an element (if any exist) is always selected, preferably previously selected item:
+        if (!listData.isEmpty())
+            fieldList.getSelectionModel().select(prevSelection == -1 || prevSelection >= listData.size() ? 0 : prevSelection);
     }
 
     /**
