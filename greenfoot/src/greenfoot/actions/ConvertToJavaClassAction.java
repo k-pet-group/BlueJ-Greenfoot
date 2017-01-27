@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2015,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,7 +64,7 @@ public class ConvertToJavaClassAction extends AbstractAction
     
     public static boolean confirmConvertClass(ClassView cls, JFrame frame)
     {
-        String[] options = new String[] { Config.getString("convert.to.java.class"), BlueJTheme.getCancelLabel() };
+        String[] options = new String[] { BlueJTheme.getOkLabel(), BlueJTheme.getCancelLabel() };
         int convertToJava = 0;
         int response = JOptionPane.showOptionDialog(frame,
                 confirmConvertText1 + " " + cls.getClassName() + " " + confirmConvertText2 + "\n" + confirmConvertText3,
