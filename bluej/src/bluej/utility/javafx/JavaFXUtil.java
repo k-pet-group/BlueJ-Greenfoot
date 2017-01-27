@@ -585,7 +585,11 @@ public class JavaFXUtil
         alert.initModality(Modality.WINDOW_MODAL);
         if (bringToFront)
         {
-            alert.setOnShown(e -> Utility.bringToFrontFX(alert.getDialogPane().getScene().getWindow()));
+            addSelfRemovingListener(alert.showingProperty(), showing -> {
+                    if (showing) {
+                        Utility.bringToFrontFX(alert.getDialogPane().getScene().getWindow());
+                    }
+            });
         }
         // Without this line, text will be truncated not wrapped:
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
