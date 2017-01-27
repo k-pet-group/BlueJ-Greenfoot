@@ -2270,7 +2270,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             rarerImports.stream().flatMap(imps -> getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.RARE, ac)))
         )
             .filter(imp -> imp.getValue().getPackage() != null)
-            .forEach(imp -> imports.put(imp.getValue().getPackage() + "." + imp.getValue().getName(), imp));
+            .forEach(imp -> {
+                String fullName = imp.getValue().getPackage() + ".";
+                if (imp.getValue().getDeclaringClass() != null)
+                    fullName += imp.getValue().getDeclaringClass() + ".";
+                fullName += imp.getValue().getName();
+                imports.put(fullName, imp);
+            });
         // Remove what we already import:
         getAllImportedTypes()
             .filter(imp -> imp.getPackage() != null)

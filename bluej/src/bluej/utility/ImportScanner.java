@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -128,7 +129,7 @@ public class ImportScanner
         @OnThread(Tag.Worker)
         private AssistContentThreadSafe getType(String prefix, String name, JavadocResolver javadocResolver)
         {
-            return types.computeIfAbsent(name, s -> { 
+            return types.computeIfAbsent(name, s -> {
                 Class<?> c = reflections.typeNameToClass(prefix + s);
                 // To safely get an AssistContentThreadSafe, we must create one from the Swing thread.
                 // So we need to hop across to the Swing thread.  Because we are an arbitrary background
@@ -169,7 +170,10 @@ public class ImportScanner
             if (s.equals("*"))
             {
                 // Return all types:
-                return types.keySet().stream().map(t -> getType(prefix, t, javadocResolver)).filter(ac -> ac != null).collect(Collectors.toList());
+
+                // Take a copy in case it causes problems that getType modifies the collection
+                Collection<String> typeNames = new ArrayList<>(types.keySet());
+                return typeNames.stream().map(t -> getType(prefix, t, javadocResolver)).filter(ac -> ac != null).collect(Collectors.toList());
             }
             else if (idents.hasNext())
             {
@@ -503,7 +507,8 @@ public class ImportScanner
             else
             {
                 AssistContentThreadSafe acts = new AssistContentThreadSafe(el);
-                loadPkg.types.put(acts.getName(), acts);
+                String nameWithoutPackage = (acts.getDeclaringClass() == null ? "" : acts.getDeclaringClass() + "$") + acts.getName();
+                loadPkg.types.put(nameWithoutPackage, acts);
             }
         }
 

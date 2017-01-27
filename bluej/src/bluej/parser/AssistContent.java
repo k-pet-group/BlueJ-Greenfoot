@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -194,7 +194,7 @@ public abstract class AssistContent
 
     /** Get the declaring class of this completion (as a string).
      * Returns null if it is a local variable (i.e. not a member of a class)
-     * or a type. */
+     * or a non-inner-class type. */
     public abstract String getDeclaringClass();
     
     public abstract CompletionKind getKind();
