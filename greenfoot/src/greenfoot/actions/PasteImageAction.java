@@ -45,6 +45,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -88,7 +90,7 @@ public class PasteImageAction extends AbstractAction
                 dlg.setModal(true);
                 DialogManager.centreDialog(dlg);
                 dlg.setVisible(true);
-                
+
                 if (dlg.getFileName() != null)
                 {
                     ImageIO.write(buffered, "png", new File(project.getImageDir(), dlg.getFileName() + ".png"));
@@ -99,7 +101,7 @@ public class PasteImageAction extends AbstractAction
             {
                 Debug.reportError(ex);
             }
-         
+
         }
         else
         {
@@ -110,7 +112,9 @@ public class PasteImageAction extends AbstractAction
 
     private static class NameDialog extends EscapeDialog
     {
-        private String fileName = null; 
+        private String fileName = null;
+        private JTextField fileNameField;
+        private JButton okButton;
 
         public NameDialog(EscapeDialog parent, BufferedImage img)
         {
@@ -129,8 +133,19 @@ public class PasteImageAction extends AbstractAction
             JPanel fileNameRow = new JPanel();
             fileNameRow.setLayout(new BoxLayout(fileNameRow, BoxLayout.X_AXIS));
             fileNameRow.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
-            JTextField fileNameField = new JTextField();
+            fileNameField = new JTextField();
             fileNameField.setHorizontalAlignment(JTextField.RIGHT);
+            fileNameField.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) { updateOkButton(); }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) { updateOkButton(); }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {}
+            });
+
             fileNameRow.add(new JLabel(Config.getString("editor.paste.image.prompt")));
             fileNameRow.add(fileNameField);
             fileNameRow.add(new JLabel(".png"));
@@ -140,8 +155,9 @@ public class PasteImageAction extends AbstractAction
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            JButton okButton = BlueJTheme.getOkButton();
+            okButton = BlueJTheme.getOkButton();
             okButton.addActionListener(e -> { fileName = fileNameField.getText(); setVisible(false); });
+            okButton.setEnabled(false);
 
             JButton cancelButton = BlueJTheme.getCancelButton();
             cancelButton.addActionListener(e -> setVisible(false));
@@ -155,6 +171,11 @@ public class PasteImageAction extends AbstractAction
             pack();
             
             fileNameField.requestFocusInWindow();
+        }
+
+        private void updateOkButton()
+        {
+            okButton.setEnabled(!fileNameField.getText().isEmpty());
         }
         
         public String getFileName()
