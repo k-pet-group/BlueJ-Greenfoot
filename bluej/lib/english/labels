@@ -375,6 +375,9 @@ pkgmgr.noClassesExisted.message=\u2196 Use the Edit menu to create or add a clas
 pkgmgr.packagemenu.open=Open
 pkgmgr.packagemenu.remove=Delete
 
+pkgmgr.cssmenu.open=Open
+pkgmgr.cssmenu.remove=Delete
+
 pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.inspect=Inspect

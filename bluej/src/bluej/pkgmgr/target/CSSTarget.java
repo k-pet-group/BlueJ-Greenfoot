@@ -27,8 +27,11 @@ import java.util.List;
 import java.util.Properties;
 
 import javafx.application.Platform;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 
+import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
@@ -47,6 +50,10 @@ import threadchecker.Tag;
  */
 public class CSSTarget extends NonCodeEditableTarget
 {
+    private static final String openStr = Config.getString("pkgmgr.cssmenu.open");
+    private static final String removeStr = Config.getString("pkgmgr.cssmenu.remove");
+
+
     private final File file;
 
     public CSSTarget(Package aPackage, File file)
@@ -66,16 +73,49 @@ public class CSSTarget extends NonCodeEditableTarget
         SwingUtilities.invokeLater(() -> open());
     }
 
+    /**
+     * Disply the context menu.
+     */
     @Override
-    public @OnThread(Tag.FXPlatform) void popupMenu(int x, int y, PackageEditor editor)
+    @OnThread(Tag.FXPlatform)
+    public void popupMenu(int x, int y, PackageEditor graphEditor)
     {
-        // TODO
+        ContextMenu menu = createMenu();
+        if (menu != null) {
+            showingMenu(menu);
+            menu.show(pane, x, y);
+        }
+    }
+
+    /**
+     * Construct a popup menu which displays all our parent packages.
+     */
+    @OnThread(Tag.FXPlatform)
+    private ContextMenu createMenu()
+    {
+        MenuItem open = new MenuItem(openStr);
+        open.setOnAction(e -> SwingUtilities.invokeLater(() -> {
+            open();
+        }));
+        JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
+        ContextMenu contextMenu = new ContextMenu(open);
+
+        MenuItem remove = new MenuItem(removeStr);
+        remove.setOnAction(e -> SwingUtilities.invokeLater(() ->
+        {
+            getPackage().getEditor().raiseRemoveTargetEvent(this);
+        }));
+        JavaFXUtil.addStyleClass(remove, "class-action-inbuilt");
+        contextMenu.getItems().add(remove);
+
+        return contextMenu;
     }
 
     @Override
     public void remove()
     {
-        // TODO
+        getPackage().removeTarget(this);
+        file.delete();
     }
 
     @Override

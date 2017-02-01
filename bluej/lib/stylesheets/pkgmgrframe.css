@@ -162,7 +162,7 @@
 .class-target:bj-unittest:hover {
     -fx-background-color: derive(test-target, 25%);
 }
-.class-target:bj-selected, .package-target:bj-selected {
+.class-target:bj-selected, .package-target:bj-selected, .css-target:bj-selected {
     -fx-border-width: 3;
 }
 .class-target-name {
