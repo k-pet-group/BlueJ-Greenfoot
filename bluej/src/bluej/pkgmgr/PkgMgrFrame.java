@@ -29,6 +29,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,6 +44,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import bluej.pkgmgr.actions.NewCSSAction;
+import bluej.pkgmgr.target.CSSTarget;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.TriangleArrow;
 import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
@@ -270,6 +273,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     private final Action newClassAction = new NewClassAction(this);
     private final Action newPackageAction = new NewPackageAction(this);
+    private final Action newCSSAction = new NewCSSAction(this);
     private final Action addClassAction = new AddClassAction(this);
     private final Action removeAction = new RemoveAction(this);
     @OnThread(Tag.Any)
@@ -2443,6 +2447,23 @@ public class PkgMgrFrame
     }
 
     /**
+     * Prompts the user with a dialog asking for the name of a CSS file to
+     * create.
+     *
+     * @param x The X coordinate in the class diagram, or -1 for auto-place
+     * @param y The Y coordinate in the class diagram, or -1 for auto-place
+     */
+    public void doCreateNewCSS(double x, double y)
+    {
+        Platform.runLater(() -> {
+            NewCSSDialog dlg = new NewCSSDialog(stageProperty.getValue());
+            Optional<String> fileName = dlg.showAndWait();
+
+            fileName.ifPresent(name -> SwingUtilities.invokeLater(() -> createNewCSS(name, x, y)));
+        });
+    }
+
+    /**
      * Prompts the user with a dialog asking for the name of a package to
      * create. Package name can be fully qualified in which case all
      * intermediate packages will also be created as necessary.
@@ -2531,6 +2552,29 @@ public class PkgMgrFrame
         }
         
         return true;
+    }
+    
+    private void createNewCSS(String fileName, double x, double y)
+    {
+        Target target = getProject().getTarget(fileName);
+        if (target != null)
+        {
+            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "duplicate-name"));
+            return;
+        }
+        File cssFile = new File(getPackage().getPath(), fileName);
+        try
+        {
+            cssFile.createNewFile();
+        }
+        catch (IOException e)
+        {
+            Debug.reportError(e);
+        }
+        target = new CSSTarget(getPackage(), cssFile);
+        target.setPos((int)x, (int)y);
+        
+        getPackage().addTarget(target);
     }
 
     /**
@@ -3244,6 +3288,7 @@ public class PkgMgrFrame
             menubar.add(new JavaFXUtil.SwingMenu(menu));
             createMenuItem(newClassAction, menu);
             createMenuItem(newPackageAction, menu);
+            createMenuItem(newCSSAction, menu);
             createMenuItem(addClassAction, menu);
             createMenuItem(removeAction, menu);
             menu.addSeparator();
@@ -3484,6 +3529,7 @@ public class PkgMgrFrame
         actionsToDisable.add(printAction);
         actionsToDisable.add(newClassAction);
         actionsToDisable.add(newPackageAction);
+        actionsToDisable.add(newCSSAction);
         actionsToDisable.add(addClassAction);
         actionsToDisable.add(removeAction);
         actionsToDisable.add(newInheritsAction);

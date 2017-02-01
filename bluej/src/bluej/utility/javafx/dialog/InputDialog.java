@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
@@ -71,8 +72,9 @@ public abstract class InputDialog<R>
      * @param label The text shown in the label above the text field.
      * @param prompt The prompt shown in the text field
      * @param styleClass The style-class to apply to the dialog.
+     * @param labelAfterField The label (null if none) to show after the text field (e.g. a file extension suffix) 
      */
-    protected InputDialog(String title, String label, String prompt, String styleClass)
+    protected InputDialog(String title, String label, String prompt, String styleClass, String labelAfterField)
     {
         dialog = new Dialog<>();
         dialog.initModality(Modality.WINDOW_MODAL);
@@ -89,8 +91,16 @@ public abstract class InputDialog<R>
             }
         });
         error = new Label();
-        // By default, error label is shown
-        content.getChildren().addAll(this.prompt, field, error);
+        if (labelAfterField == null)
+        {
+            // By default, error label is shown
+            content.getChildren().addAll(this.prompt, field, error);
+        }
+        else
+        {
+            HBox hbox = new HBox(field, new Label(labelAfterField));
+            content.getChildren().addAll(this.prompt, hbox, error);
+        }
         dialogPane = new DialogPaneAnimateError(error, () -> validate(field.getText(), field.getText()));
         dialog.setDialogPane(dialogPane);
         dialog.getDialogPane().setContent(content);
@@ -148,6 +158,11 @@ public abstract class InputDialog<R>
             return getTitle ? title : message;
         }
         return "";
+    }
+
+    protected InputDialog(String title, String label, String prompt, String styleClass)
+    {
+        this(title, label, prompt, styleClass, null);
     }
     
     protected InputDialog(String dialogMsgID, String prompt, String styleClass)

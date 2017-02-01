@@ -442,6 +442,14 @@ pkgmgr.newPackage.prompt=Package name
 pkgmgr.newPackage.newPackage=Package
 pkgmgr.newPackage.error=Invalid package name
 
+# "new CSS" dialog
+pkgmgr.newCSS.title=BlueJ:  Create New CSS File
+pkgmgr.newCSS.label=CSS File:
+pkgmgr.newCSS.prompt=Filename
+pkgmgr.newCSS.newCSS=CSS
+pkgmgr.newCSS.error=Invalid filename
+
+
 # "Use Library Class" dialog
 callLibraryDialog.title=BlueJ:  Call Library Class
 callLibraryDialog.classLabel=Class:
@@ -600,6 +608,7 @@ menu.package.quit=_Quit@Q
 menu.edit=_Edit
 menu.edit.newClass=New Class...@N
 menu.edit.newPackage=New Package...@R
+menu.edit.newCSS=New CSS File...
 menu.edit.addClass=_Add Class from File...
 menu.edit.remove=Delete@BACK_SPACE
 menu.edit.newUses=New _Uses Arrow...

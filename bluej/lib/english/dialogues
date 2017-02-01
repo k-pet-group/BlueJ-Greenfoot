@@ -167,9 +167,9 @@ No Java source files were
 found in this directory.
 
 duplicate-name
-A class or package with this name already exists
+A class, package or file with this name already exists
 in this project. You cannot have two
-classes or packages with the same name.
+classes, packages or files with the same name.
 
 class-library-conflict
 A class with this name already exists in the library

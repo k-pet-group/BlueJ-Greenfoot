@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -332,8 +332,18 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             });
         });
         JavaFXUtil.addStyleClass(newPackage, "class-action-inbuilt");
-
-        menu.getItems().addAll(newClass, newPackage);
+        
+        MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newCSS"));
+        
+        newCSS.setOnAction(e -> {
+            SwingUtilities.invokeLater(() -> {
+                pmf.menuCall();
+                pmf.doCreateNewCSS(graphLoc.getX(), graphLoc.getY());
+            });
+        });
+        JavaFXUtil.addStyleClass(newCSS, "class-action-inbuilt");
+        
+        menu.getItems().addAll(newClass, newPackage, newCSS);
 
         // Eugh; we need the extensions manager from the swing thread,
         // then need to create on FX then add extension on Swing
