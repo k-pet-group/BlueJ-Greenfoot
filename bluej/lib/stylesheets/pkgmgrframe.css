@@ -1,6 +1,7 @@
 .root {
     class-target: rgb(239, 204, 149);
     test-target: rgb(166, 191, 137);
+    css-target: rgb(197, 205, 206);
     window-background: rgb(229, 229, 229);
     class-diagram: rgb(249,247,242);
     object-bench: rgb(239,237,232);
@@ -149,8 +150,12 @@
     /* We set this programatically because we vary it when the mouse moves to the bottom corner: */
     /*-fx-cursor: hand; */
 }
+.css-target {
+    -fx-background-color: css-target;
+}
+
 .class-target, .class-target:bj-resizing, .class-target:bj-resizing:hover,
-  .package-target-preview-item, .css-target {
+  .package-target-preview-item {
     -fx-background-color: class-target;
 }
 .class-target:hover {

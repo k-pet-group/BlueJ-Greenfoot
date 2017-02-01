@@ -23,22 +23,17 @@ package bluej.pkgmgr.target;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.List;
 import java.util.Properties;
-
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.BorderPane;
 
 import bluej.Config;
-import bluej.collect.DiagnosticWithShown;
-import bluej.collect.StrideEditReason;
-import bluej.compiler.CompileReason;
-import bluej.compiler.CompileType;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
-import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.JavaFXUtil;
@@ -63,7 +58,9 @@ public class CSSTarget extends NonCodeEditableTarget
 
         Platform.runLater(() -> {
             JavaFXUtil.addStyleClass(pane, "css-target");
-            pane.setCenter(new Label(file.getName()));
+            Label name = new Label(file.getName());
+            BorderPane.setAlignment(name, Pos.CENTER);
+            pane.setTop(name);
         });
     }
 
