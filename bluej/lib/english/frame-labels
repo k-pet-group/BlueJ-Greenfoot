@@ -17,6 +17,48 @@ frame.catalogue.birdseye.select=Select
 frame.catalogue.examples=Examples
 
 
+# Stride Dictionary:
+stride.dictionary.call.method.name=Call method
+stride.dictionary.call.method.description=Calls a method
+stride.dictionary.blank.name=Blank
+stride.dictionary.blank.description=A blank line
+stride.dictionary.comment.name=Comment
+stride.dictionary.comment.description=A code comment
+stride.dictionary.assignment=Assignment
+stride.dictionary.abstract.method.name=Abstract method
+stride.dictionary.abstract.method.interface.description=A method of an interface
+stride.dictionary.abstract.method.class.description=An abstract method of a class
+stride.dictionary.break.name=Break
+stride.dictionary.break.description=Breaks out of loop
+stride.dictionary.constructor.name=Constructor
+stride.dictionary.constructor.description=A constructor of a class
+stride.dictionary.case.name=Case (Switch)
+stride.dictionary.case.description=Handles specific value
+stride.dictionary.constant.name=Constant declaration
+stride.dictionary.constant.description=Declares constant
+stride.dictionary.for.each.name=For-each loop
+stride.dictionary.for.each.description=Loop over a collection
+stride.dictionary.if.name=If
+stride.dictionary.if.description=Conditional execution
+stride.dictionary.else.name=Else
+stride.dictionary.else.description=Else execution
+stride.dictionary.import.name=Import
+stride.dictionary.import.description=Import a class or package
+stride.dictionary.method.name=Method
+stride.dictionary.method.description=A method of a class
+stride.dictionary.return.name=Return
+stride.dictionary.return.description=Returns from method
+stride.dictionary.switch.name=Switch
+stride.dictionary.switch.description=Chooses from several cases
+stride.dictionary.variable.name=Variable declaration
+stride.dictionary.variable.description=Declares variable
+stride.dictionary.while.name=While loop
+stride.dictionary.while.description=Pre-condition loop
+stride.dictionary.throw.name=Throw
+stride.dictionary.throw.description=Throws an exception
+stride.dictionary.try.name=Try/catch
+stride.dictionary.try.description=Try block
+
 # Error Bar:
 frame.error.overview.bar.error.single=error
 frame.error.overview.bar.error.plural=errors

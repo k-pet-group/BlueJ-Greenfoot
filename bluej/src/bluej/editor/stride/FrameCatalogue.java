@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -91,7 +91,7 @@ public class FrameCatalogue extends VBox
          * @param c The currently focused frame cursor (or null if focus is not on a frame cursor)
          * @param codeCompletion Whether code completion is possible, impossible, or currently showing
          * @param hasFrameSelection Whether there is a frame selection
-         * @param inBirdseye Whether we are in bird's eye view
+         * @param viewMode The current view mode (Normal, Java, Birdseye w/o documentation)
          */
         public void update(FrameCursor c, CodeCompletionState codeCompletion, boolean hasFrameSelection, Frame.View viewMode);
     }

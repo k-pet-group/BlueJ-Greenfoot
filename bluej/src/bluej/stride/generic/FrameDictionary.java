@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.stride.generic;
 
+
+import bluej.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,33 +46,27 @@ public abstract class FrameDictionary<CATEGORY>
         private final boolean validOnSelection;
         private final boolean showingInCatalogue;
 
-        public Entry(List<Character> shortcutKeys, FrameFactory<? extends Frame> factory, boolean validOnSelection,
-                     CATEGORY category, String name, String description)
-        {
-            this(shortcutKeys, factory, validOnSelection, category, name, description, true);
-        }
-        
         public Entry(char shortcutKey, FrameFactory<? extends Frame> factory, boolean validOnSelection,
-                CATEGORY category, String name, String description)
+                CATEGORY category, String nameLabel, String descriptionLabel)
         {
-            this(Arrays.asList(shortcutKey), factory, validOnSelection, category, name, description, true);
+            this(Arrays.asList(shortcutKey), factory, validOnSelection, category, nameLabel, descriptionLabel, true);
         }
 
         public Entry(char shortcutKey, FrameFactory<? extends Frame> factory, boolean validOnSelection,
-                     CATEGORY category, String name, String description, boolean showingInCatalogue)
+                     CATEGORY category, String nameLabel, String descriptionLabel, boolean showingInCatalogue)
         {
-            this(Arrays.asList(shortcutKey), factory, validOnSelection, category, name, description, showingInCatalogue);
+            this(Arrays.asList(shortcutKey), factory, validOnSelection, category, nameLabel, descriptionLabel, showingInCatalogue);
         }
 
         private Entry(List<Character> shortcutKeys, FrameFactory<? extends Frame> factory, boolean validOnSelection,
-                      CATEGORY category, String name, String description, boolean showingInCatalogue)
+                      CATEGORY category, String nameLabel, String descriptionLabel, boolean showingInCatalogue)
         {
             this.shortcutKeys = new ArrayList<>(shortcutKeys);
             this.factory = factory;
-            this.category = category;
-            this.name = name;
-            this.description = description;
             this.validOnSelection = validOnSelection;
+            this.category = category;
+            this.name = Config.getString(nameLabel);
+            this.description = Config.getString(descriptionLabel);
             this.showingInCatalogue = showingInCatalogue;
         }
 

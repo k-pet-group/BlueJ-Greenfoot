@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,36 +53,36 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
     private StrideDictionary()
     {
         super(Arrays.asList(
-            new Entry<>(' ', CallFrame.getFactory(), false, StrideCategory.CALL, "Call method", "Calls a method"),
-            new Entry<>('\n', BlankFrame.getFactory(), false, StrideCategory.BLANK, "Blank", "A blank line"),
-            new Entry<>('/', CommentFrame.getFactory(), false, StrideCategory.COMMENT, "Comment", "A code comment"),
-            new Entry<>('=', AssignFrame.getFactory(), false, StrideCategory.ASSIGNMENT, "Assignment", "Assignment"),
+            new Entry<>(' ', CallFrame.getFactory(), false, StrideCategory.CALL, "stride.dictionary.call.method.name", "stride.dictionary.call.method.description"),
+            new Entry<>('\n', BlankFrame.getFactory(), false, StrideCategory.BLANK, "stride.dictionary.blank.name", "stride.dictionary.blank.description"),
+            new Entry<>('/', CommentFrame.getFactory(), false, StrideCategory.COMMENT, "stride.dictionary.comment.name", "stride.dictionary.comment.description"),
+            new Entry<>('=', AssignFrame.getFactory(), false, StrideCategory.ASSIGNMENT, "stride.dictionary.assignment", "stride.dictionary.assignment"),
             //case '*': return new MultiCommentBlock(editor);
             // Last parameter is false in the next entry as No need to show it in the Catalogue, just make it valid.
-            new Entry<>('a', MethodProtoFrame.getFactory(), false, StrideCategory.INTERFACE_METHOD, "Abstract method", "A method of an interface", false),
-            new Entry<>('a', MethodProtoFrame.getFactory(), false, StrideCategory.CLASS_METHOD, "Abstract method", "An abstract method of a class"),
-            new Entry<>('b', BreakFrame.getFactory(), false, StrideCategory.BREAK, "Break", "Breaks out of loop"),
-            new Entry<>('c', ConstructorFrame.getFactory(), false, StrideCategory.CONSTRUCTOR, "Constructor", "A constructor of a class"),
-            new Entry<>('c', CaseFrame.getFactory(), false, StrideCategory.CASE, "Case (Switch)", "Handles specific value"),
-            new Entry<>('c', VarFrame.getLocalConstantFactory(), false, StrideCategory.VAR_LOCAL, "Constant declaration", "Declares constant"),
-            new Entry<>('c', VarFrame.getClassConstantFactory(), false, StrideCategory.CONSTANT_CLASS_FIELD, "Constant declaration", "Declares constant"),
-            new Entry<>('c', VarFrame.getInterfaceConstantFactory(), false, StrideCategory.CONSTANT_INTERFACE_FIELD, "Constant declaration", "Declares constant"),
+            new Entry<>('a', MethodProtoFrame.getFactory(), false, StrideCategory.INTERFACE_METHOD, "stride.dictionary.abstract.method.name", "stride.dictionary.abstract.method.interface.description", false),
+            new Entry<>('a', MethodProtoFrame.getFactory(), false, StrideCategory.CLASS_METHOD, "stride.dictionary.abstract.method.name", "stride.dictionary.abstract.method.class.description"),
+            new Entry<>('b', BreakFrame.getFactory(), false, StrideCategory.BREAK, "stride.dictionary.break.name", "stride.dictionary.break.description"),
+            new Entry<>('c', ConstructorFrame.getFactory(), false, StrideCategory.CONSTRUCTOR, "stride.dictionary.constructor.name", "stride.dictionary.constructor.description"),
+            new Entry<>('c', CaseFrame.getFactory(), false, StrideCategory.CASE, "stride.dictionary.case.name", "stride.dictionary.case.description"),
+            new Entry<>('c', VarFrame.getLocalConstantFactory(), false, StrideCategory.VAR_LOCAL, "stride.dictionary.constant.name", "stride.dictionary.constant.description"),
+            new Entry<>('c', VarFrame.getClassConstantFactory(), false, StrideCategory.CONSTANT_CLASS_FIELD, "stride.dictionary.constant.name", "stride.dictionary.constant.description"),
+            new Entry<>('c', VarFrame.getInterfaceConstantFactory(), false, StrideCategory.CONSTANT_INTERFACE_FIELD, "stride.dictionary.constant.name", "stride.dictionary.constant.description"),
             //case 'f': return new ForBlock(editor);
-            new Entry<>('f', ForeachFrame.getFactory(), true, StrideCategory.LOOP, "For-each loop", "Loop over a collection"),
-            new Entry<>('i', IfFrame.getFactory(), true, StrideCategory.CONDITIONAL, "If", "Conditional execution"),
-//            new Entry<>('e', IfFrame.getFactory(), false, StrideCategory.CONDITIONAL, "Else", "Else execution"),
-            new Entry<>('i', ImportFrame.getFactory(), false, StrideCategory.IMPORT, "Import", "Import a class or package"),
-            new Entry<>('m', NormalMethodFrame.getFactory(), false, StrideCategory.CLASS_METHOD, "Method", "A method of a class"),
-            new Entry<>('m', MethodProtoFrame.getFactory(), false, StrideCategory.INTERFACE_METHOD, "Abstarct Method", "A method of an interface"),
+            new Entry<>('f', ForeachFrame.getFactory(), true, StrideCategory.LOOP, "stride.dictionary.for.each.name", "stride.dictionary.for.each.description"),
+            new Entry<>('i', IfFrame.getFactory(), true, StrideCategory.CONDITIONAL, "stride.dictionary.if.name", "stride.dictionary.if.description"),
+//            new Entry<>('e', IfFrame.getFactory(), false, StrideCategory.CONDITIONAL, "stride.dictionary.else.name", "stride.dictionary.else.description"),
+            new Entry<>('i', ImportFrame.getFactory(), false, StrideCategory.IMPORT, "stride.dictionary.import.name", "stride.dictionary.import.description"),
+            new Entry<>('m', NormalMethodFrame.getFactory(), false, StrideCategory.CLASS_METHOD, "stride.dictionary.method.name", "stride.dictionary.method.description"),
+            new Entry<>('m', MethodProtoFrame.getFactory(), false, StrideCategory.INTERFACE_METHOD, "stride.dictionary.abstarct.name", "stride.dictionary.abstract.method.interface.description"),
             //case 'o': return new ObjectBlock(editor);
-            new Entry<>('r', ReturnFrame.getFactory(), false, StrideCategory.RETURN, "Return", "Returns from method"),
-            new Entry<>('s', SwitchFrame.getFactory(), false, StrideCategory.SWITCH, "Switch", "Chooses from several cases"),
-            new Entry<>('v', VarFrame.getFactory(), false, StrideCategory.VAR, "Variable declaration", "Declares variable"),
-            new Entry<>('w', WhileFrame.getFactory(), true, StrideCategory.LOOP, "While loop", "Pre-condition loop"),
-            new Entry<>('x', ThrowFrame.getFactory(), false, StrideCategory.THROW, "Throw", "Throws an exception"),
-            new Entry<>('y', TryFrame.getFactory(), true, StrideCategory.TRY, "Try/catch", "Try block")
+            new Entry<>('r', ReturnFrame.getFactory(), false, StrideCategory.RETURN, "stride.dictionary.return.name", "stride.dictionary.return.description"),
+            new Entry<>('s', SwitchFrame.getFactory(), false, StrideCategory.SWITCH, "stride.dictionary.switch.name", "stride.dictionary.switch.description"),
+            new Entry<>('v', VarFrame.getFactory(), false, StrideCategory.VAR, "stride.dictionary.variable.name", "stride.dictionary.variable.description"),
+            new Entry<>('w', WhileFrame.getFactory(), true, StrideCategory.LOOP, "stride.dictionary.while.name", "stride.dictionary.while.description"),
+            new Entry<>('x', ThrowFrame.getFactory(), false, StrideCategory.THROW, "stride.dictionary.throw.name", "stride.dictionary.throw.description"),
+            new Entry<>('y', TryFrame.getFactory(), true, StrideCategory.TRY, "stride.dictionary.try.name", "stride.dictionary.try.description")
             //TODO When implementing a stride debugger.
-            //new Entry<>('z', BreakpointFrame.getFactory(), false, StrideCategory.COMMENT, "Breakpoint", "Pauses execution, for debugging")
+            //new Entry<>('z', BreakpointFrame.getFactory(), false, StrideCategory.COMMENT, "stride.dictionary.breakpoint.name", "stride.dictionary.breakpoint.description")
         ));
 
         extensions.put("catch", 'c');
