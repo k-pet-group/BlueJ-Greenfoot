@@ -1927,8 +1927,9 @@ public class PkgMgrFrame
                     closePackage();
                     testRecordingEnded(); // disable test controls
                     updateRecentProjects();
+                    // Must do it after package has been closed:
+                    Platform.runLater(() -> updateWindow());
                 }); // changes menu items
-                updateWindow();
 
                 FXMenuManager vm = viewMenuManager.get();
                 FXMenuManager tm = toolsMenuManager.get();
