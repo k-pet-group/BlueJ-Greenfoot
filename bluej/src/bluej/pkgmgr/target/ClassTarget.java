@@ -42,6 +42,7 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
@@ -51,10 +52,8 @@ import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileInputFile;
-import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
-import bluej.compiler.Diagnostic;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
@@ -1999,18 +1998,7 @@ public class ClassTarget extends DependentTarget
                     Window fxWindow = ed.getFXWindow();
                     SwingUtilities.invokeLater(() -> {
                         CompletableFuture<DebuggerResult> result = getPackage().getDebugger().launchFXApp(cl.getName());
-                        result.thenAccept(r ->
-                        {
-                            switch (r.getExitStatus())
-                            {
-                                case Debugger.NORMAL_EXIT:
-                                    SwingUtilities.invokeLater(() -> {
-                                        DebuggerObject obj = r.getResultObject();
-                                        ed.raisePutOnBenchEvent(fxWindow, obj, obj.getGenType(), null, false, Optional.empty());
-                                    });
-                                    break;
-                            }
-                        });
+                        putFXLaunchResult(ed, fxWindow, result);
                     });
                 }, null), MENU_STYLE_INBUILT));
             }
@@ -2041,6 +2029,29 @@ public class ClassTarget extends DependentTarget
             menuManager.addExtensionMenu(getPackage().getProject());
 
             Platform.runLater(() -> {withMenu.accept(menu);});
+        });
+    }
+
+    @OnThread(Tag.Swing)
+    private void putFXLaunchResult(PackageEditor ed, Window fxWindow, CompletableFuture<DebuggerResult> result)
+    {
+        result.thenAccept(new Consumer<DebuggerResult>()
+        {
+            @Override
+            @OnThread(Tag.Worker)
+            public void accept(DebuggerResult r)
+            {
+                switch (r.getExitStatus())
+                {
+                    case Debugger.NORMAL_EXIT:
+                        SwingUtilities.invokeLater(() ->
+                        {
+                            DebuggerObject obj = r.getResultObject();
+                            ed.raisePutOnBenchEvent(fxWindow, obj, obj.getGenType(), null, false, Optional.empty());
+                        });
+                        break;
+                }
+            }
         });
     }
 
