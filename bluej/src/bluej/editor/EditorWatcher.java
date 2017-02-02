@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -63,11 +63,6 @@ public interface EditorWatcher
      */
     String breakpointToggleEvent(int lineNo, boolean set);
 
-    /**
-     * Called by Editor when a file is to be compiled
-     */
-    void compile(Editor editor, CompileReason reason, CompileType type);
-    
     /**
      * Called by Editor when documentation is to be compiled
      */

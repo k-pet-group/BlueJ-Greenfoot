@@ -95,9 +95,6 @@ public abstract class NonCodeEditableTarget extends EditableTarget
     public void recordShowErrorIndicator(int identifier) { }
 
     @Override
-    public void compile(Editor editor, CompileReason reason, CompileType type) {}
-
-    @Override
     @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type) {}
 

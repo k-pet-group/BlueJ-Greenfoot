@@ -1373,50 +1373,6 @@ public class ClassTarget extends DependentTarget
         return getState() == State.COMPILED;
     }
 
-    /**
-     * Description of the Method
-     * 
-     * @param editor Description of the Parameter
-     */
-    @Override
-    public void compile(final Editor editor, CompileReason reason, CompileType type)
-    {
-        Debug.message("Creating compObserver....");
-        final CompileObserver compObserver = new CompileObserver()
-        {
-            @Override
-            public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
-            {
-            }
-
-            @Override
-            public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
-            {
-                editor.compileFinished(successful, type.keepClasses());
-            }
-
-            @Override
-            public void compilerMessage(Diagnostic diagnostic, CompileType type)
-            {
-            }
-        };
-
-        if (Config.isGreenfoot()) {
-            //In Greenfoot compiling always compiles the whole package, and at least
-            // compiles this target:
-            setState(State.NEEDS_COMPILE);
-
-            // Even though we do a package compile, we must let the editor know when
-            // the compile finishes, so that it updates its status correctly:
-
-            getPackage().compile(compObserver, reason, type);
-        }
-        else {
-            getPackage().compile(this, false, compObserver, reason, type);
-        }
-        
-    }
-
     @Override
     @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type)
