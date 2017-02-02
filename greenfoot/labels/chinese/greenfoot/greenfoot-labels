@@ -314,7 +314,7 @@ menu.help.discuss=Greenfoot\u8bba\u575b
 #Copyright
 
 menu.help.copyright.title=Greenfoot\u7684\u7248\u6743\uff0c\u4f7f\u7528\u8bb8\u53ef\u548c\u91cd\u65b0\u53d1\u5e03
-menu.help.copyright.line0=Greenfoot \u00a9 2005-2015 Michael K\u00F6lling, Poul Henriksen.
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2017 Michael K\u00F6lling, Poul Henriksen.
 menu.help.copyright.line1=Greenfoot is available under the GNU General Public License  Greenfoot
 menu.help.copyright.line2=version 2 with Classpath exception.
 menu.help.copyright.line3=\u83b7\u53d6\u66f4\u591a\u4fe1\u606f\u8bf7\u53c2\u89c1\u6587\u4ef6LICENSE.txt
