@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -692,8 +692,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     public final void flagErrorsAsOld()
     {
         allFrameErrors.forEach(CodeError::flagAsOld);
-        //TODO I think this only needs to do direct slots:
-        getEditableSlots().forEach(EditableSlot::flagErrorsAsOld);
+        getEditableSlotsDirect().forEach(EditableSlot::flagErrorsAsOld);
+        getPossiblyHiddenSlotsDirect().forEach(EditableSlot::flagErrorsAsOld);
         getCanvases().forEach(FrameHelper::flagErrorsAsOld);
     }
 
@@ -704,8 +704,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     public final void removeOldErrors()
     {
         allFrameErrors.removeIf(CodeError::isFlaggedAsOld);
-        //TODO I think this only needs to do direct slots:
-        getEditableSlots().forEach(EditableSlot::removeOldErrors);
+        getEditableSlotsDirect().forEach(EditableSlot::removeOldErrors);
+        getPossiblyHiddenSlotsDirect().forEach(EditableSlot::removeOldErrors);
         getCanvases().forEach(FrameHelper::removeOldErrors);
     }
     
@@ -983,6 +983,16 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     public final Stream<EditableSlot> getEditableSlotsDirect()
     {
         return contents.stream().flatMap(FrameContentItem::getHeaderItemsDirect).map(HeaderItem::asEditable).filter(x -> x != null);
+    }
+
+    /**
+     * Gets only editable slots which are directly in this frame (not any in frames inside any canvases)
+     * but which may be currently hidden (e.g. type name in class-extends when
+     * focus is lost, or return value, etc)
+     */
+    public Stream<EditableSlot> getPossiblyHiddenSlotsDirect()
+    {
+        return Stream.empty();
     }
     
     @Override

@@ -2635,6 +2635,10 @@ public final class Package
                 if (newCompiledState)
                     t.markCompiled();
                 t.setQueued(false);
+                if (t.editorOpen())
+                {
+                    t.getEditor().compileFinished(successful, type.keepClasses());
+                }
                 if (successful && t.editorOpen())
                     t.getEditor().setCompiled(true);
             }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,6 +50,7 @@ import bluej.stride.operations.CopyFrameAsJavaOperation;
 import bluej.stride.operations.CopyFrameAsStrideOperation;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
+import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
@@ -196,6 +197,12 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         this.constructorsCanvas = new FrameCanvas(editor, this, "class-");
         constructorsLabelRow = new FrameContentRow(this, constructorsLabel);
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
+    }
+
+    @Override
+    public Stream<EditableSlot> getPossiblyHiddenSlotsDirect()
+    {
+        return Stream.of(extendsSlot);
     }
 
     protected Frame findASpecialMethod()

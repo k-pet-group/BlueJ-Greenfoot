@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,9 @@ package bluej.stride.framedjava.frames;
 
 
 import java.util.List;
+import java.util.stream.Stream;
 
+import bluej.stride.slots.EditableSlot;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -90,7 +92,7 @@ public class ReturnFrame extends SingleLineFrame
             showingValue.set(true);
             value.requestFocus();
             e.consume();
-    });
+        });
         
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
@@ -195,7 +197,13 @@ public class ReturnFrame extends SingleLineFrame
         else
             return null;
     }
-    
+
+    @Override
+    public Stream<EditableSlot> getPossiblyHiddenSlotsDirect()
+    {
+        return Stream.of(value);
+    }
+
     // Called when method's return type changes to non-blank, non-void:
     public void showValue()
     {
