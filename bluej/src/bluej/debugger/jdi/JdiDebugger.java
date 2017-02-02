@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
 
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -647,18 +650,36 @@ public class JdiDebugger extends Debugger
     }
 
     @Override
-    public DebuggerResult launchFXApp(String className)
+    public CompletableFuture<DebuggerResult> launchFXApp(String className)
     {
-        VMReference vmr = getVM();
-        if (vmr != null) {
-            synchronized (serverThreadLock) {
-                return vmr.launchFXApp(className);
-            }
-        }
-        else
+        CompletableFuture<DebuggerResult> result = new CompletableFuture<>();
+        // Can't use lambda as need self-reference:
+        BlueJEventListener listener = new BlueJEventListener()
         {
-            return new DebuggerResult(Debugger.TERMINATED);
-        }
+            @Override
+            public void blueJEvent(int eventId, Object arg)
+            {
+                if (eventId == BlueJEvent.CREATE_VM_DONE)
+                {
+                    BlueJEvent.removeListener(this);
+                    VMReference vmr = getVM();
+                    if (vmr != null) {
+                        synchronized (serverThreadLock) {
+                            result.complete(vmr.launchFXApp(className));
+                        }
+                    }
+                    else
+                    {
+                        result.complete(new DebuggerResult(Debugger.TERMINATED));
+                    }
+                }
+            }
+        };
+        BlueJEvent.addListener(listener);
+        // We must reset the VM in case there was already an FX app running:
+        close(true);
+        // Once it is ready, the listener above will run
+        return result;
     }
     
     /**

@@ -1998,14 +1998,19 @@ public class ClassTarget extends DependentTarget
                     PackageEditor ed = getPackage().getEditor();
                     Window fxWindow = ed.getFXWindow();
                     SwingUtilities.invokeLater(() -> {
-                        DebuggerResult result = getPackage().getDebugger().launchFXApp(cl.getName());
-                        switch (result.getExitStatus())
+                        CompletableFuture<DebuggerResult> result = getPackage().getDebugger().launchFXApp(cl.getName());
+                        result.thenAccept(r ->
                         {
-                            case Debugger.NORMAL_EXIT:
-                                DebuggerObject obj = result.getResultObject();
-                                ed.raisePutOnBenchEvent(fxWindow, obj, obj.getGenType(), null, false, Optional.empty());
-                                break;
-                        }
+                            switch (r.getExitStatus())
+                            {
+                                case Debugger.NORMAL_EXIT:
+                                    SwingUtilities.invokeLater(() -> {
+                                        DebuggerObject obj = r.getResultObject();
+                                        ed.raisePutOnBenchEvent(fxWindow, obj, obj.getGenType(), null, false, Optional.empty());
+                                    });
+                                    break;
+                            }
+                        });
                     });
                 }, null), MENU_STYLE_INBUILT));
             }

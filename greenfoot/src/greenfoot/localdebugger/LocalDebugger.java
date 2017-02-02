@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2013,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2010,2013,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.Debugger;
@@ -193,7 +194,7 @@ public class LocalDebugger extends Debugger
     }
 
     @Override
-    public DebuggerResult launchFXApp(String className)
+    public CompletableFuture<DebuggerResult> launchFXApp(String className)
     {
         throw new UnsupportedOperationException();
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.debugger;
 import java.io.File;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.jdi.JdiDebugger;
@@ -249,7 +250,7 @@ public abstract class Debugger
     public abstract DebuggerClass getClass(String className, boolean initialize)
         throws ClassNotFoundException;
 
-    public abstract DebuggerResult launchFXApp(String className);
+    public abstract CompletableFuture<DebuggerResult> launchFXApp(String className);
 
     /**
      * Get a reference to a string in the remote machine whose value is the

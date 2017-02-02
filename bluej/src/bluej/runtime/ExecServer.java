@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -351,7 +351,7 @@ public class ExecServer
             // Should never happen but if it does we want to know about it
             System.err.println("ExecServer.newLoader() Malformed URL=" + splits[index]);
         }
-        
+
         currentLoader = new URLClassLoader(urls);
         
         synchronized (objectMaps) {
@@ -786,16 +786,13 @@ public class ExecServer
                             break;
                         }
                         case LAUNCH_FX_APP:
-                            // The preloaded will tell us the Application reference:
+                            // The preloader will tell us the Application reference:
                             CompletableFuture<Application> theApp = new CompletableFuture<>();
                             new Thread(() -> {
                                 FXPreloader.theApp = theApp;
                                 // Use a preloader to be able to find out the Application reference:
                                 System.setProperty("javafx.preloader", FXPreloader.class.getName());
                                 Application.launch((Class<? extends Application>)loadAndInitClass(classToRun));
-                                // launch only returns when FX is done, at which point we need to
-                                // reset the VM to enable running again:
-                                System.exit(0);
                             }).start();
                             // Return null if it takes too long to initialise.  This is most likely
                             // due to the Application class's constructor doing a lot of work,
@@ -915,16 +912,6 @@ public class ExecServer
     public static ClassLoader getCurrentClassLoader()
     {
         return currentLoader;
-    }
-    
-    /**
-     * Set the current class loader, to be used for loading user classes.
-     * 
-     * @param newLoader   The new class loader
-     */
-    public static void setClassLoader(ClassLoader newLoader)
-    {
-        currentLoader = newLoader;
     }
 
     // A preloader for FX, only used to find out the reference of the Application instance.
