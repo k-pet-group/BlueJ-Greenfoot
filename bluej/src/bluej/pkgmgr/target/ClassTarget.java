@@ -484,15 +484,17 @@ public class ClassTarget extends DependentTarget
     @Override
     public void setState(State newState)
     {
+        // Must do this even if state hasn't changed, because if state was HAS_ERROR
+        // and has now become HAS_ERROR then we still need to mark compile as finished:
+        if (editor != null && newState != State.NEEDS_COMPILE) {
+            editor.compileFinished(newState == State.COMPILED, true);
+        }
+
         if (getState() != newState)
         {
             String qualifiedName = getQualifiedName();
             @OnThread(Tag.Any) Project proj = getPackage().getProject();
             Platform.runLater(() -> proj.removeInspectorInstance(qualifiedName));
-            
-            if (editor != null && newState != State.NEEDS_COMPILE) {
-                editor.compileFinished(newState == State.COMPILED, true);
-            }
             
             // Notify extensions if necessary.
             if (newState == State.COMPILED)
@@ -1379,6 +1381,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void compile(final Editor editor, CompileReason reason, CompileType type)
     {
+        Debug.message("Creating compObserver....");
         final CompileObserver compObserver = new CompileObserver()
         {
             @Override
