@@ -2556,8 +2556,7 @@ public class PkgMgrFrame
     
     private void createNewCSS(String fileName, double x, double y)
     {
-        Target target = getProject().getTarget(fileName);
-        if (target != null)
+        if (getProject().getTarget(fileName) != null)
         {
             Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "duplicate-name"));
             return;
@@ -2571,8 +2570,8 @@ public class PkgMgrFrame
         {
             Debug.reportError(e);
         }
-        target = new CSSTarget(getPackage(), cssFile);
-        target.setPos((int)x, (int)y);
+        Target target = new CSSTarget(getPackage(), cssFile);
+        Platform.runLater(() -> target.setPos((int)x, (int)y));
         
         getPackage().addTarget(target);
     }
