@@ -800,7 +800,7 @@ graph.tooltip.classBroken=Questa classe non pu\u00f2 essere analizzata attualmen
 #Copyright
 
 menu.help.copyright.title=BlueJ Copyright, Lincenza e ridistribuzione
-menu.help.copyright.line0=BlueJ \u00a9 2000-2015 Michael K\u00F6lling, John Rosenberg.
+menu.help.copyright.line0=BlueJ \u00a9 2000-2017 Michael K\u00F6lling, John Rosenberg.
 menu.help.copyright.line1=BlueJ \u00e8 disponibile sotto la GNU General Public License
 menu.help.copyright.line2=versione 2 con Classpath eccezione.
 menu.help.copyright.line3=Per altre informazioni vedere il file LICENSE.txt

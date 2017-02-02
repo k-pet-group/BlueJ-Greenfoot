@@ -833,7 +833,7 @@ graph.tooltip.classBroken=This class cannot currently be parsed
 #Copyright
 
 menu.help.copyright.title=BlueJ Copyright, Licensing and Redistribution
-menu.help.copyright.line0=BlueJ \u00a9 2000-2016 Michael K\u00F6lling, John Rosenberg.
+menu.help.copyright.line0=BlueJ \u00a9 2000-2017 Michael K\u00F6lling, John Rosenberg.
 menu.help.copyright.line1=BlueJ is available under the GNU General Public License  
 menu.help.copyright.line2=version 2 with Classpath exception.
 menu.help.copyright.line3=For more information please see the files LICENSE.txt 

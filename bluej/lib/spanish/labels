@@ -793,7 +793,7 @@ graph.tooltip.classBroken=Esta clase no puede ser analizada en este momento
 #Copyright
 
 menu.help.copyright.title=Derechos de autor de BlueJ, Licencias y Redistribuci\u00f3n
-menu.help.copyright.line0=BlueJ \u00a9 2000-2015 Michael K\u00F6lling, John Rosenberg.
+menu.help.copyright.line0=BlueJ \u00a9 2000-2017 Michael K\u00F6lling, John Rosenberg.
 menu.help.copyright.line1=BlueJ est\u00e1 disponible bajo la Licencia P\u00fablica General GNU  
 menu.help.copyright.line2=versi\u00f3n 2 con excepci\u00f3n de las rutas de clases.
 menu.help.copyright.line3=Para mayor informaci\u00f3n por favor vea los archivos LICENSE.txt 
