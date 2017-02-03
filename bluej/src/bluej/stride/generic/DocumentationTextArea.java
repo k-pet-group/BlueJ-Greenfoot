@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -289,13 +289,15 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     {
         setDisable(newView != View.NORMAL);
 
+        // Do we need to collapse documentation?
         if (newView == View.BIRDSEYE_NODOC)
         {
             // The only view in which we show no documentation, and thus we must
             // have been showing documentation before:
             shrinkToNothingUsing(animate);
         }
-        else
+        // Were we previously collapsed?
+        else if (oldView == View.BIRDSEYE_NODOC)
         {
             // vice versa:
             growFromNothingUsing(animate);
