@@ -236,7 +236,7 @@ class Expression
         if (token.getType() == JavaTokenTypes.INC)
         {
             token = lexer.nextToken();
-            if (token.getType() != JavaTokenTypes.IDENT || !lexer.nextToken().getText().equals(varName))
+            if (token.getType() != JavaTokenTypes.IDENT || !token.getText().equals(varName))
                 return false;
             // Fall through to EOF check
         }

@@ -111,6 +111,9 @@ public class JavaToStrideTest
         assertEquals("for (int i = 0; i < 10; i++) return;",
             _forEach("int", "i", _range("0", "9"), _return())
         );
+        assertEquals("for (int i = 0; i < 10; ++i) return;",
+            _forEach("int", "i", _range("0", "9"), _return())
+        );
         assertEquals("for (int i = 0; i <= 10; i++) return;",
                 _forEach("int", "i", _range("0", "10"), _return())
         );
