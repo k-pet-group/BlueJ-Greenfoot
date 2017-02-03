@@ -1630,11 +1630,10 @@ public class ClassTarget extends DependentTarget
      */
     public void analyseDependencies(ClassInfo info)
     {
-        // currently we don't remove uses dependencies, but just warn
-
-        //removeAllOutDependencies();
+        // Now that uses dependencies are calculated-only, we remove all of them
+        // and add back those which remain:
+        removeAllOutDependencies();
         removeInheritDependencies();
-        unflagAllOutDependencies();
 
         String pkgPrefix = getPackage().getQualifiedName();
         pkgPrefix = (pkgPrefix.length() == 0) ? pkgPrefix : pkgPrefix + ".";
@@ -1662,13 +1661,6 @@ public class ClassTarget extends DependentTarget
                 }
 
                 getPackage().addDependency(new UsesDependency(getPackage(), this, used));
-            }
-        }
-
-        // check for inconsistent use dependencies
-        for (UsesDependency usesDep : usesDependencies()) {
-            if (!usesDep.isFlagged()) {
-                getPackage().setStatus(usesArrowMsg + usesDep);
             }
         }
     }

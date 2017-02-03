@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,14 +44,11 @@ public class UsesDependency extends Dependency
     // to make the lines sharp;
     private double sourceX, sourceY, destX, destY;
     private boolean startTop, endLeft;
-    @OnThread(Tag.Swing)
-    private boolean flag;    // flag to mark some dependencies
 
     @OnThread(Tag.Any)
     public UsesDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(pkg, from, to);
-        flag = false;
     }
 
     @OnThread(Tag.Any)
@@ -64,7 +61,6 @@ public class UsesDependency extends Dependency
     public UsesDependency(Package pkg, Properties props, String prefix) throws DependencyNotFoundException
     {
         super(pkg, props, prefix);
-        flag = false;
     }
 
     public void setSourceCoords(double src_x, double src_y, boolean start_top)
@@ -158,18 +154,6 @@ public class UsesDependency extends Dependency
         props.put(prefix + ".type", "UsesDependency");
     }
 
-    @OnThread(Tag.Swing)
-    public void setFlag(boolean value)
-    {
-        flag = value;
-    }
-
-    @OnThread(Tag.Swing)
-    public boolean isFlagged()
-    {
-        return flag;
-    }
-    
     public void remove()
     {
         pkg.removeArrow(this);

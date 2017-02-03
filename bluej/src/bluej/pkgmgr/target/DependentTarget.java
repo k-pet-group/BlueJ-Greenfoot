@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -432,16 +432,6 @@ public abstract class DependentTarget extends EditableTarget
         }
 
         return result;
-    }
-
-    /**
-     *  Clear the flag in a outgoing uses dependencies
-     */
-    @OnThread(Tag.Swing)
-    protected synchronized void unflagAllOutDependencies()
-    {
-        for(int i = 0; i < outUses.size(); i++)
-            ((UsesDependency)outUses.get(i)).setFlag(false);
     }
 
     @OnThread(Tag.FXPlatform)

@@ -880,9 +880,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
                 int index = usesArrows.indexOf(d);
                 if (index != -1)
                 {
-                    usesArrows.get(index).setFlag(true);
                     return;
-                } else
+                }
+                else
                     usesArrows.add((UsesDependency) d);
             } else
             {
