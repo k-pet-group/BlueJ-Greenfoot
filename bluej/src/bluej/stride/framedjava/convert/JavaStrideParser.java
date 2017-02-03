@@ -1147,6 +1147,13 @@ public class JavaStrideParser extends JavaParser
     {
         super.gotComment(token);
         statementHandlers.peek().gotComment(token);
+        if (!expressionHandlers.isEmpty())
+        {
+            expressionHandlers.forEach(handler -> {
+                handler.beginMask(token);
+                handler.endMask(token);
+            });
+        }
     }
 
     private static String processComment(String comment)

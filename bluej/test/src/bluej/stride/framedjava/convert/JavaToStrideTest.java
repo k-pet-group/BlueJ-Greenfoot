@@ -73,6 +73,9 @@ public class JavaToStrideTest
         assertEquals("while (0) {while (1) { while (2) {} } while (3) while (4); while(5); }",
                 _while("0", _while("1", _while("2")), _while("3", _while("4")), _while("5")));
 
+        // Comment in expression:
+        assertEquals("while (true /* false */);", _while("true", _comment("false")));
+
         assertEquals("return 0;", _return("0"));
         assertEquals("return 0+1;", _return("0 + 1"));
         assertEquals("return 0+(1+2);", _return("0 + ( 1 + 2 )"));
@@ -381,6 +384,10 @@ public class JavaToStrideTest
         assertEquals("int[] x;", _var(null, false, false, "int[]", "x", null));
         assertEquals("int x[];", _var(null, false, false, "int[]", "x", null));
         assertEquals("int[] x[];", _var(null, false, false, "int[][]", "x", null));
+
+        // Comment in initialiser:
+        assertEquals("int x = /*6*/7;", _comment("6"), _var(null, false, false, "int", "x", filled("7")));
+        assertEquals("int x = 7/*8*/;", _var(null, false, false, "int", "x", filled("7")), _comment("8"));
     }
 
     @Test
