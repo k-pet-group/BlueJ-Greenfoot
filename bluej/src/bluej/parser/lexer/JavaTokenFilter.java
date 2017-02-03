@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -59,9 +59,11 @@ public final class JavaTokenFilter implements TokenStream
     {
         LocatableToken rval;
         if (! buffer.isEmpty()) {
-            // Make sure we have a cached token; necessary to ensure that token lengths
-            // are set correctly.
-            if (cachedToken == null) {
+            // Make sure we have a cached token if buffer is only size 1;
+            // necessary to ensure that token lengths are set correctly.
+            // If buffer length is 2, we know token we are getting will have size
+            // set correctly.
+            if (cachedToken == null && buffer.size() == 1) {
                 cachedToken = nextToken2();
             }
             rval = buffer.remove(buffer.size() - 1);
