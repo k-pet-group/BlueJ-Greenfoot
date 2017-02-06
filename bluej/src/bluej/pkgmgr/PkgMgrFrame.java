@@ -467,13 +467,14 @@ public class PkgMgrFrame
                     {
                         // Use last saved divider positions:
                         c.getAddedSubList().get(0).setPosition(1.0);
-                        Timeline t = new Timeline(new KeyFrame(Duration.millis(2000), new KeyValue(c.getAddedSubList().get(0).positionProperty(), bottomPaneLastDividerPos)));
+                        // If we let code pad have a non-zero min width then you get
+                        // a bump as it appears at min width, then animates to the desired width.
+                        // To make the animation go smoother, we thus make sure it starts at zero width:
+                        double eventualMinWidth = codePad.getMinWidth();
+                        codePad.setMinWidth(0.0);
+                        Timeline t = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(c.getAddedSubList().get(0).positionProperty(), bottomPaneLastDividerPos)));
+                        t.setOnFinished(e -> codePad.setMinWidth(eventualMinWidth));
                         t.play();
-                    }
-                    else if (c.wasRemoved())
-                    {
-                        // Store divider position:
-                        bottomPaneLastDividerPos = c.getRemoved().get(0).getPosition();
                     }
                 });
 
@@ -2901,7 +2902,13 @@ public class PkgMgrFrame
         {
             CodePad cpFinal = codePad;
             itemsToDisable.remove(cpFinal);
-            bottomPane.getItems().remove(codePad);
+            // Store divider position:
+            bottomPaneLastDividerPos = bottomPane.getDividers().get(0).getPosition();
+            // Animate its removal:
+            cpFinal.setMinWidth(0.0);
+            Timeline t = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(bottomPane.getDividers().get(0).positionProperty(), 1.0)));
+            t.setOnFinished(e -> bottomPane.getItems().remove(cpFinal));
+            t.play();
             codePad = null;
         }
     }
