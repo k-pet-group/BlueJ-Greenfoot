@@ -153,8 +153,8 @@ public final class MoeEditor extends JPanel
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 320;
-    final static String versionString = "3.2.0";
+    final static int version = 330;
+    final static String versionString = "3.3.0";
 
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor

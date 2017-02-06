@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -755,6 +755,9 @@ public final class MoeActions
             if (version < 320) {
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK ), actions.get("compile"));
             }
+            if (version < 330) {
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, SHORTCUT_MASK), actions.get("preferences"));
+            }
             return true;
         }
         catch (IOException | ClassNotFoundException exc) {
@@ -1287,7 +1290,7 @@ public final class MoeActions
 
         }; // 83
 
-        categories = new String[] { 
+        categories = new String[] {
                 Config.getString("editor.functions.editFunctions"),
                 Config.getString("editor.functions.moveScroll"), 
                 Config.getString("editor.functions.classFunctions"),
@@ -1335,7 +1338,7 @@ public final class MoeActions
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_J, SHORTCUT_MASK), actions.get("toggle-interface-view"));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_B, SHORTCUT_MASK), actions.get("toggle-breakpoint"));
         // "key-bindings" not bound
-        // "preferences" not bound
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, SHORTCUT_MASK), actions.get("preferences"));
         // "about-editor" not bound
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_MASK), actions.get("describe-key"));
         // "help-mouse" not bound
