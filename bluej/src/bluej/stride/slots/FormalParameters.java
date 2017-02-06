@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -177,7 +177,7 @@ public class FormalParameters
                 if (newValue.contains(",")) {
                     FormalParameter newFormal = addNewAfter(findFormal(slot));
                     if (Platform.isFxApplicationThread())
-                        JavaFXUtil.runNowOrLater(() -> newFormal.requestFocus(Focus.LEFT));
+                        JavaFXUtil.runPlatformLater(() -> newFormal.requestFocus(Focus.LEFT));
                     return false;
                 }
 
