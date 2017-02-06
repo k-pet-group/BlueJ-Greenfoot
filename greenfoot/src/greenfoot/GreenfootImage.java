@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -168,7 +168,7 @@ public class GreenfootImage
      */
     public GreenfootImage(String string, int size, greenfoot.Color foreground, greenfoot.Color background)
     {
-        this(string, size, foreground.getColorObject(), background.getColorObject(), null);
+        this(string, size, foreground == null ? null : foreground.getColorObject(), background == null ? null : background.getColorObject(), null);
     }
     
     /**
@@ -209,7 +209,7 @@ public class GreenfootImage
      */
     public GreenfootImage(String string, int size, greenfoot.Color foreground, greenfoot.Color background, greenfoot.Color outline)
     {
-        this(string, size, foreground.getColorObject(), background.getColorObject(), outline.getColorObject());
+        this(string, size, foreground == null ? null : foreground.getColorObject(), background == null ? null : background.getColorObject(), outline == null ? null : outline.getColorObject());
     }
     
     //Package-visible:
