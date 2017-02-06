@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,7 +40,7 @@ public class UndoRedoManager
     private int current;
     private boolean recording = false;
     private boolean restoring = false;
-    private final LinkedList<FrameState> statesStack = new LinkedList<FrameState>();
+    private final List<FrameState> statesStack = new LinkedList<>();
     private final List<FXRunnable> listeners = new ArrayList<>();
     // TODO Add it to the defs file
     private static final int MAX_CAPACITY = 30;
@@ -180,12 +180,4 @@ public class UndoRedoManager
             return true;
         return false;
     }
-
-    /*
-    private void printState()
-    {
-        bluej.utility.Debug.message("Stack size: " + statesStack.size() + " current: " + current);
-        bluej.utility.Debug.message("UndoRedoManager::printState : statesStack.get(current) = " + statesStack.get(current).toString());
-    }
-    */
 }

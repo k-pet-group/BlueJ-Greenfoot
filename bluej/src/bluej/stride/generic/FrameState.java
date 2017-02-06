@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,6 @@ import javafx.scene.Node;
 
 import bluej.utility.Debug;
 import nu.xom.Builder;
-import nu.xom.Element;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.elements.ClassElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
@@ -112,23 +111,5 @@ public class FrameState
             return focusables.get(cursorIndex).recallFocus(cursorInfo);
         }
         return null;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "FrameState [" + cursorIndex + ", " + cursorInfo + "] :: " + classElementXML
-               /* .replaceAll(" enable=\"true\"", "")
-                .replaceAll(" access=\"public\"", "")
-                .replaceAll("<javadoc xml:space=\"preserve\">", "").replaceAll("</javadoc>", "")
-                .replaceAll("<imports />", "").replaceAll("</imports>", "")
-                .replaceAll("<implements />", "")
-                .replaceAll("<fields />", "")
-                .replaceAll("<params /><throws />", " ")
-                .replaceAll("<body>", " ").replaceAll("</body>", " ").replaceAll("<body />", "")
-                .replaceAll("<constructors />", "").replaceAll("<constructors>", "").replaceAll("</constructors>", "")
-                .replaceAll("<methods />", "").replaceAll("<methods>", "").replaceAll("</methods>", "").replaceAll("</method>", "")
-                .replaceAll("<class ", "<").replaceAll("</class>", "")*/
-                ;
     }
 }
