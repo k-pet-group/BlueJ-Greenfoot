@@ -2895,7 +2895,7 @@ public class PkgMgrFrame
                 bottomPane.getItems().add(codePad);
                 codePad.focusInputField();
             }
-            codePad.setDisable(false);
+            codePad.setDisable(isEmptyFrame());
         }
         else
         {
