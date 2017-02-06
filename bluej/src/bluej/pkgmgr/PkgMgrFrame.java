@@ -1329,7 +1329,7 @@ public class PkgMgrFrame
             Platform.runLater(() -> {
                 JavaFXUtil.onceNotNull(stageProperty, s -> {
                     s.show();
-                    s.toFront();
+                    Utility.bringToFrontFX(s);
                 });
             });
         }
