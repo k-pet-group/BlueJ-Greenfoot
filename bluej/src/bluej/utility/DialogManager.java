@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -183,6 +183,7 @@ public class DialogManager
         ((Button)alert.getDialogPane().lookupButton(ButtonType.APPLY)).setText(Config.getString("editor.copy-to-clipboardLabel"));
         alert.setTitle(title);
         alert.initOwner(parent);
+        alert.setHeaderText("");
         alert.initModality(Modality.WINDOW_MODAL);
         if (alert.showAndWait().orElse(ButtonType.OK) == ButtonType.APPLY)
         {
@@ -196,6 +197,7 @@ public class DialogManager
         Alert alert = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK);
         alert.initOwner(parent);
         alert.initModality(Modality.WINDOW_MODAL);
+        alert.setHeaderText("");
         alert.showAndWait();
     }
 
@@ -250,6 +252,7 @@ public class DialogManager
             Config.getString("dialogmgr.error"));
         alert.initOwner(parent);
         alert.initModality(Modality.WINDOW_MODAL);
+        alert.setHeaderText("");
         alert.showAndWait();
     }
 
@@ -286,6 +289,7 @@ public class DialogManager
             }
             
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, messageAndButtons.getMessage(), buttons.toArray(new ButtonType[0]));
+            alert.setHeaderText("");
             alert.initOwner(parent);
             alert.initModality(Modality.WINDOW_MODAL);
             alert.setTitle(Config.getApplicationName() + ":  " +
@@ -327,6 +331,7 @@ public class DialogManager
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, buttons.toArray(new ButtonType[0]));
             alert.initOwner(parent);
             alert.initModality(Modality.WINDOW_MODAL);
+            alert.setHeaderText("");
             alert.setTitle(Config.getApplicationName() + ":  " +
                 Config.getString("dialogmgr.question"));
             return alert.showAndWait().map(buttons::indexOf).orElse(buttons.size() - 1);
