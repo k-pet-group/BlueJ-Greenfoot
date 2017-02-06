@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -170,8 +170,9 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             {
                 return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get());
             }
-            else
+            else {
                 return null;
+            }
         });
         
         updateOKButton(false);
@@ -354,10 +355,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     private boolean isWindowsRestrictedWord(String fileName)
     {
         initialiseRestrictedWordList();
-        if (windowsRestrictedWords.contains(fileName.toUpperCase())){
-            return true;
-        }
-        return false;
+        return windowsRestrictedWords.contains(fileName.toUpperCase());
     }
     
     /**
@@ -366,30 +364,8 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     private void initialiseRestrictedWordList()
     {
         if (windowsRestrictedWords==null){
-            windowsRestrictedWords=new ArrayList<>();
-            windowsRestrictedWords.add("CON");
-            windowsRestrictedWords.add("PRN");
-            windowsRestrictedWords.add("AUX");
-            windowsRestrictedWords.add("NUL");
-            windowsRestrictedWords.add("COM1");
-            windowsRestrictedWords.add("COM2");
-            windowsRestrictedWords.add("COM3");
-            windowsRestrictedWords.add("COM4");
-            windowsRestrictedWords.add("COM5");
-            windowsRestrictedWords.add("COM6");
-            windowsRestrictedWords.add("COM7");
-            windowsRestrictedWords.add("COM8");
-            windowsRestrictedWords.add("COM9");
-            windowsRestrictedWords.add("LPT1");
-            windowsRestrictedWords.add("LPT2");
-            windowsRestrictedWords.add("LPT3");
-            windowsRestrictedWords.add("LPT4");
-            windowsRestrictedWords.add("LPT5");
-            windowsRestrictedWords.add("LPT6");
-            windowsRestrictedWords.add("LPT7");
-            windowsRestrictedWords.add("LPT8");
-            windowsRestrictedWords.add("LPT9");
+            windowsRestrictedWords = Arrays.asList("CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5",
+                    "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9");
         }
     }
-
 }
