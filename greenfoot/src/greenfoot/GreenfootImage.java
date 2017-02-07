@@ -164,7 +164,7 @@ public class GreenfootImage
      * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
      * @param foreground the color of the text.  Since Greenfoot 3.0.4, passing null will use black.
      * @param background the color of the image behind the text.  Since Greenfoot 3.0.4, passing null with leave the background transparent.
-     * @since 3.0.4
+     * @since 2.0.1
      */
     public GreenfootImage(String string, int size, greenfoot.Color foreground, greenfoot.Color background)
     {
