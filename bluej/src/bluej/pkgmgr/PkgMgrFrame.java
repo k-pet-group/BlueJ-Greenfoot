@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -237,7 +238,8 @@ public class PkgMgrFrame
     private ClassTarget testTarget = null;
     private String testTargetMethod;
     private int testIdentifier = 0;
-    private JMenu recentProjectsMenu;
+    @OnThread(Tag.FX)
+    private Menu recentProjectsMenu;
     private JMenu testingMenu;
     @OnThread(Tag.FXPlatform)
     private final SimpleObjectProperty<FXMenuManager> toolsMenuManager;
@@ -1927,7 +1929,6 @@ public class PkgMgrFrame
                 SwingUtilities.invokeLater(() -> {
                     closePackage();
                     testRecordingEnded(); // disable test controls
-                    updateRecentProjects();
                     // Must do it after package has been closed:
                     Platform.runLater(() -> updateWindow());
                 }); // changes menu items
@@ -3261,30 +3262,36 @@ public class PkgMgrFrame
         List<JavaFXUtil.SwingOrFXMenu> menubar = new ArrayList<>();
         
         {
-            JMenu menu = new JMenu(Config.getString("menu.package"));
+            JavaFXUtil.FXPlusSwingMenu menu = new JavaFXUtil.FXPlusSwingMenu(() -> new Menu(Config.getString("menu.package")));
             int mnemonic = Config.getMnemonicKey("menu.package");
-            menu.setMnemonic(mnemonic);
-            menubar.add(new JavaFXUtil.SwingMenu(menu));
+            //menu.setMnemonic(mnemonic);
+            menubar.add(menu);
             createMenuItem(new NewProjectAction(this), menu);
             createMenuItem(new OpenProjectAction(this), menu);
-            recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
-            menu.add(recentProjectsMenu);
+            menu.addFX(() -> {
+                recentProjectsMenu = new Menu(Config.getString("menu.package.openRecent"));
+                recentProjectsMenu.setOnShowing(e -> updateRecentProjects());
+                // Must update once now or else menu is empty, in which case the on-showing
+                // action never gets triggered:
+                updateRecentProjects();
+                return recentProjectsMenu;
+            });
             createMenuItem(new OpenNonBlueJAction(this), menu);
             createMenuItem(new OpenArchiveAction(this), menu);
             createMenuItem(closeProjectAction, menu);
             createMenuItem(saveProjectAction, menu);
             createMenuItem(saveProjectAsAction, menu);
-            menu.addSeparator();
+            menu.addFX(SeparatorMenuItem::new);
 
             createMenuItem(importProjectAction, menu);
             createMenuItem(exportProjectAction, menu);
-            menu.addSeparator();
+            menu.addFX(SeparatorMenuItem::new);
 
             createMenuItem(pageSetupAction, menu);
             createMenuItem(printAction, menu);
 
             if (!Config.usingMacScreenMenubar()) { // no "Quit" here for Mac
-                menu.addSeparator();
+                menu.addFX(SeparatorMenuItem::new);
                 createMenuItem(new QuitAction(this), menu);
             }
         }
@@ -3446,8 +3453,6 @@ public class PkgMgrFrame
             addUserHelpItems(menu);
         }
 
-        updateRecentProjects();
-
         FXPlatformSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);
         Platform.runLater(() -> JavaFXUtil.onceNotNull(paneProperty, pane -> {
             JavaFXUtil.runNowOrLater(() ->
@@ -3462,10 +3467,18 @@ public class PkgMgrFrame
     /**
      * Add a new menu item to a menu.
      */
-    private JMenuItem createMenuItem(Action action, JMenu menu)
+    private static JMenuItem createMenuItem(Action action, JMenu menu)
     {
         JMenuItem item = menu.add(action);
         item.setIcon(null);
+        return item;
+    }
+
+    private static JMenuItem createMenuItem(Action action, JavaFXUtil.FXPlusSwingMenu menu)
+    {
+        JMenuItem item = new JMenuItem(action);
+        item.setIcon(null);
+        menu.addSwing(Collections.singletonList(item));
         return item;
     }
 
@@ -3580,15 +3593,22 @@ public class PkgMgrFrame
     /**
      * Update the 'Open Recent' menu
      */
+    @OnThread(Tag.FX)
     private void updateRecentProjects()
     {
-        ProjectOpener opener = new ProjectOpener();
-        recentProjectsMenu.removeAll();
+        recentProjectsMenu.getItems().clear();
 
         List<String> projects = PrefMgr.getRecentProjects();
-        for (Iterator<String> it = projects.iterator(); it.hasNext();) {
-            JMenuItem item = recentProjectsMenu.add(it.next());
-            item.addActionListener(opener);
+        for (String projectToOpen : projects)
+        {
+            MenuItem item = new MenuItem(projectToOpen);
+            recentProjectsMenu.getItems().add(item);
+            item.setOnAction(e -> {
+                SwingUtilities.invokeLater(() -> {
+                    if (!openProject(projectToOpen))
+                        setStatus(Config.getString("pkgmgr.error.open"));
+                });
+            });
         }
     }
 
@@ -3791,21 +3811,6 @@ public class PkgMgrFrame
         }
     }
 
-    class ProjectOpener
-        implements ActionListener
-    {
-        public ProjectOpener()
-        {}
-
-        @Override
-        public void actionPerformed(ActionEvent evt)
-        {
-            String project = evt.getActionCommand();
-            if (!openProject(project))
-                setStatus(Config.getString("pkgmgr.error.open"));
-        }
-    }
-    
     // Used as a way to tag the three main panes in the PkgMgrFrame window
     public static interface PkgMgrPane
     {

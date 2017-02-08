@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -538,7 +538,9 @@ public class Project implements DebuggerListener, InspectorManager
         DataCollector.projectOpened(proj, ExtensionsManager.getInstance().getLoadedExtensions(proj));
 
         proj.getImportScanner().startScanning();
-        
+
+        PrefMgr.addRecentProject(proj.getProjectDir());
+
         return proj;
     }
 
@@ -567,7 +569,6 @@ public class Project implements DebuggerListener, InspectorManager
         project.getDebugger().removeDebuggerListener(project);
         project.getDebugger().close(false);
 
-        PrefMgr.addRecentProject(project.getProjectDir());
         projects.remove(project.getProjectDir());
     }
 
