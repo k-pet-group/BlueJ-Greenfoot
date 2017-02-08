@@ -157,8 +157,8 @@ public class GreenfootImage
     
     /**
      * Creates an image with the given string drawn as text using the given font size, with the given foreground
-     * GreenfootColor on the given background GreenfootColor.  If the string has newline characters, it
-     * is split into multiple lines which are drawn horizontally-centred.
+     * Color on the given background Color.  If the string has newline characters, it is split into multiple
+     * lines which are drawn horizontally-centred.
      * 
      * @param string the string to be drawn
      * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
@@ -173,8 +173,8 @@ public class GreenfootImage
     
     /**
      * Creates an image with the given string drawn as text using the given font size, with the given foreground
-     * color on the given background color.  If the string has newline characters, it
-     * is split into multiple lines which are drawn horizontally-centred.
+     * Color on the given background Color.  If the string has newline characters, it is split into multiple
+     * lines which are drawn horizontally-centred.
      * 
      * @param string the string to be drawn
      * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
@@ -197,19 +197,20 @@ public class GreenfootImage
     
     /**
      * Creates an image with the given string drawn as text using the given font size, with the given foreground
-     * GreenfootColor on the given background GreenfootColor.  If the string has newline characters, it
+     * color on the given background color.  If the string has newline characters, it
      * is split into multiple lines which are drawn horizontally-centred.
      * 
      * @param string the string to be drawn
      * @param size the requested height in pixels of each line of text (the actual height may be different by a pixel or so)
      * @param foreground the color of the text.  Since Greenfoot 3.0.4, passing null will use black.
      * @param background the color of the image behind the text.  Since Greenfoot 3.0.4, passing null with leave the background transparent.
-     * @param outline the colour of the outline that will be drawn around the text.  Passing null will draw no outline.
+     * @param outline the Color of the outline that will be drawn around the text.  Passing null will draw no outline.
      * @since 3.0.4
      */
     public GreenfootImage(String string, int size, greenfoot.Color foreground, greenfoot.Color background, greenfoot.Color outline)
     {
-        this(string, size, foreground == null ? null : foreground.getColorObject(), background == null ? null : background.getColorObject(), outline == null ? null : outline.getColorObject());
+        this(string, size, foreground == null ? null : foreground.getColorObject(),
+                background == null ? null : background.getColorObject(), outline == null ? null : outline.getColorObject());
     }
     
     //Package-visible:
