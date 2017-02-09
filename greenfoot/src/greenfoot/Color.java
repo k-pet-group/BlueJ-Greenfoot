@@ -180,7 +180,7 @@ public class Color
     @Override
     public boolean equals(Object obj)
     {
-        return obj instanceof Color && ((Color) obj).getColorObject().getRGB() == this.color.getRGB();
+        return obj instanceof Color && ((Color) obj).getColorObject().equals(this.color);
     }
 
     /**
