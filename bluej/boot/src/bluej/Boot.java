@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,7 +60,7 @@ public class Boot
     public static final int BLUEJ_VERSION_MAJOR = 4;
     public static final int BLUEJ_VERSION_MINOR = 0;
     public static final int BLUEJ_VERSION_RELEASE = 0;
-    public static final String BLUEJ_VERSION_SUFFIX = "preview2";
+    public static final String BLUEJ_VERSION_SUFFIX = "";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
     //                                                BLUEJ_VERSION_MINOR * 100 +
