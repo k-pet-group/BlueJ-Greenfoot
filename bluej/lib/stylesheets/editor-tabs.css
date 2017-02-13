@@ -18,3 +18,7 @@
 .tabbed-editor > .tab-header-area  {
     -fx-padding: 2 5 -1 5;
 }
+
+.tabbed-editor .tab-close-button:hover {
+    -fx-background-color: darkred;
+}
