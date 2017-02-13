@@ -599,6 +599,7 @@ public class PkgMgrFrame
                     if (stage.getY() < 0)
                         stage.setY(10);
                     stage.show();
+                    Utility.bringToFrontFX(stage);
                 });
                 //org.scenicview.ScenicView.show(stage.getScene());
 
