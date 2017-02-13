@@ -58,7 +58,6 @@
 
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
-        <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
         <pathelement location="${bluej_home}/lib/junit-4.11.jar"/>
         <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
         <pathelement location="${bluej_home}/lib/svnkit.jar"/>
@@ -105,7 +104,6 @@
             <classpath>
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
-                <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
@@ -181,6 +179,7 @@
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
+            <compilerarg value="-XDignore.symbol.file"/>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
             <!-- <compilerarg value="-J-XX:+UnlockCommercialFeatures"/>
@@ -604,7 +603,6 @@
                      are met! -->
 
                 <exclude name="antlr-runtime-3.4.jar"/>
-                <exclude name="AppleJavaExtensions.jar"/>
                 <exclude name="commons-logging-api-1.1.2.jar"/>
                 <exclude name="commons-vfs2-2.0.jar"/>
                 <exclude name="diffutils-1.2.1.jar"/>
