@@ -49,6 +49,8 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Scanner;
 
+import javafx.collections.ObservableList;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
 import javafx.scene.input.KeyCharacterCombination;
@@ -1900,34 +1902,40 @@ public final class Config
         
         for (String stem : stylesheetStems)
         {
-            addStylesheet(scene, stem);
+            addStylesheet(scene.getStylesheets(), stem);
         }
     }
 
     @OnThread(Tag.FX)
     public static void addInspectorStylesheets(Scene scene)
     {
-        addStylesheet(scene, "inspectors");
+        addStylesheet(scene.getStylesheets(), "inspectors");
+    }
+
+    @OnThread(Tag.FX)
+    public static void addPopupStylesheets(Parent root)
+    {
+        addStylesheet(root.getStylesheets(), "popup");
     }
 
     @OnThread(Tag.FX)
     public static void addTestsStylesheets(Scene scene)
     {
-        addStylesheet(scene, "tests");
+        addStylesheet(scene.getStylesheets(), "tests");
     }
 
     @OnThread(Tag.FX)
     public static void addPMFStylesheets(Scene scene)
     {
-        addStylesheet(scene, "pkgmgrframe");
+        addStylesheet(scene.getStylesheets(), "pkgmgrframe");
     }
 
     @OnThread(Tag.FX)
-    private static void addStylesheet(Scene scene, String stem)
+    private static void addStylesheet(ObservableList<String> sheetList, String stem)
     {
         try
         {
-            scene.getStylesheets().add(new File(bluejLibDir + "/stylesheets", stem + ".css").toURI().toURL().toString());
+            sheetList.add(new File(bluejLibDir + "/stylesheets", stem + ".css").toURI().toURL().toString());
         } catch (MalformedURLException e)
         {
             Debug.reportError(e);

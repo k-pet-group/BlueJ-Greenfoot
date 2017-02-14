@@ -25,6 +25,8 @@ import java.io.File;
 
 import bluej.Config;
 import bluej.utility.BlueJFileReader;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Wrapper for functionality around translating parser error codes to human-readable
@@ -38,6 +40,7 @@ public class ParserMessageHandler
      * Translate an error code or message from the parser into a human-readable error message
      * in the appropriate language.
      */
+    @OnThread(Tag.Any)
     public static String getMessageForCode(String code)
     {
         if (code.startsWith("BJ")) {

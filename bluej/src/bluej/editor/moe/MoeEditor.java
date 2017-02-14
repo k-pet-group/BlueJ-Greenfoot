@@ -97,8 +97,20 @@ import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.PopupControl;
+import javafx.scene.control.Skin;
+import javafx.scene.control.Skinnable;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.*;
+import javafx.stage.Popup;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -3046,22 +3058,31 @@ public final class MoeEditor extends JPanel
 
     private void showErrorOverlay(ErrorDetails details, int displayPosition)
     {
+        //Debug.message("Showing error at " + displayPosition + ": " + details);
         if (details != null)
         {
             if (errorDisplay == null || errorDisplay.details != details)
             {
                 // First, hide existing display:
                 if (errorDisplay != null)
-                    errorDisplay.setVisible(false);
-                errorDisplay = new ErrorDisplay(details);
-
+                {
+                    ErrorDisplay old = errorDisplay;
+                    Platform.runLater(() -> old.popup.hide());
+                }
                 try {
                     Rectangle pos = sourcePane.modelToView(displayPosition);
                     Point spLoc = sourcePane.getLocationOnScreen();
                     int xpos = pos.x + spLoc.x;
                     int ypos = pos.y + (3*pos.height/2) + spLoc.y;
-                    errorDisplay.setLocation(xpos, ypos);
-                    errorDisplay.setVisible(true);
+                    errorDisplay = new ErrorDisplay(details);
+                    ErrorDisplay newDisplay = errorDisplay;
+                    Platform.runLater(() -> {
+                        newDisplay.createPopup();
+                        newDisplay.popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
+                        newDisplay.popup.setAnchorX(xpos);
+                        newDisplay.popup.setAnchorY(ypos);
+                        newDisplay.popup.show(getWindow());
+                    });
                     
                     if (watcher != null) {
                         watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
@@ -3075,7 +3096,8 @@ public final class MoeEditor extends JPanel
         }
         else if (errorDisplay != null)
         {
-            errorDisplay.setVisible(false);
+            ErrorDisplay old = errorDisplay;
+            Platform.runLater(() -> old.popup.hide());
             errorDisplay = null;
         }
     }
@@ -4405,32 +4427,59 @@ public final class MoeEditor extends JPanel
         return fxTabbedEditor.getWindow();
     }
 
-    private static class ErrorDisplay extends JFrame
+    
+    private static class ErrorDisplay
     {
+        @OnThread(Tag.Swing)
         private final ErrorDetails details;
+        private PopupControl popup;
 
+        
         public ErrorDisplay(ErrorDetails details)
         {
             this.details = details;
+
+        }
+
+        @OnThread(Tag.FXPlatform)
+        public void createPopup()
+        {
+            this.popup = new PopupControl();
+
+
+            Text text = new Text(ParserMessageHandler.getMessageForCode(details.message));
+            TextFlow flow = new TextFlow(text);
+            flow.setMaxWidth(600.0);
+            JavaFXUtil.addStyleClass(text, "java-error");
+            text.setStyle("-fx-font-size: " + PrefMgr.getEditorFontSize() + "px");
+            Pane p = new BorderPane(flow);
+            this.popup.setSkin(new Skin<Skinnable>()
+            {
+                @Override
+                @OnThread(Tag.FX)
+                public Skinnable getSkinnable()
+                {
+                    return popup;
+                }
+                
+                @Override
+                @OnThread(Tag.FX)
+                public Node getNode()
+                {
+                    return p;
+                }
+
+                @Override
+                @OnThread(Tag.FX)
+                public void dispose()
+                {
+
+                }
+            });
             
-            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            setUndecorated(true);
-            setFocusableWindowState(false);
-            setAlwaysOnTop(true);
-            
-            JTextArea err = new JTextArea(ParserMessageHandler.getMessageForCode(details.message));
-            err.setOpaque(false);
-            err.setBackground(new Color(0, 0, 0, 0));
-            err.setForeground(Color.WHITE);
-            err.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            err.setFont(PrefMgr.getStandardFont());
-            add(err);
-            err.setMaximumSize(new Dimension(600, 300));
-            err.setWrapStyleWord(true);
-            getContentPane().setBackground(Color.BLACK);
-            pack();
-            setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 5, 5));
-            setOpacity(1.0f);
+            p.getStyleClass().add("java-error-popup");
+            Config.addPopupStylesheets(p);
+            //org.scenicview.ScenicView.show(this.popup.getScene());
         }
     }
 
