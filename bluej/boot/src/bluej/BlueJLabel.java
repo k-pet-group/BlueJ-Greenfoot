@@ -25,6 +25,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
@@ -43,7 +44,7 @@ class BlueJLabel extends SplashLabel
     @Override
     public void paintComponent(Graphics g)
     {
-        BufferedImage image = getImage();
+        Image image = getImage();
         g.drawImage(image, 0, 0, null);
         g.setColor(new Color(255,255,255));
         g.setFont(new Font("SansSerif", Font.BOLD, 16));
