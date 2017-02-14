@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014,2015,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -51,6 +52,8 @@ public class SplashWindow extends Frame
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setUndecorated(true);
+        // Make window background transparent:
+        setBackground(new Color(0,0,0,0));
         add(image);
         pack();
 

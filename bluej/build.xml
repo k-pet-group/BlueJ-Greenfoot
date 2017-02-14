@@ -223,7 +223,8 @@
                 <include name="bluej/GreenfootLabel.class"/>
             </fileset>
             <fileset dir="${boot.src}">
-                <include name="bluej/splash.jpg"/>
+                <include name="bluej/splash.png"/>
+                <include name="bluej/splash@2x.png"/>
                 <include name="bluej/greenfoot-splash.png"/>
             </fileset>
             <manifest>

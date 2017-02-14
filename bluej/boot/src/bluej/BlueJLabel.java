@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,7 @@ class BlueJLabel extends SplashLabel
 {
     public BlueJLabel()
     {
-        super("splash.jpg");
+        super("splash.png");
     }
 
     @Override
@@ -53,6 +53,6 @@ class BlueJLabel extends SplashLabel
                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.addRenderingHints(hints);
         }
-        g.drawString("Version " + Boot.BLUEJ_VERSION, 225, 48 /*image.getHeight()-28*/ );
+        g.drawString("Version " + Boot.BLUEJ_VERSION, 237, 130 /*image.getHeight()-28*/ );
   }
 }
