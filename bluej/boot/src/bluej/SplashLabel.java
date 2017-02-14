@@ -22,6 +22,7 @@
 package bluej;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -31,6 +32,7 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 
 /**
@@ -39,7 +41,7 @@ import javax.swing.JComponent;
  * @author Poul Henriksen
  * @version $Id$
  */
-public abstract class SplashLabel extends JComponent
+public class SplashLabel extends JComponent
 {
     // We use ImageIcon because it loads the HiDPI version of 
     // the image when on a Retina machine.
@@ -49,10 +51,6 @@ public abstract class SplashLabel extends JComponent
     {
         loadImage(imageName);
         //setBorder(BorderFactory.createLineBorder(Color.black, 1));
-    }
-    
-    public Image getImage() {
-        return image.getImage();
     }
    
     @Override
@@ -88,4 +86,11 @@ public abstract class SplashLabel extends JComponent
         image = new ImageIcon(splashURL);
     }
 
+    @Override
+    protected void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        if (image != null)
+            image.paintIcon(this, g, 0, 0);
+    }
 }

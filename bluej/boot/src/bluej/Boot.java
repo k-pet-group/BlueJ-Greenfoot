@@ -211,15 +211,20 @@ public class Boot
         Properties commandLineProps = processCommandLineProperties(cmdLineArgs);
         isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
         
-        SwingSupplier<SplashLabel> image;
+        SwingSupplier<SplashLabel> image = new SwingSupplier<SplashLabel>()
+        {
+            @Override
+            @OnThread(Tag.Swing)
+            public SplashLabel get()
+            {
+                return new SplashLabel(isGreenfoot ? "gen-greenfoot-splash.png" : "gen-bluej-splash.png");
+            }
+        };
         if(isGreenfoot) {
-            image = GreenfootLabel::new;
             runtimeJars = greenfootUserJars;
             userJars = greenfootUserJars;
             numBuildJars = greenfootUserBuildJars;
             numUserBuildJars = greenfootUserBuildJars;
-        } else {
-            image = BlueJLabel::new;
         }
 
         jfxrtJar = commandLineProps.getProperty("jfxrt.jarpath");

@@ -219,13 +219,10 @@
             <fileset dir="${boot.build}">
                 <include name="bluej/Boot*.class"/>
                 <include name="bluej/Splash*.class"/>
-                <include name="bluej/BlueJLabel.class"/>
-                <include name="bluej/GreenfootLabel.class"/>
             </fileset>
             <fileset dir="${boot.src}">
-                <include name="bluej/splash.png"/>
-                <include name="bluej/splash@2x.png"/>
-                <include name="bluej/greenfoot-splash.png"/>
+                <include name="bluej/gen-bluej-splash*.png"/>
+                <include name="bluej/gen-greenfoot-splash*.png"/>
             </fileset>
             <manifest>
                 <attribute name="Main-Class" value="bluej.Boot"/>
@@ -511,8 +508,24 @@
             <fileset dir="package/winsetup" includes="bluej.wxs" />
         </replaceregexp>
 
-
-
+        <mkdir dir="util/classes"/>
+        <javac srcdir="util/src" destdir="util/classes"/>
+        <java classname="DrawVersionOnSplash" classpath="util/classes">
+            <arg value="boot/src/bluej/unversioned-bluej-splash.png"/> <!-- original -->
+            <arg value="Version ${bluej.version}"/> <!-- text -->
+            <arg value="16"/> <!-- font size -->
+            <arg value="237"/> <!-- X position -->
+            <arg value="130"/> <!-- Y position -->
+            <arg value="boot/src/bluej/gen-bluej-splash.png"/> <!-- destination -->
+        </java>
+        <java classname="DrawVersionOnSplash" classpath="util/classes">
+            <arg value="boot/src/bluej/unversioned-bluej-splash@2x.png"/> <!-- original -->
+            <arg value="Version ${bluej.version}"/> <!-- text -->
+            <arg value="32"/> <!-- font size -->
+            <arg value="470"/> <!-- X position -->
+            <arg value="260"/> <!-- Y position -->
+            <arg value="boot/src/bluej/gen-bluej-splash@2x.png"/> <!-- destination -->
+        </java>
     </target>
     
     <target name="clean-boot">

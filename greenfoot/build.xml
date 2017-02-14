@@ -493,8 +493,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <target name="update-images" description="Copies the images from the resource directory out into the various places where the images are required.">
         <!-- Jar installer image: greenfoot-splash.png -->
         <copy file="resources/images/greenfoot-splash.png" todir="${bluej.projectdir}/package"/>
-        <!-- Splash image: greenfoot-splash.jpg -->
-        <copy file="resources/images/greenfoot-splash.png" todir="${bluej.projectdir}/boot/src/bluej"/>
         <!-- Greenfoot icon for classes: greenfoot-16.png -->
         <copy file="resources/images/greenfoot-icon-16.png" tofile="imagelib/other/greenfoot.png"/>
         <!-- Greenfoot icon for application on the mac: greenfoot.icns -->
@@ -1018,6 +1016,15 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <fileset dir="${bluej_home}/package/winsetup" includes="greenfoot.wxs" />
         </replaceregexp>
 
-
+        <mkdir dir="${bluej_home}/util/classes"/>
+        <javac srcdir="${bluej_home}/util/src" destdir="${bluej_home}/util/classes"/>
+        <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes">
+            <arg value="resources/images/greenfoot-splash.png"/> <!-- original -->
+            <arg value="Version ${greenfoot.version}"/> <!-- text -->
+            <arg value="14"/> <!-- font size -->
+            <arg value="187"/> <!-- X position -->
+            <arg value="219"/> <!-- Y position -->
+            <arg value="${bluej_home}/boot/src/bluej/gen-greenfoot-splash.png"/> <!-- destination -->
+        </java>
     </target>
 </project>
