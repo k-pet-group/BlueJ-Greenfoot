@@ -54,6 +54,6 @@ class BlueJLabel extends SplashLabel
                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.addRenderingHints(hints);
         }
-        g.drawString("Version " + Boot.BLUEJ_VERSION, 237, 130 /*image.getHeight()-28*/ );
+        g.drawString("Version " + Boot.BLUEJ_VERSION, 227, 139 /*image.getHeight()-28*/ );
   }
 }
