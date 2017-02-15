@@ -245,15 +245,24 @@ public class Main
         initialProjects = Boot.getMacInitialProjects();
         Application macApp = Application.getApplication();
 
+        // We are using the NSMenuFX library to fix Mac Application menu
+        // only when it is a FX menu. This is now only needed for BlueJ,
+        // as Greenffot still on Swing. When Greenfoot menu is moved to FX,
+        // both should use the workaround in prepareMacOSMenuFX().
+        // But when the JDK APIs (i.e. handleAbout() etc) are fixed,
+        // both should go back to the way as in prepareMacOSMenuSwing().
         if (!Config.isGreenfoot()) {
             if (macApp != null) {
-                macMenuPreparingFX();
+                prepareMacOSMenuFX();
             }
         }
         else {
-            macMenuPreparingSwing(macApp);
+            prepareMacOSMenuSwing(macApp);
         }
 
+        // This is not included in the above condition to avoid future bugs,
+        // as this is not related to the application menu and will not be affected
+        // when the above condition will.
         if (Config.isGreenfoot())
         {
             Debug.message("Disabling App Nap");
@@ -268,7 +277,12 @@ public class Main
         }
     }
 
-    private static void macMenuPreparingFX()
+    /**
+     * Prepare Mac Application FX menu using the NSMenuFX library.
+     * This is needed for due to a bug in the JDK APIs, not responding to
+     * handleAbout() etc, when the menu is on FX.
+     */
+    private static void prepareMacOSMenuFX()
     {
         Platform.runLater(() -> {
             // Get the toolkit
@@ -295,7 +309,10 @@ public class Main
         });
     }
 
-    private static void macMenuPreparingSwing(Application macApp)
+    /**
+     * Prepare Mac Application Swing menu using the com.apple.eawt APIs.
+     */
+    private static void prepareMacOSMenuSwing(Application macApp)
     {
         if (macApp != null) {
             macApp.setAboutHandler(new com.apple.eawt.AboutHandler() {
