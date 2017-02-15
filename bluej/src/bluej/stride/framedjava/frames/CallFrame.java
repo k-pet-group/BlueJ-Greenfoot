@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,8 @@
 package bluej.stride.framedjava.frames;
 
 
+import javafx.util.Duration;
+
 import bluej.stride.framedjava.ast.CallExpressionSlotFragment;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.elements.CallElement;
@@ -39,6 +41,9 @@ import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.slots.HeaderItem;
+import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A method call, e.g. "do x(param y)"
@@ -160,5 +165,14 @@ public class CallFrame extends SingleLineFrame
         FrameCursor cursorBefore = getCursorBefore();
         parentCanvas.removeBlock(this);
         cursorBefore.requestFocus();
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public void insertedWithCtrl()
+    {
+        // Add a delay so that the frame gets displayed first, otherwise
+        // the code suggestions can show at the wrong position:
+        JavaFXUtil.runAfter(Duration.millis(100), content::showSuggestion);
     }
 }

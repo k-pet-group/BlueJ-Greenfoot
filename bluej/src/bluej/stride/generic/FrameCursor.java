@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import bluej.Config;
 import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
@@ -97,7 +98,7 @@ public class FrameCursor implements RecallableFocus
     private final Button node = new Button();
 
     @OnThread(Tag.FXPlatform)
-    public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key)
+    public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key, boolean ctrlDown)
     {
         if (!editor.isEditable() || !canInsert())
             return false;
@@ -188,6 +189,8 @@ public class FrameCursor implements RecallableFocus
                         appear(); // Reverse the disappear above; we are still focused, since the frame had nothing to focus on
                         editor.updateCatalog(FrameCursor.this);
                     }
+                    if (ctrlDown)
+                        newFrame.insertedWithCtrl();
 
                     editor.endRecordingState(null);
 
@@ -428,7 +431,8 @@ public class FrameCursor implements RecallableFocus
                     char key = character.toCharArray()[0];
                     //Insert a new block, depending on key-press
                     // TODO remove isShortcutDown when the JDK bug is solved (Maybe in JDK 9)
-                    if (!event.isShortcutDown() && keyTyped(editor, parentCanvas, key)) {
+                    boolean ignore = Config.isMacOS() && event.isShortcutDown();
+                    if (!ignore && keyTyped(editor, parentCanvas, key, event.isControlDown())) {
                         event.consume();
                     }
                 }
@@ -530,7 +534,7 @@ public class FrameCursor implements RecallableFocus
             }
             else if (event.getCode() == KeyCode.ENTER)
             {
-                keyTyped(editor, parentCanvas, '\n');
+                keyTyped(editor, parentCanvas, '\n', false);
             }
         });
     }

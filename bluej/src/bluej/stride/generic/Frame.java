@@ -157,6 +157,16 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         
     }
 
+    /**
+     * Informs us Ctrl was held down when we were inserted via the keyboard.
+     * Just here so it can be overridden in child classes.
+     */
+    @OnThread(Tag.FXPlatform)
+    public void insertedWithCtrl()
+    {
+        
+    }
+
     /** enum for keeping track of frame preview state */
     public static enum FramePreviewEnabled
     {

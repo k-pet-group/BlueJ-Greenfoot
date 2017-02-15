@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -745,6 +745,15 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             suggestionDisplay = null;
         }
         fileCompletions = null;
+    }
+
+    /**
+     * Shows code completion for this slot (intended for use in new, blank slots)
+     */
+    @OnThread(Tag.FXPlatform)
+    public void showSuggestion()
+    {
+        showSuggestionDisplay(topLevel.getFirstField(), 0, false);
     }
 
     // package-visible
