@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -97,7 +97,7 @@ public class FrameCursor implements RecallableFocus
     private final Button node = new Button();
 
     @OnThread(Tag.FXPlatform)
-    public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key, boolean viaRedirect)
+    public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key)
     {
         if (!editor.isEditable() || !canInsert())
             return false;
@@ -183,10 +183,6 @@ public class FrameCursor implements RecallableFocus
                     editor.modifiedFrame(newFrame, false);
                     newFrame.markFresh();
 
-                    // Must ask for scroll before focusing (which will also attempt scroll):
-                    if (viaRedirect) {
-                        editor.scrollTo(getNode(), -20, Duration.millis(2000));
-                    }
 
                     if (!newFrame.focusWhenJustAdded()) {
                         appear(); // Reverse the disappear above; we are still focused, since the frame had nothing to focus on
@@ -432,7 +428,7 @@ public class FrameCursor implements RecallableFocus
                     char key = character.toCharArray()[0];
                     //Insert a new block, depending on key-press
                     // TODO remove isShortcutDown when the JDK bug is solved (Maybe in JDK 9)
-                    if (!event.isShortcutDown() && keyTyped(editor, parentCanvas, key, false)) {
+                    if (!event.isShortcutDown() && keyTyped(editor, parentCanvas, key)) {
                         event.consume();
                     }
                 }
@@ -534,7 +530,7 @@ public class FrameCursor implements RecallableFocus
             }
             else if (event.getCode() == KeyCode.ENTER)
             {
-                keyTyped(editor, parentCanvas, '\n', false);
+                keyTyped(editor, parentCanvas, '\n');
             }
         });
     }
