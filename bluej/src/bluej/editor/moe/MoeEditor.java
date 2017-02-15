@@ -684,8 +684,6 @@ public final class MoeEditor extends JPanel
             return false;
         }
 
-        info.message(Config.getString("editor.info.version") + " " + versionString);
-
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
 
         setCompileStatus(compiled);

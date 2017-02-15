@@ -299,7 +299,6 @@ editor.keypressed.keyIsNotBound=is not bound to a function.
 editor.keypressed.callsTheFunction=calls the function "
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version
 editor.info.errorSaving = Error in saving file!
 editor.info.compiled = Class compiled - no syntax errors
 editor.info.compileError = Error(s) found in class
