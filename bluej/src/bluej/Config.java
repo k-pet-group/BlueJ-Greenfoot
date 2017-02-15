@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -257,7 +257,7 @@ public final class Config
         // The value of the BlueJ property overrides the system setting
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);      
 
-        usingMacOSScreenMenubar = (isMacOS() && macOSscreenMenuBar.equals("true"));
+        usingMacOSScreenMenubar = isMacOS() && macOSscreenMenuBar.equals("true");
         
         boolean themed = Config.getPropBoolean("bluej.useTheme");
         if(themed) {    
@@ -670,8 +670,6 @@ public final class Config
      */
     public static boolean usingMacScreenMenubar()
     {
-        if (!Config.isGreenfoot())
-            return false; // JavaFX doesn't do screen menubar properly.
         return usingMacOSScreenMenubar;
     }
 
