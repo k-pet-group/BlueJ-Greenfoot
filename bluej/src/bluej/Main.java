@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,11 +34,14 @@ import java.io.IOException;
 
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import de.codecentric.centerdevice.MenuToolkit;
 import javafx.application.Platform;
 
 import bluej.extmgr.ExtensionWrapper;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.collect.DataCollector;
@@ -53,6 +56,7 @@ import bluej.utility.DialogManager;
 import com.apple.eawt.AppEvent;
 import com.apple.eawt.Application;
 import com.apple.eawt.QuitResponse;
+
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
  * specialised class loaders, constructs an object of this class to initiate the
@@ -237,8 +241,59 @@ public class Main
         initialProjects = Boot.getMacInitialProjects();
         Application macApp = Application.getApplication();
 
-        if (macApp != null) {
+        if (!Config.isGreenfoot()) {
+            if (macApp != null) {
+                macMenuPreparingFX();
+            }
+        }
+        else {
+            macMenuPreparingSwing(macApp);
+        }
 
+        if (Config.isGreenfoot())
+        {
+            Debug.message("Disabling App Nap");
+            try
+            {
+                Runtime.getRuntime().exec("defaults write org.greenfoot NSAppSleepDisabled -bool YES");
+            }
+            catch (IOException e)
+            {
+                Debug.reportError("Error disabling App Nap", e);
+            }
+        }
+    }
+
+    private static void macMenuPreparingFX()
+    {
+        Platform.runLater(() -> {
+            // Get the toolkit
+            MenuToolkit menuToolkit = MenuToolkit.toolkit();
+            // Create the default Application menu
+            Menu defaultApplicationMenu = menuToolkit.createDefaultApplicationMenu(Config.getApplicationName());
+            // Update the existing Application menu
+            menuToolkit.setApplicationMenu(defaultApplicationMenu);
+
+            // About
+            defaultApplicationMenu.getItems().get(0).setOnAction(event ->
+                    SwingUtilities.invokeLater(() -> PkgMgrFrame.handleAbout()));
+
+            // Preferences
+            // It has been added without a separator due to a bug in the library used
+            MenuItem preferences = new MenuItem(Config.getString("menu.tools.preferences"));
+            preferences.setAccelerator(Config.getAcceleratorKeyFX("menu.tools.preferences"));
+            preferences.setOnAction(event -> SwingUtilities.invokeLater(() -> PkgMgrFrame.handlePreferences()));
+            defaultApplicationMenu.getItems().add(1, preferences);
+
+            // Quit
+            defaultApplicationMenu.getItems().get(defaultApplicationMenu.getItems().size()-1).
+                    setOnAction(event -> SwingUtilities.invokeLater(() -> PkgMgrFrame.handleQuit()));
+        });
+    }
+
+    private static void macMenuPreparingSwing(Application macApp)
+    {
+        if (macApp != null) {
             macApp.setAboutHandler(new com.apple.eawt.AboutHandler() {
                 @Override
                 public void handleAbout(AppEvent.AboutEvent e)
@@ -272,7 +327,7 @@ public class Main
                 {
                     if (launched) {
                         List<File> files = e.getFiles();
-                        for(File file : files) {
+                        for (File file : files) {
                             PkgMgrFrame.doOpen(file, null);
                         }
                     }
@@ -282,21 +337,8 @@ public class Main
                 }
             });
         }
-        
+
         Boot.getInstance().setQuitHandler(() -> SwingUtilities.invokeLater(() -> PkgMgrFrame.handleQuit()));
-        
-        if (Config.isGreenfoot())
-        {
-            Debug.message("Disabling App Nap");
-            try
-            {
-                Runtime.getRuntime().exec("defaults write org.greenfoot NSAppSleepDisabled -bool YES");
-            }
-            catch (IOException e)
-            {
-                Debug.reportError("Error disabling App Nap", e);
-            }
-        }
     }
 
     /**
