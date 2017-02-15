@@ -244,10 +244,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         BorderPane.setAlignment(title, Pos.BOTTOM_RIGHT);
         catalogueBackground.setBottom(title);
         StackPane catalogueScrollPaneStacked = new StackPane(catalogueBackground, catalogueScrollPane);
-        //collapsibleCatalogueScrollPane.setCenter(catalogueScrollPaneStacked);
         catalogueScrollPaneStacked.setMinWidth(0.0);
         collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,  PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING));
         collapsibleCatalogueScrollPane.addArrowWrapperStyleClass("catalogue-collapse");
+        showingCatalogue.bindBidirectional(collapsibleCatalogueScrollPane.expandedProperty());
         JavaFXUtil.addChangeListener(showingCatalogue, expanded -> PrefMgr.setFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING, expanded));
         // runLater, after it has been put in scene:
         JavaFXUtil.runAfterCurrent(() -> showingCatalogue.set(PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING)));
