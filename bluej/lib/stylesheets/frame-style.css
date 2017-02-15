@@ -617,12 +617,12 @@
     -fx-background-color: interface-frame;
 }
 
-.class-documentation-text, .class-frame:bj-java-preview .class-documentation-text-wrapper .preview-slashstar {
+.class-documentation-text, .class-frame .class-documentation-text-wrapper .preview-slashstar {
     -fx-text-fill: class-comment-text;
     -fx-prompt-text-fill: class-comment-text;
 }
 
-.interface-documentation-text, .interface-frame:bj-java-preview .interface-documentation-text-wrapper .preview-slashstar {
+.interface-documentation-text, .interface-frame .interface-documentation-text-wrapper .preview-slashstar {
     -fx-text-fill: interface-comment-text;
     -fx-prompt-text-fill: interface-comment-text;
 }
@@ -788,7 +788,7 @@
     -fx-text-fill: method-comment-text;
     -fx-prompt-text-fill: method-comment-text;
 }
-.method-frame:bj-java-preview .method-documentation-text, .method-frame:bj-java-preview .method-documentation-text-wrapper .preview-slashstar {
+.method-frame:bj-java-preview .method-documentation-text, .method-frame .method-documentation-text-wrapper .preview-slashstar {
     -fx-text-fill: method-comment-text;
     -fx-prompt-text-fill: transparent;
 }
