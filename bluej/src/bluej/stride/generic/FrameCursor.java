@@ -532,9 +532,15 @@ public class FrameCursor implements RecallableFocus
                     editor.endRecordingState(FrameCursor.this);
                 }
             }
+            // Mac doesn't produce the right key typed events for Enter or Ctrl-Space
+            // so we have special cases here in key pressed:
             else if (event.getCode() == KeyCode.ENTER)
             {
                 keyTyped(editor, parentCanvas, '\n', false);
+            }
+            else if (event.getCode() == KeyCode.SPACE && event.isControlDown())
+            {
+                keyTyped(editor, parentCanvas, ' ', event.isControlDown());
             }
         });
     }
