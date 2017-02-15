@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.Config;
+import bluej.stride.framedjava.frames.CallFrame;
+import bluej.stride.framedjava.slots.StructuredSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import javafx.application.Platform;
 import javafx.beans.binding.When;
@@ -1138,7 +1140,14 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     /** Sets this frame to be non-fresh */
     public void markNonFresh()
     {
-        fresh.set(false);
+        // Don't mark it non-fresh just because they've hit ctrl-space:
+        if (!isShowingSuggestions())
+            fresh.set(false);
+    }
+
+    protected boolean isShowingSuggestions()
+    {
+        return getEditableSlots().anyMatch(s -> s instanceof StructuredSlot && ((StructuredSlot)s).isShowingSuggestions());
     }
 
     /** Checks wheter this frame is fresh */
