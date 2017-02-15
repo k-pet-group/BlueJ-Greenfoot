@@ -157,18 +157,22 @@ public class Main
         // Open any projects specified on the command line
         if (args.length > 0) {
             for (String arg : args) {
-                if (!arg.startsWith("-")) {
+                // To avoid a wrong FileNotFound Exception when running from IntelliJ
+                if (!arg.startsWith("-") && !arg.contains("intellij")  ) {
                     if (PkgMgrFrame.doOpen(new File(arg), null)) {
-                        oneOpened = true;                        
+                        oneOpened = true;
                     }
                 }
             }
         }
-        
+
         // Open a project if requested by the OS (Mac OS)
         if (initialProjects != null) {
             for (File initialProject : initialProjects) {
-                oneOpened |= (PkgMgrFrame.doOpen(initialProject, null));
+                // To avoid a wrong FileNotFound Exception when running from IntelliJ
+                if (!initialProject.getName().contains("intellij")) {
+                    oneOpened |= (PkgMgrFrame.doOpen(initialProject, null));
+                }
             }
         }
 
