@@ -146,10 +146,10 @@ public class Font
     }
 
     /**
-     * Returns a new <code>Font</code> object obtained by deriving the
-     * <code>java.awt.Font font</code> field applying a new size to it.
+     * Creates a new <code>Font</code> object by cloning the current
+     * one and then applying a new size to it.
      *
-     * @param size the size for the new <code>Font</code>
+     * @param size the size for the new <code>Font</code>.
      * @return a new <code>Font</code> object.
      */
     public Font deriveFont(float size)
