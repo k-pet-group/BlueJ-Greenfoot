@@ -38,6 +38,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import com.apple.eawt.AppEvent;
 import com.apple.eawt.Application;
 import com.apple.eawt.QuitResponse;
+import de.codecentric.centerdevice.dialogs.about.AboutStageBuilder;
 import de.codecentric.centerdevice.MenuToolkit;
 
 import java.io.File;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javax.swing.SwingUtilities;
@@ -285,6 +287,9 @@ public class Main
     private static void prepareMacOSMenuFX()
     {
         Platform.runLater(() -> {
+            // Sets the JavaFX fxml Default Class Loader to avoid a fxml LoadException.
+            // This used to be fired only in the release not while running from the repository.
+            FXMLLoader.setDefaultClassLoader(AboutStageBuilder.class.getClassLoader());
             // Get the toolkit
             MenuToolkit menuToolkit = MenuToolkit.toolkit();
             // Create the default Application menu
