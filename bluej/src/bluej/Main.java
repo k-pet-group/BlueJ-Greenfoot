@@ -21,8 +21,27 @@
  */
 package bluej;
 
-import javax.swing.SwingUtilities;
+import bluej.collect.DataCollector;
+import bluej.extensions.event.ApplicationEvent;
+import bluej.extmgr.ExtensionsManager;
+import bluej.extmgr.ExtensionWrapper;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
+
+import com.apple.eawt.AppEvent;
+import com.apple.eawt.Application;
+import com.apple.eawt.QuitResponse;
+import de.codecentric.centerdevice.MenuToolkit;
+
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -30,32 +49,13 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import java.io.IOException;
-
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import de.codecentric.centerdevice.MenuToolkit;
 import javafx.application.Platform;
-
-import bluej.extmgr.ExtensionWrapper;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.Target;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javax.swing.SwingUtilities;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.collect.DataCollector;
-import bluej.extensions.event.ApplicationEvent;
-import bluej.extmgr.ExtensionsManager;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-
-import com.apple.eawt.AppEvent;
-import com.apple.eawt.Application;
-import com.apple.eawt.QuitResponse;
 
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
