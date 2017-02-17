@@ -8,6 +8,8 @@ language        last update     next update    comment                  translat
 --------------------------------------------------------------------------------------------------------------
 arabic                           x    labels+dialog+frames, Rev: 16028      Hakim <hakimsi@yahoo.com>
 brazilian                                          tutorial
+                                 x             all Rev: 17226               Jhonatan Morais <jhonatanvinicius@gmail.com>
+
 chinese			3.0.2                          all Rev: 15091               He Qing <hawking329@sina.com>
 czech			3.0.0			 x             all Rev: 14946               Zdeněk Chalupský <chalzd@gmail.com>
 dutch			3.0.0            x             all Rev: 14946               Renske Smetsers-Weeda <renske.weeda@gmail.com> (apologised temporary)
