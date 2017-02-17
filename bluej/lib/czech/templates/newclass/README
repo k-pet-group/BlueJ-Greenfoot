@@ -26,13 +26,14 @@ Přidáváni šablon
 Vytvořte v teto složce soubor s příponou ".tmpl" (pr.: "mainclass.tmpl")
 
 Bude-li jméno třídy začínat některou ze speciálních předpon,
-bude soubor považován za šablonu příslušnoho typu třídy, resp. rozhraní.
+bude soubor považován za šablonu příslušnoho typu třídy, resp. interfejs.
 Speciálními předponami jsou:
 
 abstract   - označuje šablonu abstraktní třídy
 appletj    - označuje šablonu apletu
 enum       - označuje šablonu výčtového typu
 interface  - označuje šablonu rozhraní
+midlet     - označuje šablonu midletu - většinou aplikace pro mobilní telefony
 unittest   - označuje šablonu testovací třídy
 
 Bude-li název začínat jakkoliv jinak, bude soubor považován

@@ -3,12 +3,12 @@ Soubor je ulozen v kodovani UTF-8.
 Kontrola kodovani: Příliš žluťoučký kůň úpěl ďábelské ódy.
 --------------------------------------------------------------------
 
-Česká lokalizace pro BlueJ 3.1.6
+Česká lokalizace pro BlueJ 3.0.5
 ================================
 
-Lokalizace pouziva kodovani UTF-8
+Lokalizace používá kódování UTF-8
 
-Verze 3.0.51 ze dne 25.7.2011.
+Verze 6604 ze dne 25.7.2011.
 
 Lokalizaci vytvořili Petr Škoda a Rudolf Pecinovský.
 

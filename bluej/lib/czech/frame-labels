@@ -1,5 +1,10 @@
-#Text for BlueJ++ 4.0.Prev.0.0548
-#Saved: 2016-08-15 - 23:45
+#Text for BlueJ 4.0
+#SVN version: 6604
+#Saved: 2017-02-13
+
+KontrolaKodovani*
+P\u0159\u00edli\u0161 \u017elu\u0165ou\u010dk\u00fd k\u016f\u0148 \u00fap\u011bl \u010f\u00e1belsk\u00e9 \u00f3dy.
+P\u0158\u00cdLI\u0160 \u017dLU\u0164OU\u010cK\u00dd K\u016e\u0147 \u00daP\u011aL \u010e\u00c1BELSK\u00c9 \u00d3DY.
 
 # Frame Catalogue:
 frame.catalogue.title=Tah\u00e1k
@@ -32,6 +37,7 @@ frame.classmenu.close=Zav\u0159\u00edt
 frame.classmenu.move=P\u0159esu\u0148 z\u00e1lo\u017eku...
 frame.classmenu.move.new=Do nov\u00e9ho okna
 frame.classmenu.move.existing=Okno
+frame.classmenu.print=Tisknout
 
 # Web/documentation menu
 frame.webmenu.title=Dokumentace
@@ -54,7 +60,7 @@ frame.viewmenu.nextError=Dal\u0161\u00ed chyba
 frame.viewmenu.cheatsheet=Tah\u00e1k
 frame.viewmenu.birdseye=Pta\u010d\u00ed pohled
 frame.viewmenu.birdseye.doc=Pta\u010d\u00ed pohled (s dokumentac\u00ed)
-frame.viewmenu.java=Java n\u00e1hled
+frame.viewmenu.java=N\u00e1hled v Jav\u011b
 frame.viewmenu.fontbigger=Zv\u011bt\u0161it velikost p\u00edsma
 frame.viewmenu.fontsmaller=Zmen\u0161it velikost p\u00edsma
 frame.viewmenu.fontdefault=Obnovit velikost p\u00edsma
@@ -67,36 +73,24 @@ frame.undobanner.text=Smazali jste velk\u00fd objem k\u00f3du. Nebylo-li to va\u
 frame.undobanner.button=Odvolat zm\u011bny
 frame.undobanner.close=Zav\u0159\u00edt
 
-stride.convert.unsupported.feature=Nepodporovan\u00e1 vlastnost pro Stride
-stride.convert.unsupported.modifier=Nepodporovan\u00fd modifik\u00e1tor pro Stride
-stride.convert.warnings.title=Java -> Stride: Nepodporovan\u00e1 vlastnost
-stride.convert.warnings=P\u0159evod Java -> Stride byl \u00fasp\u011b\u0161n\u00fd, ale s n\u00e1sleduj\u00edc\u00edmi varov\u00e1n\u00edmi:
-stride.convert.paste.errors.title=Vlo\u017een\u00ed Stride: Chyba
-
-stride.convert.paste.errors=Z\u00e1lo\u017eka neobsahuje platn\u00fd Stride-code \
-a pokus o konverzi Java -> Stride zhavaroval kv\u016fli n\u00e1sleduj\u00edc\u00edm chyb\u00e1m:
-
-stride.convert.whole.errors.title=P\u0159evod na Stride: Chyba
-stride.convert.whole.errors=P\u0159evod Java -> Stride zhavaroval kv\u016fli n\u00e1sleduj\u00edc\u00edm chyb\u00e1m:
-stride.convert.error.stride=Chyba p\u0159i pokusu rozbalit Stride-code
-stride.convert.error.java=Chyba p\u0159i pokusu analyzovat Java-k\u00f3d pro konverzi na Stride
-convert.to.java.title=P\u0159ev\u00e9st od jazyka Java?
-convert.to.java.message=Bude se p\u0159ev\u00e1d\u011bt t\u0159\u00edda Stride -> Java.  Pokra\u010dovat?
-convert.to.stride.title=P\u0159ev\u00e9st na Stride?
-
-convert.to.stride.message=Toto p\u0159evede t\u0159\u00eddu Javy na Stride. \
-Obsahuje-li k\u00f3d v Jav\u011b vlastnosti nepodporovan\u00e9 ve Stride, \
-nemus\u00ed b\u00fdt tato operace vratn\u00e1. M\u00e1m pokra\u010dovat?
-
-convert.to.stride.error.title=Ne\u010dekan\u00e1 chyba
-convert.to.stride.error.message=Ne\u010dekan\u00e1 chyba p\u0159i p\u0159evodu Java -> Stride.
+stride.convert.unsupported.feature=Vlastnost nen\u00ed v jazyce Stride podporov\u00e1na
+stride.convert.unsupported.modifier=Modifik\u00e1tor nen\u00ed v jazyce Stride podporov\u00e1n
+stride.convert.warnings.title=Java \u2192 Stride: Nepodporovan\u00e1 vlastnost
+stride.convert.warnings=Konverze Java \u2192 Stride skon\u010dila s n\u00e1sleduj\u00edc\u00edmi varov\u00e1n\u00edmi:
+stride.convert.paste.errors.title=Stride Vlo\u017eit: Chyba
+stride.convert.paste.errors=Ve schr\u00e1nce nen\u00ed platn\u00fd Stride-k\u00f3d a pokus o konverzi Java \u2192 Stride zhavaroval v d\u016fsledku n\u00e1sleduj\u00edc\u00edch chyb:
+stride.convert.whole.errors.title=Konverze na Stride: Chyba
+stride.convert.whole.errors=Konverze Java \u2192 Stride zhavarovala v d\u016fsledku n\u00e1sleduj\u00edc\u00edch chyb:
+stride.convert.error.stride=Chyba p\u0159i pokusu o rozbalen\u00ed Stride-k\u00f3du
+stride.convert.error.java=Chyba p\u0159i anal\u00fdze Java-k\u00f3du pro konverzi na Stride
+convert.to.java.title=Zkonvertovat do Javy?
+convert.to.java.message=Bude se konvertovat Stride \u2192 Java.  Pokra\u010dovat?
+convert.to.stride.title=Konvertovat na Stride?
+convert.to.stride.message=Bude se konvertovat Java \u2192 Stride.  Bude-li program v Jav\u011b obsahovat konstrukce nepodporovan\u00e9 v jazyku Stride, nebude tato operace reverzibiln\u00ed.  Pokra\u010dovat?
+convert.to.stride.error.title=Neo\u010dek\u00e1van\u00e1 chyba
+convert.to.stride.error.message=Neo\u010dek\u00e1van\u00e1 chyba b\u011bhem konverze Java \u2192 Stride.
 
 # Editor
-frame.editor.toplevel.doc.prompt=Zadejte popis t\u0159\u00eddy $CLASSNAME $CAPTION here...
-frame.editor.toplevel.package.prompt=N\u00e1zev bal\u00ed\u010dku
+frame.editor.toplevel.doc.prompt=Zde vlo\u017ete popis $CLASSNAME $CAPTION...
+frame.editor.toplevel.package.prompt=Pln\u00fd n\u00e1zev bal\u00ed\u010dku
 frame.editor.param.prompt=N\u00e1zev $CAPTION
-
-
-
-#~+ ##### BlueJ++ additions ++++++++++++++++++++++++++++++++++++++++++++++++++++
-#~- ##### BlueJ++ additions ----------------------------------------------------

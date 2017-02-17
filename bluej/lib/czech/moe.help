@@ -1,5 +1,10 @@
-#Text for BlueJ++ 4.0.Prev.0.0548
-#Saved: 2016-08-15 - 23:45
+#Text for BlueJ 4.0
+#SVN version: 6604
+#Saved: 2017-02-13
+\
+KontrolaKodovani*
+P\u0159\u00edli\u0161 \u017elu\u0165ou\u010dk\u00fd k\u016f\u0148 \u00fap\u011bl \u010f\u00e1belsk\u00e9 \u00f3dy.
+P\u0158\u00cdLI\u0160 \u017dLU\u0164OU\u010cK\u00dd K\u016e\u0147 \u00daP\u011aL \u010e\u00c1BELSK\u00c9 \u00d3DY.
 
 #
 # Moe user function help texts.
@@ -24,7 +29,7 @@ insert-tab=\n Vlo\u017eit znak TAB.
 new-line=\n Vlo\u017eit konec \u0159\u00e1dku. Je-li v p\u0159edvolb\u00e1ch zapnuta volba\n "automatick\u00e9 odsazen\u00ed", odsad\u00ed \u0159\u00e1dek podle p\u0159edchoz\u00edho \u0159\u00e1dku.
 insert-break=\n Vlo\u017eit konec \u0159\u00e1dku bez odsazen\u00ed nov\u00e9ho \u0159\u00e1dku.
 insert-method=\n Vlo\u017eit kostru metody.
-add-javadoc=\n Nem\u00c3\u00a1-li aktu\u00c3\u00a1ln\u00c3\u00ad metoda dokumenta\u00c4\u008dn\u00c3\u00ad koment\u00c3\u00a1\u00c5\u0099, p\u00c5\u0099id\u00c3\u00a1 jej.
+add-javadoc=\n Nem\u00e1-li aktu\u00e1ln\u00ed\u00ad metoda dokumenta\u010dn\u00ed\u00ad koment\u00e1\u0159, p\u0159idat jej.
 comment-block=\n Ozna\u010dit vybran\u00e9 \u0159\u00e1dky jako koment\u00e1\u0159. Zakomentov\u00e1n\u00ed m\u016f\u017ee b\u00fdt odvol\u00e1no\n p\u0159\u00edkazem uncomment-block (Odkomentovat).
 uncomment-block=\n Odkomentovat vybran\u00e9 \u0159\u00e1dky. Viz comment-block (Zakomentovat).
 indent-block=\n Zv\u011bt\u0161it odsazen\u00ed vybran\u00fdch \u0159\u00e1dk\u016f o jednu \u00farove\u0148.
@@ -115,8 +120,3 @@ toggle-breakpoint=\n Nastavit nebo odstranit zar\u00e1\u017eku v aktu\u00e1ln\u0
 
 press-key=\n Stiskn\u011bte kl\u00e1vesovou zkratku, kterou chcete p\u0159i\u0159adit...
 cannot-redefine=\n Kl\u00e1vesov\u00e9 zkratky pro tisk nemohou b\u00fdt p\u0159edefinov\u00e1ny.
-
-
-
-#~+ ##### BlueJ++ additions ++++++++++++++++++++++++++++++++++++++++++++++++++++
-#~- ##### BlueJ++ additions ----------------------------------------------------

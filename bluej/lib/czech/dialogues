@@ -1,5 +1,10 @@
-#Text for BlueJ++ 4.0.Prev.0.0548
-#Saved: 2016-08-15 - 23:45
+#Text for BlueJ 4.0
+#SVN version: 6604
+#Saved: 2017-02-13
+
+kotrola-kodovani
+P\u0159\u00edli\u0161 \u017elu\u0165ou\u010dk\u00fd k\u016f\u0148 \u00fap\u011bl \u010f\u00e1belsk\u00e9 \u00f3dy.
+P\u0158\u00cdLI\u0160 \u017dLU\u0164OU\u010cK\u00dd K\u016e\u0147 \u00daP\u011aL \u010e\u00c1BELSK\u00c9 \u00d3DY.
 
 compile-while-executing
 Nem\u016f\u017eete p\u0159ekl\u00e1dat,
@@ -52,9 +57,6 @@ cannot-access-element
 K zadan\u00e9mu prvku pole
 nen\u00ed mo\u017en\u00e9 p\u0159istoupit.
 
-appletviewer-error
-Chyba p\u0159i spou\u0161t\u011bn\u00ed apletu
-aplikac\u00ed appletviewer.
 
 error-no-name
 Mus\u00edte zadat platn\u00e9 jm\u00e9no.
@@ -71,7 +73,7 @@ Zm\u011bny nebyly ulo\u017eeny.
 error-no-templates
 Slo\u017eka s \u0161ablonami (slo\u017eka, v n\u00ed\u017e BlueJ hled\u00e1 \u0161ablony t\u0159\u00edd)
 neexistuje. Cesta k t\u00e9to slo\u017ece slo\u017eka je zad\u00e1na v souboru
-<bluej-home>/lib/bluej.defs v polo\u017ekce "bluej.templatePath"-
+<bluej-home>/lib/bluej.defs v polo\u017ece "bluej.templatePath"-
 Zkontrolujte jej\u00ed spr\u00e1vn\u00e9 nastaven\u00ed.
 
 skeleton-error
@@ -103,17 +105,16 @@ invalid-package-name
 Neplatn\u00e9 jm\u00e9no bal\u00ed\u010dku.
 
 must-be-identifier
-Zadan\u00e9 jm\u00e9no nen\u00ed platn\u00e9,
-proto\u017ee nevyhovuje po\u017eadavk\u016fm
-kladen\u00fdm na identifik\u00e1tory jazyka Java.
+Zadan\u00e9 jm\u00e9no nen\u00ed platn\u00e9, proto\u017ee nevyhovuje
+po\u017eadavk\u016fm kladen\u00fdm na identifik\u00e1tory jazyka Java.
 
 directory-exists
 Soubor nebo slo\u017eka s t\u00edmto
 jm\u00e9nem ji\u017e existuje.
 
 directory-exists-non-empty
-Tato slo\u017eka nen\u00ed pr\u00e1zdn\u00e1,
-a proto v n\u00ed nen\u00ed mo\u017eno vytvo\u0159it nov\u00fd projekt.
+Tato slo\u017eka nen\u00ed pr\u00e1zdn\u00e1, a proto nem\u016f\u017ee b\u00fdt pou\u017eita
+jako c\u00edlov\u00e1 slo\u017eka pro ulo\u017een\u00ed projektu
 
 cannot-create-directory
 Nelze vytvo\u0159it slo\u017eku (adres\u00e1\u0159).
@@ -121,9 +122,10 @@ Zkontroluje, zda je zadan\u00e9 jm\u00e9no platn\u00e9,
 a zda existuje jej\u00ed rodi\u010dovsk\u00e1 slo\u017eka,
 do n\u00ed\u017e je mo\u017eno zapisovat.
 
-cannot-copy-package
-Nastal probl\u00e9m p\u0159i kop\u00edrov\u00e1n\u00ed soubor\u016f bal\u00ed\u010dku.
-Bal\u00ed\u010dek nebyl v\u016fbec zaps\u00e1n, nebo je nekompletn\u00ed.
+cannot-save-project
+Projekt nem\u016f\u017ee b\u00fdt ulo\u017een do zadan\u00e9 slo\u017eky.
+Ov\u011b\u0159te, \u017ee m\u00e1te p\u0159\u00edstupov\u00e1 pr\u00e1va pro z\u00e1pis,
+anebo zvolte jinou slo\u017eku.
 
 file-does-not-exist
 Zadan\u00fd soubor neexistuje.
@@ -194,7 +196,7 @@ ale p\u0159i vol\u00e1n\u00ed metod se budou spou\u0161t\u011bt
 metody knihovn\u00ed t\u0159\u00eddy.
 
 windows-reserved-class-name
-Zadan\u00fd n\u00e1zev t\u0159\u00eddy nelze pou\u017e\u00edt, proto\u017ee tetno n\u00e1zev
+Zadan\u00fd n\u00e1zev t\u0159\u00eddy nelze pou\u017e\u00edt, proto\u017ee tento n\u00e1zev
 je v n\u011bkter\u00fdch opera\u010dn\u00edch syst\u00e9mech rezervov\u00e1n
 
 error-in-import
@@ -208,8 +210,8 @@ P\u0159ed spu\u0161t\u011bn\u00edm p\u0159ekladu vyberte
 klepnut\u00edm t\u0159\u00eddu, kter\u00e1 se m\u00e1 p\u0159elo\u017eit.
 
 no-class-selected
-Nebyla vybr\u00e1na \u017e\u00e1dn\u00e1 t\u0159\u00edda nebo bal\u00ed\u010dek.
-Jestli\u017ee chcete smazat soubor nebo bal\u00ed\u010dek,
+Nebyla zad\u00e1no, co se m\u00e1 odstranit.
+Jestli\u017ee chcete smazat soubor, bal\u00ed\u010dek \u010di \u0161ipku,
 nejd\u0159\u00edve je mus\u00edte vybrat, a teprve pak smazat.
 
 really-remove-class
@@ -240,9 +242,6 @@ no-bluej-package
 Chyba p\u0159i otev\u00edr\u00e1n\u00ed bal\u00ed\u010dku.
 Soubor/slo\u017eka nen\u00ed platn\u00fd
 bal\u00ed\u010dek BlueJ:
-
-applet-height-width
-Mus\u00ed b\u00fdt zad\u00e1na v\u00fd\u0161ka a \u0161\u00ed\u0159ka apletu.
 
 not-yet-implemented
 Zat\u00edm nen\u00ed implementov\u00e1no - omlouv\u00e1me se.
@@ -329,7 +328,7 @@ Zp\u011bt
 null
 
 ask-index
-Zadejte index pvku pole [...]
+Zadejte index prvku pole [...]
 Prohl\u00eddka pole
 null
 
@@ -390,8 +389,8 @@ Otev\u0159en\u00fd projekt je ur\u010den pouze ke \u010dten\u00ed:
 :
     $
 :
-Abyste jej mohli pou\u017e\u00edvat, mus\u00edte jej nejprve zkop\u00edrovat
-do n\u011bjak\u00e9 jin\u00e9 slo\u017eky
+Abyste jej mohli pou\u017e\u00edvat, mus\u00edte jej nejprve
+zkop\u00edrovat do n\u011bjak\u00e9 jin\u00e9 slo\u017eky
 
 project-is-virtualized
 Projekt, kter\u00fd jste otev\u0159eli, je virtualizov\u00e1n syst\u00e9mem Windows.
@@ -413,11 +412,11 @@ a abyste m\u011bli pr\u00e1vo z\u00e1pisu do slo\u017eky projektu a jej\u00edch 
 jar-output-dir-exists
 Slo\u017eka, kam chcete rozbalit archiv, ji\u017e existuje.
 Mus\u00edte bu\u010f zadat jinou c\u00edlovou slo\u017eku, anebo p\u0159ed \u017e\u00e1dost\u00ed
-o rozbalen\u00edt archivu, danou slo\u017eku nejprve odstranit.
+o rozbalen\u00ed archivu, danou slo\u017eku nejprve odstranit.
 
 jar-output-no-write
 Nepoda\u0159ilo se vytvo\u0159it v\u00fdstupn\u00ed slo\u017eku.
-Ov\u011b\u0159te, \u017ee chete archiv rozbalit do slo\u017eky,
+Ov\u011b\u0159te, \u017ee chcete archiv rozbalit do slo\u017eky,
 do kter\u00e9 m\u00e1te povolen z\u00e1pis.
 
 jar-extraction-error
@@ -436,7 +435,7 @@ P\u0159i pokusu o ulo\u017een\u00ed souboru nastala chyba.
 empty-assertion-text
 Nezadali jste o\u010dek\u00e1van\u00fd v\u00fdsledek tohoto vol\u00e1n\u00ed metody.
 Bez n\u011bj nen\u00ed v\u00e1\u0161 test kompletn\u00ed a testovac\u00ed t\u0159\u00edda se nebude p\u0159ekl\u00e1dat.
-Jste si jisti, \u017ee chete pokra\u010dovat bez zad\u00e1n\u00ed v\u00fdsledn\u00e9 hodnoty?
+Jste si jisti, \u017ee chcete pokra\u010dovat bez zad\u00e1n\u00ed v\u00fdsledn\u00e9 hodnoty?
 Zp\u011bt
 Pokra\u010duj
 null
@@ -445,7 +444,7 @@ team-update-first
 Ve va\u0161\u00ed pracovn\u00ed kopii (working copy) byly smaz\u00e1ny soubory
 jejich\u017e ekvivalenty v \u00falo\u017ei\u0161ti byly mezi t\u00edm zm\u011bn\u011bny.
 To vyvol\u00e1v\u00e1 konflikt. Ne\u017e ode\u0161lete (commit) svoje zm\u011bny,
-mus\u00edte nejprve akutalizovat (update) svoji pracovn\u00ed kopii,
+mus\u00edte nejprve aktualizovat (update) svoji pracovn\u00ed kopii,
 abyste ji synchronizovali s obsahem \u00falo\u017ei\u0161t\u011b (repository).
 Aktualizace ovlivn\u00ed n\u00e1sleduj\u00edc\u00ed soubory:
 
@@ -453,8 +452,8 @@ team-resolve-conflicts-delete
 Nastal konflikt soubor\u016f, kter\u00e9 byly paraleln\u011b upraveny
 v \u00falo\u017ei\u0161ti (repository) i ve va\u0161\u00ed pracovn\u00ed kopii (working copy).
 Abyste vy\u0159e\u0161ili (resolve) tento konflikt, mus\u00edte nejprve smazat
-(anebo p\u0159esunout) sv\u00e9 upraven\u00e9 verze t\u011bctho soubor\u016f
-a pak akutalizovat (update) soubory z \u00falo\u017ei\u0161t\u011b.
+(anebo p\u0159esunout) sv\u00e9 upraven\u00e9 verze t\u011bchto soubor\u016f
+a pak aktualizovat (update) soubory z \u00falo\u017ei\u0161t\u011b.
 Pot\u00e9 m\u016f\u017eete vy\u0159e\u0161it vznikl\u00fd konflikt.
 
 team-resolve-merge-conflicts
@@ -478,6 +477,25 @@ P\u0159ipojen\u00ed k serveru se nepoda\u0159ilo.
 V nastaven\u00ed pro t\u00fdmovou pr\u00e1ci ov\u011b\u0159te,
 \u017ee adresa serveru je korektn\u00ed
 
+team-wrong-protocol
+Nelze se p\u0159ipojit na server. Vypad\u00e1 to,
+\u017ee server neakceptuje informa\u010dn\u00ed protokol.
+
+team-malformed-uri
+P\u0159ipojovac\u00ed URI  je neplatn\u00e1.
+Zkontrolujte pou\u017eit\u00fd p\u0159ipojovac\u00ed \u0159et\u011bzec.
+
+team-denied-invalidUser
+\u0160patn\u00e9 u\u017eivatelsk\u00e9 jm\u00e9no \u010di heslo \u2013 p\u0159\u00edstup zam\u00edtnut.
+
+team-denied-invalidUserOrnotExported
+P\u0159\u00edstup byl zam\u00edtnut. Zkontrolujte detaily sv\u00e9 autentifikace
+(u\u017eivatelsk\u00e9 jm\u00e9no a heslo). Nepo\u017eaduje-li protokol
+u\u017eivatelsk\u00e9 jm\u00e9no, \u00falo\u017ei\u0161t\u011b nebylo exportov\u00e1no.
+
+team-noRepository-uri
+\u00dalo\u017ei\u0161t\u011b nebylo nalezeno: $
+
 team-project-exists
 Projekt ji\u017e na serveru existuje.
 M\u016f\u017eete jej st\u00e1hnout (checkout), prov\u011b\u0159it a p\u0159\u00edpadn\u011b slou\u010dit,
@@ -500,7 +518,7 @@ V Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci ov\u011b\u0159te,
 \u017ee je v\u0161e spr\u00e1vn\u011b nastaveno.
 
 team-empty-message
-Objevila se nezn\u00e1m\u00e1\u00ed chyba.
+Objevila se nezn\u00e1m\u00e1 chyba.
 Zkontrolujte nastaven\u00ed v Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci.
 
 team-invalid-cvsroot
@@ -512,12 +530,19 @@ Server v\u00e1s odm\u00edtl p\u0159ihl\u00e1sit (log in).
 V Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci
 ov\u011b\u0159te svoje u\u017eivatelsk\u00e9 jm\u00e9no a heslo
 
+team-authorisation-problem
+Operace nebyla serverem autorizov\u00e1na. Umo\u017e\u0148uje-li server
+ve\u0159ejn\u00fd p\u0159\u00edstup pro \u010dten\u00ed projektu jako github,
+pak bude va\u0161e u\u017eivatelsk\u00e9 jm\u00e9no \u010di heslo \u0161patn\u011b.
+Ov\u011b\u0159te u\u017eivatelsk\u00e9 jm\u00e9no a heslo a nastaven\u00ed \u00falo\u017ei\u0161t\u011b
+v nastaven\u00edch pro t\u00fdmovou pr\u00e1ci.
+
 team-binary-conflict
-P\u0159i pokusu o aktualizaci n\u00e1\u00fdsleduj\u00edc\u00edho souboru byl detekov\u00e1n konflikt:
+P\u0159i pokusu o aktualizaci n\u00e1sleduj\u00edc\u00edho souboru byl detekov\u00e1n konflikt:
     $
 Soubor byl zm\u011bn\u011bn lok\u00e1ln\u011b a sou\u010dasn\u011b v \u00falo\u017ei\u0161ti.
 Pou\u017eij moji verzi
-Pou\u017eij vezi z \u00falo\u017ei\u0161t\u011b
+Pou\u017eij verzi z \u00falo\u017ei\u0161t\u011b
 null
 
 team-error-saving-project
@@ -557,58 +582,10 @@ pomoc\u00ed lad\u00edc\u00edho programu (debuggeru).
 
 SVNWorkingCopyNot16
 Form\u00e1t metadat pro Subversion tohoto projektu nem\u016f\u017ee BlueJ pln\u011b podporovat.
-(M\u016f\u017ee to b\u00fdt zp\u016fsobeno t\u00edm, \u017ee projekt st\u00e1hl BlurJ 3.1.6,
-kter\u00fd vytv\u00e1\u0159el data v nepodporovan\u00e9m form\u00e1tu.
+(M\u016f\u017ee to b\u00fdt zp\u016fsobeno t\u00edm, \u017ee projekt byl sta\u017een verz\u00ed BlueJ 3.1.6,
+kter\u00e1 vytv\u00e1\u0159ela data v nepodporovan\u00e9m form\u00e1tu.
  \u0020 \u0020
 Budete-li pokra\u010dovat v pr\u00e1ci s t\u00edmto projektem, n\u011bkter\u00e9 t\u00fdmov\u00e9 funkce
 (stav, odesl\u00e1n\u00ed, apod.) nemus\u00ed spr\u00e1vn\u011b pracovat.
  \u0020 \u0020
 Probl\u00e9m m\u016f\u017eete vy\u0159e\u0161it tak, \u017ee projekt st\u00e1hnete znovu, ale do nov\u00e9 slo\u017eky.
-
-
-#~+ ##### BlueJ++ additions ++++++++++++++++++++++++++++++++++++++++++++++++++++
-#~+omatviichuk +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-change-object-value
-Zadejte v\u00fdraz pro novou hodnotu objektu
-Zm\u011bnit hodnotu objektu
-null
-
-object-already-exists
-Objekt s t\u00edmto jm\u00e9nem ji\u017e existuje.
-Chcete zm\u011bnit jeho hodnotu?
-Ano
-Ne
-null
-
-cannot-add-null
-Nen\u00ed povoleno ukl\u00e1dat pr\u00e1zdn\u00e9 (null) odkazy do z\u00e1sobn\u00edku odkaz\u016f!
-
-class-method-present
-Ve t\u0159\u00edd\u011b je ji\u017e definov\u00e1na metoda se stejnou signaturou.
-Budete li pokra\u010dovat, bude tato metoda nahrazena.
-Chcete pokra\u010dovat?
-Nahradit
-Storno
-null
-
-lambda-cannot-reference-ctor
-Nen\u00ed povoleno odkazovat na konstruktory!
-
-#~-omatviichuk -----------------------------------------------------------------
-
-#~+bobusky +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-class-field-present
-V t\u00e9to t\u0159\u00edd\u011b je ji\u017e deklarov\u00e1n atribut pojmenovan\u00fd '$'.
-Budete-li pokra\u010dovat, bude tato deklarace nahrazena.
-Chcete pokra\u010dovat a atribut nahradit?
-Nahradit
-Storno
-null
-
-recursive-constructor-call
-Definice kontruktoru vede na jeho rekurzivn\u00ed vol\u00e1n\u00ed!
-
-#~-bobusky ---------------------------------------------------------------------
-#~- ##### BlueJ++ additions ----------------------------------------------------

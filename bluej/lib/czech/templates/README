@@ -13,6 +13,6 @@ Změnou těchto šablon dosáhnete změny obsahu generovaných souborů.
  - opatrně opravujte i šablonu "method", kterou používá editor,
    když má do programu vložit novou metodu.
 
-Podsložka "newclass" obsahuje šablony pro generováni nových tříd a rozhraní
+Podsložka "newclass" obsahuje šablony pro generování nových tříd a rozhraní
 zadáním příkazu "Nová třída ..." a následným nastavením přepínače
 v dialogovém okně "Vytvořit novou třídu".

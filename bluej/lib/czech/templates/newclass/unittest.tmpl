@@ -1,10 +1,14 @@
-/* Soubor je ulozen v kodovani UTF-8.
- * Kontrola kódování: Příliš žluťoučký kůň úpěl ďábelské ódy. */
+/* UTF-8 codepage: Příliš žluťoučký kůň úpěl ďábelské ódy. ÷ × ¤
+ * «Stereotype», Section mark-§, Copyright-©, Alpha-α, Beta-β, Smile-☺
+ */
 $PKGLINE
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+
+import org.junit.rules.TestName;
 
 
 import static org.junit.Assert.*;
@@ -12,26 +16,56 @@ import static org.junit.Assert.*;
 
 
 /*******************************************************************************
- * Testovací třída {@code $CLASSNAME} slouží ke komplexnímu otestování
- * třídy {@link $CLASSNAME}.
+ * Testovací třída {@code $CLASSNAME}
+ * definuje sadu jednotkových testů prověřujících správnost definice třídy
+ * {@link $CLASSNAME}.
  *
- * @author    jméno autora
- * @version   0.00.000
+ * @author  author name
+ * @version 0.00.0000 — 20yy-mm-dd
  */
 public class $CLASSNAME
 {
-    //== KONSTANTNÍ ATRIBUTY TŘÍDY =============================================
-    //== PROMĚNNÉ ATRIBUTY TŘÍDY ===============================================
-    //== STATICKÝ INICIALIZAČNÍ BLOK - STATICKÝ KONSTRUKTOR ====================
-    //== KONSTANTNÍ ATRIBUTY INSTANCÍ ==========================================
-    //== PROMĚNNÉ ATRIBUTY INSTANCÍ ============================================
-    //== PŘÍSTUPOVÉ METODY VLASTNOSTÍ TŘÍDY ====================================
-    //== OSTATNÍ NESOUKROMÉ METODY TŘÍDY =======================================
+//\CC== CLASS CONSTANTS (CONSTANT CLASS/STATIC ATTRIBUTES/FIELDS) ==============
+//\CV== CLASS VARIABLES (VARIABLE CLASS/STATIC ATTRIBUTES/FIELDS) ==============
 
-    //##########################################################################
-    //== KONSTRUKTORY A TOVÁRNÍ METODY =========================================
-    //-- Testovací třída vystačí s prázdným implicitním konstruktorem ----------
-    //== PŘÍPRAVA A ÚKLID PŘÍPRAVKU ============================================
+
+
+//##############################################################################
+//\CI== CLASS (STATIC) INITIALIZER (CLASS CONSTRUCTOR) =========================
+//\CF== CLASS (STATIC) FACTORY METHODS =========================================
+//\CG== CLASS (STATIC) GETTERS AND SETTERS =====================================
+//\CM== CLASS (STATIC) REMAINING NON-PRIVATE METHODS ===========================
+//\CP== CLASS (STATIC) PRIVATE AND AUXILIARY METHODS ===========================
+
+
+
+//##############################################################################
+//\IC== INSTANCE CONSTANTS (CONSTANT INSTANCE ATTRIBUTES/FIELDS) ===============
+//\IV== INSTANCE VARIABLES (VARIABLE INSTANCE ATTRIBUTES/FIELDS) ===============
+
+
+
+//##############################################################################
+//\II== INSTANCE INITIALIZERS (CONSTRUCTORS) ===================================
+//----- Test class manages with empty default constructor ----------------------
+
+
+
+//\IA== INSTANCE ABSTRACT METHODS ==============================================
+//\IG== INSTANCE GETTERS AND SETTERS ===========================================
+//\IM== INSTANCE REMAINING NON-PRIVATE METHODS =================================
+//\IP== INSTANCE PRIVATE AND AUXILIARY METHODS =================================
+
+
+
+//##############################################################################
+//\NT== NESTED DATA TYPES ======================================================
+
+
+
+//##########################################################################
+//\TC== PREPARATION AND CLEAN UP OF THE CLASS FIXTURE ==========================
+//\TI== PREPARATION AND CLEAN UP OF THE TEST FIXTURE ===========================
 
     /***************************************************************************
      * Inicializace předcházející spuštění každého testu a připravující tzv.
@@ -44,7 +78,8 @@ public class $CLASSNAME
 
 
     /***************************************************************************
-     * Úklid po testu - tato metoda se spustí po vykonání každého testu.
+     * Provede úklid po testu, tj. akce, které je třeba vykonat
+     * po ukončení každého testu definovaného v této třídě.
      */
     @After
     public void tearDown()
@@ -53,18 +88,15 @@ public class $CLASSNAME
 
 
 
-    //== PŘÍSTUPOVÉ METODY VLASTNOSTÍ INSTANCÍ =================================
-    //== OSTATNÍ NESOUKROMÉ METODY INSTANCÍ ====================================
-    //== SOUKROMÉ A POMOCNÉ METODY TŘÍDY =======================================
-    //== SOUKROMÉ A POMOCNÉ METODY INSTANCÍ ====================================
-    //== INTERNÍ DATOVÉ TYPY ===================================================
-    //== VLASTNÍ TESTY =========================================================
-    //
-    //     /********************************************************************
-    //      *
-    //      */
-    //     @Test
-    //     public void testXxx()
-    //     {
-    //     }
+//##############################################################################
+//\TT== TESTS PROPER ===========================================================
+//
+//    /*************************************************************************
+//     * Test metody {@link #setUp()}, která vytváří testovací přípravek.
+//     */
+//    @Test
+//    public void testSetUp()
+//    {
+//    }
+//
 }
