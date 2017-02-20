@@ -176,7 +176,7 @@ in questo progetto. Non possono avere
 due classi con lo stesso nome.
 
 class-already-in-library
-Una classe con questo nome esiste gi� nella libreria.
+Una classe con questo nome esiste gi\u00e0 nella libreria.
 Se crei questa classe, sarai capace di
 modificare e compilare la classe, ma non chiamerai i metodi.
 Cancella
@@ -184,7 +184,7 @@ Continua
 null
 
 compile-class-already-in-library
-Una classe con questo nome gi� esiste nella libreria
+Una classe con questo nome gi\u00e0 esiste nella libreria
 "$".
 Puoi modificare e compilare la classe, ma 
 chiamando i metodi eseguirai il codice della classe della libreria.
@@ -346,7 +346,7 @@ Nuovo Metodo di Test
 null
 
 unittest-io-error
-Un errore di I/O � avvenuto quando si cerca di leggere il codice 
+Un errore di I/O \u00e8 avvenuto quando si cerca di leggere il codice
 sorgente del test unitario.
 
 getobject-new-name
