@@ -334,7 +334,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         JavaFXUtil.addStyleClass(newPackage, "class-action-inbuilt");
         
         MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newCSS"));
-        
         newCSS.setOnAction(e -> {
             SwingUtilities.invokeLater(() -> {
                 pmf.menuCall();
@@ -342,8 +341,17 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             });
         });
         JavaFXUtil.addStyleClass(newCSS, "class-action-inbuilt");
-        
-        menu.getItems().addAll(newClass, newPackage, newCSS);
+
+        MenuItem addClassFromFile = new MenuItem(Config.getString("menu.edit.addClass"));
+        addClassFromFile.setOnAction(e -> {
+            SwingUtilities.invokeLater(() -> {
+                pmf.menuCall();
+                pmf.doAddFromFile();
+            });
+        });
+        JavaFXUtil.addStyleClass(addClassFromFile, "class-action-inbuilt");
+
+        menu.getItems().addAll(newClass, newPackage, newCSS, addClassFromFile);
 
         // Eugh; we need the extensions manager from the swing thread,
         // then need to create on FX then add extension on Swing
