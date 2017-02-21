@@ -3458,7 +3458,14 @@ public final class MoeEditor extends JPanel
                 Action action = actions.getActionByName(itemKey);
                 if (action == null) {
                     Debug.message("Moe: cannot find action " + itemKey);
-                } else {
+                }
+                // Forbid Preferences from being added to the Options menu when using
+                // Mac screen menubar, as it is already exist in the Application menu.
+                else if ( !( Config.usingMacScreenMenubar() &&
+                             key.toLowerCase().equals("option") &&
+                             itemKey.toLowerCase().equals("preferences") )
+                        )
+                {
                     item = menu.add(action);
                     label = Config.getString("editor." + itemKey + LabelSuffix);
                     item.setText(label);
@@ -3475,7 +3482,7 @@ public final class MoeEditor extends JPanel
                     if (isNonReadmeAction(itemKey)) {
                         item.setEnabled(sourceIsCode);
                     }
-                }               
+                }
             }
         }
         return menu;
