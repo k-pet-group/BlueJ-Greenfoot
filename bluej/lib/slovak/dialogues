@@ -52,9 +52,6 @@ cannot-access-element
 Nie je mo\u017en\u00e9 prist\u00fapi\u0165
 k\u00a0zadan\u00e9mu prvku po\u013ea.
 
-appletviewer-error
-Chyba pri sp\u00fa\u0161\u0165an\u00ed aplik\u00e1cie appletviewer.
-
 error-no-name
 Mus\u00edte zada\u0165 platn\u00fd n\u00e1zov.
 
@@ -239,9 +236,6 @@ no-bluej-package
 Chyba pri otv\u00e1ran\u00ed bal\u00ed\u010dka.
 S\u00fabor/prie\u010dinok nie je platn\u00fdm
 bal\u00ed\u010dkom BlueJa:
-
-applet-height-width
-Mus\u00ed by\u0165 zadan\u00e1 v\u00fd\u0161ka a\u00a0\u0161\u00edrka apletu.
 
 not-yet-implemented
 Toto zatia\u013e nebolo implementovan\u00e9 \u2013 ospravedl\u0148ujeme sa.
@@ -450,16 +444,16 @@ null
 
 team-update-first
 Z\u00a0va\u0161ej pracovnej k\u00f3pie projektu boli odstr\u00e1nen\u00e9 s\u00fabory, ktor\u00fdch
-ekvivalenty boli zmenen\u00e9 v\u00a0\u00falo\u017eisku. To vyvol\u00e1va konflikt. Predt\u00fdm,
-ne\u017e potvrd\u00edte zmeny, mus\u00edte aktualizova\u0165 svoju pracovn\u00fa k\u00f3piu, aby
-ste ju mohli spr\u00e1vne synchronizova\u0165 s\u00a0obsahom \u00falo\u017eiska. Aktualiz\u00e1cia
-ovplyvn\u00ed nasleduj\u00face s\u00fabory:
+ekvivalenty boli zmenen\u00e9 v\u00a0ukladacom priestore. To vyvol\u00e1va konflikt.
+Predt\u00fdm, ne\u017e potvrd\u00edte zmeny, mus\u00edte aktualizova\u0165 svoju pracovn\u00fa
+k\u00f3piu, aby ste ju mohli spr\u00e1vne synchronizova\u0165 s\u00a0obsahom ukladacieho
+priestoru. Aktualiz\u00e1cia ovplyvn\u00ed nasleduj\u00face s\u00fabory:
 
 team-resolve-conflicts-delete
-Nastal konflikt s\u00faborov, ktor\u00e9 boli paralelne upraven\u00e9 v\u00a0\u00falo\u017eisku
-a\u00a0vo va\u0161ej pracovnej k\u00f3pii. Aby ste vyrie\u0161ili tento konflikt, mus\u00edte
-najsk\u00f4r vymaza\u0165 va\u0161e upraven\u00e9 verzie s\u00faborov a\u00a0potom aktualizova\u0165
-s\u00fabory z\u00a0\u00falo\u017eiska. T\u00fdm vyrie\u0161ite vzniknut\u00fd konflikt:
+Nastal konflikt s\u00faborov, ktor\u00e9 boli paralelne upraven\u00e9 v\u00a0ukladacom priestore
+a\u00a0vo va\u0161ej pracovnej k\u00f3pii. Aby ste vyrie\u0161ili tento konflikt, mus\u00edte najsk\u00f4r
+vymaza\u0165 va\u0161e upraven\u00e9 verzie s\u00faborov a\u00a0potom aktualizova\u0165 s\u00fabory
+z\u00a0ukladacieho priestoru. T\u00fdm vyrie\u0161ite vzniknut\u00fd konflikt:
 
 team-resolve-merge-conflicts
 Po\u010das predch\u00e1dzaj\u00facej aktualiz\u00e1cie vznikli konflikty zlu\u010dovania
@@ -478,6 +472,25 @@ team-cant-connect
 Nepodarilo sa pripoji\u0165 k\u00a0serveru. Overte v\u00a0nastaveniach
 t\u00edmovej pr\u00e1ce, \u010di je zadan\u00e1 spr\u00e1vna adresa servera.
 
+team-wrong-protocol
+Nepodarilo sa pripoji\u0165 k\u00a0serveru. Server pravdepodobne
+nepodporuje zadan\u00fd protokol.
+
+team-malformed-uri
+Nespr\u00e1vny form\u00e1t adresy URI na pripojenie. Overte, pros\u00edm,
+spr\u00e1vnos\u0165 re\u0165azca pou\u017eit\u00e9ho na pripojenie.
+
+team-denied-invalidUser
+Pr\u00edstup bol zamietnut\u00fd. Nespr\u00e1vne meno alebo heslo.
+
+team-denied-invalidUserOrnotExported
+Pr\u00edstup bol zamietnut\u00fd. Pros\u00edm, overte va\u0161e autentika\u010dn\u00e9 \u00fadaje (pou\u017e\u00edvate\u013esk\u00e9
+meno a\u00a0heslo) ak s\u00fa vy\u017eadovan\u00e9. Ak tento protokol nevy\u017eaduje pou\u017e\u00edvate\u013esk\u00e9
+meno, tak neboli spr\u00e1vne exportovan\u00e9 \u00fadaje ukladacieho priestoru.
+
+team-noRepository-uri
+Ukladac\u00ed priestor nebol n\u00e1jden\u00fd: $
+
 team-project-exists
 Tento projekt u\u017e na serveri jestvuje. Mo\u017eno ste chceli
 pou\u017ei\u0165 n\u00e1stroj na overenie rozdielov. Ak nie, tak svoj
@@ -490,11 +503,11 @@ v\u00a0nastaveniach t\u00edmovej pr\u00e1ce, \u010di m\u00e1te zadan\u00fa spr\u
 a\u00a0projekt a\u00a0\u010di tieto na serveri jestvuj\u00fa.
 
 team-cant-find-module
-Projekt nie je v\u00a0\u00falo\u017eisku. Pred overen\u00edm zmien projektu, mus\u00ed
-by\u0165 tento najsk\u00f4r zdie\u013ean\u00fd, to znamen\u00e1 ulo\u017een\u00fd v\u00a0\u00falo\u017eisku.
+Projekt nie je v\u00a0ukladacom priestore. Pred overen\u00edm zmien projektu, mus\u00ed
+by\u0165 tento najsk\u00f4r spr\u00edstupnen\u00fd (to znamen\u00e1 ulo\u017een\u00fd) v\u00a0ukladacom priestore.
 
 team-cant-find-repository
-\u00dalo\u017eisko nebolo n\u00e1jden\u00e9. Overte, \u010di s\u00fa v\u00a0nastaveniach
+Ukladac\u00ed priestor nebol n\u00e1jden\u00fd. Overte, \u010di s\u00fa v\u00a0nastaveniach
 t\u00edmovej pr\u00e1ce zadan\u00e9 korektn\u00e9 \u00fadaje (cesta a\u00a0podobne).
 
 team-empty-message
@@ -508,14 +521,21 @@ zadan\u00e9 v\u00a0nastaveniach t\u00edmovej pr\u00e1ce.
 team-authentication-problem
 Server odmietol prihl\u00e1senie pou\u017e\u00edvate\u013ea. Overte v\u00a0nastaveniach
 t\u00edmovej pr\u00e1ce spr\u00e1vnos\u0165 zadania pou\u017e\u00edvate\u013esk\u00e9ho mena, hesla
-a\u00a0cie\u013eov\u00e9ho \u00falo\u017eiska.
+a\u00a0cie\u013eov\u00e9ho ukladacieho priestoru.
+
+team-authorisation-problem
+Oper\u00e1cia nebola autorizovan\u00e1 serverom. Ak server umo\u017e\u0148uje verejn\u00fd
+pr\u00edstup k\u00a0projektu, ako napr\u00edklad github, tak boli pravdepodobne
+nespr\u00e1vne zadan\u00e9 va\u0161e prihlasovacie \u00fadaje. 
+Overte va\u0161e pou\u017e\u00edvate\u013esk\u00e9 meno a\u00a0heslo a\u00a0tie\u017e nastavenia ukladacieho
+priestoru v\u00a0nastaveniach t\u00edmovej pr\u00e1ce.
 
 team-binary-conflict
 Pri pokuse o\u00a0aktualiz\u00e1ciu nasleduj\u00faceho s\u00faboru bol detegovan\u00fd konflikt:
     $
-S\u00fabor bol zmenen\u00fd lok\u00e1lne a\u00a0s\u00fa\u010dasne v\u00a0\u00falo\u017eisku.
+S\u00fabor bol zmenen\u00fd lok\u00e1lne a\u00a0s\u00fa\u010dasne v\u00a0ukladacom priestore.
 Pou\u017ei moju verziu
-Pou\u017ei verziu z\u00a0\u00falo\u017eiska
+Pou\u017ei verziu z\u00a0ukladacieho priestoru
 null
 
 team-error-saving-project

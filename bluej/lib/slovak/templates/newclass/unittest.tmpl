@@ -6,50 +6,49 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Testovacia trieda {@code $CLASSNAME} slúži na komplexné
- * otestovanie triedy {@link $CLASSNAME}.
+ * Testovacia trieda {@code $CLASSNAME}.
  *
- * @author		{meno autora}
- * @version		{verzia alebo dátum}
+ * @author   «meno autora»
+ * @version  «verzia alebo dátum»
  */
 public class $CLASSNAME
 {
-	/**
-	 * Predvolený konštruktor testovacej triedy $CLASSNAME
-	 */
-	public $CLASSNAME()
-	{
-	}
+    /**
+     * Predvolený konštruktor testovacej triedy $CLASSNAME.
+     */
+    public $CLASSNAME()
+    {
+    }
 
 
-	/**
-	 * Vytvorí $CLASSNAME so zadaným názvom
-	 *
-	 * @param	názov	názov konštruovaného testu
-	 */
-	public $CLASSNAME(String názov)
-	{
-		super(názov);
-	}
+    /**
+     * Vytvorí inštanciu triedy $CLASSNAME so zadaným názvom.
+     *
+     * @param  názov  názov konštruovaného testu
+     */
+    public $CLASSNAME(String názov)
+    {
+        super(názov);
+    }
 
 
-	/**
-	 * Inicializácia predchádzajúca spusteniu každého testu a pripravujúca
-	 * tzv. prípravok (fixture), čo je množina objektov, s ktorými budú
-	 * testy pracovať.
-	 */
-	@Before
-	protected void setUp()
-	{
-	}
+    /**
+     * Inicializácia predchádzajúca spusteniu každého testu a pripravujúca
+     * tzv. prípravok (fixture), čo je množina objektov, s ktorými budú
+     * testy pracovať.
+     */
+    @Before
+    protected void setUp()
+    {
+    }
 
 
-	/**
-	 * Upratovanie po teste – táto metóda je spustená po vykonaní každého
-	 * testu.
-	 */
-	@After
-	protected void tearDown()
-	{
-	}
+    /**
+     * „Upratovanie“ po teste – táto metóda je spustená po vykonaní každého
+     * testu.
+     */
+    @After
+    protected void tearDown()
+    {
+    }
 }

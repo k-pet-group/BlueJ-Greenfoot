@@ -21,7 +21,6 @@ považovaný za šablónu príslušného typu triedy, resp. rozhrania. Špeciál
 predponami sú:
 
 abstract   – označuje šablónu abstraktnej triedy
-applet     – označuje šablónu apletu
 enum       – označuje šablónu vymenovacieho typu
 interface  – označuje šablónu rozhrania
 unittest   – označuje šablónu testovacej triedy

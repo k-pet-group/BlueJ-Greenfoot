@@ -1,0 +1,91 @@
+# Piatok 2. 12. 2016
+# Texty ovladacich prvkov editora kodu jazyka Stride
+
+# Frame Catalogue:
+frame.catalogue.title=\u0164ah\u00e1k
+frame.catalogue.commands=Pr\u00edkazy
+frame.catalogue.shortcuts=Skratky
+frame.catalogue.selection=Prilo\u017ei\u0165 v\u00fdber
+frame.catalogue.codecompletion=Dokon\u010dovanie k\u00f3du
+frame.catalogue.codecompletion.hide=Skry\u0165 dokon\u010dovanie k\u00f3du
+frame.catalogue.codecompletion.up=Presun\u00fa\u0165 hore
+frame.catalogue.codecompletion.down=Presun\u00fa\u0165 dole
+frame.catalogue.codecompletion.select=Vybra\u0165
+
+frame.catalogue.birdseye.exit=Zavrie\u0165 zobrazenie
+frame.catalogue.birdseye.up=Presun\u00fa\u0165 hore
+frame.catalogue.birdseye.down=Presun\u00fa\u0165 dole
+frame.catalogue.birdseye.select=Vybra\u0165
+
+frame.catalogue.examples=Pr\u00edklady
+
+
+# Error Bar:
+frame.error.overview.bar.error.single=chyba
+frame.error.overview.bar.error.plural=chyby
+frame.error.overview.bar.error.none=\u017diadne chyby
+frame.error.overview.bar.error.editing=Upravujem
+
+# Class menu:
+frame.classmenu.title=Trieda
+frame.classmenu.close=Zavrie\u0165
+frame.classmenu.move=Presun\u00fa\u0165 kartu\u2026
+frame.classmenu.move.new=Do nov\u00e9ho okna
+frame.classmenu.move.existing=Okno
+frame.classmenu.print=Tla\u010di\u0165
+
+# Web/documentation menu
+frame.webmenu.title=Dokument\u00e1cia
+frame.webmenu.open.external=Otvori\u0165 v\u00a0externom prehliada\u010di
+
+
+# Edit menu:
+frame.editmenu.title=Upravi\u0165
+
+# Slot menu:
+frame.slot.cut=Vystrihn\u00fa\u0165
+frame.slot.copy=Kop\u00edrova\u0165
+frame.slot.paste=Vlo\u017ei\u0165
+frame.slot.recent=Naposledy pou\u017eit\u00e9
+
+
+# View menu:
+frame.viewmenu.title=Zobrazenie
+frame.viewmenu.nextError=\u010eal\u0161ia chyba
+frame.viewmenu.cheatsheet=\u0164ah\u00e1k
+frame.viewmenu.birdseye=Stride \u0161trukt\u00fara
+frame.viewmenu.birdseye.doc=Stride \u0161trukt\u00fara (s\u00a0dokument\u00e1ciou)
+frame.viewmenu.java=Uk\u00e1\u017eka k\u00f3du Javy
+frame.viewmenu.fontbigger=Zv\u00e4\u010d\u0161i\u0165 ve\u013ekos\u0165 p\u00edsma
+frame.viewmenu.fontsmaller=Zmen\u0161i\u0165 ve\u013ekos\u0165 p\u00edsma
+frame.viewmenu.fontdefault=Predvolen\u00e1 ve\u013ekos\u0165 p\u00edsma
+
+# Information:
+# The '$' will be replaced by the name of the superclass:
+frame.class.inherited.from=Odvoden\u00e9 od $
+
+frame.undobanner.text=Pr\u00e1ve ste vymazali ve\u013ek\u00fa \u010das\u0165 k\u00f3du. Ak to nebol \u00famysel, m\u00f4\u017eete
+frame.undobanner.button=Vr\u00e1ti\u0165 zmenu nasp\u00e4\u0165
+frame.undobanner.close=Zavrie\u0165
+
+stride.convert.unsupported.feature=Tento prvok nie je v\u00a0Stride podporovan\u00fd
+stride.convert.unsupported.modifier=Tento modifik\u00e1tor nie je v\u00a0Stride podporovan\u00fd
+stride.convert.warnings.title=Prevod z\u00a0Javy do Stridu: Nepodporovan\u00e9 prvky
+stride.convert.warnings=Prevod z\u00a0Javy do Stridu bol \u00faspe\u0161n\u00fd, ale s\u00a0nasleduj\u00facimi varovaniami
+stride.convert.paste.errors.title=Vlo\u017eenie do Stridu: Chyba
+stride.convert.paste.errors=Schr\u00e1nka neobsahuje platn\u00fd k\u00f3d Stridu a\u00a0pokus o\u00a0prevod z\u00a0Javy do Stridu zlyhal s\u00a0nasleduj\u00facimi varovaniami
+stride.convert.whole.errors.title=Prevod z\u00a0Javy do Stridu: Chyba
+stride.convert.whole.errors=Prevod z\u00a0Javy do Stridu zlyhal s\u00a0nasleduj\u00facimi chybami
+stride.convert.error.stride=Po\u010das pokusu o\u00a0rozbalenie k\u00f3du Stridu vznikla chyba
+stride.convert.error.java=Pri procese rozpoznania k\u00f3du Javy, ktor\u00fd mal by\u0165 preveden\u00fd do Stridu vznikla chyba
+convert.to.java.title=Previes\u0165 do Javy?
+convert.to.java.message=T\u00e1to akcia prevedie triedu Stridu do Javy.  Pokra\u010dova\u0165?
+convert.to.stride.title=Previes\u0165 do Stridu?
+convert.to.stride.message=T\u00e1to akcia prevedie triedu Javy do Stridu.  T\u00e1to oper\u00e1cia m\u00f4\u017ee by\u0165 nezvratn\u00e1, ak niektor\u00e9 prvky jazyka Java nie s\u00fa podporovan\u00e9 v\u00a0Stride.  Pokra\u010dova\u0165?
+convert.to.stride.error.title=Neo\u010dak\u00e1van\u00e1 chyba
+convert.to.stride.error.message=Po\u010das konverzie z\u00a0Javy do Stridu vznikla neo\u010dak\u00e1van\u00e1 chyba.
+
+# Editor
+frame.editor.toplevel.doc.prompt=Sem vp\u00ed\u0161te opis triedy $CLASSNAME bal\u00ed\u010dka $CAPTION\u2026
+frame.editor.toplevel.package.prompt=n\u00e1zov bal\u00ed\u010dka
+frame.editor.param.prompt=$CAPTION meno

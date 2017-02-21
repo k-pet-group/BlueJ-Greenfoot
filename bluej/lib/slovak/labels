@@ -1,5 +1,5 @@
-# Streda 28. 10. 2015
-# Texty pre ovladacie prvky v\u00a0BlueJ
+# Sobota 3. 12. 2016
+# Texty pre ovladacie prvky v\u00a0BlueJi
 
 okay=OK
 cancel=Zru\u0161i\u0165
@@ -71,9 +71,10 @@ debugger.accessibility.paused=Vl\u00e1kno \u201e$\u201c je pozastaven\u00e9.
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Kni\u017enice
-classmgr.userlibraries=Pou\u017e\u00edvate\u013esk\u00e9 kni\u017enice
-classmgr.userliblibraries=Pou\u017e\u00edvate\u013esk\u00e9 kni\u017enice z
-classmgr.add=Prida\u0165
+classmgr.userlibraries=Pou\u017e\u00edvate\u013esk\u00e9 kni\u017enice z\u00a0konfigur\u00e1cie
+classmgr.userliblibraries=Pou\u017e\u00edvate\u013esk\u00e9 kni\u017enice z\u00a0
+classmgr.addFile=Prida\u0165 s\u00fabor
+classmgr.addDir=Prida\u0165 prie\u010dinok
 classmgr.delete=Odstr\u00e1ni\u0165
 classmgr.statuscolumn=Stav
 classmgr.statusgood=Na\u010d\u00edtan\u00e9
@@ -98,14 +99,11 @@ prefmgr.misc.linkToLibNoteLine2=nebude dokument\u00e1cia projektu vygenerovan\u0
 prefmgr.misc.tools.title=Volite\u013en\u00e9 nastavenia n\u00e1strojov
 prefmgr.misc.showTesting=Zobrazi\u0165 n\u00e1stroje testovania
 prefmgr.misc.showTeam=Zobrazi\u0165 n\u00e1stroje t\u00edmovej pr\u00e1ce
-prefmgr.misc.vm.title=Nastavenia parametrov VM
-prefmgr.misc.optimiseVM=Pou\u017e\u00edva\u0165 optimaliz\u00e1ciu (m\u00f4\u017eu nasta\u0165 probl\u00e9my s\u00a0laden\u00edm)
+prefmgr.misc.vm.title=Nastavenia parametrov preklada\u010da a\u00a0virtu\u00e1lneho stroja Javy
+prefmgr.misc.optimiseVM=Pou\u017e\u00edva\u0165 optimaliz\u00e1ciu (prelo\u017een\u00fd program funguje r\u00fdchlej\u0161ie, ale m\u00f4\u017eu nasta\u0165 probl\u00e9my s\u00a0laden\u00edm)
 prefmgr.misc.addLibTitle=Vyberte prie\u010dinok alebo s\u00fabor jar/zip
 prefmgr.misc.libFileFilter=Kni\u017enice (*.jar;*.zip) alebo prie\u010dinky s\u00a0triedami
 prefmgr.misc.showUnchecked=Zobrazi\u0165 varovania preklada\u010da pri pou\u017eit\u00ed parametrick\u00fdch typov/met\u00f3d bez typov\u00fdch parametrov
-prefmgr.misc.wtk.dir.label=Prie\u010dinok Sun Java Wireless Toolkit
-prefmgr.misc.wtk.button=Prehliada\u0165
-prefmgr.misc.filechooser.title=Zvoli\u0165 prie\u010dinok Sun Java Wireless Toolkit
 prefmgr.collection.title=\u00da\u010das\u0165 na v\u00fdskume
 prefmgr.collection.change=Zmeni\u0165
 prefmgr.collection.identifier.explanation=Nasleduj\u00face \u00fadaje vyp\u013a\u0148ajte len v\u00a0pr\u00edpade, \u017ee ste o\u00a0to boli po\u017eiadan\u00ed v\u00fdskumn\u00edkom
@@ -114,14 +112,14 @@ prefmgr.collection.identifier.participant=Identifik\u00e1tor \u00fa\u010dastn\u0
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor
-prefmgr.edit.editor.title=Nastavenia editora
+prefmgr.edit.editor.title=Nastavenia editora Javy
 prefmgr.edit.editorfontsize=Ve\u013ekos\u0165 p\u00edsma
-prefmgr.edit.colortransparency=Farebne ozna\u010dova\u0165 bloky
+prefmgr.edit.colortransparency=Farebn\u00e9 ozna\u010denie blokov
 prefmgr.edit.usesyntaxhilighting=Pou\u017e\u00edva\u0165 farebn\u00e9 zv\u00fdraz\u0148ovanie syntaxe
 prefmgr.edit.autoindent=Automatick\u00e9 odsadzovanie (kl\u00e1vesy Enter a\u00a0tabul\u00e1tor)
 prefmgr.edit.displaylinenumbers=Zobrazova\u0165 \u010d\u00edsla riadkov
 prefmgr.edit.makeBackup=Vytv\u00e1ra\u0165 z\u00e1lo\u017en\u00e9 k\u00f3pie zdrojov\u00fdch s\u00faborov
-prefmgr.edit.matchBrackets=P\u00e1rova\u0165 z\u00e1tvorky
+prefmgr.edit.matchBrackets=Ozna\u010dova\u0165 s\u00fahlasn\u00e9 z\u00e1tvorky
 prefmgr.edit.keybindingstitle=Kl\u00e1vesov\u00e9 skratky
 prefmgr.edit.highlightLighter=Svetlej\u0161ie
 prefmgr.edit.highlightDarker=Tmav\u0161ie
@@ -132,7 +130,7 @@ prefmgr.interface.language.title=V\u00fdber jazyka
 prefmgr.interface.language=Jazyk
 prefmgr.interface.language.restart=Na to, aby sa zmena jazyka prejavila, bude potrebn\u00e9 re\u0161tartova\u0165 $APPNAME
 prefmgr.accessibility.title=Pr\u00edstupnos\u0165
-prefmgr.accessibility.support=Podpora pr\u00edstupnosti
+prefmgr.accessibility.support=Podpora pr\u00edstupnosti (len na pou\u017eitie s\u00a0\u010d\u00edtac\u00edmi zariadeniami)
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  In\u0161talovan\u00e9 roz\u0161\u00edrenia
@@ -141,13 +139,9 @@ extmgr.systemExtensionShort=Syst\u00e9m
 extmgr.systemExtensionLong=Roz\u0161\u00edrenia projektu (v\u0161etky projekty)
 extmgr.projectExtensionShort=Projekt
 extmgr.projectExtensionLong=Roz\u0161\u00edrenia projektu (aktu\u00e1lny projekt)
-extmgr.statuscolumn=Status
-extmgr.namecolumn=N\u00e1zov
-extmgr.typecolumn=Typ
 extmgr.details=Detaily
 extmgr.details.location=Umiestnenie:
 extmgr.details.version=Verzia
-extmgr.details.url=Viac inform\u00e1ci\u00ed na adrese:
 
 extmgr.status.notused=nebolo pou\u017eit\u00e9
 extmgr.status.loaded=na\u010d\u00edtan\u00e9
@@ -176,7 +170,6 @@ prefmgr.raspberryPi.NoteLine3=Viac inform\u00e1ci\u00ed a\u00a0naj\u010dastej\u0
 editor.title=BlueJ: Editor
 
 # button lables for toolbar commands
-editor.compileLabel=Prelo\u017ei\u0165
 editor.undoLabel=Sp\u00e4\u0165
 editor.cutLabel=Vystrihn\u00fa\u0165
 editor.copyLabel=Kop\u00edrova\u0165
@@ -223,6 +216,7 @@ editor.toggle-interface-viewLabel=Prepn\u00fa\u0165 poh\u013ead
 editor.go-to-lineLabel=\u00cds\u0165 na riadok\u2026
 editor.gotoline.title=\u00cds\u0165 na riadok
 editor.gotoline.label=Zadajte \u010d\u00edslo riadka
+editor.gotoline.prompt=\u010c\u00edslo riadka
 editor.gotoline.notNumericMessage=Je o\u010dak\u00e1van\u00e1 numerick\u00e1 hodnota
 
 editor.implementationLabel=Zdrojov\u00fd k\u00f3d
@@ -377,17 +371,23 @@ pkgmgr.chooseWebPage.buttonLabel=Ulo\u017ei\u0165 str\u00e1nku HTML
 pkgmgr.parentpackagetarget.open=Otvori\u0165
 pkgmgr.parentpackagetarget.openunamed=Otvori\u0165 kore\u0148ov\u00fd bal\u00ed\u010dek
 
-pkgmgr.noProjectOpened.message=Pou\u017eite ponuku Projekt na vytvorenie alebo otvorenie projektu
+pkgmgr.noProjectOpened.message=\u2196 Pou\u017eite ponuku Projekt na vytvorenie alebo otvorenie projektu
+pkgmgr.noClassesExisted.message=\u2196 Pou\u017eite ponuku \u00dapravy na vytvorenie alebo pridanie triedy
 
 pkgmgr.packagemenu.open=Otvori\u0165
-pkgmgr.packagemenu.remove=Odstr\u00e1ni\u0165
+pkgmgr.packagemenu.remove=Vymaza\u0165
 
-pkgmgr.classmenu.runApplet=Spusti\u0165 aplet
 pkgmgr.classmenu.edit=Otvori\u0165 v\u00a0editore
 pkgmgr.classmenu.compile=Prelo\u017ei\u0165
 pkgmgr.classmenu.inspect=Prehliada\u0165
-pkgmgr.classmenu.remove=Odstr\u00e1ni\u0165
+pkgmgr.classmenu.remove=Vymaza\u0165
+pkgmgr.classmenu.convertToJava=Previes\u0165 do Javy
+pkgmgr.classmenu.convertToStride=Previes\u0165 do Stridu
 pkgmgr.classmenu.createTest=Vytvori\u0165 testovaciu triedu
+pkgmgr.classmenu.launchFX=Spusti\u0165 aplik\u00e1ciu JavaFX
+
+pkgmgr.team.title=T\u00edmov\u00e1 pr\u00e1ca
+pkgmgr.test.title=Testovanie
 
 pkgmgr.test.label=Prebieha testovanie
 pkgmgr.test.record=z\u00e1znam
@@ -422,22 +422,27 @@ pkgmgr.codepad.redefinedVar=$ \u2013 identifik\u00e1tor je u\u017e pou\u017eit\u
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Vytvori\u0165 nov\u00fa triedu
 pkgmgr.newClass.label=N\u00e1zov triedy:
+pkgmgr.newClass.prompt=N\u00e1zov triedy
+pkgmgr.newClass.lang=Jazyk triedy:
 pkgmgr.newClass.classType=Typ triedy
 pkgmgr.newClass.mainclass=Hlavn\u00e1 trieda aplik\u00e1cie
 pkgmgr.newClass.stdclass=\u0160tandardn\u00e1 trieda
 pkgmgr.newClass.abstract=Abstraktn\u00e1 trieda
 pkgmgr.newClass.interface=Rozhranie
-pkgmgr.newClass.applet=Aplet
-pkgmgr.newClass.appletj=Aplet
 pkgmgr.newClass.unittest=Test jednotky
 pkgmgr.newClass.enum=Vymenovac\u00ed typ
-
 pkgmgr.newClass.emptyclass=Pr\u00e1zdna trieda
+pkgmgr.newClass.error.noType=Nebol zvolen\u00fd typ triedy
+pkgmgr.newClass.error.typeNotAvailable=Tento typ nie je pre jazyk $LANGUAGE dostupn\u00fd
+pkgmgr.newClass.error.notValidClassName=Neplatn\u00fd nazov triedy jazyka $LANGUAGE
+pkgmgr.newClass.error.windowsRestricted=Rezervovan\u00e9 slovo Windows
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Vytvori\u0165 nov\u00fd bal\u00ed\u010dek
 pkgmgr.newPackage.label=N\u00e1zov bal\u00ed\u010dka:
+pkgmgr.newPackage.prompt=N\u00e1zov bal\u00ed\u010dka
 pkgmgr.newPackage.newPackage=Bal\u00ed\u010dek
+pkgmgr.newPackage.error=Neplatn\u00fd n\u00e1zov bal\u00ed\u010dka
 
 # "Use Library Class" dialog
 callLibraryDialog.title=BlueJ:  Vola\u0165 met\u00f3du triedy z\u00a0kni\u017enice
@@ -483,27 +488,9 @@ pkgmgr.importfailed.helpLine3=s\u00fabory so zhodn\u00fdm n\u00e1zvom.
 pkgmgr.versionDlg.title=BlueJ:  Skontrolova\u0165, \u010di je dostupn\u00e1 nov\u00e1 verzia
 pkgmgr.versionDlg.helpLine1=T\u00e1to funkcia zist\u00ed, \u010di je k\u00a0dispoz\u00edcii nov\u00e1 verzia BlueJa
 pkgmgr.versionDlg.helpLine2=Aby bola t\u00e1to funkcia dostupn\u00e1, mus\u00edte by\u0165 pripojen\u00ed k\u00a0sieti internet.
-pkgmgr.versionDlg.check=Skontrolova\u0165 nov\u00e9 verzie
 pkgmgr.versionDlg.upToDate=T\u00e1to verzia je aktu\u00e1lna.
 pkgmgr.versionDlg.currentVersion=Va\u0161a s\u00fa\u010dasn\u00e1 verzia BlueJa je
 pkgmgr.versionDlg.newVersion=Posledn\u00e1 zn\u00e1ma verzia BlueJa je
-
-# run applet dialog
-pkgmgr.runApplet.title=BlueJ:  Spusti\u0165 aplet
-pkgmgr.runApplet.webPageLabel=Vytvori\u0165 webov\u00fa str\u00e1nku
-pkgmgr.runApplet.webPage=Generova\u0165 len webov\u00fa str\u00e1nku
-pkgmgr.runApplet.appletviewer=Spusti\u0165 aplet pomocou appletviewera
-pkgmgr.runApplet.webBrowser=Spusti\u0165 aplet vo webovom prehliada\u010di
-pkgmgr.runApplet.heightLbl=V\u00fd\u0161ka \= 
-pkgmgr.runApplet.widthLbl=\u0160\u00edrka \= 
-pkgmgr.runApplet.newParameterLbl=Prida\u0165 nov\u00fd parameter
-pkgmgr.runApplet.appletParameterLbl=Parametre apletu
-pkgmgr.runApplet.nameLbl=N\u00e1zov \= 
-pkgmgr.runApplet.valueLbl=Hodnota \= 
-pkgmgr.runApplet.paramName=PARAM NAME
-pkgmgr.runApplet.value=VALUE
-pkgmgr.runApplet.htmlComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd prostred\u00edm BlueJ. -->\n<!-- Po ka\u017edom spusten\u00ed apletu je automaticky obnoven\u00fd.      -->\n<!-- Ak\u00e9ko\u013evek zmeny bud\u00fa pri bud\u00facom spusten\u00ed apletu        -->\n<!-- z\u00a0prostredia BlueJ straten\u00e9. Ak chcete s\u00fabor zachova\u0165,  -->\n<!-- mus\u00edte ho ulo\u017ei\u0165 do in\u00e9ho prie\u010dinka.                    -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Tento s\u00fabor je automaticky generovan\u00fd prostred\u00edm BlueJ.              -->\n<!-- Premenn\u00e1 codebase je pri vytv\u00e1ran\u00ed tejto str\u00e1nky automaticky         -->\n<!-- nastaven\u00e1 na absol\u00fatnu cestu k\u00a0prie\u010dinku s\u00a0bal\u00ed\u010dkom ur\u010den\u00e9ho apletu.   -->\n<!-- Ak zmen\u00edte umiestenie tohto bal\u00ed\u010dka, mus\u00edte zmeni\u0165 hodnotu codebase. -->
 
 # print project dialog
 pkgmgr.printDialog.title=BlueJ:  Vytla\u010di\u0165 projekt
@@ -581,13 +568,9 @@ pkgmgr.webBrowserMsg=Webov\u00fd prehliada\u010d bol spusten\u00fd.
 pkgmgr.webBrowserError=Chyba pri sp\u00fa\u0161\u0165an\u00ed webov\u00e9ho prehliada\u010da.
 pkgmgr.usesArrowMsg=Vz\u0165ah \u201ePou\u017e\u00edva\u201c bol deklarovan\u00fd, ale nebol pou\u017eit\u00fd:
 pkgmgr.breakpointMsg=Aby mohli by\u0165 nastaven\u00e9 body preru\u0161enia, mus\u00ed by\u0165 trieda prelo\u017een\u00e1.
-pkgmgr.appletInViewer=Sp\u00fa\u0161\u0165anie apletu pomocou appletviewera
-pkgmgr.appletInBrowser=Sp\u00fa\u0161\u0165anie apletu pomocou webov\u00e9ho prehliada\u010da
 pkgmgr.exported.jar=Export do jar s\u00faboru dokon\u010den\u00fd.
 pkgmgr.error.open=Projekt nejestvuje.
 pkgmgr.checkingVersion=Zis\u0165ujem dostupnos\u0165 novej verzie\u2026
-
-
 
 # accessibility messages
 pkgmgr.accessibility.compileDone=Preklad bol \u00faspe\u0161n\u00fd.
@@ -603,6 +586,7 @@ menu.mepackage.new=Nov\u00fd projekt _ME\u2026
 menu.package.open=_Otvori\u0165 projekt\u2026@O
 menu.package.openRecent=Ot_vori\u0165 posledn\u00e9
 menu.package.openNonBlueJ=Otvori\u0165 nie-_BlueJ\u2026
+menu.package.openArchive=Otvori\u0165 ZIP/JAR\u2026
 menu.package.close=_Zavrie\u0165@W
 menu.package.save=_Ulo\u017ei\u0165@S
 menu.package.saveAs=Ulo\u017ei\u0165 _ako\u2026
@@ -612,15 +596,14 @@ menu.package.pageSetup=Nastavenia _str\u00e1nky\u2026@^P
 menu.package.print=_Tla\u010di\u0165\u2026@P
 menu.package.quit=_Koniec@Q
 
-
 menu.edit=\u00dapr_avy
 menu.edit.newClass=Nov\u00e1 _trieda\u2026@N
 menu.edit.newPackage=Nov\u00fd _bal\u00ed\u010dek\u2026@R
 menu.edit.addClass=N_ov\u00e1 trieda zo s\u00faboru\u2026
-menu.edit.remove=Od_str\u00e1ni\u0165 triedu/bal\u00ed\u010dek@BACK_SPACE
+menu.edit.remove=_Vymaza\u0165 triedu/bal\u00ed\u010dek@BACK_SPACE
 menu.edit.newUses=Nov\u00e1 \u0161\u00edpka \u201ePo_u\u017e\u00edva\u201c
 menu.edit.newInherits=Nov\u00e1 \u0161\u00edpka \u201e_Implementuje/Odv\u00e1dza\u201c
-menu.edit.removeArrow=Odstr\u00e1ni\u0165 \u0161\u00edp_ku
+menu.edit.removeArrow=Vymaza\u0165 \u0161\u00edp_ku
 
 menu.tools=N\u00e1s_troje
 menu.tools.compile=_Prelo\u017ei\u0165@K
@@ -643,41 +626,57 @@ menu.view.showExecControls=Zobrazi\u0165 N\u00e1stroj na _ladenie@D
 menu.view.showTerminal=Zobrazi\u0165 Te_rmin\u00e1l@T
 menu.view.showTextEval=Zobrazi\u0165 Pr\u00ed_kazov\u00fd panel@E
 menu.view.showTestDisplay=Zobrazi\u0165 _v\u00fdsledky testov
-#menu.view.showTeamControls=Zobrazi\u0165 n\u00e1stroje _t\u00edmu@G
+menu.view.showTeamTest=Zobrazi\u0165 n\u00e1stroje _t\u00edmu a\u00a0testovania@G
 
-team.project.marker=Zdie\u013ean\u00fd projekt
-team.commit=Ulo\u017e@I
-team.menu.commit=Ulo\u017e do \u00falo\u017eiska\u2026@I
-team.commit.title=Ulo\u017e projekt do \u00falo\u017eiska
-team.commit.files=S\u00fabory na ulo\u017eenie
-team.commit.comment=Koment\u00e1r k\u00a0ukladan\u00fdm s\u00faborom
+codepad.prompt=Vlo\u017ete k\u00f3d jazyka Java na vyhodnotenie
+codepad.copyAll=Kop\u00edrova\u0165 v\u0161etko
+codepad.clear=Vy\u010disti\u0165
+
+team.project.marker=Projekt so spolo\u010dn\u00fdm pr\u00edstupom
+team.commit=Potvrdi\u0165@I
+team.commitPush=Potvrdi\u0165/Odovzda\u0165@I
+team.commitButton=Potvrdi\u0165
+team.menu.commit=Potvrdi\u0165 do ukladacieho priestoru\u2026@I
+team.menu.commitPush=Potvrdi\u0165/Odovzda\u0165 do ukladacieho priestoru\u2026@I
+team.commit.title=Potvrdi\u0165 s\u00fabory do ukladacieho priestoru
+team.commit.dcvs.title=Potvrdi\u0165/Odovzda\u0165 s\u00fabory do ukladacieho priestoru
+team.commit.files=S\u00fabory na potvrdenie
+team.commitPush.commit.files=S\u00fabory pripraven\u00e9 na potvrdenie
+team.commitPush.push.files=S\u00fabory pripraven\u00e9 na odovzdanie
+team.commit.comment=Koment\u00e1r k\u00a0potvrdzovan\u00fdm s\u00faborom
 team.commit.layout=(Diagram tried)
-team.commit.includelayout=Ulo\u017ei\u0165 rozlo\u017eenie diagramu
-team.commit.statusMessage=Ukladanie projektu do \u00falo\u017eiska
-team.commit.statusDone=Ukladanie projektu do \u00falo\u017eiska\u2026 Hotov\u00e9.
+team.commit.includelayout=Potvrdi\u0165 rozlo\u017eenie diagramu
+team.commit.statusMessage=Vykon\u00e1vam potvrdenie zmien projektu v\u00a0ukladacom priestore\u2026
+team.commit.statusDone=Vykon\u00e1vam potvrdenie zmien projektu v\u00a0ukladacom priestore\u2026 Hotov\u00e9.
 team.commit.moreFiles=(a\u00a0viac \u2013 pozri stav)
 team.update=Aktualizuj@U
-team.menu.update=Aktualiz\u00e1cia z\u00a0\u00falo\u017eiska\u2026@U
+team.menu.update=Aktualiz\u00e1cia z\u00a0ukladacieho priestoru\u2026@U
+team.push=Odovzda\u0165
+tam.push.error=Nedok\u00e1\u017eem odovzda\u0165 zmeny.
+team.push.statusMessage=Odovzd\u00e1vam projekt do vzdialen\u00e9ho ukladacieho priestoru\u2026
+team.push.statusDone=Odovzd\u00e1vam projekt do vzdialen\u00e9ho ukladacieho priestoru\u2026 Hotov\u00e9.
 team.update.statusMessage=Aktualiz\u00e1cia projektu
 team.update.statusDone=Aktualiz\u00e1cia projektu\u2026 Hotov\u00e9.
-team.update.title=Aktualizuj s\u00fabory z\u00a0\u00falo\u017eiska
+team.update.title=Aktualizuj s\u00fabory z\u00a0ukladacieho priestoru
 team.update.includelayout=Aktualizuj rozlo\u017eenie diagramu
 team.update.files=S\u00fabory na aktualiz\u00e1ciu
 team.checkout=Preverenie projektu
-team.checkout.statusMessage=Preverenie zdie\u013ean\u00e9ho projektu
+team.checkout.statusMessage=Preverenie projektu so spolo\u010dn\u00fdm pr\u00edstupom
 team.history.allUsers=V\u0161etci pou\u017e\u00edvatelia
 team.history.allFiles=V\u0161etky s\u00fabory
 team.history=Zobraz hist\u00f3riu projektu
 team.history.title=Hist\u00f3ria projektu
 team.history.filefilter=Zobraz s\u00fabor:
 team.history.userfilter=Zobraz pou\u017e\u00edvate\u013ea:
-team.import=Zdie\u013eaj tento projekt
-team.import.statusMessage=Zdie\u013eanie projektu
+team.import=Spristupni tento projekt t\u00edmu
+team.import.short=Zria\u010fujem spolo\u010dn\u00fd pr\u00edstup\u2026
+team.import.statusMessage=Povolenie spolo\u010dn\u00e9ho pr\u00edstupu k\u00a0projektu
 team.includeLayout=Vr\u00e1tane diagramu tried
 team.settings=Nastavenia t\u00edmovej pr\u00e1ce
 team.status=Stav
-team.status.status=Status t\u00edmovej pr\u00e1ce
-team.status.resource=T\u00edmov\u00e9 zdroje
+team.status.status=Lok\u00e1lny stav
+team.status.remoteStatus=Vzdialen\u00fd stav
+team.status.resource=N\u00e1zov s\u00faboru
 team.status.version=Rev\u00edzia
 team.status.refresh=Obnovenie
 team.conflicts.title=N\u00e1jden\u00e9 konflikty
@@ -686,46 +685,68 @@ team.conflicts.show=Zobrazi\u0165 konflikty
 team.error.username.at=Va\u0161e pou\u017e\u00edvate\u013esk\u00e9 meno obsahuje znak @, ktor\u00fd nie je BlueJom podporovan\u00fd.
 team.error.username.colon=Va\u0161e pou\u017e\u00edvate\u013esk\u00e9 meno obsahuje znak :, ktor\u00fd nie je v\u00a0BlueJom podporovan\u00fd.
 team.error.password.at=Va\u0161e heslo obsahuje znak @, ktor\u00fd nie je BlueJom podporovan\u00fd.
+team.error.unknownProtocol=Nezn\u00e1my pou\u017eit\u00fd protokol.
+team.error.cannotParseServer=Nedok\u00e1\u017eem identifikova\u0165 URI servera. Pros\u00edm, overte, \u010di je URI spr\u00e1vne zadan\u00e9.
+team.error.cannotParsePath=Nedok\u00e1\u017eem v\u00a0zadanom URI identifikova\u0165 cestu k\u00a0ukladaciemu priestoru. Pros\u00edm, overte, \u010di je URI spr\u00e1vne zadan\u00e9.
+team.error.needsPull=Ukladac\u00ed priestor je pr\u00e1ve v\u00a0stave zlu\u010dovania s\u00a0nepotvrden\u00fdmi zmenami. Na to, aby ste mohli pokra\u010dova\u0165, mus\u00edte potvrdi\u0165 a/alebo prevzia\u0165 zmenen\u00e9 s\u00fabory.
+team.error.noHeadBranch=Pri prevzat\u00ed lok\u00e1lnej hlavi\u010dkovej vetvy (HEAD) vznikla chyba.
 
 # The following appear in brackets after a filename, in the
 # update/commit dialogs.
-team.status.delete=odstr\u00e1ni\u0165 z\u00a0\u00falo\u017eiska
-team.status.add=prida\u0165 do \u00falo\u017eiska
+team.status.delete=odstr\u00e1ni\u0165 z\u00a0ukladacieho priestoru
+team.status.add=prida\u0165 do ukladacieho priestoru
 team.status.new=nov\u00fd s\u00fabor
 team.status.removed=odstr\u00e1ni\u0165
 team.status.needsmerge=zl\u00fa\u010di\u0165 aktualiz\u00e1cie
+team.status.needsupdate=aktualizova\u0165 z\u00a0ukladacieho priestoru
 
-team.nocommitfiles=\u017diadne s\u00fabory na ulo\u017eenie
+team.nocommitfiles=\u017diadne s\u00fabory na potvrdenie
+team.nopushfiles=\u017diadne s\u00fabory na odovzdanie (najsk\u00f4r treba nejak\u00e9 potvrdi\u0165)
 team.noupdatefiles=\u017diadne s\u00fabory na aktualiz\u00e1ciu
+team.pushNeeded=Lok\u00e1lny priestor je aktu\u00e1lnej\u0161\u00ed ne\u017e vzdialen\u00fd. Je potrebn\u00e9 odovzdanie \u00fadajov.
+team.pullNeeded=Vzdialen\u00fd priestor je aktu\u00e1lnej\u0161\u00ed ne\u017e lok\u00e1lny. Je potrebn\u00e9 prevzatie \u00fadajov.
 
 team.statusinfo.upToDate=Aktu\u00e1lne
-team.statusinfo.needsCheckout=Nov\u00e9 v\u00a0\u00falo\u017eisku
-team.statusinfo.needsUpdate=Aktualizovan\u00e9 v\u00a0\u00falo\u017eisku
-team.statusinfo.removed=Odstr\u00e1nen\u00e9 z\u00a0\u00falo\u017eiska
-team.statusinfo.needsAdd=Lok\u00e1lne pridan\u00e9
-team.statusinfo.needsCommit=Lok\u00e1lne modifikovan\u00e9
-team.statusinfo.deleted=Lok\u00e1lne odstr\u00e1nen\u00e9
-team.statusinfo.needsMerge=Lok\u00e1lne a\u00a0vzdialen\u00e9 zmeny
+team.statusinfo.needsCheckout=Pridan\u00e9 do ukladacieho priestoru
+team.statusinfo.needsUpdate=Zmenen\u00e9 v\u00a0ukladacom priestore
+team.statusinfo.removed=Vymazan\u00e9 z\u00a0ukladacieho priestoru
+team.statusinfo.needsAdd=Pridan\u00e9 lok\u00e1lne
+team.statusinfo.needsCommit=Zmenen\u00e9 lok\u00e1lne
+team.statusinfo.deleted=Vymazan\u00e9 lok\u00e1lne
+team.statusinfo.needsMerge=Je vy\u017eadovan\u00e9 zl\u00fa\u010denie
 team.statusinfo.unresolved=Nevyrie\u0161en\u00e1 kol\u00edzia
 team.statusinfo.hasConflicts=Koliduje
 team.statusinfo.weird=???\u00a0
-team.statusinfo.conflictAdd=Pridan\u00e9 lok\u00e1lne aj v\u00a0\u00falo\u017eisku (konflikt)
-team.statusinfo.conflictLMRD=Zmenen\u00e9 lok\u00e1lne a\u00a0odstr\u00e1nen\u00e9 z\u00a0\u00falo\u017eiska (konflikt)
-team.statusinfo.conflictLDRM=Odstr\u00e1nen\u00e9 lok\u00e1lne a\u00a0zmenen\u00e9 v\u00a0\u00falo\u017eisku (konflikt)
+team.statusinfo.conflictAdd=Pridan\u00e9 lok\u00e1lne aj v\u00a0ukladacom priestore (konflikt)
+team.statusinfo.conflictLMRD=Zmenen\u00e9 lok\u00e1lne a\u00a0odstr\u00e1nen\u00e9 z\u00a0ukladacieho priestoru (konflikt)
+team.statusinfo.conflictLDRM=Odstr\u00e1nen\u00e9 lok\u00e1lne a\u00a0zmenen\u00e9 v\u00a0ukladacom priestore (konflikt)
+team.statusinfo.renamed=S\u00fabor bol premenovan\u00fd
+
+team.statusinfo.dcvs.local.new=Nov\u00e9
+team.statusinfo.dcvs.local.modified=Zmenen\u00e9
+team.statusinfo.dcvs.local.deleted=Vymazan\u00e9
+team.statusinfo.dcvs.remote.new=Je potrebn\u00e9 odovzdanie (nov\u00e9ho)
+team.statusinfo.dcvs.remote.modified=Je potrebn\u00e9 odovzdanie (zmenen\u00e9ho)
+team.statusinfo.dcvs.remote.deleted=Je potrebn\u00e9 odovzdanie (vymazan\u00e9ho)
+team.statusinfo.dcvs.remote.needs.pull=Je potrebn\u00e9 prevzatie
+team.statusinfo.dcvs.remote.needs.push=Je potrebn\u00e9 odovzdanie
 
 team.settings.title=Nastavenia t\u00edmovej pr\u00e1ce
 team.settings.personal=Osobn\u00e9
 team.settings.location=Umiestnenie
+team.settings.yourName=Va\u0161e meno
+team.settings.yourEmail=V\u00e1\u0161 e-mail
 team.settings.user=Pou\u017e\u00edvate\u013e
 team.settings.password=Heslo
 team.settings.group=Skupina
 team.settings.serverType=Typ servera
 team.settings.server=Server
-team.settings.prefix=Cesta k\u00a0\u00falo\u017eisku
+team.settings.prefix=Cesta k\u00a0ukladaciemu priestoru
 team.settings.ext=ext (pou\u017e\u00edva SSH)
 team.settings.pserver=Autentiza\u010dn\u00fd protokol
 team.settings.protocol=Protokol
-team.settings.rememberSettings=Zapam\u00e4ta\u0165 si nastavenie na \u010fal\u0161ie projekty
+team.settings.uri=URI (adresa) ukladacieho priestoru
+team.settings.rememberSettings=Zapam\u00e4ta\u0165 si nastavenie pre \u010fal\u0161ie projekty
 team.settings.checkConnection=Overi\u0165 pripojenie
 
 team.moduleselect.title=Vyber projekt na kontrolu
@@ -735,35 +756,18 @@ team.moduleselect.show=Zobraz
 
 team.checkingout=Projekt je preverovan\u00fd
 team.checkedout=Kontrola projektu hotov\u00e1
-team.checkout.filechooser.title=Zadajte umiestnenie previerky
+team.checkout.filechooser.title=Zadajte umiestnenie priestoru previerovania
+team.checkout.DVCS.filechooser.title=Vytvorte priestor na preverovanie projektu
 team.checkout.filechooser.button=Prever
 
-team.import.initialMessage=Po\u010diato\u010dn\u00e9 zdie\u013eanie projektu
+team.import.initialMessage=Zriadenie spolo\u010dn\u00e9ho pr\u00edstupu k\u00a0projektu
 
-team.sharing=Zdie\u013eanie projektov\u2026
-team.shared=Zdie\u013eanie projektov\u2026 Hotov\u00e9.
+team.sharing=Odovzd\u00e1vanie projektu na spolo\u010dn\u00fd pr\u00edstup\u2026
+team.shared=Odovzd\u00e1vanie projektu na spolo\u010dn\u00fd pr\u00edstup\u2026 Hotov\u00e9.
 
 team.checkconn.checking=Overujem pripojenie\u2026
 team.checkconn.ok=Pripojenie je v\u00a0poriadku.
 team.checkconn.bad=Pripojenie k\u00a0serveru nebolo mo\u017en\u00e9 nadviaza\u0165.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -786,10 +790,9 @@ tooltip.test=Spusti\u0165 v\u0161etky testy v\u00a0aktu\u00e1lnom bal\u00ed\u010
 tooltip.progress=Indik\u00e1tor \u010dinnosti: informuje o\u00a0tom, kedy pracuje Java VM.
 tooltip.test.end=Ukon\u010di\u0165 zaznamen\u00e1vanie testu
 tooltip.test.cancel=Zru\u0161i\u0165 zaznamen\u00e1vanie testu
-tooltip.commit=Ulo\u017e lok\u00e1lne zmeny sp\u00e4\u0165 do \u00falo\u017eiska
-tooltip.update=Aktualizuj lok\u00e1lne s\u00fabory modifikovan\u00e9 v\u00a0\u00falo\u017eisku
-tooltip.status=Zobraz stav v\u0161etk\u00fdch zdie\u013ean\u00fdch s\u00faborov v\u00a0projekte
-
+tooltip.commit=Potvrdi\u0165 lok\u00e1lne zmeny nasp\u00e4\u0165 do ukladacieho priestoru
+tooltip.update=Aktualizova\u0165 lok\u00e1lne s\u00fabory upraven\u00e9 v\u00a0ukladacom priestore
+tooltip.status=Zobraz stav v\u0161etk\u00fdch s\u00faborov so spolo\u010dn\u00fdm pr\u00edstupom v\u00a0projekte
 
 graph.tooltip.classBroken=T\u00e1to trieda nemohla by\u0165 korektne spracovan\u00e1
 
@@ -832,10 +835,27 @@ about.bluej.version=Verzia BlueJa
 about.java.version=Verzia Javy
 about.vm=Java VM:
 about.runningOn=Opera\u010dn\u00fd syst\u00e9m:
-about.javahome=Domovsk\u00fd prie\u010dinok Javy:
 about.logfile=V\u00fdpis chybov\u00fdch hl\u00e1sen\u00ed:
 about.moreInformation=Viac inform\u00e1ci\u00ed z\u00edskate na 
 about.theTeam=Slovensk\u00e1 lokaliz\u00e1cia:\n\u00a0     Roman Horv\u00e1th, Andrea Hrn\u010diarikov\u00e1\n\u00a0\n\u00a0\nAutori prostredia BlueJ:
+about.openFolder=Otvori\u0165 prie\u010dinok
 
 # Work Indicator
 workIndicator.resetMachine=Re\u0161tartova\u0165 _Java VM@^R
+
+# Not a package
+notAProject.bluej.title=Toto nie je projekt BlueJa
+notAProject.bluej.message=Zvolen\u00fd prie\u010dinok neobsahuje projekt BlueJa: 
+notAProject.bluej.subDirs=Niektor\u00e9 podprie\u010dinky obsahuj\u00fa projekty BlueJa. Mali ste na mysli: 
+notAProject.bluej.subDirButton=Otvori\u0165 zvolen\u00e9
+notAProject.bluej.button=Vybra\u0165 in\u00e9\u2026
+
+# New project
+newProject.name=N\u00e1zov
+newProject.parent=Umiestnenie
+newProject.path=Cesta
+newProject.parent.choose=Zvoli\u0165\u2026
+newProject.error.parentNotExist=Umiestnenie nejestvuje
+newProject.error.nameEmpty=N\u00e1zov nesmie by\u0165 pr\u00e1zdny
+newProject.error.compoundExist=Cesta u\u017e jestvuje
+newProject.error.pathInvalid=Cesta je neplatn\u00e1

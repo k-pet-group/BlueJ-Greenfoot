@@ -21,6 +21,7 @@ insert-tab=\n Vlo\u017ei\u0165 znak tabul\u00e1tora.
 new-line=\n Vlo\u017ei\u0165 nov\u00fd riadok. Ak je v\u00a0predvo\u013eb\u00e1ch zapnut\u00e1 vo\u013eba\n \u201eautomatick\u00e9 odsadenie\u201c, odsad\u00ed nov\u00fd riadok pod\u013ea predch\u00e1dzaj\u00faceho riadka.
 insert-break=\n Vlo\u017ei\u0165 nov\u00fd riadok bez odsadenia nov\u00e9ho riadka.
 insert-method=\n Vlo\u017ei\u0165 kostru met\u00f3dy.
+add-javadoc=\n Prida\u0165 javadoc koment\u00e1r k\u00a0aktu\u00e1lnej met\u00f3de, ak \u017eiadny koment\u00e1r nejestvuje.
 comment-block=\n Ozna\u010di\u0165 vybran\u00e9 riadky ako koment\u00e1r. Koment\u00e1r m\u00f4\u017ee by\u0165 zru\u0161en\u00fd\n pr\u00edkazom uncomment-block (zru\u0161i\u0165 koment\u00e1r bloku).
 uncomment-block=\n Zru\u0161i\u0165 koment\u00e1r vo vybran\u00fdch riadkoch. Pozri tie\u017e comment-block (komentova\u0165 blok).
 indent-block=\n Zv\u00e4\u010d\u0161i\u0165 odsadenie vybran\u00fdch riadkov o\u00a0jednu \u00farove\u0148.
