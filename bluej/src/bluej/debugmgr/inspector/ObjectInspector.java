@@ -36,6 +36,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -100,7 +101,8 @@ public class ObjectInspector extends Inspector
      * list which is built when viewing an array that records the object slot
      * corresponding to each array index
      */
-    protected List<Integer> indexToSlotList = null; 
+    protected List<Integer> indexToSlotList = null;
+    private StackPane stackPane;
 
     /**
      *  Note: 'pkg' may be null if 'ir' is null.
@@ -200,7 +202,7 @@ public class ObjectInspector extends Inspector
 
 
         button.setDefaultButton(true);
-        StackPane stackPane = new StackPane(new ObjectBackground(CORNER_SIZE, new ReadOnlyDoubleWrapper(3.0)), contentPane);
+        stackPane = new StackPane(new ObjectBackground(CORNER_SIZE, new ReadOnlyDoubleWrapper(3.0)), contentPane);
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(widthProperty());
         clip.heightProperty().bind(heightProperty());
@@ -208,9 +210,17 @@ public class ObjectInspector extends Inspector
         clip.setArcHeight(CORNER_SIZE);
         stackPane.setClip(clip);
         stackPane.setBackground(null);
-        Scene scene = new Scene(stackPane);
+        BorderPane root = new BorderPane(stackPane);
+        root.setBackground(null);
+        Scene scene = new Scene(root);
         scene.setFill(null);
         setScene(scene);
+    }
+
+    @Override
+    public Region getContent()
+    {
+        return stackPane;
     }
 
     /**

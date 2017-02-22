@@ -869,7 +869,7 @@ public class Project implements DebuggerListener, InspectorManager
     private void animateInspector(Node animateFromCentre, Inspector inspector, boolean fromBottom)
     {
         // First we must get the root and make sure it's sized for our later calculations:
-        Parent root = inspector.getScene().getRoot();
+        Parent root = inspector.getContent();
         root.applyCss();
         root.layout();
         

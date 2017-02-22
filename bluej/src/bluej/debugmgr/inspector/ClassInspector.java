@@ -30,6 +30,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -70,8 +71,8 @@ public class ClassInspector extends Inspector
     // === instance variables ===
 
     protected DebuggerClass myClass;
+    private VBox contentPane;
 
-   
 
     /**
      * Note: 'pkg' may be null if getEnabled is false.
@@ -155,13 +156,15 @@ public class ClassInspector extends Inspector
             }
         };
         */
-        VBox contentPane = new VBox();
+        contentPane = new VBox();
         contentPane.getChildren().addAll(header, mainPanel, buttonPanel);
         VBox.setVgrow(mainPanel, Priority.ALWAYS);
         JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-class");
 
         button.setDefaultButton(true);
-        Scene scene = new Scene(contentPane);
+        BorderPane root = new BorderPane(contentPane);
+        root.setBackground(null);
+        Scene scene = new Scene(root);
         scene.setFill(null);
         setScene(scene);
     }
@@ -242,5 +245,11 @@ public class ClassInspector extends Inspector
     protected int getPreferredRows()
     {
         return 8;
+    }
+
+    @Override
+    public Region getContent()
+    {
+        return contentPane;
     }
 }
