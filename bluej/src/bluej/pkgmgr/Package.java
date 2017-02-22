@@ -40,7 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
+import javafx.application.Platform;
 import javax.swing.SwingUtilities;
 
 import bluej.compiler.CompileInputFile;
@@ -49,13 +51,9 @@ import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameEditor;
 import bluej.pkgmgr.target.CSSTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
-import javafx.application.Platform;
-
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.utility.javafx.JavaFXUtil;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.DataCollectionCompileObserverWrapper;
 import bluej.collect.DataCollector;
@@ -106,6 +104,9 @@ import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A Java package (collection of Java classes).
@@ -2715,7 +2716,7 @@ public final class Package
             // The column from the diagnostic object assumes tabs are 8 spaces; convert to a line position:
             int pos = convertColumn(getLine(e), column) + getLineStart(e);
 
-            LinkedList<String> maybeTheyMeant = new LinkedList<>();
+            TreeSet<String> maybeTheyMeant = new TreeSet<>();
             CodeSuggestions suggests = pcuNode.getExpressionType(pos, e.getSourceDocument());
             AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, project.getJavadocResolver(), null);
             if (values != null) {
@@ -2723,7 +2724,7 @@ public final class Package
                     String name = a.getName();
 
                     if (a.getKind() == CompletionKind.METHOD && Utility.editDistance(name.toLowerCase(), missing.toLowerCase()) <= MAX_EDIT_DISTANCE) {
-                        maybeTheyMeant.addLast(a.getName());
+                        maybeTheyMeant.add(a.getName());
                     }
                 }
             }
@@ -2731,8 +2732,7 @@ public final class Package
             if (maybeTheyMeant.isEmpty()) {
                 return message;
             } else {
-                String augmentedMessage = message + "; maybe you meant: " + maybeTheyMeant.getFirst();
-                maybeTheyMeant.removeFirst();
+                String augmentedMessage = message + "; maybe you meant: " + maybeTheyMeant.pollFirst();
                 for (String sugg : maybeTheyMeant) {
                     augmentedMessage += " or " + sugg;
                 }
