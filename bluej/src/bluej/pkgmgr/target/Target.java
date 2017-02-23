@@ -708,8 +708,11 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     protected final void showingMenu(ContextMenu newMenu)
     {
-        // Request focus in order to draw selection around us while showing menu:
-        requestFocus();
+        if (newMenu != null)
+        {
+            // Request focus in order to draw selection around us while showing menu:
+            requestFocus();
+        }
         if (showingContextMenu != null)
         {
             showingContextMenu.hide();
