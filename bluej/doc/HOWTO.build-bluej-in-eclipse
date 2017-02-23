@@ -123,6 +123,8 @@ Alternatively:
         should have output folder "bluej/boot/classes"
       - source folder "bluej/test/src"
         should have output folder "bluej/test/classes"
+      - source folder "bluej/threadchecker/src"
+        should have output folder "bluej/threadchecker/classes"
       
    In the Libraries tab:
    
