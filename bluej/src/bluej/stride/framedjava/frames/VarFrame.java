@@ -350,7 +350,7 @@ public class VarFrame extends SingleLineFrame
         return frameBefore instanceof VarFrame;
     }
     
-    public boolean isField(FrameCanvas parentCanvas)
+    private boolean isField(FrameCanvas parentCanvas)
     {
         if (parentCanvas == null) {
             bluej.utility.Debug.printCallStack("parentCanvas shouldn't be null");
@@ -436,7 +436,7 @@ public class VarFrame extends SingleLineFrame
     {
         final List<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(innerCanvas, cursorInCanvas));
         if ( !inInterfaceProperty.getValue() ) {
-            getStaticFinalOperations().stream().forEach(op -> extensions.add(new ExtensionDescription(op, this, true,
+            getStaticFinalOperations().forEach(op -> extensions.add(new ExtensionDescription(op, this, true,
                     ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER, ExtensionSource.SELECTION)));
         }
         return extensions;

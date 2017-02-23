@@ -1927,7 +1927,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             {
                 return; // Error restoring state, will have been logged already
             }
-            getTopLevelFrame().restoreCast((TopLevelCodeElement) classElement);
+            getTopLevelFrame().restoreCast(classElement);
             getTopLevelFrame().regenerateCode();
             Node n = state.recallFocus(getTopLevelFrame());
             if (n != null)
