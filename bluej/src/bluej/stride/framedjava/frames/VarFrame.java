@@ -414,6 +414,11 @@ public class VarFrame extends SingleLineFrame
             if (nme.getValue() != null) {
                 slotValue.setText(nme.getValue());
             }
+            // This case where there was a value in the old state
+            // but should be removed
+            else if (slotValue != null) {
+                slotValue.setText("");
+            }
             return true;
         }
         return false;
