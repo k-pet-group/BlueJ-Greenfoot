@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,11 +60,7 @@ public class SelectionController
     private final SelectionSet selection;   // Contains the elements that have been selected
 
     private boolean moving = false; 
-    private boolean resizing = false; 
-
-
-    private int keyDeltaX;
-    private int keyDeltaY;
+    private boolean resizing = false;
 
     private TraverseStrategy traverseStragegiImpl = new TraverseStrategyImpl();
 
@@ -173,14 +169,6 @@ public class SelectionController
     }
 
     // ======= end of MouseMotionListener interface =======
-
-    private void notifyPackage(Target element)
-    {
-        if (element != null && element instanceof ClassTarget)
-            ((Package)graph).targetSelected((Target)element);
-        else
-            ((Package)graph).targetSelected(null);
-    }
 
     /**
      * Move the current selection to another selected class, depending on
