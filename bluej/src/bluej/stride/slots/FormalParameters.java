@@ -445,7 +445,9 @@ public class FormalParameters
                 {
                     // We are; delete us and focus the left hand end of parameter after us:
                     deleteFormal(formal);
-                    params.get(index + 1).getType().requestFocus(Focus.LEFT);
+                    // index is used and not index + 1 as the one after us took our index
+                    // in the params list.
+                    params.get(index).getType().requestFocus(Focus.LEFT);
                     return true;
                 }
                 else {
