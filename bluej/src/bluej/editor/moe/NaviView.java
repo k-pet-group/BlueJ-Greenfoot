@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2015,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Transparency;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -47,6 +48,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.ToolTipManager;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.View;
 import javax.swing.text.Position.Bias;
@@ -54,6 +56,7 @@ import javax.swing.text.Position.Bias;
 import bluej.Config;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.utility.Debug;
 
 /**
  * "NaviView" component. Displays a miniature version of the document in the editor, and allows moving
@@ -216,6 +219,29 @@ public class NaviView extends JPanel implements AdjustmentListener
         }
         else {
             enqueueRepaint(top, bottom);
+        }
+    }
+
+    /**
+     * Repaints the Naviview between the start and end line (first line is 1), inclusive.
+     */
+    public void repaintLines(int startLine, int endLine)
+    {
+        try
+        {
+            View view = editorPane.getUI().getRootView(editorPane);
+
+            int startChar = document.getDefaultRootElement().getElement(startLine - 1).getStartOffset();
+            int endChar = document.getDefaultRootElement().getElement(endLine - 1).getEndOffset();
+
+            Rectangle dummyShape = new Rectangle(0, 0, 0, 0);
+            Shape s = view.modelToView(startChar, Bias.Backward, endChar, Bias.Forward, dummyShape);
+            repaintModel(s.getBounds().y, s.getBounds().y + s.getBounds().height);
+        }
+        catch (NullPointerException | BadLocationException e)
+        {
+            // If anything goes wrong, just give up on the repaint:
+            Debug.reportError(e);
         }
     }
     
@@ -465,7 +491,7 @@ public class NaviView extends JPanel implements AdjustmentListener
     
     @Override
     protected void paintComponent(Graphics g)
-    {   
+    {
         Rectangle clipBounds = new Rectangle(new Point(0,0), getSize());
         Insets insets = getInsets();
         g.getClipBounds(clipBounds);

@@ -933,6 +933,7 @@ public final class MoeEditor extends JPanel
             errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
             info.messageImportant(Config.getString("editor.info.compileError"));
             repaint();
+            naviView.repaintLines((int)diagnostic.getStartLine(), (int)diagnostic.getEndLine());
         }
 
         return true;
