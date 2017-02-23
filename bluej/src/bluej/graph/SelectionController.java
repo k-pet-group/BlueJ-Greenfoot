@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -286,5 +288,14 @@ public class SelectionController
     public List<Target> getSelection()
     {
         return selection.getSelected();
+    }
+
+    /**
+     * The selection listener will be run every time the selection has changed.
+     * @param selectionListener
+     */
+    public void addSelectionListener(FXPlatformConsumer<Collection<Target>> selectionListener)
+    {
+        selection.addListener(selectionListener);
     }
 }

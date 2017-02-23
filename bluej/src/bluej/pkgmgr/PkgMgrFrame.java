@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -3796,6 +3797,13 @@ public class PkgMgrFrame
         Platform.runLater(() -> {
             getPackage().getEditor().noClassesExistedMessage.setVisible(numClassTargets + numPackagesNested == 0);
         });
+    }
+
+    public void notifySelectionChanged(Collection<Target> curSelection)
+    {
+        boolean hasSelection = !curSelection.isEmpty();
+        removeAction.setEnabled(hasSelection);
+        compileSelectedAction.setEnabled(hasSelection);
     }
 
     class URLDisplayer

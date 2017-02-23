@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2013,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Set;
 
 import bluej.pkgmgr.target.Target;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -44,6 +46,7 @@ import threadchecker.Tag;
 public final class SelectionSet
 {
     private Set<Target> elements = new HashSet<>();
+    private List<FXPlatformConsumer<Collection<Target>>> listeners = new ArrayList<>();
 
     /**
      * 
@@ -66,6 +69,7 @@ public final class SelectionSet
         if (!element.isSelected()) {
             element.setSelected(true);
             elements.add(element);
+            notifyListeners();
         }
     }
     
@@ -75,7 +79,7 @@ public final class SelectionSet
     public void addAll(Collection<Target> newSet)
     {
         for (Target t : newSet)
-            add(t);
+            add(t); // add will notify listeners
     }
 
     /**
@@ -88,6 +92,7 @@ public final class SelectionSet
         if (element != null) {
             element.setSelected(false);
             elements.remove(element);
+            notifyListeners();
         }
     }
 
@@ -101,6 +106,7 @@ public final class SelectionSet
             element.setSelected(false);
         }
         elements.clear();
+        notifyListeners();
     }
 
     /**
@@ -140,6 +146,7 @@ public final class SelectionSet
      */
     public void selectOnly(Target element)
     {
+        // add and clear will notify listeners
         clear();
         add(element);
     }
@@ -159,5 +166,24 @@ public final class SelectionSet
     public List<Target> getSelected()
     {
         return new ArrayList<>(elements);
+    }
+
+    private void notifyListeners()
+    {
+        List<Target> curSelection = new ArrayList<>(this.elements);
+        for (FXPlatformConsumer<Collection<Target>> listener : listeners)
+        {
+            listener.accept(curSelection);
+        }
+    }
+
+    /**
+     * The listener will be run whenever the selection has been changed.
+     * It may be run partway through some actions so allow for rapid
+     * repeated changes.
+     */
+    public void addListener(FXPlatformConsumer<Collection<Target>> listener)
+    {
+        listeners.add(listener);
     }
 }

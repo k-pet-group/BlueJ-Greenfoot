@@ -163,6 +163,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         this.pkg = pkg;
         this.listener = listener;
         this.selectionController = new SelectionController(this);
+        this.selectionController.addSelectionListener(pmf::notifySelectionChanged);
         this.showUses = showUses;
         this.showExtends = showInherits;
         this.overlay = overlay;
