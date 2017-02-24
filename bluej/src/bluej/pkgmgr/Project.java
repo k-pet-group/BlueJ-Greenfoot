@@ -865,7 +865,7 @@ public class Project implements DebuggerListener, InspectorManager
         return inspector;
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private void animateInspector(Node animateFromCentre, Inspector inspector, boolean fromBottom)
     {
         // First we must get the root and make sure it's sized for our later calculations:
