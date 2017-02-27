@@ -45,7 +45,7 @@ public class ScoreBoard extends Actor
     
     private void drawString(String text, int x, int y, Color color, int height)
     {
-        getImage().drawImage(new GreenfootImage(text, height, color, new Color (0, true)), x, y);
+        getImage().drawImage(new GreenfootImage(text, height, color, new Color (0,0,0,0)), x, y);
     }
     
     private void drawScores()
