@@ -26,7 +26,7 @@ Přidáváni šablon
 Vytvořte v teto složce soubor s příponou ".tmpl" (pr.: "mainclass.tmpl")
 
 Bude-li jméno třídy začínat některou ze speciálních předpon,
-bude soubor považován za šablonu příslušnoho typu třídy, resp. interfejs.
+bude soubor považován za šablonu příslušnoho typu třídy, resp. rozhraní.
 Speciálními předponami jsou:
 
 abstract   - označuje šablonu abstraktní třídy

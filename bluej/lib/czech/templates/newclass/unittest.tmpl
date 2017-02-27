@@ -5,10 +5,7 @@ $PKGLINE
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-
-import org.junit.rules.TestName;
 
 
 import static org.junit.Assert.*;
@@ -16,45 +13,43 @@ import static org.junit.Assert.*;
 
 
 /*******************************************************************************
- * Testovací třída {@code $CLASSNAME}
- * definuje sadu jednotkových testů prověřujících správnost definice třídy
- * {@link $CLASSNAME}.
+ * Testovací třída {@code $CLASSNAME} slouží ke komplexnímu otestování
+ * třídy {@link $CLASSNAME}.
  *
  * @author  author name
  * @version 0.00.0000 — 20yy-mm-dd
  */
 public class $CLASSNAME
 {
-//\CC== CLASS CONSTANTS (CONSTANT CLASS/STATIC ATTRIBUTES/FIELDS) ==============
-//\CV== CLASS VARIABLES (VARIABLE CLASS/STATIC ATTRIBUTES/FIELDS) ==============
+//\CC== CONSTANT CLASS (STATIC) ATTRIBUTES (FIELDS) ============================
+//\CV== VARIABLE CLASS (STATIC) ATTRIBUTES (FIELDS) ============================
 
 
 
 //##############################################################################
-//\CI== CLASS (STATIC) INITIALIZER (CLASS CONSTRUCTOR) =========================
-//\CF== CLASS (STATIC) FACTORY METHODS =========================================
+//\CI== STATIC INITIALIZER (CLASS CONSTRUCTOR) =================================
 //\CG== CLASS (STATIC) GETTERS AND SETTERS =====================================
-//\CM== CLASS (STATIC) REMAINING NON-PRIVATE METHODS ===========================
-//\CP== CLASS (STATIC) PRIVATE AND AUXILIARY METHODS ===========================
+//\CM== OTHER NON-PRIVATE CLASS (STATIC) METHODS ===============================
+//\CP== PRIVATE AND AUXILIARY CLASS (STATIC) METHODS ===========================
 
 
 
 //##############################################################################
-//\IC== INSTANCE CONSTANTS (CONSTANT INSTANCE ATTRIBUTES/FIELDS) ===============
-//\IV== INSTANCE VARIABLES (VARIABLE INSTANCE ATTRIBUTES/FIELDS) ===============
+//\IC== CONSTANT INSTANCE ATTRIBUTES (FIELDS) ==================================
+//\IV== VARIABLE INSTANCE ATTRIBUTES (FIELDS) ==================================
 
 
 
 //##############################################################################
-//\II== INSTANCE INITIALIZERS (CONSTRUCTORS) ===================================
+//\II== CONSTRUCTORS AND FACTORY METHODS =======================================
 //----- Test class manages with empty default constructor ----------------------
 
 
 
-//\IA== INSTANCE ABSTRACT METHODS ==============================================
+//\IA== ABSTRACT METHODS =======================================================
 //\IG== INSTANCE GETTERS AND SETTERS ===========================================
-//\IM== INSTANCE REMAINING NON-PRIVATE METHODS =================================
-//\IP== INSTANCE PRIVATE AND AUXILIARY METHODS =================================
+//\IM== OTHER NON-PRIVATE INSTANCE METHODS =====================================
+//\IP== PRIVATE AND AUXILIARY INSTANCE METHODS =================================
 
 
 
@@ -65,7 +60,7 @@ public class $CLASSNAME
 
 //##########################################################################
 //\TC== PREPARATION AND CLEAN UP OF THE CLASS FIXTURE ==========================
-//\TI== PREPARATION AND CLEAN UP OF THE TEST FIXTURE ===========================
+//\TI== PREPARATION AND CLEAN UP OF THE TEST FIXTURE ==========================
 
     /***************************************************************************
      * Inicializace předcházející spuštění každého testu a připravující tzv.
@@ -78,8 +73,7 @@ public class $CLASSNAME
 
 
     /***************************************************************************
-     * Provede úklid po testu, tj. akce, které je třeba vykonat
-     * po ukončení každého testu definovaného v této třídě.
+     * Úklid po testu - tato metoda se spustí po vykonání každého testu.
      */
     @After
     public void tearDown()
@@ -88,15 +82,14 @@ public class $CLASSNAME
 
 
 
-//##############################################################################
 //\TT== TESTS PROPER ===========================================================
-//
-//    /*************************************************************************
-//     * Test metody {@link #setUp()}, která vytváří testovací přípravek.
-//     */
-//    @Test
-//    public void testSetUp()
-//    {
-//    }
-//
+
+    /***************************************************************************
+     * Test of the {@link #setUp()} method preparing the test fixture.
+     */
+    @Test
+    public void testSetUp()
+    {
+    }
+
 }
