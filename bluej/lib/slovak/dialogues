@@ -103,7 +103,7 @@ jazyka Java.
 
 directory-exists-file
 Prie\u010dinok nemohol by\u0165 vytvoren\u00fd, preto\u017ee na zadanom
-umiestnen\u00ed u\u017e jestvuje s\u00fabor so rovnak\u00fdm menom.
+umiestnen\u00ed u\u017e jestvuje s\u00fabor s\u00a0rovnak\u00fdm menom.
 
 directory-exists-non-empty
 Tento prie\u010dinok nem\u00f4\u017ee by\u0165 pou\u017eit\u00fd na ulo\u017eenie
@@ -119,7 +119,7 @@ nadraden\u00fdch prie\u010dinkov.
 cannot-save-project
 Projekt nemohol by\u0165 ulo\u017een\u00fd do zadan\u00e9ho
 umiestnenia. Skontrolujte, \u010di m\u00e1te pr\u00edstupov\u00e9
-pr\u00e1va na z\u00e1pis alebo zvo\u013ete in\u00e9 umiestnenie.
+pr\u00e1va na z\u00e1pis, alebo zvo\u013ete in\u00e9 umiestnenie.
 
 file-does-not-exist
 Zadan\u00fd s\u00fabor nejestvuje.
@@ -169,7 +169,7 @@ V\u00a0zadanom prie\u010dinku neboli n\u00e1jden\u00e9
 \u017eiadne zdrojov\u00e9 s\u00fabory Javy.
 
 duplicate-name
-Trieda alebo bal\u00ed\u010dek sa rovnak\u00fdm n\u00e1zvom u\u017e v\u00a0tomto
+Trieda alebo bal\u00ed\u010dek s\u00a0rovnak\u00fdm n\u00e1zvom u\u017e v\u00a0tomto
 projekte jestvuje. V\u00a0jednom projekte nem\u00f4\u017eu jestvova\u0165
 dve triedy alebo dva bal\u00ed\u010dky s\u00a0rovnak\u00fdm n\u00e1zvom.
 
@@ -224,7 +224,7 @@ Zru\u0161i\u0165
 null
 
 remove-package-open
-Bal\u00ed\u010dek, ktor\u00fd ste ur\u010dili na odstr\u00e1nenie obsahuje
+Bal\u00ed\u010dek, ktor\u00fd ste ur\u010dili na odstr\u00e1nenie, obsahuje
 in\u00fd bal\u00ed\u010dek alebo bal\u00ed\u010dky, ktor\u00e9 s\u00fa otvoren\u00e9
 v\u00a0BlueJi. Tieto bal\u00ed\u010dky musia by\u0165 najsk\u00f4r zatvoren\u00e9.
 
@@ -327,7 +327,7 @@ Prehliadanie po\u013ea
 null
 
 classmgr-changes-no-effect
-Zmeny, ktor\u00e9 ste vykonali v\u00a0nastaveniach kni\u017en\u00edc
+Zmeny, ktor\u00e9 ste vykonali v\u00a0nastaveniach kni\u017en\u00edc,
 sa prejavia a\u017e po najbli\u017e\u0161om re\u0161tarte virtu\u00e1lneho
 stroja Javy.
 
@@ -423,7 +423,7 @@ do ktor\u00e9ho m\u00e1te povolen\u00e9 pr\u00e1va na z\u00e1pis.
 jar-extraction-error
 Pri rozba\u013eovan\u00ed obsahu s\u00faboru JAR vznikla chyba.
 Viac inform\u00e1ci\u00ed n\u00e1jdete v\u00a0s\u00fabore denn\u00edka ladenia
-\u201ebluej-debuglog.txt\u201c obvykle umiestnenom v\u00a0prie\u010dinku
+\u201ebluej-debuglog.txt\u201c, obvykle umiestnenom v\u00a0prie\u010dinku
 \u201ebluej\u201c domovsk\u00e9ho prie\u010dinka aktu\u00e1lneho pou\u017e\u00edvate\u013ea.
 
 file-save-error-before-compile
@@ -485,7 +485,7 @@ Pr\u00edstup bol zamietnut\u00fd. Nespr\u00e1vne meno alebo heslo.
 
 team-denied-invalidUserOrnotExported
 Pr\u00edstup bol zamietnut\u00fd. Pros\u00edm, overte va\u0161e autentika\u010dn\u00e9 \u00fadaje (pou\u017e\u00edvate\u013esk\u00e9
-meno a\u00a0heslo) ak s\u00fa vy\u017eadovan\u00e9. Ak tento protokol nevy\u017eaduje pou\u017e\u00edvate\u013esk\u00e9
+meno a\u00a0heslo), ak s\u00fa vy\u017eadovan\u00e9. Ak tento protokol nevy\u017eaduje pou\u017e\u00edvate\u013esk\u00e9
 meno, tak neboli spr\u00e1vne exportovan\u00e9 \u00fadaje ukladacieho priestoru.
 
 team-noRepository-uri
@@ -500,7 +500,7 @@ team-cant-find-path
 T\u00e1to cesta nebola na serveri n\u00e1jden\u00e1. To m\u00f4\u017ee by\u0165 zapr\u00ed\u010dinen\u00e9
 t\u00fdm, \u017ee zadan\u00e1 skupina alebo projekt nejestvuj\u00fa. Overte
 v\u00a0nastaveniach t\u00edmovej pr\u00e1ce, \u010di m\u00e1te zadan\u00fa spr\u00e1vnu skupinu
-a\u00a0projekt a\u00a0\u010di tieto na serveri jestvuj\u00fa.
+a\u00a0projekt a\u00a0\u010di tieto (skupina a\u00a0projekt) na serveri jestvuj\u00fa.
 
 team-cant-find-module
 Projekt nie je v\u00a0ukladacom priestore. Pred overen\u00edm zmien projektu, mus\u00ed

@@ -69,6 +69,7 @@ debugger.jdiDebugger.internalErrorMsg=Pri pokuse nastavi\u0165 tento bod preru\u
 debugger.accessibility.breakpoint=Vl\u00e1kno \u201e$\u201c dosiahlo bod preru\u0161enia.
 debugger.accessibility.paused=Vl\u00e1kno \u201e$\u201c je pozastaven\u00e9.
 
+
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Kni\u017enice
 classmgr.userlibraries=Pou\u017e\u00edvate\u013esk\u00e9 kni\u017enice z\u00a0konfigur\u00e1cie
@@ -619,6 +620,7 @@ menu.tools.teamwork=T\u00ed_mov\u00e1 pr\u00e1ca
 
 menu.tools.preferences=_Prevo\u013eby\u2026@,
 
+
 menu.view=_Zobrazi\u0165
 menu.view.showUses=Zobrazi\u0165 vz\u0165ahy \u201e_Pou\u017e\u00edva\u201c
 menu.view.showInherits=Zobrazi\u0165 vz\u0165ahy \u201e_Dedi\u010dnos\u0165\u201c
@@ -769,8 +771,6 @@ team.checkconn.checking=Overujem pripojenie\u2026
 team.checkconn.ok=Pripojenie je v\u00a0poriadku.
 team.checkconn.bad=Pripojenie k\u00a0serveru nebolo mo\u017en\u00e9 nadviaza\u0165.
 
-
-
 menu.help=_Pomocn\u00edk
 menu.help.about=_O\u00a0BlueJi
 menu.help.extensions=In\u0161talovan\u00e9 _roz\u0161\u00edrenia
@@ -795,6 +795,7 @@ tooltip.update=Aktualizova\u0165 lok\u00e1lne s\u00fabory upraven\u00e9 v\u00a0u
 tooltip.status=Zobraz stav v\u0161etk\u00fdch s\u00faborov so spolo\u010dn\u00fdm pr\u00edstupom v\u00a0projekte
 
 graph.tooltip.classBroken=T\u00e1to trieda nemohla by\u0165 korektne spracovan\u00e1
+
 
 # Copyright
 
@@ -837,7 +838,7 @@ about.vm=Java VM:
 about.runningOn=Opera\u010dn\u00fd syst\u00e9m:
 about.logfile=V\u00fdpis chybov\u00fdch hl\u00e1sen\u00ed:
 about.moreInformation=Viac inform\u00e1ci\u00ed z\u00edskate na 
-about.theTeam=Slovensk\u00e1 lokaliz\u00e1cia:\n\u00a0     Roman Horv\u00e1th, Andrea Hrn\u010diarikov\u00e1\n\u00a0\n\u00a0\nAutori prostredia BlueJ:
+about.theTeam=Slovensk\u00e1 lokaliz\u00e1cia:\n\u00a0     Roman Horv\u00e1th, Klaudia Kanyicskov\u00e1, Andrea Hrn\u010diarikov\u00e1\n\u00a0\n\u00a0\nAutori prostredia BlueJ:
 about.openFolder=Otvori\u0165 prie\u010dinok
 
 # Work Indicator
