@@ -375,7 +375,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                             event.consume();
                             break;
                         case BACK_SPACE:
-                            if (getCaretPosition() == 0) {
+                            if (getCaretPosition() == 0 && !hasSelection()) {
                                 for (SlotValueListener listener : listeners) {
                                     listener.backSpacePressedAtStart(TextSlot.this);
                                 }
