@@ -167,7 +167,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         this.showExtends = showInherits;
         this.overlay = overlay;
         Platform.runLater(() -> {
-            this.selectionController.addSelectionListener(pmf::notifySelectionChanged);
+            this.selectionController.addSelectionListener(sel -> SwingUtilities.invokeLater(() -> pmf.notifySelectionChanged(sel)));
             JavaFXUtil.addStyleClass(this, "class-diagram");
             // Both class layers have transparent background to see through to lower layers:
             frontClassLayer.setBackground(null);
