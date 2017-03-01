@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 
 import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
+import bluej.editor.stride.FrameEditorTab;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -986,7 +987,15 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         }
         final MenuItem cutItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.cut"), field::cut, new KeyCodeCombination(KeyCode.X, KeyCodeCombination.SHORTCUT_DOWN));
         final MenuItem copyItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.copy"), field::copy, new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN));
-        final MenuItem pasteItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.paste"), field::paste, new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN));
+        final MenuItem pasteItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.paste"), () -> {
+            // Work around odd JDK bug (Mac only?) where pressing Cmd-V to paste
+            // in the Swing Java editor would trigger a context menu accelerator
+            // on a text field in an unselected Stride editor tab
+            if (editor instanceof FrameEditorTab && ((FrameEditorTab)editor).isSelected())
+            {
+                field.paste();
+            }
+        }, new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN));
         menuItems.addAll(
             MenuItemOrder.CUT.item(cutItem),
             MenuItemOrder.COPY.item(copyItem),
