@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -85,29 +85,26 @@ class AboutBlueJ extends Dialog<Void>
         JavaFXUtil.addStyleClass(aboutPanel, "about-dialog-content");
 
         // insert logo
-        Image image = Config.getFixedImageAsFXImage("about-logo.jpg");
-        aboutPanel.setLeft(JavaFXUtil.withStyleClass(new ImageView(image), "about-dialog-image"));
+        Image image = Config.getFixedImageAsFXImage("about-logo.png");
+        aboutPanel.setCenter(JavaFXUtil.withStyleClass(new ImageView(image), "about-dialog-image"));
 
-        // Create Text Panel
-        String teamText = "";
-        teamText += "Amjad Altadmri\n";
-        teamText += "Neil Brown\n";
-        teamText += "Fabio Hedayioglu\n";
-        teamText += "Michael K\u00F6lling\n";
-        teamText += "Davin McCall\n";
-        teamText += "Ian Utting\n";
 
-        Label teamLabel = new Label(teamText);
-        teamLabel.setAlignment(Pos.TOP_LEFT);
-        aboutPanel.setCenter(JavaFXUtil.withStyleClass(new VBox(
-            JavaFXUtil.withStyleClass(new Label(Config.getString("about.theTeam")), "about-team-header"),
-            JavaFXUtil.withStyleClass(teamLabel, "about-team-names")), "about-team"));
-        
+        // All text inserted as bottom
         VBox bottom = JavaFXUtil.withStyleClass(new VBox(), "about-more-info");
 
-        // footer text
-        bottom.getChildren().add(JavaFXUtil.withStyleClass(new Label(Config.getString("about.bluej.version") + " "+ version +
-                "  (" + Config.getString("about.java.version") + " " + System.getProperty("java.version") +
+        // Create team names list
+        String teamText = "";
+        teamText += "Amjad Altadmri" + ", ";
+        teamText += "Neil Brown" + ", ";
+        teamText += "Fabio Hedayioglu" + ", ";
+        teamText += "Michael K\u00F6lling" + ", ";
+        teamText += "Davin McCall" + ", ";
+        teamText += "Ian Utting";
+
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(new Label(Config.getString("about.theTeam") + " "
+                + teamText), "about-team"));
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(new Label(Config.getString("about.bluej.version") + " " +
+                version + "  (" + Config.getString("about.java.version") + " " + System.getProperty("java.version") +
                 ")"), "about-version"));
         bottom.getChildren().add(new Label(Config.getString("about.vm") + " " +
                 System.getProperty("java.vm.name") + " " +

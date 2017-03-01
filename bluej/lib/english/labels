@@ -870,7 +870,7 @@ about.vm=Virtual machine:
 about.runningOn=Running on:
 about.logfile=Debug log file:
 about.moreInformation=For more information, see
-about.theTeam=The BlueJ team:
+about.theTeam=BlueJ team:
 about.openFolder=Open Folder
 
 # Work Indicator
