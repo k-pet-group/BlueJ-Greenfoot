@@ -777,11 +777,19 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         
         suggestionLocation = topLevel.getCurrentPos();
         
-        if (Config.isGreenfoot() && stringLiteral) {
+        if (stringLiteral) {
             // They are just inside a string; complete image file names:
             fileCompletions = editor.getAvailableFilenames();
             // Have to have this function on a separate line to work around Eclipse bug (sigh):
-            Function<FileCompletion, SuggestionDetails> func = f -> new SuggestionDetailsWithCustomDoc(f.getFile().getName(), null, f.getType(), SuggestionList.SuggestionShown.COMMON, () -> makeFileCompletionPreview(f));
+            Function<FileCompletion, SuggestionDetails> func = f -> new SuggestionDetailsWithCustomDoc(f.getFile().getName(), null, f.getType(), SuggestionList.SuggestionShown.COMMON, () -> makeFileCompletionPreview(f)) {
+                @Override
+                public boolean hasDocs()
+                {
+                    // Bit of a hack; Greenfoot sounds/images have doc, but
+                    // BlueJ CSS files have no doc
+                    return Config.isGreenfoot();
+                }
+            };
             withSuggList.accept(new SuggestionList(editor, Utility.mapList(fileCompletions, func), null, SuggestionList.SuggestionShown.RARE, null, StructuredSlot.this));
             
         }

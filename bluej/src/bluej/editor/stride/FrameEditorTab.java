@@ -110,10 +110,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -2297,21 +2294,51 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public List<FileCompletion> getAvailableFilenames()
     {
         List<FileCompletion> r = new ArrayList<>();
-        File imageDir = new File(project.getProjectDir(), "images");
-        if (imageDir.exists())
+        if (Config.isGreenfoot())
         {
-            File[] files = imageDir.listFiles(name -> name.getName().toLowerCase().endsWith(".png")
-                    || name.getName().toLowerCase().endsWith(".jpg")
-                    || name.getName().toLowerCase().endsWith(".jpeg"));
-            
-            r.addAll(Utility.mapList(Arrays.asList(files), ImageCompletion::new));
+            File imageDir = new File(project.getProjectDir(), "images");
+            if (imageDir.exists()) {
+                File[] files = imageDir.listFiles(name -> name.getName().toLowerCase().endsWith(".png")
+                        || name.getName().toLowerCase().endsWith(".jpg")
+                        || name.getName().toLowerCase().endsWith(".jpeg"));
+
+                r.addAll(Utility.mapList(Arrays.asList(files), ImageCompletion::new));
+            }
+            File soundDir = new File(project.getProjectDir(), "sounds");
+            if (soundDir.exists()) {
+                File[] files = soundDir.listFiles(name -> name.getName().toLowerCase().endsWith(".wav"));
+
+                r.addAll(Utility.mapList(Arrays.asList(files), SoundCompletion::new));
+            }
         }
-        File soundDir = new File(project.getProjectDir(), "sounds");
-        if (soundDir.exists())
+        else
         {
-            File[] files = soundDir.listFiles(name -> name.getName().toLowerCase().endsWith(".wav"));
-            
-            r.addAll(Utility.mapList(Arrays.asList(files), SoundCompletion::new));
+            File[] files = project.getProjectDir().listFiles(name -> name.getName().toLowerCase().endsWith(".css"));
+            r.addAll(Utility.mapList(Arrays.asList(files), file -> new FileCompletion() {
+                @Override
+                public File getFile()
+                {
+                    return file;
+                }
+
+                @Override
+                public String getType()
+                {
+                    return "CSS";
+                }
+
+                @Override
+                public Node getPreview(double maxWidth, double maxHeight)
+                {
+                    return null;
+                }
+
+                @Override
+                public Map<KeyCode, Runnable> getShortcuts()
+                {
+                    return Collections.emptyMap();
+                }
+            }));
         }
         return r;
     }

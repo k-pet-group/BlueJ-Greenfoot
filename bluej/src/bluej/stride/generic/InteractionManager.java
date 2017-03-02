@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -291,7 +291,7 @@ public interface InteractionManager
     public static interface FileCompletion
     {
         public File getFile();
-        public String getType(); // "Image" or "Sound"
+        public String getType(); // e.g. "Image" or "Sound"
         public Node getPreview(double maxWidth, double maxHeight);
         Map<KeyCode, Runnable> getShortcuts();
     }
