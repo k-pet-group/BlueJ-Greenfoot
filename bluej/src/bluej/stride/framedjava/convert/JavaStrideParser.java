@@ -1936,6 +1936,16 @@ public class JavaStrideParser extends JavaParser
         statementHandlers.pop().foundStatement(statements);
     }
 
+    @Override
+    protected void finishedCU(int state)
+    {
+        if (state == 1)
+        {
+            // Finished after the import statements; need to capture those by themselves:
+            result.foundStatement(Utility.mapList(imports, i -> new ImportElement(i, null, true)));
+        }
+    }
+
     /**
      * Gets the overall result of the parse
      */

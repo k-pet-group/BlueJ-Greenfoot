@@ -811,6 +811,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     @Override
     public CanvasKind getChildKind(FrameCanvas c)
     {
+        // Note: importCanvas doesn't reach here as it has its own parent
         if (c == fieldsCanvas)
             return CanvasKind.FIELDS;
         else if (c == constructorsCanvas)

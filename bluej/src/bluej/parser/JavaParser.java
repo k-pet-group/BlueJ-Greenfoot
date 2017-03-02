@@ -151,7 +151,15 @@ public class JavaParser
      */
     public void parseCU()
     {
-        parseCU(0);
+        int state = 0;
+        while (tokenStream.LA(1).getType() != JavaTokenTypes.EOF) {
+            if (tokenStream.LA(1).getType() == JavaTokenTypes.SEMI) {
+                nextToken();
+                continue;
+            }
+            state = parseCUpart(state);
+        }
+        finishedCU(state);
     }
     
     protected void beginPackageStatement(LocatableToken token) {  }
@@ -201,6 +209,12 @@ public class JavaParser
      * State 1 = package statement parsed. State 2 = one or more type definitions parsed
      */
     protected void reachedCUstate(int i) { }
+
+    /**
+     * Finished parsing a compilation unit.
+     * @param state Our last state: see reachedCUState for details
+     */
+    protected void finishedCU(int state) { }
 
     /** We've seen the semicolon at the end of an "import" statement */
     protected void gotImportStmtSemi(LocatableToken token)
@@ -609,22 +623,7 @@ public class JavaParser
         lastToken = tokenStream.nextToken();
         return lastToken;
     }
-    
-    /**
-     * Parse a compilation unit.
-     * @param state  The current parse state
-     */
-    public void parseCU(int state)
-    {
-        while (tokenStream.LA(1).getType() != JavaTokenTypes.EOF) {
-            if (tokenStream.LA(1).getType() == JavaTokenTypes.SEMI) {
-                nextToken();
-                continue;
-            }
-            state = parseCUpart(state);
-        }
-    }
-    
+
     public final int parseCUpart(int state)
     {
         LocatableToken token = nextToken();
