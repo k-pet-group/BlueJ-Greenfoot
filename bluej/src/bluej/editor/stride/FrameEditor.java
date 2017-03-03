@@ -172,6 +172,14 @@ public class FrameEditor implements Editor
     
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<Integer> latestBreakpoints = Collections.emptyList();
+    /**
+     * When a compile starts, we set this to false.  When a compile finishes,
+     * if it's false, we look for late errors and flip it to true.
+     * compileFinished can get called multiple times for one compile,
+     * so this prevents us looking for late errors twice.
+     */
+    @OnThread(Tag.FXPlatform)
+    private boolean foundLateErrorsForMostRecentCompile;
 
     @OnThread(Tag.Any)
     public synchronized List<Integer> getBreakpoints()
@@ -1117,7 +1125,11 @@ public class FrameEditor implements Editor
         Platform.runLater(() -> {
             if (panel != null && panel.isWindowVisible())
             {
-                findLateErrors();
+                if (!foundLateErrorsForMostRecentCompile)
+                {
+                    foundLateErrorsForMostRecentCompile = true;
+                    findLateErrors();
+                }
                 panel.compiled();
             }
         });
@@ -1159,6 +1171,7 @@ public class FrameEditor implements Editor
     public boolean compileStarted()
     {
         Platform.runLater(() -> {
+            foundLateErrorsForMostRecentCompile = false;
             if (panel != null)
                 panel.flagErrorsAsOld();
             else
