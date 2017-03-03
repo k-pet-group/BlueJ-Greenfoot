@@ -563,7 +563,7 @@ public class Utility
     }
 
 
-    private static void appToFront()
+    public static void appToFront()
     {
         if (Config.isMacOS()) {
             Application.getApplication().requestForeground(false);

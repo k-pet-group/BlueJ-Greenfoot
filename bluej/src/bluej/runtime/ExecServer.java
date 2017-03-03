@@ -48,9 +48,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.sun.javafx.stage.StageHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
+import javafx.collections.ListChangeListener;
 import javafx.stage.Stage;
 
 import org.junit.runner.JUnitCore;
@@ -59,7 +61,6 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
 import bluej.utility.Utility;
-
 /**
  * Class that controls the runtime of code executed within BlueJ.
  * Sets up the initial thread state, etc.
@@ -924,7 +925,21 @@ public class ExecServer
         @Override
         public void start(Stage primaryStage) throws Exception
         {
-            // Nothing special to do, we just want the notifications
+            // Add a listener for a new Stage appearing
+
+            // Must initialise Stage class before using StageHelper:
+            new Stage();
+            StageHelper.getStages().addListener((ListChangeListener<Stage>)c -> {
+                boolean anyAdded = false;
+                while (c.next())
+                    anyAdded |= c.wasAdded();
+                if (anyAdded)
+                {
+                    // We don't bring the window itself to the front as that may
+                    // mess up user's program.  We just bring the app to the front:
+                    Utility.appToFront();
+                }
+            });
         }
 
         @Override
