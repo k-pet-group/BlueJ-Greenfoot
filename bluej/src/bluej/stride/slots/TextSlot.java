@@ -990,8 +990,10 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         final MenuItem pasteItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.paste"), () -> {
             // Work around odd JDK bug (Mac only?) where pressing Cmd-V to paste
             // in the Swing Java editor would trigger a context menu accelerator
-            // on a text field in an unselected Stride editor tab
-            if (editor instanceof FrameEditorTab && ((FrameEditorTab)editor).isSelected())
+            // on a text field in an unselected Stride editor tab. Also, it fixes
+            // the case where the paste is occurring in addition at a different
+            // slot than the focused one.
+            if (editor instanceof FrameEditorTab && ((FrameEditorTab) editor).isSelected() && field.isFocused())
             {
                 field.paste();
             }
