@@ -1253,7 +1253,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                 {
                     MenuItem cut = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.cut"), exp::cut, new KeyCodeCombination(KeyCode.X, KeyCodeCombination.SHORTCUT_DOWN));
                     MenuItem copy = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.copy"), exp::copy, new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN));
-                    MenuItem paste = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.paste"), exp::paste, new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN));
+                    MenuItem paste = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.paste"), exp::paste, Config.isMacOS() ? null : new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN));
 
                     boolean inSelection = exp.isInSelection();
 
