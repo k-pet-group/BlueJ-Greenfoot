@@ -987,17 +987,13 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         }
         final MenuItem cutItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.cut"), field::cut, new KeyCodeCombination(KeyCode.X, KeyCodeCombination.SHORTCUT_DOWN));
         final MenuItem copyItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.copy"), field::copy, new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN));
-        final MenuItem pasteItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.paste"), () -> {
-            // Work around odd JDK bug (Mac only?) where pressing Cmd-V to paste
-            // in the Swing Java editor would trigger a context menu accelerator
-            // on a text field in an unselected Stride editor tab. Also, it fixes
-            // the case where the paste is occurring in addition at a different
-            // slot than the focused one.
-            if (editor instanceof FrameEditorTab && ((FrameEditorTab) editor).isSelected() && field.isFocused())
-            {
-                field.paste();
-            }
-        }, new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN));
+
+        final MenuItem pasteItem = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.paste"), field::paste,
+            // Work around a behaviour on Mac where pressing Cmd-V will paste
+            // in TextField even without the existing of the accelerator.
+            // Thus, the existing of the accelerator will make it paste twice.
+            Config.isMacOS() ? null : new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN));
+
         menuItems.addAll(
             MenuItemOrder.CUT.item(cutItem),
             MenuItemOrder.COPY.item(copyItem),
