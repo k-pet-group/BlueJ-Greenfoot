@@ -285,7 +285,8 @@ public abstract class ClassRole
         JMenuItem item;
 
         // If we have a lot of items, we should create a submenu to fold some items in
-        int itemHeight = 19;  // wild guess for now
+        // 28 is a wild guess for now. It was 19 but with higher resolution screens, it became insufficient.
+        int itemHeight = 28;
         int itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
         int sizeLimit = itemsOnScreen / 2;
 
