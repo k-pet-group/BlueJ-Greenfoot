@@ -28,4 +28,14 @@ if grep -q "BCM270" /proc/cpuinfo; then
 fi
 
 CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
+JFXRTOPT=""
+
+# If JavaFX library is not within the JDK, look for OpenJFX:
+if [ ! -e "$JAVAPATH/jre/lib/ext/jfxrt.jar" ]; then
+    if [ -e "/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar" ]; then
+        CP="$CP:/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar"
+        JFXRTOPT="-jfxrt.jarpath=/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar"
+    fi
+fi
+
 "$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -Xmx512M -cp "$CP" bluej.Boot  "$@"
