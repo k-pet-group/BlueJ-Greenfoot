@@ -130,7 +130,9 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     public static final double UNFOCUSED_BORDER = 2.0;
     public static final double SHADOW_RADIUS = 3.0;
 
-    private static int itemHeight = 19;   // wild guess until we find out
+    // wild guess until we find out.
+    // It was 19 but with higher resolution screens, it became insufficient.
+    private static int itemHeight = 28;
     private static boolean itemHeightKnown = false;
     @OnThread(Tag.Any)
     private static int itemsOnScreen;
@@ -653,7 +655,6 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 item.setOnAction(e -> SwingUtilities.invokeLater(() -> il.executeMethod(m)));
                
                 // check whether it's time for a submenu
-
                 int itemCount = menu.size();
                 if(itemCount >= sizeLimit) {
                     Menu subMenu = new Menu(Config.getString("debugger.objectwrapper.moreMethods"));
@@ -661,6 +662,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                     menu = subMenu.getItems();
                     sizeLimit = itemsOnScreen / 2;
                 }
+
                 menu.add(item);
             } catch(Exception e) {
                 Debug.reportError(methodException + e);
