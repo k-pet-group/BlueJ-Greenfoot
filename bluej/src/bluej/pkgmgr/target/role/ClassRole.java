@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,7 @@ import javax.swing.SwingUtilities;
 
 import bluej.pkgmgr.target.DependentTarget.State;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 
 import bluej.Config;
@@ -275,13 +276,18 @@ public abstract class ClassRole
      * @return  true if any items were created
      */
     @OnThread(Tag.FXPlatform)
-    private static boolean createMenuItems(ObservableList<MenuItem> menu, CallableView[] members, ViewFilter filter, int first, int last,
-            String prefix, InvokeListener il)
+    private static boolean createMenuItems(ObservableList<MenuItem> menu, CallableView[] members, ViewFilter filter,
+                                           int first, int last, String prefix, InvokeListener il)
     {
         // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first
         // + " last = " + last);
         boolean hasEntries = false;
         JMenuItem item;
+
+        // If we have a lot of items, we should create a submenu to fold some items in
+        int itemHeight = 19;  // wild guess for now
+        int itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
+        int sizeLimit = itemsOnScreen / 2;
 
         for (int i = first; i < last; i++) {
             try {
@@ -294,11 +300,20 @@ public abstract class ClassRole
                 if (m instanceof MethodView)
                 {
                     MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
-                    menu.add(menuItem);
                     menuItem.setOnAction(e -> SwingUtilities.invokeLater(() ->
                     {
                         new InvokeAction((MethodView)m, il, prefix + m.getLongDesc()).actionPerformed(null);
                     }));
+
+                    // check whether it's time for a submenu
+                    int itemCount = menu.size();
+                    if(itemCount >= sizeLimit) {
+                        Menu subMenu = new Menu(Config.getString("pkgmgr.classmenu.moreMethods"));
+                        menu.add(subMenu);
+                        menu = subMenu.getItems();
+                    }
+
+                    menu.add(menuItem);
                     hasEntries = true;
                 }
                 else if (m instanceof ConstructorView)

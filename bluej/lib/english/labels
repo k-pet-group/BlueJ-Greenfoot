@@ -385,6 +385,7 @@ pkgmgr.classmenu.convertToJava=Convert to Java
 pkgmgr.classmenu.convertToStride=Convert to Stride
 pkgmgr.classmenu.createTest=Create Test Class
 pkgmgr.classmenu.launchFX=Run JavaFX Application
+pkgmgr.classmenu.moreMethods=more methods
 
 pkgmgr.team.title=Teamwork
 pkgmgr.test.title=Testing
