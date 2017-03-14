@@ -536,25 +536,22 @@ public class Main
         String systemID = getOperatingSystem();
 
         String editorStats = "";
-        if (Config.isGreenfoot())
+        int javaEditors = Config.getEditorCount(Config.SourceType.Java);
+        int strideEditors = Config.getEditorCount(Config.SourceType.Stride);
+        try
         {
-            int javaEditors = Config.getEditorCount(Config.SourceType.Java);
-            int strideEditors = Config.getEditorCount(Config.SourceType.Stride);
-            try
+            if (javaEditors != -1 && strideEditors != -1)
             {
-                if (javaEditors != -1 && strideEditors != -1)
-                {
-                    editorStats = "&javaeditors=" + URLEncoder.encode(Integer.toString(javaEditors), "UTF-8")
-                        + "&strideeditors=" + URLEncoder.encode(Integer.toString(strideEditors), "UTF-8");
-                }
+                editorStats = "&javaeditors=" + URLEncoder.encode(Integer.toString(javaEditors), "UTF-8")
+                    + "&strideeditors=" + URLEncoder.encode(Integer.toString(strideEditors), "UTF-8");
             }
-            catch (UnsupportedEncodingException ex)
-            {
-                Debug.reportError(ex);
-            }
-            
-            Config.resetEditorsCount();
         }
+        catch (UnsupportedEncodingException ex)
+        {
+            Debug.reportError(ex);
+        }
+
+        Config.resetEditorsCount();
         
         // User uid. Use the one already stored in the Property if it exists,
         // otherwise generate one and store it for next time.

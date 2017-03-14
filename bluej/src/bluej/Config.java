@@ -751,10 +751,6 @@ public final class Config
      */
     public static void recordEditorOpen(SourceType sourceType)
     {
-        // Only record this for Greenfoot, at the moment:
-        if (!Config.isGreenfoot())
-            return;
-        
         switch (sourceType)
         {
             case Java:
