@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,6 +51,7 @@ import bluej.pkgmgr.target.DependentTarget.State;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
@@ -242,6 +243,12 @@ public class UnitTestClassRole extends ClassRole
         Method[] allMethods = cl.getMethods();
         
         if (! ct.isAbstract()) {
+            // If we have a lot of items, we should create a submenu to fold some items in
+            // 28 is a wild guess for now.
+            int itemHeight = 28;
+            int itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
+            int sizeLimit = itemsOnScreen / 2;
+
             for (int i=0; i < allMethods.length; i++) {
                 Method m = allMethods[i];
                 
@@ -258,6 +265,14 @@ public class UnitTestClassRole extends ClassRole
                 }
                 TargetAbstractAction testAction = new TestAction(rtype + " " + m.getName() + "()",
                         ct.getPackage().getEditor(), ct, m.getName());
+
+                // check whether it's time for a submenu
+                int itemCount = menu.size();
+                if(itemCount >= sizeLimit) {
+                    Menu subMenu = new Menu(Config.getString("pkgmgr.classmenu.moreMethods"));
+                    menu.add(subMenu);
+                    menu = subMenu.getItems();
+                }
                 
                 menu.add(testAction);
                 hasEntries = true;
