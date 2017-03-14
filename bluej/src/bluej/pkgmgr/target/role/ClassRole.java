@@ -28,19 +28,20 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
+
+import javafx.collections.ObservableList;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-import bluej.pkgmgr.target.DependentTarget.State;
-import javafx.collections.ObservableList;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
 
 import bluej.Config;
 import bluej.debugmgr.ConstructAction;
@@ -49,6 +50,7 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
@@ -160,7 +162,7 @@ public abstract class ClassRole
      */
     public boolean generateSkeleton(String template, Package pkg, String name, String sourceFile)
     {
-        Hashtable<String,String> translations = new Hashtable<String,String>();
+        Hashtable<String,String> translations = new Hashtable<>();
         translations.put("CLASSNAME", name);
 
         if (pkg.isUnnamedPackage()) {
@@ -279,10 +281,7 @@ public abstract class ClassRole
     private static boolean createMenuItems(ObservableList<MenuItem> menu, CallableView[] members, ViewFilter filter,
                                            int first, int last, String prefix, InvokeListener il)
     {
-        // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first
-        // + " last = " + last);
         boolean hasEntries = false;
-        JMenuItem item;
 
         // If we have a lot of items, we should create a submenu to fold some items in
         // 28 is a wild guess for now. It was 19 but with higher resolution screens, it became insufficient.
@@ -297,14 +296,12 @@ public abstract class ClassRole
                     continue;
                 // Debug.message("createSubMenu - creating MenuItem");
 
-                Action callAction = null;
                 if (m instanceof MethodView)
                 {
                     MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
                     menuItem.setOnAction(e -> SwingUtilities.invokeLater(() ->
-                    {
-                        new InvokeAction((MethodView)m, il, prefix + m.getLongDesc()).actionPerformed(null);
-                    }));
+                        new InvokeAction((MethodView)m, il, prefix + m.getLongDesc()).actionPerformed(null)
+                    ));
 
                     // check whether it's time for a submenu
                     int itemCount = menu.size();
@@ -321,9 +318,9 @@ public abstract class ClassRole
                 {
                     MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
                     menu.add(menuItem);
-                    menuItem.setOnAction(e -> SwingUtilities.invokeLater(() -> {
-                        new ConstructAction((ConstructorView) m, il, prefix + m.getLongDesc()).actionPerformed(null);
-                    }));
+                    menuItem.setOnAction(e -> SwingUtilities.invokeLater(() ->
+                        new ConstructAction((ConstructorView) m, il, prefix + m.getLongDesc()).actionPerformed(null)
+                    ));
                     hasEntries = true;
                 }
             }
@@ -381,7 +378,7 @@ public abstract class ClassRole
     public List<File> getAllFiles(ClassTarget ct)
     {
         // .frame (if available), .java, .class, .ctxt, and doc (.html)
-        List<File> rlist = new ArrayList<File>();
+        List<File> rlist = new ArrayList<>();
         
         rlist.add(ct.getClassFile());
         rlist.addAll(Utility.mapList(ct.getAllSourceFilesJavaLast(), sf -> sf.file));
@@ -389,9 +386,7 @@ public abstract class ClassRole
         rlist.add(ct.getDocumentationFile());
         
         File [] innerClasses = ct.getInnerClassFiles();
-        for (int i = 0; i < innerClasses.length; i++) {
-            rlist.add(innerClasses[i]);
-        }
+        Collections.addAll(rlist, innerClasses);
         
         return rlist;
     }

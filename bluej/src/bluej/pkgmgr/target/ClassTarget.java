@@ -2244,14 +2244,12 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Process a double click on this target. That is: open its editor.
-     * 
-     * @param evt Description of the Parameter
      */
     @Override
     @OnThread(Tag.FXPlatform)
     public void doubleClick()
     {
-        SwingUtilities.invokeLater(() -> {open();});
+        SwingUtilities.invokeLater(() -> open());
     }
     /**
      * Set the size of this target.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,15 +24,13 @@ package bluej.pkgmgr.target.role;
 import java.awt.Color;
 import java.awt.Paint;
 
-import javax.swing.JPopupMenu;
-
-import bluej.pkgmgr.target.DependentTarget.State;
 import javafx.collections.ObservableList;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
 import bluej.Config;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.prefmgr.PrefMgr;
 import threadchecker.OnThread;
 import threadchecker.Tag;
