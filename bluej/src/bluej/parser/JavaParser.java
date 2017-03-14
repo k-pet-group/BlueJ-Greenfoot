@@ -2008,6 +2008,9 @@ public class JavaParser
                 gotTypeSpec(tlist);
                 LocatableToken idToken = nextToken(); // identifier
                 gotForInit(first, idToken);
+                // Array declarators can follow name
+                parseArrayDeclarators();
+
                 token = nextToken();
                 if (token.getType() == JavaTokenTypes.COLON) {
                     determinedForLoop(true, false);
