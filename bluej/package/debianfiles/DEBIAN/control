@@ -1,10 +1,10 @@
 Package: bluej
 Priority: extra
 Section: Programming
-Installed-Size: 7000
+Installed-Size: 21648
 Maintainer: Davin McCall <davmac@bluej.org>
 Architecture: all
 Version: VERSION
-Depends: openjdk-8-jdk | oracle-java8-jdk, libopenjfx-java | oracle-java8-jdk
+Depends: openjdk-8-jdk | oracle-java8-jdk | oracle-java8-installer, libopenjfx-java | oracle-java8-jdk | oracle-java8-installer
 Description: A simple but powerful Java IDE.
   Go to <bluej.org> for more details.
