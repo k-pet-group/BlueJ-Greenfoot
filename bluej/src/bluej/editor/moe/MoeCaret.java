@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
@@ -51,8 +53,10 @@ public class MoeCaret extends DefaultCaret
 
     private boolean persistentHighlight = false;
     
-    // matching bracket highlight holder
-    private Object matchingBracketHighlight;
+    // matching bracket highlight holder.  Will have two entries
+    // (one for the open and one for the closing) when in use,
+    // zero when not
+    private final List<Object> matchingBracketHighlights = new ArrayList<>();
 
     /**
      * Constructs a Moe Caret
@@ -153,7 +157,8 @@ public class MoeCaret extends DefaultCaret
         removeBracket();
         if(matchBracket != -1) {
             try {
-                matchingBracketHighlight = getComponent().getHighlighter().addHighlight(matchBracket, matchBracket + 1, bracketPainter);
+                matchingBracketHighlights.add(getComponent().getHighlighter().addHighlight(getDot() - 1, getDot(), bracketPainter));
+                matchingBracketHighlights.add(getComponent().getHighlighter().addHighlight(matchBracket, matchBracket + 1, bracketPainter));
             }
             catch(BadLocationException ble) {
                 Debug.reportError("bad location exception thrown");
@@ -167,9 +172,13 @@ public class MoeCaret extends DefaultCaret
      */
     public void removeBracket()
     {
-        if(matchingBracketHighlight != null) {
-            getComponent().getHighlighter().removeHighlight(matchingBracketHighlight);
-            matchingBracketHighlight = null;        
+        if (!matchingBracketHighlights.isEmpty())
+        {
+            for (Object matchingBracketHighlight : matchingBracketHighlights)
+            {
+                getComponent().getHighlighter().removeHighlight(matchingBracketHighlight);
+            }
+            matchingBracketHighlights.clear();
         }  
     }
     
