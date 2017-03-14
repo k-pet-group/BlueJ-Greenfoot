@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -423,7 +423,8 @@ public abstract class JavaParentNode extends ParentParsedNode
 
         Token dummyTok = new Token(0, Token.END);
         Token token = dummyTok;
-        
+
+        boolean lastWasWildcard = false;
         int curcol = 1;
         while (length > 0) {
             LocatableToken lt = (LocatableToken) tokenStream.nextToken();
@@ -487,9 +488,15 @@ public abstract class JavaParentNode extends ParentParsedNode
                     tokType = Token.KEYWORD2;
                     break;
 
+                case JavaTokenTypes.LITERAL_super:
+                    if (lastWasWildcard)
+                        tokType = Token.KEYWORD2;
+                    else
+                        tokType = Token.KEYWORD3;
+                    break;
                 case JavaTokenTypes.LITERAL_this:
                 case JavaTokenTypes.LITERAL_null:
-                case JavaTokenTypes.LITERAL_super:
+
                 case JavaTokenTypes.LITERAL_true:
                 case JavaTokenTypes.LITERAL_false:
                     tokType = Token.KEYWORD3;
@@ -502,6 +509,7 @@ public abstract class JavaParentNode extends ParentParsedNode
                 default:
                 }
             }
+            lastWasWildcard = lt.getType() == JavaTokenTypes.QUESTION;
             int toklen = lt.getLength();
             if (lt.getEndLine() > 1) {
                 toklen = length;
