@@ -4164,7 +4164,7 @@ public final class MoeEditor extends JPanel
                 }
 
                 // If we are closing, force a compilation in case there are pending changes:
-                if (parent == null)
+                if (parent == null && madeChangeOnCurrentLine)
                 {
                     watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
                 }
