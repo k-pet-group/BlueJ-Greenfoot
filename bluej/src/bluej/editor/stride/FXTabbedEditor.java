@@ -62,6 +62,7 @@ import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -337,7 +338,30 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         // Add shortcuts for Ctrl-1, Ctrl-2 etc and Ctrl-Tab and Ctrl-Shift-Tab to move between tabs
         // On Mac, it should still be Ctrl-Tab (not Cmd-Tab), but should it be Cmd-1?
         tabPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-            if (!e.isShortcutDown())
+
+            // Consume presses of AltGr key on Windows to stop it focusing the menu
+            // (the user may just be inserting a foreign character, in which case
+            // they don't want to trigger the menu)
+            if (Config.isWinOS() && (e.getCode() == KeyCode.ALT_GRAPH || (e.getCode() == KeyCode.ALT && e.isControlDown())))
+            {
+                e.consume();
+                return;
+            }
+
+            // Also consume any keypress involving Ctrl+Alt on Windows, as this is likely
+            // an AltGr shortcut (which maps to Ctrl+Alt on Windows).  This will break
+            // any menu accelerators involving Ctrl+Alt, but we shouldn't have any anyway,
+            // because they will conflict with AltGr behaviour on Windows.
+            if (Config.isWinOS() && e.isAltDown() && e.isControlDown())
+            {
+                e.consume();
+                return;
+            }
+
+            // We only listen for Ctrl/Cmd shortcuts, but we avoid the case when
+            // Alt is held down, because AltGr on Windows maps to Ctrl-Alt, and we
+            // don't want AltGr-6 to move to tab 6 (only Ctrl-6)
+            if (!e.isShortcutDown() || e.isAltDown())
                 return;
             
             int tab = tabPane.getSelectionModel().getSelectedIndex();
