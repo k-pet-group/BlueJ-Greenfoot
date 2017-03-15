@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2017  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ public class MoeEditorParameters
 {
     private String title;
     private boolean isCode;
+    private boolean isCompiled;
     private EditorWatcher watcher;
     private boolean showToolbar;
     private boolean showLineNum;
@@ -143,5 +144,15 @@ public class MoeEditorParameters
     public void setCallbackOnOpen(Runnable callbackOnOpen)
     {
         this.callbackOnOpen = callbackOnOpen;
+    }
+
+    public boolean isCompiled()
+    {
+        return isCompiled;
+    }
+
+    public void setCompiled(boolean compiled)
+    {
+        isCompiled = compiled;
     }
 }

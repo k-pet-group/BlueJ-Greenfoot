@@ -322,7 +322,7 @@ public final class MoeEditor extends JPanel
         undoManager = new MoeUndoManager(this);
 
         initWindow(parameters.getProjectResolver());
-        if (watcher != null) {
+        if (watcher != null && parameters.isCode() && !parameters.isCompiled()) {
             watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
         }
         callbackOnOpen = parameters.getCallbackOnOpen();

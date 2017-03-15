@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -192,6 +192,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
         mep.setShowToolbar(showToolBar);
         mep.setShowLineNum(showLineNum);
         mep.setCallbackOnOpen(callbackOnOpen);
+        mep.setCompiled(compiled);
         editor = new MoeEditor(mep, fxTabbedEditor);
         editors.add(editor);
         if (editor.showFile(filename, charset, compiled, docFilename))
