@@ -304,7 +304,9 @@ public class Main
             // Preferences
             // It has been added without a separator due to a bug in the library used
             MenuItem preferences = new MenuItem(Config.getString("menu.tools.preferences"));
-            preferences.setAccelerator(Config.getAcceleratorKeyFX("menu.tools.preferences"));
+            if (Config.hasAcceleratorKey("menu.tools.preferences")) {
+                preferences.setAccelerator(Config.getAcceleratorKeyFX("menu.tools.preferences"));
+            }
             preferences.setOnAction(event -> SwingUtilities.invokeLater(() -> PkgMgrFrame.handlePreferences()));
             defaultApplicationMenu.getItems().add(1, preferences);
 
