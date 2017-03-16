@@ -53,6 +53,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -74,6 +75,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.stage.WindowEvent;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.utility.Debug;
@@ -1661,6 +1663,33 @@ public final class Config
     }
 
     /**
+     * Return a point, read from the config files. The config properties
+     * are formed by adding ".width" and ".height" to the itemPrefix.
+     * Unless both sizes can be found, null is returned.  A minimum size of
+     * 50 in both dimensions is enforced.
+     */
+    private static Dimension getSize(String itemPrefix)
+    {
+        int w = getPropInteger(itemPrefix + ".width", -1);
+        int h = getPropInteger(itemPrefix + ".height", -1);
+
+        if (w == -1 || h == -1)
+            return null;
+
+        return new Dimension(Math.max(w, 50), Math.max(h, 50));
+    }
+
+    /**
+     * Store a size in the config files. The config properties
+     * are formed by adding ".width" and ".height" to the itemPrefix.
+     */
+    private static void putSize(String itemPrefix, int x, int y)
+    {
+        putPropInteger(itemPrefix + ".width", x);
+        putPropInteger(itemPrefix + ".height", y);
+    }
+
+    /**
      * Set a non-language dependant integer for the BlueJ properties
      */
     public static void putPropInteger(String intname, int value)
@@ -2057,6 +2086,43 @@ public final class Config
         Point location = getLocation(locationPrefix);
         window.setX(location.x);
         window.setY(location.y);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public static void rememberPositionAndSize(Window window, String locationPrefix)
+    {
+        rememberPosition(window, locationPrefix);
+
+        JavaFXUtil.addChangeListener(window.widthProperty(), x -> putSize(locationPrefix, (int)window.getWidth(), (int)window.getHeight()));
+        JavaFXUtil.addChangeListener(window.heightProperty(), y -> putSize(locationPrefix, (int)window.getWidth(), (int)window.getHeight()));
+
+        Dimension location = getSize(locationPrefix);
+        if (location != null)
+        {
+            window.setWidth(location.width);
+            window.setHeight(location.height);
+        }
+    }
+
+    /**
+     * Remembers the position of the split pane's divider.  Assumes there is only one divider (for now).
+     * Only call after you've added the split pane items, as otherwise divider won't yet exist.
+     *
+     *  @param window The window containing the split pane.  We listen to window-showing for setting the split pane.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static void rememberDividerPosition(Window window, SplitPane splitPane, String locationName)
+    {
+        // We store the double as an integer by multiplying by scale:
+        double SCALE = 1_000_000;
+
+        double initialPos = (double)Config.getPropInteger(locationName, (int) (0.5 * SCALE)) / SCALE;
+
+        JavaFXUtil.addChangeListener(splitPane.getDividers().get(0).positionProperty(), pos -> putPropInteger(locationName, (int)(pos.doubleValue() * SCALE)));
+
+        window.addEventHandler(WindowEvent.WINDOW_SHOWN, e -> {
+            splitPane.setDividerPosition(0, initialPos);
+        });
     }
 
     public static KeyCode getKeyCodeForYesNo(InteractionManager.ShortcutKey keyPurpose)

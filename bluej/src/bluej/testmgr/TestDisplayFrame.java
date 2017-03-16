@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,14 +28,9 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -91,9 +86,12 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     private final Image errorIcon = Config.getFixedImageAsFXImage("error.gif");
     private final Image okIcon = Config.getFixedImageAsFXImage("ok.gif");
 
+    /** The actual window */
     private Stage frame;
 
+    /** The list of test results which is displayed in testNames */
     private ObservableList<DebuggerTestResult> testEntries;
+    /** The top list of test names */
     private ListView<DebuggerTestResult> testNames;
     private ProgressBar progressBar;
 
@@ -101,6 +99,8 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     private final SimpleIntegerProperty failureCount;
     private final SimpleIntegerProperty totalTimeMs;
     private final SimpleIntegerProperty testTotal;
+    /** Keeps track of whether we are running a single test
+     * or multiple tests */
     private boolean doingMultiple;
 
     // Bindings passed to bindPseudoclass can get GCed, so we need to keep track
@@ -110,6 +110,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     private BooleanBinding hasFailuresOrErrors;
         
     // private FailureDetailView fdv;
+    /** The text field showing the exception message */
     private TextArea exceptionMessageField;
     private Button showSourceButton;
 
@@ -137,7 +138,9 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         if (doShow)
         {
             if (!frame.isShowing())
+            {
                 frame.show();
+            }
             frame.toFront();
         }
         else
@@ -165,12 +168,18 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         BlueJTheme.setWindowIconFX(frame);
 
-        Config.rememberPosition(frame, "bluej.testdisplay");
+        frame.setMinWidth(500.0);
+        frame.setMinHeight(250.0);
 
-        VBox content = new VBox();
+        Config.rememberPositionAndSize(frame, "bluej.testdisplay");
+
+        SplitPane mainDivider = new SplitPane();
+        mainDivider.setOrientation(Orientation.VERTICAL);
 
         testEntries = FXCollections.observableArrayList();
         testNames = new ListView();
+        testNames.setMinHeight(50.0);
+        testNames.setPrefHeight(150.0);
         testNames.setEditable(false);
         testNames.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         JavaFXUtil.addChangeListener(testNames.getSelectionModel().selectedItemProperty(), this::selected);
@@ -179,7 +188,11 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         testNames.setItems(testEntries);
         testNames.setCellFactory(col -> new TestResultCell());
         
-        content.getChildren().add(testNames);
+        mainDivider.getItems().add(testNames);
+        VBox content = new VBox();
+        mainDivider.getItems().add(content);
+        // Must call this after setting children so that divider exists:
+        Config.rememberDividerPosition(frame, mainDivider, "bluej.testdisplay.dividerpos");
 
         progressBar = new ProgressBar();
         JavaFXUtil.addStyleClass(progressBar, "test-progress-bar");
@@ -250,8 +263,11 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         buttonPanel.setRight(closeButton);
             
         content.getChildren().add(buttonPanel);
-        JavaFXUtil.addStyleClass(content, "test-results");
-        frame.setScene(new Scene(content));
+        VBox surround = new VBox(mainDivider);
+        VBox.setVgrow(mainDivider, Priority.ALWAYS);
+        JavaFXUtil.addStyleClass(surround, "test-results");
+        JavaFXUtil.addStyleClass(content, "test-results-content");
+        frame.setScene(new Scene(surround));
         Config.addTestsStylesheets(frame.getScene());
     }
 
