@@ -343,7 +343,11 @@ public class UnitTestClassRole extends ClassRole
             return null;
         
         // Test the whole class:
-        List<String> testMethods = Arrays.stream(cl.getMethods()).filter(this::isJUnitTestMethod).map(Method::getName).collect(Collectors.toList());
+        List<String> testMethods = Arrays.stream(cl.getMethods())
+                .filter(this::isJUnitTestMethod)
+                .map(Method::getName)
+                .sorted()
+                .collect(Collectors.toList());
 
         Project proj = pmf.getProject();
         Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(proj, testMethods.size()));
