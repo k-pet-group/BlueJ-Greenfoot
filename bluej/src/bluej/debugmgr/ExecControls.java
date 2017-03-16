@@ -619,7 +619,7 @@ public class ExecControls
     private javafx.stage.Window getFXWindow()
     {
         //TODO implement (and inline?) this once we change execcontrols over to FX:
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     /**
