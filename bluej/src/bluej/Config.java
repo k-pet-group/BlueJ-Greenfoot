@@ -1049,6 +1049,13 @@ public final class Config
      */
     public static KeyStroke getAcceleratorKey(String strname)
     {
+        // In principle, hasAcceleratorKey() should be invoked before invoking
+        // getAcceleratorKey() to take a suitable action according to the case
+        // in place. However, we should check again here as a precaution to avoid
+        // any future bug or NPE been thrown for no reason.
+        if (!hasAcceleratorKey(strname))
+            return null;
+
         int index;
         int modifiers = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         String str = langProps.getProperty(strname, strname);
@@ -1070,6 +1077,13 @@ public final class Config
     @OnThread(Tag.FX)
     public static KeyCombination getAcceleratorKeyFX(String strname)
     {
+        // In principle, hasAcceleratorKey() should be invoked before invoking
+        // getAcceleratorKey() to take a suitable action according to the case
+        // in place. However, we should check again here as a precaution to avoid
+        // any future bug or NPE been thrown for no reason.
+        if (!hasAcceleratorKey(strname))
+            return null;
+
         int index;
         List<KeyCombination.Modifier> modifiers = new ArrayList<>();
         modifiers.add(KeyCombination.SHORTCUT_DOWN);
