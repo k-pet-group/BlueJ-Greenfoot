@@ -50,6 +50,7 @@ import java.util.Properties;
 import java.util.Scanner;
 
 import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
@@ -58,6 +59,7 @@ import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -1648,18 +1650,13 @@ public final class Config
      * Return a point, read from the config files. The config properties
      * are formed by adding ".x" and ".y" to the itemPrefix.
      */
-    private static Point getLocation(String itemPrefix)
+    @OnThread(Tag.FX)
+    private static Point2D getLocation(String itemPrefix)
     {
         int x = getPropInteger(itemPrefix + ".x", 16);
         int y = getPropInteger(itemPrefix + ".y", 16);
 
-        if (x > (screenBounds.width - 16))
-            x = screenBounds.width - 16;
-
-        if (y > (screenBounds.height - 16))
-            y = screenBounds.height - 16;
-
-        return new Point(x,y);
+        return ensureOnScreen(x, y);
     }
 
     /**
@@ -2083,9 +2080,9 @@ public final class Config
         JavaFXUtil.addChangeListener(window.xProperty(), x -> putLocation(locationPrefix, (int)window.getX(), (int)window.getY()));
         JavaFXUtil.addChangeListener(window.yProperty(), y -> putLocation(locationPrefix, (int)window.getX(), (int)window.getY()));
 
-        Point location = getLocation(locationPrefix);
-        window.setX(location.x);
-        window.setY(location.y);
+        Point2D location = getLocation(locationPrefix);
+        window.setX(location.getX());
+        window.setY(location.getY());
     }
 
     @OnThread(Tag.FXPlatform)
@@ -2143,6 +2140,26 @@ public final class Config
     public static String getGreenfootStartupProjectPath()
     {
         return new File(getBlueJLibDir(), "greenfoot/startupProject").getAbsolutePath();
+    }
+
+    @OnThread(Tag.FX)
+    public static Point2D ensureOnScreen(int x, int y)
+    {
+        // First, work out if the point is on any of the screens:
+        boolean onScreenAlready = Screen.getScreens().stream().anyMatch(screen -> {
+            // We count it as on screen if it's within the bounds, and not within 80 pixels of the right-hand or bottom-hand edge:
+            return screen.getVisualBounds().contains(x, y) && screen.getVisualBounds().contains(x + 80, y + 80);
+        });
+
+        if (onScreenAlready)
+        {
+            return new Point2D(x, y);
+        }
+        else
+        {
+            // Put it on the top-left of the primary screen:
+            return new Point2D(Screen.getPrimary().getBounds().getMinX() + 100, Screen.getPrimary().getBounds().getMinY() + 100);
+        }
     }
 
     /**

@@ -1112,19 +1112,10 @@ public class PkgMgrFrame
                 // -1 means use parent window
                 String x_str = p.getProperty("package.editor.x", parentWindow == null ? "30" : "-1");
                 String y_str = p.getProperty("package.editor.y", parentWindow == null ? "30" : "-1");
-                
+
                 int x = Integer.parseInt(x_str);
                 int y = Integer.parseInt(y_str);
-                
-                if (x > (Config.screenBounds.width - 80))
-                    x = Config.screenBounds.width - 80;
-                
-                if (y > (Config.screenBounds.height - 80))
-                    y = Config.screenBounds.height - 80;
 
-                int xFinal = x;
-                int yFinal = y;
-                
                 String width = p.getProperty("package.frame.width");
                 String height = p.getProperty("package.frame.height");
                 
@@ -1133,15 +1124,20 @@ public class PkgMgrFrame
                 
                 Platform.runLater(() -> {
                     JavaFXUtil.onceNotNull(stageProperty, s -> {
-                        if (xFinal == -1 || yFinal == -1)
+                        Point2D location = Config.ensureOnScreen(x, y);
+
+                        if (location == null || x == -1 || y == -1)
                         {
-                            s.setX(parentWindow.stageProperty.getValue().getX() + 20.0);
-                            s.setY(parentWindow.stageProperty.getValue().getY() + 20.0);
+                            if (parentWindow != null)
+                            {
+                                s.setX(parentWindow.stageProperty.getValue().getX() + 20.0);
+                                s.setY(parentWindow.stageProperty.getValue().getY() + 20.0);
+                            }
                         }
                         else
                         {
-                            s.setX(xFinal);
-                            s.setY(yFinal);
+                            s.setX(location.getX());
+                            s.setY(location.getY());
                         }
                         if (width != null && height != null)
                         {
