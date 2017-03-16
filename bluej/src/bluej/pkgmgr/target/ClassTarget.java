@@ -1264,12 +1264,13 @@ public class ClassTarget extends DependentTarget
     public void modificationEvent(Editor editor)
     {
         invalidate();
-        if (isCompiled()) {
-            removeBreakpoints();
-            if (getPackage().getProject().getDebugger() != null)
-            {
-                getPackage().getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
-            }
+        removeBreakpoints();
+        if (getPackage().getProject().getDebugger() != null)
+        {
+            getPackage().getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
+        }
+        if (isCompiled())
+        {
             setState(State.NEEDS_COMPILE);
         }
         sourceInfo.setSourceModified();
@@ -1290,8 +1291,7 @@ public class ClassTarget extends DependentTarget
     {
         if (isCompiled()) {
             String possibleError = getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set, null);
-            Debug.message("Setting breakpoint: " + getQualifiedName() + ":" + lineNo);
-            
+
             if (possibleError == null && getPackage() != null)
             {
                 DataCollector.debuggerBreakpointToggle(getPackage(), getSourceFile(), lineNo, set);
