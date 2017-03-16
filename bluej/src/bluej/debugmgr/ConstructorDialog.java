@@ -24,7 +24,6 @@ package bluej.debugmgr;
 import javax.swing.SwingUtilities;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -36,7 +35,6 @@ import bluej.Config;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.FXFormattedPrintWriter;
-import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
@@ -69,9 +67,9 @@ public class ConstructorDialog extends CallDialog
      * @param ob           The object bench to listen for object selection on
      * @param callHistory  The call history tracker
      * @param initialName  The initial (suggested) instance name
-     * @param method       The constructor or method being used
-     * @param typeMap      The mapping of type parameter names to runtime types
-     *                     (a Map of String -> GenType).
+     * @param constructor  The constructor or method being used
+     * @param invoker      The object invoked the constructor
+     *
      */
     public ConstructorDialog(Window parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
                              String initialName, ConstructorView constructor, Invoker invoker)

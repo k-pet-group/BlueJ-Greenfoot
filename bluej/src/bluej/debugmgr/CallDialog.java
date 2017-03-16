@@ -35,7 +35,6 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -203,7 +202,7 @@ public abstract class CallDialog extends Dialog<Void>
      * @param startString The string prepended before the first parameter. Typically something like ( or <
      * @param endString The string appended after the last parameter. Typically something like ) or >
      * @param parameterList A list containing the components for the parameter panel
-     * @return
+     * @return A pane containing the method signature's nodes, where the parameters are input boxes.
      */
     protected Pane createParameterPanel(String startString, String endString, ParameterList parameterList)
     {
@@ -392,8 +391,7 @@ public abstract class CallDialog extends Dialog<Void>
             Class<?>[] paramClasses = getArgTypes(true);
             //First we add all the current items into the historylist
             for (int i = 0; i < parameterList.actualCount(); i++) {
-                history.addCall(paramClasses[i], (String) parameterList.getActualParameter(i).getEditor()
-                    .getText());
+                history.addCall(paramClasses[i], parameterList.getActualParameter(i).getEditor().getText());
             }
         }
 
@@ -449,8 +447,6 @@ public abstract class CallDialog extends Dialog<Void>
      * 
      * @param varArgsExpanded
      *            if set to true, varargs will be expanded.
-     * @param raw
-     *            if true, raw types will be returned
      */
     public JavaType[] getArgGenTypes(boolean varArgsExpanded)
     {
@@ -461,7 +457,7 @@ public abstract class CallDialog extends Dialog<Void>
         // type parameters from the declaring class, but also those from this
         // particular call
         Map<String,GenTypeParameter> typeParameterMap = getTargetTypeArgs();
-        Map<String,GenTypeParameter> typeMap = new HashMap<String,GenTypeParameter>();
+        Map<String,GenTypeParameter> typeMap = new HashMap<>();
         if (typeParameterMap != null) {
             typeMap.putAll(typeParameterMap);
         }
