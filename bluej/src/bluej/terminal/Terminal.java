@@ -479,6 +479,14 @@ public final class Terminal
     public void keyPressed(KeyEvent event)
     {
         handleFontsizeKeys(event, event.getKeyCode());
+        // On Mac OS, backspace only appears as key pressed, not as key-typed
+        if (Config.isMacOS())
+        {
+            if (event.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+            {
+                backspace();
+            }
+        }
     }
     
     @Override
@@ -543,14 +551,7 @@ public final class Terminal
                 break;
 
             case '\b':  // backspace
-                if (buffer.backSpace()) {
-                    try {
-                        int length = text.getDocument().getLength();
-                        text.replaceRange("", length - 1, length);
-                    } catch (Exception exc) {
-                        Debug.reportError("bad location " + exc);
-                    }
-                }
+                backspace();
                 event.consume();
                 break;
 
@@ -573,6 +574,18 @@ public final class Terminal
                     event.consume();
                 }
                 break;
+            }
+        }
+    }
+
+    private void backspace()
+    {
+        if (buffer.backSpace()) {
+            try {
+                int length = text.getDocument().getLength();
+                text.replaceRange("", length - 1, length);
+            } catch (Exception exc) {
+                Debug.reportError("bad location " + exc);
             }
         }
     }
