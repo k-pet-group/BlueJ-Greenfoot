@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -112,8 +112,6 @@ public class FieldList extends TableView<FieldInfo>
         value.setCellValueFactory(v -> new ReadOnlyObjectWrapper(new StringOrRef(v.getValue().getValue())));
         value.setCellFactory(col -> new ValueCell());
         value.setMinWidth(100.0);
-        value.setPrefWidth(100.0);
-        value.setMaxWidth(100.0);
         getColumns().setAll(description, value);
         
         // Turn off header, from https://community.oracle.com/thread/2321823
