@@ -159,8 +159,8 @@ public class ClassTarget extends DependentTarget
     private final static String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
     private final static String launchFXStr = Config.getString("pkgmgr.classmenu.launchFX");
 
-    private static final String STEREOTYPE_OPEN = ""; //"<<";
-    private static final String STEREOTYPE_CLOSE = ""; //">>";
+    private static final String STEREOTYPE_OPEN = "\u00AB"; //"<<";
+    private static final String STEREOTYPE_CLOSE = "\u00BB"; //">>";
     private static final double RESIZE_CORNER_GAP = 4;
 
 
