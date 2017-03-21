@@ -42,7 +42,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -232,20 +231,10 @@ public abstract class CallDialog extends Dialog<Void>
                 parameterPanel.add(tmpPanel, 1, i + 1);
             }
 
-            Label type = new Label("");
+            Label type = new Label( (i == (parameterList.formalCount() - 1)) ? endString : ",");
             type.setAlignment(Pos.BOTTOM_LEFT);
-            if (i == (parameterList.formalCount() - 1)) {
-                Label eol = new Label(endString);
-                eol.setAlignment(Pos.BOTTOM_LEFT);
-                FlowPane flowPane1 = new FlowPane();
-                flowPane1.getChildren().addAll(type, eol);
-                parameterPanel.add(flowPane1, 2, i + 1);
-                GridPane.setValignment(flowPane1, VPos.BOTTOM);
-            } else {
-                type.setText(type.getText() + ",");
-                parameterPanel.add(type, 2, i + 1);
-                GridPane.setValignment(type, VPos.BOTTOM);
-            }
+            parameterPanel.add(type, 2, i + 1);
+            GridPane.setValignment(type, VPos.BOTTOM);
         }
 
         ColumnConstraints column2 = new ColumnConstraints();
