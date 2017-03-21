@@ -209,7 +209,7 @@ public abstract class CallDialog extends Dialog<Void>
     protected Pane createParameterPanel(String startString, String endString, ParameterList parameterList)
     {
         GridPane parameterPanel = new GridPane();
-        parameterPanel.getStyleClass().addAll("grid");
+        parameterPanel.getStyleClass().add("grid");
 
         Label startParenthesis = new Label(startString); // TODO increase font size?
         startParenthesis.setAlignment(Pos.BASELINE_LEFT);
@@ -243,16 +243,28 @@ public abstract class CallDialog extends Dialog<Void>
             GridPane.setValignment(type, VPos.BOTTOM);
         }
 
+        // Second column gets any extra width 
         ColumnConstraints column2 = new ColumnConstraints();
-        // Second column gets any extra width
         column2.setHgrow(Priority.ALWAYS);
-        ColumnConstraints column3 = new ColumnConstraints(20);
-        // Third column width should not grow
-        column3.setHgrow(Priority.NEVER);
-        parameterPanel.getColumnConstraints().addAll(new ColumnConstraints(), column2, column3);
+        parameterPanel.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints());
+
         return parameterPanel;
     }
 
+    /**
+     * Arranges the varags components on a grid pane.
+     * Each row has the components of one parameter:
+     *      '+' to add another one before,
+     *      combobox as a field to enter values and
+     *      'x' to delete it,
+     * The last row will have an extra component:
+     *      '+' to add another one after.
+     *
+     * Only the second column should be resizable.
+     *
+     * @param varargsPane The grid pane containing the components
+     * @param components  The parameters' components
+     */
     private void arrangeVarargsComponents(GridPane varargsPane, ObservableList<? extends Node> components)
     {
         varargsPane.getChildren().clear();
