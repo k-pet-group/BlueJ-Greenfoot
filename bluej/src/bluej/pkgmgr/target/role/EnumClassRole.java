@@ -65,18 +65,6 @@ public class EnumClassRole extends ClassRole
     }
 
     /**
-     * Return the intended background colour for this type of target.
-     */
-    public Paint getBackgroundPaint(int width, int height)
-    {
-        if (enumbg != null) {
-            return enumbg;
-        } else {
-            return super.getBackgroundPaint(width, height);
-        }
-    }
-
-    /**
      * Creates a class menu containing any constructors.
      *
      * Because we are an enum class we cannot have any constructors

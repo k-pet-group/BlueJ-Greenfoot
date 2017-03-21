@@ -60,18 +60,6 @@ public class AbstractClassRole extends ClassRole
     }
 
     /**
-     * Return the intended background colour for this type of target.
-     */
-    public Paint getBackgroundPaint(int width, int height)
-    {
-        if (abstractbg != null) {
-            return abstractbg;
-        } else {
-            return super.getBackgroundPaint(width, height);
-        }
-    }
-
-    /**
      * Creates a class menu containing any constructors.
      *
      * <p>Because we are an abstract class we cannot have any constructors

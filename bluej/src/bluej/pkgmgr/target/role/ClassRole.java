@@ -113,30 +113,6 @@ public abstract class ClassRole
     }
 
     /**
-     * Return the default background colour for targets that don't want to
-     * define their own colour.
-     * @param width Width of total area to paint
-     * @param height Height of total area to paint
-     */
-    public Paint getBackgroundPaint(int width, int height)
-    {
-        if (defaultbg != null) {
-            return defaultbg;
-        } else {
-            Paint result;
-            if (!Config.isRaspberryPi()){
-                result = new GradientPaint(
-                    0, 0, new Color(246,221,192),
-                    0, height, new Color(245,204,155)); 
-            }else{
-                //return the average colour.
-                result = new Color(246, 233, 174);
-            }
-            return result;
-        }
-    }
-
-    /**
      * Get the "stereotype label" for this class role. This will be displayed
      * on classes in the UML diagram along with the class name. It may return
      * null if there is no stereotype label.

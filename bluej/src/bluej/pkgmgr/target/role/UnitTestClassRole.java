@@ -130,26 +130,6 @@ public class UnitTestClassRole extends ClassRole
         return "unit test";
     }
 
-    /**
-     * Return the intended background colour for this type of target.
-     */
-    @Override
-    public Paint getBackgroundPaint(int width, int height)
-    {
-        if (unittestbg != null) {
-            return unittestbg;
-        } else {
-            Paint result;
-            if (!Config.isRaspberryPi()){
-                result = new GradientPaint(
-                        0, 0, new Color(197,211,165),
-                        0, height, new Color(170,190,140));
-            }else{
-                result = new Color(184, 201, 153);
-            }
-            return  result;
-        }
-    }
 
     @SuppressWarnings("unchecked")
     @OnThread(Tag.Any)

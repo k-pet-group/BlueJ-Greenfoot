@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,18 +54,6 @@ public class InterfaceClassRole extends ClassRole
     public String getStereotypeLabel()
     {
         return "interface";
-    }
-
-    /**
-     * Return the intended background colour for this type of target.
-     */
-    public Paint getBackgroundPaint(int width, int height)
-    {
-        if (interfacebg != null) {
-            return interfacebg;
-        } else {
-            return super.getBackgroundPaint(width, height);
-        }
     }
 
     @Override
