@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -58,9 +58,7 @@ import bluej.debugger.gentype.TextType;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
-import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.binding.ConcatListBinding;
 import bluej.utility.javafx.dialog.DialogPaneAnimateError;
 import bluej.views.CallableView;
 import bluej.views.TypeParamView;
@@ -225,10 +223,18 @@ public abstract class CallDialog extends Dialog<Void>
                 parameterPanel.add(child, 1, i + 1);
             }
             else { // Varargs.
-                HangingFlowPane tmpPanel = new HangingFlowPane();
-                tmpPanel.setAlignment(Pos.BASELINE_LEFT);
-                ConcatListBinding.bind(tmpPanel.getChildren(), FXCollections.singletonObservableList(components));
-                parameterPanel.add(tmpPanel, 1, i + 1);
+                GridPane varargsPane = new GridPane();
+                varargsPane.getStyleClass().add("grid");
+                varargsPane.setAlignment(Pos.BASELINE_LEFT);
+                arrangeVarargsComponents(varargsPane, components);
+                components.addListener((ListChangeListener<Node>) c -> arrangeVarargsComponents(varargsPane, c.getList()));
+
+                // Second column gets any extra width
+                ColumnConstraints column2 = new ColumnConstraints();
+                column2.setHgrow(Priority.ALWAYS);
+                varargsPane.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints(), new ColumnConstraints() );
+
+                parameterPanel.add(varargsPane, 1, i + 1);
             }
 
             Label type = new Label( (i == (parameterList.formalCount() - 1)) ? endString : ",");
@@ -245,6 +251,16 @@ public abstract class CallDialog extends Dialog<Void>
         column3.setHgrow(Priority.NEVER);
         parameterPanel.getColumnConstraints().addAll(new ColumnConstraints(), column2, column3);
         return parameterPanel;
+    }
+
+    private void arrangeVarargsComponents(GridPane varargsPane, ObservableList<? extends Node> components)
+    {
+        varargsPane.getChildren().clear();
+        int lastComponentIndex = components.size() - 1;
+        for (int j = 0; j < lastComponentIndex; j++) {
+            varargsPane.add(components.get(j), j % 3, j / 3);
+        }
+        varargsPane.add(components.get(lastComponentIndex), 3, (lastComponentIndex - 1) / 3);
     }
 
     /**
