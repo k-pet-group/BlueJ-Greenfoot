@@ -177,10 +177,15 @@
     -fx-spacing: 1em;
 }
 .call-dialog-content .combo-box {
-    -fx-pref-width: 14em;
+    -fx-min-width: 14em;
+    -fx-max-width: Infinity;
 }
 .call-dialog-content .combo-box .text-input {
     -fx-prompt-text-fill: hsb(0, 0%, 70%);
+}
+.call-dialog-content .grid {
+    -fx-hgap: 0.5em;
+    -fx-vgap: 0.5em;
 }
 .call-dialog-content .hanging-flow-pane {
     -bj-row-spacing: 0.5em;

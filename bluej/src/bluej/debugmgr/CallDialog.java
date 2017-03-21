@@ -33,6 +33,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
@@ -40,7 +41,11 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -206,38 +211,53 @@ public abstract class CallDialog extends Dialog<Void>
      */
     protected Pane createParameterPanel(String startString, String endString, ParameterList parameterList)
     {
-        ObservableList<ObservableList<? extends Node>> contents = FXCollections.observableArrayList();
-        
+        GridPane parameterPanel = new GridPane();
+        parameterPanel.getStyleClass().addAll("grid");
+
         Label startParenthesis = new Label(startString); // TODO increase font size?
         startParenthesis.setAlignment(Pos.BASELINE_LEFT);
-        contents.add(FXCollections.observableArrayList(startParenthesis));
-        
+        parameterPanel.add(startParenthesis, 0, 0);
+
         for (int i = 0; i < parameterList.formalCount(); i++) {
             ObservableList<? extends Node> components = parameterList.getNodesForFormal(i);
-            contents.add(components);
-            
+
+            if (components.size() == 1) { // One component means it is not Varargs.
+                Node child = components.get(0);
+                parameterPanel.add(child, 1, i + 1);
+            }
+            else { // Varargs.
+                HangingFlowPane tmpPanel = new HangingFlowPane();
+                tmpPanel.setAlignment(Pos.BASELINE_LEFT);
+                ConcatListBinding.bind(tmpPanel.getChildren(), FXCollections.singletonObservableList(components));
+                parameterPanel.add(tmpPanel, 1, i + 1);
+            }
+
             Label type = new Label("");
-            type.setAlignment(Pos.BASELINE_LEFT);
-            HangingFlowPane.setBreakBefore(type, false);
+            type.setAlignment(Pos.BOTTOM_LEFT);
             if (i == (parameterList.formalCount() - 1)) {
                 Label eol = new Label(endString);
-                eol.setAlignment(Pos.BASELINE_LEFT);
-                HangingFlowPane.setBreakBefore(eol, false);
-                contents.add(FXCollections.observableArrayList(type, eol));
-            }                      
-            else
-            {
+                eol.setAlignment(Pos.BOTTOM_LEFT);
+                FlowPane flowPane1 = new FlowPane();
+                flowPane1.getChildren().addAll(type, eol);
+                parameterPanel.add(flowPane1, 2, i + 1);
+                GridPane.setValignment(flowPane1, VPos.BOTTOM);
+            } else {
                 type.setText(type.getText() + ",");
-                contents.add(FXCollections.observableArrayList(type));
+                parameterPanel.add(type, 2, i + 1);
+                GridPane.setValignment(type, VPos.BOTTOM);
             }
         }
-        HangingFlowPane tmpPanel = new HangingFlowPane();
-        tmpPanel.setAlignment(Pos.BASELINE_LEFT);
-        tmpPanel.hangingIndentProperty().bind(startParenthesis.widthProperty());
-        ConcatListBinding.bind(tmpPanel.getChildren(), contents);
-        return tmpPanel;
+
+        ColumnConstraints column2 = new ColumnConstraints();
+        // Second column gets any extra width
+        column2.setHgrow(Priority.ALWAYS);
+        ColumnConstraints column3 = new ColumnConstraints(20);
+        // Third column width should not grow
+        column3.setHgrow(Priority.NEVER);
+        parameterPanel.getColumnConstraints().addAll(new ColumnConstraints(), column2, column3);
+        return parameterPanel;
     }
-    
+
     /**
      * getArgTypes - Get an array with the classes of the parameters for this
      * method. "null" if there are no parameters. <br>
