@@ -402,8 +402,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             }
             e.consume();
         });
-        
-        Config.loadFXFonts();
 
         stage.titleProperty().bind(Bindings.concat(
             JavaFXUtil.apply(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")

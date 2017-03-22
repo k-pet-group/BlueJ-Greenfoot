@@ -2066,7 +2066,9 @@ public final class Config
                         Collections.sort(fontOptions);
                     }
                 }
-                catch (IOException e)
+                // Catch everything, because we have seen UnsatisfiedLinkError here,
+                // and we don't want the the exception to propagate outwards:
+                catch (Throwable e)
                 {
                     Debug.reportError("Error loading font: " + file.getAbsolutePath(), e);
                 }
