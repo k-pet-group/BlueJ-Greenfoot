@@ -23,8 +23,8 @@ package bluej;
 
 import bluej.collect.DataCollector;
 import bluej.extensions.event.ApplicationEvent;
-import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionWrapper;
+import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -34,13 +34,19 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-
 import com.apple.eawt.AppEvent;
 import com.apple.eawt.Application;
 import com.apple.eawt.QuitResponse;
-import de.codecentric.centerdevice.dialogs.about.AboutStageBuilder;
 import de.codecentric.centerdevice.MenuToolkit;
+import de.codecentric.centerdevice.dialogs.about.AboutStageBuilder;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,14 +56,6 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javax.swing.SwingUtilities;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
@@ -247,9 +245,16 @@ public class Main
         initialProjects = Boot.getMacInitialProjects();
         Application macApp = Application.getApplication();
 
+        // Even though BlueJ is JavaFX, the open-files handling still goes
+        // through the com.eawt.*/AppleJavaExtensions handling, once it is loaded
+        // So we must do the handler set up for AWT/Swing even though we're running
+        // in JavaFX.  May need revisiting in Java 9 or whenever they fix the Mac
+        // open files handling issue:
+        prepareMacOSMenuSwing(macApp);
+
         // We are using the NSMenuFX library to fix Mac Application menu
         // only when it is a FX menu. This is now only needed for BlueJ,
-        // as Greenffot still on Swing. When Greenfoot menu is moved to FX,
+        // as Greenfoot is still on Swing. When Greenfoot menu is moved to FX,
         // both should use the workaround in prepareMacOSMenuFX().
         // But when the JDK APIs (i.e. handleAbout() etc) are fixed,
         // both should go back to the way as in prepareMacOSMenuSwing().
@@ -257,9 +262,6 @@ public class Main
             if (macApp != null) {
                 prepareMacOSMenuFX();
             }
-        }
-        else {
-            prepareMacOSMenuSwing(macApp);
         }
 
         // This is not included in the above condition to avoid future bugs,

@@ -21,24 +21,19 @@
  */
 package bluej;
 
-import java.awt.EventQueue;
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.awt.*;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * This class is the BlueJ boot loader. bluej.Boot is the class that should be 
@@ -59,7 +54,7 @@ public class Boot
     // and then the update-version target should be executed.
     public static final int BLUEJ_VERSION_MAJOR = 4;
     public static final int BLUEJ_VERSION_MINOR = 0;
-    public static final int BLUEJ_VERSION_RELEASE = 0;
+    public static final int BLUEJ_VERSION_RELEASE = 1;
     public static final String BLUEJ_VERSION_SUFFIX = "";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
@@ -193,7 +188,7 @@ public class Boot
         cmdLineArgs = args;
         Application.launch(App.class, args);
     }
-  
+
     public static List<File> getMacInitialProjects()
     {
         return macInitialProjects;
@@ -628,7 +623,11 @@ public class Boot
                 */
                 
                 // For now, we use this code to set the event handler, but I think it will
-                // stop working come JDK 9:
+                // stop working come JDK 9.
+                // Note: this handler is only used during BlueJ load.  After the load, the open-files
+                // events still gets passed back to the com.eawt/AppleJavaExtensions handler, so this
+                // won't receive anything after load.  (At some point, the JDK developers are going to have
+                // to sort this mess out.)
                 com.sun.glass.ui.Application glassApp = com.sun.glass.ui.Application.GetApplication();
                 glassApp.setEventHandler(new com.sun.glass.ui.Application.EventHandler() {
                     @Override
