@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 #
 # Args:
 #   $1 - path to zip directory
