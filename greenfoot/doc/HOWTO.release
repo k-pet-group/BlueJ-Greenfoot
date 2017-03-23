@@ -23,7 +23,7 @@ every year. The line to be updated is 'menu.help.copyright.line0', which is in t
  5. Different Systems:
     - Debian package: run "sudo ant debian-dist" to build the Debian/Ubuntu ".deb" package. You can only do this on
       a system which has the "dpkg-deb" utility installed. It is necessary that this build target runs as root.
-    - Mac: run "ant mac-dist" in the greenfoot source directory.
+    - Mac: see below.
     - Windows launcher and installer: see below.
  6. Copy the builds and source to greenfoot.org.
 
@@ -40,6 +40,23 @@ Building the Windows installer:
  InnoSetup build is no longer supported. For the MSI Windows package:
  1. Update the Greenfoot version number in bluej/package/winsetup/greenfoot.wxs (in 2 places)
  2. Run the Greenfoot ant script's "windows-msi-dist" target
+
+
+Building and Signing on Mac:
+    To build:
+        - run "ant mac-dist" in the greenfoot source directory.
+
+    To sign:
+        - On the terminal, execute:
+            codesign -s "Developer ID Application: Michael Kolling" Greenfoot.app/Contents/JDK/
+
+            codesign -f -s "Developer ID Application: Michael Kolling" Greenfoot.app
+
+    To verify:
+        - On the terminal, execute:
+            codesign --verify --deep --verbose=4 Greenfoot.app/
+
+            spctl -a -t exec -vv Greenfoot.app/
 
 
 
