@@ -22,31 +22,6 @@
 package bluej.pkgmgr.target;
 
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import javax.swing.SwingUtilities;
-
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
@@ -64,11 +39,7 @@ import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.editor.TextEditor;
 import bluej.editor.stride.FrameEditor;
-import bluej.extensions.BClass;
-import bluej.extensions.BClassTarget;
-import bluej.extensions.BDependency;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.SourceType;
+import bluej.extensions.*;
 import bluej.extensions.event.ClassEvent;
 import bluej.extensions.event.ClassTargetEvent;
 import bluej.extmgr.ClassExtensionMenu;
@@ -82,36 +53,20 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
-import bluej.pkgmgr.JavadocResolver;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageEditor;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.SourceInfo;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.role.AbstractClassRole;
-import bluej.pkgmgr.target.role.ClassRole;
-import bluej.pkgmgr.target.role.EnumClassRole;
-import bluej.pkgmgr.target.role.InterfaceClassRole;
-import bluej.pkgmgr.target.role.StdClassRole;
-import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.pkgmgr.target.role.*;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.convert.ConversionWarning;
 import bluej.stride.framedjava.convert.ConvertResultDialog;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileEditor;
-import bluej.utility.FileUtility;
-import bluej.utility.JavaNames;
-import bluej.utility.JavaReflective;
-import bluej.utility.JavaUtils;
-import bluej.utility.Utility;
+import bluej.utility.*;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
@@ -128,14 +83,29 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.lang.ClassNotFoundException;
 
 /**
  * A class target in a package, i.e. a target that is a class file built from
@@ -2219,7 +2189,7 @@ public class ClassTarget extends DependentTarget
             {
                 try
                 {
-                    Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath()).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
+                    Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath(), getPackage().getProject().getProjectCharset()).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
                     if (!javaConvertResult.getWarnings().isEmpty())
                     {
                         new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
@@ -2235,6 +2205,7 @@ public class ClassTarget extends DependentTarget
                 }
                 catch (IOException | ParseFailure pf)
                 {
+                    Debug.reportError(pf);
                     new ConvertResultDialog(pf.getMessage()).showAndWait();
                     // Abort the conversion
                 }
