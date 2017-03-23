@@ -18,3 +18,35 @@ There is one bundle generated for Mac OS X: The regular one which includes a JDK
    c. "./compile.sh"
 
 3. From the BlueJ source directory, run "ant mac-dist".
+
+
+
+Signing on Mac:
+---------------
+
+To export the certificate (needed only once as long as the certificate is valid):
+    - Go to Keychain
+
+    - In Certificates (or all items), find "Developer ID Application: Michael Kolling”.
+        DO NOT USE SEARCH BAR IN ALL ITEMS! (It will show the wrong one.)
+        The one you want has an ‘expand’ triangle that shows “BlueJ Dev Key” included.
+
+    - Export. Send.
+
+
+To sign:
+    - On the terminal, execute:
+        codesign -s "Developer ID Application: Michael Kolling" BlueJ.app/Contents/JDK/
+
+        codesign -s "Developer ID Application: Michael Kolling" BlueJ.app
+
+    P.S. if the last command complained about an existing one, use the -f to force it, i.e.
+    codesign -f -s "Developer ID Application: Michael Kolling" BlueJ.app
+
+
+
+To verify:
+    - On the terminal, execute:
+        codesign --verify --deep --verbose=4 BlueJ.app/
+
+        spctl -a -t exec -vv BlueJ.app/
