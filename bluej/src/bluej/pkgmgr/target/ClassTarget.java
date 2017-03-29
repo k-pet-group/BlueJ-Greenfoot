@@ -2181,6 +2181,7 @@ public class ClassTarget extends DependentTarget
     public void convertToStride()
     {
         File javaSourceFile = getJavaSourceFile();
+        Charset projectCharset = getPackage().getProject().getProjectCharset();
         Platform.runLater(() -> {
             Stage window = null;
             if (pane.getScene() != null)
@@ -2189,7 +2190,7 @@ public class ClassTarget extends DependentTarget
             {
                 try
                 {
-                    Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath(), getPackage().getProject().getProjectCharset()).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
+                    Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath(), projectCharset).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
                     if (!javaConvertResult.getWarnings().isEmpty())
                     {
                         new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
