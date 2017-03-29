@@ -1,0 +1,113 @@
+Setting up BlueJ and Greenfoot in IntelliJ 2016.*:
+
+Go to File->New->Project from Version Control->Git
+URL: ssh://username@bluej.org/home/svn/git/bjgf.git
+Check out to wherever.  In the past, IntelliJ prompted for creating new modules
+  after check out, but it doesn't seem to now.  Either way, you'll want to do the
+  module set up manually as follows.
+
+NOTE: WHEREVER YOU SEE "bjgf" BELOW, CHANGE THAT TO BE THE FULL PATH YOU CHECKED OUT TO.
+  For example, for me, instead of bjgf in each case, I have C:\users\neil\intellij\bjgf
+
+IntelliJ will pop up dialogs often during setup asking if you want to add various files to
+  version control (e.g. "vcs.xml").  Say no to all of them.  If you accidentally say yes, you
+  can always remove them again before committing.
+
+Go to File -> Project Structure...  and select the top Project item on the left.
+  Select your Project SDK (aka JDK) to be latest JDK 1.8.
+  Make sure that your JDK has lib/tools.jar on the classpath: go to File->Project Structure
+  then select SDKs (which is actually shared between projects), select the SDK you want,
+  click Edit, and if blah/blah/jdkpath/lib/tools.jar is not on the list, click the "+"
+  in the far top right and navigate to the lib/tools.jar file to add it to the list.
+  (This may become non-applicable after JDK9).
+
+  Set the language level to Java 8.
+
+  Set the project-wide compiler output directory "File -> Project Structure -> Project" to
+  be bjgf/output.  We won't actually use this anyway, as we will override it for each module.
+
+In the same Project Structure window, go to the Libraries section.
+  Add a library named "bluej-lib" containing all the JARs in the bjgf/bluej/lib directory.
+  Note that selecting the directory is not enough in IntelliJ when creating the library --
+  you must multi-select all the JARs inside the lib directory.
+  If it asks if you want to add it to any modules, just cancel that dialog.
+
+  Add a library named "greenfoot-lib" containing all the JARs in the bjgf/greenfoot/lib directory.
+  Again, you must multi-select the JARs.
+
+In the same Project Structure window, go to the Modules section.
+  (IntelliJ makes a module called bjgf that seems to come back when I removed it.
+  It seems benign so I left it there.).
+  Create the following modules by clicking the "+" at the top of the module list
+  and then selecting "New Module".  In each case, select Java from left-hand list
+  of the window that pops up.  If not already selected, select latest JDK 1.8
+  as Project SDK in the top right, then click Next and fill in details as below.
+
+
+Modules (in order):
+
+    "threadchecker" module.  Content root and module file location: bjgf/bluej/threadchecker.
+       It should automatically tag src (which is really bjgf/bluej/threadchecker/src) as a source directory.
+       Also select "pluginsrc" and mark that as a source directory.
+       Under Paths, select "Use module compile path" and enter bjgf/bluej/threadchecker/classes for both paths.
+
+    "bluej-boot" module.  Content root and module file location: bjgf/bluej/boot.
+       It should automatically tag src (which is really bjgf/bluej/boot/src) as a source directory.
+       Under Dependencies, click the "+" and select Module Dependency... and select "threadchecker".
+       Under Paths, select "Use module compile path" and enter bjgf/bluej/boot/classes for both paths.
+
+    "bluej" module.  Content root and module file location: bjgf/bluej.
+       It should automatically tag src (which is really bjgf/bluej/src) as a source directory.
+       Also select test/src, and mark that as a tests directory.
+       Under Paths, select "Use module compile path" and enter bjgf/bluej/classes for both paths.
+       Under Dependencies, click the "+" and select Module Dependency... and select "threadchecker".
+       Similarly, click the "+" and select Module Dependency... and select "bluej-boot".
+       Click the "+" and select Library and select "bluej-lib".
+
+After adding these modules, try compiling (Build menu -> Build Project).  It should be successful.
+Then to set up Greenfoot, add these two further modules:
+
+    "greenfoot-native" module.  Content root and module file location: bjgf/greenfoot/native.
+       It should automatically tag src (which is really bjgf/greenfoot/native/src) as a source directory.
+       Under Dependencies, click "+" and select "JARs or Directories" then select bjgf/bluej/lib/jna-4.2.0.jar
+       and bjgf/bluej/lib/jna-platform-4.2.0.jar
+
+    "greenfoot" module.  Content root and module file location: bjgf/greenfoot.
+       It should automatically tag src (which is really bjgf/greenfoot/src) as a source directory.
+       Also select test/src, and mark that as a tests directory.
+       Under Paths, select "Use module compile path" and enter bjgf/greenfoot/classes for both paths.
+       Under Dependencies, click "+" and select "Module Dependency..." and select
+       "bluej-boot", "bluej" and "greenfoot-native".
+       Click the "+" again and select Library and select "bluej-lib" and "greenfoot-lib".
+
+After adding these modules, try compiling again (Build menu -> Build Project).  It should be successful.
+
+In Project tab on left-hand side (show by hovering over very bottom-left icon in window, then clicking Project),
+  find bluej/build.xml.  Right-click on it and select "Add as Ant build file" (near bottom).
+  Do the same for greenfoot/build.xml.
+
+Edit bluej/build.properties to set build_java_home to be the path of your JDK.  On Windows,
+  use forward slashes in paths to avoid issues.  You will want to make sure you don't commit
+  build.properties; the easiest way to do this is once it is edited, select it in the Version Control
+  pane, right click and select "Move to Another Changelist..." then call the new change list "Ignore".
+  Then, just never commit the Ignore change list; always work from the Default or another change list.
+
+Finally, set up the run configurations.  Go to Run menu > Edit Configurations...
+Click the "+" in top-left to add new config, select Application from drop-down menu.
+
+  Name the configuration "BlueJ".  Main class is "bluej.Boot".  Program arguments should be:
+    -useclassesdir=true -bluej.debug=true
+  The first one tells it to use the "classes" subdirectory for class files rather than looking for
+  the JARs which we build for the release.  The second tells it to spit out debug output on stderr
+  rather than to the bluej log file (you definitely want this during development).
+
+Run this configuration, and it should work.  Then go back to Edit Configurations..., select the
+  Copy Configuration icon (third from top left of window) and call the copy Greenfoot.  Only change
+  needed is to add the arguments:
+    -greenfoot=true -greenfootclassesdir=bjgf/greenfoot/classes"
+  (Remember to replace bjgf with full path).
+
+Before you can run the Greenfoot configuration for the first time, you need to run the ant target
+  "ready-to-run" target from the Greenfoot ant file (not the BlueJ ant file).  Once done,
+  you should be able to run the Greenfoot configuration successfully.
+
