@@ -306,6 +306,12 @@
         <copy todir="${zip_dir}/BlueJ.app">
             <fileset dir="macfiles/BlueJ.app"/> 
         </copy>
+
+        <!-- build the native launcher -->
+        <exec dir="macfiles/nativelauncher/" executable="/bin/bash">
+            <arg value="compile.sh"/>
+            <env key="JAVA_HOME" value="${build_java_home}"/>
+        </exec>
     	
     	<!-- copy the native launcher into place -->
     	<copy todir="${zip_dir}/BlueJ.app/Contents/MacOS" file="macfiles/nativelauncher/JavaAppLauncher" />
