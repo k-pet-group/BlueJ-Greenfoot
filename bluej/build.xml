@@ -79,8 +79,28 @@
         <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
 
-    <!-- taskdef name="jarbundler"
-        classname="com.loomcom.ant.tasks.jarbundler.JarBundler" / -->
+    <!-- Set common compiler options -->
+    <macrodef name="compile">
+        <attribute name="srcdir"/>
+        <attribute name="destdir"/>
+        <attribute name="excludes" default=""/>
+        <element name="options" optional="true" implicit="true"/>
+        <sequential>
+        <javac  executable="${build_java_home}/${java_command_dir_name}/javac"
+                fork="yes"
+                srcdir="@{srcdir}"
+                destdir="@{destdir}"
+                excludes="@{excludes}"
+                source="1.8"
+                target="1.8"
+                deprecation="yes"
+                includeantruntime="false"
+                debug="true"
+                encoding="utf-8">
+            <options/>
+        </javac>
+        </sequential>
+    </macrodef>
 
     <!--
       -  Compile the boot strap loader
@@ -89,17 +109,8 @@
         <mkdir dir="${boot.build}"/>
         <!-- Compile the java code from ${boot.src} into ${boot.build} -->
         <!-- Boot should not need any other jars or classes other than standard JDK -->
-        <javac
-                executable="${build_java_home}/${java_command_dir_name}/javac"
-                fork="yes"
-                srcdir="${boot.src}"
-                destdir="${boot.build}"
-                source="1.8"
-                target="1.8"
-                deprecation="yes"
-                includeantruntime="false"
-                encoding="utf-8"
-        >
+        <compile srcdir="${boot.src}"
+                 destdir="${boot.build}">
             <classpath>
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
@@ -108,42 +119,26 @@
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
-        </javac>
+        </compile>
 
     </target>
 
     <target name="compile-threadchecker">
         <mkdir dir="${threadchecker.build}"/>
         <mkdir dir="${threadchecker.pluginbuild}"/>
-        <javac
-            executable="${build_java_home}/${java_command_dir_name}/javac"
-            fork="yes"
+        <compile
             srcdir="${threadchecker.src}"
-            destdir="${threadchecker.build}"
-            source="1.8"
-            target="1.8"
-            deprecation="yes"
-            includeantruntime="false"
-            encoding="utf-8"
-            debug="true"
-        />
-        <javac
-            executable="${build_java_home}/${java_command_dir_name}/javac"
-            fork="yes"
+            destdir="${threadchecker.build}"/>
+            <compile
             srcdir="${threadchecker.pluginsrc}"
             destdir="${threadchecker.pluginbuild}"
-            source="1.8"
-            target="1.8"
-            deprecation="yes"
-            includeantruntime="false"
-            encoding="utf-8"
-            debug="true"
+
             >
             <classpath>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="${threadchecker.build}"/>
             </classpath>
-        </javac>
+        </compile>
         <copy todir="${threadchecker.build}/META-INF">
             <fileset dir="${threadchecker.src}/META-INF"/>
         </copy>
@@ -157,22 +152,11 @@
         <mkdir dir="${core.build}"/>
         <!-- Compile the java code from ${core.src} into ${core.build} -->
         <echo message="Excluding: ${srcexcludes}" />
-        <javac
-            executable="${build_java_home}/${java_command_dir_name}/javac"
-            fork="yes"
-            source="1.8"
-            target="1.8"
-            srcdir="${core.src}"
-            destdir="${core.build}"
-            debug="on"
-            deprecation="yes"
-            includeantruntime="false"
-            encoding="utf-8"
-            excludes="bluej/editor/moe/Moe.java,
-            bluej/editor/moe/**,
-            ${srcexcludes}"
-            >
-
+        <compile srcdir="${core.src}"
+                 destdir="${core.build}"
+                 excludes="bluej/editor/moe/Moe.java,
+                           bluej/editor/moe/**,
+                           ${srcexcludes}">
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
@@ -185,29 +169,22 @@
             <!-- <compilerarg value="-J-XX:+UnlockCommercialFeatures"/>
             <compilerarg value="-J-XX:+FlightRecorder"/>
             <compilerarg value="-J-XX:StartFlightRecording=filename=nccb-without.jfr,duration=120s,settings=/Users/neil/workspace/BlueJ/nccb.jfc"/> -->
-        </javac>
+        </compile>
     </target>
 
     <target name="compile-test" depends="compile-boot, compile-core">
         <mkdir dir="${test.build}"/>
         <mkdir dir="${test.report}"/>
         <!-- Compile the java code from ${test.src} into ${test.build} -->
-        <javac
-                executable="${build_java_home}/${java_command_dir_name}/javac"
-                fork="yes"
-                srcdir="${test.src}"
-                source="1.8"
-                target="1.8"
-                destdir="${test.build}"
-                deprecation="yes"
-                >
+        <compile srcdir="${test.src}"
+                 destdir="${test.build}">
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${boot.build}"/>
                 <pathelement location="${core.build}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
-        </javac>
+        </compile>
     </target>
 
     <target name="jar-boot" depends="compile-boot">
@@ -330,10 +307,6 @@
         </java>
     </target>
 
-    <target name="editor-dist">
-        <ant antfile="editor.xml" dir="src/bluej/editor" target="dist"/>
-    </target>
-
     <target name="dist" depends="ready-to-run,check-licences">
         <echo message="Do you have the latest copy of the submitter extension in your lib/extensions directory??"/>
         <ant dir="package" target="dist"/>
@@ -344,28 +317,20 @@
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
 
-    <target name="windows-dist" depends="dist">
-        <ant dir="package" target="windows-dist"/>
-    </target>
-
-    <target name="windows-msi-dist" depends="dist">
-        <ant dir="package" target="windows-msi-dist"/>
-    </target>
-
-    <target name="windows-msi-bundled-dist" depends="dist">
+    <target name="windows-msi-bundled-dist" depends="dist" description="Build the Windows MSI installer">
         <ant dir="package" target="windows-msi-bundled-dist"/>
     </target>
 
-    <target name="windows-standalone" depends="dist">
+    <target name="windows-standalone" depends="dist" description="Build the Windows standalone ZIP (for USB sticks)">
         <ant dir="package" target="windows-standalone"/>
     </target>
 
-    <target name="mac-dist" description="build Mac distributable bundles" depends="dist">
+    <target name="mac-dist" description="Build Mac installer" depends="dist">
         <ant dir="package" target="mac-dist"/>
     </target>
 
     <!-- build *.deb package -->
-    <target name="debian-dist" description="build Debian package" depends="dist">
+    <target name="debian-dist" description="Build the .deb Debian/Ubuntu package" depends="dist">
         <ant dir="package" target="debian-dist"/>
     </target>
 
@@ -508,7 +473,7 @@
         </replaceregexp>
 
         <mkdir dir="util/classes"/>
-        <javac srcdir="util/src" destdir="util/classes"/>
+        <compile srcdir="util/src" destdir="util/classes"/>
         <java classname="DrawVersionOnSplash" classpath="util/classes">
             <arg value="boot/src/bluej/unversioned-bluej-splash.png"/> <!-- original -->
             <arg value="Version ${bluej.version}"/> <!-- text -->
@@ -570,10 +535,6 @@
         <ant dir="package" target="clean"/>
         <delete quiet="true" dir="${threadchecker.build}" />
         <delete quiet="true" dir="${threadchecker.pluginbuild}" />
-    </target>
-
-    <target name="editor-clean">
-        <ant antfile="editor.xml" dir="src/bluej/editor" target="clean"/>
     </target>
 
     <target name="pi4j-compile">
