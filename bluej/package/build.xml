@@ -639,43 +639,7 @@
 		
 		<delete dir="bluejdeb" />
 	</target>
-        
-    <!-- windows-dist requires that a bluej-dist.jar file is placed into
-         the package directory. This is unjarred and then rebuilt into
-         the windows installer package (left as winsetup/bluejsetup.exe)-->
-    <target name="windows-dist">
-        <delete dir="install_tmp" />
-        <unzip src="${dist.jar}" dest="install_tmp" />
 
-        <!-- make sure line endings are in windows format -->
-        <fixcrlf srcdir="install_tmp" eol="crlf" encoding="ISO-8859-1">
-            <patternset refid="bluej.textfiles.iso88591" />
-        </fixcrlf>
-        <fixcrlf srcdir="install_tmp" eol="crlf" encoding="UTF-8">
-            <patternset refid="bluej.textfiles.utf8" />
-        </fixcrlf>
-        
-        <!-- update version number in innosetup config file -->
-        <replaceregexp byline="true">
-            <regexp pattern="AppVerName=.*" />
-            <substitution expression="AppVerName=BlueJ ${bluej.version}" />
-            <fileset dir="winsetup" includes="bluej.iss" />
-        </replaceregexp>
-        
-        <!-- update output file in innosetup config file -->
-        <replaceregexp byline="true">
-            <regexp pattern="OutputBaseFilename=.*" />
-            <substitution expression="OutputBaseFilename=${dist.win}" />
-            <fileset dir="winsetup" includes="bluej.iss" />
-        </replaceregexp>
-        
-        <exec dir="winsetup" executable="C:\Program Files\Inno Setup 5\ISCC.exe">
-            <arg line="bluej.iss"/>
-        </exec>
-
-        <delete dir="install_tmp" />
-    </target>
-    
     <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
         <zip destfile="${bluej.source.zip}" compress="yes">
             <zipfileset dir="${bluej_home}" defaultexcludes="yes">

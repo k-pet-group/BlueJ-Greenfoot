@@ -310,7 +310,6 @@
     <target name="dist" depends="ready-to-run,check-licences">
         <echo message="Do you have the latest copy of the submitter extension in your lib/extensions directory??"/>
         <ant dir="package" target="dist"/>
-        <!-- ant dir="package" target="windows-dist"/-->
     </target>
 
     <target name="dist-greenfoot" depends="ready-to-run-greenfoot,check-licences">
