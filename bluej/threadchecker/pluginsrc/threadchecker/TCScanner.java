@@ -335,7 +335,7 @@ class TCScanner extends TreePathScanner<Void, Void>
     public Void visitClass(ClassTree tree, Void arg1)
     {
         addCur(typeScopeStack, tree);
-        HashMap fieldCopy = new HashMap(fields);
+        HashMap<String, LocatedTag> fieldCopy = new HashMap<>(fields);
         fields.clear();
         Void r = super.visitClass(tree, arg1);
         typeScopeStack.removeLast();
