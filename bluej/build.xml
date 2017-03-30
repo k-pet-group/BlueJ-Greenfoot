@@ -325,12 +325,16 @@
         <ant dir="package" target="windows-standalone"/>
     </target>
 
+    <target name="check-fakeroot">
+        <ant dir="package" target="check-fakeroot"/>
+    </target>
+
     <target name="mac-dist" description="Build Mac installer" depends="dist">
         <ant dir="package" target="mac-dist"/>
     </target>
 
     <!-- build *.deb package -->
-    <target name="debian-dist" description="Build the .deb Debian/Ubuntu package" depends="dist">
+    <target name="debian-dist" description="Build the .deb Debian/Ubuntu package" depends="check-fakeroot,dist">
         <ant dir="package" target="debian-dist"/>
     </target>
 
