@@ -86,6 +86,7 @@
         <attribute name="excludes" default=""/>
         <element name="options" optional="true" implicit="true"/>
         <sequential>
+        <echo message="Compiling files in @{srcdir}"/>
         <javac  executable="${build_java_home}/${java_command_dir_name}/javac"
                 fork="yes"
                 srcdir="@{srcdir}"
@@ -101,6 +102,12 @@
         </javac>
         </sequential>
     </macrodef>
+
+    <!-- Set the log output to quiet by default: -->
+    <script language="javascript">
+        var logger = project.getBuildListeners().firstElement();
+        logger.setMessageOutputLevel(1);
+    </script>
 
     <!--
       -  Compile the boot strap loader
@@ -541,6 +548,7 @@
     </target>
 
     <target name="clean" depends="clean-boot, clean-core, clean-greenfoot">
+        <echo message="Cleaning..."/>
         <ant dir="package" target="clean"/>
         <delete quiet="true" dir="${threadchecker.build}" />
         <delete quiet="true" dir="${threadchecker.pluginbuild}" />
