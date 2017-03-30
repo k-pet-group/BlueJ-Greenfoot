@@ -197,6 +197,7 @@
                srcdir="."
                destdir="install_tmp"
                includes="InstallerProps.java"
+               includeantruntime="false"
                debug="true"
         />
 
@@ -225,6 +226,7 @@
                fork="yes"
                srcdir="."
                destdir="install_tmp"
+               includeantruntime="false"
                includes="Installer.java"
                debug="true"
         >
@@ -247,11 +249,10 @@
              are now created. -->
         <delete dir="install_tmp"/>
        
-        <echo level="info" message="----------------------------------------------------------------------------"/>
+        <echo message="----------------------------------------------------------------------------"/>
         <echo level="info" message="The bluej-dist.jar (for building the windows installer) is in: ${basedir}${file.separator}${dist.jar}"/>
-        <echo level="info" message="The generic installer is in: ${basedir}${file.separator}${dist.jarinstaller}"/>
-        <echo level="info" message="The source is in: ${basedir}${file.separator}${bluej.source.zip}"/>
-        <echo level="warning" message="Remember to remove the dots in the version numbers when moving the files to the server. "/>
+        <echo message="The generic installer is in: ${basedir}${file.separator}${dist.jarinstaller}"/>
+        <echo message="The source is in: ${basedir}${file.separator}${bluej.source.zip}"/>
     </target>
 
 
@@ -334,20 +335,22 @@
         <chmod perm="+x">
             <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="${executable_files2}" />
         </chmod>
-    	
+
+        <!-- codesign needs Internet connection to verify current time -->
+        <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
     	<chmod perm="+x" file="bundle-mac.sh" />
-        <exec executable="bundle-mac.sh" resolveexecutable="true">
+        <exec executable="bundle-mac.sh" resolveexecutable="true" outputproperty="bundleoutput">
             <arg value="${zip_dir}" />
         	<arg value="BlueJ.app" />
         	<arg value="${mac_bundled_jdk_path}" />
         	<arg value="${basedir}/${dist.mac}" />
         </exec>
+        <echo message="${bundleoutput}"/>
     	
         <delete dir="mac_tmp" />
 
-        <echo level="info" message="----------------------------------------------------------------------------"/>
-        <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>
-        <echo level="info" message="The legacy mac installer is in: ${basedir}${file.separator}${dist.mac.legacy}"/>
+        <echo message="----------------------------------------------------------------------------"/>
+        <echo message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>
 
     </target>
 

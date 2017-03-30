@@ -11,7 +11,18 @@
 
 cp -r "$3"/* "$1/$2/Contents/JDK" || exit 1
 
+# Sign the app:
+
+codesign --verbose -s "Developer ID Application: Michael Kolling" "$1/$2/Contents/JDK/" || exit 2
+codesign --verbose -s "Developer ID Application: Michael Kolling" "$1/$2" || exit 3
+
+# Check signature:
+
+codesign --verify --deep --verbose=4 "$1/$2" || exit 4
+spctl -a -t exec -vv "$1/$2" || exit 5
+
 # Zip it:
 
-cd "`dirname "$1"`" || exit 1
-zip -y -r "$4" "`basename "$1"`" || exit
+cd "`dirname "$1"`" || exit 6
+zip -q -y -r "$4" "`basename "$1"`" || exit 7
+
