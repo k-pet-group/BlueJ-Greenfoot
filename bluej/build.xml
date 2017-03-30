@@ -291,29 +291,6 @@
         </java>
     </target>
 
-    <target name="run-profiler">
-        <fail unless="netbeans.home">This target can only run inside the NetBeans IDE.</fail>
-        <nbprofiledirect>
-            <classpath>
-                <pathelement location="${boot.jar}"/>
-                <pathelement location="${run_java_home}/lib/tools.jar"/>
-                <pathelement location="/System/Library/Java"/>
-            </classpath>
-        </nbprofiledirect>
-
-        <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
-        <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>
-        <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
-            <classpath>
-                <pathelement location="${boot.jar}"/>
-                <pathelement location="${run_java_home}/lib/tools.jar"/>
-                <pathelement location="/System/Library/Java"/>
-            </classpath>
-            <jvmarg value="${profiler.info.jvmargs.agent}"/>
-        </java>
-    </target>
-
     <target name="dist" depends="ready-to-run,check-licences">
         <ant dir="package" target="dist"/>
     </target>
@@ -371,27 +348,6 @@
                 </fileset>
             </batchtest>
         </junit>
-    </target>
-
-    <target name="doc-core">
-        <!-- doc the java code from ${core.src} into ${core.doc} -->
-        <mkdir dir="${core.doc}"/>
-        <javadoc destdir="${core.doc}"
-            packagenames="bluej.*, org.syntax.jedit.*"
-            excludepackagenames=
-               "bluej.guibuilder.*,
-                bluej.groupwork.*,
-                bluej.browser.*"
-            sourcepath="${core.src}"
-            Windowtitle="BlueJ API"
-            Doctitle="BlueJ API"
-            bottom="&lt;a href=//www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
-            <classpath>
-                <path refid="bluej.class.path"/>
-                <pathelement location="${boot.jar}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
-            </classpath>
-        </javadoc>
     </target>
 
     <target name="doc-extension">
