@@ -96,7 +96,6 @@ class AboutBlueJ extends Dialog<Void>
         String teamText = "";
         teamText += "Amjad Altadmri" + ", ";
         teamText += "Neil Brown" + ", ";
-        teamText += "Fabio Hedayioglu" + ", ";
         teamText += "Michael K\u00F6lling" + ", ";
         teamText += "Davin McCall" + ", ";
         teamText += "Ian Utting";
