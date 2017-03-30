@@ -315,7 +315,6 @@
     </target>
 
     <target name="dist" depends="ready-to-run,check-licences">
-        <echo message="Do you have the latest copy of the submitter extension in your lib/extensions directory??"/>
         <ant dir="package" target="dist"/>
     </target>
 
