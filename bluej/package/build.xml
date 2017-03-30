@@ -532,6 +532,16 @@
         <copy file="winsetup/bluej-${bluej.version}-bundled.msi" tofile="${dist.win}.msi"/>
 		<delete dir="winsetup/SourceDir" />
 	</target>
+
+        <target name="check-fakeroot">
+            <fail message="You must run 'fakeroot ant', not just 'ant', running as ${user.name}">
+                <condition>
+                    <not>
+                        <equals arg1="root" arg2="${user.name}"/>
+                    </not>
+                </condition>
+            </fail>
+        </target>
 		
 	<target name="debian-dist">
 		<mkdir dir="bluejdeb" />
@@ -593,6 +603,7 @@
 	    </replaceregexp>
 		
 		<!-- you must do this as root, sigh -->
+                <!-- (but we can also do it using fakeroot -->
 		<chown owner="root">
 			<fileset dir="bluejdeb">
 				<patternset includes="**" />
@@ -609,6 +620,14 @@
 				<patternset includes="**" />
 			</dirset>			
 		</chgrp>
+                <chmod perm="g-w">
+			<fileset dir="bluejdeb">
+				<patternset includes="**" />
+			</fileset>
+			<dirset dir="bluejdeb">
+				<patternset includes="**" />
+			</dirset>			
+                </chmod>
 		
 		<chmod perm="755" file="bluejdeb/DEBIAN/postinst" />
 		<chmod perm="755" file="bluejdeb/DEBIAN/postrm" />
