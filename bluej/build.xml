@@ -8,7 +8,7 @@
 
     <!-- user specific properties that are edited to match local build environment-->
     <property file="build.properties"/>
-    <property name="bluej_home" value="${basedir}" />
+    <dirname property="bluej_home" file="${ant.file}"/>
 
     <!-- 
      This is the only place you need to change the version number.
@@ -27,9 +27,6 @@
     <property name="bluej.version.commas" value="${bluej.version.major},${bluej.version.minor},${bluej.version.release}" />
     <property name="bluej.version.nodots" value="${bluej.version.major}${bluej.version.minor}${bluej.version.release}${bluej.version.suffix}" />
     <property name="bluej.version.debian" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.nonspace.suffix}" />
-
-    <!-- user specific properties that are edited to match local build environment-->
-    <property file="build.properties"/>
 
     <!-- Set up common directories -->
     <property name="core.doc" value="doc/all"/>
@@ -118,7 +115,7 @@
     <target name="compile-threadchecker">
         <mkdir dir="${threadchecker.build}"/>
         <mkdir dir="${threadchecker.pluginbuild}"/>
-        <javac 
+        <javac
             executable="${build_java_home}/${java_command_dir_name}/javac"
             fork="yes"
             srcdir="${threadchecker.src}"
@@ -578,7 +575,7 @@
     <target name="editor-clean">
         <ant antfile="editor.xml" dir="src/bluej/editor" target="clean"/>
     </target>
-    
+
     <target name="pi4j-compile">
         <exec dir="${bluej_home}/pi4j" executable="mvn">
             <arg line="package" />
