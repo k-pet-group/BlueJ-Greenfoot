@@ -333,6 +333,12 @@
         <ant dir="package" target="mac-dist"/>
     </target>
 
+    <!-- The simple targets for doing a complete build: -->
+    <!-- TODO add signing to Mac build -->
+    <target name="mac" description="Clean, update version number and build Mac installer" depends="clean,update-version-number,mac-dist"/>
+    <target name="windows" description="Clean, update version number and build Windows installers" depends="clean,update-version-number,windows-msi-bundled-dist,windows-standalone"/>
+    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist"/>
+
     <!-- build *.deb package -->
     <target name="debian-dist" description="Build the .deb Debian/Ubuntu package" depends="check-fakeroot,dist">
         <ant dir="package" target="debian-dist"/>
