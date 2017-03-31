@@ -186,7 +186,7 @@ public class Font
 
     /**
      * Return a text representation of the font.
-     * @return 
+     * @return Details of the font
      */
     @Override
     public String toString()
