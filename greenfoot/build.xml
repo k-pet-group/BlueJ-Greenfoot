@@ -688,31 +688,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </java>
     </target>
 
-    <target name="profile-scenario-viewer"  depends="ready-to-run,compile-scenarios">
-        <fail unless="netbeans.home">This target can only run inside the NetBeans IDE.</fail>
-
-        <nbprofiledirect>
-            <classpath>
-                <pathelement location="${build}"/>
-                <pathelement location="${greenfoot.standalone.scenario}"/>
-                <path refid="bluej.class.path"/>
-            </classpath>
-        </nbprofiledirect>
-
-        <!-- run the java code built into the jar files -->
-        <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/${java_command_dir_name}/java">
-            <arg value="${greenfoot.standalone.scenario}"/>
-            <arg value="${greenfoot.standalone.main}"/>
-            <arg value="${greenfoot.standalone.labels}"/>
-            <classpath>
-                <pathelement location="${build}"/>
-                <pathelement location="${greenfoot.standalone.scenario}"/>
-                <path refid="bluej.class.path"/>
-            </classpath>
-            <jvmarg value="${profiler.info.jvmargs.agent}"/>
-        </java>
-    </target>
-
     <target name="compile-standalone" depends="init" description="Compile the source and run rmic" >
         <delete dir="${standalone.build}"/>
         <mkdir dir="${standalone.build}"/>
