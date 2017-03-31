@@ -159,14 +159,9 @@
         <!-- Build the program which calculates the length of the  -->
         <!-- distribution jar, and stores its length in the        -->
         <!-- installer properties                                  -->
-        <javac
-               executable="${build_java_home}/${java_command_dir_name}/javac"
-               fork="yes"
-               srcdir="."
-               destdir="install_tmp"
-               includes="InstallerProps.java"
-               debug="true"
-        />
+        <compile srcdir="." destdir="install_tmp">
+            <include name="InstallerProps.java"/>
+        </compile>
 
         <!-- Now run it -->
         <java
@@ -188,12 +183,14 @@
         <copy todir="install_tmp" file="greenfoot-splash.png" />
 
         <!-- compile the installer -->
+        <!-- Note: can't use compile task here because we are setting source 1.3 -->
         <javac
                executable="${build_java_home}/${java_command_dir_name}/javac"
                fork="yes"
                srcdir="."
                destdir="install_tmp"
                includes="Installer.java"
+               includeantruntime="false"
                debug="true"
         >
             <compilerarg line="-source 1.3" />
@@ -408,20 +405,6 @@
         <delete dir="winsetup/standalone" />
     </target>
 
-    <!-- windows-dist requires that a greenfoot-dist.jar file is placed into
-         the package directory. This is unjarred and then rebuilt into
-         the windows installer package (left as winsetup/bluejsetup.exe)-->
-    <target name="windows-dist">
-        <delete dir="install_tmp" />
-        <unzip src="greenfoot-dist.jar" dest="install_tmp" />
-
-        <exec dir="winsetup" executable="C:\Program Files\Inno Setup 5\ISCC.exe">
-            <arg line="greenfoot.iss" />
-        </exec>
-
-        <delete dir="install_tmp" />
-    </target>
-    
     <target name="windows-msi-dist" depends="dist,windows-launcher">
         <delete dir="winsetup/SourceDir" />
         <delete dir="winsetup" includes="*.wixobj" />

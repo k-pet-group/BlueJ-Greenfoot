@@ -536,8 +536,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <move file="${bluej.standalone}" tofile="${package}/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
     </target>
 
-    <target name="windows-msi-dist" depends="update-images, dist">
-        <!-- <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="windows-msi-dist" /> -->
+    <target name="windows-msi-bundled-dist" depends="update-images, dist">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="windows-msi-bundled-dist" />
         <move file="${bluej.msi}" tofile="${package}/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.msi"/>
     </target>
