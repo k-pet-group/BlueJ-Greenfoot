@@ -129,7 +129,7 @@
             -->
         </copy>
         <copy todir="install_tmp/doc" preservelastmodified="true">
-            <fileset dir="${greenfoot.projectdir}/doc">
+            <fileset dir="${greenfoot_home}/doc">
                 <patternset refid="greenfoot.license.files" />
             </fileset>
 		</copy>
@@ -140,7 +140,7 @@
 		</copy>
         	
         <copy tofile="install_tmp/README.TXT"
-    		file="${greenfoot.projectdir}/doc/Greenfoot-README.txt" />
+    		file="${greenfoot_home}/doc/Greenfoot-README.txt" />
 		
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
@@ -564,9 +564,9 @@
         <delete dir="gf-apidoc-tmp" />    
             
         
-        <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot.projectdir}/doc/LICENSE.txt" />
-        <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot.projectdir}/doc/THIRDPARTYLICENSE.txt" />
-    	<copy tofile="gfdeb/usr/share/doc/Greenfoot/README.txt" file="${greenfoot.projectdir}/doc/Greenfoot-README.txt" />
+        <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot_home}/doc/LICENSE.txt" />
+        <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot_home}/doc/THIRDPARTYLICENSE.txt" />
+    	<copy tofile="gfdeb/usr/share/doc/Greenfoot/README.txt" file="${greenfoot_home}/doc/Greenfoot-README.txt" />
 
         <!-- desktop app extras -->
         <copy todir="gfdeb/usr/share">

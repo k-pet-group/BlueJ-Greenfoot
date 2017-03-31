@@ -6,11 +6,13 @@
     <!-- ********************************************** -->
     <!-- it should not be necessary to edit any properties to build -->
 
+    <dirname property="greenfoot_home" file="${ant.file}"/>
+    <property name="bluej_home" location="${greenfoot_home}/../bluej"/>
     <!-- user specific properties that are edited to match local build environment-->
     <property file="build.properties"/>
 
     <!-- get java version to build with from the build.properties file used for BlueJ -->
-    <property file="${bluej.projectdir}/build.properties"/>
+    <property file="${bluej_home}/build.properties"/>
 
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="3"/>
@@ -54,43 +56,43 @@
     <property name="greenfoot.rcsuffix" value="-rc8"/>
 
     <!-- Location of the bluej lib dir -->
-    <property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
+    <property name="bluej.lib.greenfoot"  location="${bluej_home}/lib/greenfoot"/>
     <!-- Location of the where the greenfoot.jar should be placed-->
-    <property name="bluej.extensions.lib"  location="${bluej.projectdir}/lib/extensions"/>
+    <property name="bluej.extensions.lib"  location="${bluej_home}/lib/extensions"/>
     
     <!-- Name and location of the jlayer jar -->  
     <property name="jlayer.jar.name" value="jl1.0.1.jar"/>  
-    <property name="jlayer.jar.path" value="${bluej.projectdir}/lib/${jlayer.jar.name}"/>
+    <property name="jlayer.jar.path" value="${bluej_home}/lib/${jlayer.jar.name}"/>
 
-    <property name="greenfoot-native.jar" value="${bluej.projectdir}/lib/greenfoot-native.jar"/>
+    <property name="greenfoot-native.jar" value="${bluej_home}/lib/greenfoot-native.jar"/>
         
     <!-- The classpath to the bluej classes-->
     <path id="bluej.class.path">
-        <pathelement location="${bluej.projectdir}/classes"/>
-        <pathelement location="${bluej.projectdir}/boot/classes"/>
-        <pathelement location="${bluej.projectdir}/lib/antlr.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/junit-4.11.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/hamcrest-core-1.3.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/AppleJavaExtensions.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/commons-httpclient-3.1.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/commons-logging-api-1.1.2.jar"/> 
+        <pathelement location="${bluej_home}/classes"/>
+        <pathelement location="${bluej_home}/boot/classes"/>
+        <pathelement location="${bluej_home}/lib/antlr.jar"/>
+        <pathelement location="${bluej_home}/lib/junit-4.11.jar"/>
+        <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
+        <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
+        <pathelement location="${bluej_home}/lib/commons-httpclient-3.1.jar"/>
+        <pathelement location="${bluej_home}/lib/commons-logging-api-1.1.2.jar"/> 
         <pathelement location="${jlayer.jar.path}"/>
-        <pathelement location="${bluej.projectdir}/lib/opencsv-2.3.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/xom-1.2.9.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/diffutils-1.2.1.jar"/>
+        <pathelement location="${bluej_home}/lib/opencsv-2.3.jar"/>
+        <pathelement location="${bluej_home}/lib/xom-1.2.9.jar"/>
+        <pathelement location="${bluej_home}/lib/diffutils-1.2.1.jar"/>
         <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
-        <pathelement location="${bluej.projectdir}/src"/>
-        <pathelement location="${bluej.projectdir}/boot/src"/>
+        <pathelement location="${bluej_home}/src"/>
+        <pathelement location="${bluej_home}/boot/src"/>
     </path>
     <!-- Location of the files packed by BlueJ dist target -->
-    <property name="bluej.installer.jar"  location="${bluej.projectdir}/package/Greenfoot-generic.jar"/>
-    <property name="bluej.dist.jar"  location="${bluej.projectdir}/package/greenfoot-dist.jar"/>
-    <property name="greenfoot.dist.mac"  location="${bluej.projectdir}/package/Greenfoot-mac.zip"/>
-    <property name="bluej.msi" location="${bluej.projectdir}/package/winsetup/greenfoot-${greenfoot.version}-bundled.msi"/>
-    <property name="bluej.standalone" location="${bluej.projectdir}/package/winsetup/greenfoot-standalone-${greenfoot.version}.zip"/>
+    <property name="bluej.installer.jar"  location="${bluej_home}/package/Greenfoot-generic.jar"/>
+    <property name="bluej.dist.jar"  location="${bluej_home}/package/greenfoot-dist.jar"/>
+    <property name="greenfoot.dist.mac"  location="${bluej_home}/package/Greenfoot-mac.zip"/>
+    <property name="bluej.msi" location="${bluej_home}/package/winsetup/greenfoot-${greenfoot.version}-bundled.msi"/>
+    <property name="bluej.standalone" location="${bluej_home}/package/winsetup/greenfoot-standalone-${greenfoot.version}.zip"/>
 
     <!-- Location of the zip with the sources for greenfoot -->
     <property name="greenfoot.source.zip" location="package/Greenfoot-source-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
@@ -195,11 +197,11 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <fileset dir="${images}"/>
             <fileset dir="lib"/>
         </copy>
-        <copy todir="${bluej.projectdir}/lib">
+        <copy todir="${bluej_home}/lib">
             <fileset dir="lib" />
         </copy>
-        <mkdir dir="${bluej.projectdir}/doc" />
-        <copy todir="${bluej.projectdir}/doc">
+        <mkdir dir="${bluej_home}/doc" />
+        <copy todir="${bluej_home}/doc">
             <fileset dir="doc" >
                 <include name="APACHE-LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
@@ -322,7 +324,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <fail message="bluejcore.jar not found; is BlueJ ready-to-run-greenfoot and is build.properties set correctly? (see build documentation)">
             <condition>
                 <not>
-                    <available file="${bluej.projectdir}/lib/bluejcore.jar" />
+                    <available file="${bluej_home}/lib/bluejcore.jar" />
                 </not>
             </condition>
         </fail>
@@ -361,8 +363,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <fileset dir="${apidoc}" includes="stylesheet.css"/>
         </replaceregexp>
 
-        <mkdir dir="${bluej.projectdir}/lib/english/greenfoot/api"/>
-        <copy todir="${bluej.projectdir}/lib/english/greenfoot/api">
+        <mkdir dir="${bluej_home}/lib/english/greenfoot/api"/>
+        <copy todir="${bluej_home}/lib/english/greenfoot/api">
             <fileset refid="api-source.files"/>
         </copy>
     </target>
@@ -374,7 +376,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="copy-scenarios" depends="compile-scenarios"  description="Copies the scenarios to bluej" >
-        <copy todir="${bluej.projectdir}/package" preservelastmodified="true">
+        <copy todir="${bluej_home}/package" preservelastmodified="true">
             <fileset dir=".">
                 <patternset refid="distribution.scenarios"/>
             </fileset>
@@ -436,7 +438,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <javadoc destdir="common" sourcefiles="common/${common.class}.java"
                          Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
                          classpath="${build}:common/${common.class}/lib/${common.class}.jar"
-                         docletpath="${bluej.projectdir}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"
+                         docletpath="${bluej_home}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"
                          encoding="UTF-8"
                          executable="${build_java_home}/${java_command_dir_name}/javadoc"
         /> 
@@ -459,19 +461,19 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="copy-tutorial" description="Copies the projects tutorial and tutorial project to BlueJ" >
-        <copy todir="${bluej.projectdir}/package/tutorial">
+        <copy todir="${bluej_home}/package/tutorial">
             <fileset refid="tutorial.files"/>
         </copy>
     </target>
         
     <target name="copy-license" description="Copies the license files to BlueJ" >
-        <copy todir="${bluej.projectdir}/package/">
+        <copy todir="${bluej_home}/package/">
             <fileset refid="greenfoot.license.files"/>
         </copy>
     </target>
 
     <target name="copy-apidocs" description="Copies the API documentation to bluej">
-        <copy todir="${bluej.projectdir}/doc">
+        <copy todir="${bluej_home}/doc">
             <fileset dir="doc">
                 <include name="API/**"/>
             </fileset>
@@ -485,18 +487,18 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="copy-labels" description="Copies the language labels to bluej">
-        <copy todir="${bluej.projectdir}/lib">
+        <copy todir="${bluej_home}/lib">
             <fileset dir="labels"/>
         </copy>
     </target>
 
     <target name="update-images" description="Copies the images from the resource directory out into the various places where the images are required.">
         <!-- Jar installer image: greenfoot-splash.png -->
-        <copy file="resources/images/greenfoot-splash.png" todir="${bluej.projectdir}/package"/>
+        <copy file="resources/images/greenfoot-splash.png" todir="${bluej_home}/package"/>
         <!-- Greenfoot icon for classes: greenfoot-16.png -->
         <copy file="resources/images/greenfoot-icon-16.png" tofile="imagelib/other/greenfoot.png"/>
         <!-- Greenfoot icon for application on the mac: greenfoot.icns -->
-        <copy file="resources/images/greenfoot.icns" todir="${bluej.projectdir}/package/macfiles/Greenfoot.app/Contents/Resources"/>
+        <copy file="resources/images/greenfoot.icns" todir="${bluej_home}/package/macfiles/Greenfoot.app/Contents/Resources"/>
 
         <!-- Greenfoot icon for application: greenfoot-16.png -->
         <copy file="resources/images/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>
@@ -529,10 +531,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
 </target>
 
     <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, copy-tutorial, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
-        <copy file="doc/Greenfoot-README.txt" todir="${bluej.projectdir}/doc"/>
+        <copy file="doc/Greenfoot-README.txt" todir="${bluej_home}/doc"/>
     
         <!-- Run the BlueJ dist-->
-        <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
+        <ant dir="${bluej_home}" target="dist-greenfoot" />
 
         <move file="${bluej.installer.jar}" tofile="${package}/Greenfoot-generic-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
         <move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
@@ -542,41 +544,41 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <echo message="And don't forget to copy this to the gallery: ${package}/Greenfoot-core-${greenfoot.apiversion.public}.jar"/>
     </target>
     <target name="debian-dist">
-        <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="debian-dist" />
-        <move file="${bluej.projectdir}/package/greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="debian-dist" />
+        <move file="${bluej_home}/package/greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
     </target>
 
     <target name="windows-standalone" depends="update-images, dist">
-        <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-standalone" />
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="windows-standalone" />
         <move file="${bluej.standalone}" tofile="${package}/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
     </target>
 
     <target name="windows-msi-dist" depends="update-images, dist">
-        <!-- <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-msi-dist" /> -->
-        <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="windows-msi-bundled-dist" />
+        <!-- <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="windows-msi-dist" /> -->
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="windows-msi-bundled-dist" />
         <move file="${bluej.msi}" tofile="${package}/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.msi"/>
     </target>
 
     <target name="mac-dist" depends="dist">
-        <ant dir="${bluej.projectdir}/package" antfile="greenfoot-build.xml" target="mac-dist" />
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="mac-dist" />
         <move file="${greenfoot.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}-unsigned.zip"/>
         <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}-unsigned.zip"/>
     </target>
 
     <target name="clean" description="clean up" >
         <!-- Jar installer image: greenfoot-splash.png -->
-        <delete file="${bluej.projectdir}/package/greenfoot-splash.png"/>
+        <delete file="${bluej_home}/package/greenfoot-splash.png"/>
         <!-- About image: greenfoot-about.png -->
         <delete file="images/greenfoot-about.png"/>
         <!-- Splash image: greenfoot-splash.jpg -->
-        <delete file="${bluej.projectdir}/boot/src/bluej/greenfoot-splash.png"/>
+        <delete file="${bluej_home}/boot/src/bluej/greenfoot-splash.png"/>
         <!-- Greenfoot icon for classes: greenfoot-16.png -->
         <delete file="imagelib/other/greenfoot.png"/>
         <!-- Greenfoot icon for application: greenfoot-16.png -->
         <delete file="images/greenfoot.png"/>
         <!-- Commons libraries -->
         <delete >
-            <fileset dir="${bluej.projectdir}/lib">
+            <fileset dir="${bluej_home}/lib">
                 <include name="commons-codec-*.jar"/>
                 <exclude name="commons-logging-api-*.jar"/>
             </fileset>
@@ -598,12 +600,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <delete file="${bluej.extensions.lib}/greenfoot.jar"/>
     
         <delete dir="${bluej.lib.greenfoot}"/>
-        <delete dir="${bluej.projectdir}/package/scenarios"/>
+        <delete dir="${bluej_home}/package/scenarios"/>
         <delete dir="${native-build}"/>
         <delete dir="${build}"/>
 
         <delete includeEmptyDirs="true">
-            <fileset dir="${bluej.projectdir}/" >
+            <fileset dir="${bluej_home}/" >
                 <include name="lib/*/greenfoot/" />
             </fileset>
         </delete>
@@ -632,10 +634,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- run the java code built into the jar files -->
         <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/${java_command_dir_name}/java">
             <classpath>
-                <pathelement location="${bluej.projectdir}/boot/classes" />
+                <pathelement location="${bluej_home}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
                 <path refid="bluej.src.path"/>
-                <pathelement location="${bluej.projectdir}/lib" />
+                <pathelement location="${bluej_home}/lib" />
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
                 <!-- <pathelement location="${build}"/> -->
@@ -659,7 +661,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- run the java code built into the jar files -->
         <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/${java_command_dir_name}/java">
             <classpath>
-                <pathelement location="${bluej.projectdir}/boot/classes" />
+                <pathelement location="${bluej_home}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
                 <path refid="bluej.src.path"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
@@ -831,7 +833,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
         <!-- Copy bluej.Config classes to allow use of i18n labels  -->
         <copy todir="${standalone.build}">
-            <fileset dir="${bluej.projectdir}/classes/">
+            <fileset dir="${bluej_home}/classes/">
                 <include name="bluej/Config.class"/>
                 <include name="bluej/utility/CenterLayout.class"/>
                 <include name="bluej/Config$*.class"/>
@@ -857,7 +859,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     
     <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
         <!-- And build sources for BlueJ -->
-        <ant dir="${bluej.projectdir}/package" target="zip-source"/>
+        <ant dir="${bluej_home}/package" target="zip-source"/>
         <zip destfile="${greenfoot.source.zip}" compress="yes">
             <zipfileset dir="." defaultexcludes="yes" prefix="greenfoot">
                 <include name="src/**/*.java" />       
@@ -892,7 +894,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <include name="build.xml" />  
                 <exclude name="**/.DS_Store"/>
             </zipfileset>
-            <zipfileset src="${bluej.projectdir}/package/BlueJ-source-${bluej.version.nodots}${bluej.rcsuffix}.zip" prefix="bluej" />                       
+            <zipfileset src="${bluej_home}/package/BlueJ-source-${bluej.version.nodots}${bluej.rcsuffix}.zip" prefix="bluej" />                       
         </zip>
     </target>
     
@@ -967,12 +969,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <replaceregexp byline="true">
             <regexp pattern="GREENFOOT_VERSION = .*"/>
             <substitution expression="GREENFOOT_VERSION = &quot;${greenfoot.version}&quot;;"/>
-            <fileset dir="${bluej.projectdir}/boot/src/bluej" includes="Boot.java"/>
+            <fileset dir="${bluej_home}/boot/src/bluej" includes="Boot.java"/>
         </replaceregexp>
         <replaceregexp byline="true">
             <regexp pattern="GREENFOOT_API_VERSION = .*"/>
             <substitution expression="GREENFOOT_API_VERSION = &quot;${greenfoot.apiversion}&quot;;"/>
-            <fileset dir="${bluej.projectdir}/boot/src/bluej" includes="Boot.java"/>
+            <fileset dir="${bluej_home}/boot/src/bluej" includes="Boot.java"/>
         </replaceregexp>
         <replaceregexp byline="true">
             <regexp pattern="version=.*"/>

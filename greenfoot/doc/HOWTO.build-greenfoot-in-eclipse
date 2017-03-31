@@ -289,6 +289,6 @@ ready-to-run targets usually fixes this.
 A hack to avoid this permanently is to simply add the following
 pathelement in the run-greenfoot target in greenfoot/build.xml:
 
-<pathelement location="${bluej.projectdir}/lib/AppleJavaExtensions.jar" />
+<pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar" />
 
 
