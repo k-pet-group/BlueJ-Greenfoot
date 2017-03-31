@@ -566,6 +566,7 @@
         </replaceregexp>
         
         <!-- you must do this as root, sigh -->
+        <!-- (but we can also do it using fakeroot -->
         <chown owner="root">
             <fileset dir="gfdeb">
                 <patternset includes="**" />
@@ -582,7 +583,15 @@
                 <patternset includes="**" />
             </dirset>
         </chgrp>
-        
+        <chmod perm="g-w">
+            <fileset dir="gfdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="gfdeb">
+                <patternset includes="**" />
+            </dirset>
+        </chmod>
+
         <chmod perm="755" file="gfdeb/DEBIAN/postinst" />
         <chmod perm="755" file="gfdeb/DEBIAN/postrm" />
         <exec executable="dpkg-deb" searchpath="true">

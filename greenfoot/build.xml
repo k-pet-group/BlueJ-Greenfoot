@@ -526,7 +526,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <echo message="The greenfoot jar-installer is in ${package}/Greenfoot-generic-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
         <echo message="And don't forget to copy this to the gallery: ${package}/Greenfoot-core-${greenfoot.apiversion.public}.jar"/>
     </target>
-    <target name="debian-dist">
+    <target name="debian-dist" depends="check-fakeroot, dist">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="debian-dist" />
         <move file="${bluej_home}/package/greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
     </target>

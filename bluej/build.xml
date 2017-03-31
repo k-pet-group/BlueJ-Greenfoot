@@ -279,10 +279,6 @@
         <ant dir="package" target="windows-standalone"/>
     </target>
 
-    <target name="check-fakeroot">
-        <ant dir="package" target="check-fakeroot"/>
-    </target>
-
     <target name="mac-dist" description="Build Mac installer" depends="dist">
         <ant dir="package" target="mac-dist"/>
     </target>

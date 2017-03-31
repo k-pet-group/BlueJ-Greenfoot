@@ -28,4 +28,14 @@
     var logger = project.getBuildListeners().firstElement();
     logger.setMessageOutputLevel(1);
     </script>
+
+    <target name="check-fakeroot">
+        <fail message="You must run 'fakeroot ant', not just 'ant', running as ${user.name}">
+            <condition>
+                <not>
+                    <equals arg1="root" arg2="${user.name}"/>
+                </not>
+            </condition>
+        </fail>
+    </target>
 </project>
