@@ -807,6 +807,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
     
     <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
         <!-- And build sources for BlueJ -->
+        <property name="bluej.version.nodots" value="Greenfoot-${greenfoot.version.nodots}"/>
+        <property name="bluej.rcsuffix" value="${greenfoot.rcsuffix}"/>
         <ant dir="${bluej_home}/package" target="zip-source"/>
         <zip destfile="${greenfoot.source.zip}" compress="yes">
             <zipfileset dir="." defaultexcludes="yes" prefix="greenfoot">
