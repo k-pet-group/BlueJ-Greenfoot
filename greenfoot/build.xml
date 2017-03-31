@@ -370,7 +370,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </copy>
     </target>
 
-    <target name="copy-common-classes" depends="compile-scenarios"  description="Copies the common classes to bluej" >
+    <target name="copy-common-classes" description="Copies the common classes to bluej" >
         <antcall target="copy-common-class">
             <param name="common.class" value="SmoothMover"/>
         </antcall>
@@ -417,7 +417,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <jar jarfile="common/${common.class}/lib/${common.class}.jar" basedir="common/${common.class}/classes"/>
     </target>
 
-    <target name="copy-common-class" depends="compile-scenarios">
+    <target name="copy-common-class">
         <javadoc destdir="common" sourcefiles="common/${common.class}.java"
                          Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
                          classpath="${build}:common/${common.class}/lib/${common.class}.jar"
