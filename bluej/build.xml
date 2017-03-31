@@ -20,7 +20,7 @@
     <!-- suffix with no spaces, eg "pre2" -->
     <property name="bluej.version.nonspace.suffix" value="" />
     <!-- Suffix added after version number in output files -->
-    <property name="bluej.rcsuffix" value=""/>
+    <property name="bluej.rcsuffix" value="-rc1"/>
     
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
     <property name="bluej.version.nosuffix" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}" />
@@ -287,6 +287,14 @@
     <target name="mac" description="Clean, update version number and build Mac installer" depends="clean,update-version-number,mac-dist"/>
     <target name="windows" description="Clean, update version number and build Windows installers" depends="clean,update-version-number,windows-msi-bundled-dist,windows-standalone"/>
     <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist"/>
+
+    <target name="urls-rc" description="Check and print RC links">
+        <ant dir="package" target="urls-rc"/>
+    </target>
+
+    <target name="urls-final" description="Check final release URLs">
+        <ant dir="package" target="urls-final"/>
+    </target>
 
     <!-- build *.deb package -->
     <target name="debian-dist" description="Build the .deb Debian/Ubuntu package" depends="check-fakeroot,dist">
