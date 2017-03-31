@@ -38,4 +38,28 @@
             </condition>
         </fail>
     </target>
+
+
+    <macrodef name="test_url">
+        <attribute name="filename"/>
+        <attribute name="system"/>
+        <sequential>
+            <local name="full_url"/>
+            <local name="curl_output"/>
+            <property name="full_url" value="https://@{system}.org/download/files/@{filename}"/>
+            <exec executable="curl" outputproperty="curl_output">
+                <!-- Add -L here to follow redirects: -->
+                <arg value="-IL"/> <!-- Only get response code -->
+                <arg value="${full_url}"/>
+            </exec>
+            <fail message="File not available at URL: ${full_url}  Response: ${curl_output}">
+                <condition>
+                    <not>
+                        <matches pattern="HTTP/1.1 200 OK" string="${curl_output}"/>
+                    </not>
+                </condition>
+            </fail>
+            <echo message="  ${full_url}"/>
+        </sequential>
+    </macrodef>
 </project>

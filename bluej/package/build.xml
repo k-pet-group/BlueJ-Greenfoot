@@ -709,52 +709,30 @@
         <delete dir="install_tmp" />
     </target>
 
-    <macrodef name="test_url">
-        <attribute name="filename"/>
-        <sequential>
-            <local name="full_url"/>
-            <local name="curl_output"/>
-            <property name="full_url" value="https://bluej.org/download/files/@{filename}"/>
-            <exec executable="curl" outputproperty="curl_output">
-                <!-- Could add -L here to follow redirects -->
-                <arg value="-I"/> <!-- Only get response code -->
-                <arg value="${full_url}"/>
-            </exec>
-            <fail message="File not available at URL: ${full_url}">
-                <condition>
-                    <not>
-                        <matches pattern="^HTTP/1.1 200 OK" string="${curl_output}"/>
-                    </not>
-                </condition>
-            </fail>
-            <echo message="  ${full_url}"/>
-        </sequential>
-    </macrodef>
-
     <target name="urls-rc">
         <echo message="Mac:"/>
-        <test_url filename="rc/${dist.mac}"/>
+        <test_url system="bluej" filename="rc/${dist.mac}"/>
         <echo message="Windows MSI:"/>
-        <test_url filename="rc/${dist.win}.msi"/>
+        <test_url system="bluej" filename="rc/${dist.win}.msi"/>
         <echo message="Windows ZIP:"/>
-        <test_url filename="rc/${dist.win}.zip"/>
+        <test_url system="bluej" filename="rc/${dist.win}.zip"/>
         <echo message="Linux:"/>
-        <test_url filename="rc/${dist.linux}.deb"/>
+        <test_url system="bluej" filename="rc/${dist.linux}.deb"/>
         <echo message="Generic:"/>
-        <test_url filename="rc/${dist.jarinstaller}"/>
+        <test_url system="bluej" filename="rc/${dist.jarinstaller}"/>
     </target>
 
     <target name="urls-final">
         <echo message="Mac:"/>
-        <test_url filename="${dist.mac.final}"/>
+        <test_url system="bluej" filename="${dist.mac.final}"/>
         <echo message="Windows MSI:"/>
-        <test_url filename="${dist.win.final}.msi"/>
+        <test_url system="bluej" filename="${dist.win.final}.msi"/>
         <echo message="Windows ZIP:"/>
-        <test_url filename="${dist.win.final}.zip"/>
+        <test_url system="bluej" filename="${dist.win.final}.zip"/>
         <echo message="Linux:"/>
-        <test_url filename="${dist.linux.final}.deb"/>
+        <test_url system="bluej" filename="${dist.linux.final}.deb"/>
         <echo message="Generic:"/>
-        <test_url filename="${dist.jarinstaller.final}"/>
+        <test_url system="bluej" filename="${dist.jarinstaller.final}"/>
     </target>
 
 

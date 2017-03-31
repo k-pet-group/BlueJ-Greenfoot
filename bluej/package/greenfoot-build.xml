@@ -611,4 +611,31 @@
         <delete dir="install_tmp" />
     </target>
 
+    <target name="urls-rc">
+        <echo message="Mac:"/>
+        <test_url system="greenfoot" filename="rc/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
+        <echo message="Windows MSI:"/>
+        <test_url system="greenfoot" filename="rc/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.msi"/>
+        <echo message="Windows ZIP:"/>
+        <test_url system="greenfoot" filename="rc/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
+        <echo message="Linux:"/>
+        <test_url system="greenfoot" filename="rc/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb"/>
+        <echo message="Generic:"/>
+        <test_url system="greenfoot" filename="rc/Greenfoot-generic-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
+    </target>
+
+    <target name="urls-final">
+        <echo message="Mac:"/>
+        <test_url system="greenfoot" filename="Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
+        <echo message="Windows MSI:"/>
+        <test_url system="greenfoot" filename="Greenfoot-windows-${greenfoot.version.nodots}.msi"/>
+        <echo message="Windows ZIP:"/>
+        <test_url system="greenfoot" filename="Greenfoot-windows-${greenfoot.version.nodots}.zip"/>
+        <echo message="Linux:"/>
+        <test_url system="greenfoot" filename="Greenfoot-linux-${greenfoot.version.nodots}.deb"/>
+        <echo message="Generic:"/>
+        <test_url system="greenfoot" filename="Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
+    </target>
+
+
 </project>

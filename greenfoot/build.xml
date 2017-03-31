@@ -552,6 +552,14 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <target name="windows" description="Clean, update version number and build Windows installers" depends="clean,update-version-number,windows-msi-bundled-dist,windows-standalone"/>
     <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist"/>
 
+    <target name="urls-rc" description="Check and print RC links">
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml"  target="urls-rc"/>
+    </target>
+
+    <target name="urls-final" description="Check final release URLs">
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml"  target="urls-final"/>
+    </target>
+
     <target name="clean" description="clean up" >
         <echo message="Cleaning..."/>
         <!-- Jar installer image: greenfoot-splash.png -->
