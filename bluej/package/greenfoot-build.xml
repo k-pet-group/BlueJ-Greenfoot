@@ -512,7 +512,7 @@
         <!-- examples and documentation -->
         <mkdir dir="gf-examples-tmp" />
         <copy todir="gf-examples-tmp">
-            <fileset dir="${bluej.projectdir}/package">
+            <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.scenarios" />
             </fileset>
             <fileset dir="${bluej_home}/package">
