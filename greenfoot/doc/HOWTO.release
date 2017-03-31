@@ -3,7 +3,7 @@ Prerequisites:
  modified to match your configuration.
 
 
-Building Greenfoot:
+Building Greenfoot RC:
 
 Before you start building, check the copyright years, which is usually needed only once
 every year. The line to be updated is 'menu.help.copyright.line0', which is in the labels file:
@@ -14,45 +14,36 @@ every year. The line to be updated is 'menu.help.copyright.line0', which is in t
     - the labels have been updated with description of the API changes (see build.xml)
     - the @version javadoc tag has been correctly set for any user-visible Greenfoot
       classes which are affected by the API changes.
- 
+    Add a GUID to package/winsetup/version-guid file (Get one at guidgen.com)
     Then, run "ant update-version-number". This propagates the changes to various files.
     
  2. Test bundled scenarios and make sure they are compatible with the new API version.
- 3. Run "ant ready-to-run-greenfoot" in the BlueJ directory.
- 4. Run "ant dist" in the Greenfoot directory
- 5. Different Systems:
-    - Debian package: run "sudo ant debian-dist" to build the Debian/Ubuntu ".deb" package. You can only do this on
-      a system which has the "dpkg-deb" utility installed. It is necessary that this build target runs as root.
-    - Mac: see below.
-    - Windows launcher and installer: see below.
- 6. Copy the builds and source to greenfoot.org.
+ 3. Tag the RC in version control
+ 4. Different Systems:
+    - Debian package: run "fakeroot ant debian" to build the Debian/Ubuntu ".deb" package. You can only do this on
+      a system which has the "dpkg-deb" and "fakeroot" utilities installed.
+    - Mac: run "ant mac" (see below for more details).
+    - Windows launcher and installer: run "ant windows" (see below for more details).
+ 5. Copy the builds and source to greenfoot.org.
+ 6. Run "ant urls-rc" to check files are in the right place.
 
 If necessary:
  7. If the API version has changed, copy Greenfoot-core-X.X.X-jar to the gallery: /home/mygame/mygame/public/sharedjars/
  8. If any of the 3rd party libraries have changed copy them to: /home/mygame/mygame/public/sharedjars/
  9. If the licenses have changed, update GREENFOOT_LICENSES and copy LICENSE.txt and/or THIRDPARTYLICENSE.txt to: www.greenfoot.org/about
- 
-Finally:
-10. Commit any changed files (with updated version numbers etc) to the repository, and tag the release.
- 
-
-Building the Windows installer:
- InnoSetup build is no longer supported. For the MSI Windows package:
- 1. Update the Greenfoot version number in bluej/package/winsetup/greenfoot.wxs (in 2 places)
- 2. Run the Greenfoot ant script's "windows-msi-dist" target
 
 
 Building and Signing on Mac:
     To build:
-        - run "ant mac-dist" in the greenfoot source directory.
+        - run "ant mac" in the greenfoot source directory.
 
-    To sign:
+    To sign manually (now done automatically):
         - On the terminal, execute:
             codesign -s "Developer ID Application: Michael Kolling" Greenfoot.app/Contents/JDK/
 
             codesign -f -s "Developer ID Application: Michael Kolling" Greenfoot.app
 
-    To verify:
+    To verify manually (now done automatically):
         - On the terminal, execute:
             codesign --verify --deep --verbose=4 Greenfoot.app/
 

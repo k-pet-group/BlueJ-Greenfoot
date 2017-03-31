@@ -1,61 +1,42 @@
 How to make a BlueJ release
 ---------------------------
 
-PART I - BUILDING BLUEJ
------------------------
+PART I - BUILDING BLUEJ RELEASE CANDIDATE (RC)
+----------------------------------------------
 
 Before start building, check the copyright years, which is usually needed only once every year.
 The line to be updated is 'menu.help.copyright.line0', which is in the 'lib/english/labels' file.
 
- 1. Set the right BlueJ version number in bluej/build.xml and run: ant update-version-number
+ 1. Set the right BlueJ version number (and RC number) in bluej/build.xml
+    Add a GUID to package/winsetup/version-guid file (Get one at guidgen.com)
+    Run: ant update-version-number
  
     This updates the version number in the Boot class and the README.TXT file.
 
- 2. No longer necessary:
-    Make sure to build the submitter extension (using 'buildall' from the
-    extension ant build file). This places submitter.jar into bluej/lib/extensions.
-    
-    NOTE: submitter.jar is now under version control. If changes are made to the submitter
-    extension, the submitter.jar file should preferably be re-built and committed to the
-    repository at that time.
-     
- 3. Make sure you have a reasonably clean project folder as almost everything
-    will be included in the source bundle.
-    
-    Do a clean to ensure a clean build:    ant clean
-    (Compile and) build the release with:  ant dist
-    (make sure the JDK version used for the build is the lowest
-     compatible JDK for BlueJ)
-    This will create 
-        bluej/package/bluej-dist.jar            -- the core jar for building release bundles
-        bluej/package/BlueJ-generic-VERSION.jar -- the cross platform installer
-        bluej/package/BlueJ-source-VERSION.zip    -- the source bundle
-    NOTE: for some mysterious reason, distributions are larger when
-    built on Windows. Preferably build on Solaris or Mac.
-    
- 4. Run "sudo ant debian-dist" to build the Debian/Ubuntu ".deb" package. You can only do this
-    on a system which has the "dpkg-deb" utility installed. It is necessary that this build
-    target runs as root.
+ 2. Tag the current source tree in version control.
 
- 5. See HOWTO.make-win-version for building the Windows release bundle.
+ 3. For Debian, run "fakeroot ant debian".  (You will need fakeroot installed: sudo apt-get install fakeroot)
+
+ 4. See HOWTO.make-win-version for details on the Windows release bundle.
+    Short version: run "ant windows"
  
- 6. See HOWTO.make-mac-release for building the Mac release bundles.
+ 5. See HOWTO.make-mac-release for details on the Mac release bundles.
+    Short version: run "ant mac"
 
- 7. Rename (usually by adding a release candidate string like "BlueJ*rc1.???").
- 
- 8. The release should be tagged in the version control repository at this point.
-    (If another release candidate is built later, the tag can be reset).
+ 6. Test. When okay, upload to server.
 
- 9. Test. When okay, rename to final distribution name.
+ 7. Run "ant urls-rc" to check the RCs are in place and get a print-out of the URLs.  Include this in RC announcement email.
  
 
 PART II - RELEASING BLUEJ
 -------------------------
 
- 8. Move the distribution files and the source to the public 
+ 8. Move the RCs and the source to the public
     server (currently www.bluej.org/download/files/).
 
- 9. Update the BlueJ web site to announce the new version (available in SVN as trunk/www-bluej):
+ 9. Run "ant urls-final" to check the ifiles are in place
+
+ 10. Update the BlueJ web site to announce the new version (available in SVN as trunk/www-bluej):
      - update the front page (index.html)
         - change version, date, and download links 
      - update the versions page (versions.html)
@@ -64,10 +45,8 @@ PART II - RELEASING BLUEJ
         - change file name and download links
 
         
-10. Update the file www.bluej.org/version.info
+11. Update the file www.bluej.org/version.info
     The real location currently is: bluej:/home/bluej/www/version.info
-
-11. Intentionally left blank
 
 12. In the bugs database (http://bugs.bluej.org/trac/bluej),
 
