@@ -186,7 +186,9 @@ ${line.separator}
 This file is subject to the Classpath exception as provided in the  ${line.separator}
 LICENSE.txt file that accompanied this code.${line.separator}
 */${line.separator}"/>
-    
+
+    <import file="${bluej_home}/shared.xml"/>
+
     <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
@@ -213,13 +215,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
     <target name="compile" depends="init" description="Compile the source and run rmic" >
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac  
-            executable="${build_java_home}/${java_command_dir_name}/javac"
-            fork="yes"
-            srcdir="${src}" 
-            destdir="${build}" 
-            debug="true"
-            includeantruntime="false">
+        <compile srcdir="${src}"
+                 destdir="${build}">
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${bluej_home}/threadchecker/classes"/>
@@ -229,7 +226,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <compilerarg line="-source 1.8" /> <!-- Otherwise Java 8 (and above) complains -->
             <compilerarg line="-Xmaxerrs 1000"/>
             <!-- <compilerarg value="-Xplugin:threadchecker.TCPlugin rmiextension rmiextension.wrappers rmiextension.wrappers.event"/> -->
-        </javac>
+        </compile>
         <!-- Compile the RMI-classes -->
         <rmic compiler="forking" executable="${build_java_home}/${java_command_dir_name}/rmic" base="${build}" includes="**/*Impl.class" excludes="bluej/**">
             <classpath>
@@ -245,27 +242,24 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
     <target name="make-native" description="Make the JAR with native-calling code" >
         <mkdir dir="${native-build}"/>
-        <javac executable="${build_java_home}/${java_command_dir_name}/javac"
-               fork="yes"
-               srcdir="${native-src}"
-               destdir="${native-build}"
-               debug="true"
-               includeantruntime="false">
+        <compile srcdir="${native-src}"
+                 destdir="${native-build}">
             <classpath>
                 <pathelement location="${bluej_home}/lib/jna-4.2.0.jar"/>
                 <pathelement location="${bluej_home}/lib/jna-platform-4.2.0.jar"/>
             </classpath>
-        </javac>
+        </compile>
         <jar jarfile="${greenfoot-native.jar}" basedir="${native-build}"/>
     </target>
 
     <target name="compile-test" depends="compile" description="Compile the test source" >
         <!-- Compile the java code from ${test.src} into ${build} -->
-        <javac srcdir="${test.src}" destdir="${build}" classpathref="bluej.class.path" debug="true"
-               executable="${build_java_home}/${java_command_dir_name}/javac"
-               fork="yes">
+        <compile srcdir="${test.src}" destdir="${build}">
+            <classpath>
+                <path refid="bluej.class.path"/>
+            </classpath>
             <compilerarg line="-target 8" />
-        </javac>
+        </compile>
     </target>
 
     <target name="test" depends="compile-test">
@@ -292,19 +286,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <javac
-                    executable="${build_java_home}/${java_command_dir_name}/javac"
-                    fork="yes"
-                    srcdir="scenarios/@{scenario}"
-                    debug="true"
-                    source="1.8"
-                    target="1.8"
-                    includeantruntime="false">
+                <compile srcdir="scenarios/@{scenario}" destdir="scenarios/@{scenario}">
                     <classpath>
                         <path refid="greenfoot.class.path"/>
                         <path refid="bluej.class.path"/>
                     </classpath>
-                </javac>
+                </compile>
                 <replaceregexp byline="true">
                     <regexp pattern="version=.*"/>
                     <substitution expression="version=${greenfoot.apiversion}"/>
@@ -420,17 +407,13 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <target name="build-common-jar" description="Create a jar with a common class dependencies." >
         <mkdir dir="common/${common.class}/classes"/>
         <!-- Should first delete the class files in common (depend on clean-common) -->
-        <javac
-            executable="${build_java_home}/${java_command_dir_name}/javac"
-            fork="yes"
-            srcdir="common/${common.class}/src" destdir="common/${common.class}/classes"
-            debug="true" target="1.8" source="1.8" includeantruntime="false">
+        <compile srcdir="common/${common.class}/src" destdir="common/${common.class}/classes">
             <classpath>
                 <fileset dir="common/${common.class}/lib/">
                     <include name="*.jar"/>
                 </fileset>
             </classpath>
-        </javac>
+        </compile>
         <jar jarfile="common/${common.class}/lib/${common.class}.jar" basedir="common/${common.class}/classes"/>
     </target>
 
@@ -566,6 +549,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="clean" description="clean up" >
+        <echo message="Cleaning..."/>
         <!-- Jar installer image: greenfoot-splash.png -->
         <delete file="${bluej_home}/package/greenfoot-splash.png"/>
         <!-- About image: greenfoot-about.png -->
@@ -734,20 +718,9 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <mkdir dir="${standalone.build}"/>
 
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac  
-            executable="${build_java_home}/${java_command_dir_name}/javac"
-            fork="yes"
-            destdir="${standalone.build}" 
-            
-            classpathref="bluej.class.path" 
-            debug="true"
-            sourcepath=""
-            source="1.8"
-            target="1.8"
-            includeantruntime="false"
-        >
-            <src path="${src}"/>
+        <compile srcdir="${src}" destdir="${standalone.build}">
             <classpath>
+                <path refid="bluej.class.path"/>
                 <pathelement location="${bluej_home}/threadchecker/classes"/>
                 <pathelement location="${bluej_home}/lib/jna-4.2.0.jar"/>
                 <pathelement location="${bluej_home}/lib/jna-platform-4.2.0.jar"/>
@@ -813,7 +786,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/util/**/*.java"/>
 
             <exclude name="greenfoot/util/ExternalAppLauncher.java"/>
-        </javac>
+        </compile>
 
         <!-- Greenfoot icon for classes: greenfoot-16.png -->
         <copy file="resources/images/greenfoot-icon-16.png" tofile="${standalone.build}/greenfoot.png"/>
@@ -1019,7 +992,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </replaceregexp>
 
         <mkdir dir="${bluej_home}/util/classes"/>
-        <javac srcdir="${bluej_home}/util/src" destdir="${bluej_home}/util/classes"/>
+        <compile srcdir="${bluej_home}/util/src" destdir="${bluej_home}/util/classes"/>
         <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes">
             <arg value="resources/images/greenfoot-splash.png"/> <!-- original -->
             <arg value="Version ${greenfoot.version}"/> <!-- text -->

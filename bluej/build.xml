@@ -79,35 +79,7 @@
         <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
 
-    <!-- Set common compiler options -->
-    <macrodef name="compile">
-        <attribute name="srcdir"/>
-        <attribute name="destdir"/>
-        <attribute name="excludes" default=""/>
-        <element name="options" optional="true" implicit="true"/>
-        <sequential>
-        <echo message="Compiling files in @{srcdir}"/>
-        <javac  executable="${build_java_home}/${java_command_dir_name}/javac"
-                fork="yes"
-                srcdir="@{srcdir}"
-                destdir="@{destdir}"
-                excludes="@{excludes}"
-                source="1.8"
-                target="1.8"
-                deprecation="yes"
-                includeantruntime="false"
-                debug="true"
-                encoding="utf-8">
-            <options/>
-        </javac>
-        </sequential>
-    </macrodef>
-
-    <!-- Set the log output to quiet by default: -->
-    <script language="javascript">
-        var logger = project.getBuildListeners().firstElement();
-        logger.setMessageOutputLevel(1);
-    </script>
+    <import file="shared.xml"/>
 
     <!--
       -  Compile the boot strap loader
