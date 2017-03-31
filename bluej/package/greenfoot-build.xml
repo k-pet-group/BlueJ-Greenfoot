@@ -307,12 +307,13 @@
         </chmod>
     	
     	<chmod perm="+x" file="bundle-mac.sh" />
-        <exec executable="bundle-mac.sh" resolveexecutable="true">
+        <exec executable="bundle-mac.sh" resolveexecutable="true" outputproperty="bundleoutput">
             <arg value="${zip_dir}" />
         	<arg value="Greenfoot.app" />
         	<arg value="${mac_bundled_jdk_path}" />
         	<arg value="${greenfoot.dist.mac}" />
         </exec>
+        <echo message="${bundleoutput}"/>
     	
         <delete dir="mac_tmp" />
     	<antcall target="greenfoot-dist-cleanup" />

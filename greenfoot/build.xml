@@ -543,9 +543,14 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
     <target name="mac-dist" depends="dist">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="mac-dist" />
-        <move file="${greenfoot.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}-unsigned.zip"/>
-        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}-unsigned.zip"/>
+        <move file="${greenfoot.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
+        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
     </target>
+
+    <!-- The simple targets for doing a complete build: -->
+    <target name="mac" description="Clean, update version number and build Mac installer" depends="clean,update-version-number,mac-dist"/>
+    <target name="windows" description="Clean, update version number and build Windows installers" depends="clean,update-version-number,windows-msi-bundled-dist,windows-standalone"/>
+    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist"/>
 
     <target name="clean" description="clean up" >
         <echo message="Cleaning..."/>
