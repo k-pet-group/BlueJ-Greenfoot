@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -342,11 +342,6 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
         return Config.getPropString(name, null, Config.moeUserProps);
     }
 
-    public ComboBox<String> getInterfaceToggle()
-    {
-        return interfaceToggle;
-    }
-
     /**
      * Set the editor to display either the interface or the source code.
      *
@@ -356,5 +351,32 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     public void showInterface(boolean interfaceStatus)
     {
         interfaceToggle.getSelectionModel().select(interfaceStatus ? 1 : 0);
+    }
+
+    /**
+     * 
+     */
+    public boolean isInterfaceSelected()
+    {
+        return interfaceToggle.getSelectionModel().getSelectedItem().equals(interfaceString);
+    }
+
+    /**
+     * Toggle the interface popup menu. This is used when using keys to toggle
+     * the interface view. Toggling the menu will result in invoking the action.
+     */
+    public void toggleInterfaceMenu()
+    {
+        if (interfaceToggle.getSelectionModel().getSelectedIndex() == 0) {
+            interfaceToggle.getSelectionModel().select(1);
+        }
+        else {
+            interfaceToggle.getSelectionModel().select(0);
+        }
+    }
+
+    public void disableInterfaceToggle()
+    {
+        interfaceToggle.setDisable(true);
     }
 }

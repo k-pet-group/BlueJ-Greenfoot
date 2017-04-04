@@ -199,10 +199,6 @@ public final class MoeEditor extends JPanel
      */
     private static ArrayList<String> readMeActions;
 
-    // -------- INSTANCE VARIABLES --------  //
-    // Strings                               //
-    private final String interfaceString = Config.getString("editor.interfaceLabel");//
-
     // The code to ask for the default editor to be added to, for the case
     // where we have been hidden but want to reshow ourselves again:
     private final FXSupplier<FXTabbedEditor> defaultFXTabbedEditor;
@@ -664,7 +660,7 @@ public final class MoeEditor extends JPanel
                 if (new File(docFilename).exists()) {
                     showInterface(true);
                     loaded = true;
-                    fxTab.getInterfaceToggle().setDisable(true);
+                    fxTab.disableInterfaceToggle();
                 }
             }
         }
@@ -2204,12 +2200,7 @@ public final class MoeEditor extends JPanel
         if (!sourceIsCode)
             return;
 
-        if (fxTab.getInterfaceToggle().getSelectionModel().getSelectedIndex() == 0) {
-            fxTab.getInterfaceToggle().getSelectionModel().select(1);
-        }
-        else {
-            fxTab.getInterfaceToggle().getSelectionModel().select(0);
-        }
+        fxTab.toggleInterfaceMenu();
     }
 
     // --------------------------------------------------------------------
@@ -2224,7 +2215,7 @@ public final class MoeEditor extends JPanel
             return;
         }
 
-        boolean wantHTML = (fxTab.getInterfaceToggle().getSelectionModel().getSelectedItem() == interfaceString);
+        boolean wantHTML = fxTab.isInterfaceSelected();
         if (wantHTML && !viewingHTML) {
             switchToInterfaceView();
         }
