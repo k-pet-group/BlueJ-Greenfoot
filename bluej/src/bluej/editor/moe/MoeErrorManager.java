@@ -81,18 +81,15 @@ public class MoeErrorManager implements MoeDocumentListener
         if (endPos < startPos)
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
         
-        JEditorPane sourcePane = editor.getSourcePane();
-        try {
-            MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
+        MoeEditorPane sourcePane = editor.getSourcePane();
+            //MOEFX
+            //MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
             AdvancedHighlightPainter painter = new MoeSquigglyUnderlineHighlighterPainter(Color.RED, offs -> editor.getLineColumnFromOffset(offs).getLine());
-            Object errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
-            errorInfos.add(new ErrorDetails(errorHighlightTag, startPos, endPos, message, identifier));
+            //MOEFX
+            //Object errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
+            //errorInfos.add(new ErrorDetails(errorHighlightTag, startPos, endPos, message, identifier));
             setNextErrorEnabled.accept(true);
             editor.updateHeaderHasErrors(true);
-        }
-        catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
     }
     
     /**
@@ -100,10 +97,11 @@ public class MoeErrorManager implements MoeDocumentListener
      */
     public void removeAllErrorHighlights()
     {
-        JEditorPane sourcePane = editor.getSourcePane();
+        MoeEditorPane sourcePane = editor.getSourcePane();
         for (ErrorDetails err : errorInfos)
         {
-            sourcePane.getHighlighter().removeHighlight(err.highlightTag);
+            //MOEFX
+            //sourcePane.getHighlighter().removeHighlight(err.highlightTag);
         }
         errorInfos.clear();
         setNextErrorEnabled.accept(false);

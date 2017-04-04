@@ -104,6 +104,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
         addDisplayElements();
 
+        //MOEFX
+        /*
         findTField.addFocusListener(new FocusListener()
         {
 
@@ -119,7 +121,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                 searchStart = -1;
             }
         });
-
+        */
     }
 
     @Override
@@ -128,7 +130,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (aFlag && !isVisible()) {
             // Remember the current caret location so we can revert to it if
             // the search term cannot be found.
-            searchStart = editor.getCurrentTextPane().getSelectionStart();
+            //MOEFX
+            //searchStart = editor.getCurrentTextPane().getSelectionStart();
         }
         super.setVisible(aFlag);
         if (aFlag) {
@@ -320,7 +323,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         } else if (src == previousButton) {
             getPrev();
         } else if (src == matchCaseCheckBox) {
-            editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
+            //MOEFX
+            //editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
             find(true);
         }
     }
@@ -330,7 +334,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void getNext()
     {
-        editor.getCurrentTextPane().setCaretPosition((editor.getCurrentTextPane().getSelectionStart() + 1));
+        //MOEFX
+        //editor.getCurrentTextPane().setCaretPosition((editor.getCurrentTextPane().getSelectionStart() + 1));
         find(true);
         editor.enableReplaceButtons();
     }
@@ -350,6 +355,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void findEvent()
     {
+        //MOEFX
+        /*
         int selBegin = editor.getCurrentTextPane().getSelectionStart();
 
         //check there has been a legitimate change in the search criteria            
@@ -374,6 +381,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             editor.getCurrentTextPane().setCaretPosition(searchStart);
         }
         updateDisplay(found);
+        */
     }
 
     /**
@@ -435,6 +443,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public boolean highlightAll(boolean ignoreCase, boolean forwards)
     {
+        //MOEFX
+        /*
         int counter = search(ignoreCase, true, forwards);
         //if there was nothing found, need to move the caret back to its original position
         //also need to disable buttons accordingly
@@ -448,6 +458,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
         writeMessage(true, counter);
         return counter != 0;
+        */
+        return false;
     }
 
     /**
@@ -483,6 +495,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Search either forwards or backwards for the search string, highlighting all occurrences.
      * If no occurrences are found, the caret position is lost.
      */
+    //MOEFX
+    /*
     private int search(boolean ignoreCase, boolean wrap, boolean next)
     {
         String searchStr = getSearchString();
@@ -506,6 +520,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         found = editor.doFindSelect(searchStr, ignoreCase, wrap);
         return found;
     }
+    */
 
     /**
      * Find the current search string in either the forwards or backwards direction, 
@@ -546,7 +561,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             editor.removeSelections();
             setSearchString(null);
             if (searchStart != -1) {
-                editor.getCurrentTextPane().setCaretPosition(searchStart);
+                //MOEFX
+                //editor.getCurrentTextPane().setCaretPosition(searchStart);
             }
             writeMessage(false, 0);
             updateDisplay(false);
@@ -623,7 +639,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         editor.removeSearchHighlights();
         this.setVisible(false);
         editor.setReplacePanelVisible(false);
-        editor.getCurrentTextPane().requestFocusInWindow();
+        editor.getCurrentTextPane().requestFocus();
         replaceIconLabel.setIcon(closedIcon);
     }
 

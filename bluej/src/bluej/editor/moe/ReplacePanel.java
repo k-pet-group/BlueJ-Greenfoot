@@ -87,7 +87,8 @@ public class ReplacePanel extends JPanel implements ActionListener, DocumentList
         }
         if (src.getName().equals(REPLACE_ALL_BUTTON_NAME)) {
             if (getReplaceString() != null) {
-                editor.replaceAll(getReplaceString());
+                //MOEFX
+                //editor.replaceAll(getReplaceString());
             }
         }
 

@@ -113,8 +113,9 @@ public final class MoeActions
     // undo helpers
     public UndoAction undoAction;
     public RedoAction redoAction;
-    public FindNextAction findNextAction;
-    public FindNextBackwardAction findNextBackwardAction;
+    //MOEFX
+    //public FindNextAction findNextAction;
+    //public FindNextBackwardAction findNextBackwardAction;
     // frequently needed actions
     public CompileOrNextErrorAction compileOrNextErrorAction;
     public Action contentAssistAction;
@@ -445,10 +446,9 @@ public final class MoeActions
     private static void blockAction(MoeEditor editor, LineAction lineAction)
     {
         editor.setCaretActive(false);
-        
-        Caret caret = editor.getSourcePane().getCaret();
-        int selectionStart = caret.getMark();
-        int selectionEnd = caret.getDot();
+
+        int selectionStart = editor.getSourcePane().getCaretMark();
+        int selectionEnd = editor.getSourcePane().getCaretDot();
         if (selectionStart > selectionEnd) {
             int tmp = selectionStart;
             selectionStart = selectionEnd;
@@ -543,7 +543,8 @@ public final class MoeActions
 
 
     // --------------------------------------------------------------------
-
+    //MOEFX
+/*
     public FindNextAction getFindNextAction()
     {
         return findNextAction;
@@ -555,7 +556,7 @@ public final class MoeActions
     {
         return findNextBackwardAction;
     }
-
+*/
     // --------------------------------------------------------------------
 
     /**
@@ -784,6 +785,8 @@ public final class MoeActions
      */
     public void textInsertAction(DocumentEvent evt, JTextComponent textPane)
     {
+        //MOEFX
+        /*
         try {
             if (evt.getLength() == 1) { // single character inserted
                 Document doc = evt.getDocument();
@@ -802,6 +805,7 @@ public final class MoeActions
         catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
+        */
     }
 
     // --------------------------------------------------------------------
@@ -1155,9 +1159,10 @@ public final class MoeActions
                 new CutWordAction(editor),
                 new CutEndOfWordAction(editor),
 
-                new FindAction(editor), 
-                findNextAction=new FindNextAction(editor),
-                findNextBackwardAction=new FindNextBackwardAction(editor),
+                //MOEFX
+                //new FindAction(editor),
+                //findNextAction=new FindNextAction(editor),
+                //findNextBackwardAction=new FindNextBackwardAction(editor),
                 new ReplaceAction(editor),
                 compileOrNextErrorAction,
                 new GoToLineAction(editor), 
@@ -2224,7 +2229,8 @@ public final class MoeActions
             c.getCaret().moveDot(newEnd);
         }
     }
-
+    //MOEFX
+    /*
     class FindAction extends MoeAbstractAction
     {
         public FindAction(MoeEditor editor)
@@ -2268,6 +2274,7 @@ public final class MoeActions
             getEditor().findNext(true);
         }
     }
+    */
 
     class ReplaceAction extends MoeAbstractAction
     {

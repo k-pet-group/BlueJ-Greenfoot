@@ -182,7 +182,8 @@ public class CodeCompletionDisplay implements ListSelectionListener, MouseListen
                 {
                     SwingUtilities.invokeLater(() -> {
                         methodList.requestFocusInWindow();
-                        editor.getSourcePane().getCaret().setVisible(true);
+                        //MOEFX
+                        //editor.getSourcePane().getCaret().setVisible(true);
                     });
                 }
                 else

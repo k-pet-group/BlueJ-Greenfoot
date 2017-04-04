@@ -71,10 +71,12 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
+import javax.swing.text.AbstractDocument.DefaultDocumentEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
@@ -96,21 +98,32 @@ import bluej.parser.symtab.Selection;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.io.CharStreams;
 import javafx.application.Platform;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.PopupControl;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.scene.web.WebView;
 import javafx.stage.*;
 import javafx.stage.Popup;
 
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.wellbehaved.event.*;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -159,8 +172,8 @@ import bluej.utility.Utility;
  * @author Damiano Bolla
  */
 
-public final class MoeEditor extends JPanel
-    implements bluej.editor.TextEditor, BlueJEventListener, HyperlinkListener, DocumentListener, MouseListener, MouseMotionListener
+public final class MoeEditor extends BorderPane
+    implements bluej.editor.TextEditor, BlueJEventListener, DocumentListener, MouseListener, MouseMotionListener
 {
     // -------- CONSTANTS --------
 
@@ -224,14 +237,12 @@ public final class MoeEditor extends JPanel
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
     
+    private boolean isShowingSrc = true;
     private final Properties resources;
-    private AbstractDocument document;
     private MoeSyntaxDocument sourceDocument;
-    private HTMLDocument htmlDocument;
     private MoeActions actions;
-    private JEditorPane currentTextPane;    // text component currently displayed
-    private JEditorPane sourcePane;         // the component holding the source text
-    private JEditorPane htmlPane;           // the component holding the javadoc html
+    private MoeEditorPane sourcePane;         // the component holding the source text
+    private WebView htmlPane;           // the component holding the javadoc html
     private MoeCaret moeCaret;
     private Info info;                      // the info number label
     private JPanel statusArea;              // the status area
@@ -243,7 +254,6 @@ public final class MoeEditor extends JPanel
     // find functionality
     private FindPanel finder;
     private ReplacePanel replacer;
-    private JScrollPane scrollPane;
     private NaviView naviView;              // Navigation view (mini-source view)
     private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the
                                             // editor and navigation view
@@ -301,7 +311,7 @@ public final class MoeEditor extends JPanel
      */
     public MoeEditor(MoeEditorParameters parameters, FXSupplier<FXTabbedEditor> getDefaultEditor)
     {
-        super(new BorderLayout(6,6));
+        super();
         this.defaultFXTabbedEditor = getDefaultEditor;
         final String fxWindowTitle = parameters.getTitle();
         Platform.runLater(() -> {
@@ -640,7 +650,7 @@ public final class MoeEditor extends JPanel
                 // FileReader reader = new FileReader(filename);
                 FileInputStream inputStream = new FileInputStream(filename);
                 Reader reader = new InputStreamReader(inputStream, charset);
-                sourcePane.read(reader, null);
+                sourcePane.read(reader);
                 try {
                     reader.close();
                     inputStream.close();
@@ -651,11 +661,11 @@ public final class MoeEditor extends JPanel
                 
                 sourcePane.addMouseListener(this);
                 sourcePane.addMouseMotionListener(this);
-                sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
+                //MOEFX
+                //sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
                 naviView.setDocument(sourceDocument);
                 sourceDocument.addDocumentListener(this);
                 sourceDocument.addUndoableEditListener(undoManager);
-                document = sourceDocument;
                 
                 sourceDocument.enableParser(false);
                 loaded = true;
@@ -770,9 +780,7 @@ public final class MoeEditor extends JPanel
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
         checkBracketStatus();
         scheduleReparseRunner(); //whenever we change the scope highlighter, call scheduleReparseRunner to create a reparser to that file: if the scope highlighter is 0, it will do nothing. However, if it is not zero, it will ensure the editor is updated accordingly.
-        
-        currentTextPane.repaint();
-        
+
         Info.resetFont();
         info.refresh();
         StatusLabel.resetFont();
@@ -892,7 +900,7 @@ public final class MoeEditor extends JPanel
     public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
         if (compileType.showEditorOnError())
-            setVisible(true);
+            setEditorVisible(true);
         
         switchToSourceView();
         
@@ -1278,14 +1286,12 @@ public final class MoeEditor extends JPanel
     @Override
     public SourceLocation getSelectionBegin()
     {
-        Caret aCaret = sourcePane.getCaret();
-
         // If the dot is == as the mark then there is no selection.
-        if (aCaret.getDot() == aCaret.getMark()) {
+        if (sourcePane.getCaretDot() == sourcePane.getCaretMark()) {
             return null;
         }
 
-        int beginOffset = Math.min(aCaret.getDot(), aCaret.getMark());
+        int beginOffset = Math.min(sourcePane.getCaretDot(), sourcePane.getCaretMark());
 
         return getLineColumnFromOffset(beginOffset);
     }
@@ -1299,14 +1305,12 @@ public final class MoeEditor extends JPanel
     @Override
     public SourceLocation getSelectionEnd()
     {
-        Caret aCaret = sourcePane.getCaret();
-
         // If the dot is == as the mark then there is no selection.
-        if (aCaret.getDot() == aCaret.getMark()) {
+        if (sourcePane.getCaretDot() == sourcePane.getCaretMark()) {
             return null;
         }
 
-        int endOffset = Math.max(aCaret.getDot(), aCaret.getMark());
+        int endOffset = Math.max(sourcePane.getCaretDot(), sourcePane.getCaretMark());
 
         return getLineColumnFromOffset(endOffset);
     }
@@ -1635,7 +1639,8 @@ public final class MoeEditor extends JPanel
             setChanged();
         }
         actions.userAction();
-        doTextInsert.setEvent(e, sourcePane);
+        //MOEFX
+        //doTextInsert.setEvent(e, sourcePane);
         
         // This may handle re-indentation; as this mutates the
         // document, it must be done outside the notification.
@@ -1810,7 +1815,7 @@ public final class MoeEditor extends JPanel
      */
     public void doClose()
     {
-        setVisible(false);
+        setEditorVisible(false);
         if (watcher != null) {
             //setting the naviview visible property when an editor is closed
             watcher.setProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
@@ -1901,6 +1906,8 @@ public final class MoeEditor extends JPanel
     /**
      * Implementation of "find-next" user function.
      */
+    //MOEFX
+    /*
     public void findNext(boolean backwards)
     {
         String selection= currentTextPane.getSelectedText();
@@ -1924,10 +1931,13 @@ public final class MoeEditor extends JPanel
             findString(selection, backwards, !finder.getMatchCase(), true);
         }
     }
+    */
 
     /**
      * Do a find with info in the info area.
      */
+    //MOEFX
+    /*
     boolean findString(String s, boolean backward,
             boolean ignoreCase, boolean wrap)
     {
@@ -1973,11 +1983,14 @@ public final class MoeEditor extends JPanel
 
         return found;
     }
+    */
 
     /**
      * Search for and select the given search string forwards from
      * the current caret position. Returns false if not found.
      */
+    //MOEFX
+    /*
     boolean doFind(String s, boolean ignoreCase, boolean wrap)
     {
         int docLength = document.getLength();
@@ -2032,11 +2045,14 @@ public final class MoeEditor extends JPanel
         }
         return found;
     }
+    */
     
     /**
      * Do a find backwards without visible feedback. Returns
      * false if not found.
      */
+    //MOEFX
+    /*
     boolean doFindBackward(String s, boolean ignoreCase, boolean wrap)
     {
         int docLength = document.getLength();
@@ -2088,6 +2104,7 @@ public final class MoeEditor extends JPanel
         }
         return found;
     }
+    */
     
     // --------------------------------------------------------------------
     
@@ -2100,6 +2117,8 @@ public final class MoeEditor extends JPanel
      *
      * @return Returns false if not found.
      */
+    //MOEFX
+    /*
     int doFindSelect(String s, boolean ignoreCase, boolean wrap)
     {
         boolean select=true; //first item found should be selected so initialised to true
@@ -2162,12 +2181,15 @@ public final class MoeEditor extends JPanel
         }
         return highlightCount;
     }
+    */
 
     // --------------------------------------------------------------------
     
     /**
      * Add a search highlight to the currently displayed pane.
      */
+    //MOEFX
+    /*
     private void addSearchHighlight(int startPos, int endPos)
     {
         try {
@@ -2184,6 +2206,7 @@ public final class MoeEditor extends JPanel
             Debug.reportError("Error adding search highlight", ble);
         }
     }
+    */
 
     // --------------------------------------------------------------------
     
@@ -2290,7 +2313,8 @@ public final class MoeEditor extends JPanel
         replacer.setReplaceString(null);
         replacer.populateReplaceField(null);
         if (finder.isVisible()){
-            initFindPanel();
+            //MOEFX
+            //initFindPanel();
         }
     }
 
@@ -2303,13 +2327,9 @@ public final class MoeEditor extends JPanel
             return;
         }
         resetMenuToolbar(true);
-        document = sourceDocument;
-        currentTextPane = sourcePane;
         viewingHTML = false;
         watcher.showingInterface(false);
-        scrollPane.setViewportView(currentTextPane);
         dividerPanel.endTemporaryHide();
-        currentTextPane.requestFocus();
         initSearch();
     }
 
@@ -2344,28 +2364,12 @@ public final class MoeEditor extends JPanel
         try {
             File urlFile = new File(getDocPath());
             URL myURL = urlFile.toURI().toURL();
-            
-            HTMLEditorKit ekit = new HTMLEditorKit();
-            htmlDocument = (HTMLDocument) ekit.createDefaultDocument();
-            htmlDocument.setBase(myURL);
-            // Must ignore character set META tag, otherwise an exception will be thrown;
-            // HTMLEditorKit doesn't support changing character set:
-            htmlDocument.putProperty("IgnoreCharsetDirective", true);
-            htmlDocument.putProperty(Document.StreamDescriptionProperty, myURL);
-            
-            fis = new FileInputStream(urlFile);
-            Reader r = new InputStreamReader(fis, characterSet);
-            ekit.read(r, htmlDocument, 0);
-            r.close();
-            
-            htmlPane.setDocument(htmlDocument);
+
+            htmlPane.getEngine().load(myURL.toString());
             
             info.message(Config.getString("editor.info.docLoaded"));
-            if (isShowingInterface()){
-                document=htmlDocument;
-            }
         }
-        catch (IOException | BadLocationException exc) {
+        catch (IOException exc) {
             info.message (Config.getString("editor.info.docDisappeared"), getDocPath());
             Debug.reportError("loading class interface failed: " + exc);
             if (fis != null) {
@@ -2526,6 +2530,8 @@ public final class MoeEditor extends JPanel
      */
     private void displayInterface()
     {
+        //MOEFX
+        /*
         info.message(Config.getString("editor.info.loadingDoc"));
         boolean generateDoc = ! docUpToDate();
 
@@ -2561,6 +2567,7 @@ public final class MoeEditor extends JPanel
         scrollPane.setViewportView(htmlPane);
         currentTextPane.requestFocus();
         initSearch();
+        */
     }
 
     /**
@@ -2568,54 +2575,7 @@ public final class MoeEditor extends JPanel
      */
     private void createHTMLPane()
     {
-        htmlPane = new JEditorPane();
-        htmlPane.setHighlighter(new MoeHighlighter());
-        htmlPane.setEditorKit(new HTMLEditorKit());
-        htmlPane.setEditable(false);
-        htmlPane.addHyperlinkListener(this);
-        htmlPane.setInputMap(JComponent.WHEN_FOCUSED, new InputMap()
-        {
-            @Override
-            public Object get(KeyStroke keyStroke)
-            {
-                // Define no action for up/down, which allows the parent scroll
-                // pane to process the keys instead. This means the view will scroll,
-                // rather than just moving an invisible cursor.
-                Object action = super.get(keyStroke);
-                if ("caret-up".equals(action) || "caret-down".equals(action))
-                {
-                    return null;
-                }
-                return action;
-            }
-        });
-        FXTabbedEditor.disableCtrlTabTraversal(htmlPane);
-    }
-
-    /**
-     * A hyperlink was activated in the document. Do something appropriate.
-     */
-    @Override
-    public void hyperlinkUpdate(HyperlinkEvent e)
-    {
-        info.clear();
-        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-            JEditorPane pane = (JEditorPane) e.getSource();
-            if (e instanceof HTMLFrameHyperlinkEvent) {
-                HTMLFrameHyperlinkEvent evt = (HTMLFrameHyperlinkEvent) e;
-                HTMLDocument doc = (HTMLDocument) pane.getDocument();
-                doc.processHTMLFrameHyperlinkEvent(evt);
-            }
-            else {
-                try {
-                    pane.setPage(e.getURL());
-                }
-                catch (Throwable t) {
-                    info.message ("cannot display hyperlink: " + e.getURL());
-                    Debug.reportError("hyperlink failed: " + t);
-                }
-            }
-        }
+        htmlPane = new WebView();
     }
 
     // --------------------------------------------------------------------
@@ -2759,6 +2719,11 @@ public final class MoeEditor extends JPanel
         repaint();
     }
 
+    private void repaint()
+    {
+        // N/A in JavaFX
+    }
+
     /**
      * Return a boolean representing whether in source editing view
      */
@@ -2782,14 +2747,6 @@ public final class MoeEditor extends JPanel
     }
 
     // --------------------------------------------------------------------
-
-    /**
-     * Find and return a line by text position in the current document
-     */
-    private Element getLineAt(int pos)
-    {
-        return document.getParagraphElement(pos);
-    }
 
     // --------------------------------------------------------------------
 
@@ -2819,12 +2776,11 @@ public final class MoeEditor extends JPanel
     {
         removeSearchHighlights();
         Reader reader = null;
-        boolean isShowingSrc = sourceDocument == document;
         
         try {
             FileInputStream inputStream = new FileInputStream(filename);
             reader = new InputStreamReader(inputStream, characterSet);
-            sourcePane.read(reader, null);
+            sourcePane.read(reader);
             try {
                 reader.close();
                 inputStream.close();
@@ -2868,11 +2824,7 @@ public final class MoeEditor extends JPanel
                 }
             }
             catch (IOException ioe) {}
-            
-            if (isShowingSrc) {
-                document = sourceDocument;
-            }
-            
+
             if (finder != null && finder.isVisible()) {
                finder.find(true);
             }
@@ -2912,6 +2864,8 @@ public final class MoeEditor extends JPanel
      */
     public void setCaretActive(boolean active)
     {
+        //MOEFX
+        /*
         if (! active) {
             //moeCaret.deinstall(currentTextPane);
             currentTextPane.setCaret(new NullCaret(moeCaret.getMark(), moeCaret.getDot()));
@@ -2923,6 +2877,7 @@ public final class MoeEditor extends JPanel
             moeCaret.setDot(caret.getMark());
             moeCaret.moveDot(caret.getDot());
         }
+        */
     }
 
     /**
@@ -2938,8 +2893,6 @@ public final class MoeEditor extends JPanel
         else {
             sourceDocument.putProperty(COMPILED, Boolean.FALSE);
         }
-
-        currentTextPane.repaint();
     }
 
     /**
@@ -3068,11 +3021,12 @@ public final class MoeEditor extends JPanel
                     ErrorDisplay old = errorDisplay;
                     Platform.runLater(() -> old.popup.hide());
                 }
-                try {
-                    Rectangle pos = sourcePane.modelToView(displayPosition);
-                    Point spLoc = sourcePane.getLocationOnScreen();
-                    int xpos = pos.x + spLoc.x;
-                    int ypos = pos.y + (3*pos.height/2) + spLoc.y;
+                    Bounds pos = sourcePane.getCharacterBoundsOnScreen(displayPosition, displayPosition).orElse(null);
+                    if (pos == null)
+                        return;
+                    Bounds spLoc = sourcePane.localToScene(sourcePane.getBoundsInLocal());
+                    int xpos = (int)(pos.getMinX() + spLoc.getMinX());
+                    int ypos = (int)(pos.getMinY() + (3*pos.getHeight()/2) + spLoc.getMinY());
                     errorDisplay = new ErrorDisplay(details);
                     ErrorDisplay newDisplay = errorDisplay;
                     Platform.runLater(() -> {
@@ -3086,11 +3040,6 @@ public final class MoeEditor extends JPanel
                     if (watcher != null) {
                         watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
                     }
-                }
-                catch (BadLocationException ble)
-                {
-                    Debug.reportError(ble);
-                }
             }
         }
         else if (errorDisplay != null)
@@ -3194,9 +3143,6 @@ public final class MoeEditor extends JPanel
         
         // prepare the content pane (us)
 
-        this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-
-
         // create and add info and status areas
 
         JPanel bottomArea = new JPanel();
@@ -3247,7 +3193,8 @@ public final class MoeEditor extends JPanel
 
         bottomArea.add(commentsPanel, BorderLayout.SOUTH);
 
-        this.add(bottomArea, BorderLayout.SOUTH);
+        //MOEFX
+        //this.add(bottomArea, BorderLayout.SOUTH);
 
         // create the text document
 
@@ -3271,15 +3218,16 @@ public final class MoeEditor extends JPanel
         }
         //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
         sourcePane = new MoeEditorPane();
-        sourcePane.setDocument(sourceDocument);
+        //MOEFX
+        //sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);
-        sourcePane.setMargin(new Insets(2, 0, 2, 0));
-        sourcePane.setOpaque(true);
-        sourcePane.setEditorKit(kit);
         moeCaret = new MoeCaret(this);
-        sourcePane.setCaret(moeCaret);
-        sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
-        FXTabbedEditor.disableCtrlTabTraversal(sourcePane);
+        Nodes.addInputMap(sourcePane, org.fxmisc.wellbehaved.event.InputMap.consume(EventPattern.keyPressed(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), e -> createContentAssist()));
+
+        //MOEFX
+        //sourcePane.setCaret(moeCaret);
+        //sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
+        //FXTabbedEditor.disableCtrlTabTraversal(sourcePane);
         
         // *** Disabled due to Java bug - see http://davmac.wordpress.com/2014/05/13/javas-nimbus-look-and-feel-and-custom-keymaps/ ***
         // The Nimbus look-and-feel doesn't normally respect the background colour setting;
@@ -3291,36 +3239,39 @@ public final class MoeEditor extends JPanel
         //defaults.put("EditorPane[Enabled].backgroundPainter", versionString);
         //sourcePane.putClientProperty("Nimbus.Overrides", defaults);
         //sourcePane.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
-        
-        sourcePane.setSelectionColor(selectionColour);
-        sourcePane.setCaretColor(cursorColor);
+
+        //MOEFX
+        //sourcePane.setSelectionColor(selectionColour);
+        //sourcePane.setCaretColor(cursorColor);
 
         // default showing:
-        currentTextPane = sourcePane;
+        //currentTextPane = sourcePane;
 
-        JPanel editorPane = new JPanel();
-        editorPane.setLayout(new BoxLayout(editorPane, BoxLayout.X_AXIS));
-        if (!Config.isRaspberryPi()) editorPane.setOpaque(false);
-        scrollPane = new JScrollPane(currentTextPane);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        
-        naviView = new NaviView(sourceDocument, errorManager, scrollPane.getVerticalScrollBar());
+        HBox editorPane = new HBox();
+
+        //MOEFX: scroll bar
+        naviView = new NaviView(sourceDocument, errorManager, new JScrollPane().getVerticalScrollBar());
         naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
         naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
         naviView.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         
         dividerPanel=new EditorDividerPanel(naviView, getNaviviewExpandedProperty());
         if (!Config.isRaspberryPi()) dividerPanel.setOpaque(false);
-      
-        editorPane.add(scrollPane);
-        editorPane.add(dividerPanel);
-        editorPane.add(naviView);
 
-        this.add(editorPane, BorderLayout.CENTER);
+        //MOEFX
+        //editorPane.getChildren().add(scrollPane);
+        //editorPane.add(dividerPanel);
+        //editorPane.add(naviView);
+
+        editorPane.setFillHeight(true);
+        //HBox.setHgrow(scrollPane, Priority.ALWAYS);
+        //setCenter(editorPane);
+        setCenter(new VirtualizedScrollPane<>(sourcePane));
 
         // get table of edit actions
 
-        actions = MoeActions.getActions(this, sourcePane);
+        //MOEFX: editor pane reference
+        actions = MoeActions.getActions(this, new JEditorPane());
         actions.setUndoEnabled(false);
         actions.setRedoEnabled(false);
 
@@ -3339,7 +3290,8 @@ public final class MoeEditor extends JPanel
         toolbar = createToolbar();
         toolbar.setName("toolbar");
         if (!Config.isRaspberryPi()) toolbar.setOpaque(false);
-        this.add(toolbar, BorderLayout.NORTH);
+        //MOEFX
+        //this.add(toolbar, BorderLayout.NORTH);
         
         //add popup menu
         
@@ -3359,15 +3311,14 @@ public final class MoeEditor extends JPanel
             }
         });
         */
-
-        setFocusTraversalPolicy(new MoeFocusTraversalPolicy());
         
         // Set the size, respecting the current environment maximums.
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Rectangle maxBounds = ge.getMaximumWindowBounds();
         int myWidth = Math.min(900, (int) maxBounds.getWidth());
         int myHeight = Math.min(700, (int) maxBounds.getHeight());
-        setSize(myWidth, myHeight);
+        //MOEFX
+        //setSize(myWidth, myHeight);
     }
 
 
@@ -3615,6 +3566,8 @@ public final class MoeEditor extends JPanel
      * it is the source pane then the replace button is enabled; if it is the interface pane 
      * then the replace button and replace panel are set to disabled and invisible
      */
+    //MOEFX
+    /*
     public void initFindPanel()
     {
         finder.displayFindPanel(currentTextPane.getSelectedText());
@@ -3629,6 +3582,7 @@ public final class MoeEditor extends JPanel
             finder.setReplaceEnabled(true);
         }
     }
+    */
 
     /**
      * Sets the caret forward by the value indicated if this does not 
@@ -3636,23 +3590,23 @@ public final class MoeEditor extends JPanel
      */
     public void setCaretPositionForward (int caretPos)
     {
-        int docLength = document.getLength();
-        if (currentTextPane.getCaretPosition() + caretPos <= docLength) {
-            currentTextPane.setCaretPosition(currentTextPane.getCaretPosition() + caretPos);
+        int docLength = sourcePane.getLength();
+        if (sourcePane.getCaretPosition() + caretPos <= docLength) {
+            sourcePane.setCaretPosition(sourcePane.getCaretPosition() + caretPos);
         } else { 
-            currentTextPane.setCaretPosition(docLength);
+            sourcePane.setCaretPosition(docLength);
         }
     }
 
     /**
      * Get the source pane.
      */
-    public JEditorPane getSourcePane()
+    public MoeEditorPane getSourcePane()
     {
         return sourcePane;
     }
 
-    public JEditorPane getHTMLPane()
+    public WebView getHTMLPane()
     {
         return htmlPane;
     }
@@ -3660,9 +3614,9 @@ public final class MoeEditor extends JPanel
     /**
      * Get the current pane.
      */
-    public JEditorPane getCurrentTextPane()
+    public MoeEditorPane getCurrentTextPane()
     {
-        return currentTextPane;
+        return sourcePane;
     }    
     
     /**
@@ -3680,6 +3634,8 @@ public final class MoeEditor extends JPanel
      */
     public void removeSearchHighlights()
     {
+        //MOEFX
+        /*
         for (Object tag : sourceSearchHighlightTags) {
             sourcePane.getHighlighter().removeHighlight(tag);
         }
@@ -3689,6 +3645,7 @@ public final class MoeEditor extends JPanel
             htmlPane.getHighlighter().removeHighlight(tag);
         }
         htmlSearchHighlightTags.clear();
+        */
     }
     
     /**
@@ -3696,8 +3653,9 @@ public final class MoeEditor extends JPanel
      */
     public void removeSelections()
     {
-        removeSelection(sourcePane);
-        removeSelection(htmlPane);
+        //MOEFX
+        //removeSelection(sourcePane);
+        //removeSelection(htmlPane);
     }
     
     /**
@@ -3705,25 +3663,25 @@ public final class MoeEditor extends JPanel
      */
     protected void createContentAssist()
     {
-        //need to recreate the dialog each time it is pressed as the values may be different 
+        //need to recreate the dialog each time it is pressed as the values may be different
+        //MOEFX@ shouldn't need temporary pane for parsing
+        JEditorPane tmp = new JEditorPane();
+        tmp.setDocument(sourceDocument);
+        tmp.setText(sourcePane.getText());
         ParsedCUNode parser = sourceDocument.getParser();
         CodeSuggestions suggests = parser == null ? null : parser.getExpressionType(sourcePane.getCaretPosition(),
                 sourceDocument);
         LocatableToken suggestToken;
         int cpos;
-        Rectangle pos;
-        Point spLoc;
         int xpos = 0, ypos = 0;
         //get screen positioning too.
         cpos = sourcePane.getCaretPosition();
-        try {
-            pos = sourcePane.modelToView(cpos);
-            spLoc = sourcePane.getLocationOnScreen();
-            xpos = pos.x + spLoc.x;
-            ypos = pos.y + pos.height + spLoc.y;
-        } catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
+            Bounds pos = sourcePane.getCharacterBoundsOnScreen(cpos, cpos + 1).orElse(null);
+            if (pos == null)
+                return;
+            Bounds spLoc = sourcePane.localToScene(sourcePane.getBoundsInLocal());
+            xpos = (int)(pos.getMinX() /*+ spLoc.getMinX()*/);
+            ypos = (int)(pos.getMinY() + pos.getHeight() /*+ spLoc.getMinY()*/);
         if (suggests != null) {
             suggestToken = suggests.getSuggestionToken();
             PopulateCompletionsWorker worker = new PopulateCompletionsWorker(suggests, suggestToken, xpos, ypos);
@@ -3753,6 +3711,8 @@ public final class MoeEditor extends JPanel
      * -replace until not found, no wrapping!
      * -print out number of replacements (?)
      */
+    //MOEFX
+    /*
     public void replaceAll(String replaceString)
     {
         //remove selection and remove highlighting 
@@ -3788,6 +3748,7 @@ public final class MoeEditor extends JPanel
                     searchString + " " + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
         }
     }
+    */
 
     /**
      * Sets the caret selection visible. The visibility will be persistent,
@@ -3795,12 +3756,15 @@ public final class MoeEditor extends JPanel
      */
     protected void setSelectionVisible()
     {
+        //MOEFX
+        /*
         Caret caret = currentTextPane.getCaret();
         caret.setSelectionVisible(true);
         if (caret instanceof MoeCaret) {
             MoeCaret mcaret = (MoeCaret) caret;
             mcaret.setPersistentHighlight();
         }
+        */
     }
 
     /**
@@ -3859,9 +3823,9 @@ public final class MoeEditor extends JPanel
     @Override
     public void mouseMoved(MouseEvent e)
     {
-        final int caretPos = sourcePane.viewToModel(e.getPoint());
+        final int caretPos = sourcePane.hit(e.getPoint().getX(), e.getPoint().getY()).getCharacterIndex().orElse(-1);
         // If the mouse has moved position, restart error show timer:
-        if (caretPos != mouseCaretPos)
+        if (caretPos != -1 && caretPos != mouseCaretPos)
         {
             if (mouseHover != null)
                 mouseHover.stop();
@@ -4197,8 +4161,8 @@ public final class MoeEditor extends JPanel
     @OnThread(Tag.Any)
     public void requestEditorFocus()
     {
-        SwingUtilities.invokeLater(() ->
-            sourcePane.requestFocusInWindow()
+        Platform.runLater(() ->
+            sourcePane.requestFocus()
         );
     }
 
@@ -4384,6 +4348,8 @@ public final class MoeEditor extends JPanel
         {
             if (locatableImport.getStart() != -1)
             {
+                //MOEFX
+                /*
                 try
                 {
                     getSourcePane().getDocument().remove(locatableImport.getStart(), locatableImport.getLength());
@@ -4392,6 +4358,7 @@ public final class MoeEditor extends JPanel
                 {
                     Debug.reportError(e);
                 }
+                */
             }
         }
     }
@@ -4573,52 +4540,7 @@ public final class MoeEditor extends JPanel
             actions.textInsertAction(evt, editorPane);
         }
     }
-    
-    /**
-     * Custom focus traversal implementation to make sure that the text area
-     * gets and never loses focus.
-     */
-    class MoeFocusTraversalPolicy extends FocusTraversalPolicy
-    {
-        @Override
-        public Component getComponentAfter(Container focusCycleRoot,  Component aComponent) {
-            if (aComponent.equals(finder.getFindTField())) {
-                if (replacer.isVisible()){
-                    return replacer.getReplaceText();
-                }
-            } 
-            return currentTextPane;
-        }
 
-        @Override
-        public Component getComponentBefore(Container focusCycleRoot,  Component aComponent) {
-            if (aComponent.equals(replacer.getReplaceText())) {
-                return finder.getFindTField();
-            } 
-            return currentTextPane;
-        }
-
-        @Override
-        public Component getDefaultComponent(Container focusCycleRoot) {
-            return currentTextPane;
-        }
-
-        @Override
-        public Component getFirstComponent(Container focusCycleRoot) {
-            return currentTextPane;
-        }
-
-        @Override
-        public Component getInitialComponent(Window window) {
-            return currentTextPane;
-        }
-
-        @Override
-        public Component getLastComponent(Container focusCycleRoot) {
-            return currentTextPane;
-        }
-    }
-    
     /**
      * An abstract action which delegates to a sub-action, and which
      * mirrors the "enabled" state of the sub-action. This allows having
