@@ -103,7 +103,8 @@ public class GreenfootSound
 
     /**
      * True if the sound is currently playing.
-     * 
+     *
+     * @return Whether the sound is currently playing.
      */
     public boolean isPlaying()
     {

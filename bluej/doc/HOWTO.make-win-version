@@ -16,25 +16,18 @@ http://www.mingw.org/
 Procedure:
 ----------
 
- 1. Build a BlueJ release (see HOWTO.make-release)
+ 1. Build a BlueJ release (see HOWTO.make-release) until it tells you to read this file.
 
- 2. Building the BlueJ release ("ant dist") should have left a "bluej-dist.jar"
-    file in the package directory. 
-
- 3. Make sure that there is a GUID for the installer in the package/winsetup/version-guid files.
+ 2. Make sure that there is a GUID for the installer in the package/winsetup/version-guid files.
     If not, add one (e.g. from http://guidgen.com/) and re-run the update-version-number task
 
- 4. To make the MSI installer using WiX:
+ 3. To make the MSI installer using WiX and standalone zip:
 
-     Run "ant windows-msi-bundled-dist" from the root of the BlueJ project. Currently, we build bundled version only.
+     Run "ant windows" from the root of the BlueJ project. Currently, we build bundled version only.
      You'll need to have WiX installed (wix.sf.net) and set wix_bin in build.properties
      to the appropriate directory (something like: C:/Program Files/Windows Installer XML v3.5/bin)
      You'll also need to set the mingw_bash variable in build.properties
      The resulting winsetup/blueJ-VERSION.msi is the distributable file
      (where VERSION is the version number).
-     
-     To make the MSI package without a bundled JDK, use the "windows-msi-dist" target instead.
-
- 5. Run "ant windows-standalone"
 
 Done.

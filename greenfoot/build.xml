@@ -370,7 +370,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </copy>
     </target>
 
-    <target name="copy-common-classes" depends="compile-scenarios"  description="Copies the common classes to bluej" >
+    <target name="copy-common-classes" description="Copies the common classes to bluej" >
         <antcall target="copy-common-class">
             <param name="common.class" value="SmoothMover"/>
         </antcall>
@@ -417,7 +417,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <jar jarfile="common/${common.class}/lib/${common.class}.jar" basedir="common/${common.class}/classes"/>
     </target>
 
-    <target name="copy-common-class" depends="compile-scenarios">
+    <target name="copy-common-class">
         <javadoc destdir="common" sourcefiles="common/${common.class}.java"
                          Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
                          classpath="${build}:common/${common.class}/lib/${common.class}.jar"
@@ -526,7 +526,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <echo message="The greenfoot jar-installer is in ${package}/Greenfoot-generic-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
         <echo message="And don't forget to copy this to the gallery: ${package}/Greenfoot-core-${greenfoot.apiversion.public}.jar"/>
     </target>
-    <target name="debian-dist">
+    <target name="debian-dist" depends="check-fakeroot, dist">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="debian-dist" />
         <move file="${bluej_home}/package/greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
     </target>
@@ -536,16 +536,28 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <move file="${bluej.standalone}" tofile="${package}/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
     </target>
 
-    <target name="windows-msi-dist" depends="update-images, dist">
-        <!-- <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="windows-msi-dist" /> -->
+    <target name="windows-msi-bundled-dist" depends="update-images, dist">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="windows-msi-bundled-dist" />
         <move file="${bluej.msi}" tofile="${package}/Greenfoot-windows-${greenfoot.version.nodots}${greenfoot.rcsuffix}.msi"/>
     </target>
 
     <target name="mac-dist" depends="dist">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="mac-dist" />
-        <move file="${greenfoot.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}-unsigned.zip"/>
-        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}-unsigned.zip"/>
+        <move file="${greenfoot.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
+        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}${greenfoot.rcsuffix}.zip"/>
+    </target>
+
+    <!-- The simple targets for doing a complete build: -->
+    <target name="mac" description="Clean, update version number and build Mac installer" depends="clean,update-version-number,mac-dist"/>
+    <target name="windows" description="Clean, update version number and build Windows installers" depends="clean,update-version-number,windows-msi-bundled-dist,windows-standalone"/>
+    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist"/>
+
+    <target name="urls-rc" description="Check and print RC links">
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml"  target="urls-rc"/>
+    </target>
+
+    <target name="urls-final" description="Check final release URLs">
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml"  target="urls-final"/>
     </target>
 
     <target name="clean" description="clean up" >
@@ -688,31 +700,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </java>
     </target>
 
-    <target name="profile-scenario-viewer"  depends="ready-to-run,compile-scenarios">
-        <fail unless="netbeans.home">This target can only run inside the NetBeans IDE.</fail>
-
-        <nbprofiledirect>
-            <classpath>
-                <pathelement location="${build}"/>
-                <pathelement location="${greenfoot.standalone.scenario}"/>
-                <path refid="bluej.class.path"/>
-            </classpath>
-        </nbprofiledirect>
-
-        <!-- run the java code built into the jar files -->
-        <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/${java_command_dir_name}/java">
-            <arg value="${greenfoot.standalone.scenario}"/>
-            <arg value="${greenfoot.standalone.main}"/>
-            <arg value="${greenfoot.standalone.labels}"/>
-            <classpath>
-                <pathelement location="${build}"/>
-                <pathelement location="${greenfoot.standalone.scenario}"/>
-                <path refid="bluej.class.path"/>
-            </classpath>
-            <jvmarg value="${profiler.info.jvmargs.agent}"/>
-        </java>
-    </target>
-
     <target name="compile-standalone" depends="init" description="Compile the source and run rmic" >
         <delete dir="${standalone.build}"/>
         <mkdir dir="${standalone.build}"/>
@@ -832,6 +819,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
     
     <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
         <!-- And build sources for BlueJ -->
+        <property name="bluej.version.nodots" value="Greenfoot-${greenfoot.version.nodots}"/>
+        <property name="bluej.rcsuffix" value="${greenfoot.rcsuffix}"/>
         <ant dir="${bluej_home}/package" target="zip-source"/>
         <zip destfile="${greenfoot.source.zip}" compress="yes">
             <zipfileset dir="." defaultexcludes="yes" prefix="greenfoot">

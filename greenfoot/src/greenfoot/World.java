@@ -249,6 +249,7 @@ public abstract class World
      * @throws IndexOutOfBoundsException If the location is not within the world
      *             bounds. If there is no background image at the location it
      *             will return Color.WHITE.
+     * @return The color at the centre of the cell.
      */
     public greenfoot.Color getColorAt(int x, int y)
     {
@@ -270,6 +271,8 @@ public abstract class World
     
     /**
      * Return the width of the world (in number of cells).
+     *
+     * @return Width of the world (in cells)
      */
     public int getWidth()
     {
@@ -278,6 +281,8 @@ public abstract class World
 
     /**
      * Return the height of the world (in number of cells).
+     *
+     * @return Height of the world (in cells)
      */
     public int getHeight()
     {
@@ -286,6 +291,8 @@ public abstract class World
 
     /**
      * Return the size of a cell (in pixels).
+     *
+     * @return Size of a cell (in pixels)
      */
     public int getCellSize()
     {
@@ -474,8 +481,8 @@ public abstract class World
      * <p>
      * If a class is specified as a parameter, only objects of that class (or
      * its subclasses) will be returned.
-     * <p>
-     * 
+     *
+     * @param <A> The type of objects to look for
      * @param cls Class of objects to look for ('null' will find all objects).
      * 
      * @return A list of objects.
@@ -563,11 +570,13 @@ public abstract class World
      * 
      * An object is defined to be at that cell if its graphical representation
      * overlaps the center of the cell.
-     * 
+     *
+     * @param <A> The type of objects to look for
      * @param x X-coordinate of the cell to be checked.
      * @param y Y-coordinate of the cell to be checked.
      * @param cls Class of objects to look return ('null' will return all
      *            objects).
+     * @return The list of objects whose graphical representation overlaps the centre of the cell.
      */
     public <A> List<A> getObjectsAt(int x, int y, Class<A> cls)
     {

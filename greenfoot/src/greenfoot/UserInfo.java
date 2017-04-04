@@ -40,7 +40,7 @@ import java.util.List;
  * <pre>
  *     if (UserInfo.isStorageAvailable()) {
  *         UserInfo myInfo = UserInfo.getMyInfo();
- *         if (newScore > myInfo.getScore()) {
+ *         if (newScore &gt; myInfo.getScore()) {
  *             myInfo.setScore(newScore);
  *             myInfo.store();  // write back to server
  *         }
@@ -122,8 +122,11 @@ public class UserInfo
     
     /**
      * Get the value of the String at the given index (0 to NUM_STRINGS-1, inclusive).
-     * <p>
+     *
      * The default value is the empty String.
+     *
+     * @param index The index at which to fetch a string
+     * @return The String at that index, or the empty String if none has been stored.
      */
     public String getString(int index)
     {
@@ -133,7 +136,10 @@ public class UserInfo
     /**
      * Set the value of the int at the given index (0 to NUM_INTS-1, inclusive).
      * 
-     * <p>Note that to store this value permanently, you must later call store().
+     * Note that to store this value permanently, you must later call store().
+     *
+     * @param index The index at which to store the integer
+     * @param value The integer value to store
      */
     public void setInt(int index, int value)
     {
@@ -145,7 +151,10 @@ public class UserInfo
      * Passing null is treated as a blank string.  The given String must be of STRING_LENGTH_LIMIT
      * characters or less (or else the method will fail).
      * 
-     * <p>Note that to store this value permanently, you must later call store().
+     * Note that to store this value permanently, you must later call store().
+     *
+     * @param index The index at which to store the String
+     * @param value The String value to store.
      */
     public void setString(int index, String value)
     {
@@ -161,6 +170,8 @@ public class UserInfo
     
     /**
      * Get the user's score.  By default, this is zero.
+     *
+     * @return The user's score.
      */
     public int getScore()
     {
@@ -173,7 +184,7 @@ public class UserInfo
      * Note that this really does set the user's score.  If you want to record only the user's highest
      * score, you must code that yourself, using something like:
      * <pre>
-     *   if (latestScore > userData.getScore())
+     *   if (latestScore &gt; userData.getScore())
      *   {
      *     userData.setScore(latestScore);
      *   }
@@ -181,6 +192,8 @@ public class UserInfo
      * Without some code like this, you'll always overwrite the user's previous score.
      * 
      * <p>Note that to store this value permanently, you must later call store().
+     *
+     * @param score The score to set
      */
     public void setScore(int score)
     {
@@ -197,6 +210,8 @@ public class UserInfo
      * one trick is to store them as negative numbers.
      * <p>
      * If the rank is unavailable (e.g. because the data hasn't been stored yet), this function will return -1.
+     *
+     * @return The user's overall rank for this scenario.
      */
     public int getRank()
     {
@@ -211,6 +226,8 @@ public class UserInfo
      * or if the user is not logged in to the Greenfoot website.  This last case is very common,
      * so you should check this function before attempting to use the other static storage functions.
      * If this function returns false, your scenario should proceed without using storage.
+     *
+     * @return Whether storage is available.
      */
     public static boolean isStorageAvailable()
     {
@@ -272,13 +289,13 @@ public class UserInfo
      * <p>For example, if you want to show the high-scores, store the score with setScore(score) and store(),
      * and then use getTop(10) to get the users with the top ten scores.</p> 
      * 
-     * <p>Returns null if:
+     * <p>Returns null if:</p>
      * <ul>
      * <li>there is a problem reading the local file (for local scenarios), or</li>
      * <li>the scenario is running as a stand-alone application, or applet on your own website, or</li>
      * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site).</li>
      * </ul>
-     * You should always be ready to handle a null return from this function.</p>
+     * <p>You should always be ready to handle a null return from this function.</p>
      * 
      * @param maxAmount The maximum number of data items to retrieve.
      * Passing zero or a negative number will get all the data, but see the note above.  
@@ -310,15 +327,15 @@ public class UserInfo
      * <p>For example, if you want to show the high-scores surrounding the user, store the score with setScore(score) and store(),
      * and then use getNearby(10) to get the ten users with scores close to the current user.</p>
      * 
-     * <p>Returns null if:
+     * <p>Returns null if:</p>
      * <ul>
      * <li>there is a problem reading the local file (for local scenarios), or</li>
      * <li>the scenario is running as a stand-alone application, or applet on your own website, or</li>
      * <li>there is a problem connecting to the server (for scenarios on the greenfoot.org site), or</li>
      * <li>the user is not logged in (for scenarios on the greenfoot.org site).</li>
      * </ul>
-     * The last case is very common, so you should always be ready to handle a null return from this function.</p>
-
+     * <p>The last case is very common, so you should always be ready to handle a null return from this function.</p>
+     *
      * 
      * @param maxAmount The maximum number of data items to retrieve.
      *            Passing zero or a negative number will get all the data, but see the note above.  

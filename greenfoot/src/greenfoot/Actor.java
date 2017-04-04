@@ -390,7 +390,9 @@ public abstract class Actor
      * Return the world that this actor lives in, provided that it is
      * an instance of the given "worldClass" class (i.e. that it is an instance
      * of worldClass or one of its subclasses).
-     * 
+     *
+     * @param <W> The type of the world.
+     * @param worldClass The class of the world type.
      * @return The world this actor is in, or null if either this actor is not in a world
      * @throws java.lang.ClassCastException If the actor is in a world, but not one that is an instance of worldClass or one of its subclasses
      */
@@ -865,7 +867,8 @@ public abstract class Actor
      * parameter. Thus, a distance/diagonal specification of (1,false) will
      * inspect four cells, (1,true) will inspect eight cells.
      * <p>
-     * 
+     *
+     * @param <A> The class of the object to look for.
      * @param distance Distance (in cells) in which to look for other objects.
      * @param diagonal If true, include diagonal steps.
      * @param cls Class of objects to look for (passing 'null' will find all
@@ -882,7 +885,8 @@ public abstract class Actor
     /**
      * Return all objects that intersect the center of the given location (relative to
      * this object's location). <br>
-     * 
+     *
+     * @param <A> The class of the object to look for.
      * @return List of objects at the given offset. The list will include this
      *         object, if the offset is zero.
      * @param dx X-coordinate relative to this objects location.
@@ -918,7 +922,8 @@ public abstract class Actor
      * Return all objects within range 'radius' around this object. 
      * An object is within range if the distance between its centre and this
      * object's centre is less than or equal to 'radius'.
-     * 
+     *
+     * @param <A> The class of the object to look for.
      * @param radius Radius of the circle (in cells)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return List of objects of the given class type within the given radius.
@@ -934,7 +939,8 @@ public abstract class Actor
     /**
      * Return all the objects that intersect this object. This takes the
      * graphical extent of objects into consideration. <br>
-     * 
+     *
+     * @param <A> The class of the object to look for.
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return List of objects of the given class type that intersect with the current object.
      */
