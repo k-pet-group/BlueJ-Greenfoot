@@ -737,7 +737,7 @@ public final class MoeEditor extends JPanel
      * @param vis  The new visible value
      */
     @Override
-    public void setVisible(boolean vis)
+    public void setEditorVisible(boolean vis)
     {
         if (vis) {
             sourcePane.setFont(PrefMgr.getStandardEditorFont());
