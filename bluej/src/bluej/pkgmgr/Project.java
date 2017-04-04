@@ -1485,7 +1485,7 @@ public class Project implements DebuggerListener, InspectorManager
                 ClassTarget classTarget = (ClassTarget) target;
                 Editor editor = classTarget.getEditor();
                 if (editor != null) {
-                    editor.setVisible(true);
+                    editor.setEditorVisible(true);
                     // TODO: make moe select the ======== part of cvs conflicts
                 }
             }

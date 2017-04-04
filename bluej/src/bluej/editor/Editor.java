@@ -58,7 +58,7 @@ public interface Editor
      * 
      * @param vis  true to make the editor visible, or false to hide it.
      */
-    void setVisible(boolean vis);
+    void setEditorVisible(boolean vis);
 
     /**
      * True if the editor is open in the tabbed window.

@@ -77,7 +77,7 @@ public abstract class EditableTarget extends Target
         if(editor == null)
             getPackage().showError("error-open-source");
         else
-            editor.setVisible(true);
+            editor.setEditorVisible(true);
     }
 
     /**

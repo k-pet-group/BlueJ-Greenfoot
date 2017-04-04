@@ -158,7 +158,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
         
        // now try again to open it
        if(getEditor() != null) {
-           editor.setVisible(true);
+           editor.setEditorVisible(true);
        }
     }
 

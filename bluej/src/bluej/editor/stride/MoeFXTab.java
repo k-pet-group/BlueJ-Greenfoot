@@ -138,7 +138,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
             if (e.getButton() == MouseButton.MIDDLE)
             {
                 SwingUtilities.invokeLater(() ->
-                    moeEditor.setVisible(false)
+                    moeEditor.setEditorVisible(false)
                 );
             }
         });

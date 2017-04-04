@@ -480,7 +480,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.Swing)
-            public void setVisible(boolean vis) { FrameEditor.this.setVisible(vis); }
+            public void setEditorVisible(boolean vis) { FrameEditor.this.setEditorVisible(vis); }
 
             @Override
             @OnThread(Tag.Swing)
@@ -1029,7 +1029,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void setVisible(boolean vis)
+    public void setEditorVisible(boolean vis)
     {
         Platform.runLater(() -> setVisibleFX(vis, true));
     }
