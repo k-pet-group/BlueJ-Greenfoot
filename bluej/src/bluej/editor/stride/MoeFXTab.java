@@ -40,6 +40,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
+import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
@@ -61,8 +62,8 @@ import threadchecker.Tag;
 public @OnThread(Tag.FX) class MoeFXTab extends FXTab
 {
     // suffixes for resources
-    final static String LabelSuffix = "Label";
-    final static String ActionSuffix = "Action";
+    private final static String LabelSuffix = "Label";
+    private final static String ActionSuffix = "Action";
 
     // -------- INSTANCE VARIABLES --------
     private boolean initialised = false;
@@ -240,8 +241,6 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     }
     /**
      * Create the toolbar.
-     *
-     * @return The toolbar component, ready made.
      */
     private void addToolbarGroup(Pane toolbar, String group)
     {
@@ -256,6 +255,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
      * Create a button on the toolbar.
      *
      * @param key  The internal key identifying the action and label
+     * @return The button created
      */
     private Button createToolbarButton(String key)
     {
@@ -369,12 +369,8 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
      */
     public void toggleInterfaceMenu()
     {
-        if (interfaceToggle.getSelectionModel().getSelectedIndex() == 0) {
-            interfaceToggle.getSelectionModel().select(1);
-        }
-        else {
-            interfaceToggle.getSelectionModel().select(0);
-        }
+        SingleSelectionModel<String> selection = interfaceToggle.getSelectionModel();
+        selection.select(1 - selection.getSelectedIndex());
     }
 
     /**
