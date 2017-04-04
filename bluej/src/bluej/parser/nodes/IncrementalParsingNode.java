@@ -133,7 +133,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     
     @Override
     @OnThread(Tag.Swing)
-    protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int parseEnd = Math.min(offset + maxParse, nodePos + getSize());
         int state = getCurrentState(offset - nodePos);
@@ -578,7 +578,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     /**
      * Convert a line and column number to an absolute position.
      */
-    protected static int lineColToPos(Document document, int line, int col)
+    protected static int lineColToPos(MoeSyntaxDocument document, int line, int col)
     {
         return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
     }
@@ -655,7 +655,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * comment is inserted into an existing node which ends on the same line.
      */
     @OnThread(Tag.Swing)
-    private int checkEnd(Document document, int nodePos, NodeStructureListener listener)
+    private int checkEnd(MoeSyntaxDocument document, int nodePos, NodeStructureListener listener)
     {
         int end = nodePos + getSize();
         if (end >= document.getLength()) {
@@ -693,14 +693,11 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             }
         }
         catch (IOException ioe) {}
-        catch (BadLocationException ble) {
-            // We might actually get this, but it's fine to return.
-        }
         return ALL_OK;
     }
     
     @Override
-    protected int handleDeletion(Document document, int nodePos, int dpos,
+    protected int handleDeletion(MoeSyntaxDocument document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
         int offset = dpos;
@@ -751,7 +748,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     
     @Override
     @OnThread(Tag.Swing)
-    protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
+    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         int mypos = child.getPosition() - child.getNode().getOffsetFromParent();

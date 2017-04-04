@@ -29,10 +29,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.Token;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.DocumentReader;
@@ -296,7 +297,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     }
     
     @Override
-    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
+    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
     {
         // Clear the caches now to remove any entries which have become invalid due
         // to editing.
@@ -371,7 +372,7 @@ public abstract class JavaParentNode extends ParentParsedNode
 
     @Override
     public Token getMarkTokensFor(int pos, int length, int nodePos,
-            Document document)
+            MoeSyntaxDocument document)
     {
         Token tok = new Token(0, Token.END); // dummy
         if (length == 0) {
@@ -415,7 +416,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         return dummyTok.next;
     }
     
-    protected static Token tokenizeText(Document document, int pos, int length)
+    protected static Token tokenizeText(MoeSyntaxDocument document, int pos, int length)
     {
         DocumentReader dr = new DocumentReader(document, pos, pos+length);
         TokenStream lexer = JavaParser.getLexer(dr);

@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
@@ -47,7 +48,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.ElementChange;
 import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
@@ -129,7 +129,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
      */
     public BlueJSyntaxView(Element elem, int leftMargin, MoeErrorManager errors)
     {
-        super(elem, leftMargin);
+        //MOEFX
+        super((javax.swing.text.Element)elem, leftMargin);
         line = new Segment();
         this.errors = errors;
     }
@@ -164,9 +165,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
         Color def = MoeSyntaxDocument.getDefaultColor();
         TabExpander tx = new MoeTabExpander(tabSize, x);
-
-        try {
-            Element lineElement = getElement().getElement(lineIndex);
+            //MOEFX
+            Element lineElement = (Element)getElement().getElement(lineIndex);
             int start = lineElement.getStartOffset();
             int end = lineElement.getEndOffset();
 
@@ -174,11 +174,6 @@ public abstract class BlueJSyntaxView extends MoePlainView
             g.setColor(def);
 
             paintTaggedLine(line, lineIndex, g, x, y, document, errors, def, lineElement, tx);
-        }
-        catch (BadLocationException bl) {
-            // shouldn't happen
-            throw new RuntimeException(bl);
-        }
     }
 
     /**
@@ -1304,7 +1299,9 @@ public abstract class BlueJSyntaxView extends MoePlainView
      */
     protected final boolean hasTag(Element line, String tag)
     {
-        return Boolean.TRUE.equals(line.getAttributes().getAttribute(tag)); 
+        //MOEFX
+        return false;
+        //return Boolean.TRUE.equals(line.getAttributes().getAttribute(tag));
     }
 
 
@@ -1332,6 +1329,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
      * Need to override this method to handle node updates. If a node indentation changes,
      * the whole node needs to be repainted.
      */
+    /*MOEFX
     @Override
     protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
     {
@@ -1419,6 +1417,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             damageLineRange(line, lastline, a, host);
         }
     }
+    */
 
     /**
      * Clear a node's cached indent information. If the node is an inner node this

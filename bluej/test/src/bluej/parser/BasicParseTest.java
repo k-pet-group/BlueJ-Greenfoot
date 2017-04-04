@@ -444,10 +444,7 @@ public class BasicParseTest extends junit.framework.TestCase
     {
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
         document.enableParser(true);
-        try {
-            document.insertString(0, sourceCode, null);
-        }
-        catch (BadLocationException ble) {}
+        document.insertString(0, sourceCode, null);
         return document.getParser();
     }
     

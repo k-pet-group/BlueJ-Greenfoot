@@ -48,7 +48,7 @@ public class TextUtilities
      * @exception BadLocationException If an out-of-bounds access
      * was attempted on the document text
      */
-    public static int findMatchingBracket(Document doc, int offset)
+    public static int findMatchingBracket(MoeSyntaxDocument doc, int offset)
     throws BadLocationException
     {
         if(doc.getLength() == 0) {

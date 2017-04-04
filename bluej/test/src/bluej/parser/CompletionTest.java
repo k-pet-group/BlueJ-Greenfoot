@@ -84,10 +84,7 @@ public class CompletionTest extends TestCase
         EntityResolver presolver = new PackageResolver(resolver, pkg);
         MoeSyntaxDocument document = new MoeSyntaxDocument(presolver);
         document.enableParser(true);
-        try {
-            document.insertString(0, sourceCode, null);
-        }
-        catch (BadLocationException ble) {}
+        document.insertString(0, sourceCode, null);
         return document;
     }
     
@@ -1073,5 +1070,11 @@ public class CompletionTest extends TestCase
             
         // In BlueJ 3.1.6 this throws a NullPointerException:
         aNode.getExpressionType(13, doc);
+    }
+
+    //MOEFX
+    class PlainDocument extends MoeSyntaxDocument
+    {
+
     }
 }

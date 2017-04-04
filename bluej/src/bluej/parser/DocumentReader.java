@@ -27,6 +27,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Segment;
 
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.utility.Debug;
 
 /**
@@ -37,7 +38,7 @@ import bluej.utility.Debug;
 public class DocumentReader extends Reader
 {
     private Segment buffer;
-    private Document document;
+    private MoeSyntaxDocument document;
     private int bufpos;
     private int docPosition;
     private int docLength;
@@ -45,7 +46,7 @@ public class DocumentReader extends Reader
     /**
      * Construct a DocumentReader to read an entire document.
      */
-    public DocumentReader(Document document)
+    public DocumentReader(MoeSyntaxDocument document)
     {
         this(document, 0);
     }
@@ -53,7 +54,7 @@ public class DocumentReader extends Reader
     /**
      * Construct a DocumentReader to read a document starting from the given position.
      */
-    public DocumentReader(Document document, int position)
+    public DocumentReader(MoeSyntaxDocument document, int position)
     {
         buffer = new Segment();
         buffer.setPartialReturn(true);
@@ -67,7 +68,7 @@ public class DocumentReader extends Reader
      * Construct a new DocumentReader to read text between the two
      * given document positions.
      */
-    public DocumentReader(Document document, int position, int endpos)
+    public DocumentReader(MoeSyntaxDocument document, int position, int endpos)
     {
         buffer = new Segment();
         buffer.setPartialReturn(true);
@@ -128,13 +129,8 @@ public class DocumentReader extends Reader
     private void fillBuffer()
     {
         int docAvail = docLength - docPosition;
-        try {
             document.getText(docPosition, docAvail, buffer);
             docPosition += (buffer.getEndIndex() - buffer.getBeginIndex());
             bufpos = buffer.getBeginIndex();
-        }
-        catch (BadLocationException e) {
-            Debug.reportError("Len: " + docLength + " pos: " + docPosition + "Doc len: " + document.getLength(), e);
-        }
     }
 }

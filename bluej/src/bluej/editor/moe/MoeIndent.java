@@ -86,6 +86,8 @@ public class MoeIndent
     public static AutoIndentInformation calculateIndentsAndApply(MoeSyntaxDocument doc,
             int startPos, int endPos, int prevCaretPos)
     {
+        return null;
+        /*MOEFX
         int caretPos = prevCaretPos;
         Element rootElement = doc.getDefaultRootElement();
         List<DocumentAction> methodUpdates = new LinkedList<DocumentAction>();
@@ -182,6 +184,7 @@ public class MoeIndent
         }
 
         return new AutoIndentInformation(perfect, caretPos);
+        */
     }
 
     /**
@@ -209,12 +212,7 @@ public class MoeIndent
                     return inner;
                 }
             }
-            try {
-                return startIC.getCurIndent(doc.getText(pos, 1).charAt(0));
-            }
-            catch (BadLocationException e) {
-                return "";
-            }
+            return startIC.getCurIndent(doc.getText(pos, 1).charAt(0));
         }
         else {
             return null;
@@ -410,10 +408,9 @@ public class MoeIndent
             // without the anyTabs check, we would leave the whitespace alone;
             // hence why we need the check:
             if (indent != null && (anyTabs || (indent.length() != lengthPrevWhitespace))) {
-                try {
-                    int origStartOffset = el.getStartOffset(); 
+                    int origStartOffset = el.getStartOffset();
                     doc.replace(el.getStartOffset(), lengthPrevWhitespace,
-                            indent, null);
+                            indent);
                     
                     if (caretPos < origStartOffset) {
                         return caretPos; // before us, not moved
@@ -423,11 +420,6 @@ public class MoeIndent
                     } else {
                         return origStartOffset + indent.length(); // in us, move to end of indent
                     }
-                }
-                catch (BadLocationException e) {
-                    Debug.reportError("Error doing indent in DocumentUpdate", e);
-                    return caretPos;
-                }
             } else {
                 return caretPos;
             }
@@ -439,12 +431,7 @@ public class MoeIndent
      */
     private static String getElementContents(MoeSyntaxDocument doc, Element el)
     {
-        try {
-            return doc.getText(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
-        } catch (BadLocationException e) {
-            Debug.reportError("Error getting element contents in document", e);
-            return "";
-        }
+        return doc.getText(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
     }
 
     /**
@@ -495,15 +482,11 @@ public class MoeIndent
         public int apply(MoeSyntaxDocument doc, int prevCaretPos)
         {
             String lineSeparator = System.getProperty("line.separator");
-            try {
                 if (twoSeparators) {
                     doc.insertString(position, lineSeparator + lineSeparator, null);
                 } else {
                     doc.insertString(position, lineSeparator, null);
                 }
-            } catch (BadLocationException ex) {
-                Debug.reportError("Error in adding new line to document", ex);
-            }
             if (position > prevCaretPos) {
                 return prevCaretPos;
             } else if (twoSeparators)  {

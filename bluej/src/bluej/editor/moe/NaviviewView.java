@@ -40,7 +40,6 @@ import javax.swing.text.ViewFactory;
 
 import bluej.Config;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
-import bluej.utility.Debug;
 
 /**
  * A view for the NaviView component.
@@ -61,7 +60,7 @@ public class NaviviewView extends BlueJSyntaxView
     
     private NaviView naviView;
     
-    public NaviviewView(Element elem, NaviView naviView, MoeErrorManager errors)
+    public NaviviewView(MoeSyntaxDocument.Element elem, NaviView naviView, MoeErrorManager errors)
     {
         super(elem, 0, errors);
         this.naviView = naviView;
@@ -70,7 +69,7 @@ public class NaviviewView extends BlueJSyntaxView
     @Override
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g,
             int x, int y, MoeSyntaxDocument document, MoeErrorManager errorMgr, Color def,
-            Element lineElement, TabExpander tx)
+            MoeSyntaxDocument.Element lineElement, TabExpander tx)
     {
         // Painting at such a small font size means the font appears very light.
         // To get around this problem, we paint into a temporary image, then darken

@@ -85,7 +85,9 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      */
     public View create(Element elem)
     {
-        return new MoeSyntaxView(elem, errorMgr);
+        //MOEFX
+        return null;
+        //return new MoeSyntaxView(elem, errorMgr);
     }
 
     /**
@@ -96,6 +98,8 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      */
     public Document createDefaultDocument()
     {
-        return new MoeSyntaxDocument(projectResolver, documentListener);
+        //MOEFX
+        return null;
+        //return new MoeSyntaxDocument(projectResolver, documentListener);
     }
 }

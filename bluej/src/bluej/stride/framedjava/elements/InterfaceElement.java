@@ -401,14 +401,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
             if (document == null)
             {
                 document = new MoeSyntaxDocument(projectResolver);
-                try
-                {
-                    document.insertString(0, src, null);
-                }
-                catch (BadLocationException e)
-                {
-                    Debug.reportError(e);
-                }
+                document.insertString(0, src, null);
                 document.enableParser(true);
             }
             return document;

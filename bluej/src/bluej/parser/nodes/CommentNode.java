@@ -23,10 +23,8 @@ package bluej.parser.nodes;
 
 import java.io.Reader;
 
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-
 import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.Token;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.DocumentReader;
@@ -105,7 +103,7 @@ public class CommentNode extends ParsedNode
      * @see bluej.parser.nodes.ParsedNode#getMarkTokensFor(int, int, int, javax.swing.text.Document)
      */
     public Token getMarkTokensFor(int pos, int length, int nodePos,
-            Document document)
+            MoeSyntaxDocument document)
     {
         Token tok = new Token(length, colours[type]);
         tok.next = new Token(0, Token.END);
@@ -141,7 +139,7 @@ public class CommentNode extends ParsedNode
     }
 
     @Override
-    protected int reparseNode(Document document, int nodePos, int offset, int maxParse,
+    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse,
             NodeStructureListener listener)
     {
         // Make a reader and parser
@@ -183,7 +181,7 @@ public class CommentNode extends ParsedNode
     }
     
     
-    private static int lineColToPos(Document document, int line, int col)
+    private static int lineColToPos(MoeSyntaxDocument document, int line, int col)
     {
         Element map = document.getDefaultRootElement();
         Element lineEl = map.getElement(line - 1);
@@ -191,7 +189,7 @@ public class CommentNode extends ParsedNode
     }
     
     @Override
-    public CodeSuggestions getExpressionType(int pos, Document document)
+    public CodeSuggestions getExpressionType(int pos, MoeSyntaxDocument document)
     {
         return null;
     }

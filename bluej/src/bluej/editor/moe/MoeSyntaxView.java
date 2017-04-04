@@ -30,12 +30,12 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
-import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
 
 import bluej.Config;
+import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.prefmgr.PrefMgr;
 
 /**
@@ -196,7 +196,8 @@ public class MoeSyntaxView extends BlueJSyntaxView
         
         MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
         if (document.getParsedNode() != null) {
-            Element map = getElement();
+            //MOEFX
+            Element map = (Element)getElement();
             int firstLine = map.getElementIndex(spos);
             int lastLine = map.getElementIndex(epos);
             paintScopeMarkers(g, document, allocation, firstLine, lastLine, false);

@@ -38,6 +38,8 @@ public class ReadmeEditorKit extends MoeSyntaxEditorKit
     @Override
     public Document createDefaultDocument()
     {
-        return new MoeSyntaxDocument();
+        //MOEFX
+        return null;
+        //return new MoeSyntaxDocument();
     }
 }

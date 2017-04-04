@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.event.DocumentEvent;
+import javax.swing.text.Document;
 import javax.swing.text.Element;
 
 import threadchecker.OnThread;
@@ -89,7 +90,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
         return srcEvent != null ? srcEvent.getChange(elem) : null;
     }
     
-    public MoeSyntaxDocument getDocument()
+    public MoeSyntaxDocument getMoeSyntaxDocument()
     {
         return document;
     }
@@ -97,6 +98,13 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     public int getLength()
     {
         return srcEvent != null ? srcEvent.getLength() : 0;
+    }
+
+    //MOEFX
+    @Override
+    public Document getDocument()
+    {
+        return null;
     }
 
     public int getOffset()

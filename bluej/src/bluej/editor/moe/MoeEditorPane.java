@@ -41,6 +41,7 @@ import org.fxmisc.richtext.model.Paragraph;
 import org.fxmisc.richtext.model.StyledText;
 
 import javax.swing.text.Caret;
+import javax.swing.text.StyledDocument;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
@@ -55,18 +56,19 @@ import java.io.Writer;
 public final class MoeEditorPane extends StyledTextArea<Integer, String>
 {
     private static PaintObjectBinding latestBinding;
-    private static MoeEditorPane latestEditor; // TODO this is a total hack
+    private static MoeEditorPane latestEditor; // MOEFX: TODO this is a total hack
 
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane()
+    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<Integer, StyledText<String>, String> doc)
     {
         super(0, (p, s) -> {
             p.backgroundProperty().unbind();
             p.backgroundProperty().bind(new PaintObjectBinding(p, s, latestEditor));
-        }, "", (t, s) -> {});
+        }, "", (t, s) -> {}, doc, true);
         latestEditor = this;
+        /*MOEFX Maybe stop using style for this?
         getParagraphs().addListener((ListChangeListener<? super Paragraph<Integer, StyledText<String>, String>>) c -> {
             for (int n = 0; n < getParagraphs().size(); n++)
             {
@@ -74,6 +76,7 @@ public final class MoeEditorPane extends StyledTextArea<Integer, String>
                     setParagraphStyle(n, n);
             }
         });
+        */
     }
 
 
@@ -162,12 +165,15 @@ public final class MoeEditorPane extends StyledTextArea<Integer, String>
         @Override
         protected Background computeValue()
         {
-            String line = editor.getParagraph(lineNo).getText();
+            return null;
+            /*
+            String line = ""; //editor.getParagraph(lineNo).getText();
             int startingSpaces = line.indexOf(line.trim());
             int pos = editor.getAbsolutePosition(lineNo, startingSpaces);
             double spaceStartX = editor.getCharacterBoundsOnScreen(pos, pos + 1).map(editor::screenToLocal).map(Bounds::getMinX).orElse(0.0);
             Debug.message("Line " + lineNo + ": " + spaceStartX);
             return new Background(new BackgroundFill(new LinearGradient(0, 0, spaceStartX + 1, 0, false, CycleMethod.NO_CYCLE, new Stop(0, Color.WHITE), new Stop(0.99, Color.RED), new Stop(1.0, Color.GREEN)), null, null));
+            */
         }
 
         public void setEditor(MoeEditorPane moeEditorPane)

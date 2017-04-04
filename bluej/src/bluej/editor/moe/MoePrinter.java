@@ -98,6 +98,7 @@ public class MoePrinter
         List<PrintLine> lines = new ArrayList<PrintLine>();
 
         this.className = className;
+        /*MOEFX
         // extract tabsize attribute from document and assign to tabSize attribute
         Integer tabSizeAsInteger =  (Integer)document.getProperty(PlainDocument.tabSizeAttribute);
         if(tabSizeAsInteger != null)
@@ -121,7 +122,7 @@ public class MoePrinter
         // make sure that read lock is removed
         finally {
             document.readUnlock();
-        }
+        }*/
 
         return printText(printJob, lines, font, document, lineNumbers, syntaxHighlighting, format);
     }
@@ -504,8 +505,6 @@ public class MoePrinter
         
         @Override
         public String toString() {
-            try
-            {
                 if (length() == 0)
                 {
                     return "";
@@ -514,12 +513,6 @@ public class MoePrinter
                 {
                     return document.getText(startOffset, length());
                 }
-            }
-            catch (BadLocationException e)
-            {
-                Debug.reportError("PrintLine.toString(), offsets: " + startOffset + " and " + endOffset, e);
-                throw new RuntimeException(e);
-            }
         }
 
         public char charAt(int n) {
@@ -543,17 +536,9 @@ public class MoePrinter
         
         public Segment getSegment()
         {
-            try
-            {
                 Segment seg = new Segment();
                 document.getText(getStartOffset(), getEndOffset() - getStartOffset(), seg);
                 return seg;
-            }
-            catch (BadLocationException e)
-            {
-                Debug.reportError("PrintLine.getSegment(), offsets: " + startOffset + " and " + endOffset, e);
-                return null;
-            }
         }
     }
 }

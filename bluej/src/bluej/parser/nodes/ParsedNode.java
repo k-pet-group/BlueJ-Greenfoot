@@ -320,7 +320,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * This method should always mark which range it parsed in the document.
      */
     @OnThread(Tag.Swing)
-    protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return ALL_OK;
     }
@@ -368,7 +368,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param document  The source document
      * @return  A linked list of Token objects
      */
-    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, Document document);
+    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, MoeSyntaxDocument document);
 
     protected ParsedNode getParentNode()
     {
@@ -400,7 +400,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * in size, if it occurs.
      */
     @OnThread(Tag.Swing)
-    protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
+    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         return false;
@@ -423,7 +423,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     /**
      * Get code completion suggestions at a particular point. May return null.
      */
-    public CodeSuggestions getExpressionType(int pos, Document document)
+    public CodeSuggestions getExpressionType(int pos, MoeSyntaxDocument document)
     {
         return getExpressionType(pos, 0, null, document);
     }
@@ -436,7 +436,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param defaultType  The type to return if there is no explicit type at the given location 
      * @param document  The source document
      */
-    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
+    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {

@@ -371,7 +371,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
-    public CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
+    public CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
     {
         valueEntityCache.clear();
         pocEntityCache.clear();

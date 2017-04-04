@@ -81,7 +81,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
-import javax.swing.text.Element;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
@@ -89,6 +88,7 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
@@ -663,9 +663,9 @@ public final class MoeEditor extends BorderPane
                 sourcePane.addMouseMotionListener(this);
                 //MOEFX
                 //sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
-                naviView.setDocument(sourceDocument);
-                sourceDocument.addDocumentListener(this);
-                sourceDocument.addUndoableEditListener(undoManager);
+                //naviView.setDocument(sourceDocument);
+                //sourceDocument.addDocumentListener(this);
+                //sourceDocument.addUndoableEditListener(undoManager);
                 
                 sourceDocument.enableParser(false);
                 loaded = true;
@@ -920,22 +920,14 @@ public final class MoeEditor extends BorderPane
             // If error is zero-width, make it one character wide:
             if (endPos == startPos)
             {
-                try
+                // By default, extend one char right, unless that would encompass a newline:
+                if (endPos < getTextLength() - 1 && !sourceDocument.getText(endPos, 1).equals("\n"))
                 {
-                    // By default, extend one char right, unless that would encompass a newline:
-                    if (endPos < getTextLength() - 1 && !sourceDocument.getText(endPos, 1).equals("\n"))
-                    {
-                        endPos += 1;
-                    }
-                    else if (startPos > 0 && !sourceDocument.getText(startPos - 1, 1).equals("\n"))
-                    {
-                        startPos -= 1;
-                    }
+                    endPos += 1;
                 }
-                catch (BadLocationException e)
+                else if (startPos > 0 && !sourceDocument.getText(startPos - 1, 1).equals("\n"))
                 {
-                    // Report error and give up trying to extend size:
-                    Debug.reportError(e);
+                    startPos -= 1;
                 }
             }
             errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
@@ -985,8 +977,7 @@ public final class MoeEditor extends BorderPane
         if (testPos == 0) {
             return spos;
         }
-        
-        try {
+
             int cpos = 0; // what the actual column is so far
             int tpos = 0; // where we are in the string
             String lineText = sourceDocument.getText(spos, testPos);
@@ -1012,11 +1003,6 @@ public final class MoeEditor extends BorderPane
 
                 tpos = tabPos + 1; // skip over the tab char
             }
-        }
-        catch (BadLocationException ble) {
-            // Shouldn't happen.
-            throw new RuntimeException(ble);
-        }
         return spos;
     }
 
@@ -1335,12 +1321,7 @@ public final class MoeEditor extends BorderPane
         int beginOffset = Math.min(first, last);
         int endOffset = Math.max(first, last);
 
-        try {
-            return sourceDocument.getText(beginOffset, endOffset - beginOffset);
-        }
-        catch (BadLocationException exc) {
-            throw new IllegalArgumentException(exc.getMessage());
-        }
+        return sourceDocument.getText(beginOffset, endOffset - beginOffset);
     }
 
     // -------- DocumentListener interface --------
@@ -1612,7 +1593,8 @@ public final class MoeEditor extends BorderPane
     @Override
     public void insertUpdate(DocumentEvent e)
     {
-        DocumentEvent.ElementChange ec = e.getChange(sourceDocument.getDefaultRootElement());
+        //MOEFX
+        DocumentEvent.ElementChange ec = null;//e.getChange(sourceDocument.getDefaultRootElement());
         // The change to the root element is null if they only changed a singe line.
         // We only recompile if they inserted across multiple lines, so we 
         // just need to check if the change to the root is not null:
@@ -1662,7 +1644,8 @@ public final class MoeEditor extends BorderPane
     @Override
     public void removeUpdate(DocumentEvent e)
     {
-        DocumentEvent.ElementChange ec = e.getChange(sourceDocument.getDefaultRootElement());
+        //MOEFX
+        DocumentEvent.ElementChange ec = null;//e.getChange(sourceDocument.getDefaultRootElement());
         // The change to the root element is null if they only changed a singe line.
         // We only recompile if they removed across multiple lines, so we 
         // just need to check if the change to the root is not null:
@@ -2635,8 +2618,10 @@ public final class MoeEditor extends BorderPane
      */
     private boolean positionHasBreakpoint(int pos)
     {
-        Element line = getSourceLine(getLineNumberAt(pos));
-        return Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT));
+        //MOEFX
+        return false;
+        //Element line = getSourceLine(getLineNumberAt(pos));
+        //return Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT));
     }
 
     // --------------------------------------------------------------------
@@ -2646,8 +2631,10 @@ public final class MoeEditor extends BorderPane
      */
     private boolean lineHasBreakpoint(int lineNo)
     {
-        Element line = getSourceLine(lineNo);
-        return (Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT)));
+        //MOEFX
+        return false;
+        //Element line = getSourceLine(lineNo);
+        //return (Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT)));
     }
 
     // --------------------------------------------------------------------
@@ -2791,12 +2778,14 @@ public final class MoeEditor extends BorderPane
             
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
             sourceDocument.enableParser(false);
-            naviView.setDocument(sourceDocument);
+            //MOEFX
+            //naviView.setDocument(sourceDocument);
 
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
-            sourceDocument.addDocumentListener(this);
-            sourceDocument.addUndoableEditListener(undoManager);
+            //MOEFX
+            //sourceDocument.addDocumentListener(this);
+            //sourceDocument.addUndoableEditListener(undoManager);
 
             // We want to inform the watcher that the editor content has changed,
             // and then inform it that we are in "saved" state (synced with file).
@@ -2887,12 +2876,15 @@ public final class MoeEditor extends BorderPane
     private void setCompileStatus(boolean compiled)
     {
         actions.getActionByName("toggle-breakpoint").setEnabled(compiled && viewingCode());
+        //MOEFX
+        /*
         if (compiled) {
             sourceDocument.putProperty(COMPILED, Boolean.TRUE);
         }
         else {
             sourceDocument.putProperty(COMPILED, Boolean.FALSE);
         }
+        */
     }
 
     /**
@@ -3088,7 +3080,8 @@ public final class MoeEditor extends BorderPane
      */
     private void doBracketMatch()
     {
-        moeCaret.paintMatchingBracket();
+        //MOEFX
+        //moeCaret.paintMatchingBracket();
     }
 
     // --------------------------------------------------------------------
@@ -3204,8 +3197,9 @@ public final class MoeEditor extends BorderPane
         else {
             sourceDocument = new MoeSyntaxDocument();  // README file
         }
-        sourceDocument.addDocumentListener(this);
-        sourceDocument.addUndoableEditListener(undoManager);               
+        //MOEFX
+        //sourceDocument.addDocumentListener(this);
+        //sourceDocument.addUndoableEditListener(undoManager);
 
         // create the text pane
 
@@ -3217,7 +3211,7 @@ public final class MoeEditor extends BorderPane
             kit = new ReadmeEditorKit();
         }
         //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
-        sourcePane = new MoeEditorPane();
+        sourcePane = new MoeEditorPane(sourceDocument.getDocument());
         //MOEFX
         //sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);
@@ -3249,14 +3243,13 @@ public final class MoeEditor extends BorderPane
 
         HBox editorPane = new HBox();
 
-        //MOEFX: scroll bar
-        naviView = new NaviView(sourceDocument, errorManager, new JScrollPane().getVerticalScrollBar());
-        naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
-        naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
-        naviView.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        
-        dividerPanel=new EditorDividerPanel(naviView, getNaviviewExpandedProperty());
-        if (!Config.isRaspberryPi()) dividerPanel.setOpaque(false);
+        //MOEFX: sourceDocument, scroll bar
+        //naviView = new NaviView(null /*sourceDocument*/, errorManager, new JScrollPane().getVerticalScrollBar());
+        //naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
+        //naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
+        //naviView.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        //dividerPanel=new EditorDividerPanel(naviView, getNaviviewExpandedProperty());
+        //if (!Config.isRaspberryPi()) dividerPanel.setOpaque(false);
 
         //MOEFX
         //editorPane.getChildren().add(scrollPane);
@@ -3664,10 +3657,6 @@ public final class MoeEditor extends BorderPane
     protected void createContentAssist()
     {
         //need to recreate the dialog each time it is pressed as the values may be different
-        //MOEFX@ shouldn't need temporary pane for parsing
-        JEditorPane tmp = new JEditorPane();
-        tmp.setDocument(sourceDocument);
-        tmp.setText(sourcePane.getText());
         ParsedCUNode parser = sourceDocument.getParser();
         CodeSuggestions suggests = parser == null ? null : parser.getExpressionType(sourcePane.getCaretPosition(),
                 sourceDocument);
@@ -3886,12 +3875,7 @@ public final class MoeEditor extends BorderPane
     {
         if (watcher != null)
         {
-            try {
-                watcher.recordEdit(SourceType.Java, sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
-            }
-            catch (BadLocationException e) {
-                e.printStackTrace();
-            }
+            watcher.recordEdit(SourceType.Java, sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
         }
     }
 
@@ -4016,15 +4000,11 @@ public final class MoeEditor extends BorderPane
             if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_NONE && root) {
                 return hasMethodCall(methodName, nap, false);
             }
-            
-            try {
-                if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION && sourceDocument.getText(
-                        nap.getPosition(), nap.getSize()).startsWith(methodName)) {
-                    return true;
-                }
+
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION && sourceDocument.getText(
+                    nap.getPosition(), nap.getSize()).startsWith(methodName)) {
+                return true;
             }
-            catch (BadLocationException e) {
-            }            
         }
         
         return false;

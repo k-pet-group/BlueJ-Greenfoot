@@ -22,17 +22,25 @@
 package bluej.editor.moe;
 
 import java.awt.Color;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
+import javax.swing.text.AbstractDocument.DefaultDocumentEvent;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.Segment;
 
+import org.fxmisc.richtext.model.Paragraph;
+import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
+import org.fxmisc.richtext.model.SimpleEditableStyledDocument;
+import org.fxmisc.richtext.model.StyledDocument;
+import org.fxmisc.richtext.model.StyledText;
+import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -54,8 +62,10 @@ import bluej.utility.PersistentMarkDocument;
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  */
 @OnThread(value = Tag.Swing, ignoreParent = true)
-public class MoeSyntaxDocument extends PersistentMarkDocument
+public class MoeSyntaxDocument
 {
+    private final SimpleEditableStyledDocument<Integer, String> document;
+
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Color[] colors = null;
 
@@ -66,7 +76,8 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     
     /** Maximum amount of document to reparse in one hit (advisory) */
     private final static int MAX_PARSE_PIECE = 8000;
-    
+    private final int tabSize;
+
     private ParsedCUNode parsedNode;
     private EntityResolver parentResolver;
     private NodeTree<ReparseRecord> reparseRecordTree;
@@ -77,7 +88,12 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     private Runnable[] scheduledUpdates;
     protected boolean inNotification = false;
     protected boolean runningScheduledUpdates = false;
-    
+
+    public SimpleEditableStyledDocument<Integer, String> getDocument()
+    {
+        return document;
+    }
+
     private class PendingError
     {
         int position;
@@ -142,8 +158,8 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     {
         getUserColors();
         // defaults to 4 if cannot read property
-        int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        putProperty(tabSizeAttribute, Integer.valueOf(tabSize));
+        tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
+        document = new SimpleEditableStyledDocument<>(-1, "");
     }
     
     /**
@@ -265,18 +281,20 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
                 eventStr += "offset=" + event.offset + " length=" + event.length;
                 Debug.message(eventStr);
             }
-            
-            try {
-                Debug.message("--- Source code ---");
-                Debug.message(getText(0, getLength()));
-                Debug.message("--- Source ends ---");
-            }
-            catch (BadLocationException ble) { }
+
+            Debug.message("--- Source code ---");
+            Debug.message(getText(0, getLength()));
+            Debug.message("--- Source ends ---");
             
             throw e;
         }
     }
-    
+
+    private void fireChangedUpdate(MoeSyntaxEvent mse)
+    {
+        //MOEFX: TODO
+    }
+
     /**
      * Process all of the re-parse queue.
      */
@@ -410,6 +428,8 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
      */
     public Runnable setParagraphAttributes(int offset, AttributeSet s)
     {
+        return () -> {};
+        /*MOEFX
         // modified version of method from DefaultStyleDocument
         try {
             writeLock();
@@ -431,6 +451,7 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
         } finally {
             writeUnlock();
         }
+        */
     }
     
     /**
@@ -625,7 +646,6 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     /* 
      * If text was inserted, the reparse-record tree needs to be updated.
      */
-    @Override
     protected void fireInsertUpdate(DocumentEvent e)
     {
         inNotification = true;
@@ -646,7 +666,8 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
             parsedNode.textInserted(this, 0, e.getOffset(), e.getLength(), mse);
         }
         recordEvent(e);
-        super.fireInsertUpdate(mse);
+        // MOEFX
+        //super.fireInsertUpdate(mse);
         inNotification = false;
 
         runScheduledUpdates();
@@ -656,7 +677,6 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
     /* 
      * If part of the document was removed, the reparse-record tree needs to be updated.
      */
-    @Override
     protected void fireRemoveUpdate(DocumentEvent e)
     {
         inNotification = true;
@@ -726,7 +746,8 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
             parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength(), mse);
         }
         recordEvent(e);
-        super.fireRemoveUpdate(mse);
+        //MOEFX
+        //super.fireRemoveUpdate(mse);
         inNotification = false;
         
         runScheduledUpdates();
@@ -745,6 +766,118 @@ public class MoeSyntaxDocument extends PersistentMarkDocument
      */
     public void repaintLines(int offset, int length)
     {
-        fireChangedUpdate(new DefaultDocumentEvent(offset, length, EventType.CHANGE));
+        //MOEFX
+        //fireChangedUpdate(new DefaultDocumentEvent(offset, length, EventType.CHANGE));
+    }
+
+    public int getLength()
+    {
+        return document.getLength();
+    }
+
+    public String getText(int start, int length)
+    {
+        return document.getText(start, start + length);
+    }
+
+    public void getText(int startOffset, int length, Segment segment)
+    {
+        String s = getText(startOffset, length);
+        segment.array = s.toCharArray();
+        segment.offset = 0;
+        segment.count = s.length();
+    }
+
+    public void insertString(int start, String src, Object attrSet)
+    {
+        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, 0, "", StyledText.textOps()));
+    }
+
+    public void replace(int start, int length, String text)
+    {
+        document.replace(start, length, ReadOnlyStyledDocument.fromString(text, 0, "", StyledText.textOps()));
+    }
+
+    public void remove(int start, int length)
+    {
+        document.replace(start, start + length, new SimpleEditableStyledDocument<>(0, ""));
+    }
+
+    public static interface Element
+    {
+        public Element getElement(int index);
+        public int getStartOffset();
+        public int getEndOffset();
+        public int getElementIndex(int offset);
+        public int getElementCount();
+    }
+
+    public Element getDefaultRootElement()
+    {
+        return new Element()
+        {
+            @Override
+            public Element getElement(int index)
+            {
+                Paragraph<Integer, StyledText<String>, String> p = document.getParagraph(index);
+                int pos = document.getAbsolutePosition(index, 0);
+                return new Element()
+                {
+                    @Override
+                    public Element getElement(int index)
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public int getStartOffset()
+                    {
+                        return pos;
+                    }
+
+                    @Override
+                    public int getEndOffset()
+                    {
+                        return pos + p.length();
+                    }
+
+                    @Override
+                    public int getElementIndex(int offset)
+                    {
+                        return -1;
+                    }
+
+                    @Override
+                    public int getElementCount()
+                    {
+                        return 0;
+                    }
+                };
+            }
+
+            @Override
+            public int getStartOffset()
+            {
+                return 0;
+            }
+
+            @Override
+            public int getEndOffset()
+            {
+                return document.getLength();
+            }
+
+            @Override
+            public int getElementIndex(int offset)
+            {
+                return document.offsetToPosition(offset, Bias.Forward).getMajor();
+            }
+
+            @Override
+            public int getElementCount()
+            {
+                return document.getParagraphs().size();
+            }
+        };
     }
 }

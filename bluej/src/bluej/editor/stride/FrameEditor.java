@@ -64,6 +64,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.extensions.SourceType;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
@@ -640,7 +641,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.Swing)
-            public javax.swing.text.Document getSourceDocument() {
+            public MoeSyntaxDocument getSourceDocument() {
                 throw new UnsupportedOperationException();
             }
 
