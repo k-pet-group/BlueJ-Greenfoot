@@ -354,7 +354,9 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     }
 
     /**
-     * 
+     * Check if the interface option is selected in the view toggle.
+     *
+     * @return true if interface is selected, false otherwise.
      */
     public boolean isInterfaceSelected()
     {
@@ -362,8 +364,8 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     }
 
     /**
-     * Toggle the interface popup menu. This is used when using keys to toggle
-     * the interface view. Toggling the menu will result in invoking the action.
+     * Toggle the interface toggle, selecting the other option.
+     *
      */
     public void toggleInterfaceMenu()
     {
@@ -375,6 +377,9 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
         }
     }
 
+    /**
+     * Set the interface toggle as disabled.
+     */
     public void disableInterfaceToggle()
     {
         interfaceToggle.setDisable(true);
