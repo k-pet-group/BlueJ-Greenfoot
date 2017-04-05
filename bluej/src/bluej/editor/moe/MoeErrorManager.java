@@ -30,6 +30,7 @@ import javax.swing.JEditorPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.parser.SourceLocation;
@@ -82,12 +83,11 @@ public class MoeErrorManager implements MoeDocumentListener
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
         
         MoeEditorPane sourcePane = editor.getSourcePane();
+        Platform.runLater(() -> sourcePane.setStyle(startPos, endPos, "error"));
             //MOEFX
             //MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
-            AdvancedHighlightPainter painter = new MoeSquigglyUnderlineHighlighterPainter(Color.RED, offs -> editor.getLineColumnFromOffset(offs).getLine());
-            //MOEFX
-            //Object errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
-            //errorInfos.add(new ErrorDetails(errorHighlightTag, startPos, endPos, message, identifier));
+            //AdvancedHighlightPainter painter = new MoeSquigglyUnderlineHighlighterPainter(Color.RED, offs -> editor.getLineColumnFromOffset(offs).getLine());
+            errorInfos.add(new ErrorDetails(startPos, endPos, message, identifier));
             setNextErrorEnabled.accept(true);
             editor.updateHeaderHasErrors(true);
     }
@@ -100,8 +100,7 @@ public class MoeErrorManager implements MoeDocumentListener
         MoeEditorPane sourcePane = editor.getSourcePane();
         for (ErrorDetails err : errorInfos)
         {
-            //MOEFX
-            //sourcePane.getHighlighter().removeHighlight(err.highlightTag);
+            Platform.runLater(() -> sourcePane.setStyle(err.startPos, err.endPos, ""));
         }
         errorInfos.clear();
         setNextErrorEnabled.accept(false);
@@ -277,10 +276,8 @@ public class MoeErrorManager implements MoeDocumentListener
         public final int endPos;
         public final String message;
         public final int identifier;
-        private final Object highlightTag;
-        private ErrorDetails(Object highlightTag, int startPos, int endPos, String message, int identifier)
+        private ErrorDetails(int startPos, int endPos, String message, int identifier)
         {
-            this.highlightTag = highlightTag;
             this.startPos = startPos;
             this.endPos = endPos;
             this.message = message;

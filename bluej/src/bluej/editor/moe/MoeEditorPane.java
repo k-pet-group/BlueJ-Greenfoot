@@ -26,13 +26,11 @@ import com.google.common.io.CharStreams;
 import javafx.beans.binding.ObjectBinding;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Paint;
-import javafx.scene.paint.Stop;
+import javafx.scene.paint.*;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyledTextArea;
@@ -66,7 +64,32 @@ public final class MoeEditorPane extends StyledTextArea<String, String>
         super("", (p, s) -> {
             p.backgroundProperty().unbind();
             //p.backgroundProperty().bind(new PaintObjectBinding(p, s, latestEditor));
-        }, "", (t, s) -> {}, doc, true);
+        }, "", (t, s) -> {
+            if (s.equals("error"))
+            {
+                // MOEFX TODO Turn this into an image file on disk (so that we can also add a retina version)
+                WritableImage image = new WritableImage(4, 4);
+                image.getPixelWriter().setColor(0, 0, Color.RED);
+                image.getPixelWriter().setColor(1, 1, Color.RED);
+                image.getPixelWriter().setColor(2, 2, Color.RED);
+                image.getPixelWriter().setColor(3, 1, Color.RED);
+
+                image.getPixelWriter().setColor(0, 1, Color.RED);
+                image.getPixelWriter().setColor(1, 2, Color.RED);
+                image.getPixelWriter().setColor(2, 3, Color.RED);
+                image.getPixelWriter().setColor(3, 2, Color.RED);
+                // RichTextFX has built-in support for underlines, which is much easier than trying to construct
+                // our own overlay.  It turns out we can even draw a squiggly underline rather than straight underline
+                // by using an image-pattern for the stroke:
+                t.setUnderlineColor(new ImagePattern(image, 0, 0, 4, 4, false));
+                t.setUnderlineWidth(3);
+            }
+            else
+            {
+                t.setUnderlineWidth(0);
+            }
+
+        }, doc, true);
         latestEditor = this;
         /*MOEFX Maybe stop using style for this?
         getParagraphs().addListener((ListChangeListener<? super Paragraph<Integer, StyledText<String>, String>>) c -> {
