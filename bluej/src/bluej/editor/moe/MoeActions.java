@@ -1314,6 +1314,7 @@ public final class MoeActions
      */
     public void setDefaultKeyBindings()
     {
+        /*MOEFX
         keymap.removeBindings();
 
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_MASK), actions.get("save"));
@@ -1368,6 +1369,7 @@ public final class MoeActions
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), actions.get("decrease-font"));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), actions.get("code-completion"));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), actions.get("autoindent"));
+        */
     }
 
     // --------------------------------------------------------------------

@@ -933,7 +933,8 @@ public final class MoeEditor extends BorderPane
             errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
             info.messageImportant(Config.getString("editor.info.compileError"));
             repaint();
-            naviView.repaintLines((int)diagnostic.getStartLine(), (int)diagnostic.getEndLine());
+            //MOEFX
+            //naviView.repaintLines((int)diagnostic.getStartLine(), (int)diagnostic.getEndLine());
         }
 
         return true;
@@ -1801,7 +1802,8 @@ public final class MoeEditor extends BorderPane
         setEditorVisible(false);
         if (watcher != null) {
             //setting the naviview visible property when an editor is closed
-            watcher.setProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
+            //MOEFX
+            //watcher.setProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
             watcher.closeEvent(this);
         }
     }
