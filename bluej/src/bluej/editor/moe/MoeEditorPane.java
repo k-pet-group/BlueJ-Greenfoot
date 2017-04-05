@@ -140,16 +140,6 @@ public final class MoeEditorPane extends StyledTextArea<String, String>
         setText(CharStreams.toString(reader));
     }
 
-    public void addMouseListener(MoeEditor moeEditor)
-    {
-
-    }
-
-    public void addMouseMotionListener(MoeEditor moeEditor)
-    {
-
-    }
-
     public void setFont(java.awt.Font standardEditorFont)
     {
 

@@ -122,7 +122,9 @@ import javafx.scene.web.WebView;
 import javafx.stage.*;
 import javafx.stage.Popup;
 
+import javafx.util.Duration;
 import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.MouseOverTextEvent;
 import org.fxmisc.wellbehaved.event.*;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -173,7 +175,7 @@ import bluej.utility.Utility;
  */
 
 public final class MoeEditor extends BorderPane
-    implements bluej.editor.TextEditor, BlueJEventListener, MouseListener, MouseMotionListener
+    implements bluej.editor.TextEditor, BlueJEventListener
 {
     // -------- CONSTANTS --------
 
@@ -658,9 +660,7 @@ public final class MoeEditor extends BorderPane
                 catch (IOException ioe) {}
                 File file = new File(filename);
                 lastModified = file.lastModified();
-                
-                sourcePane.addMouseListener(this);
-                sourcePane.addMouseMotionListener(this);
+
                 listenToChanges(sourceDocument);
                 //MOEFX
                 //sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
@@ -2893,7 +2893,7 @@ public final class MoeEditor extends BorderPane
 
     private void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
     {
-        ErrorDetails err = errorManager.getErrorAtPosition(caretPos);
+        ErrorDetails err = caretPos == -1 ? null : errorManager.getErrorAtPosition(caretPos);
         if (err != null)
         {
             showErrorOverlay(err, caretPos);
@@ -3170,6 +3170,9 @@ public final class MoeEditor extends BorderPane
         sourcePane.setCaretPosition(0);
         moeCaret = new MoeCaret(this);
         Nodes.addInputMap(sourcePane, org.fxmisc.wellbehaved.event.InputMap.consume(EventPattern.keyPressed(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), e -> createContentAssist()));
+        JavaFXUtil.addChangeListenerPlatform(sourcePane.caretPositionProperty(), e -> caretMoved());
+        sourcePane.setMouseOverTextDelay(java.time.Duration.ofMillis(400));
+        sourcePane.addEventHandler(MouseOverTextEvent.ANY, this::mouseOverText);
 
         //MOEFX
         //sourcePane.setCaret(moeCaret);
@@ -3734,46 +3737,13 @@ public final class MoeEditor extends BorderPane
         replacer.enableButtons();
     }
 
-    /**
-     * When the mouse is clicked away from the selected text, 
-     * the replace buttons need to be disabled
-     */
-    @Override
-    public void mouseClicked(MouseEvent e) { }
-
-    @Override
-    public void mouseEntered(MouseEvent e) { }
-
-    @Override
-    public void mouseExited(MouseEvent e) { }
-
-    @Override
-    public void mousePressed(MouseEvent e)
+    public void mouseOverText(MouseOverTextEvent e)
     {
-        showPopup(e);
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e)
-    {
-        showPopup(e);
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) { }
-
-    @Override
-    public void mouseMoved(MouseEvent e)
-    {
-        final int caretPos = sourcePane.hit(e.getPoint().getX(), e.getPoint().getY()).getCharacterIndex().orElse(-1);
+        final int caretPos = e.getCharacterIndex();
         // If the mouse has moved position, restart error show timer:
-        if (caretPos != -1 && caretPos != mouseCaretPos)
+        if (caretPos != mouseCaretPos)
         {
-            if (mouseHover != null)
-                mouseHover.stop();
-            mouseCaretPos = caretPos;
-            mouseHover = new Timer(400, a -> showErrorPopupForCaretPos(caretPos, true));
-            mouseHover.start();
+            showErrorPopupForCaretPos(caretPos, true);
         }
     }
 
