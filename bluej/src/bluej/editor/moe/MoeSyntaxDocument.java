@@ -64,7 +64,7 @@ import bluej.utility.PersistentMarkDocument;
 @OnThread(value = Tag.Swing, ignoreParent = true)
 public class MoeSyntaxDocument
 {
-    private final SimpleEditableStyledDocument<Integer, String> document;
+    private final SimpleEditableStyledDocument<String, String> document;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Color[] colors = null;
@@ -89,7 +89,7 @@ public class MoeSyntaxDocument
     protected boolean inNotification = false;
     protected boolean runningScheduledUpdates = false;
 
-    public SimpleEditableStyledDocument<Integer, String> getDocument()
+    public SimpleEditableStyledDocument<String, String> getDocument()
     {
         return document;
     }
@@ -159,7 +159,7 @@ public class MoeSyntaxDocument
         getUserColors();
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        document = new SimpleEditableStyledDocument<>(-1, "");
+        document = new SimpleEditableStyledDocument<>("", "");
     }
     
     /**
@@ -790,17 +790,17 @@ public class MoeSyntaxDocument
 
     public void insertString(int start, String src, Object attrSet)
     {
-        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, 0, "", StyledText.textOps()));
+        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, "", "", StyledText.textOps()));
     }
 
     public void replace(int start, int length, String text)
     {
-        document.replace(start, length, ReadOnlyStyledDocument.fromString(text, 0, "", StyledText.textOps()));
+        document.replace(start, length, ReadOnlyStyledDocument.fromString(text, "", "", StyledText.textOps()));
     }
 
     public void remove(int start, int length)
     {
-        document.replace(start, start + length, new SimpleEditableStyledDocument<>(0, ""));
+        document.replace(start, start + length, new SimpleEditableStyledDocument<>("", ""));
     }
 
     public static interface Element
@@ -819,7 +819,7 @@ public class MoeSyntaxDocument
             @Override
             public Element getElement(int index)
             {
-                Paragraph<Integer, StyledText<String>, String> p = document.getParagraph(index);
+                Paragraph<String, StyledText<String>, String> p = document.getParagraph(index);
                 int pos = document.getAbsolutePosition(index, 0);
                 return new Element()
                 {

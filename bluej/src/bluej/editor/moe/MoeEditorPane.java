@@ -53,7 +53,7 @@ import java.io.Writer;
  *
  * @author Michael Kolling
  */
-public final class MoeEditorPane extends StyledTextArea<Integer, String>
+public final class MoeEditorPane extends StyledTextArea<String, String>
 {
     private static PaintObjectBinding latestBinding;
     private static MoeEditorPane latestEditor; // MOEFX: TODO this is a total hack
@@ -61,11 +61,11 @@ public final class MoeEditorPane extends StyledTextArea<Integer, String>
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<Integer, StyledText<String>, String> doc)
+    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<String, StyledText<String>, String> doc)
     {
-        super(0, (p, s) -> {
+        super("", (p, s) -> {
             p.backgroundProperty().unbind();
-            p.backgroundProperty().bind(new PaintObjectBinding(p, s, latestEditor));
+            //p.backgroundProperty().bind(new PaintObjectBinding(p, s, latestEditor));
         }, "", (t, s) -> {}, doc, true);
         latestEditor = this;
         /*MOEFX Maybe stop using style for this?
