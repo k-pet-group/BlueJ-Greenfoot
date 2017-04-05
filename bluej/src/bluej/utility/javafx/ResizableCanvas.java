@@ -3,10 +3,29 @@ package bluej.utility.javafx;
 import javafx.scene.canvas.Canvas;
 
 /**
- * Created by neil on 17/06/2016.
+ * A simple extenstion of the JavaFX Canvas class that allows the Canvas
+ * to be resized.  You can also specify an action to be run on resize
+ * (typically, a redraw action).
  */
 public class ResizableCanvas extends Canvas
 {
+    private final FXRunnable onResize;
+
+    public ResizableCanvas()
+    {
+        this(null);
+    }
+
+    /**
+     * Supply an optional action to be run when the canvas is resized.
+     *
+     * @param onResize If not null, will be runs whenever the canvas is resized.
+     */
+    public ResizableCanvas(FXRunnable onResize)
+    {
+        this.onResize = onResize;
+    }
+
     @Override
     public boolean isResizable()
     {
@@ -18,6 +37,8 @@ public class ResizableCanvas extends Canvas
     {
         setWidth(width);
         setHeight(height);
+        if (onResize != null)
+            onResize.run();
     }
 
     @Override
