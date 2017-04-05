@@ -109,6 +109,7 @@ Run this configuration, and it should work.  Then go back to Edit Configurations
   (Remember to replace bjgf with full path).
 
 Before you can run the Greenfoot configuration for the first time, you need to run the ant target
-  "ready-to-run" target from the Greenfoot ant file (not the BlueJ ant file).  Once done,
+  "ready-to-run-greenfoot" from the *BlueJ* ant file, and then also the
+  "ready-to-run" target from the Greenfoot ant file.  Once done,
   you should be able to run the Greenfoot configuration successfully.
 
