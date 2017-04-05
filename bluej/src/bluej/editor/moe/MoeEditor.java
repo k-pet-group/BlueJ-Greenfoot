@@ -1612,8 +1612,7 @@ public final class MoeEditor extends BorderPane
         {
             madeChangeOnCurrentLine = true; // We've changed this line, but don't recompile yet
         }
-        
-        //errorManager.insertUpdate(e);
+
         clearMessage();
         removeSearchHighlights();
         errorManager.removeAllErrorHighlights();
@@ -1663,8 +1662,7 @@ public final class MoeEditor extends BorderPane
         {
             madeChangeOnCurrentLine = true; // We've changed this line, but don't recompile yet
         }
-        
-        //errorManager.removeUpdate(e);
+
         clearMessage();
         removeSearchHighlights();
         errorManager.removeAllErrorHighlights();
