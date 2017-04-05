@@ -1619,6 +1619,7 @@ public final class MoeEditor extends BorderPane
         clearMessage();
         removeSearchHighlights();
         errorManager.removeAllErrorHighlights();
+        errorManager.documentContentChanged();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -3145,7 +3146,7 @@ public final class MoeEditor extends BorderPane
         // create the text document
 
         if (projectResolver != null) {
-            sourceDocument = new MoeSyntaxDocument(projectResolver, errorManager);
+            sourceDocument = new MoeSyntaxDocument(projectResolver);
         }
         else {
             sourceDocument = new MoeSyntaxDocument();  // README file
@@ -3156,6 +3157,7 @@ public final class MoeEditor extends BorderPane
 
         // create the text pane
 
+        /*MOEFX
         EditorKit kit;
         if (projectResolver != null) {
             kit = new MoeSyntaxEditorKit(projectResolver, errorManager, errorManager);
@@ -3163,6 +3165,7 @@ public final class MoeEditor extends BorderPane
         else {
             kit = new ReadmeEditorKit();
         }
+        */
         //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
         sourcePane = new MoeEditorPane(sourceDocument.getDocument());
         //MOEFX

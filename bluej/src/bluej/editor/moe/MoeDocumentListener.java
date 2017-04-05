@@ -26,7 +26,9 @@ import threadchecker.Tag;
 
 /**
  * An interface for listening to parse events on a MoeSyntaxDocument.
- * 
+ *
+ * MOEFX: Remove this?
+ *
  * @author Davin McCall
  */
 @OnThread(Tag.Any)
