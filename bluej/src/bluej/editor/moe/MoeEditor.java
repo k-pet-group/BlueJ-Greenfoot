@@ -173,7 +173,7 @@ import bluej.utility.Utility;
  */
 
 public final class MoeEditor extends BorderPane
-    implements bluej.editor.TextEditor, BlueJEventListener, DocumentListener, MouseListener, MouseMotionListener
+    implements bluej.editor.TextEditor, BlueJEventListener, MouseListener, MouseMotionListener
 {
     // -------- CONSTANTS --------
 
@@ -661,10 +661,10 @@ public final class MoeEditor extends BorderPane
                 
                 sourcePane.addMouseListener(this);
                 sourcePane.addMouseMotionListener(this);
+                listenToChanges(sourceDocument);
                 //MOEFX
                 //sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
                 //naviView.setDocument(sourceDocument);
-                //sourceDocument.addDocumentListener(this);
                 //sourceDocument.addUndoableEditListener(undoManager);
                 
                 sourceDocument.enableParser(false);
@@ -1588,18 +1588,21 @@ public final class MoeEditor extends BorderPane
         }
     }
 
-    /**
-     * A text insertion has taken place.
-     */
-    @Override
-    public void insertUpdate(DocumentEvent e)
+    private void listenToChanges(MoeSyntaxDocument msd)
     {
-        //MOEFX
-        DocumentEvent.ElementChange ec = null;//e.getChange(sourceDocument.getDefaultRootElement());
-        // The change to the root element is null if they only changed a singe line.
-        // We only recompile if they inserted across multiple lines, so we 
-        // just need to check if the change to the root is not null:
-        if (ec != null) // For a multi-line change, always compile:
+        msd.getDocument().plainChanges().subscribe(c -> {
+            boolean singleLineChange = !c.getInserted().contains("\n") && !c.getRemoved().contains("\n");
+            boolean inserted = !c.getInserted().isEmpty();
+            documentContentChanged(singleLineChange, inserted);
+        });
+    }
+
+    /**
+     * A change has been made to the source code content.
+     */
+    private void documentContentChanged(boolean singleLineChange, boolean inserted)
+    {
+        if (!singleLineChange) // For a multi-line change, always compile:
         {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -1626,64 +1629,14 @@ public final class MoeEditor extends BorderPane
         
         // This may handle re-indentation; as this mutates the
         // document, it must be done outside the notification.
-        MoeSyntaxDocument msd = (MoeSyntaxDocument) e.getDocument();
-        if (! msd.isRunningScheduledUpdates()) {
-            msd.scheduleUpdate(doTextInsert);
+        if (inserted && ! sourceDocument.isRunningScheduledUpdates()) {
+            sourceDocument.scheduleUpdate(doTextInsert);
         }
         
         recordEdit(false);        
         
         scheduleReparseRunner();
     }
-
-    // --------------------------------------------------------------------
-
-    /**
-     * A text removal has taken place.
-     */
-    @Override
-    public void removeUpdate(DocumentEvent e)
-    {
-        //MOEFX
-        DocumentEvent.ElementChange ec = null;//e.getChange(sourceDocument.getDefaultRootElement());
-        // The change to the root element is null if they only changed a singe line.
-        // We only recompile if they removed across multiple lines, so we 
-        // just need to check if the change to the root is not null:
-        if (ec != null)  // For a multi-line change, always compile:
-        {
-            saveState.setState(StatusLabel.CHANGED);
-            setChanged();
-            if (watcher != null) {
-                watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-            }
-            madeChangeOnCurrentLine = false; // Not since last compilation
-        }
-        else
-        {
-            madeChangeOnCurrentLine = true; // We've changed this line, but don't recompile yet
-        }
-
-        clearMessage();
-        removeSearchHighlights();
-        errorManager.removeAllErrorHighlights();
-        if (!saveState.isChanged()) {
-            saveState.setState(StatusLabel.CHANGED);
-            setChanged();
-        }
-        actions.userAction();
-        
-        recordEdit(false);
-        
-        scheduleReparseRunner();
-    }
-
-    // --------------------------------------------------------------------
-    
-    /**
-     * Document properties have changed
-     */
-    @Override
-    public void changedUpdate(DocumentEvent e) { }
 
     // --------------------------------------------------------------------    
 
@@ -2783,8 +2736,8 @@ public final class MoeEditor extends BorderPane
 
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
+            listenToChanges(sourceDocument);
             //MOEFX
-            //sourceDocument.addDocumentListener(this);
             //sourceDocument.addUndoableEditListener(undoManager);
 
             // We want to inform the watcher that the editor content has changed,
@@ -3197,8 +3150,8 @@ public final class MoeEditor extends BorderPane
         else {
             sourceDocument = new MoeSyntaxDocument();  // README file
         }
+        listenToChanges(sourceDocument);
         //MOEFX
-        //sourceDocument.addDocumentListener(this);
         //sourceDocument.addUndoableEditListener(undoManager);
 
         // create the text pane

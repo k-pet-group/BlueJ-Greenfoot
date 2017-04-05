@@ -145,7 +145,10 @@ public final class MoeEditorPane extends StyledTextArea<Integer, String>
 
     public void write(Writer writer) throws IOException
     {
-        new BufferedWriter(writer).write(getText());
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+        bufferedWriter.write(getText());
+        // Must flush or else changes don't get written:
+        bufferedWriter.flush();
     }
 
     private static class PaintObjectBinding extends ObjectBinding<Background>
