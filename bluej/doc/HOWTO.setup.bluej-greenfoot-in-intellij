@@ -100,6 +100,7 @@ Click the "+" in top-left to add new config, select Application from drop-down m
   The first one tells it to use the "classes" subdirectory for class files rather than looking for
   the JARs which we build for the release.  The second tells it to spit out debug output on stderr
   rather than to the bluej log file (you definitely want this during development).
+  Set the working directory to bjgf/bluej, and set the classpath to be for module "bluej".
 
 Run this configuration, and it should work.  Then go back to Edit Configurations..., select the
   Copy Configuration icon (third from top left of window) and call the copy Greenfoot.  Only change
