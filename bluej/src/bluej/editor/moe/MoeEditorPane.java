@@ -21,15 +21,16 @@
  */
 package bluej.editor.moe;
 
+import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.utility.Debug;
 import com.google.common.io.CharStreams;
 import javafx.beans.binding.ObjectBinding;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
+import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
@@ -51,7 +52,7 @@ import java.io.Writer;
  *
  * @author Michael Kolling
  */
-public final class MoeEditorPane extends StyledTextArea<String, String>
+public final class MoeEditorPane extends StyledTextArea<ScopeInfo, String>
 {
     private static PaintObjectBinding latestBinding;
     private static MoeEditorPane latestEditor; // MOEFX: TODO this is a total hack
@@ -59,11 +60,13 @@ public final class MoeEditorPane extends StyledTextArea<String, String>
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<String, StyledText<String>, String> doc)
+    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<String>, String> doc, BlueJSyntaxView syntaxView)
     {
-        super("", (p, s) -> {
-            p.backgroundProperty().unbind();
-            //p.backgroundProperty().bind(new PaintObjectBinding(p, s, latestEditor));
+        super(null, (p, s) -> {
+            if (s == null)
+                p.setBackground(null);
+            else
+                p.setBackground(new Background(new BackgroundImage(syntaxView.getImageFor(s), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT)));
         }, "", (t, s) -> {
             if (s.equals("error"))
             {

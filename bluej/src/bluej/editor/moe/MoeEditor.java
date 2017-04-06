@@ -3167,7 +3167,7 @@ public final class MoeEditor extends BorderPane
         }
         */
         //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
-        sourcePane = new MoeEditorPane(sourceDocument.getDocument());
+        sourcePane = sourceDocument.makeEditorPane();
         //MOEFX
         //sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);

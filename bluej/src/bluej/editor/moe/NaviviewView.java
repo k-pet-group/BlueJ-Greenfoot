@@ -62,11 +62,11 @@ public class NaviviewView extends BlueJSyntaxView
     
     public NaviviewView(MoeSyntaxDocument.Element elem, NaviView naviView, MoeErrorManager errors)
     {
-        super(elem, 0, errors);
+        //MOEFX
+        //super(elem, 0, errors);
         this.naviView = naviView;
     }
-    
-    @Override
+
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g,
             int x, int y, MoeSyntaxDocument document, MoeErrorManager errorMgr, Color def,
             MoeSyntaxDocument.Element lineElement, TabExpander tx)
@@ -74,7 +74,7 @@ public class NaviviewView extends BlueJSyntaxView
         // Painting at such a small font size means the font appears very light.
         // To get around this problem, we paint into a temporary image, then darken
         // the text, and finally copy the temporary image to the output Graphics.
-        
+        /*MOEFX
         try {
             int lineHeight = metrics.getHeight();
             int endPos = lineElement.getEndOffset() - 1;
@@ -144,8 +144,10 @@ public class NaviviewView extends BlueJSyntaxView
             }
         }
         catch (BadLocationException ble) {}
+        */
     }
-    
+
+    /*MOEFX
     @Override
     public void paint(Graphics g, Shape a)
     {
@@ -187,5 +189,6 @@ public class NaviviewView extends BlueJSyntaxView
         }
         super.updateDamage(changes, a, f);
     }
+    */
     
 }

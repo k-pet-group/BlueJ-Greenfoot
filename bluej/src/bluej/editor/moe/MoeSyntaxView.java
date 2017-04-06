@@ -76,7 +76,8 @@ public class MoeSyntaxView extends BlueJSyntaxView
      */
     public MoeSyntaxView(Element elem, MoeErrorManager errors)
     {
-        super(elem, LEFT_MARGIN, errors);
+        //MOEFX
+        //super(elem, LEFT_MARGIN, errors);
     }
 
     /**
@@ -93,8 +94,9 @@ public class MoeSyntaxView extends BlueJSyntaxView
         super.initialise(g);
         lineNumberFont = defaultFont.deriveFont(9.0f);
         smallLineNumberFont = defaultFont.deriveFont(7.0f);
-        Component c = getContainer();
-        lineNumberMetrics = c.getFontMetrics(lineNumberFont);
+        //MOEFX
+        //Component c = getContainer();
+        //lineNumberMetrics = c.getFontMetrics(lineNumberFont);
     }
     
     /**
@@ -158,7 +160,6 @@ public class MoeSyntaxView extends BlueJSyntaxView
     /* When painting a line also paint the markers (breakpoint marks, step marks) etc.
      * @see bluej.editor.moe.BlueJSyntaxView#paintTaggedLine(javax.swing.text.Segment, int, java.awt.Graphics, int, int, bluej.editor.moe.MoeSyntaxDocument, java.awt.Color, javax.swing.text.Element)
      */
-    @Override
     public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, MoeErrorManager errorMgr, Color def, Element line, TabExpander tx) 
     {
@@ -167,7 +168,8 @@ public class MoeSyntaxView extends BlueJSyntaxView
             paintSyntaxLine(lineText, lineIndex, x, y, g, document, def, tx);
         }
         else {
-            paintPlainLine(lineIndex, g, x, y);
+            //MOEFX
+            //paintPlainLine(lineIndex, g, x, y);
         }
     }
         
@@ -176,9 +178,13 @@ public class MoeSyntaxView extends BlueJSyntaxView
     */
     public void paint(Graphics g, Shape allocation)
     {
+        //MOEFX
+        /*
         // if uncompiled, fill the tag line with grey
-        Rectangle bounds = allocation.getBounds();        
-        if(Boolean.FALSE.equals(getDocument().getProperty(MoeEditor.COMPILED))) {
+        Rectangle bounds = allocation.getBounds();
+
+        //if(Boolean.FALSE.equals(getDocument().getProperty(MoeEditor.COMPILED)))
+        {
             g.setColor(Color.lightGray);
             g.fillRect(0, 0, bounds.x + TAG_WIDTH,
                        bounds.y + bounds.height);
@@ -210,6 +216,8 @@ public class MoeSyntaxView extends BlueJSyntaxView
         g.setColor(Color.black);
         g.drawLine(bounds.x + TAG_WIDTH, 0,
                    bounds.x + TAG_WIDTH, bounds.y + bounds.height);
+       */
     }
+
 
 }

@@ -22,37 +22,30 @@
 package bluej.editor.moe;
 
 import bluej.editor.moe.MoeSyntaxDocument.Element;
-import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Toolkit;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Stack;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentEvent.ElementChange;
-import javax.swing.event.DocumentEvent.EventType;
+import java.util.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Position;
+import javax.swing.text.Position.Bias;
 import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
 import javax.swing.text.Utilities;
-import javax.swing.text.ViewFactory;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -68,7 +61,7 @@ import javax.swing.text.ViewFactory;
  * @author Michael Kolling
  * @author Davin McCall
  */
-public abstract class BlueJSyntaxView extends MoePlainView
+public class BlueJSyntaxView
 {
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
@@ -120,79 +113,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
     private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
 
-    private final MoeErrorManager errors;
-
-
     /**
      * Creates a new BlueJSyntaxView.
-     * @param elem The element
      */
-    public BlueJSyntaxView(Element elem, int leftMargin, MoeErrorManager errors)
+    public BlueJSyntaxView()
     {
-        //MOEFX
-        super((javax.swing.text.Element)elem, leftMargin);
-        line = new Segment();
-        this.errors = errors;
-    }
-
-    @Override
-    public void paint(Graphics g, Shape a)
-    {
-        if (desktopHints != null && g instanceof Graphics2D) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.addRenderingHints(desktopHints); 
-        }
-
-        super.paint(g, a);
-    }
-
-    /*
-     * Paints the specified line. This is called by the paint() method from PlainView.
-     *
-     * @param lineIndex The line number (0 based).
-     * @param g The graphics context
-     * @param x The x co-ordinate where the line should be painted
-     * @param y The y co-ordinate (baseline) where the line should be painted
-     */
-    @Override
-    protected void drawLine(int lineIndex, Graphics g, int x, int y)
-    {
-        if(!initialised) {
-            initialise(g);
-        }
-
-        MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
-
-        Color def = MoeSyntaxDocument.getDefaultColor();
-        TabExpander tx = new MoeTabExpander(tabSize, x);
-            //MOEFX
-            Element lineElement = (Element)getElement().getElement(lineIndex);
-            int start = lineElement.getStartOffset();
-            int end = lineElement.getEndOffset();
-
-            document.getText(start, end - (start + 1), line);
-            g.setColor(def);
-
-            paintTaggedLine(line, lineIndex, g, x, y, document, errors, def, lineElement, tx);
-    }
-
-    /**
-     * Paint a line of text, without syntax colouring. This is provided as a convenience for subclasses.
-     */
-    protected void paintPlainLine(int lineIndex, Graphics g, int x, int y)
-    {
-        super.drawLine(lineIndex, g, x, y);
-    }
-
-    /**
-     * Draw a line for this view. Default implementation defers to paintSyntaxLine().
-     * @param x  The x co-ordinate of the line, where the text is to begin (i.e. the margin area is
-     *           to the left of this point)
-     */
-    protected void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
-            MoeSyntaxDocument document, MoeErrorManager errors, Color def, Element lineElement, TabExpander tx)
-    {
-        paintSyntaxLine(line, lineIndex, x, y, g, document, def, tx);
     }
 
     /**
@@ -231,10 +156,53 @@ public abstract class BlueJSyntaxView extends MoePlainView
         }
     }
 
-    protected final void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
+    protected final void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, Shape a,
             int firstLine, int lastLine, boolean onlyMethods)
     {
-        paintScopeMarkers(g, document, a, firstLine, lastLine, onlyMethods, false);
+        paintScopeMarkers(scopes, document, a, firstLine, lastLine, onlyMethods, false);
+    }
+
+    public List<ScopeInfo> recalculateScopes(MoeSyntaxDocument moeSyntaxDocument)
+    {
+        List<ScopeInfo> scopes = new ArrayList<>();
+        paintScopeMarkers(scopes, moeSyntaxDocument, new Rectangle(0, 0, 200, 200), 0, moeSyntaxDocument.getDocument().getParagraphs().size(), false);
+        return scopes;
+    }
+
+    public Image getImageFor(ScopeInfo s)
+    {
+        //MOEFX: TODO
+        WritableImage image = new WritableImage(s.middles.stream().mapToInt(m -> m.rhs).max().orElse(1) + 1, 10);
+        for (Middle middle : s.middles)
+        {
+            fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, 10, middle.bodyColor.getRGB() | 0xFF000000);
+        }
+        //MOEFX TODO top and bottom lines
+        /*
+        if(startsThisLine) {
+            // Top edge
+            g.setColor(color1);
+            g.drawLine(xpos, ypos, rbounds, ypos);
+        }
+        if(endsThisLine) {
+            // Bottom edge
+            g.setColor(color1);
+            g.drawLine(xpos, ypos2 - 1, rbounds, ypos2 - 1);
+        }
+        */
+
+        return image;
+    }
+
+    private void fillRect(PixelWriter pixelWriter, int x, int y, int w, int h, int argb)
+    {
+        for (int i = 0; i < w; i++)
+        {
+            for (int j = 0; j < h; j++)
+            {
+                pixelWriter.setArgb(x + i, y + j, argb);
+            }
+        }
     }
 
     /**
@@ -252,7 +220,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
         Element belowLineEl;
     }
 
-    protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
+    protected void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, Shape a,
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
         //optimization for the raspberry pi.
@@ -301,7 +269,9 @@ public abstract class BlueJSyntaxView extends MoePlainView
                     break;
                 }
 
-                drawScopes(a, g, document, lines, prevScopeStack, small, onlyMethods, 0);
+                ScopeInfo scope = new ScopeInfo();
+                scopes.add(scope);
+                drawScopes(a, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
 
                 // Next line
                 curLine++;
@@ -332,7 +302,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
     private class DrawInfo
     {
-        Graphics g;
+        final ScopeInfo scopes;
         ThreeLines lines;
         boolean small;
 
@@ -343,6 +313,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
         boolean ends;    // the node ends on the current line
         Color color1;    // Edge colour
         Color color2;    // Fill colour
+
+        private DrawInfo(ScopeInfo scopes)
+        {
+            this.scopes = scopes;
+        }
     }
 
     /**
@@ -354,7 +329,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
      * @param lines          the previous, current and next lines (segments and elements)
      * @param prevScopeStack the stack of nodes (from outermost to innermost) at the beginning of the current line
      */
-    private void drawScopes(Shape a, Graphics g, MoeSyntaxDocument document, ThreeLines lines,
+    private void drawScopes(Shape a, ScopeInfo scopes, MoeSyntaxDocument document, ThreeLines lines,
             List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
             boolean onlyMethods, int nodeDepth)
     throws BadLocationException
@@ -369,8 +344,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
         ListIterator<NodeAndPosition<ParsedNode>> li = prevScopeStack.listIterator();
 
-        DrawInfo drawInfo = new DrawInfo();
-        drawInfo.g = g;
+        DrawInfo drawInfo = new DrawInfo(scopes);
         drawInfo.lines = lines;
         drawInfo.small = small;
         drawInfo.ypos = ypos;
@@ -481,6 +455,12 @@ public abstract class BlueJSyntaxView extends MoePlainView
         }
     }
 
+    private Rectangle modelToView(int startOffset, Shape a, Bias forward)
+    {
+        //MOEFX: Remove or properly implement this method
+        return new Rectangle(0, 0, 5, 5);
+    }
+
     /**
      * Check whether a node needs to be drawn.
      * @param info
@@ -545,19 +525,17 @@ public abstract class BlueJSyntaxView extends MoePlainView
      */
     private void drawScopeLeft(DrawInfo info, int xpos, int rbound)
     {
-        Graphics g = info.g;
         if (! info.small) {
             xpos -= info.node.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
         }
 
         // draw node start
         int hoffs = info.small ? 0 : 4; // determines size of corner arcs
-        //g.setColor(info.color2);
-        // g.fillRect(xpos + hoffs, info.ypos, endX - xpos - hoffs, ypos2 - ypos);
 
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
         int edgeBtm = info.ypos2 - (info.ends ? hoffs : 0);
 
+        /*MOEFX
         g.setColor(info.color2);
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
         g.setColor(info.color1);
@@ -583,8 +561,9 @@ public abstract class BlueJSyntaxView extends MoePlainView
             g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
             //g.drawLine(xpos + hoffs, ypos2 - 1, rbounds, ypos2 - 1);
         }
-
+        */
         drawScope(info, xpos + hoffs, rbound);
+
     }
 
     /**
@@ -592,8 +571,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
      */
     private void drawScopeRight(DrawInfo info, int xpos)
     {
-        Graphics g = info.g;
-
+        /*MOEFX
         int hoffs = info.small ? 0 : 4; // determines size of corner arcs        
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
         int edgeBtm = info.ypos2 - (info.ends ? hoffs + 1 : 0);
@@ -620,6 +598,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
             g.setColor(info.color1);
             g.drawArc(xpos - hoffs, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 0, -90);
         }
+        */
     }
 
     /**
@@ -630,28 +609,23 @@ public abstract class BlueJSyntaxView extends MoePlainView
      */
     private void drawScope(DrawInfo info, int xpos, int rbounds)
     {
-        Graphics g = info.g;
         Color color1 = info.color1;
         Color color2 = info.color2;
         boolean startsThisLine = info.starts;
         boolean endsThisLine = info.ends;
         int ypos = info.ypos;
         int ypos2 = info.ypos2;
-        
-        // draw node start
-        g.setColor(color2);
-        g.fillRect(xpos, ypos, rbounds - xpos, ypos2 - ypos);
 
-        if(startsThisLine) {
-            // Top edge
-            g.setColor(color1);
-            g.drawLine(xpos, ypos, rbounds, ypos);
+        Middle middle = new Middle(color2, xpos, rbounds);
+        if (startsThisLine)
+        {
+            middle.drawTop(color1);
         }
-        if(endsThisLine) {
-            // Bottom edge
-            g.setColor(color1);
-            g.drawLine(xpos, ypos2 - 1, rbounds, ypos2 - 1);
+        if (endsThisLine)
+        {
+            middle.drawBottom(color1);
         }
+        info.scopes.middles.add(middle);
     }
 
     /**
@@ -866,15 +840,16 @@ public abstract class BlueJSyntaxView extends MoePlainView
             }
 
             return indent == Integer.MAX_VALUE ? -1 : indent;
-        }
-        catch (BadLocationException ble) {
-            return -1;
-        }
+        } finally {}
+        //catch (BadLocationException ble) {
+        //    return -1;
+        //}
     }
     
     private int[] reassessIndentsAdd(Shape a, int dmgStart, int dmgEnd)
     {
-        MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
+        //MOEFX
+        MoeSyntaxDocument doc = null;
         ParsedCUNode pcuNode = doc.getParsedNode();
         if (pcuNode == null) {
             return new int[] {dmgStart, dmgEnd};
@@ -1040,15 +1015,16 @@ public abstract class BlueJSyntaxView extends MoePlainView
             }
             
             return dmgRange;
-        }
-        catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
+        } finally {}
+        //catch (BadLocationException ble) {
+        //    throw new RuntimeException(ble);
+        //}
     }
 
     private int[] reassessIndentsRemove(Shape a, int dmgPoint, boolean multiLine)
     {
-        MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
+        //MOEFX
+        MoeSyntaxDocument doc = null;
         ParsedCUNode pcuNode = doc.getParsedNode();
         
         int [] dmgRange = new int[2];
@@ -1169,10 +1145,10 @@ public abstract class BlueJSyntaxView extends MoePlainView
             }
             
             return dmgRange;
-        }
-        catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
+        } finally {}
+        //catch (BadLocationException ble) {
+        //    throw new RuntimeException(ble);
+        //}
     }
     
     /**
@@ -1579,5 +1555,41 @@ public abstract class BlueJSyntaxView extends MoePlainView
     private static Color getPinkWash()
     {
         return getReducedColor(PINK_BASE);
+    }
+
+    private static class Middle
+    {
+        private final Color bodyColor;
+        private final int lhs;
+        private final int rhs;
+        private Color topColor; // null if no top
+        private Color bottomColor; // null if no bottom
+
+        public Middle(Color bodyColor, int lhs, int rhs)
+        {
+            //TODO MOEFX: work out why this happens
+            if (lhs < 0)
+                lhs = 0;
+            this.bodyColor = bodyColor;
+            this.lhs = lhs;
+            this.rhs = rhs;
+        }
+
+        public void drawTop(Color topColor)
+        {
+            this.topColor = topColor;
+        }
+
+        public void drawBottom(Color bottomColor)
+        {
+            this.bottomColor = bottomColor;
+        }
+    }
+
+    public static class ScopeInfo
+    {
+        //MOEFX TODO: implement equals and hashcode properly for this,
+        // as setParagraphStyle relies on it
+        private final List<Middle> middles = new ArrayList<>();
     }
 }

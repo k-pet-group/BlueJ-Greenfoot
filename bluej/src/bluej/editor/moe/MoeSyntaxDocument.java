@@ -35,6 +35,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.Segment;
 
+import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import org.fxmisc.richtext.model.Paragraph;
 import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 import org.fxmisc.richtext.model.SimpleEditableStyledDocument;
@@ -64,7 +65,7 @@ import bluej.utility.PersistentMarkDocument;
 @OnThread(value = Tag.Swing, ignoreParent = true)
 public class MoeSyntaxDocument
 {
-    private final SimpleEditableStyledDocument<String, String> document;
+    private final SimpleEditableStyledDocument<ScopeInfo, String> document;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Color[] colors = null;
@@ -88,11 +89,7 @@ public class MoeSyntaxDocument
     private Runnable[] scheduledUpdates;
     protected boolean inNotification = false;
     protected boolean runningScheduledUpdates = false;
-
-    public SimpleEditableStyledDocument<String, String> getDocument()
-    {
-        return document;
-    }
+    private final BlueJSyntaxView syntaxView;
 
     private class PendingError
     {
@@ -159,7 +156,8 @@ public class MoeSyntaxDocument
         getUserColors();
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        document = new SimpleEditableStyledDocument<>("", "");
+        document = new SimpleEditableStyledDocument<>(null, "");
+        syntaxView = new BlueJSyntaxView();
     }
     
     /**
@@ -292,7 +290,18 @@ public class MoeSyntaxDocument
 
     private void fireChangedUpdate(MoeSyntaxEvent mse)
     {
-        //MOEFX: TODO
+        List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(this);
+        for (int i = 0; i < paragraphScopeInfo.size(); i++)
+        {
+            ScopeInfo old = document.getParagraphStyle(i);
+            if (((old == null) != (paragraphScopeInfo.get(i) == null)) || !old.equals(paragraphScopeInfo.get(i)))
+            {
+                //MOEFX Stop working around RichTextFX bug post 0.7 release
+                //document.setParagraphStyle(i, paragraphScopeInfo.get(i));
+                Paragraph<ScopeInfo, StyledText<String>, String> oldPara = document.getParagraph(i);
+                document.replace(document.getAbsolutePosition(i, 0), document.getAbsolutePosition(i + 1, 0) - 1, ReadOnlyStyledDocument.fromString(oldPara.getText(), paragraphScopeInfo.get(i), "", StyledText.textOps()));
+            }
+        }
     }
 
     /**
@@ -752,15 +761,28 @@ public class MoeSyntaxDocument
         
         runScheduledUpdates();
     }
-    
+
     /**
-     * Notify that the whole document potentially needs repainting.
+     * Gets the RichTextFX document wrapped by this class.
+     * The styles are deliberately wildcards as the actual types are
+     * an implementation detail private to this class.
+     * @return
      */
-    public void documentChanged()
+    public SimpleEditableStyledDocument<?, ?> getDocument()
     {
-        repaintLines(0, getLength());
+        return document;
     }
-    
+
+    /**
+     * Placed in this class so we don't have to expose document's
+     * inner types.
+     * @return Creates a new MoeEditorPane for this document
+     */
+    public MoeEditorPane makeEditorPane()
+    {
+        return new MoeEditorPane(document, syntaxView);
+    }
+
     /**
      * Notify that a certain area of the document needs repainting.
      */
@@ -790,17 +812,17 @@ public class MoeSyntaxDocument
 
     public void insertString(int start, String src, Object attrSet)
     {
-        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, "", "", StyledText.textOps()));
+        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, "", StyledText.textOps()));
     }
 
     public void replace(int start, int length, String text)
     {
-        document.replace(start, length, ReadOnlyStyledDocument.fromString(text, "", "", StyledText.textOps()));
+        document.replace(start, length, ReadOnlyStyledDocument.fromString(text, null, "", StyledText.textOps()));
     }
 
     public void remove(int start, int length)
     {
-        document.replace(start, start + length, new SimpleEditableStyledDocument<>("", ""));
+        document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, ""));
     }
 
     public static interface Element
@@ -819,7 +841,7 @@ public class MoeSyntaxDocument
             @Override
             public Element getElement(int index)
             {
-                Paragraph<String, StyledText<String>, String> p = document.getParagraph(index);
+                Paragraph<ScopeInfo, StyledText<String>, String> p = document.getParagraph(index);
                 int pos = document.getAbsolutePosition(index, 0);
                 return new Element()
                 {
@@ -838,7 +860,7 @@ public class MoeSyntaxDocument
                     @Override
                     public int getEndOffset()
                     {
-                        return pos + p.length();
+                        return pos + p.length() + (index == document.getParagraphs().size() - 1 ? 0 : 1 /* newline */);
                     }
 
                     @Override
