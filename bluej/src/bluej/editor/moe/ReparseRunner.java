@@ -25,6 +25,7 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import java.awt.EventQueue;
 
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.prefmgr.PrefMgr;
@@ -38,7 +39,7 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Davin McCall
  */
-@OnThread(value = Tag.Swing, ignoreParent = true)
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class ReparseRunner implements Runnable
 {
     private MoeEditor editor;
@@ -66,7 +67,7 @@ public class ReparseRunner implements Runnable
                     break;
                 }
             }
-            EventQueue.invokeLater(this);
+            Platform.runLater(this);
         }
         else {
             // tell MoeEditor we are no longer scheduled.
