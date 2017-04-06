@@ -26,7 +26,10 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.geometry.Bounds;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -67,11 +70,12 @@ public class BlueJSyntaxView
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
 
-    private static final int LEFT_INNER_SCOPE_MARGIN = 5;
-    private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
+    private static final int LEFT_INNER_SCOPE_MARGIN = 0; //MOEFX: restore this to 5
+    private static final int LEFT_OUTER_SCOPE_MARGIN = 0; //MOEFX: restore this to 2
     private static final int RIGHT_SCOPE_MARGIN = 4;
     private static int strength = PrefMgr.getScopeHighlightStrength();
     private ReadOnlyDoubleProperty widthProperty; // width of editor view
+    private MoeEditorPane editorPane;
 
     {
         MoeSyntaxDocument.getColors(); // initialize colors
@@ -175,6 +179,16 @@ public class BlueJSyntaxView
     {
         //MOEFX: TODO cache these images rather than redrawing every time (many will be duplicates)
         WritableImage image = new WritableImage(s.middles.stream().mapToInt(m -> m.rhs).max().orElse(1) + 1, lineHeight);
+
+        for (Left left : s.lefts)
+        {
+            fillRect(image.getPixelWriter(), left.lhs, 0 + left.topMargin, left.width, lineHeight - left.bottomMargin - left.topMargin, left.fillColor.getRGB() | 0xFF000000);
+            for (int y = left.topMargin; y < lineHeight - left.bottomMargin; y++)
+            {
+                image.getPixelWriter().setArgb(left.lhs, y, left.edgeColor.getRGB() | 0xFF000000);
+            }
+        }
+
         for (Middle middle : s.middles)
         {
             fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, lineHeight, middle.bodyColor.getRGB() | 0xFF000000);
@@ -214,6 +228,11 @@ public class BlueJSyntaxView
     {
         this.widthProperty = widthProperty;
         //MOEFX TODO listen to changes in width
+    }
+
+    public void setEditorPane(MoeEditorPane editorPane)
+    {
+        this.editorPane = editorPane;
     }
 
     /**
@@ -318,8 +337,6 @@ public class BlueJSyntaxView
         boolean small;
 
         ParsedNode node;
-        int ypos;
-        int ypos2;
         boolean starts;  // the node starts on the current line
         boolean ends;    // the node ends on the current line
         Color color1;    // Edge colour
@@ -345,11 +362,6 @@ public class BlueJSyntaxView
             boolean onlyMethods, int nodeDepth)
     throws BadLocationException
     {
-        Rectangle lbounds = modelToView(lines.thisLineEl.getStartOffset(), a,
-                Position.Bias.Forward).getBounds();
-        int ypos = lbounds.y;
-        int ypos2 = ypos + lbounds.height;
-
         int rightMargin = small ? 0 : 20;
         int fullWidth = a.getBounds().width + a.getBounds().x;
 
@@ -358,8 +370,6 @@ public class BlueJSyntaxView
         DrawInfo drawInfo = new DrawInfo(scopes);
         drawInfo.lines = lines;
         drawInfo.small = small;
-        drawInfo.ypos = ypos;
-        drawInfo.ypos2 = ypos2;
 
         // Process the current scope stack. This contains all nodes that span the beginning of this line,
         // the foremost child and its foremost child and so on.
@@ -466,10 +476,13 @@ public class BlueJSyntaxView
         }
     }
 
-    private Rectangle modelToView(int startOffset, Shape a, Bias forward)
+    private int getLeftEdge(int startOffset)
     {
-        //MOEFX: Remove or properly implement this method
-        return new Rectangle(0, 0, 5, 5);
+        if (editorPane == null)
+            return 0;
+        double x = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1).map(editorPane::screenToLocal).map(Bounds::getMinX).orElse(0.0);
+        Debug.message("Left edge: " + x);
+        return (int)x;
     }
 
     /**
@@ -543,8 +556,7 @@ public class BlueJSyntaxView
         // draw node start
         int hoffs = info.small ? 0 : 4; // determines size of corner arcs
 
-        int edgeTop = info.ypos + (info.starts ? hoffs : 0);
-        int edgeBtm = info.ypos2 - (info.ends ? hoffs : 0);
+        info.scopes.lefts.add(new Left(xpos, hoffs, info.starts ? hoffs : 0, info.ends ? hoffs : 0, info.color2, info.color1));
 
         /*MOEFX
         g.setColor(info.color2);
@@ -624,8 +636,6 @@ public class BlueJSyntaxView
         Color color2 = info.color2;
         boolean startsThisLine = info.starts;
         boolean endsThisLine = info.ends;
-        int ypos = info.ypos;
-        int ypos2 = info.ypos2;
 
         Middle middle = new Middle(color2, xpos, rbounds);
         if (startsThisLine)
@@ -665,8 +675,8 @@ public class BlueJSyntaxView
         // node short so that the text does not appear to be part of the node.
         int nwsb = findNonWhitespaceComment(nap, lineEl, lineSeg, napEnd - lineEl.getStartOffset());
         if (nwsb != -1) {
-            Rectangle ebounds = modelToView(napEnd, a, Position.Bias.Backward).getBounds();
-            return Math.min(rbound, ebounds.x);
+            int eboundsX = getLeftEdge(napEnd);
+            return Math.min(rbound, eboundsX);
         }
         return rbound;
     }
@@ -770,9 +780,8 @@ public class BlueJSyntaxView
             // we can do it without hitting non-whitespace (which must belong to another node).
             int nws = findNonWhitespaceBwards(segment, napPos - lineEl.getStartOffset() - 1, 0);
             if (nws != -1) {
-                Rectangle lbounds = modelToView(lineEl.getStartOffset() + nws + 1, a,
-                        Position.Bias.Forward).getBounds();
-                xpos = Math.max(xpos, lbounds.x);
+                int lboundsX = getLeftEdge(lineEl.getStartOffset() + nws + 1);
+                xpos = Math.max(xpos, lboundsX);
             }
         }
 
@@ -837,8 +846,8 @@ public class BlueJSyntaxView
 
                 if (nws == lineOffset) {
                     // Ok, at this position we have non-white space and are not in an inner
-                    Rectangle cbounds = modelToView(curpos, a, Position.Bias.Forward).getBounds();
-                    indent = Math.min(indent, cbounds.x);
+                    int cboundsX = getLeftEdge(curpos);
+                    indent = Math.min(indent, cboundsX);
                     curpos = lineEl.getEndOffset();
                 }
                 else if (nws == -1) {
@@ -959,8 +968,8 @@ public class BlueJSyntaxView
                 //   which start on or before the current line.
 
                 // Calculate/store indent
-                Rectangle cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
-                int indent = cbounds.x;
+                int cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
+                int indent = cboundsX;
                 for (j = scopeStack.listIterator(scopeStack.size()); j.hasPrevious(); ) {
                     NodeAndPosition<ParsedNode> next = j.previous();
                     if (next.getPosition() <= curpos) {
@@ -972,8 +981,8 @@ public class BlueJSyntaxView
                         nws = findNonWhitespace(segment, next.getPosition() - lineEl.getStartOffset());
                         Integer oindent = nodeIndents.get(next.getNode());
                         if (oindent != null && nws != -1) {
-                            cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
-                            indent = cbounds.x;
+                            cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
+                            indent = cboundsX;
                             updateNodeIndent(next, indent, oindent, dmgRange);
                         }
                     }
@@ -1006,8 +1015,8 @@ public class BlueJSyntaxView
                                 nws = findNonWhitespace(segment, spos);
                                 Integer oindent = nodeIndents.get(nap.getNode());
                                 if (oindent != null && nws != -1) {
-                                    cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
-                                    indent = cbounds.x;
+                                    cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
+                                    indent = cboundsX;
                                     updateNodeIndent(nap, indent, oindent, dmgRange);
                                 }
                             }
@@ -1086,8 +1095,8 @@ public class BlueJSyntaxView
 
             boolean doContinue = true;
 
-            Rectangle cbounds = modelToView(dmgPoint, a, Position.Bias.Forward).getBounds();
-            int dpI = cbounds.x; // damage point indent
+            int cboundsX = getLeftEdge(dmgPoint);
+            int dpI = cboundsX; // damage point indent
 
             while (doContinue && ! rscopeStack.isEmpty()) {
                 NodeAndPosition<ParsedNode> rtop = rscopeStack.remove(rscopeStack.size() - 1);
@@ -1135,8 +1144,8 @@ public class BlueJSyntaxView
                         continue;
                     }
 
-                    cbounds = modelToView(nws + lineEl.getStartOffset(), a, Position.Bias.Forward).getBounds();
-                    int newIndent = cbounds.x;
+                    cboundsX = getLeftEdge(nws + lineEl.getStartOffset());
+                    int newIndent = cboundsX;
 
                     if (newIndent < cachedIndent) {
                         nodeIndents.put(rtop.getNode(), newIndent);
@@ -1578,9 +1587,6 @@ public class BlueJSyntaxView
 
         public Middle(Color bodyColor, int lhs, int rhs)
         {
-            //TODO MOEFX: work out why this happens
-            if (lhs < 0)
-                lhs = 0;
             this.bodyColor = bodyColor;
             this.lhs = lhs;
             this.rhs = rhs;
@@ -1601,6 +1607,27 @@ public class BlueJSyntaxView
     {
         //MOEFX TODO: implement equals and hashcode properly for this,
         // as setParagraphStyle relies on it
+        private final List<Left> lefts = new ArrayList<>();
         private final List<Middle> middles = new ArrayList<>();
+    }
+
+    private class Left
+    {
+        private final int lhs;
+        private final int width;
+        private final int topMargin;
+        private final int bottomMargin;
+        private final Color fillColor;
+        private final Color edgeColor;
+
+        public Left(int lhs, int width, int topMargin, int bottomMargin, Color fillColor, Color edgeColor)
+        {
+            this.lhs = lhs;
+            this.width = width;
+            this.topMargin = topMargin;
+            this.bottomMargin = bottomMargin;
+            this.fillColor = fillColor;
+            this.edgeColor = edgeColor;
+        }
     }
 }
