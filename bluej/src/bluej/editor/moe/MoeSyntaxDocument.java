@@ -158,6 +158,18 @@ public class MoeSyntaxDocument
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
         document = new SimpleEditableStyledDocument<>(null, "");
         syntaxView = new BlueJSyntaxView();
+
+        document.plainChanges().subscribe(c -> {
+            // Must fire remove before insert:
+            if (!c.getRemoved().isEmpty())
+            {
+                fireRemoveUpdate(c.getPosition(), c.getRemovalEnd() - c.getPosition());
+            }
+            if (!c.getInserted().isEmpty())
+            {
+                fireInsertUpdate(c.getPosition(), c.getInsertionEnd() - c.getPosition());
+            }
+        });
     }
     
     /**
@@ -657,26 +669,41 @@ public class MoeSyntaxDocument
     /* 
      * If text was inserted, the reparse-record tree needs to be updated.
      */
-    protected void fireInsertUpdate(DocumentEvent e)
+    protected void fireInsertUpdate(int offset, int length)
     {
         inNotification = true;
         if (reparseRecordTree != null) {
-            NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
+            NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(offset);
             if (napRr != null) {
-                if (napRr.getPosition() <= e.getOffset()) {
-                    napRr.getNode().resize(napRr.getSize() + e.getLength());
+                if (napRr.getPosition() <= offset) {
+                    napRr.getNode().resize(napRr.getSize() + length);
                 }
                 else {
-                    napRr.getNode().slide(e.getLength());
+                    napRr.getNode().slide(length);
                 }
             }
         }
-        
-        MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
+
+        //MOEFX: Why was this here?
+        //MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
         if (parsedNode != null) {
-            parsedNode.textInserted(this, 0, e.getOffset(), e.getLength(), mse);
+            parsedNode.textInserted(this, 0, offset, length, new NodeStructureListener()
+            {
+                @Override
+                public void nodeRemoved(NodeAndPosition<ParsedNode> node)
+                {
+
+                }
+
+                @Override
+                public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
+                {
+
+                }
+            });
         }
-        recordEvent(e);
+        //MOEFX: sort out undo
+        //recordEvent(e);
         // MOEFX
         //super.fireInsertUpdate(mse);
         inNotification = false;
@@ -688,14 +715,14 @@ public class MoeSyntaxDocument
     /* 
      * If part of the document was removed, the reparse-record tree needs to be updated.
      */
-    protected void fireRemoveUpdate(DocumentEvent e)
+    protected void fireRemoveUpdate(int offset, int length)
     {
         inNotification = true;
         NodeAndPosition<ReparseRecord> napRr = (reparseRecordTree != null) ?
-                reparseRecordTree.findNodeAtOrAfter(e.getOffset()) :
+                reparseRecordTree.findNodeAtOrAfter(offset) :
                     null;
-        int rpos = e.getOffset();
-        int rlen = e.getLength();
+        int rpos = offset;
+        int rlen = length;
         if (napRr != null && napRr.getEnd() == rpos) {
             // Boundary condition
             napRr = napRr.nextSibling();
@@ -725,7 +752,7 @@ public class MoeSyntaxDocument
                 else {
                     // remove whole node
                     napRr.getNode().remove();
-                    napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
+                    napRr = reparseRecordTree.findNodeAtOrAfter(offset);
                     continue;
                 }
             }
@@ -751,12 +778,27 @@ public class MoeSyntaxDocument
                 }
             }
         }
-        
-        MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
+
+        //MOEFX: Why was this here?
+        //MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
         if (parsedNode != null) {
-            parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength(), mse);
+            parsedNode.textRemoved(this, 0, offset, length, new NodeStructureListener()
+            {
+                @Override
+                public void nodeRemoved(NodeAndPosition<ParsedNode> node)
+                {
+
+                }
+
+                @Override
+                public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
+                {
+
+                }
+            });
         }
-        recordEvent(e);
+        //MOEFX: Sort out undo
+        //recordEvent(e);
         //MOEFX
         //super.fireRemoveUpdate(mse);
         inNotification = false;

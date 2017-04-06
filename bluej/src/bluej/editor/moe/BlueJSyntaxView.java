@@ -26,6 +26,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -70,7 +71,8 @@ public class BlueJSyntaxView
     private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
     private static final int RIGHT_SCOPE_MARGIN = 4;
     private static int strength = PrefMgr.getScopeHighlightStrength();
-    
+    private ReadOnlyDoubleProperty widthProperty; // width of editor view
+
     {
         MoeSyntaxDocument.getColors(); // initialize colors
         resetColors();
@@ -165,7 +167,7 @@ public class BlueJSyntaxView
     public List<ScopeInfo> recalculateScopes(MoeSyntaxDocument moeSyntaxDocument)
     {
         List<ScopeInfo> scopes = new ArrayList<>();
-        paintScopeMarkers(scopes, moeSyntaxDocument, new Rectangle(0, 0, 200, 200), 0, moeSyntaxDocument.getDocument().getParagraphs().size(), false);
+        paintScopeMarkers(scopes, moeSyntaxDocument, new Rectangle(0, 0, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), 200), 0, moeSyntaxDocument.getDocument().getParagraphs().size(), false);
         return scopes;
     }
 
@@ -206,6 +208,12 @@ public class BlueJSyntaxView
                 pixelWriter.setArgb(x + i, y + j, argb);
             }
         }
+    }
+
+    public void bindWidth(ReadOnlyDoubleProperty widthProperty)
+    {
+        this.widthProperty = widthProperty;
+        //MOEFX TODO listen to changes in width
     }
 
     /**

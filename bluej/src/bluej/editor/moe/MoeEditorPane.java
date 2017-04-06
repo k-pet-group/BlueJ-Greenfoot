@@ -96,6 +96,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, String>
             }
 
         }, doc, true);
+        syntaxView.bindWidth(widthProperty());
         latestEditor = this;
         /*MOEFX Maybe stop using style for this?
         getParagraphs().addListener((ListChangeListener<? super Paragraph<Integer, StyledText<String>, String>>) c -> {
