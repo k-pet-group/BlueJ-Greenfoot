@@ -1548,12 +1548,12 @@ public final class MoeEditor extends BorderPane
     // --------------------------------------------------------------------
     
     /**
-     * Schedule the ReparseRunner on the AWT event queue, if it is not already scheduled.
+     * Schedule the ReparseRunner on the FX Platform queue, if it is not already scheduled.
      */
     private void scheduleReparseRunner() {
         if (reparseRunner == null) {
             reparseRunner = new ReparseRunner(this);
-            EventQueue.invokeLater(reparseRunner);
+            JavaFXUtil.runPlatformLater(reparseRunner);
         }
     }
 
