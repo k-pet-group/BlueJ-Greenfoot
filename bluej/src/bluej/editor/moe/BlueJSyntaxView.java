@@ -169,27 +169,30 @@ public class BlueJSyntaxView
         return scopes;
     }
 
-    public Image getImageFor(ScopeInfo s)
+    public Image getImageFor(ScopeInfo s, int lineHeight)
     {
-        //MOEFX: TODO
-        WritableImage image = new WritableImage(s.middles.stream().mapToInt(m -> m.rhs).max().orElse(1) + 1, 10);
+        //MOEFX: TODO cache these images rather than redrawing every time (many will be duplicates)
+        WritableImage image = new WritableImage(s.middles.stream().mapToInt(m -> m.rhs).max().orElse(1) + 1, lineHeight);
         for (Middle middle : s.middles)
         {
-            fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, 10, middle.bodyColor.getRGB() | 0xFF000000);
+            fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, lineHeight, middle.bodyColor.getRGB() | 0xFF000000);
+
+            if (middle.topColor != null)
+            {
+                for (int x = middle.lhs; x < middle.rhs; x++)
+                {
+                    image.getPixelWriter().setArgb(x, 0, middle.topColor.getRGB() | 0xFF000000);
+                }
+            }
+
+            if (middle.bottomColor != null)
+            {
+                for (int x = middle.lhs; x < middle.rhs; x++)
+                {
+                    image.getPixelWriter().setArgb(x, lineHeight - 1, middle.bottomColor.getRGB() | 0xFF000000);
+                }
+            }
         }
-        //MOEFX TODO top and bottom lines
-        /*
-        if(startsThisLine) {
-            // Top edge
-            g.setColor(color1);
-            g.drawLine(xpos, ypos, rbounds, ypos);
-        }
-        if(endsThisLine) {
-            // Bottom edge
-            g.setColor(color1);
-            g.drawLine(xpos, ypos2 - 1, rbounds, ypos2 - 1);
-        }
-        */
 
         return image;
     }

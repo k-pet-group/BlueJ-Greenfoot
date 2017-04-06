@@ -299,7 +299,9 @@ public class MoeSyntaxDocument
                 //MOEFX Stop working around RichTextFX bug post 0.7 release
                 //document.setParagraphStyle(i, paragraphScopeInfo.get(i));
                 Paragraph<ScopeInfo, StyledText<String>, String> oldPara = document.getParagraph(i);
-                document.replace(document.getAbsolutePosition(i, 0), document.getAbsolutePosition(i + 1, 0) - 1, ReadOnlyStyledDocument.fromString(oldPara.getText(), paragraphScopeInfo.get(i), "", StyledText.textOps()));
+                int startPos = document.getAbsolutePosition(i, 0);
+                int endPos = (i == document.getParagraphs().size() - 1) ? document.getLength() : (document.getAbsolutePosition(i + 1, 0) - 1);
+                document.replace(startPos, endPos, ReadOnlyStyledDocument.fromString(oldPara.getText(), paragraphScopeInfo.get(i), "", StyledText.textOps()));
             }
         }
     }

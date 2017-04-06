@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.utility.Debug;
+import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.io.CharStreams;
 import javafx.beans.binding.ObjectBinding;
 import javafx.collections.ListChangeListener;
@@ -32,6 +33,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyledTextArea;
@@ -63,10 +65,11 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, String>
     public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<String>, String> doc, BlueJSyntaxView syntaxView)
     {
         super(null, (p, s) -> {
+            double lineHeight = measureLineHeight();
             if (s == null)
                 p.setBackground(null);
             else
-                p.setBackground(new Background(new BackgroundImage(syntaxView.getImageFor(s), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT)));
+                p.setBackground(new Background(new BackgroundImage(syntaxView.getImageFor(s, (int)lineHeight), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT)));
         }, "", (t, s) -> {
             if (s.equals("error"))
             {
@@ -103,6 +106,17 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, String>
             }
         });
         */
+    }
+
+    private static double measureLineHeight()
+    {
+        //MOEFX: cache this value (per font face and font size)
+        //Not a very elegant way to get the size of the text, but only way to really do it
+        //See e.g. http://stackoverflow.com/questions/13015698/
+        Text text = new Text(" ");
+        //MOEFX: Use editor font
+        //text.setFont(f);
+        return text.getLayoutBounds().getHeight();
     }
 
 
