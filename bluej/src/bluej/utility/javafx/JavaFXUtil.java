@@ -21,7 +21,8 @@
  */
 package bluej.utility.javafx;
 
-import java.awt.AWTKeyStroke;
+import java.awt.*;
+import java.awt.event.MouseListener;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -1698,9 +1699,11 @@ public class JavaFXUtil
                 item.setSelected(selected);
                 // Clicking the icon crosses back to the Swing thread to attempt state change:
                 item.setOnAction(e -> {
+                    int x = (int)item.getParentPopup().getX();
+                    int y = (int)item.getParentPopup().getY();
                     SwingUtilities.invokeLater(() -> {
                         checkBoxMenuItem.setSelected(!checkBoxMenuItem.isSelected());
-                        fireSwingMenuItemAction(swingItem, source);
+                        fireSwingMenuItemAction(swingItem, source, x, y);
                     });
                 });
                 item.setAccelerator(swingKeyStrokeToFX(shortcut));
@@ -1749,7 +1752,11 @@ public class JavaFXUtil
             });
             
             return () -> {
-                item.setOnAction(e -> SwingUtilities.invokeLater(() -> fireSwingMenuItemAction(swingItem, source)));
+                item.setOnAction(e -> {
+                    int x = (int)item.getParentPopup().getX();
+                    int y = (int)item.getParentPopup().getY();
+                    SwingUtilities.invokeLater(() -> fireSwingMenuItemAction(swingItem, source, x, y));
+                });
                 item.setAccelerator(swingKeyStrokeToFX(shortcut));
                 return new MenuItemAndShow(item);
             };
@@ -1757,9 +1764,23 @@ public class JavaFXUtil
     }
 
     @OnThread(Tag.Swing)
-    private static void fireSwingMenuItemAction(JMenuItem swingItem, Object source)
+    private static void fireSwingMenuItemAction(JMenuItem swingItem, Object source, int x, int y)
     {
         String menuText = swingItem.getText();
+
+        // This is a bit hacky, but it is specifically to get the UML extension
+        // and Klassekarte extensions working again.  For that we only need Component.getLocationOnScreen
+        // to function correctly, and can have dummy values elsewhere:
+        for (MouseListener mouseListener : swingItem.getMouseListeners())
+        {
+            mouseListener.mousePressed(new java.awt.event.MouseEvent(new Component() {
+                @Override
+                public Point getLocationOnScreen()
+                {
+                    return new Point(x, y);
+                }
+            }, 0, 0, 0, 0, 0, 1, false));
+        }
 
         // Important we fetch action here not cache it earlier because
         // it may change after we make the menu item:
