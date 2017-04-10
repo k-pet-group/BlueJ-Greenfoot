@@ -70,8 +70,8 @@ public class BlueJSyntaxView
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
 
-    private static final int LEFT_INNER_SCOPE_MARGIN = 0; //MOEFX: restore this to 5
-    private static final int LEFT_OUTER_SCOPE_MARGIN = 0; //MOEFX: restore this to 2
+    private static final int LEFT_INNER_SCOPE_MARGIN = 5;
+    private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
     private static final int RIGHT_SCOPE_MARGIN = 4;
     private static int strength = PrefMgr.getScopeHighlightStrength();
     private final MoeSyntaxDocument document;
@@ -180,19 +180,19 @@ public class BlueJSyntaxView
     public Image getImageFor(ScopeInfo s, int lineHeight)
     {
         //MOEFX: TODO cache these images rather than redrawing every time (many will be duplicates)
-        WritableImage image = new WritableImage(s.middles.stream().mapToInt(m -> m.rhs).max().orElse(1) + 1, lineHeight);
+        WritableImage image = new WritableImage(s.nestedScopes.stream().mapToInt(n -> n.middle.rhs).max().orElse(1) + 1, lineHeight);
 
-        for (Left left : s.lefts)
+        for (ScopeInfo.SingleNestedScope singleNestedScope : s.nestedScopes)
         {
+            Left left = singleNestedScope.left;
             fillRect(image.getPixelWriter(), left.lhs, 0 + left.topMargin, left.width, lineHeight - left.bottomMargin - left.topMargin, left.fillColor.getRGB() | 0xFF000000);
             for (int y = left.topMargin; y < lineHeight - left.bottomMargin; y++)
             {
                 image.getPixelWriter().setArgb(left.lhs, y, left.edgeColor.getRGB() | 0xFF000000);
             }
-        }
 
-        for (Middle middle : s.middles)
-        {
+            Middle middle = singleNestedScope.middle;
+
             fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, lineHeight, middle.bodyColor.getRGB() | 0xFF000000);
 
             if (middle.topColor != null)
@@ -408,8 +408,8 @@ public class BlueJSyntaxView
                 drawInfo.color1 = colors[0];
                 drawInfo.color2 = colors[1];
 
-                drawScopeLeft(drawInfo, xpos, rbound);
-                drawScopeRight(drawInfo, rbound);
+                drawInfo.scopes.nestedScopes.add(calculatedNestedScope(drawInfo, xpos, rbound));
+                //drawScopeRight(drawInfo, rbound);
             }
             nodeDepth++;
         }
@@ -464,8 +464,7 @@ public class BlueJSyntaxView
                                 lines.belowLineSeg);
 
                         if (xpos != -1 && xpos <= a.getBounds().x + a.getBounds().width) {
-                            drawScopeLeft(drawInfo, xpos, rbound);
-                            drawScopeRight(drawInfo, rbound);
+                            drawInfo.scopes.nestedScopes.add(calculatedNestedScope(drawInfo, xpos, rbound));
                         }
                     }
                 }
@@ -547,7 +546,7 @@ public class BlueJSyntaxView
     /**
      * Draw the left edge of the scope, and the middle part up the given bound.
      */
-    private void drawScopeLeft(DrawInfo info, int xpos, int rbound)
+    private ScopeInfo.SingleNestedScope calculatedNestedScope(DrawInfo info, int xpos, int rbound)
     {
         if (! info.small) {
             xpos -= info.node.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
@@ -556,7 +555,9 @@ public class BlueJSyntaxView
         // draw node start
         int hoffs = info.small ? 0 : 4; // determines size of corner arcs
 
-        info.scopes.lefts.add(new Left(xpos, hoffs, info.starts ? hoffs : 0, info.ends ? hoffs : 0, info.color2, info.color1));
+        return new ScopeInfo.SingleNestedScope(
+                new Left(xpos, hoffs, info.starts ? hoffs : 0, info.ends ? hoffs : 0, info.color2, info.color1),
+                getScopeMiddle(info, xpos + hoffs, rbound));
 
         /*MOEFX
         g.setColor(info.color2);
@@ -585,7 +586,6 @@ public class BlueJSyntaxView
             //g.drawLine(xpos + hoffs, ypos2 - 1, rbounds, ypos2 - 1);
         }
         */
-        drawScope(info, xpos + hoffs, rbound);
 
     }
 
@@ -630,7 +630,7 @@ public class BlueJSyntaxView
      * @param xpos  the leftmost x-coordinate to draw from
      * @param rbounds the rightmost x-coordinate to draw to
      */
-    private void drawScope(DrawInfo info, int xpos, int rbounds)
+    private Middle getScopeMiddle(DrawInfo info, int xpos, int rbounds)
     {
         Color color1 = info.color1;
         Color color2 = info.color2;
@@ -646,7 +646,7 @@ public class BlueJSyntaxView
         {
             middle.drawBottom(color1);
         }
-        info.scopes.middles.add(middle);
+        return middle;
     }
 
     /**
@@ -1591,7 +1591,7 @@ public class BlueJSyntaxView
         public Middle(Color bodyColor, int lhs, int rhs)
         {
             this.bodyColor = bodyColor;
-            this.lhs = lhs;
+            this.lhs = Math.max(0, lhs);
             this.rhs = rhs;
         }
 
@@ -1606,12 +1606,27 @@ public class BlueJSyntaxView
         }
     }
 
+    /**
+     * This is one set of scopes for a single line in the document.  A set of scopes
+     * is a list of nested scope boxes applicable to that line.  The first scope
+     * is the outermost and last is innermost, so we render them in list order.
+     */
     public static class ScopeInfo
     {
         //MOEFX TODO: implement equals and hashcode properly for this,
         // as setParagraphStyle relies on it
-        private final List<Left> lefts = new ArrayList<>();
-        private final List<Middle> middles = new ArrayList<>();
+        private final List<SingleNestedScope> nestedScopes = new ArrayList<>();
+        private static class SingleNestedScope
+        {
+            private final Left left;
+            private final Middle middle;
+
+            public SingleNestedScope(Left left, Middle middle)
+            {
+                this.left = left;
+                this.middle = middle;
+            }
+        }
     }
 
     private class Left
@@ -1625,7 +1640,7 @@ public class BlueJSyntaxView
 
         public Left(int lhs, int width, int topMargin, int bottomMargin, Color fillColor, Color edgeColor)
         {
-            this.lhs = lhs;
+            this.lhs = Math.max(0, lhs);
             this.width = width;
             this.topMargin = topMargin;
             this.bottomMargin = bottomMargin;
