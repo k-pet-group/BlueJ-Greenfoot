@@ -767,7 +767,10 @@ public class BlueJSyntaxView
 
         // int indent = nap.getNode().getLeftmostIndent(doc, 0, 0);
         Integer indent = nodeIndents.get(nap.getNode());
-        if (indent == null) {
+        // An indent value of zero is only given by getCharacterBoundsOnScreen when the editor
+        // hasn't been shown yet, so we recalculate whenever we find that indent value in the
+        // hope that the editor is now visible:
+        if (indent == null || indent == 0) {
             indent = getNodeIndent(a, doc, nap);
             nodeIndents.put(nap.getNode(), indent);
         }
