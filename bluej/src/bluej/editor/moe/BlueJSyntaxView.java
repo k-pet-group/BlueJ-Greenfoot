@@ -73,6 +73,16 @@ public class BlueJSyntaxView
     private static final int LEFT_INNER_SCOPE_MARGIN = 5;
     private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
     private static final int RIGHT_SCOPE_MARGIN = 4;
+    private static final int CURVED_CORNER_SIZE = 4;
+    // See comments in getImageFor for more info.
+    // 1 means draw edge, 2 means draw filling
+    private static final int[][] CORNER_TEMPLATE = new int[][] {
+            {0, 0, 1, 1},
+            {0, 1, 2, 2},
+            {1, 2, 2, 2},
+            {1, 2, 2, 2}
+    };
+
     private static int strength = PrefMgr.getScopeHighlightStrength();
     private final MoeSyntaxDocument document;
     private ReadOnlyDoubleProperty widthProperty; // width of editor view
@@ -185,11 +195,48 @@ public class BlueJSyntaxView
         for (ScopeInfo.SingleNestedScope singleNestedScope : s.nestedScopes)
         {
             Left left = singleNestedScope.left;
-            fillRect(image.getPixelWriter(), left.lhs, 0 + left.topMargin, left.width, lineHeight - left.bottomMargin - left.topMargin, left.fillColor.getRGB() | 0xFF000000);
-            for (int y = left.topMargin; y < lineHeight - left.bottomMargin; y++)
+            int leftTopMargin = left.starts ? CURVED_CORNER_SIZE : 0;
+            int leftBottomMargin = left.ends ? CURVED_CORNER_SIZE : 0;
+            fillRect(image.getPixelWriter(), left.lhs, 0 + leftTopMargin, left.width, lineHeight - leftBottomMargin - leftTopMargin, left.fillColor.getRGB() | 0xFF000000);
+            for (int y = leftTopMargin; y < lineHeight - leftBottomMargin; y++)
             {
                 image.getPixelWriter().setArgb(left.lhs, y, left.edgeColor.getRGB() | 0xFF000000);
             }
+
+            // I realise it seems crazy to be drawing the curved corners manually here.  But
+            // the JavaFX PixelWriter class for writing directly to an image has no support for anything
+            // better than setting individual pixels.  It would be possible to create a Canvas
+            // and fill an arc and then pull a snapshot of the Canvas into an image, but getting right
+            // things like HiDPI would be difficult.  So it is the simplest solution to just
+            // draw a simple curved corner ourselves:
+
+            if (left.starts)
+            {
+                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                {
+                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    {
+                        if (CORNER_TEMPLATE[y][x] == 1)
+                            image.getPixelWriter().setArgb(left.lhs + x, y, left.edgeColor.getRGB() | 0xFF000000);
+                        else if (CORNER_TEMPLATE[y][x] == 2)
+                            image.getPixelWriter().setArgb(left.lhs + x, y, left.fillColor.getRGB() | 0xFF000000);
+                    }
+                }
+            }
+            if (left.ends)
+            {
+                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                {
+                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    {
+                        if (CORNER_TEMPLATE[y][x] == 1)
+                            image.getPixelWriter().setArgb(left.lhs + x, lineHeight - 1 - y, left.edgeColor.getRGB() | 0xFF000000);
+                        else if (CORNER_TEMPLATE[y][x] == 2)
+                            image.getPixelWriter().setArgb(left.lhs + x, lineHeight - 1 - y, left.fillColor.getRGB() | 0xFF000000);
+                    }
+                }
+            }
+
 
             Middle middle = singleNestedScope.middle;
 
@@ -553,40 +600,11 @@ public class BlueJSyntaxView
         }
 
         // draw node start
-        int hoffs = info.small ? 0 : 4; // determines size of corner arcs
+        int hoffs = info.small ? 0 : CURVED_CORNER_SIZE; // determines size of corner arcs
 
         return new ScopeInfo.SingleNestedScope(
-                new Left(xpos, hoffs, info.starts ? hoffs : 0, info.ends ? hoffs : 0, info.color2, info.color1),
+                new Left(xpos, hoffs, info.starts, info.ends, info.color2, info.color1),
                 getScopeMiddle(info, xpos + hoffs, rbound));
-
-        /*MOEFX
-        g.setColor(info.color2);
-        g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
-        g.setColor(info.color1);
-        g.drawLine(xpos, edgeTop, xpos, edgeBtm);
-
-
-        if(info.starts) {
-            // Top left corner
-            g.setColor(info.color2);
-            g.fillArc(xpos, info.ypos, hoffs * 2, hoffs * 2, 180, -90);
-
-            // Top edge
-            g.setColor(info.color1);
-            g.drawArc(xpos, info.ypos, hoffs * 2, hoffs * 2, 180, -90);
-        }
-        if(info.ends) {
-            // Bottom left corner
-            g.setColor(info.color2);
-            g.fillArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
-
-            // Bottom edge
-            g.setColor(info.color1);
-            g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
-            //g.drawLine(xpos + hoffs, ypos2 - 1, rbounds, ypos2 - 1);
-        }
-        */
-
     }
 
     /**
@@ -1633,17 +1651,17 @@ public class BlueJSyntaxView
     {
         private final int lhs;
         private final int width;
-        private final int topMargin;
-        private final int bottomMargin;
+        private final boolean starts;
+        private final boolean ends;
         private final Color fillColor;
         private final Color edgeColor;
 
-        public Left(int lhs, int width, int topMargin, int bottomMargin, Color fillColor, Color edgeColor)
+        public Left(int lhs, int width, boolean starts, boolean ends, Color fillColor, Color edgeColor)
         {
             this.lhs = Math.max(0, lhs);
             this.width = width;
-            this.topMargin = topMargin;
-            this.bottomMargin = bottomMargin;
+            this.starts = starts;
+            this.ends = ends;
             this.fillColor = fillColor;
             this.edgeColor = edgeColor;
         }
