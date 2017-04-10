@@ -76,6 +76,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
      */
     public MoeSyntaxView(Element elem, MoeErrorManager errors)
     {
+        super(null);
         //MOEFX
         //super(elem, LEFT_MARGIN, errors);
     }

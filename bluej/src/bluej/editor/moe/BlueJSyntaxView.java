@@ -74,6 +74,7 @@ public class BlueJSyntaxView
     private static final int LEFT_OUTER_SCOPE_MARGIN = 0; //MOEFX: restore this to 2
     private static final int RIGHT_SCOPE_MARGIN = 4;
     private static int strength = PrefMgr.getScopeHighlightStrength();
+    private final MoeSyntaxDocument document;
     private ReadOnlyDoubleProperty widthProperty; // width of editor view
     private MoeEditorPane editorPane;
 
@@ -122,8 +123,9 @@ public class BlueJSyntaxView
     /**
      * Creates a new BlueJSyntaxView.
      */
-    public BlueJSyntaxView()
+    public BlueJSyntaxView(MoeSyntaxDocument document)
     {
+        this.document = document;
     }
 
     /**
@@ -224,15 +226,13 @@ public class BlueJSyntaxView
         }
     }
 
-    public void bindWidth(ReadOnlyDoubleProperty widthProperty)
-    {
-        this.widthProperty = widthProperty;
-        //MOEFX TODO listen to changes in width
-    }
-
     public void setEditorPane(MoeEditorPane editorPane)
     {
         this.editorPane = editorPane;
+        this.widthProperty = editorPane.widthProperty();
+        JavaFXUtil.addChangeListener(widthProperty, w -> {
+            document.fireChangedUpdate(null);
+        });
     }
 
     /**
@@ -481,7 +481,7 @@ public class BlueJSyntaxView
         if (editorPane == null)
             return 0;
         double x = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1).map(editorPane::screenToLocal).map(Bounds::getMinX).orElse(0.0);
-        Debug.message("Left edge: " + x);
+        Debug.message("Left edge for " + editorPane.getDocument().getText().charAt(startOffset) + ": " + x);
         return (int)x;
     }
 

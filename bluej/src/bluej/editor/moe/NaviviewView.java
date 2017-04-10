@@ -62,6 +62,7 @@ public class NaviviewView extends BlueJSyntaxView
     
     public NaviviewView(MoeSyntaxDocument.Element elem, NaviView naviView, MoeErrorManager errors)
     {
+        super(null);
         //MOEFX
         //super(elem, 0, errors);
         this.naviView = naviView;

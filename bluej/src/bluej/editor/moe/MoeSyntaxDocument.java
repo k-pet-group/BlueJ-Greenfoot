@@ -157,7 +157,7 @@ public class MoeSyntaxDocument
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
         document = new SimpleEditableStyledDocument<>(null, "");
-        syntaxView = new BlueJSyntaxView();
+        syntaxView = new BlueJSyntaxView(this);
 
         document.plainChanges().subscribe(c -> {
             // Must fire remove before insert:
@@ -300,7 +300,7 @@ public class MoeSyntaxDocument
         }
     }
 
-    private void fireChangedUpdate(MoeSyntaxEvent mse)
+    void fireChangedUpdate(MoeSyntaxEvent mse)
     {
         List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(this);
         for (int i = 0; i < paragraphScopeInfo.size(); i++)
