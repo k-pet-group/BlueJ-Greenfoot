@@ -40,8 +40,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.Toolkit;
 import java.util.*;
 import javax.swing.text.BadLocationException;
@@ -174,16 +172,16 @@ public class BlueJSyntaxView
         }
     }
 
-    protected final void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, Shape a,
+    protected final void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods)
     {
-        paintScopeMarkers(scopes, document, a, firstLine, lastLine, onlyMethods, false);
+        paintScopeMarkers(scopes, document, fullWidth, firstLine, lastLine, onlyMethods, false);
     }
 
     public List<ScopeInfo> recalculateScopes(MoeSyntaxDocument moeSyntaxDocument)
     {
         List<ScopeInfo> scopes = new ArrayList<>();
-        paintScopeMarkers(scopes, moeSyntaxDocument, new Rectangle(0, 0, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), 200), 0, moeSyntaxDocument.getDocument().getParagraphs().size(), false);
+        paintScopeMarkers(scopes, moeSyntaxDocument, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), 0, moeSyntaxDocument.getDocument().getParagraphs().size(), false);
         return scopes;
     }
 
@@ -332,7 +330,7 @@ public class BlueJSyntaxView
         Element belowLineEl;
     }
 
-    protected void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, Shape a,
+    protected void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
         //optimization for the raspberry pi.
@@ -383,7 +381,7 @@ public class BlueJSyntaxView
 
                 ScopeInfo scope = new ScopeInfo();
                 scopes.add(scope);
-                drawScopes(a, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
+                drawScopes(fullWidth, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
 
                 // Next line
                 curLine++;
@@ -433,19 +431,18 @@ public class BlueJSyntaxView
     /**
      * Draw the scope highlighting for one line of the document.
      * 
-     * @param a              the shape to render into
+     * @param fullWidth      the width of the editor view
      * @param g              the graphics context to render to
      * @param document       the document
      * @param lines          the previous, current and next lines (segments and elements)
      * @param prevScopeStack the stack of nodes (from outermost to innermost) at the beginning of the current line
      */
-    private void drawScopes(Shape a, ScopeInfo scopes, MoeSyntaxDocument document, ThreeLines lines,
+    private void drawScopes(int fullWidth, ScopeInfo scopes, MoeSyntaxDocument document, ThreeLines lines,
             List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
             boolean onlyMethods, int nodeDepth)
     throws BadLocationException
     {
         int rightMargin = small ? 0 : 20;
-        int fullWidth = a.getBounds().width + a.getBounds().x;
 
         ListIterator<NodeAndPosition<ParsedNode>> li = prevScopeStack.listIterator();
 
@@ -475,12 +472,12 @@ public class BlueJSyntaxView
             }
 
             // Draw the start node
-            int xpos = getNodeIndent(a, document, nap, lines.thisLineEl,
+            int xpos = getNodeIndent(document, nap, lines.thisLineEl,
                     lines.thisLineSeg);
-            if (xpos != - 1 && xpos <= a.getBounds().x + a.getBounds().width) {
+            if (xpos != - 1 && xpos <= fullWidth) {
                 boolean starts = nodeSkipsStart(nap, lines.aboveLineEl, lines.aboveLineSeg);
                 boolean ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl, lines.belowLineSeg);
-                int rbound = getNodeRBound(a, nap, fullWidth - rightMargin, nodeDepth,
+                int rbound = getNodeRBound(nap, fullWidth - rightMargin, nodeDepth,
                         lines.thisLineEl, lines.thisLineSeg);
 
                 drawInfo.node = nap.getNode();
@@ -531,9 +528,9 @@ public class BlueJSyntaxView
                     if (drawNode(drawInfo, nextNap, onlyMethods)) {
                         // Draw it
                         nodeDepth++;
-                        int xpos = getNodeIndent(a, document, nextNap, lines.thisLineEl,
+                        int xpos = getNodeIndent(document, nextNap, lines.thisLineEl,
                                 lines.thisLineSeg);
-                        int rbound = getNodeRBound(a, nextNap, fullWidth - rightMargin, nodeDepth,
+                        int rbound = getNodeRBound(nextNap, fullWidth - rightMargin, nodeDepth,
                                 lines.thisLineEl, lines.thisLineSeg);
                         drawInfo.node = nextNap.getNode();
                         Color [] colors = colorsForNode(drawInfo.node);
@@ -544,7 +541,7 @@ public class BlueJSyntaxView
                         drawInfo.ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl,
                                 lines.belowLineSeg);
 
-                        if (xpos != -1 && xpos <= a.getBounds().x + a.getBounds().width) {
+                        if (xpos != -1 && xpos <= fullWidth) {
                             drawInfo.scopes.nestedScopes.add(calculatedNestedScope(drawInfo, xpos, rbound));
                         }
                     }
@@ -668,15 +665,14 @@ public class BlueJSyntaxView
 
     /**
      * Find the rightmost bound of a node on a particular line.
-     * 
-     * @param a       The view allocation
+     *
      * @param napEnd  The end of the node (position in the document just beyond the node)
      * @param fullWidth  The full width to draw to (for the outermost mode)
      * @param nodeDepth  The node depth
      * @param lineEl   line element of the line to find the bound for
      * @param lineSeg  Segment containing text of the current line
      */
-    private int getNodeRBound(Shape a, NodeAndPosition<ParsedNode> nap, int fullWidth, int nodeDepth,
+    private int getNodeRBound(NodeAndPosition<ParsedNode> nap, int fullWidth, int nodeDepth,
             Element lineEl, Segment lineSeg) throws BadLocationException
     {
         int napEnd = nap.getEnd();
@@ -757,7 +753,7 @@ public class BlueJSyntaxView
      * If the node isn't present on the line, returns Integer.MAX_VALUE. A cached value
      * is used if available.
      */
-    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap, Element lineEl,
+    private int getNodeIndent(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap, Element lineEl,
             Segment segment)
         throws BadLocationException
     {
@@ -788,7 +784,7 @@ public class BlueJSyntaxView
         // hasn't been shown yet, so we recalculate whenever we find that indent value in the
         // hope that the editor is now visible:
         if (indent == null || indent == 0) {
-            indent = getNodeIndent(a, doc, nap);
+            indent = getNodeIndent(doc, nap);
             nodeIndents.put(nap.getNode(), indent);
         }
 
@@ -811,7 +807,7 @@ public class BlueJSyntaxView
     /**
      * Calculate the indent for a node.
      */
-    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
+    private int getNodeIndent(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
         
         try {
@@ -886,7 +882,7 @@ public class BlueJSyntaxView
         //}
     }
     
-    private int[] reassessIndentsAdd(Shape a, int dmgStart, int dmgEnd)
+    private int[] reassessIndentsAdd(int dmgStart, int dmgEnd)
     {
         //MOEFX
         MoeSyntaxDocument doc = null;
@@ -1061,7 +1057,7 @@ public class BlueJSyntaxView
         //}
     }
 
-    private int[] reassessIndentsRemove(Shape a, int dmgPoint, boolean multiLine)
+    private int[] reassessIndentsRemove(int dmgPoint, boolean multiLine)
     {
         //MOEFX
         MoeSyntaxDocument doc = null;
