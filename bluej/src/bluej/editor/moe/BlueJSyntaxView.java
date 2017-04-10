@@ -116,16 +116,11 @@ public class BlueJSyntaxView
     private static Color I1; // pink border (iteration)
     private static Color I2; // pink wash
 
-
-    /** System settings for graphics rendering (inc. font antialiasing etc.) */
-    private static Map<?,?> desktopHints = null;
-
-    // private members
-    private Segment line;
-
-    protected Font defaultFont;
-    private boolean initialised = false;
-
+    /**
+     * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
+     * When this is zero, it means it is not yet fully valid as the editor has not
+     * yet appeared on screen.
+     */
     private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
 
     /**
@@ -141,6 +136,7 @@ public class BlueJSyntaxView
      * @param x  The x co-ordinate of the line, where the text is to begin (i.e. the margin area is
      *           to the left of this point)
      */
+    /*MOEFX: Transfer to syntax highlighter
     protected final void paintSyntaxLine(Segment line, int lineIndex, int x, int y,
             Graphics g, MoeSyntaxDocument document, 
             Color def, TabExpander tx)
@@ -171,6 +167,7 @@ public class BlueJSyntaxView
             tokens = tokens.next;
         }
     }
+    */
 
     protected final void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods)
@@ -1316,26 +1313,6 @@ public class BlueJSyntaxView
         //return Boolean.TRUE.equals(line.getAttributes().getAttribute(tag));
     }
 
-
-    /**
-     * Initialise some fields after we get a graphics context for the first time
-     */
-    protected void initialise(Graphics g)
-    {
-        defaultFont = g.getFont();
-
-        // Use system settings for text rendering (Java 6 only)
-        if (desktopHints == null) {
-            Toolkit tk = Toolkit.getDefaultToolkit(); 
-            desktopHints = (Map<?,?>) (tk.getDesktopProperty("awt.font.desktophints"));
-        }
-        if (desktopHints != null && g instanceof Graphics2D) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.addRenderingHints(desktopHints); 
-        }
-
-        initialised = true;
-    }
 
     /*
      * Need to override this method to handle node updates. If a node indentation changes,

@@ -46,7 +46,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  */
-public class MoeSyntaxView extends BlueJSyntaxView
+public class MoeSyntaxView
 {
     /**  width of tag area for setting breakpoints */
     public static final short TAG_WIDTH = 14;
@@ -76,7 +76,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
      */
     public MoeSyntaxView(Element elem, MoeErrorManager errors)
     {
-        super(null);
+        //super(null);
         //MOEFX
         //super(elem, LEFT_MARGIN, errors);
     }
@@ -88,18 +88,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
     {
         syntaxHighlighting = PrefMgr.getFlag(PrefMgr.HILIGHTING);
     }
-    
-    @Override
-    protected void initialise(Graphics g)
-    {
-        super.initialise(g);
-        lineNumberFont = defaultFont.deriveFont(9.0f);
-        smallLineNumberFont = defaultFont.deriveFont(7.0f);
-        //MOEFX
-        //Component c = getContainer();
-        //lineNumberMetrics = c.getFontMetrics(lineNumberFont);
-    }
-    
+
     /**
      * Draw the line number in front of the line
      */
@@ -122,7 +111,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
             g.setFont(lineNumberFont);
             g.drawString(number, x + xoffset, y);
         }
-        g.setFont(defaultFont);
+        //g.setFont(defaultFont);
     }
      
     /**
@@ -143,7 +132,8 @@ public class MoeSyntaxView extends BlueJSyntaxView
             drawLineNumber(g, lineIndex+1, x, y);
    
         // draw breakpoint and/or step image
-   
+
+        /*
         if(hasTag(line, BREAKPOINT)) {
             if(hasTag(line, STEPMARK)) {
                 g.drawImage(breakStepImage, x-1, y+3-breakStepImage.getHeight(null), 
@@ -156,6 +146,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
         else if(hasTag(line, STEPMARK)) {
             g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null), null);
         }
+        */
     }
 
     /* When painting a line also paint the markers (breakpoint marks, step marks) etc.
@@ -166,7 +157,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
     {
         paintLineMarkers(lineIndex, g, x - LEFT_MARGIN, y, document, errorMgr, line);
         if (document.getParsedNode() != null && syntaxHighlighting) {
-            paintSyntaxLine(lineText, lineIndex, x, y, g, document, def, tx);
+            //paintSyntaxLine(lineText, lineIndex, x, y, g, document, def, tx);
         }
         else {
             //MOEFX

@@ -47,6 +47,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.stream.Collectors;
 
 /**
  * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
@@ -65,6 +66,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, String>
     public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<String>, String> doc, BlueJSyntaxView syntaxView)
     {
         super(null, (p, s) -> {
+            //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
             double lineHeight = measureLineHeight();
             if (s == null)
                 p.setBackground(null);
