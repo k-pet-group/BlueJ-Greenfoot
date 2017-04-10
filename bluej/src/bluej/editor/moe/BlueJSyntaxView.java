@@ -33,6 +33,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -132,42 +134,39 @@ public class BlueJSyntaxView
     }
 
     /**
-     * Paints a line with syntax highlighting,
-     * @param x  The x co-ordinate of the line, where the text is to begin (i.e. the margin area is
-     *           to the left of this point)
+     * Gets the syntax token styles for a given line of code.
+     *
+     * Returns null if there are no styles to apply (e.g. on a blank line or one with only whitespace).
      */
-    /*MOEFX: Transfer to syntax highlighter
-    protected final void paintSyntaxLine(Segment line, int lineIndex, int x, int y,
-            Graphics g, MoeSyntaxDocument document, 
-            Color def, TabExpander tx)
+    protected final StyleSpans<Integer> getTokenStylesFor(int lineIndex, MoeSyntaxDocument document)
     {
+        StyleSpansBuilder<Integer> lineStyle = new StyleSpansBuilder<>();
         Color[] colors = MoeSyntaxDocument.getColors();
         Token tokens = document.getTokensForLine(lineIndex);
-        int offset = 0;
+        boolean addedAny = false;
         for(;;) {
             byte id = tokens.id;
             if(id == Token.END)
                 break;
 
-            int length = tokens.length;
-            Color color;
+            int color;
             if (id == Token.NULL || id >= colors.length) {
-                color = def;
+                color = 0;
             }
             else {
-                color = colors[id];
+                // Mask out the alpha as we use it for the error bit:
+                color = colors[id].getRGB() & 0x00FFFFFF;
             }
-            g.setColor(color);
-            line.count = length;
-            
-            x = Utilities.drawTabbedText(line,x,y,g,tx,offset);
-            line.offset += length;
-            offset += length;
+            lineStyle.add(color, tokens.length);
+            addedAny = true;
 
             tokens = tokens.next;
         }
+        if (addedAny)
+            return lineStyle.create();
+        else
+            return null;
     }
-    */
 
     protected final void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods)

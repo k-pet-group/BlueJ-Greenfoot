@@ -55,15 +55,16 @@ import java.util.stream.Collectors;
  *
  * @author Michael Kolling
  */
-public final class MoeEditorPane extends StyledTextArea<ScopeInfo, String>
+public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
 {
+    public static final int ERROR_STYLE_BIT = 0x01000000;
     private static PaintObjectBinding latestBinding;
     private static MoeEditorPane latestEditor; // MOEFX: TODO this is a total hack
 
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<String>, String> doc, BlueJSyntaxView syntaxView)
+    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<Integer>, Integer> doc, BlueJSyntaxView syntaxView)
     {
         super(null, (p, s) -> {
             //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
@@ -72,8 +73,8 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, String>
                 p.setBackground(null);
             else
                 p.setBackground(new Background(new BackgroundImage(syntaxView.getImageFor(s, (int)lineHeight), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT)));
-        }, "", (t, s) -> {
-            if (s.equals("error"))
+        }, 0, (t, s) -> {
+            if ((s & ERROR_STYLE_BIT) != 0)
             {
                 // MOEFX TODO Turn this into an image file on disk (so that we can also add a retina version)
                 WritableImage image = new WritableImage(4, 4);
@@ -96,6 +97,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, String>
             {
                 t.setUnderlineWidth(0);
             }
+            t.setFill(Color.rgb(s >> 16 & 0xFF, s >> 8 & 0xFF, s & 0xFF));
 
         }, doc, true);
         syntaxView.setEditorPane(this);

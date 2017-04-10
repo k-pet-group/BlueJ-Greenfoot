@@ -36,11 +36,7 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.Segment;
 
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
-import org.fxmisc.richtext.model.Paragraph;
-import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
-import org.fxmisc.richtext.model.SimpleEditableStyledDocument;
-import org.fxmisc.richtext.model.StyledDocument;
-import org.fxmisc.richtext.model.StyledText;
+import org.fxmisc.richtext.model.*;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -65,7 +61,7 @@ import bluej.utility.PersistentMarkDocument;
 @OnThread(value = Tag.Swing, ignoreParent = true)
 public class MoeSyntaxDocument
 {
-    private final SimpleEditableStyledDocument<ScopeInfo, String> document;
+    private final SimpleEditableStyledDocument<ScopeInfo, Integer> document;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Color[] colors = null;
@@ -156,7 +152,7 @@ public class MoeSyntaxDocument
         getUserColors();
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        document = new SimpleEditableStyledDocument<>(null, "");
+        document = new SimpleEditableStyledDocument<>(null, 0);
         syntaxView = new BlueJSyntaxView(this);
 
         document.plainChanges().subscribe(c -> {
@@ -310,11 +306,15 @@ public class MoeSyntaxDocument
             {
                 //MOEFX Stop working around RichTextFX bug post 0.7 release
                 //document.setParagraphStyle(i, paragraphScopeInfo.get(i));
-                Paragraph<ScopeInfo, StyledText<String>, String> oldPara = document.getParagraph(i);
+                Paragraph<ScopeInfo, StyledText<Integer>, Integer> oldPara = document.getParagraph(i);
                 int startPos = document.getAbsolutePosition(i, 0);
                 int endPos = (i == document.getParagraphs().size() - 1) ? document.getLength() : (document.getAbsolutePosition(i + 1, 0) - 1);
-                document.replace(startPos, endPos, ReadOnlyStyledDocument.fromString(oldPara.getText(), paragraphScopeInfo.get(i), "", StyledText.textOps()));
+                document.replace(startPos, endPos, ReadOnlyStyledDocument.fromString(oldPara.getText(), paragraphScopeInfo.get(i), 0, StyledText.textOps()));
             }
+
+            StyleSpans<Integer> styleSpans = syntaxView.getTokenStylesFor(i, this);
+            if (styleSpans != null)
+                document.setStyleSpans(i, 0, styleSpans);
         }
     }
 
@@ -856,17 +856,17 @@ public class MoeSyntaxDocument
 
     public void insertString(int start, String src, Object attrSet)
     {
-        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, "", StyledText.textOps()));
+        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, 0, StyledText.textOps()));
     }
 
     public void replace(int start, int length, String text)
     {
-        document.replace(start, length, ReadOnlyStyledDocument.fromString(text, null, "", StyledText.textOps()));
+        document.replace(start, length, ReadOnlyStyledDocument.fromString(text, null, 0, StyledText.textOps()));
     }
 
     public void remove(int start, int length)
     {
-        document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, ""));
+        document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, 0));
     }
 
     public static interface Element
@@ -885,7 +885,7 @@ public class MoeSyntaxDocument
             @Override
             public Element getElement(int index)
             {
-                Paragraph<ScopeInfo, StyledText<String>, String> p = document.getParagraph(index);
+                Paragraph<ScopeInfo, StyledText<Integer>, Integer> p = document.getParagraph(index);
                 int pos = document.getAbsolutePosition(index, 0);
                 return new Element()
                 {
