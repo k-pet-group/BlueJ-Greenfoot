@@ -22,10 +22,7 @@
 package bluej.editor.moe;
 
 import java.awt.Color;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
@@ -35,6 +32,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.Segment;
 
+import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
@@ -437,45 +435,14 @@ public class MoeSyntaxDocument
     }
     
     /**
-     * Sets attributes for a paragraph.  This method was added to 
-     * provide the ability to replicate DefaultStyledDocument's ability to 
-     * set each lines attributes easily.
-     * This is an added method for the BlueJ adaption of jedit's Syntax
-     * package   
+     * Sets attributes for a particular paragraph.
      *
-     * @param offset the offset into the paragraph >= 0
-     * @param length the number of characters affected >= 0
-     * @param s the attributes
-     * @param replace whether to replace existing attributes, or merge them
-     * @return A (Swing-thread) Runnable which will remove all the attributes passed.
-     *         Note: it does just remove them, regardless of whether they were already in there.
+     * @param offset the offset into the document which is contained by the paragraph to change.
+     * @param alterAttr the attributes to set the value for (other attributes will be unaffected)
      */
-    public Runnable setParagraphAttributes(int offset, AttributeSet s)
+    public void setParagraphAttributes(int offset, Map<ParagraphAttribute, Boolean> alterAttr)
     {
-        return () -> {};
-        /*MOEFX
-        // modified version of method from DefaultStyleDocument
-        try {
-            writeLock();
-            
-            Element paragraph = getParagraphElement(offset);
-            MutableAttributeSet attr = 
-                    (MutableAttributeSet) paragraph.getAttributes();
-            attr.addAttributes(s);
-            return () -> {
-                try {
-                    writeLock();
-                    attr.removeAttributes(s);
-                }
-                finally
-                {
-                    writeUnlock();
-                }
-            };
-        } finally {
-            writeUnlock();
-        }
-        */
+        syntaxView.setParagraphAttributes(document.offsetToPosition(offset, Bias.Forward).getMajor() + 1, alterAttr);
     }
     
     /**
@@ -823,9 +790,9 @@ public class MoeSyntaxDocument
      * inner types.
      * @return Creates a new MoeEditorPane for this document
      */
-    public MoeEditorPane makeEditorPane(BooleanExpression compiledStatus)
+    public MoeEditorPane makeEditorPane(MoeEditor editor, BooleanExpression compiledStatus)
     {
-        return new MoeEditorPane(document, syntaxView, compiledStatus);
+        return new MoeEditorPane(editor, document, syntaxView, compiledStatus);
     }
 
     /**
@@ -868,6 +835,15 @@ public class MoeSyntaxDocument
     public void remove(int start, int length)
     {
         document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, 0));
+    }
+
+
+    /**
+     * First line is one
+     */
+    public EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNo)
+    {
+        return syntaxView.getParagraphAttributes(lineNo);
     }
 
     public static interface Element

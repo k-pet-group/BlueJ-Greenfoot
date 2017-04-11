@@ -88,6 +88,7 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.MoeFXTab;
@@ -1054,9 +1055,7 @@ public final class MoeEditor extends BorderPane
     public void removeStepMark()
     {
         if (currentStepPos != -1) {
-            SimpleAttributeSet a = new SimpleAttributeSet();
-            a.addAttribute(MoeSyntaxView.STEPMARK, Boolean.FALSE);
-            sourceDocument.setParagraphAttributes(currentStepPos, a);
+            sourceDocument.setParagraphAttributes(currentStepPos, Collections.singletonMap(ParagraphAttribute.STEP_MARK, false));
             currentStepPos = -1;
             // remove highlight as well
             sourcePane.setCaretPosition(sourcePane.getCaretPosition());
@@ -2573,10 +2572,7 @@ public final class MoeEditor extends BorderPane
      */
     private boolean positionHasBreakpoint(int pos)
     {
-        //MOEFX
-        return false;
-        //Element line = getSourceLine(getLineNumberAt(pos));
-        //return Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT));
+        return lineHasBreakpoint(getLineNumberAt(pos));
     }
 
     // --------------------------------------------------------------------
@@ -2586,10 +2582,7 @@ public final class MoeEditor extends BorderPane
      */
     private boolean lineHasBreakpoint(int lineNo)
     {
-        //MOEFX
-        return false;
-        //Element line = getSourceLine(lineNo);
-        //return (Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT)));
+        return sourceDocument.getParagraphAttributes(lineNo).contains(ParagraphAttribute.BREAKPOINT);
     }
 
     // --------------------------------------------------------------------
@@ -2606,16 +2599,11 @@ public final class MoeEditor extends BorderPane
 
             if (result == null) {
                 // no problem, go ahead
-                SimpleAttributeSet a = new SimpleAttributeSet();
                 if (set) {
-                    a.addAttribute(MoeSyntaxView.BREAKPOINT, Boolean.TRUE);
                     mayHaveBreakpoints = true;
                 }
-                else {
-                    a.addAttribute(MoeSyntaxView.BREAKPOINT, Boolean.FALSE);
-                }
 
-                sourceDocument.setParagraphAttributes(pos, a);
+                sourceDocument.setParagraphAttributes(pos, Collections.singletonMap(ParagraphAttribute.BREAKPOINT, set));
             }
             else {
                 info.message (result);
@@ -2636,9 +2624,7 @@ public final class MoeEditor extends BorderPane
      */
     private void doRemoveBreakpoint(int pos)
     {
-        SimpleAttributeSet a = new SimpleAttributeSet();
-        a.addAttribute(MoeSyntaxView.BREAKPOINT, Boolean.FALSE);
-        sourceDocument.setParagraphAttributes(pos, a);
+        sourceDocument.setParagraphAttributes(pos, Collections.singletonMap(ParagraphAttribute.BREAKPOINT, false));
         repaint();
     }
 
@@ -2653,9 +2639,7 @@ public final class MoeEditor extends BorderPane
     private void setStepMark(int pos)
     {
         removeStepMark();
-        SimpleAttributeSet a = new SimpleAttributeSet();
-        a.addAttribute(MoeSyntaxView.STEPMARK, Boolean.TRUE);
-        sourceDocument.setParagraphAttributes(pos, a);
+        sourceDocument.setParagraphAttributes(pos, Collections.singletonMap(ParagraphAttribute.STEP_MARK, true));
         currentStepPos = pos;
         // force an update of UI
         repaint();
@@ -3170,7 +3154,7 @@ public final class MoeEditor extends BorderPane
         }
         */
         //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
-        sourcePane = sourceDocument.makeEditorPane(compiledProperty);
+        sourcePane = sourceDocument.makeEditorPane(this, compiledProperty);
         //MOEFX
         //sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);

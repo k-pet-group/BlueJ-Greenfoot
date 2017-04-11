@@ -21,20 +21,28 @@
  */
 package bluej.editor.moe;
 
+import bluej.Config;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Bounds;
+import javafx.scene.Node;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseButton;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.richtext.model.TwoDimensional;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -43,7 +51,9 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.Map.Entry;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Position;
 import javax.swing.text.Position.Bias;
@@ -118,12 +128,21 @@ public class BlueJSyntaxView
     private static Color I1; // pink border (iteration)
     private static Color I2; // pink wash
 
+    public static enum ParagraphAttribute
+    {
+        STEP_MARK, BREAKPOINT, ERROR;
+    }
+
+    // The line numbers in both maps start at one:
+    private final Map<Integer, EnumSet<ParagraphAttribute>> paragraphAttributes = new HashMap<>();
+    private final Map<Integer, FXPlatformConsumer<EnumSet<ParagraphAttribute>>> paragraphAttributeListeners = new HashMap<>();
+
     /**
      * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
      * When this is zero, it means it is not yet fully valid as the editor has not
      * yet appeared on screen.
      */
-    private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
+    private final Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
 
     /**
      * Creates a new BlueJSyntaxView.
@@ -1444,6 +1463,73 @@ public class BlueJSyntaxView
     private void nodeRemoved(ParsedNode node)
     {
         nodeIndents.remove(node);
+    }
+
+    public Node getParagraphicGraphic(int lineNumber)
+    {
+        // RichTextFX numbers from 0, but javac numbers from 1:
+        lineNumber += 1;
+        Label label = new Label("" + lineNumber);
+        JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
+        JavaFXUtil.addStyleClass(label, "moe-line-label");
+        label.setOnContextMenuRequested(e -> {
+            CheckMenuItem checkMenuItem = new CheckMenuItem(Config.getString("prefmgr.edit.displaylinenumbers"));
+            checkMenuItem.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
+            checkMenuItem.setOnAction(ev -> {
+                PrefMgr.setFlag(PrefMgr.LINENUMBERS, checkMenuItem.isSelected());
+            });
+            ContextMenu menu = new ContextMenu(checkMenuItem);
+            menu.show(label, e.getScreenX(), e.getScreenY());
+        });
+        int lineNumberFinal = lineNumber;
+        label.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY)
+            {
+                editorPane.getEditor().toggleBreakpoint(editorPane.getDocument().getAbsolutePosition(lineNumberFinal - 1, 0));
+            }
+            e.consume();
+        });
+        WeakReference<Label> weakLabel = new WeakReference<>(label);
+        FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = attr -> {
+            Label l = weakLabel.get();
+            if (l != null)
+                JavaFXUtil.setPseudoclass("bj-breakpoint", attr.contains(ParagraphAttribute.BREAKPOINT), l);
+            else
+                paragraphAttributeListeners.remove(lineNumberFinal);
+        };
+        listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
+        paragraphAttributeListeners.put(lineNumber, listener);
+        return label;
+    }
+
+
+    public void setParagraphAttributes(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
+    {
+        EnumSet<ParagraphAttribute> attr = paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));
+        for (Entry<ParagraphAttribute, Boolean> alter : alterAttr.entrySet())
+        {
+            if (alter.getValue())
+            {
+                attr.add(alter.getKey());
+            }
+            else
+            {
+                attr.remove(alter.getKey());
+            }
+        }
+        FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = paragraphAttributeListeners.get(lineNumber);
+        if (listener != null)
+        {
+            listener.accept(attr);
+        }
+    }
+
+    /**
+     * First line is one
+     */
+    public EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNo)
+    {
+        return paragraphAttributes.getOrDefault(lineNo, EnumSet.noneOf(ParagraphAttribute.class));
     }
 
     public static void setHighlightStrength(int strength)

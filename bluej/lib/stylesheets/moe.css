@@ -22,6 +22,10 @@
     -fx-background-color: rgba(245, 245, 245, 0.9);
     /*-fx-background-image: url("../images/green-diagonal-4px.png");*/
 }
+.moe-editor-pane .moe-line-label:bj-breakpoint {
+    -fx-content-display: graphic-only;
+    -fx-graphic: url("../images/break.gif");
+}
 
 .moe-editor-pane .moe-line-label {
     -fx-content-display: graphic-only;

@@ -22,6 +22,7 @@
 package bluej.editor.moe;
 
 import bluej.Config;
+import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -55,6 +56,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 /**
@@ -68,11 +70,13 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
     public static final int ERROR_STYLE_BIT = 0x01000000;
     private static PaintObjectBinding latestBinding;
     private static MoeEditorPane latestEditor; // MOEFX: TODO this is a total hack
+    private final MoeEditor editor;
+    private final BlueJSyntaxView syntaxView;
 
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<Integer>, Integer> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
+    public MoeEditorPane(MoeEditor editor, org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<Integer>, Integer> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
     {
         super(null, (p, s) -> {
             //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
@@ -108,23 +112,9 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
             t.setFill(Color.rgb(s >> 16 & 0xFF, s >> 8 & 0xFF, s & 0xFF));
 
         }, doc, true);
-        setParagraphGraphicFactory(lineNumber -> {
-            // RichTextFX numbers from 0, but javac numbers from 1:
-            lineNumber += 1;
-            Label label = new Label("" + lineNumber);
-            JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
-            JavaFXUtil.addStyleClass(label, "moe-line-label");
-            label.setOnContextMenuRequested(e -> {
-                CheckMenuItem checkMenuItem = new CheckMenuItem(Config.getString("prefmgr.edit.displaylinenumbers"));
-                checkMenuItem.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
-                checkMenuItem.setOnAction(ev -> {
-                    PrefMgr.setFlag(PrefMgr.LINENUMBERS, checkMenuItem.isSelected());
-                });
-                ContextMenu menu = new ContextMenu(checkMenuItem);
-                menu.show(label, e.getScreenX(), e.getScreenY());
-            });
-            return label;
-        });
+        this.editor = editor;
+        this.syntaxView = syntaxView;
+        setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
         JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
         JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
@@ -212,6 +202,11 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
         bufferedWriter.write(getText());
         // Must flush or else changes don't get written:
         bufferedWriter.flush();
+    }
+
+    public MoeEditor getEditor()
+    {
+        return editor;
     }
 
     private static class PaintObjectBinding extends ObjectBinding<Background>
