@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,7 +47,7 @@ public abstract class PkgMgrAction extends AbstractAction
 
     protected static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    protected final PkgMgrFrame pmf;    
+    protected PkgMgrFrame pmf;    
     
     // --------- INSTANCE METHODS ----------
     
@@ -92,6 +92,15 @@ public abstract class PkgMgrAction extends AbstractAction
         KeyStroke ks = KeyStroke.getKeyStroke(keycode, modifiers);
         putValue(ACCELERATOR_KEY, ks);
     }
+    
+    /**
+     * Set the frame to which this action will apply.
+     * @param pmf  The frame to which this action will apply.
+     */
+    public void setFrame(PkgMgrFrame pmf)
+    {
+		this.pmf = pmf;
+	}
         
     final public void actionPerformed(ActionEvent event)
     {

@@ -21,13 +21,16 @@
  */
 package bluej.pkgmgr;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Frame;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,64 +49,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import bluej.pkgmgr.actions.NewCSSAction;
-import bluej.pkgmgr.target.CSSTarget;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.TriangleArrow;
-import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
-import javafx.animation.Animation;
-import javafx.animation.FillTransition;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanExpression;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
-import javafx.embed.swing.JFXPanel;
-import javafx.embed.swing.SwingNode;
-import javafx.event.EventHandler;
-import javafx.geometry.*;
-import javafx.geometry.Insets;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBase;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
-import javafx.scene.shape.Shape;
-import javafx.stage.Stage;
-import javafx.util.Duration;
+import javax.swing.Action;
+import javax.swing.ButtonModel;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
@@ -149,6 +101,7 @@ import bluej.pkgmgr.actions.ExportProjectAction;
 import bluej.pkgmgr.actions.GenerateDocsAction;
 import bluej.pkgmgr.actions.HelpAboutAction;
 import bluej.pkgmgr.actions.ImportProjectAction;
+import bluej.pkgmgr.actions.NewCSSAction;
 import bluej.pkgmgr.actions.NewClassAction;
 import bluej.pkgmgr.actions.NewInheritsAction;
 import bluej.pkgmgr.actions.NewPackageAction;
@@ -157,6 +110,7 @@ import bluej.pkgmgr.actions.OpenArchiveAction;
 import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.OpenProjectAction;
 import bluej.pkgmgr.actions.PageSetupAction;
+import bluej.pkgmgr.actions.PkgMgrAction;
 import bluej.pkgmgr.actions.PkgMgrToggleAction;
 import bluej.pkgmgr.actions.PreferencesAction;
 import bluej.pkgmgr.actions.PrintAction;
@@ -176,6 +130,7 @@ import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
 import bluej.pkgmgr.actions.WebsiteAction;
 import bluej.pkgmgr.print.PackagePrintManager;
+import bluej.pkgmgr.target.CSSTarget;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
@@ -189,13 +144,72 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.TriangleArrow;
 import bluej.utility.javafx.UntitledCollapsiblePane;
+import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import javafx.animation.Animation;
+import javafx.animation.FillTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.embed.swing.JFXPanel;
+import javafx.embed.swing.SwingNode;
+import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Shape;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -274,15 +288,15 @@ public class PkgMgrFrame
     private final Action pageSetupAction = new PageSetupAction(this);
     private final Action printAction = new PrintAction(this);
     @OnThread(Tag.Any)
-    private final Action newClassAction = new NewClassAction(this);
+    private final PkgMgrAction newClassAction = new NewClassAction(this);
     private final Action newPackageAction = new NewPackageAction(this);
     private final Action newCSSAction = new NewCSSAction(this);
     private final Action addClassAction = new AddClassAction(this);
     private final Action removeAction = new RemoveAction(this);
     @OnThread(Tag.Any)
-    private final Action newInheritsAction = new NewInheritsAction(this);
+    private final PkgMgrAction newInheritsAction = new NewInheritsAction(this);
     @OnThread(Tag.Any)
-    private final Action compileAction = new CompileAction(this);
+    private final PkgMgrAction compileAction = new CompileAction(this);
     private final Action compileSelectedAction = new CompileSelectedAction(this);
     private final Action rebuildAction = new RebuildAction(this);
     @OnThread(Tag.Any)
@@ -298,7 +312,7 @@ public class PkgMgrFrame
     };
     private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
     @OnThread(Tag.Any)
-    private final Action runTestsAction = new RunTestsAction(this);
+    private final PkgMgrAction runTestsAction = new RunTestsAction(this);
     /*
      * The package that this frame is working on or null for the case where
      * there is no package currently being edited (check with isEmptyFrame())
@@ -1227,6 +1241,53 @@ public class PkgMgrFrame
         extMgr.packageOpened(aPkg);
     }
 
+    private Action wrapPkgMgrAction(PkgMgrAction action)
+    {
+    	return new Action() {
+        	@Override
+        	public void actionPerformed(ActionEvent e)
+        	{
+        		action.setFrame(PkgMgrFrame.this);
+        		action.actionPerformed(PkgMgrFrame.this);
+        	}
+        	
+        	@Override
+        	public void addPropertyChangeListener(PropertyChangeListener listener)
+        	{
+        		action.addPropertyChangeListener(listener);
+        	}
+        	
+        	@Override
+        	public void removePropertyChangeListener(PropertyChangeListener listener) {
+        		action.removePropertyChangeListener(listener);
+        	}
+        	
+        	@Override
+        	public Object getValue(String key)
+        	{
+        		return action.getValue(key);
+        	}
+        	
+        	@Override
+        	public void setEnabled(boolean b)
+        	{
+        		action.setEnabled(b);
+        	}
+        	
+        	@Override
+        	public boolean isEnabled()
+        	{
+        		return action.isEnabled();
+        	}
+        	
+        	@Override
+        	public void putValue(String key, Object value)
+        	{
+        		action.putValue(key, value);
+        	}
+        };
+    }
+    
     /**
      * Set the team controls to use the team actions for the project.
      */
@@ -1248,15 +1309,15 @@ public class PkgMgrFrame
             setButtonAction(commitCommentAction, commitButton, false);
             setButtonAction(shareAction, teamShareButton, false);
         });
-        teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction(this));
+        teamSettingsMenuItem.setAction(wrapPkgMgrAction(teamActions.getTeamSettingsAction(this)));
         
-        shareProjectMenuItem.setAction(teamActions.getImportAction(this));
-        statusMenuItem.setAction(teamActions.getStatusAction(this));
-        commitMenuItem.setAction(teamActions.getCommitCommentAction(this));
+        shareProjectMenuItem.setAction(wrapPkgMgrAction(teamActions.getImportAction(this)));
+        statusMenuItem.setAction(wrapPkgMgrAction(teamActions.getStatusAction(this)));
+        commitMenuItem.setAction(wrapPkgMgrAction(teamActions.getCommitCommentAction(this)));
         commitMenuItem.setText(Config.getString("team.menu.commit"));
-        updateMenuItem.setAction(teamActions.getUpdateAction(this));
+        updateMenuItem.setAction(wrapPkgMgrAction(teamActions.getUpdateAction(this)));
         updateMenuItem.setText(Config.getString("team.menu.update"));
-        showLogMenuItem.setAction(teamActions.getShowLogAction(this));
+        showLogMenuItem.setAction(wrapPkgMgrAction(teamActions.getShowLogAction(this)));
     }
 
     /**
@@ -3208,7 +3269,7 @@ public class PkgMgrFrame
      * @return the new button
      */
     @OnThread(Tag.FXPlatform)
-    public static ButtonBase createButton(Action action, boolean toggle, boolean noText)
+    public ButtonBase createButton(PkgMgrAction action, boolean toggle, boolean noText)
     {
         ButtonBase button;
         if (toggle) {
@@ -3226,7 +3287,7 @@ public class PkgMgrFrame
     }
 
     @OnThread(Tag.FXPlatform)
-    private static void setButtonAction(Action action, ButtonBase button, boolean noText)
+    private void setButtonAction(PkgMgrAction action, ButtonBase button, boolean noText)
     {
         SwingUtilities.invokeLater(() ->
         {
@@ -3248,11 +3309,12 @@ public class PkgMgrFrame
         });
         button.setOnAction(e -> {
             SwingUtilities.invokeLater(() -> {
-                action.actionPerformed(new ActionEvent(button, ActionEvent.ACTION_PERFORMED, null));
+            	action.setFrame(this);
+                action.actionPerformed(this);
             });
         });
     }
-
+    
     /**
      * setupMenus - Create the menu bar
      */
@@ -3473,6 +3535,16 @@ public class PkgMgrFrame
         return item;
     }
 
+    /**
+     * Add a new menu item (with a PkgMgrAction action) to a menu.
+     */
+    private JMenuItem createMenuItem(PkgMgrAction action, JMenu menu)
+    {
+        JMenuItem item = menu.add(wrapPkgMgrAction(action));
+        item.setIcon(null);
+        return item;
+    }
+    
     private static JMenuItem createMenuItem(Action action, JavaFXUtil.FXPlusSwingMenu menu)
     {
         JMenuItem item = new JMenuItem(action);

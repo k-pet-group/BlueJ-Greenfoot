@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -94,7 +94,7 @@ public class MachineIcon extends HBox
         bar.heightProperty().bind(barContainer.heightProperty().subtract(4.0));
         JavaFXUtil.bindPseudoclass(bar, "bj-active", running);
         this.resetAction = resetAction;
-        resetButton = PkgMgrFrame.createButton(this.resetAction, false, true);
+        resetButton = pmf.createButton(this.resetAction, false, true);
         resetButton.setGraphic(drawResetArrow());
         resetButton.setFocusTraversable(false);
         JavaFXUtil.addStyleClass(resetButton, "reset-vm-button");
