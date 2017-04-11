@@ -399,7 +399,7 @@ public class PkgMgrFrame
         this.editor = null;
         if(!Config.isGreenfoot()) {
             teamActions = new TeamActionGroup(false);
-            teamActions.setAllDisabled(this);
+            teamActions.setAllDisabled();
 
             setupActionDisableSet();
             makeFrame();
@@ -1299,25 +1299,25 @@ public class PkgMgrFrame
         // own TeamActionGroup. When a project is opened, the actions from
         // the project then need to be associated with the appropriate controls.
 
-        StatusAction statusAction = teamActions.getStatusAction(this);
-        UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
-        CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
-        ImportAction shareAction = teamActions.getImportAction(this);
+        StatusAction statusAction = teamActions.getStatusAction();
+        UpdateDialogAction updateAction = teamActions.getUpdateAction();
+        CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction();
+        ImportAction shareAction = teamActions.getImportAction();
         Platform.runLater(() -> {
             setButtonAction(statusAction, teamStatusButton, false);
             setButtonAction(updateAction, updateButton, false);
             setButtonAction(commitCommentAction, commitButton, false);
             setButtonAction(shareAction, teamShareButton, false);
         });
-        teamSettingsMenuItem.setAction(wrapPkgMgrAction(teamActions.getTeamSettingsAction(this)));
+        teamSettingsMenuItem.setAction(wrapPkgMgrAction(teamActions.getTeamSettingsAction()));
         
-        shareProjectMenuItem.setAction(wrapPkgMgrAction(teamActions.getImportAction(this)));
-        statusMenuItem.setAction(wrapPkgMgrAction(teamActions.getStatusAction(this)));
-        commitMenuItem.setAction(wrapPkgMgrAction(teamActions.getCommitCommentAction(this)));
+        shareProjectMenuItem.setAction(wrapPkgMgrAction(teamActions.getImportAction()));
+        statusMenuItem.setAction(wrapPkgMgrAction(teamActions.getStatusAction()));
+        commitMenuItem.setAction(wrapPkgMgrAction(teamActions.getCommitCommentAction()));
         commitMenuItem.setText(Config.getString("team.menu.commit"));
-        updateMenuItem.setAction(wrapPkgMgrAction(teamActions.getUpdateAction(this)));
+        updateMenuItem.setAction(wrapPkgMgrAction(teamActions.getUpdateAction()));
         updateMenuItem.setText(Config.getString("team.menu.update"));
-        showLogMenuItem.setAction(wrapPkgMgrAction(teamActions.getShowLogAction(this)));
+        showLogMenuItem.setAction(wrapPkgMgrAction(teamActions.getShowLogAction()));
     }
 
     /**
@@ -3092,10 +3092,10 @@ public class PkgMgrFrame
     {   
         setupMenus();
 
-        UpdateDialogAction updateAction = teamActions.getUpdateAction(this);
-        CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction(this);
-        StatusAction statusAction = teamActions.getStatusAction(this);
-        ImportAction shareAction = teamActions.getImportAction(this);
+        UpdateDialogAction updateAction = teamActions.getUpdateAction();
+        CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction();
+        StatusAction statusAction = teamActions.getStatusAction();
+        ImportAction shareAction = teamActions.getImportAction();
 
         endTestRecordAction.setEnabled(false);
         cancelTestRecordAction.setEnabled(false);
@@ -3324,8 +3324,6 @@ public class PkgMgrFrame
         
         {
             JavaFXUtil.FXPlusSwingMenu menu = new JavaFXUtil.FXPlusSwingMenu(() -> new Menu(Config.getString("menu.package")));
-            int mnemonic = Config.getMnemonicKey("menu.package");
-            //menu.setMnemonic(mnemonic);
             menubar.add(menu);
             createMenuItem(new NewProjectAction(this), menu);
             createMenuItem(new OpenProjectAction(this), menu);
@@ -3411,20 +3409,20 @@ public class PkgMgrFrame
             {
                 Action checkoutAction = new CheckoutAction(this);
                 createMenuItem(checkoutAction , teamMenu);
-                shareProjectMenuItem = createMenuItem(teamActions.getImportAction(this), teamMenu);               
+                shareProjectMenuItem = createMenuItem(teamActions.getImportAction(), teamMenu);               
                 
                 teamMenu.addSeparator();
                 
-                updateMenuItem = createMenuItem(teamActions.getUpdateAction(this), teamMenu);
+                updateMenuItem = createMenuItem(teamActions.getUpdateAction(), teamMenu);
                 updateMenuItem.setText(Config.getString("team.menu.update"));
-                commitMenuItem = createMenuItem(teamActions.getCommitCommentAction(this), teamMenu);
+                commitMenuItem = createMenuItem(teamActions.getCommitCommentAction(), teamMenu);
                 commitMenuItem.setText(Config.getString("team.menu.commit"));
-                statusMenuItem = createMenuItem(teamActions.getStatusAction(this), teamMenu);
-                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(this), teamMenu);
+                statusMenuItem = createMenuItem(teamActions.getStatusAction(), teamMenu);
+                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
                 
                 teamMenu.addSeparator();
                 
-                teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(this), teamMenu);
+                teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(), teamMenu);
             }
             swingItems.add(teamMenu);
 
@@ -3691,7 +3689,7 @@ public class PkgMgrFrame
     protected void enableFunctions(boolean enable)
     {
         if (! enable) {
-            teamActions.setAllDisabled(this);
+            teamActions.setAllDisabled();
         }
 
         Platform.runLater(() -> {

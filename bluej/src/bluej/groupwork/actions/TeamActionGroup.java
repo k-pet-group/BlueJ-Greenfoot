@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package bluej.groupwork.actions;
 
 import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -74,59 +73,59 @@ public class TeamActionGroup
         this.initialIsDVCS = isDVCS;
     }
     
-    private void createAll(PkgMgrFrame pmf)
+    private void createAll()
     {
         if (statusAction == null)
         {
-            statusAction = new StatusAction(pmf);
-            updateAction = new UpdateDialogAction(pmf);
-            teamSettingsAction = new TeamSettingsAction(pmf);
-            commitCommentAction = new CommitCommentAction(pmf, commitLabel);
-            importAction = new ImportAction(pmf);
-            showLogAction = new ShowLogAction(pmf);
-            setTeamMode(pmf, initialTeamMode, initialIsDVCS);
+            statusAction = new StatusAction(null);
+            updateAction = new UpdateDialogAction(null);
+            teamSettingsAction = new TeamSettingsAction(null);
+            commitCommentAction = new CommitCommentAction(null, commitLabel);
+            importAction = new ImportAction(null);
+            showLogAction = new ShowLogAction(null);
+            setTeamMode(initialTeamMode, initialIsDVCS);
         }
     }
     
-    public StatusAction getStatusAction(PkgMgrFrame pmf)
+    public StatusAction getStatusAction()
     {
-        createAll(pmf);
+        createAll();
         return statusAction;
     }
     
-    public UpdateDialogAction getUpdateAction(PkgMgrFrame pmf)
+    public UpdateDialogAction getUpdateAction()
     {
-        createAll(pmf);
+        createAll();
         return updateAction;
     }
     
-    public TeamSettingsAction getTeamSettingsAction(PkgMgrFrame pmf)
+    public TeamSettingsAction getTeamSettingsAction()
     {
-        createAll(pmf);
+        createAll();
         return teamSettingsAction;
     }
     
-    public CommitCommentAction getCommitCommentAction(PkgMgrFrame pmf)
+    public CommitCommentAction getCommitCommentAction()
     {
-        createAll(pmf);
+        createAll();
         return commitCommentAction;
     }
     
-    public ImportAction getImportAction(PkgMgrFrame pmf)
+    public ImportAction getImportAction()
     {
-        createAll(pmf);
+        createAll();
         return importAction;
     }
     
-    public ShowLogAction getShowLogAction(PkgMgrFrame pmf)
+    public ShowLogAction getShowLogAction()
     {
-        createAll(pmf);
+        createAll();
         return showLogAction;
     }
     
-    public void setTeamMode(PkgMgrFrame pmf, boolean enabled, boolean isDCVS)
+    public void setTeamMode(boolean enabled, boolean isDCVS)
     {
-        createAll(pmf);
+        createAll();
         statusAction.setEnabled(enabled);
         updateAction.setEnabled(enabled);
         teamSettingsAction.setEnabled(enabled);
@@ -142,9 +141,9 @@ public class TeamActionGroup
         importAction.setEnabled(!enabled);
     }
     
-    public void setAllDisabled(PkgMgrFrame pmf)
+    public void setAllDisabled()
     {
-        createAll(pmf);
+        createAll();
         statusAction.setEnabled(false);
         updateAction.setEnabled(false);
         teamSettingsAction.setEnabled(false);
