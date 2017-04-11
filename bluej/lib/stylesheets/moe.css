@@ -17,3 +17,10 @@
     -fx-background-color: rgb(255, 255, 255, 0.5);
     /*-fx-background-image: url("../images/green-diagonal-4px.png");*/
 }
+
+.moe-editor-pane .moe-line-label {
+    -fx-content-display: graphic-only;
+}
+.moe-editor-pane:bj-line-numbers .moe-line-label {
+    -fx-content-display: left;
+}

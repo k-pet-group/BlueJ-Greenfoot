@@ -22,6 +22,7 @@
 package bluej.editor.moe;
 
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.io.CharStreams;
@@ -109,10 +110,11 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
             lineNumber += 1;
             Label label = new Label("" + lineNumber);
             JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
-            JavaFXUtil.bindPseudoclass(label, "bj-uncompiled", uncompiledProperty);
             JavaFXUtil.addStyleClass(label, "moe-line-label");
             return label;
         });
+        JavaFXUtil.addStyleClass(this, "moe-editor-pane");
+        JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
         syntaxView.setEditorPane(this);
         latestEditor = this;
         /*MOEFX Maybe stop using style for this?

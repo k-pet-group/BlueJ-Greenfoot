@@ -29,8 +29,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableValue;
@@ -120,6 +124,10 @@ public class PrefMgr
     // flags are all boolean preferences
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static HashMap<String,String> flags = new HashMap<String,String>();
+    // Flags have 0 or 1 properties.  Once requested for a flag, it
+    // is shared between all uses of that property flag.
+    @OnThread(Tag.FXPlatform)
+    private static HashMap<String, BooleanProperty> flagProperties = new HashMap<>();
 
     /**
      * Private constructor to prevent instantiation
@@ -234,6 +242,15 @@ public class PrefMgr
     }
 
     /**
+     * Provides a read-only observable view of a flag's value.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static BooleanExpression flagProperty(String flagName)
+    {
+        return flagProperties.computeIfAbsent(flagName, f -> new SimpleBooleanProperty(getFlag(f)));
+    }
+
+    /**
      * Set a users preference flag (a boolean preference).
      *
      * @param flag    The name of the flag to set
@@ -252,6 +269,11 @@ public class PrefMgr
             Config.putPropString(flag, value);
 
         flags.put(flag, value);
+        JavaFXUtil.runNowOrLater(() -> {
+            BooleanProperty prop = flagProperties.get(flag);
+            if (prop != null)
+                prop.set(enabled);
+        });
     }
 
     private static List<String> readRecentProjects()
