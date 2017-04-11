@@ -555,6 +555,9 @@ public class BlueJSyntaxView
             return 0;
         double x = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1).map(editorPane::screenToLocal).map(Bounds::getMinX).orElse(0.0);
         Debug.message("Left edge for " + editorPane.getDocument().getText().charAt(startOffset) + ": " + x);
+        // Allow for the left-hand margin.  We don't let it go below zero
+        // as zero is our special recalculate value meaning it's not initialised yet:
+        x = Math.max(0, x - 24);
         return (int)x;
     }
 
