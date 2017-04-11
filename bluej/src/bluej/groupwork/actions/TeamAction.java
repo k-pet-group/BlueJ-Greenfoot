@@ -24,8 +24,6 @@ package bluej.groupwork.actions;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
-import bluej.groupwork.TeamUtils;
-import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.actions.PkgMgrAction;
 
@@ -67,52 +65,12 @@ public abstract class TeamAction extends PkgMgrAction
     }
 
     /**
-     * Handle a server response in an appropriate fashion, i.e. if the response
-     * indicates an error, then display an error dialog. 
-     * 
-     * @param basicServerResponse  The response to handle
-     */
-    @OnThread(Tag.FXPlatform)
-    protected void handleServerResponse(TeamworkCommandResult result)
-    {
-        TeamUtils.handleServerResponseFX(result, pmf.getFXWindow());
-    }
-
-    /**
-     * Start the activity indicator. This can be called from any thread.
-     */
-    protected void startProgressBar()
-    {
-        pmf.startProgress();
-    }
-
-    /**
-     * Stop the activity indicator. This can be called from any thread.
-     */
-    protected void stopProgressBar()
-    {
-        pmf.stopProgress();
-    }
-    
-    protected void setStatus(String statusMessage)
-    {
-        pmf.setStatus(statusMessage);
-    }
-
-    protected void clearStatus()
-    {
-        pmf.clearStatus();
-    }
-    
-    /**
      * changes the name of the action.
      * @param name 
      */
     @OnThread(Tag.Swing)
     public void setName(String name)
     {
-        if (name != null){
-            putValue("Name", name);
-        }
+    	putValue("Name", name);
     }
 }

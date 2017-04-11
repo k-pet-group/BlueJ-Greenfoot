@@ -99,8 +99,8 @@ public class ImportAction extends TeamAction
                 return;
             }
         }
-        setStatus(Config.getString("team.sharing"));
-        startProgressBar(); 
+        pmf.setStatus(Config.getString("team.sharing"));
+        pmf.startProgress();
         
         Thread thread = new Thread() {
             
@@ -142,16 +142,16 @@ public class ImportAction extends TeamAction
                 }
 
                 Platform.runLater(() -> {
-                    handleServerResponse(result);
+                    TeamUtils.handleServerResponseFX(result, pmf.getFXWindow());
                     EventQueue.invokeLater(() -> {
-                        stopProgressBar();
+                        pmf.stopProgress();
                         if (!result.isError())
                         {
-                            setStatus(Config.getString("team.shared"));
+                            pmf.setStatus(Config.getString("team.shared"));
                             DataCollector.teamShareProject(project, repository);
                         } else
                         {
-                            clearStatus();
+                            pmf.clearStatus();
                         }
                     });
                 });
