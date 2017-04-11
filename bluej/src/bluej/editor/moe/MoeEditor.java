@@ -13,10 +13,10 @@
  GNU General Public License for more details. 
 
  You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.editor.moe;
@@ -35,11 +35,14 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,12 +66,15 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JMenu;
@@ -82,6 +88,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
@@ -141,6 +148,7 @@ import bluej.utility.FileUtility;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.Utility;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Menu;
@@ -216,6 +224,11 @@ public final class MoeEditor extends JPanel
      */
     private static ArrayList<String> readMeActions;
 
+    // -------- INSTANCE VARIABLES --------  //
+    // Strings                               //
+    private final String interfaceString = Config.getString("editor.interfaceLabel");
+    private final String implementationString = Config.getString("editor.implementationLabel");
+
     // The code to ask for the default editor to be added to, for the case
     // where we have been hidden but want to reshow ourselves again:
     private final FXSupplier<FXTabbedEditor> defaultFXTabbedEditor;
@@ -241,6 +254,7 @@ public final class MoeEditor extends JPanel
     private Info info;                      // the info number label
     private JPanel statusArea;              // the status area
     private StatusLabel saveState;          // the status label
+    private JComboBox<String> interfaceToggle;
     @OnThread(Tag.FXPlatform)
     private GoToLineDialog goToLineDialog;
     
@@ -251,6 +265,7 @@ public final class MoeEditor extends JPanel
     private NaviView naviView;              // Navigation view (mini-source view)
     private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the
                                             // editor and navigation view
+    private JComponent toolbar;             // The toolbar
     private JMenuBar menubar;
     private final JMenuItem undoMenuItem;
     private final JMenuItem redoMenuItem;
@@ -457,7 +472,7 @@ public final class MoeEditor extends JPanel
      * @return true if it is an action that should be disabled while editing the readme file,
      *         or false otherwise
      */
-    public static boolean isNonReadmeAction(String actionName)
+    private static boolean isNonReadmeAction(String actionName)
     {
         List<String> flaggedActions = getNonReadmeActions();
         return flaggedActions.contains(actionName);
@@ -677,7 +692,7 @@ public final class MoeEditor extends JPanel
                 if (new File(docFilename).exists()) {
                     showInterface(true);
                     loaded = true;
-                    fxTab.disableInterfaceToggle();
+                    interfaceToggle.setEnabled(false);
                 }
             }
         }
@@ -1198,7 +1213,7 @@ public final class MoeEditor extends JPanel
     @Override
     public void showInterface(boolean interfaceStatus)
     {
-        Platform.runLater(() -> fxTab.showInterface(interfaceStatus));
+        interfaceToggle.setSelectedIndex(interfaceStatus ? 1 : 0);
     }
 
     /**
@@ -2217,7 +2232,12 @@ public final class MoeEditor extends JPanel
         if (!sourceIsCode)
             return;
 
-        fxTab.toggleInterfaceMenu();
+        if (interfaceToggle.getSelectedIndex() == 0) {
+            interfaceToggle.setSelectedIndex(1);
+        }
+        else {
+            interfaceToggle.setSelectedIndex(0);
+        }
     }
 
     // --------------------------------------------------------------------
@@ -2232,7 +2252,7 @@ public final class MoeEditor extends JPanel
             return;
         }
 
-        boolean wantHTML = fxTab.isInterfaceSelected();
+        boolean wantHTML = (interfaceToggle.getSelectedItem() == interfaceString);
         if (wantHTML && !viewingHTML) {
             switchToInterfaceView();
         }
@@ -2458,15 +2478,15 @@ public final class MoeEditor extends JPanel
      */
     private void displayToolbar(boolean sourceView)
     {
-//        Component[] buttons = toolbar.getComponents();
-//        for (Component button : buttons) {
-//            if (button instanceof JButton) {
-//                JButton actionButton = (JButton) button;
-//                if (isEditAction(actionButton.getName())) {
-//                    actionButton.setEnabled(sourceView);
-//                }
-//            }
-//        }
+        Component[] buttons = toolbar.getComponents();
+        for (Component button : buttons) {
+            if (button instanceof JButton) {
+                JButton actionButton = (JButton) button;
+                if (isEditAction(actionButton.getName())) {
+                    actionButton.setEnabled(sourceView);
+                }
+            }
+        }
     }
 
     /**
@@ -2477,15 +2497,15 @@ public final class MoeEditor extends JPanel
     private JButton findToolbarButton(String itemName)
     {
         // find the item
-//        Component[] buttons = toolbar.getComponents();
-//        for (Component button : buttons) {
-//            if (button instanceof JButton) {
-//                JButton actionButton = (JButton) button;
-//                if (actionButton.getName().equals(itemName)) {
-//                    return actionButton;
-//                }
-//            }
-//        }
+        Component[] buttons = toolbar.getComponents();
+        for (Component button : buttons) {
+            if (button instanceof JButton) {
+                JButton actionButton = (JButton) button;
+                if (actionButton.getName().equals(itemName)) {
+                    return actionButton;
+                }
+            }
+        }
         return null;
     }
     
@@ -3333,10 +3353,10 @@ public final class MoeEditor extends JPanel
         });
 
         // create toolbar
-//        toolbar = createToolbar(); ////
-//        toolbar.setName("toolbar"); ////
-//        if (!Config.isRaspberryPi()) toolbar.setOpaque(false);
-//        this.add(toolbar, BorderLayout.NORTH);
+        toolbar = createToolbar();
+        toolbar.setName("toolbar");
+        if (!Config.isRaspberryPi()) toolbar.setOpaque(false);
+        this.add(toolbar, BorderLayout.NORTH);
         
         //add popup menu
         
@@ -3487,6 +3507,124 @@ public final class MoeEditor extends JPanel
     }
 
     // --------------------------------------------------------------------
+
+    /**
+     * Create the toolbar.
+     *
+     * @return The toolbar component, ready made.
+     */
+    private JComponent createToolbar()
+    {
+        JPanel toolbar = new JPanel();
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
+
+        String[] toolGroups = getResource("toolbar").split(" ");
+        for (String group : toolGroups) {
+            addToolbarGroup(toolbar, group);
+        }
+
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(createInterfaceSelector());
+
+        return toolbar;
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Create the toolbar.
+     *
+     * @return The toolbar component, ready made.
+     */
+    private void addToolbarGroup(JComponent toolbar, String group)
+    {
+        String[] toolKeys = group.split(":");
+        for (String toolKey : toolKeys) {
+            toolbar.add(createToolbarButton(toolKey));
+            if(!Config.isMacOSLeopard()) toolbar.add(Box.createHorizontalStrut(3));
+        }
+    }
+
+    /**
+     * Create a button on the toolbar.
+     *
+     * @param key  The internal key identifying the action and label
+     */
+    private AbstractButton createToolbarButton(String key)
+    {
+        final String label = Config.getString("editor." + key + LabelSuffix);
+        AbstractButton button;
+
+        String actionName = getResource(key + ActionSuffix);
+        if (actionName == null) {
+            actionName = key;
+        }
+        Action action = actions.getActionByName(actionName);
+
+        if (action != null) {
+            Action tbAction = new ToolbarAction(action, label);
+            button = new JButton(tbAction);
+        }
+        else {
+            button = new JButton("Unknown");
+        }
+
+        button.setName(actionName);
+
+        if (action == null) {
+            button.setEnabled(false);
+            Debug.message("Moe: action not found for button " + label);
+        }
+
+        if (isNonReadmeAction(actionName) && !sourceIsCode){
+            button.setEnabled(false);
+        }
+
+        button.setRequestFocusEnabled(false);
+        // never get keyboard focus
+
+        if (!Config.isMacOS()) {
+            // on all other platforms than MacOS, the default insets needs to
+            // be changed to make the buttons smaller
+            Insets margin = button.getMargin();
+            button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
+        }
+        else {
+            Utility.changeToMacButton(button);
+        }
+        button.setFont(PrefMgr.getStandardFont());
+        return button;
+    }
+
+    /**
+     * Create a combo box for the toolbar
+     */
+    private JComboBox<String> createInterfaceSelector()
+    {
+        String[] choiceStrings = {implementationString, interfaceString};
+        interfaceToggle = new JComboBox<String>(choiceStrings);
+
+        interfaceToggle.setRequestFocusEnabled(false);
+        interfaceToggle.setFont(PrefMgr.getStandardFont());
+        interfaceToggle.setBorder(new EmptyBorder(2, 2, 2, 2));
+        interfaceToggle.setForeground(envOpColour);
+        if (!Config.isRaspberryPi()) interfaceToggle.setOpaque(false);
+
+        String actionName = "toggle-interface-view";
+        Action action = actions.getActionByName(actionName);
+        if (action != null) {           // should never be null...
+            interfaceToggle.setAction(action);
+        }
+        else {
+            interfaceToggle.setEnabled(false);
+            Debug.message("Moe: action not found: " + actionName);
+        }
+        if (!sourceIsCode) {
+            interfaceToggle.setEnabled(false);
+        }
+        return interfaceToggle;
+    }
 
     /**
      * Sets the find panel to be visible and if there is a selection/or previous search 
@@ -3787,7 +3925,7 @@ public final class MoeEditor extends JPanel
      * @return true if source code; 
      *         false if not
      */
-    public boolean containsSourceCode()
+    protected boolean containsSourceCode()
     {
         return sourceIsCode;
     }
@@ -4258,7 +4396,7 @@ public final class MoeEditor extends JPanel
         // and remove in turn without a removal affecting a later removal.
         // Hence we sort by negative start value:
         Collections.sort(toRemove, Comparator.<LocatableImport>comparingInt(t -> -t.getStart()));
-        
+
         for (ImportsCollection.LocatableImport locatableImport : toRemove)
         {
             if (locatableImport.getStart() != -1)
@@ -4495,6 +4633,46 @@ public final class MoeEditor extends JPanel
         @Override
         public Component getLastComponent(Container focusCycleRoot) {
             return currentTextPane;
+        }
+    }
+
+    /**
+     * An abstract action which delegates to a sub-action, and which
+     * mirrors the "enabled" state of the sub-action. This allows having
+     * actions with alternative labels.
+     *
+     * @author Davin McCall
+     */
+    class ToolbarAction extends AbstractAction implements PropertyChangeListener
+    {
+        private final Action subAction;
+
+        public ToolbarAction(Action subAction, String label)
+        {
+            super(label);
+            this.subAction = subAction;
+            subAction.addPropertyChangeListener(this);
+            setEnabled(subAction.isEnabled());
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            subAction.actionPerformed(e);
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            // If the enabled state of the sub-action changed,
+            // then we should change our own state.
+            if (evt.getPropertyName().equals("enabled")) {
+                Object newVal = evt.getNewValue();
+                if (newVal instanceof Boolean) {
+                    boolean state = ((Boolean) newVal);
+                    setEnabled(state);
+                }
+            }
         }
     }
 
