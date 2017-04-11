@@ -625,6 +625,7 @@ public class JavaFXUtil
      */
     public static void bindPseudoclass(Node node, String pseudoClass, BooleanExpression on)
     {
+        setPseudoclass(pseudoClass, on.get(), node);
         addChangeListener(on, b -> setPseudoclass(pseudoClass, b, node));
     }
 
