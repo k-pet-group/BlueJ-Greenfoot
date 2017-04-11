@@ -1753,8 +1753,9 @@ public class JavaFXUtil
             
             return () -> {
                 item.setOnAction(e -> {
-                    int x = (int)item.getParentPopup().getX();
-                    int y = (int)item.getParentPopup().getY();
+                	ContextMenu menu = item.getParentPopup();
+                	int x = menu != null ? (int)menu.getX() : 0;
+                	int y = menu != null ? (int)menu.getY() : 0;
                     SwingUtilities.invokeLater(() -> fireSwingMenuItemAction(swingItem, source, x, y));
                 });
                 item.setAccelerator(swingKeyStrokeToFX(shortcut));
