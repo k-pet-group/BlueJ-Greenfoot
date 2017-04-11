@@ -1932,7 +1932,8 @@ public final class Config
                 "editor-selection",
                 "editor-slot-choice",
                 "editor-suggestions",
-                "editor-tabs"};
+                "editor-tabs",
+                "moe"};
         
         for (String stem : stylesheetStems)
         {

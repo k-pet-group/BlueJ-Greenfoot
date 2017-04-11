@@ -1,0 +1,19 @@
+.moe-line-label {
+    -fx-font-size: 10px;
+    -fx-text-overrun: clip;
+    -fx-alignment: bottom-right;
+    -fx-min-width: 24;
+    -fx-pref-width: 24;
+    -fx-max-width: 24;
+    -fx-border-width: 0 1 0 0;
+    -fx-label-padding: 0 2 0 0;
+    -fx-border-style: solid;
+    -fx-border-color: gray;
+}
+.moe-line-label:bj-odd {
+    -fx-background-color: rgb(245, 245, 245);
+}
+.moe-line-label:bj-uncompiled {
+    -fx-background-color: rgb(255, 255, 255, 0.5);
+    /*-fx-background-image: url("../images/green-diagonal-4px.png");*/
+}

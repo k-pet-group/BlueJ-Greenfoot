@@ -26,9 +26,12 @@ import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.io.CharStreams;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Side;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
@@ -58,6 +61,7 @@ import java.util.stream.Collectors;
 public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
 {
     public static final int ERROR_STYLE_BIT = 0x01000000;
+    private final BooleanProperty uncompiledProperty = new SimpleBooleanProperty(true);
     private static PaintObjectBinding latestBinding;
     private static MoeEditorPane latestEditor; // MOEFX: TODO this is a total hack
 
@@ -100,6 +104,15 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
             t.setFill(Color.rgb(s >> 16 & 0xFF, s >> 8 & 0xFF, s & 0xFF));
 
         }, doc, true);
+        setParagraphGraphicFactory(lineNumber -> {
+            // RichTextFX numbers from 0, but javac numbers from 1:
+            lineNumber += 1;
+            Label label = new Label("" + lineNumber);
+            JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
+            JavaFXUtil.bindPseudoclass(label, "bj-uncompiled", uncompiledProperty);
+            JavaFXUtil.addStyleClass(label, "moe-line-label");
+            return label;
+        });
         syntaxView.setEditorPane(this);
         latestEditor = this;
         /*MOEFX Maybe stop using style for this?
