@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,88 +33,108 @@ import bluej.pkgmgr.Project;
  */
 public class ResourceDescriptor
 {
-           
     public static String getResource(Project project, Object value, boolean annotate)
     {
-        String status = value.toString();
-        if (value instanceof TeamStatusInfo) {
-            TeamStatusInfo info = (TeamStatusInfo) value;
-            boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
+        String status;
+        if (value instanceof UpdateStatus) {
+        	UpdateStatus updateStatus = (UpdateStatus) value;
+        	if (updateStatus.infoStatus != null) {
+        		TeamStatusInfo info = updateStatus.infoStatus;
+        		status = info.toString();
+                boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
 
-            if (isPkgFile) {
-                status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
-            }
-            if (annotate) {
-                int infoStatus = info.getStatus();
-                // file has been deleted
-                switch (infoStatus) {
-                    case TeamStatusInfo.STATUS_DELETED:
-                        status += " (" + Config.getString("team.status.delete") + ")";
-                        break;
-                    case TeamStatusInfo.STATUS_NEEDSADD:
-                        status += " (" + Config.getString("team.status.add") + ")";
-                        break;
-                    case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
-                        status += " (" + Config.getString("team.status.new") + ")";
-                        break;
-                    case TeamStatusInfo.STATUS_REMOVED:
-                    case TeamStatusInfo.STATUS_CONFLICT_LMRD:
-                        status += " (" + Config.getString("team.status.removed") + ")";
-                        break;
-                    case TeamStatusInfo.STATUS_NEEDSMERGE:
-                        if (! isPkgFile) {
-                            status += " (" + Config.getString("team.status.needsmerge") + ")";
-                        }
-                        break;
-                    default:
-                        break;
+                if (isPkgFile) {
+                    status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
                 }
-                if (info.getRemoteStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT
-                        || info.getRemoteStatus() == TeamStatusInfo.STATUS_DELETED) {
-                    if (!isPkgFile) {
-                        //file is ok in local repo, but needs to be pushed to remote repo.
-                        status += "(" + Config.getString("team.status.needsupdate") + ")";
+                if (annotate) {
+                    int infoStatus = info.getStatus();
+                    // file has been deleted
+                    switch (infoStatus) {
+                        case TeamStatusInfo.STATUS_DELETED:
+                            status += " (" + Config.getString("team.status.delete") + ")";
+                            break;
+                        case TeamStatusInfo.STATUS_NEEDSADD:
+                            status += " (" + Config.getString("team.status.add") + ")";
+                            break;
+                        case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
+                            status += " (" + Config.getString("team.status.new") + ")";
+                            break;
+                        case TeamStatusInfo.STATUS_REMOVED:
+                        case TeamStatusInfo.STATUS_CONFLICT_LMRD:
+                            status += " (" + Config.getString("team.status.removed") + ")";
+                            break;
+                        case TeamStatusInfo.STATUS_NEEDSMERGE:
+                            if (! isPkgFile) {
+                                status += " (" + Config.getString("team.status.needsmerge") + ")";
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    if (info.getRemoteStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT
+                            || info.getRemoteStatus() == TeamStatusInfo.STATUS_DELETED) {
+                        if (!isPkgFile) {
+                            //file is ok in local repo, but needs to be pushed to remote repo.
+                            status += "(" + Config.getString("team.status.needsupdate") + ")";
+                        }
                     }
                 }
-            }
+        	}
+        	else {
+        		status = updateStatus.stringStatus;
+        	}
         }
-
+        else {
+        	status = value.toString();
+        }
+        
         return status;
     }
 
     public static String getDCVSResource(Project project, Object value, boolean annotate, boolean remote)
     {
-        String status = value.toString();
-        if (value instanceof TeamStatusInfo) {
-            TeamStatusInfo info = (TeamStatusInfo) value;
-            boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
+        String status;
+        if (value instanceof UpdateStatus) {
+        	UpdateStatus updateStatus = (UpdateStatus) value;
+        	if (updateStatus.infoStatus != null) {
 
-            if (isPkgFile) {
-                status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
-            }
-            if (annotate) {
-                int infoStatus = remote ? info.getRemoteStatus() : info.getStatus();
-                // file has been deleted
-                switch (infoStatus) {
-                    case TeamStatusInfo.STATUS_DELETED:
-                    case TeamStatusInfo.STATUS_NEEDSADD:
-                    case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
-                    case TeamStatusInfo.STATUS_REMOVED:
-                    case TeamStatusInfo.STATUS_CONFLICT_LMRD:
-                    case TeamStatusInfo.STATUS_NEEDSUPDATE:
-                    case TeamStatusInfo.STATUS_NEEDSCOMMIT:
-                        //substitute for the new labels from teamstatusinfo
-                        status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
-                        break;
-                    case TeamStatusInfo.STATUS_NEEDSMERGE:
-                        if (!isPkgFile) {
-                            status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
+        		TeamStatusInfo info = updateStatus.infoStatus;
+        		status = info.toString();
+        		boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
+
+        		if (isPkgFile) {
+        			status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
+        		}
+        		if (annotate) {
+        			int infoStatus = remote ? info.getRemoteStatus() : info.getStatus();
+        			// file has been deleted
+        			switch (infoStatus) {
+        			case TeamStatusInfo.STATUS_DELETED:
+        			case TeamStatusInfo.STATUS_NEEDSADD:
+        			case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
+        			case TeamStatusInfo.STATUS_REMOVED:
+        			case TeamStatusInfo.STATUS_CONFLICT_LMRD:
+        			case TeamStatusInfo.STATUS_NEEDSUPDATE:
+        			case TeamStatusInfo.STATUS_NEEDSCOMMIT:
+        				//substitute for the new labels from teamstatusinfo
+        				status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
+        				break;
+        			case TeamStatusInfo.STATUS_NEEDSMERGE:
+        				if (!isPkgFile) {
+        					status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
+        				}
+        				break;
+        			default:
+        				break;
+        			}
+        		}
+        	}
+        	else {
+        		status = updateStatus.stringStatus;
+        	}
+        }
+        else {
+        	status = value.toString();
         }
 
         return status;
