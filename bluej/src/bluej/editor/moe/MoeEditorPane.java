@@ -27,6 +27,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.io.CharStreams;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -65,14 +66,13 @@ import java.util.stream.Collectors;
 public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
 {
     public static final int ERROR_STYLE_BIT = 0x01000000;
-    private final BooleanProperty uncompiledProperty = new SimpleBooleanProperty(true);
     private static PaintObjectBinding latestBinding;
     private static MoeEditorPane latestEditor; // MOEFX: TODO this is a total hack
 
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<Integer>, Integer> doc, BlueJSyntaxView syntaxView)
+    public MoeEditorPane(org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<Integer>, Integer> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
     {
         super(null, (p, s) -> {
             //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
@@ -127,6 +127,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
         });
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
         JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
+        JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
         syntaxView.setEditorPane(this);
         latestEditor = this;
         /*MOEFX Maybe stop using style for this?

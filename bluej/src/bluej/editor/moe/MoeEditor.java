@@ -100,6 +100,8 @@ import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.io.CharStreams;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -112,10 +114,7 @@ import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
@@ -307,6 +306,7 @@ public final class MoeEditor extends BorderPane
     private final Runnable callbackOnOpen;
     @OnThread(Tag.FX)
     private final List<Menu> fxMenus = new ArrayList<>();
+    private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
 
     /**
      * Constructor. Title may be null.
@@ -1097,6 +1097,7 @@ public final class MoeEditor extends BorderPane
     @Override
     public void compileFinished(boolean successful, boolean classesKept)
     {
+        compiledProperty.set(successful && classesKept);
         if (isVisible())
         {
             // Compilation requested via the editor interface has completed
@@ -2830,6 +2831,8 @@ public final class MoeEditor extends BorderPane
     private void setCompileStatus(boolean compiled)
     {
         actions.getActionByName("toggle-breakpoint").setEnabled(compiled && viewingCode());
+        if (!compiled)
+            compiledProperty.set(false);
         //MOEFX
         /*
         if (compiled) {
@@ -3167,7 +3170,7 @@ public final class MoeEditor extends BorderPane
         }
         */
         //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
-        sourcePane = sourceDocument.makeEditorPane();
+        sourcePane = sourceDocument.makeEditorPane(compiledProperty);
         //MOEFX
         //sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);
@@ -3218,7 +3221,9 @@ public final class MoeEditor extends BorderPane
         editorPane.setFillHeight(true);
         //HBox.setHgrow(scrollPane, Priority.ALWAYS);
         //setCenter(editorPane);
-        setCenter(new VirtualizedScrollPane<>(sourcePane));
+        BorderPane background = new BorderPane();
+        JavaFXUtil.addStyleClass(background, "moe-background");
+        setCenter(new StackPane(background, new VirtualizedScrollPane<>(sourcePane)));
 
         // get table of edit actions
 

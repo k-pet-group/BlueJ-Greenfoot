@@ -36,6 +36,7 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.Segment;
 
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
+import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import threadchecker.OnThread;
@@ -822,9 +823,9 @@ public class MoeSyntaxDocument
      * inner types.
      * @return Creates a new MoeEditorPane for this document
      */
-    public MoeEditorPane makeEditorPane()
+    public MoeEditorPane makeEditorPane(BooleanExpression compiledStatus)
     {
-        return new MoeEditorPane(document, syntaxView);
+        return new MoeEditorPane(document, syntaxView, compiledStatus);
     }
 
     /**
