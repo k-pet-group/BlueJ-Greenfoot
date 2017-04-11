@@ -57,7 +57,7 @@ public class ImportAction extends TeamAction
 {
     public ImportAction(PkgMgrFrame pmf)
     {
-        super(pmf, "team.import");
+        super(pmf, "team.import", true);
     }
     
     /* (non-Javadoc)

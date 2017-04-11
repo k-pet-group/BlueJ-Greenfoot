@@ -135,7 +135,7 @@ public class TeamActionGroup
         if (isDCVS){
             label = "team.commitPush";
         }
-        commitCommentAction.setName(Config.getString(label));
+        commitCommentAction.setName(Config.getString(label) + "...");
         commitCommentAction.setEnabled(enabled);
         // import is allowed if we are not already shared
         importAction.setEnabled(!enabled);
