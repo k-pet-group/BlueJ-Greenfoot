@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,6 @@
  */
 package bluej.groupwork.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Icon;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -40,10 +35,8 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  * 
  * @author fisker
  */
-public abstract class TeamAction extends AbstractAction
+public abstract class TeamAction extends PkgMgrAction
 {
-    private final PkgMgrFrame pkgMgrFrame;
-
     /**
      * Constructor for a team action.
      * 
@@ -63,8 +56,7 @@ public abstract class TeamAction extends AbstractAction
      */
     public TeamAction(PkgMgrFrame pmf, String name, boolean showsDialog)
     {
-        super(showsDialog ? Config.getString(name) + "..." : Config.getString(name));
-        this.pkgMgrFrame = pmf;
+        super(pmf, showsDialog ? Config.getString(name) + "..." : Config.getString(name));
         if (!Config.isMacOS()){
             // Mnemonic keys are against the apple gui guidelines.
             putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(name)));
@@ -74,23 +66,6 @@ public abstract class TeamAction extends AbstractAction
         }
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    @OnThread(Tag.Swing)
-    public void actionPerformed(ActionEvent e)
-    {
-        actionPerformed(pkgMgrFrame);
-    }
-    
-    /**
-     * Invoked when the action occurs.
-     * 
-     * @param pmf The PkgMgrFrame in which the action occurred.
-     */
-    @OnThread(Tag.Swing)
-    public abstract void actionPerformed(PkgMgrFrame pmf);
-    
     /**
      * Handle a server response in an appropriate fashion, i.e. if the response
      * indicates an error, then display an error dialog. 
@@ -100,7 +75,7 @@ public abstract class TeamAction extends AbstractAction
     @OnThread(Tag.FXPlatform)
     protected void handleServerResponse(TeamworkCommandResult result)
     {
-        TeamUtils.handleServerResponseFX(result, pkgMgrFrame.getFXWindow());
+        TeamUtils.handleServerResponseFX(result, pmf.getFXWindow());
     }
 
     /**
@@ -108,7 +83,7 @@ public abstract class TeamAction extends AbstractAction
      */
     protected void startProgressBar()
     {
-        pkgMgrFrame.startProgress();
+        pmf.startProgress();
     }
 
     /**
@@ -116,17 +91,17 @@ public abstract class TeamAction extends AbstractAction
      */
     protected void stopProgressBar()
     {
-        pkgMgrFrame.stopProgress();
+        pmf.stopProgress();
     }
     
     protected void setStatus(String statusMessage)
     {
-        pkgMgrFrame.setStatus(statusMessage);
+        pmf.setStatus(statusMessage);
     }
 
     protected void clearStatus()
     {
-        pkgMgrFrame.clearStatus();
+        pmf.clearStatus();
     }
     
     /**
