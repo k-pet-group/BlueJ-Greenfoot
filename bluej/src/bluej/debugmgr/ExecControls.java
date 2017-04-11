@@ -208,7 +208,7 @@ public class ExecControls
         this.project = project;
         this.debugger = debugger;
 
-        Platform.runLater(() -> {
+        JavaFXUtil.runNowOrLater(() -> {
             this.readyToShow = new SimpleBooleanProperty(false);
             this.window = new Stage();
             window.setTitle(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));

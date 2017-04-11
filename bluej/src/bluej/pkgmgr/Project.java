@@ -1836,7 +1836,7 @@ public class Project implements DebuggerListener, InspectorManager
             return;
         }
         
-        EventQueue.invokeLater(new Runnable() {
+        Platform.runLater(new Runnable() {
             public void run() {
                 if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
                     PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);

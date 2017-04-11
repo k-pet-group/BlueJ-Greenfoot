@@ -295,26 +295,53 @@ public class MoeSyntaxDocument
         }
     }
 
+    /**
+     * Sets the step-line (paused line in debugger) indicator on that line,
+     * and clears it from all other lines.
+     *
+     * Line number starts at one.
+     */
+    public void showStepLine(int lineNumber)
+    {
+        for (int i = 0; i < document.getParagraphs().size(); i++)
+        {
+            ScopeInfo style = document.getParagraphStyle(i);
+            boolean newStepLine = i == (lineNumber - 1);
+            if (style != null && style.isStepLine() != newStepLine)
+            {
+                setParagraphStyle(i, style.withStepLine(newStepLine));
+            }
+        }
+
+    }
+
     void fireChangedUpdate(MoeSyntaxEvent mse)
     {
         List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(this);
         for (int i = 0; i < paragraphScopeInfo.size(); i++)
         {
             ScopeInfo old = document.getParagraphStyle(i);
-            if (((old == null) != (paragraphScopeInfo.get(i) == null)) || !old.equals(paragraphScopeInfo.get(i)))
+            ScopeInfo newStyle = paragraphScopeInfo.get(i);
+            if (((old == null) != (newStyle == null)) || !old.equals(newStyle))
             {
-                //MOEFX Stop working around RichTextFX bug post 0.7 release
-                //document.setParagraphStyle(i, paragraphScopeInfo.get(i));
-                Paragraph<ScopeInfo, StyledText<Integer>, Integer> oldPara = document.getParagraph(i);
-                int startPos = document.getAbsolutePosition(i, 0);
-                int endPos = (i == document.getParagraphs().size() - 1) ? document.getLength() : (document.getAbsolutePosition(i + 1, 0) - 1);
-                document.replace(startPos, endPos, ReadOnlyStyledDocument.fromString(oldPara.getText(), paragraphScopeInfo.get(i), 0, StyledText.textOps()));
+                setParagraphStyle(i, newStyle);
+
             }
 
             StyleSpans<Integer> styleSpans = syntaxView.getTokenStylesFor(i, this);
             if (styleSpans != null)
                 document.setStyleSpans(i, 0, styleSpans);
         }
+    }
+
+    private void setParagraphStyle(int i, ScopeInfo newStyle)
+    {
+        //MOEFX Stop working around RichTextFX bug post 0.7 release
+        //document.setParagraphStyle(i, paragraphScopeInfo.get(i));
+        Paragraph<ScopeInfo, StyledText<Integer>, Integer> oldPara = document.getParagraph(i);
+        int startPos = document.getAbsolutePosition(i, 0);
+        int endPos = (i == document.getParagraphs().size() - 1) ? document.getLength() : (document.getAbsolutePosition(i + 1, 0) - 1);
+        document.replace(startPos, endPos, ReadOnlyStyledDocument.fromString(oldPara.getText(), newStyle, 0, StyledText.textOps()));
     }
 
     /**

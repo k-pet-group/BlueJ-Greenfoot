@@ -653,7 +653,9 @@ public final class MoeEditor extends BorderPane
                 // FileReader reader = new FileReader(filename);
                 FileInputStream inputStream = new FileInputStream(filename);
                 Reader reader = new InputStreamReader(inputStream, charset);
+                ignoreChanges = true;
                 sourcePane.read(reader);
+                ignoreChanges = false;
                 try {
                     reader.close();
                     inputStream.close();
@@ -955,10 +957,7 @@ public final class MoeEditor extends BorderPane
         }
 
         // highlight the line
-
-        sourcePane.setCaretPosition(pos);
-        sourcePane.moveCaretPosition(line.getEndOffset() - 1);  // w/o line break
-        moeCaret.setPersistentHighlight();
+        sourceDocument.showStepLine(lineNumber);
 
         // display the message
 

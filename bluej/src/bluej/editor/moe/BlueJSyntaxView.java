@@ -42,24 +42,15 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
-import org.fxmisc.richtext.model.TwoDimensional;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Toolkit;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Position;
-import javax.swing.text.Position.Bias;
 import javax.swing.text.Segment;
-import javax.swing.text.TabExpander;
-import javax.swing.text.Utilities;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -307,6 +298,14 @@ public class BlueJSyntaxView
             }
         }
 
+        if (s.isStepLine())
+        {
+            for (int x = 0; x < image.getWidth(); x++)
+            {
+                image.getPixelWriter().setArgb(x, (int)(image.getHeight() / 2), 0xFF000000);
+            }
+        }
+
         return image;
     }
 
@@ -394,7 +393,7 @@ public class BlueJSyntaxView
                     break;
                 }
 
-                ScopeInfo scope = new ScopeInfo();
+                ScopeInfo scope = new ScopeInfo(false);
                 scopes.add(scope);
                 drawScopes(fullWidth, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
 
@@ -1694,6 +1693,25 @@ public class BlueJSyntaxView
         //MOEFX TODO: implement equals and hashcode properly for this,
         // as setParagraphStyle relies on it
         private final List<SingleNestedScope> nestedScopes = new ArrayList<>();
+        private final boolean isStepLine;
+
+        public ScopeInfo(boolean isStepLine)
+        {
+            this.isStepLine = isStepLine;
+        }
+
+        public boolean isStepLine()
+        {
+            return isStepLine;
+        }
+
+        public ScopeInfo withStepLine(boolean newStepLine)
+        {
+            ScopeInfo scopeInfo = new ScopeInfo(newStepLine);
+            scopeInfo.nestedScopes.addAll(nestedScopes);
+            return scopeInfo;
+        }
+
         private static class SingleNestedScope
         {
             private final LeftRight leftRight;
