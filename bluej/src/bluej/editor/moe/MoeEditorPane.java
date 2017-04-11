@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import bluej.Config;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -32,6 +33,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Side;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
@@ -111,6 +114,15 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
             Label label = new Label("" + lineNumber);
             JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
             JavaFXUtil.addStyleClass(label, "moe-line-label");
+            label.setOnContextMenuRequested(e -> {
+                CheckMenuItem checkMenuItem = new CheckMenuItem(Config.getString("prefmgr.edit.displaylinenumbers"));
+                checkMenuItem.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
+                checkMenuItem.setOnAction(ev -> {
+                    PrefMgr.setFlag(PrefMgr.LINENUMBERS, checkMenuItem.isSelected());
+                });
+                ContextMenu menu = new ContextMenu(checkMenuItem);
+                menu.show(label, e.getScreenX(), e.getScreenY());
+            });
             return label;
         });
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
