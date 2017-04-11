@@ -54,14 +54,7 @@ public abstract class TeamAction extends PkgMgrAction
      */
     public TeamAction(PkgMgrFrame pmf, String name, boolean showsDialog)
     {
-        super(pmf, showsDialog ? Config.getString(name) + "..." : Config.getString(name));
-        if (!Config.isMacOS()){
-            // Mnemonic keys are against the apple gui guidelines.
-            putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(name)));
-        }
-        if (Config.hasAcceleratorKey(name)){
-            putValue(ACCELERATOR_KEY, Config.getAcceleratorKey(name));
-        }
+        super(pmf, name, showsDialog);
     }
 
     /**
