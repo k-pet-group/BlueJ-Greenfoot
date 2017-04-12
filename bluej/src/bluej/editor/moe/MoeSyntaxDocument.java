@@ -57,7 +57,6 @@ import bluej.utility.PersistentMarkDocument;
  * @author Bruce Quig
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  */
-@OnThread(value = Tag.Swing, ignoreParent = true)
 public class MoeSyntaxDocument
 {
     private final SimpleEditableStyledDocument<ScopeInfo, Integer> document;

@@ -36,7 +36,7 @@ import threadchecker.Tag;
  *
  * @author  Michael Cahill
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FXPlatform)
 public interface EDTCompileObserver
 {
     /**

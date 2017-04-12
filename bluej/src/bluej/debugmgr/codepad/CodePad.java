@@ -590,7 +590,7 @@ public class CodePad extends VBox
                  * @see bluej.debugmgr.ResultWatcher#beginExecution()
                  */
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void beginCompile()
         {
         }
@@ -599,7 +599,7 @@ public class CodePad extends VBox
          * @see bluej.debugmgr.ResultWatcher#beginExecution()
          */
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void beginExecution(InvokerRecord ir)
         {
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
@@ -609,7 +609,7 @@ public class CodePad extends VBox
          * @see bluej.debugmgr.ResultWatcher#putResult(bluej.debugger.DebuggerObject, java.lang.String, bluej.testmgr.record.InvokerRecord)
          */
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
         {
             frame.getObjectBench().addInteraction(ir);
@@ -659,7 +659,7 @@ public class CodePad extends VBox
                 if (resultString.equals(nullLabel))
                 {
                     DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultString);
-                    Platform.runLater(() -> output(resultString));
+                    output(resultString);
                 }
                 else
                 {

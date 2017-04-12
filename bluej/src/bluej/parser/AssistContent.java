@@ -39,7 +39,7 @@ import java.util.function.Supplier;
  * 
  * @author Marion Zalk
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FX)
 public abstract class AssistContent
 {
     public static enum Access

@@ -1573,6 +1573,7 @@ public final class MoeEditor extends BorderPane
      * A BlueJEvent was raised. Check whether it is one that we're interested in.
      */
     @Override
+    @OnThread(Tag.Swing)
     public void blueJEvent(int eventId, Object arg)
     {
         switch(eventId) {
@@ -1697,13 +1698,11 @@ public final class MoeEditor extends BorderPane
         if (filename == null) {
             info.message (Config.getString("editor.info.cannotReload"), Config.getString("editor.info.reload"));
         }
-        else if (saveState.isChanged()) {
-            Platform.runLater(() ->
-            {
-                int answer = DialogManager.askQuestionFX(fxTabbedEditor.getWindow(), "really-reload");
-                if (answer == 0)
-                    SwingUtilities.invokeLater(() -> doReload());
-            });
+        else if (saveState.isChanged())
+        {
+            int answer = DialogManager.askQuestionFX(fxTabbedEditor.getWindow(), "really-reload");
+            if (answer == 0)
+                doReload();
         }
         else {
             doReload();
@@ -2152,14 +2151,12 @@ public final class MoeEditor extends BorderPane
     public void goToLine()
     {
         final int numberOfLines = numberOfLines();
-        Platform.runLater(() -> {
-            if (goToLineDialog == null) {
-                goToLineDialog = new GoToLineDialog(fxTabbedEditor.getWindow());
-            }
-            goToLineDialog.setRangeMax(numberOfLines);
-            Optional<Integer> o = goToLineDialog.showAndWait();
-            SwingUtilities.invokeLater(() -> o.ifPresent(n -> setSelection(n , 1, 0)));
-        });
+        if (goToLineDialog == null) {
+            goToLineDialog = new GoToLineDialog(fxTabbedEditor.getWindow());
+        }
+        goToLineDialog.setRangeMax(numberOfLines);
+        Optional<Integer> o = goToLineDialog.showAndWait();
+        o.ifPresent(n -> setSelection(n , 1, 0));
     }
 
     // --------------------------------------------------------------------

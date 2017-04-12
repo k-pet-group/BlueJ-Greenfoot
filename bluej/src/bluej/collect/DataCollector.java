@@ -63,7 +63,8 @@ import bluej.pkgmgr.Project;
  * This class mainly acts as a proxy for the DataCollectorImpl class, which implements the actual
  * collection logic.
  */
-public @OnThread(Tag.Swing) class DataCollector
+@OnThread(Tag.FXPlatform)
+public class DataCollector
 {
     private static final String PROPERTY_UUID = "blackbox.uuid";
     private static final String PROPERTY_EXPERIMENT = "blackbox.experiment";

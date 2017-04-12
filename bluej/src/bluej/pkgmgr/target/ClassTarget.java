@@ -1054,7 +1054,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Description of the Class
      */
-    @OnThread(value = Tag.Swing, ignoreParent = true)
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     class InnerClassFileFilter
         implements FileFilter
     {
@@ -1077,8 +1077,7 @@ public class ClassTarget extends DependentTarget
      *         there was a problem opening this editor.
      */
     @Override
-    // TODO should be Swing_WaitsForFX
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     public Editor getEditor()
     {
         boolean withInterface;
@@ -2221,7 +2220,7 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     public void doubleClick()
     {
-        SwingUtilities.invokeLater(() -> open());
+        open();
     }
     /**
      * Set the size of this target.
@@ -2329,7 +2328,7 @@ public class ClassTarget extends DependentTarget
             if (o instanceof DependentTarget) {
                 DependentTarget d = (DependentTarget) o;
                 if (this.equals(d.getAssociation())) {
-                    Platform.runLater(() -> {d.setAssociation(null);});
+                    d.setAssociation(null);
                 }
             }
         }

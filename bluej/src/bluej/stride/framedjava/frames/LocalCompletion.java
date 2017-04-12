@@ -31,7 +31,7 @@ import bluej.parser.AssistContent.JavadocCallback;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.Parser;
 
-@OnThread(Tag.Swing)
+@OnThread(Tag.FX)
 public class LocalCompletion extends AssistContent
 {
     private final String type;

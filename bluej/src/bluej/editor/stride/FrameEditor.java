@@ -117,11 +117,11 @@ import threadchecker.Tag;
  * really just exists to integrate the editor into BlueJ.  Also, FrameEditor can exist without
  * the graphical editor being opened, whereas FrameEditorTab is tied to the graphical aspect.
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FXPlatform)
 public class FrameEditor implements Editor
 {
     /** Whether the code has been successfully compiled since last edit */
-    @OnThread(Tag.Swing) private boolean isCompiled;
+    @OnThread(Tag.FXPlatform) private boolean isCompiled;
     
     // If the code has been changed since last save (only modify on FX thread):
     // Start true, because we haven't actually saved before, so technically we have changed:
@@ -130,8 +130,8 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FX) private String lastSavedSource = null;
     // Only touch on FX thread:
     @OnThread(Tag.FX) private SaveJavaResult lastSavedJavaFX = null;
-    // Only touch on Swing thread:
-    @OnThread(Tag.Swing) private SaveJavaResult lastSavedJavaSwing = null;
+    // Only touch on FX thread:
+    @OnThread(Tag.FXPlatform) private SaveJavaResult lastSavedJavaSwing = null;
     
     /** Location of the .stride file */
     @OnThread(Tag.Any) private final ReadWriteLock filenameLock = new ReentrantReadWriteLock();
@@ -260,15 +260,13 @@ public class FrameEditor implements Editor
     @Override
     public void close()
     {
-        Platform.runLater(() -> {
-            if (panel != null)
-            {
-                lastSource = panel.getSource();
-                panel.setWindowVisible(false, false);
-                panel.cleanup();
-                panel = null;
-            }
-        });
+        if (panel != null)
+        {
+            lastSource = panel.getSource();
+            panel.setWindowVisible(false, false);
+            panel.cleanup();
+            panel = null;
+        }
     }
 
     /**
@@ -280,20 +278,9 @@ public class FrameEditor implements Editor
      * thread, because it could deadlock with this code.
      */
     @Override
-    @OnThread(Tag.Swing)
     public void save() throws IOException
     {
-        final CompletableFuture<SaveResult> q = new CompletableFuture<>();
-        Platform.runLater(() -> { q.complete(_saveFX());});
-        SaveResult result = null;
-        try
-        {
-            result = q.get();
-        }
-        catch (InterruptedException | ExecutionException e1)
-        {
-            Debug.reportError(e1);
-        }
+        SaveResult result = _saveFX();
         // result can be null if an exception occurred completing the future
         if (result != null && result.exception != null)
             throw new IOException(result.exception);
@@ -390,31 +377,10 @@ public class FrameEditor implements Editor
     /**
      * Saves the .java file without the "warning: auto-generated" text at the top
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void saveJavaWithoutWarning() throws IOException
     {
-        final CompletableFuture<Optional<IOException>> q = new CompletableFuture<>();
-        Platform.runLater(() -> {
-            try
-            {
-                saveJava(lastSource, false);
-                q.complete(Optional.empty());
-            } catch (IOException e)
-            {
-                q.complete(Optional.of(e));
-            }
-        });
-        Optional<IOException> e = null;
-        try
-        {
-            e = q.get();
-        }
-        catch (InterruptedException | ExecutionException e1)
-        {
-            Debug.reportError(e1);
-        }
-        if (e.isPresent())
-            throw new IOException(e.get());
+        saveJava(lastSource, false);
     }
 
     private class SaveJavaResult
@@ -432,7 +398,7 @@ public class FrameEditor implements Editor
     /**
      * @param warning Whether to include the "auto-generated" warning at the top of the file
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private SaveJavaResult saveJava(TopLevelCodeElement source, boolean warning) throws IOException
     {
         if (source == null)
@@ -450,7 +416,7 @@ public class FrameEditor implements Editor
         // to make sure all the source positions have been recorded.
         javaSource.set(js);
 
-        SwingUtilities.invokeLater(() -> watcher.recordEdit(SourceType.Java, javaString, true));
+        watcher.recordEdit(SourceType.Java, javaString, true);
 
         return new SaveJavaResult(js, source.toXML().buildLocationMap());
     }
@@ -466,57 +432,57 @@ public class FrameEditor implements Editor
      */
     @Override
     public TextEditor assumeText() {
-        // I want to annotate this whole class as @OnThread(Tag.Swing) 
+        // I want to annotate this whole class as @OnThread(Tag.FXPlatform)
         // but on 8u20 it triggers JDK bug JDK-8059531
         // Instead we must annotate each method
         return new TextEditor() {
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void writeMessage(String msg) { FrameEditor.this.writeMessage(msg); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void showInterface(boolean interfaceStatus) { FrameEditor.this.showInterface(interfaceStatus); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setEditorVisible(boolean vis) { FrameEditor.this.setEditorVisible(vis); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setReadOnly(boolean readOnly) { FrameEditor.this.setReadOnly(readOnly); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setProperty(String propertyKey, Object value) { FrameEditor.this.setProperty(propertyKey, value); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setCompiled(boolean compiled) { FrameEditor.this.setCompiled(compiled); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void save() throws IOException { FrameEditor.this.save(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void removeStepMark() { FrameEditor.this.removeStepMark(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void removeBreakpoints() { FrameEditor.this.removeBreakpoints(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void reloadFile() { FrameEditor.this.reloadFile(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void refresh() { FrameEditor.this.refresh(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void reInitBreakpoints() { FrameEditor.this.reInitBreakpoints(); }
 
             @Override
@@ -524,34 +490,34 @@ public class FrameEditor implements Editor
             public void printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground) { FrameEditor.this.printTo(printerJob, printLineNumbers, printBackground); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public boolean isOpen() { return FrameEditor.this.isOpen(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public boolean isReadOnly() { return FrameEditor.this.isReadOnly(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public boolean isModified() { return FrameEditor.this.isModified(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public Object getProperty(String propertyKey) { return FrameEditor.this.getProperty(propertyKey); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void displayMessage(String message, int lineNumber, int column) { FrameEditor.this.displayMessage(message, lineNumber, column); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
             {
                 return FrameEditor.this.displayDiagnostic(diagnostic, errorIndex, compileType);
             }
             
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setStepMark(int lineNumber, String message,
                     boolean isBreak, DebuggerThread thread)
             {
@@ -559,26 +525,26 @@ public class FrameEditor implements Editor
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void close() { FrameEditor.this.close(); }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void changeName(String title, String filename, String javaFilename, String docFileName) { FrameEditor.this.changeName(title, filename, javaFilename, docFileName); }
             
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public TextEditor assumeText() { return this; }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public boolean showFile(String filename, Charset charset, boolean compiled,
                     String docFilename) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setText(SourceLocation begin, SourceLocation end, String newText)
                     throws BadLocationException {
                 throw new UnsupportedOperationException();
@@ -586,7 +552,7 @@ public class FrameEditor implements Editor
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setSelection(int firstlineNumber, int firstColumn,
                     int secondLineNumber, int SecondColumn) {
                 throw new UnsupportedOperationException();
@@ -594,192 +560,192 @@ public class FrameEditor implements Editor
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setSelection(SourceLocation begin, SourceLocation end) {
                 throw new UnsupportedOperationException();
 
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setSelection(int lineNumber, int column, int len) {
                 throw new UnsupportedOperationException();
 
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setCaretLocation(SourceLocation location) {
                 throw new UnsupportedOperationException();
 
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public int numberOfLines() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void insertText(String text, boolean caretBack) {
                 throw new UnsupportedOperationException();
 
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public int getTextLength() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public String getText(SourceLocation begin, SourceLocation end) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public MoeSyntaxDocument getSourceDocument() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public SourceLocation getSelectionEnd() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public SourceLocation getSelectionBegin() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public ParsedCUNode getParsedNode() {
                 return null; //throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public int getOffsetFromLineColumn(SourceLocation location) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public int getLineLength(int line) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public SourceLocation getLineColumnFromOffset(int offset) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public SourceLocation getCaretLocation() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void clear() {
                 throw new UnsupportedOperationException();
 
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void compileFinished(boolean successful, boolean classesKept)
             {
                 throw new UnsupportedOperationException();                
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after)
             {
                 FrameEditor.this.insertAppendMethod(e, method, after);
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodName, Consumer<Boolean> after)
             {
                 FrameEditor.this.insertMethodCallInConstructor(e, className, methodName, after);
             }
 
             @Override
-            @OnThread(Tag.FX)
+            @OnThread(Tag.FXPlatform)
             public FrameEditor assumeFrame()
             {
                 return FrameEditor.this;
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public boolean compileStarted()
             {
                 return FrameEditor.this.compileStarted();    
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void cancelFreshState()
             {
                 FrameEditor.this.cancelFreshState();
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void focusMethod(String methodName)
             {
                 FrameEditor.this.focusMethod(methodName);
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void setExtendsClass(String className, ClassInfo classInfo)
             {
                 FrameEditor.this.setExtendsClass(className, classInfo);
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void addImplements(String className, ClassInfo classInfo)
             {
                 FrameEditor.this.addImplements(className, classInfo);
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void removeExtendsClass(ClassInfo classInfo)
             {
                 FrameEditor.this.removeExtendsClass(classInfo);
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void addExtendsInterface(String interfaceName, ClassInfo classInfo)
             {
                 FrameEditor.this.addExtendsInterface(interfaceName, classInfo);
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo)
             {
                 FrameEditor.this.removeExtendsOrImplementsInterface(interfaceName, classInfo);
             }
 
             @Override
-            @OnThread(Tag.Swing)
+            @OnThread(Tag.FXPlatform)
             public void removeImports(List<String> importTargets)
             {
                 FrameEditor.this.removeImports(importTargets);
@@ -804,10 +770,10 @@ public class FrameEditor implements Editor
     public void displayMessage(String message, final int lineNumber, int column)
     {
         //This is a message from a clickable stack trace following an exception
-        Platform.runLater(() -> JavaFXUtil.onceNotNull(javaSource, js -> JavaFXUtil.runNowOrLater(() -> {
+        JavaFXUtil.onceNotNull(javaSource, js -> JavaFXUtil.runNowOrLater(() -> {
             setVisibleFX(true, true);
             js.handleException(lineNumber);
-        })));
+        }));
     }
 
     @Override
@@ -826,26 +792,24 @@ public class FrameEditor implements Editor
             }
         }
 
-        // We are on the Swing EDT, but need to do GUI bits on the FX thread:
-        Platform.runLater(() -> {
-            // Don't show javac errors if we are not valid for compilation:
-            if (panel != null && panel.getSource() != null)
-            {
-                JavaFXUtil.onceNotNull(javaSource, js ->
-                        js.handleError((int) diagnostic.getStartLine(), (int) diagnostic.getStartColumn(),
-                            (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), true, diagnostic.getIdentifier())
-                );
-            }
-            else
-            {
-                queuedErrors.add(new QueuedError(diagnostic.getStartLine(), diagnostic.getStartColumn(), diagnostic.getEndLine(), diagnostic.getEndColumn(), diagnostic.getMessage(), diagnostic.getIdentifier()));
-            }
-            
-            if (compileType.showEditorOnError())
-            {
-                setVisibleFX(true, true);
-            }
-        });
+
+        // Don't show javac errors if we are not valid for compilation:
+        if (panel != null && panel.getSource() != null)
+        {
+            JavaFXUtil.onceNotNull(javaSource, js ->
+                    js.handleError((int) diagnostic.getStartLine(), (int) diagnostic.getStartColumn(),
+                        (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), true, diagnostic.getIdentifier())
+            );
+        }
+        else
+        {
+            queuedErrors.add(new QueuedError(diagnostic.getStartLine(), diagnostic.getStartColumn(), diagnostic.getEndLine(), diagnostic.getEndColumn(), diagnostic.getMessage(), diagnostic.getIdentifier()));
+        }
+
+        if (compileType.showEditorOnError())
+        {
+            setVisibleFX(true, true);
+        }
         return false;
     }
     
@@ -854,62 +818,56 @@ public class FrameEditor implements Editor
             DebuggerThread thread)
     {
         removeStepMark();
-        Platform.runLater(() -> {
-            setVisibleFX(true, true);
-            SwingUtilities.invokeLater(() -> {
-                HashMap<String, DebugVarInfo> vars = new HashMap<String, DebugVarInfo>();
-                if (thread != null) {
-                    DebuggerObject currentObject = thread.getCurrentObject(0);
-                    if (currentObject != null && !currentObject.isNullObject()) {
-                        Map<String, Set<String>> restrictedClasses = pkg.getProject().getExecControls().getRestrictedClasses();
-                        List<DebuggerField> fields = currentObject.getFields();
-                        for (DebuggerField field : fields)
-                        {
-                            if (! Modifier.isStatic(field.getModifiers())) {
-                                String declaringClass = field.getDeclaringClassName();
-                                Set<String> whiteList = restrictedClasses.get(declaringClass);
-                                if (whiteList == null || whiteList.contains(field.getName())) {
-                                    if (field.isReferenceType()) {
-                                        vars.put(field.getName(), new ReferenceDebugVarInfo(pkg, null, field));
-                                    }
-                                    else {
-                                        vars.put(field.getName(), new PrimitiveDebugVarInfo(field.getValueString()));
-                                    }
-                                }
+        setVisibleFX(true, true);
+        HashMap<String, DebugVarInfo> vars = new HashMap<String, DebugVarInfo>();
+        if (thread != null) {
+            DebuggerObject currentObject = thread.getCurrentObject(0);
+            if (currentObject != null && !currentObject.isNullObject()) {
+                Map<String, Set<String>> restrictedClasses = pkg.getProject().getExecControls().getRestrictedClasses();
+                List<DebuggerField> fields = currentObject.getFields();
+                for (DebuggerField field : fields)
+                {
+                    if (! Modifier.isStatic(field.getModifiers())) {
+                        String declaringClass = field.getDeclaringClassName();
+                        Set<String> whiteList = restrictedClasses.get(declaringClass);
+                        if (whiteList == null || whiteList.contains(field.getName())) {
+                            if (field.isReferenceType()) {
+                                vars.put(field.getName(), new ReferenceDebugVarInfo(pkg, null, field));
+                            }
+                            else {
+                                vars.put(field.getName(), new PrimitiveDebugVarInfo(field.getValueString()));
                             }
                         }
                     }
                 }
-                Platform.runLater(() -> {
-                    debugInfo.addVarState(vars, execHistory.size());
-                    panel.showDebuggerControls(thread);
-                    if (curBreakpoint != null) {
-                        curBreakpoint.removeHighlight();
-                        curBreakpoint = null;
-                    }
-                    try {
-                        JavaSource js = javaSource.get();
-                        if (js == null) {
-                            js = saveJava(lastSource, true).javaSource;
-                        }
-                        curBreakpoint = js.handleStop(lineNumber, debugInfo);
-                        if (curBreakpoint.isBreakpointFrame())
-                        {
-                            SwingUtilities.invokeLater(() -> thread.step());
-                        }
-                        else
-                        {
-                            if (execHistory.isEmpty() || execHistory.get(execHistory.size() - 1) != curBreakpoint)
-                                execHistory.add(curBreakpoint);
-                            panel.redrawExecHistory(execHistory);
-                        }
-                    }
-                    catch (IOException ioe) {
-                        Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
-                    }
-                });
-            });
-        });
+            }
+        }
+        debugInfo.addVarState(vars, execHistory.size());
+        panel.showDebuggerControls(thread);
+        if (curBreakpoint != null) {
+            curBreakpoint.removeHighlight();
+            curBreakpoint = null;
+        }
+        try {
+            JavaSource js = javaSource.get();
+            if (js == null) {
+                js = saveJava(lastSource, true).javaSource;
+            }
+            curBreakpoint = js.handleStop(lineNumber, debugInfo);
+            if (curBreakpoint.isBreakpointFrame())
+            {
+                SwingUtilities.invokeLater(() -> thread.step());
+            }
+            else
+            {
+                if (execHistory.isEmpty() || execHistory.get(execHistory.size() - 1) != curBreakpoint)
+                    execHistory.add(curBreakpoint);
+                panel.redrawExecHistory(execHistory);
+            }
+        }
+        catch (IOException ioe) {
+            Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
+        }
     }
 
     @Override
@@ -952,25 +910,22 @@ public class FrameEditor implements Editor
     public void reInitBreakpoints()
     {
         watcher.clearAllBreakpoints();
-        Platform.runLater(() -> {
-            if (javaSource.get() == null) {
-                IOException e = _saveFX().exception;
-                if (e != null)
-                    Debug.reportError(e);
-            }
-            if (javaSource.get() != null)
+
+        if (javaSource.get() == null) {
+            IOException e = _saveFX().exception;
+            if (e != null)
+                Debug.reportError(e);
+        }
+        if (javaSource.get() != null)
+        {
+            JavaSource latestSource = this.javaSource.get();
+            watcher.clearAllBreakpoints();
+            List<Integer> breaks = latestSource.registerBreakpoints(this, watcher);
+            synchronized (this)
             {
-                JavaSource latestSource = this.javaSource.get();
-                SwingUtilities.invokeLater(() -> {
-                    watcher.clearAllBreakpoints();
-                    List<Integer> breaks = latestSource.registerBreakpoints(this, watcher);
-                    synchronized (this)
-                    {
-                        latestBreakpoints = breaks;
-                    }
-                });
+                latestBreakpoints = breaks;
             }
-        });
+        }
     }
 
     @Override
@@ -1032,7 +987,7 @@ public class FrameEditor implements Editor
     @Override
     public void setEditorVisible(boolean vis)
     {
-        Platform.runLater(() -> setVisibleFX(vis, true));
+        setVisibleFX(vis, true);
     }
 
     @OnThread(Tag.FXPlatform)
@@ -1096,15 +1051,13 @@ public class FrameEditor implements Editor
         }
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void codeModified()
     {
         changedSinceLastSave = true;
-        SwingUtilities.invokeLater(() -> {
-            isCompiled = false;
-            watcher.modificationEvent(this);
-            watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-        });
+        isCompiled = false;
+        watcher.modificationEvent(this);
+        watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
     }
     
     @Override
@@ -1123,17 +1076,15 @@ public class FrameEditor implements Editor
     @Override
     public void compileFinished(boolean successful, boolean classesKept)
     {
-        Platform.runLater(() -> {
-            if (panel != null && panel.isWindowVisible())
+        if (panel != null && panel.isWindowVisible())
+        {
+            if (!foundLateErrorsForMostRecentCompile)
             {
-                if (!foundLateErrorsForMostRecentCompile)
-                {
-                    foundLateErrorsForMostRecentCompile = true;
-                    findLateErrors();
-                }
-                panel.compiled();
+                foundLateErrorsForMostRecentCompile = true;
+                findLateErrors();
             }
-        });
+            panel.compiled();
+        }
 
         reInitBreakpoints();
     }
@@ -1164,20 +1115,18 @@ public class FrameEditor implements Editor
             }
             Platform.runLater(() -> panel.updateErrorOverviewBar(false));
             List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-            SwingUtilities.invokeLater(() -> watcher.recordLateErrors(diagnostics));
+            Platform.runLater(() -> watcher.recordLateErrors(diagnostics));
         });
     }
         
     @Override
     public boolean compileStarted()
     {
-        Platform.runLater(() -> {
-            foundLateErrorsForMostRecentCompile = false;
-            if (panel != null)
-                panel.flagErrorsAsOld();
-            else
-                queuedErrors.clear();
-        });
+        foundLateErrorsForMostRecentCompile = false;
+        if (panel != null)
+            panel.flagErrorsAsOld();
+        else
+            queuedErrors.clear();
         // Note lastSourceRef may refer to a stale source, but this shouldn't cause any
         // significant issues.  In fact, it probably makes sense to use the source at
         // point of last save, rather than any modifications in the window since.
@@ -1188,12 +1137,12 @@ public class FrameEditor implements Editor
      * Given a stream of early errors, records them and returns true if there were any errors (i.e. if the stream was non-empty)
      */
     //package-visible
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     boolean earlyErrorCheck(Stream<SyntaxCodeError> earlyErrors)
     {
         List<SyntaxCodeError> earlyList = earlyErrors.collect(Collectors.toList());
         List<DiagnosticWithShown> diagnostics = Utility.mapList(earlyList, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-        SwingUtilities.invokeLater(() -> watcher.recordEarlyErrors(diagnostics));
+        watcher.recordEarlyErrors(diagnostics);
         return !earlyList.isEmpty();
     }
 
@@ -1263,34 +1212,31 @@ public class FrameEditor implements Editor
     @Override
     public void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(false, false);
-            }
-            panel.insertAppendMethod(method, after);
-        });
+        if (panel == null)
+        {
+            createPanel(false, false);
+        }
+        panel.insertAppendMethod(method, after);
     }
 
     @Override
     public void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodName, Consumer<Boolean> after)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(false, false);
-            }
-            panel.insertMethodCallInConstructor(className, methodName, after);
-        });
+        if (panel == null)
+        {
+            createPanel(false, false);
+        }
+        panel.insertMethodCallInConstructor(className, methodName, after);
     }
 
     @Override
     public void removeImports(List<String> importTargets)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(false, false);
-            }
-            panel.removeImports(importTargets);
-        });
+        if (panel == null)
+        {
+            createPanel(false, false);
+        }
+        panel.removeImports(importTargets);
     }
 
     @OnThread(Tag.FX)
@@ -1299,7 +1245,7 @@ public class FrameEditor implements Editor
         return panel.getSource();
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public List<AssistContentThreadSafe> getLocalTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds)
     {
         return pkg.getClassTargets()
@@ -1333,28 +1279,23 @@ public class FrameEditor implements Editor
 
     public void showNextError()
     {
-       Platform.runLater(() -> panel.nextError());
+       panel.nextError();
     }
 
     @Override
-    @OnThread(Tag.Swing)
     public void cancelFreshState()
     {
-        Platform.runLater(() -> {
-            if (panel != null)
-                panel.cancelFreshState();
-        });
+        if (panel != null)
+            panel.cancelFreshState();
     }
 
     @Override
     public void focusMethod(String methodName)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(true, true);
-            }
-            panel.focusMethod(methodName);
-        });
+        if (panel == null) {
+            createPanel(true, true);
+        }
+        panel.focusMethod(methodName);
     }
 
     public JavadocResolver getJavadocResolver()
@@ -1379,9 +1320,7 @@ public class FrameEditor implements Editor
         SaveResult result = _saveFX();
         if (result.exception == null)
         {
-            SwingUtilities.invokeLater(() -> {
-                watcher.recordEdit(SourceType.Stride, result.savedSource, true, reason);
-            });
+            watcher.recordEdit(SourceType.Stride, result.savedSource, true, reason);
         }
         else
             Debug.reportError(result.exception);
@@ -1390,57 +1329,47 @@ public class FrameEditor implements Editor
     @Override
     public void addImplements(String className, ClassInfo classInfo)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(false, false);
-            }
-            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addImplements(className));
-        });
+        if (panel == null) {
+            createPanel(false, false);
+        }
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addImplements(className));
     }
 
     @Override
     public void setExtendsClass(String className, ClassInfo classInfo)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(false, false);
-            }
-            JavaFXUtil.onceTrue(panel.initialisedProperty(), p ->
-                JavaFXUtil.runPlatformLater( () -> panel.addExtends(className))
-            );
-        });
+        if (panel == null) {
+            createPanel(false, false);
+        }
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), p ->
+            JavaFXUtil.runPlatformLater( () -> panel.addExtends(className))
+        );
     }
 
     @Override
     public void removeExtendsClass(ClassInfo classInfo)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(false, false);
-            }
-            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsClass());
-        });
+        if (panel == null) {
+            createPanel(false, false);
+        }
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsClass());
     }
 
     @Override
     public void addExtendsInterface(String interfaceName, ClassInfo classInfo)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(false, false);
-            }
-            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(interfaceName));
-        });
+        if (panel == null) {
+            createPanel(false, false);
+        }
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(interfaceName));
     }
 
     @Override
     public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo)
     {
-        Platform.runLater(() -> {
-            if (panel == null) {
-                createPanel(false, false);
-            }
-            JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsOrImplementsInterface(interfaceName));
-        });
+        if (panel == null) {
+            createPanel(false, false);
+        }
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsOrImplementsInterface(interfaceName));
     }
 }

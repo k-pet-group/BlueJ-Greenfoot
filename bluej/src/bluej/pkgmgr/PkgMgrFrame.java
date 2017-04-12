@@ -662,7 +662,7 @@ public class PkgMgrFrame
      * @param aPkg The package to show in the frame
      * @return The new frame
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static PkgMgrFrame createFrame(Package aPkg, PkgMgrFrame parentWindow)
     {
         PkgMgrFrame pmf = findFrame(aPkg);
@@ -1060,7 +1060,7 @@ public class PkgMgrFrame
      * Displays the package in the frame for editing
      * @param aPkg The package to edit
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void openPackage(Package aPkg, PkgMgrFrame parentWindow)
     {
         if (aPkg == null) {
@@ -1262,7 +1262,7 @@ public class PkgMgrFrame
     /**
      * Closes the current package.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void closePackage()
     {
         if (isEmptyFrame()) {
@@ -1558,10 +1558,8 @@ public class PkgMgrFrame
                         }
                         else if (JavaNames.isIdentifier(newObjectName))
                         {
-                            SwingUtilities.invokeLater(() -> {
-                                DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
-                                putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord(), e.getAnimateFromScenePoint());
-                            });
+                            DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
+                            putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord(), e.getAnimateFromScenePoint());
                             tryAgain = false;
                         }
                         else
@@ -1599,7 +1597,7 @@ public class PkgMgrFrame
      * @param dirName           The directory to create the project in
      * @return     true if successful, false otherwise
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public boolean newProject(String dirName)
     {
         if (Project.createNewProject(dirName)) {
@@ -1645,14 +1643,8 @@ public class PkgMgrFrame
 
         // if we have any files which failed the copy, we show them now
         if (fails != null && showFailureDialog) {
-            SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
-            File[] failsFinal = fails;
-            Platform.runLater(() -> {
-                ImportFailedDialog importFailedDlg = new ImportFailedDialog(getFXWindow(), Arrays.asList(failsFinal));
-                importFailedDlg.showAndWait();
-                loop.exit();
-            });
-            loop.enter();
+            ImportFailedDialog importFailedDlg = new ImportFailedDialog(getFXWindow(), Arrays.asList(fails));
+            importFailedDlg.showAndWait();
         }
 
         // add bluej.pkg files through the imported directory structure
@@ -1748,17 +1740,13 @@ public class PkgMgrFrame
     {
         String title = Config.getString( "pkgmgr.newPkg.title" );
 
-        Platform.runLater(() -> {
-            File newnameFile = FileUtility.getSaveProjectFX(getFXWindow(), title);
-            if (newnameFile == null)
-                return;
-            SwingUtilities.invokeLater(() -> {
-                if (! newProject(newnameFile.getAbsolutePath()))
-                {
-                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(null, "cannot-create-directory", newnameFile.getPath()));
-                }
-            });
-        });
+        File newnameFile = FileUtility.getSaveProjectFX(getFXWindow(), title);
+        if (newnameFile == null)
+            return;
+        if (! newProject(newnameFile.getAbsolutePath()))
+        {
+            DialogManager.showErrorWithTextFX(null, "cannot-create-directory", newnameFile.getPath());
+        }
     }
 
     /**
@@ -3756,7 +3744,7 @@ public class PkgMgrFrame
         });
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public synchronized void doNewInherits()
     {
         if (pkg != null && pkg.getEditor() != null)
@@ -3766,7 +3754,7 @@ public class PkgMgrFrame
         }
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void graphChanged()
     {
         int numClassTargets;

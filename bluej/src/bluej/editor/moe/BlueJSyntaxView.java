@@ -1464,6 +1464,7 @@ public class BlueJSyntaxView
         nodeIndents.remove(node);
     }
 
+    @OnThread(Tag.FXPlatform)
     public Node getParagraphicGraphic(int lineNumber)
     {
         // RichTextFX numbers from 0, but javac numbers from 1:

@@ -123,7 +123,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * succeeds but requires that the node ends immediately, PP_EPIC_FAIL if the parse
      * fails and indicates that the node is not what it purports to be.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     protected abstract int doPartialParse(ParseParams params, int state);
     
     protected boolean isNodeEndMarker(int tokenType)
@@ -132,7 +132,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int parseEnd = Math.min(offset + maxParse, nodePos + getSize());
@@ -614,7 +614,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
@@ -654,7 +654,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * terminated - that is, it ends before the end of the line. This can happen if such a
      * comment is inserted into an existing node which ends on the same line.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     private int checkEnd(MoeSyntaxDocument document, int nodePos, NodeStructureListener listener)
     {
         int end = nodePos + getSize();
@@ -747,7 +747,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {

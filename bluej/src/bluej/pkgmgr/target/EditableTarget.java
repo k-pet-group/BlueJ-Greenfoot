@@ -29,6 +29,8 @@ import java.util.Properties;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.Package;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A target in a package that can be edited as text
@@ -70,6 +72,7 @@ public abstract class EditableTarget extends Target
     /**
      * Called to open the editor for this target
      */
+    @OnThread(Tag.FXPlatform)
     public void open()
     {
         Editor editor = getEditor();

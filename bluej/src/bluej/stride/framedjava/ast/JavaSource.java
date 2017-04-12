@@ -276,7 +276,7 @@ public class JavaSource
         }
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public List<Integer> registerBreakpoints(Editor editor, EditorWatcher watcher)
     {
         List<Integer> breakpoints = new ArrayList<>();

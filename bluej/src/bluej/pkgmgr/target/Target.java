@@ -385,10 +385,8 @@ public abstract class Target
         final int yPosFinal = ypos;
         final int widthFinal = width;
         final int heightFinal = height;
-        Platform.runLater(() -> {
-            setPos(xPosFinal, yPosFinal);
-            setSize(widthFinal, heightFinal);
-        });
+        setPos(xPosFinal, yPosFinal);
+        setSize(widthFinal, heightFinal);
         //Debug.printCallStack("Loading");
     }
 

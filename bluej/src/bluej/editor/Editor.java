@@ -239,14 +239,12 @@ public interface Editor
      * Obtain the TextEditor implementation of this editor, if it has one. May return null if no
      * TextEditor implementation is available.
      */
-    @OnThread(Tag.Swing)
     TextEditor assumeText();
     
     /**
      * Obtain the FrameEditor implementation of this editor, if it has one. May return null if no
      * FrameEditor implementation is available.
      */
-    @OnThread(Tag.FX)
     FrameEditor assumeFrame();
     
     /**

@@ -648,13 +648,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     // Whenever name changes, trigger recompile even without leaving slot:
                     JavaFXUtil.addChangeListener(getTopLevelFrame().nameProperty(), n ->
                     {
-                        editor.codeModified();
-                        EventQueue.invokeLater(() ->
-                        {
+                        JavaFXUtil.runNowOrLater(() -> {
+                            editor.codeModified();
                             try
                             {
                                 editor.save();
-                            } catch (IOException e)
+                            }
+                            catch (IOException e)
                             {
                                 Debug.reportError("Problem saving after name change", e);
                             }
@@ -1102,39 +1102,38 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         if (link instanceof PossibleTypeLink)
         {
             String name = ((PossibleTypeLink)link).getTypeName();
-            SwingUtilities.invokeLater(() -> {
-                bluej.pkgmgr.Package pkg = project.getPackage("");
-                if (pkg.getAllClassnamesWithSource().contains(name))
+
+            bluej.pkgmgr.Package pkg = project.getPackage("");
+            if (pkg.getAllClassnamesWithSource().contains(name))
+            {
+                Target t = pkg.getTarget(name);
+                if (t instanceof ClassTarget)
                 {
-                    Target t = pkg.getTarget(name);
-                    if (t instanceof ClassTarget)
+                    callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> {
+                        link.getSlot().removeAllUnderlines();
+                        ((ClassTarget) t).open();
+                    })));
+                    return;
+                }
+            } else
+            {
+                TopLevelCodeElement code = topLevelFrame.getCode();
+                if (code != null)
+                {
+                    PackageOrClass resolved = code.getResolver().resolvePackageOrClass(name, null);
+                    // Slightly hacky way of deciding if it's in the standard API:
+                    if (resolved.getName().startsWith("java.") || resolved.getName().startsWith("javax."))
                     {
-                        callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> {
-                            link.getSlot().removeAllUnderlines();
-                            SwingUtilities.invokeLater(() -> ((ClassTarget) t).open());
-                        })));
+                        callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> getParent().openJavaCoreDocTab(resolved.getName()))));
+                        return;
+                    } else if (resolved.getName().startsWith("greenfoot."))
+                    {
+                        callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> getParent().openGreenfootDocTab(resolved.getName()))));
                         return;
                     }
-                } else
-                {
-                    TopLevelCodeElement code = topLevelFrame.getCode();
-                    if (code != null)
-                    {
-                        PackageOrClass resolved = code.getResolver().resolvePackageOrClass(name, null);
-                        // Slightly hacky way of deciding if it's in the standard API:
-                        if (resolved.getName().startsWith("java.") || resolved.getName().startsWith("javax."))
-                        {
-                            callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> getParent().openJavaCoreDocTab(resolved.getName()))));
-                            return;
-                        } else if (resolved.getName().startsWith("greenfoot."))
-                        {
-                            callback.accept(Optional.of(new LinkedIdentifier(name, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> getParent().openGreenfootDocTab(resolved.getName()))));
-                            return;
-                        }
-                    }
                 }
-                callback.accept(Optional.empty());
-            });
+            }
+            callback.accept(Optional.empty());
         }
         else if (link instanceof PossibleKnownMethodLink)
         {
@@ -2740,9 +2739,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
         if (!partOfMove && parent != null)
-            SwingUtilities.invokeLater(() -> editor.getWatcher().recordOpen());
+            editor.getWatcher().recordOpen();
         else if (!partOfMove && parent == null)
-            SwingUtilities.invokeLater(() -> editor.getWatcher().recordClose());
+            editor.getWatcher().recordClose();
 
         this.parent.set(parent);
 
@@ -2810,7 +2809,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
 
-        SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.locationFor(element), index, stem));
+        editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.locationFor(element), index, stem);
     }
 
     @Override
@@ -2821,7 +2820,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
 
-        SwingUtilities.invokeLater(() -> editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement));
+        editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement);
     }
 
     @Override
@@ -2836,13 +2835,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
         String xpath = (enclosingFrame instanceof CodeFrame) ? locationMap.locationFor(((CodeFrame<? extends CodeElement>)enclosingFrame).getCode()) : null;
 
-        SwingUtilities.invokeLater(() -> editor.getWatcher().recordUnknownCommandKey(xpath, cursorIndex, key));
+        editor.getWatcher().recordUnknownCommandKey(xpath, cursorIndex, key);
     }
 
     @Override
     public void recordErrorIndicatorShown(int identifier)
     {
-        SwingUtilities.invokeLater(() -> editor.getWatcher().recordShowErrorIndicator(identifier));
+        editor.getWatcher().recordShowErrorIndicator(identifier);
     }
 
     @Override

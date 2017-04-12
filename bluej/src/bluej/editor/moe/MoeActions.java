@@ -81,6 +81,8 @@ import bluej.utility.DialogManager;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A set of actions supported by the Moe editor. This is a singleton: the
@@ -1389,6 +1391,7 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
+    @OnThread(value = Tag.FX, ignoreParent = true)
     abstract class MoeAbstractAction extends TextAction
     {
         private final MoeEditor editor;
@@ -1405,6 +1408,10 @@ public final class MoeActions
             editor.clearMessage();
             return editor;
         }
+
+        @Override
+        @OnThread(value = Tag.FX, ignoreParent = true)
+        public abstract void actionPerformed(ActionEvent e);
     }
 
     // --------------------------------------------------------------------

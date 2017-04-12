@@ -84,7 +84,7 @@ public class ParseUtils
      * Get the possible code completions, based on the provided suggestions context.
      * If there are can be no valid completions in the given context, returns null.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, 
             JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {

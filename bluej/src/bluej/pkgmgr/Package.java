@@ -218,6 +218,7 @@ public final class Package
     private PackageEditor editor;
     
     /** True if we currently have a compile queued up waiting for debugger to become idle */
+    @OnThread(Tag.FXPlatform)
     private boolean waitingForIdleToCompile = false;
     
     /** Whether we have issued a package compilation, and not yet seen its conclusion */
@@ -502,21 +503,19 @@ public final class Package
         for (Dependency d : pendingDeps)
             ed.addDependency(d, d instanceof UsesDependency);
         pendingDeps.clear();
-        Platform.runLater(() -> {
-            synchronized (this)
-            {
-                for (Target t : targets)
-                    if (t instanceof ParentPackageTarget)
-                        ed.findSpaceForVertex(t);
-                // Find an empty spot for any targets which didn't already have
-                // a position
-                for (Target t : targetsToPlace) {
+        synchronized (this)
+        {
+            for (Target t : targets)
+                if (t instanceof ParentPackageTarget)
                     ed.findSpaceForVertex(t);
-                }
-                targetsToPlace.clear();
+            // Find an empty spot for any targets which didn't already have
+            // a position
+            for (Target t : targetsToPlace) {
+                ed.findSpaceForVertex(t);
             }
-            ed.graphChanged();
-        });
+            targetsToPlace.clear();
+        }
+        ed.graphChanged();
     }
     
     @OnThread(Tag.Any)
@@ -792,7 +791,7 @@ public final class Package
                 }
             }
         }
-        Platform.runLater(() -> {recalcArrows();});
+        recalcArrows();
 
         // Update class states. We do this before updating roles (or anything else
         // which analyses the source) because the analysis does symbol resolution, and
@@ -860,7 +859,7 @@ public final class Package
 
                 if (t1 != null && t2 != null && t1 instanceof DependentTarget) {
                     DependentTarget dt = (DependentTarget) t1;
-                    Platform.runLater(() -> {dt.setAssociation((DependentTarget)t2);});
+                    dt.setAssociation((DependentTarget)t2);
                 }
             }
         }
@@ -900,7 +899,7 @@ public final class Package
         catch (NumberFormatException e) {}
 
         // If we get here, then we didn't find a location for the target
-        Platform.runLater(() -> {getEditor().findSpaceForVertex(t);});
+        getEditor().findSpaceForVertex(t);
     }
     
     /**
@@ -924,15 +923,13 @@ public final class Package
         //Take special care of ReadmeTarget
         //see ReadmeTarget.isSaveable for explanation
         t.load(lastSavedProps, "readme");
-        Platform.runLater(() -> {t.setPos(FIXED_TARGET_X, FIXED_TARGET_Y);});
+        t.setPos(FIXED_TARGET_X, FIXED_TARGET_Y);
         addTarget(t);
         if (!isUnnamedPackage()) {
             final Target parent = new ParentPackageTarget(this);
-            Platform.runLater(() -> {
-                PackageEditor ed = getEditor();
-                if (ed != null)
-                    ed.findSpaceForVertex(parent);
-            });
+            PackageEditor ed = getEditor();
+            if (ed != null)
+                ed.findSpaceForVertex(parent);
             addTarget(parent);
         }
 
@@ -966,7 +963,7 @@ public final class Package
 
             if (target == null) {
                 Target newtarget = addPackage(subDirs[i].getName());
-                Platform.runLater(() -> {getEditor().findSpaceForVertex(newtarget);});
+                getEditor().findSpaceForVertex(newtarget);
             }
         }
 
@@ -983,7 +980,7 @@ public final class Package
 
             if (target == null) {
                 Target newtarget = addClass(targetName);
-                Platform.runLater(() -> {getEditor().findSpaceForVertex(newtarget);});
+                getEditor().findSpaceForVertex(newtarget);
             }
         }
 
@@ -1020,11 +1017,9 @@ public final class Package
             }
         }
 
-        Platform.runLater(() -> {
-            PackageEditor ed = getEditor();
-            if (ed != null)
-                ed.graphChanged();
-        });
+        PackageEditor ed = getEditor();
+        if (ed != null)
+            ed.graphChanged();
     }
     
     /**
@@ -1062,10 +1057,8 @@ public final class Package
             int width = Integer.parseInt(props.getProperty("target" + (i + 1) + ".width"));
             Target target = getTarget(identifierName);
             if (target != null){
-                Platform.runLater(() -> {
-                    target.setPos(x, y);
-                    target.setSize(width, height);
-                });
+                target.setPos(x, y);
+                target.setSize(width, height);
             }
         }
         repaint();
@@ -1184,7 +1177,7 @@ public final class Package
 
         ClassTarget t = addClass(className);
 
-        Platform.runLater(() -> {getEditor().findSpaceForVertex(t);});
+        getEditor().findSpaceForVertex(t);
         t.analyseSource();
         
         DataCollector.addClass(this, t);
@@ -1629,9 +1622,9 @@ public final class Package
                         {
                             getDebugger().removeDebuggerListener(this);
                             // We call compileOnceIdle, not compile, because we might not still be idle
-                            // by the time we run on the Swing thread, so we may have to do the whole
+                            // by the time we run on the GUI thread, so we may have to do the whole
                             // thing again:
-                            SwingUtilities.invokeLater(() -> {
+                            Platform.runLater(() -> {
                                 if (waitingForIdleToCompile) {
                                     waitingForIdleToCompile = false;
                                     compileOnceIdle(specificTarget, reason, type);
@@ -1719,7 +1712,7 @@ public final class Package
 
         targets.add(t.getIdentifierName(), t);
         if (editor != null)
-            Platform.runLater(() -> {editor.graphChanged();});
+            editor.graphChanged();
     }
 
     public synchronized void removeTarget(Target t)
@@ -1727,7 +1720,7 @@ public final class Package
         targets.remove(t.getIdentifierName());
         t.setRemoved();
         if (editor != null)
-            Platform.runLater(() -> {editor.graphChanged();});
+            editor.graphChanged();
     }
 
     /**
@@ -1753,13 +1746,12 @@ public final class Package
     @OnThread(Tag.FXPlatform)
     public void removeArrow(Dependency d)
     {
-        SwingUtilities.invokeLater(() -> {
-            if (!(d instanceof UsesDependency)) {
-                userRemoveDependency(d);
-            }
-            removeDependency(d, true);
-            Platform.runLater(() -> {getEditor().graphChanged();});
-        });
+        if (!(d instanceof UsesDependency))
+        {
+            userRemoveDependency(d);
+        }
+        removeDependency(d, true);
+        getEditor().graphChanged();
     }
 
 
@@ -2603,7 +2595,7 @@ public final class Package
                         if (! checkClassMatchesFile(c, t.getClassFile())) {
                             String conflict=Package.getResourcePath(c);
                             String ident = t.getIdentifierName()+":";
-                            Platform.runLater(() -> DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict));
+                            DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict);
                         }
                     }
 
@@ -2647,8 +2639,8 @@ public final class Package
             {
                 setStatus(compileDone);
             }
-            Platform.runLater(() -> {if (editor != null) editor.graphChanged();});
-
+            if (editor != null)
+                editor.graphChanged();
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
             CompileEvent aCompileEvent = new CompileEvent(eventId, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
