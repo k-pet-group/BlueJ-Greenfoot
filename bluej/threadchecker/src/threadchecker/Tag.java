@@ -4,6 +4,8 @@ public enum Tag
 {
     // FXPlatform is the FX thread, Swing is the EDT
     // FX means either FX thread or a loader thread for FX
+    // SwingIsFX means designed to work on Swing, now relying on them being same thread.
+    //   (Separate to Swing to identify better what is happening during transition from Swing to FX)
     // Unique means it always runs in a thread which will be different from all others
     //  (including, and especially, FX and Swing).
     // Things like Thread.run or SwingWorker.construct are tagged as Unique
@@ -11,7 +13,7 @@ public enum Tag
     // methods on its own thread (one Unique thread can't cal another Unique thread)
     // but Worker threads can do cross-calling.
     // Any means that the method is safe to call from any thread (including FX, Swing, and others)
-    FX, FXPlatform, Swing, Unique, Simulation, Worker, Any;
+    FX, FXPlatform, Swing, SwingIsFX, Unique, Simulation, Worker, Any;
 
     /**
      * Checks if this tag on a method is allowed when overriding the given (potentially null) parent method tag.
@@ -45,6 +47,9 @@ public enum Tag
             return sameInstance && this == Tag.Unique; // Can't call a unique thread directly unless same instance)
         else if (dest == Tag.FX && this == Tag.FXPlatform)
             return true; // FXPlatform can call FX, but not vice versa
+        else if ((dest == Tag.SwingIsFX && (this == Tag.FXPlatform || this == Tag.Swing))
+              || (this == Tag.SwingIsFX && (dest == Tag.FXPlatform || dest == Tag.Swing)))
+            return true;
         else
             return this == dest;
         

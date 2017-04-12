@@ -74,6 +74,8 @@
 		<dict>
 			<key>com.apple.macos.useScreenMenuBar</key>
 			<string>true</string>
+			<key>javafx.embed.singleThread</key>
+            <string>true</string>
 		</dict>
 		<key>VMOptions</key>
         <array>
