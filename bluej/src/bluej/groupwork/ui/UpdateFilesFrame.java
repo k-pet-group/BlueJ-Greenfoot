@@ -201,7 +201,9 @@ public class UpdateFilesFrame extends SwingNodeDialog
                     public void actionPerformed(ActionEvent e)
                     {
                         updateAction.cancel();
-                        updateWorker.abort();
+                        if (updateWorker != null) {
+                            updateWorker.abort();
+                        }
                         setVisible(false);
                     }
                 });
