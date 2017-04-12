@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,8 +24,6 @@ package bluej.groupwork.ui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -77,7 +75,7 @@ import bluej.utility.Utility;
  */
 public class UpdateFilesFrame extends SwingNodeDialog
 {
-    private JList updateFiles;
+    private JList<UpdateStatus> updateFiles;
     private JPanel topPanel;
     private JPanel bottomPanel;
     private JButton updateButton;
@@ -89,14 +87,14 @@ public class UpdateFilesFrame extends SwingNodeDialog
     private Project project;
     
     private Repository repository;
-    private DefaultListModel updateListModel;
+    private DefaultListModel<UpdateStatus> updateListModel;
     
     private Set<TeamStatusInfo> changedLayoutFiles; // set of TeamStatusInfo
     private Set<File> forcedLayoutFiles; // set of File
     private boolean includeLayout = true;
     
-    private static String noFilesToUpdate = Config.getString("team.noupdatefiles"); 
-    private static String needUpdate = Config.getString("team.pullNeeded"); 
+    private static UpdateStatus noFilesToUpdate = new UpdateStatus(Config.getString("team.noupdatefiles")); 
+    private static UpdateStatus needUpdate = new UpdateStatus(Config.getString("team.pullNeeded")); 
 
     private boolean pullWithNoChanges = false;
     
@@ -153,7 +151,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
     protected void createUI()
     {
         setTitle(Config.getString("team.update.title"));
-        updateListModel = new DefaultListModel();
+        updateListModel = new DefaultListModel<UpdateStatus>();
         
         //setIconImage(BlueJTheme.getIconImage());
         rememberPosition("bluej.updatedisplay");
@@ -170,7 +168,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
             updateFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             topPanel.add(updateFilesLabel, BorderLayout.NORTH);
 
-            updateFiles = new JList(updateListModel);
+            updateFiles = new JList<UpdateStatus>(updateListModel);
             if (project.getTeamSettingsController().isDVCS()){
                 updateFiles.setCellRenderer(new FileRenderer(project, true));
             } else {
@@ -497,7 +495,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
                 int status = project.getTeamSettingsController().isDVCS()?statusInfo.getRemoteStatus():statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) { 
-                        updateListModel.addElement(statusInfo);
+                        updateListModel.addElement(new UpdateStatus(statusInfo));
                         filesToUpdate.add(statusInfo.getFile());
                     }
                     else {
@@ -507,7 +505,7 @@ public class UpdateFilesFrame extends SwingNodeDialog
                         else if (filter.updateAlways(statusInfo)) {
                             // The package file is new or removed. There is no
                             // option not to include it in the update.
-                            updateListModel.addElement(statusInfo);
+                            updateListModel.addElement(new UpdateStatus(statusInfo));
                             forcedLayoutFiles.add(statusInfo.getFile());
                         }
                         else {

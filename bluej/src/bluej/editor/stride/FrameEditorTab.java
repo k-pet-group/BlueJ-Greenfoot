@@ -67,6 +67,7 @@ import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.slots.SuggestionList;
+import bluej.stride.slots.SuggestionList.SuggestionShown;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.javafx.CircleCountdown;
 import bluej.utility.javafx.FXPlatformConsumer;
@@ -2240,15 +2241,16 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         HashMap<String, Pair<SuggestionList.SuggestionShown, AssistContentThreadSafe>> imports = new HashMap();
         // Add popular:
-        Stream.concat(
+        Stream.<Pair<SuggestionShown, AssistContentThreadSafe>>concat(
             popularImports.stream().flatMap(imps -> getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.COMMON, ac))),
             rarerImports.stream().flatMap(imps -> getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.RARE, ac)))
         )
             .filter(imp -> imp.getValue().getPackage() != null)
             .forEach(imp -> {
                 String fullName = imp.getValue().getPackage() + ".";
-                if (imp.getValue().getDeclaringClass() != null)
+                if (imp.getValue().getDeclaringClass() != null) {
                     fullName += imp.getValue().getDeclaringClass() + ".";
+                }
                 fullName += imp.getValue().getName();
                 imports.put(fullName, imp);
             });
@@ -2292,7 +2294,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         else
         {
             File[] files = project.getProjectDir().listFiles(name -> name.getName().toLowerCase().endsWith(".css"));
-            r.addAll(Utility.mapList(Arrays.asList(files), file -> new FileCompletion() {
+            r.addAll(Utility.<File,FileCompletion>mapList(Arrays.asList(files), file -> new FileCompletion() {
                 @Override
                 public File getFile()
                 {

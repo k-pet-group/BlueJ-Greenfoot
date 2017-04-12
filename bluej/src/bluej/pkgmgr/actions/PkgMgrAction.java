@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package bluej.pkgmgr.actions;
 
-import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 
@@ -38,7 +37,6 @@ import bluej.pkgmgr.PkgMgrFrame;
  * It can also set-up an accelerator key.
  * 
  * @author Davin McCall
- * @version $Id: PkgMgrAction.java 16081 2016-06-25 09:42:13Z nccb $
  */
 public abstract class PkgMgrAction extends AbstractAction
 {
@@ -47,13 +45,18 @@ public abstract class PkgMgrAction extends AbstractAction
 
     protected static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    protected final PkgMgrFrame pmf;    
+    protected PkgMgrFrame pmf;    
     
     // --------- INSTANCE METHODS ----------
     
     public PkgMgrAction(PkgMgrFrame pmf, String s)
+    {
+    	this(pmf, s, false);
+    }
+    
+    public PkgMgrAction(PkgMgrFrame pmf, String s, boolean showsDialog)
     { 
-        super(Config.getString(s)); 
+        super(Config.getString(s) + (showsDialog ? "..." : "")); 
         this.pmf = pmf;
         if (!Config.isMacOS()){
             // Mnemonic keys are against the apple gui guidelines.
@@ -92,6 +95,15 @@ public abstract class PkgMgrAction extends AbstractAction
         KeyStroke ks = KeyStroke.getKeyStroke(keycode, modifiers);
         putValue(ACCELERATOR_KEY, ks);
     }
+    
+    /**
+     * Set the frame to which this action will apply.
+     * @param pmf  The frame to which this action will apply.
+     */
+    public void setFrame(PkgMgrFrame pmf)
+    {
+		this.pmf = pmf;
+	}
         
     final public void actionPerformed(ActionEvent event)
     {

@@ -13,10 +13,10 @@
  GNU General Public License for more details. 
 
  You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.editor.moe;
@@ -39,7 +39,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.RoundRectangle2D;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
@@ -64,10 +63,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.function.Consumer;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -132,15 +151,22 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
+import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FrameEditor;
+import bluej.editor.stride.MoeFXTab;
+import bluej.extensions.SourceType;
 import bluej.extensions.editor.Editor;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;
+import bluej.parser.ImportsCollection;
+import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.ParseUtils;
 import bluej.parser.ParseUtils.AssistContentConsumer;
 import bluej.parser.SourceLocation;
@@ -149,6 +175,8 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
+import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -160,7 +188,24 @@ import bluej.utility.DBoxLayout;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
+import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.PopupControl;
+import javafx.scene.control.Skin;
+import javafx.scene.control.Skinnable;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.PopupWindow;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Moe is the editor of the BlueJ environment. This class is the main class of
@@ -222,10 +267,11 @@ public final class MoeEditor extends BorderPane
      */
     private static ArrayList<String> readMeActions;
 
-    // -------- INSTANCE VARIABLES --------
-    // Strings
-    private final String implementationString = Config.getString("editor.implementationLabel");
+    // -------- INSTANCE VARIABLES --------  //
+    // Strings                               //
     private final String interfaceString = Config.getString("editor.interfaceLabel");
+    private final String implementationString = Config.getString("editor.implementationLabel");
+
     // The code to ask for the default editor to be added to, for the case
     // where we have been hidden but want to reshow ourselves again:
     private final FXSupplier<FXTabbedEditor> defaultFXTabbedEditor;
@@ -317,10 +363,6 @@ public final class MoeEditor extends BorderPane
         super();
         this.defaultFXTabbedEditor = getDefaultEditor;
         final String fxWindowTitle = parameters.getTitle();
-        Platform.runLater(() -> {
-            this.fxTabbedEditor = getDefaultEditor.get();
-            this.fxTab = new MoeFXTab(this, fxWindowTitle);
-        });
         watcher = parameters.getWatcher();
         resources = parameters.getResources();
         javadocResolver = parameters.getJavadocResolver();
@@ -339,6 +381,11 @@ public final class MoeEditor extends BorderPane
             watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
         }
         callbackOnOpen = parameters.getCallbackOnOpen();
+
+        Platform.runLater(() -> {
+            this.fxTabbedEditor = getDefaultEditor.get();
+            this.fxTab = new MoeFXTab(this, fxWindowTitle);
+        });
 
         undoMenuItem = findMenuItem("undo");
         redoMenuItem = findMenuItem("redo");
@@ -468,7 +515,7 @@ public final class MoeEditor extends BorderPane
      */
     private static boolean isNonReadmeAction(String actionName)
     {
-        ArrayList<String> flaggedActions = getNonReadmeActions();
+        List<String> flaggedActions = getNonReadmeActions();
         return flaggedActions.contains(actionName);
     }
 
@@ -628,8 +675,7 @@ public final class MoeEditor extends BorderPane
      * Load the file "filename" and show the editor window.
      */
     @Override
-    public boolean showFile(String filename, Charset charset, boolean compiled,
-            String docFilename)
+    public boolean showFile(String filename, Charset charset, boolean compiled, String docFilename)
     {
         this.filename = filename;
         this.docFilename = docFilename;
@@ -1639,7 +1685,7 @@ public final class MoeEditor extends BorderPane
         scheduleReparseRunner();
     }
 
-    // --------------------------------------------------------------------    
+    // --------------------------------------------------------------------
 
     /**
      * Clear the message in the info area.
@@ -1981,7 +2027,7 @@ public final class MoeEditor extends BorderPane
         return found;
     }
     */
-    
+
     /**
      * Do a find backwards without visible feedback. Returns
      * false if not found.
@@ -2040,7 +2086,7 @@ public final class MoeEditor extends BorderPane
         return found;
     }
     */
-    
+
     // --------------------------------------------------------------------
     
     /**
@@ -2299,7 +2345,7 @@ public final class MoeEditor extends BorderPane
             URL myURL = urlFile.toURI().toURL();
 
             htmlPane.getEngine().load(myURL.toString());
-            
+
             info.message(Config.getString("editor.info.docLoaded"));
         }
         catch (IOException exc) {
@@ -3223,7 +3269,6 @@ public final class MoeEditor extends BorderPane
         });
 
         // create toolbar
-
         toolbar = createToolbar();
         toolbar.setName("toolbar");
         if (!Config.isRaspberryPi()) toolbar.setOpaque(false);
@@ -3381,7 +3426,7 @@ public final class MoeEditor extends BorderPane
 
     /**
      * Create the toolbar.
-     * 
+     *
      * @return The toolbar component, ready made.
      */
     private JComponent createToolbar()
@@ -3405,7 +3450,7 @@ public final class MoeEditor extends BorderPane
 
     /**
      * Create the toolbar.
-     * 
+     *
      * @return The toolbar component, ready made.
      */
     private void addToolbarGroup(JComponent toolbar, String group)
@@ -3419,7 +3464,7 @@ public final class MoeEditor extends BorderPane
 
     /**
      * Create a button on the toolbar.
-     * 
+     *
      * @param key  The internal key identifying the action and label
      */
     private AbstractButton createToolbarButton(String key)
@@ -3432,7 +3477,7 @@ public final class MoeEditor extends BorderPane
             actionName = key;
         }
         Action action = actions.getActionByName(actionName);
-        
+
         if (action != null) {
             Action tbAction = new ToolbarAction(action, label);
             button = new JButton(tbAction);
@@ -3447,7 +3492,7 @@ public final class MoeEditor extends BorderPane
             button.setEnabled(false);
             Debug.message("Moe: action not found for button " + label);
         }
-        
+
         if (isNonReadmeAction(actionName) && !sourceIsCode){
             button.setEnabled(false);
         }
@@ -3772,7 +3817,7 @@ public final class MoeEditor extends BorderPane
      * @return true if source code; 
      *         false if not
      */
-    protected boolean containsSourceCode() 
+    protected boolean containsSourceCode()
     {
         return sourceIsCode;
     }
@@ -4233,7 +4278,7 @@ public final class MoeEditor extends BorderPane
         // Sort in reverse order of position, so that we can go down the list
         // and remove in turn without a removal affecting a later removal.
         // Hence we sort by negative start value:
-        Collections.sort(toRemove, Comparator.comparing(t -> -t.getStart()));
+        Collections.sort(toRemove, Comparator.<LocatableImport>comparingInt(t -> -t.getStart()));
 
         for (ImportsCollection.LocatableImport locatableImport : toRemove)
         {
@@ -4436,7 +4481,7 @@ public final class MoeEditor extends BorderPane
      * An abstract action which delegates to a sub-action, and which
      * mirrors the "enabled" state of the sub-action. This allows having
      * actions with alternative labels.
-     * 
+     *
      * @author Davin McCall
      */
     class ToolbarAction extends AbstractAction implements PropertyChangeListener

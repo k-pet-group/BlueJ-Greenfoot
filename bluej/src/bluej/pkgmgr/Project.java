@@ -2114,7 +2114,7 @@ public class Project implements DebuggerListener, InspectorManager
             TeamSettingsController tsc = new TeamSettingsController(this);
             isDVCS = tsc.isDVCS();
         }
-        teamActions.setTeamMode(PkgMgrFrame.findFrame(getUnnamedPackage()), shared, isDVCS);
+        teamActions.setTeamMode(shared, isDVCS);
         
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
         if (frames != null) {

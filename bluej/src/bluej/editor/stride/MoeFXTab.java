@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package bluej.editor.stride;
 import bluej.editor.moe.MoeEditor;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SwingNodeFixed;
+
+import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
@@ -35,21 +37,20 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javax.swing.SwingUtilities;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.SwingUtilities;
-import java.util.List;
 
 /**
  * Created by neil on 13/04/2016.
  */
 public @OnThread(Tag.FX) class MoeFXTab extends FXTab
 {
-    private final MoeEditor moeEditor;
-    private FXTabbedEditor parent = null;
-    private final StringProperty windowTitleProperty = new SimpleStringProperty();
+    // -------- INSTANCE VARIABLES --------
     private boolean initialised = false;
+    private final MoeEditor moeEditor;
     private final TabMenuManager menuManager;
 
     @OnThread(Tag.FXPlatform)
@@ -172,4 +173,5 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     {
         return moeEditor;
     }
+
 }
