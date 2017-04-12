@@ -1270,13 +1270,6 @@ public class Utility
         return r.stream();
     }
 
-    public static <T> CompletableFuture<T> swingFuture(SwingSupplier<T> func)
-    {
-        CompletableFuture<T> f = new CompletableFuture<>();
-        SwingUtilities.invokeLater(() -> f.complete(func.get()));
-        return f;
-    }
-    
     public static <T> Optional<T> findLast(Stream<T> s)
     {
         return Optional.ofNullable(s.reduce(null, (p, c) -> c));

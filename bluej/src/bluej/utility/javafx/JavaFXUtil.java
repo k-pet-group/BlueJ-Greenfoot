@@ -1166,21 +1166,6 @@ public class JavaFXUtil
     }
 
     /**
-     * When the given future completes, calls the given callback on the FX thread
-     * with the value.
-     * 
-     * This function is asynchronous; it does not block.
-     * 
-     * @param future The future to wait for completion on
-     * @param andThen The callback to pass the completed value to, on the FX thread.
-     * @param <T> The type inside the future.
-     */
-    public static <T> void bindFuture(CompletableFuture<T> future, FXPlatformConsumer<T> andThen)
-    {
-        future.thenAccept(x -> JavaFXUtil.runPlatformLater(() -> andThen.accept(x)));
-    }    
-    
-    /**
      * Takes a BooleanProperty and a list of item.  Gives back an observable list that contains
      * the list of items when (and only when) the BooleanProperty is true, but is empty in the case
      * that the BooleanProperty is false.  Uses JavaFX bindings to update the list's contents.

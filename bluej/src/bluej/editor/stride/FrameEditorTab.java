@@ -1140,40 +1140,38 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             PossibleKnownMethodLink pml = (PossibleKnownMethodLink) link;
             final String qualClassName = pml.getQualClassName();
             final String urlSuffix = pml.getURLMethodSuffix();
-            SwingUtilities.invokeLater(() -> searchMethodLink(topLevelFrame.getCode(), link, qualClassName, pml.getDisplayName(), pml.getDisplayName(), urlSuffix, callback));
+            searchMethodLink(topLevelFrame.getCode(), link, qualClassName, pml.getDisplayName(), pml.getDisplayName(), urlSuffix, callback);
         }
         else if (link instanceof PossibleMethodUseLink)
         {
             PossibleMethodUseLink pmul = (PossibleMethodUseLink) link;
-            SwingUtilities.invokeLater(() -> {
-                // Need to find which method it is:
-                List<AssistContent> candidates = editor.getAvailableMembers(topLevelFrame.getCode(), pmul.getSourcePositionSupplier().get(), Collections.singleton(CompletionKind.METHOD), true)
-                    .stream()
-                    .filter(ac -> ac.getName().equals(pmul.getMethodName()))
-                    .collect(Collectors.toList());
-                if (candidates.size() > 1)
+            // Need to find which method it is:
+            List<AssistContent> candidates = editor.getAvailableMembers(topLevelFrame.getCode(), pmul.getSourcePositionSupplier().get(), Collections.singleton(CompletionKind.METHOD), true)
+                .stream()
+                .filter(ac -> ac.getName().equals(pmul.getMethodName()))
+                .collect(Collectors.toList());
+            if (candidates.size() > 1)
+            {
+                // Try to narrow down the list to those with the right number of parameters.
+                // but only if at least one match (otherwise leave them all in):
+                if (candidates.stream().anyMatch(ac -> ac.getParams().size() == pmul.getNumParams()))
                 {
-                    // Try to narrow down the list to those with the right number of parameters.
-                    // but only if at least one match (otherwise leave them all in):
-                    if (candidates.stream().anyMatch(ac -> ac.getParams().size() == pmul.getNumParams()))
-                    {
-                        candidates.removeIf(ac -> ac.getParams().size() != pmul.getNumParams());
-                    }
+                    candidates.removeIf(ac -> ac.getParams().size() != pmul.getNumParams());
                 }
+            }
 
-                // At this point, just pick the first in the list if any are available:
-                if (candidates.size() >= 1)
-                {
-                    AssistContent ac = candidates.get(0);
-                    String displayName = ac.getName() + "(" + ac.getParams().stream().map(ParamInfo::getUnqualifiedType).collect(Collectors.joining(", ")) + ")";
-                    searchMethodLink(topLevelFrame.getCode(), link, ac.getDeclaringClass(), ac.getName(), displayName, PossibleKnownMethodLink.encodeSuffix(ac.getName(), Utility.mapList(ac.getParams(), ParamInfo::getQualifiedType)), callback);
-                }
-                else
-                {
-                    // Otherwise, can't find it anywhere:
-                    callback.accept(Optional.empty());
-                }
-            });
+            // At this point, just pick the first in the list if any are available:
+            if (candidates.size() >= 1)
+            {
+                AssistContent ac = candidates.get(0);
+                String displayName = ac.getName() + "(" + ac.getParams().stream().map(ParamInfo::getUnqualifiedType).collect(Collectors.joining(", ")) + ")";
+                searchMethodLink(topLevelFrame.getCode(), link, ac.getDeclaringClass(), ac.getName(), displayName, PossibleKnownMethodLink.encodeSuffix(ac.getName(), Utility.mapList(ac.getParams(), ParamInfo::getQualifiedType)), callback);
+            }
+            else
+            {
+                // Otherwise, can't find it anywhere:
+                callback.accept(Optional.empty());
+            }
         }
         else if (link instanceof PossibleVarLink)
         {
@@ -1193,7 +1191,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private void searchMethodLink(TopLevelCodeElement code, PossibleLink link, String qualClassName, String methodName, String methodDisplayName, String urlSuffix, Consumer<Optional<LinkedIdentifier>> callback)
     {
         bluej.pkgmgr.Package pkg = project.getPackage("");
@@ -1205,10 +1203,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 ClassTarget classTarget = (ClassTarget) t;
                 callback.accept(Optional.of(new LinkedIdentifier(methodDisplayName, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> {
                     link.getSlot().removeAllUnderlines();
-                    SwingUtilities.invokeLater(() -> {
-                        classTarget.open();
-                        classTarget.getEditor().focusMethod(methodName);
-                    });
+                    classTarget.open();
+                    classTarget.getEditor().focusMethod(methodName);
                 })));
                 return;
             }
@@ -1846,27 +1842,19 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @Override
     public void withCompletions(PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
-        withTopLevelFrame(_frame -> {
+        withTopLevelFrame(_frame -> JavaFXUtil.runNowOrLater(() -> {
             TopLevelCodeElement allCode = getSource();
-            JavaFXUtil.bindFuture(
-                // Over on the swing thread, get the completions and turn into FXAssistContent:
-                Utility.swingFuture(() ->
-                    Utility.mapList(Arrays.asList(
-                        editor.getCompletions(allCode, pos, completing, codeEl)
-                    ), AssistContentThreadSafe::copy)),
-                // Then afterwards, back on the FX thread, pass to the handler:
-                handler);
-        });
+            handler.accept(Utility.mapList(Arrays.asList(
+                editor.getCompletions(allCode, pos, completing, codeEl)
+            ), AssistContentThreadSafe::copy));
+        }));
     }
 
     @Override
     public void withSuperConstructors(FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         TopLevelCodeElement codeEl = getSource();
-        JavaFXUtil.bindFuture(
-            Utility.swingFuture(() -> Utility.mapList(codeEl.getSuperConstructors(), c -> new AssistContentThreadSafe(new ConstructorCompletion(c, Collections.emptyMap(), editor.getJavadocResolver())))),
-            handler
-        );
+        JavaFXUtil.runNowOrLater(() -> handler.accept(Utility.mapList(codeEl.getSuperConstructors(), c -> new AssistContentThreadSafe(new ConstructorCompletion(c, Collections.emptyMap(), editor.getJavadocResolver())))));
     }
 
     @Override
@@ -1998,16 +1986,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             Set<CompletionKind> kinds, boolean includeOverriden, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         TopLevelCodeElement allCode = getSource();
-        JavaFXUtil.bindFuture(
-            // Over on the swing thread, get the completions and turn into FXAssistContent:
-            Utility.swingFuture(() -> {
-                return
-                    Utility.mapList(
-                        editor.getAvailableMembers(allCode, pos, kinds, includeOverriden)
-                        , AssistContentThreadSafe::copy);
-            }),
-            // Then afterwards, back on the FX thread, pass to the handler:
-            handler);
+        JavaFXUtil.runNowOrLater(() -> handler.accept(Utility.mapList(
+                editor.getAvailableMembers(allCode, pos, kinds, includeOverriden)
+                , AssistContentThreadSafe::copy)));
     }
 
     @OnThread(Tag.FXPlatform)
@@ -2104,7 +2085,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         ensureNodeVisible(birdseyeManager.getNodeForVisibility());
     }
     
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private List<AssistContentThreadSafe> getPrimitiveTypes()
     {
         if (prims == null)
@@ -2118,14 +2099,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     {
         final Map<String, AssistContentThreadSafe> r = new HashMap<>();
 
-        SwingUtilities.invokeLater(() -> {
-            if (kinds.contains(Kind.PRIMITIVE))
-                addAllToMap(r, getPrimitiveTypes());
-            addAllToMap(r, editor.getLocalTypes(superType, includeSelf, kinds));
-            Utility.runBackground(() -> {
-                addAllToMap(r, getImportedTypes(superType, includeSelf, kinds));
-                handler.accept(r);
-            });
+        if (kinds.contains(Kind.PRIMITIVE))
+            addAllToMap(r, getPrimitiveTypes());
+        addAllToMap(r, editor.getLocalTypes(superType, includeSelf, kinds));
+        Utility.runBackground(() -> {
+            addAllToMap(r, getImportedTypes(superType, includeSelf, kinds));
+            handler.accept(r);
         });
     }
 
@@ -2736,6 +2715,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
         if (!partOfMove && parent != null)
@@ -2777,9 +2757,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void notifySelected()
     {
-        SwingUtilities.invokeLater(() -> editor.getWatcher().recordSelected());
+        editor.getWatcher().recordSelected();
     }
 
     @Override
@@ -2839,6 +2820,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void recordErrorIndicatorShown(int identifier)
     {
         editor.getWatcher().recordShowErrorIndicator(identifier);

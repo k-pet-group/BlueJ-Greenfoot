@@ -160,6 +160,7 @@ public interface InteractionManager
     @OnThread(Tag.FXPlatform)
     void recordCodeCompletionEnded(SlotFragment position, int index, String stem, String completion);
 
+    @OnThread(Tag.FXPlatform)
     void recordErrorIndicatorShown(int identifier);
 
     boolean isEditable();
