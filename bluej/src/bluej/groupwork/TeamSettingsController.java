@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2016,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -234,21 +234,6 @@ public class TeamSettingsController
     public FileFilter getFileFilter(boolean includeLayout)
     {
         initRepository();
-        FileFilter repositoryFilter = null;
-        if (repository != null) {
-            repositoryFilter = repository.getMetadataFilter();
-        }
-        return new CodeFileFilter(getIgnoreFiles(), includeLayout, repositoryFilter);
-    }
-    
-    /**
-     * Get a filename filter suitable for filtering out files which we don't want
-     * to be under version control.
-     * @param authenticate true if we should ask user for authentication.
-     */
-    public FileFilter getFileFilter(boolean includeLayout, boolean authenticate)
-    {
-        initRepository(authenticate);
         FileFilter repositoryFilter = null;
         if (repository != null) {
             repositoryFilter = repository.getMetadataFilter();
