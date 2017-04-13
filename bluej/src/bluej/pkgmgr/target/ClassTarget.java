@@ -133,9 +133,6 @@ public class ClassTarget extends DependentTarget
     private static final String STEREOTYPE_CLOSE = "\u00BB"; //">>";
     private static final double RESIZE_CORNER_GAP = 4;
 
-
-    private static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
-
     // temporary file name extension to trick windows if changing case only in
     // class name
     private static String TEMP_FILE_EXTENSION = "-temp";
@@ -1209,9 +1206,6 @@ public class ClassTarget extends DependentTarget
     private void inspect()
     {
         new Thread() {
-            
-            DebuggerClass clss;
-            
             @Override
             public void run() {
                 // Try and load the class.

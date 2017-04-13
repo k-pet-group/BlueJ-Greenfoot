@@ -575,7 +575,6 @@ pkgmgr.docuGenerated=Generating documentation... Done.
 pkgmgr.docuAborted=Generating documentation... Aborted.
 pkgmgr.webBrowserMsg=Web browser has been started.
 pkgmgr.webBrowserError=Error starting web browser.
-pkgmgr.usesArrowMsg="Uses" dependency declared but never used:
 pkgmgr.breakpointMsg=Class has to be compiled to set breakpoints.
 pkgmgr.exported.jar=Export to jar file complete.
 pkgmgr.error.open=The project does not exist (anymore)
