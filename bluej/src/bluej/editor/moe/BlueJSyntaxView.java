@@ -28,6 +28,7 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.javafx.FXCache;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -86,6 +87,8 @@ public class BlueJSyntaxView
 
     private static int strength = PrefMgr.getScopeHighlightStrength();
     private final MoeSyntaxDocument document;
+    private final FXCache<ScopeInfo, Image> imageCache;
+    private int imageCacheLineHeight;
     private ReadOnlyDoubleProperty widthProperty; // width of editor view
     private MoeEditorPane editorPane;
 
@@ -141,6 +144,7 @@ public class BlueJSyntaxView
     public BlueJSyntaxView(MoeSyntaxDocument document)
     {
         this.document = document;
+        this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 200);
     }
 
     /**
@@ -193,7 +197,18 @@ public class BlueJSyntaxView
 
     public Image getImageFor(ScopeInfo s, int lineHeight)
     {
-        //MOEFX: TODO cache these images rather than redrawing every time (many will be duplicates)
+        // Many of the images we use will be duplicated, e.g. for multiple lines in the same body of a block
+        // So we keep them in a cache to save unnecessary effort drawing new line backgrounds:
+        if (lineHeight != imageCacheLineHeight)
+        {
+            imageCache.clear();
+            imageCacheLineHeight = lineHeight;
+        }
+        return imageCache.get(s);
+    }
+
+    private Image drawImageFor(ScopeInfo s, int lineHeight)
+    {
         WritableImage image = new WritableImage(s.nestedScopes.stream().mapToInt(n -> n.leftRight.rhs + 1).max().orElse(1) + 1, lineHeight);
 
         for (ScopeInfo.SingleNestedScope singleNestedScope : s.nestedScopes)
@@ -1689,6 +1704,32 @@ public class BlueJSyntaxView
         {
             this.bottomColor = bottomColor;
         }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Middle middle = (Middle) o;
+
+            if (lhs != middle.lhs) return false;
+            if (rhs != middle.rhs) return false;
+            if (!bodyColor.equals(middle.bodyColor)) return false;
+            if (topColor != null ? !topColor.equals(middle.topColor) : middle.topColor != null) return false;
+            return bottomColor != null ? bottomColor.equals(middle.bottomColor) : middle.bottomColor == null;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = bodyColor.hashCode();
+            result = 31 * result + lhs;
+            result = 31 * result + rhs;
+            result = 31 * result + (topColor != null ? topColor.hashCode() : 0);
+            result = 31 * result + (bottomColor != null ? bottomColor.hashCode() : 0);
+            return result;
+        }
     }
 
     /**
@@ -1698,8 +1739,6 @@ public class BlueJSyntaxView
      */
     public static class ScopeInfo
     {
-        //MOEFX TODO: implement equals and hashcode properly for this,
-        // as setParagraphStyle relies on it
         private final List<SingleNestedScope> nestedScopes = new ArrayList<>();
         private final boolean isStepLine;
 
@@ -1724,12 +1763,56 @@ public class BlueJSyntaxView
         {
             private final LeftRight leftRight;
             private final Middle middle;
+            // Both are immutable once passed, so we can cache the hashCode:
+            private final int hashCode;
 
             public SingleNestedScope(LeftRight leftRight, Middle middle)
             {
                 this.leftRight = leftRight;
                 this.middle = middle;
+
+                hashCode = leftRight.hashCode() * 31 + middle.hashCode();
             }
+
+            @Override
+            public boolean equals(Object o)
+            {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                SingleNestedScope that = (SingleNestedScope) o;
+                // We can use the cached hashCode as a quick shortcut:
+                if (hashCode != that.hashCode) return false;
+
+                if (!leftRight.equals(that.leftRight)) return false;
+                return middle.equals(that.middle);
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return hashCode;
+            }
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ScopeInfo scopeInfo = (ScopeInfo) o;
+
+            if (isStepLine != scopeInfo.isStepLine) return false;
+            return nestedScopes.equals(scopeInfo.nestedScopes);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = nestedScopes.hashCode();
+            result = 31 * result + (isStepLine ? 1 : 0);
+            return result;
         }
     }
 
@@ -1752,6 +1835,36 @@ public class BlueJSyntaxView
             this.ends = ends;
             this.fillColor = fillColor;
             this.edgeColor = edgeColor;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            LeftRight leftRight = (LeftRight) o;
+
+            if (lhs != leftRight.lhs) return false;
+            if (rhs != leftRight.rhs) return false;
+            if (padding != leftRight.padding) return false;
+            if (starts != leftRight.starts) return false;
+            if (ends != leftRight.ends) return false;
+            if (!fillColor.equals(leftRight.fillColor)) return false;
+            return edgeColor.equals(leftRight.edgeColor);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = lhs;
+            result = 31 * result + rhs;
+            result = 31 * result + padding;
+            result = 31 * result + (starts ? 1 : 0);
+            result = 31 * result + (ends ? 1 : 0);
+            result = 31 * result + fillColor.hashCode();
+            result = 31 * result + edgeColor.hashCode();
+            return result;
         }
     }
 }

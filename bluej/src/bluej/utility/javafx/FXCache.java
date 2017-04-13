@@ -20,14 +20,13 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.utility.javafx;
-
 import java.util.HashMap;
 
 /**
  * A cache from keys to values of a calculation which must be performed on the
  * FX thread.
  * 
- * A cache has a maximum size.  It is a naive most-recently-used implementation;
+ * A cache has a maximum size.  It is a very naive most-recently-used implementation;
  * if the cache gets full, it discards the values and starts refilling on demand.
  * This could be improved upon.
  * 
@@ -72,5 +71,13 @@ public class FXCache<K, V>
         if (cache.size() > limit)
             cache.clear();
         return cache.computeIfAbsent(key, calculate::apply);
+    }
+
+    /**
+     * Clears the cache
+     */
+    public void clear()
+    {
+        cache.clear();
     }
 }
