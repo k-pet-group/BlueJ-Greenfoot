@@ -238,7 +238,7 @@ public class TeamSettingsController
         if (repository != null) {
             repositoryFilter = repository.getMetadataFilter();
         }
-        return new CodeFileFilter(getIgnoreFiles(), includeLayout, repositoryFilter);
+        return new CodeFileFilter(getIgnoreFiles(), includeLayout, projectDir, repositoryFilter);
     }
     
     /**

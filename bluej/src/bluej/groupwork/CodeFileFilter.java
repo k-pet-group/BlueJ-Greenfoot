@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,6 +45,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
     private boolean includePkgFiles;
     private List<Pattern> patterns = null;
     private FileFilter parentFilter = null;
+    private File projectDir;
 
     /**
      * Construct a filter.
@@ -52,9 +53,10 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
      * @param includePkgFiles if true, pkg files are accepted
      * @param 
      */
-    public CodeFileFilter(List<String> ignore, boolean includePkgFiles, FileFilter parent)
+    public CodeFileFilter(List<String> ignore, boolean includePkgFiles, File projectDir, FileFilter parent)
     {
         this.includePkgFiles = includePkgFiles;
+        this.projectDir = projectDir;
         patterns = makePatterns(ignore);
         parentFilter = parent;
     }
@@ -95,9 +97,20 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
     {
         boolean result = true;
 
-        if(name.equals("doc") || dir.getName().equals("doc")){
-            result = false;
+        // Exclude everything inside the "doc" top-level directory:
+        File tdir = dir;
+        String tname = name;
+        while (! tdir.equals(projectDir)) {
+        	tname = tdir.getName();
+        	tdir = tdir.getParentFile();
+        	if (tdir == null) {
+        		return false;
+        	}
         }
+        if (tname.equals("doc")) {
+        	return false;
+        }
+        
         if (name.equals("CVS") || dir.getName().equals("CVS")){
             result = false;
         }
