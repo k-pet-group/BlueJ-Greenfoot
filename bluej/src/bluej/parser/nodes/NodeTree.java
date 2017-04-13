@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -757,6 +757,10 @@ public class NodeTree<T extends RBTreeNode<T>>
         public NodeAndPosition<T> nextSibling()
         {
             NodeTree<T> nt = parsedNode.getContainingNodeTree();
+
+            if (nt == null) // If we are top-level, no siblings:
+                return null;
+
             if (nt.right != null) {
                 // go right and then as far left as possible
                 int offs = position + nt.pnodeSize;

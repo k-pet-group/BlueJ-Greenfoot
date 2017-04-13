@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,7 @@
  */
 package bluej.editor.moe;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.Document;
@@ -44,27 +40,15 @@ import bluej.parser.nodes.ParsedNode;
  * @author Davin McCall
  */
 @OnThread(Tag.Any)
-public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
+public class MoeSyntaxEvent implements NodeStructureListener
 {
     private MoeSyntaxDocument document;
-    private DocumentEvent srcEvent;
-    private List<NodeAndPosition<ParsedNode>> removedNodes =
-        new LinkedList<NodeAndPosition<ParsedNode>>();
-    private Map<ParsedNode,NodeChangeRecord> changedNodes =
-        new HashMap<ParsedNode,NodeChangeRecord>();
-    private EventType eventType;
-    
-    public MoeSyntaxEvent(MoeSyntaxDocument document, DocumentEvent srcEvent)
-    {
-        this.document = document;
-        this.srcEvent = srcEvent;
-        eventType = srcEvent.getType();
-    }
-    
+    private List<NodeAndPosition<ParsedNode>> removedNodes = new ArrayList<>();
+    private Map<ParsedNode, NodeChangeRecord> changedNodes = new HashMap<>();
+
     public MoeSyntaxEvent(MoeSyntaxDocument document)
     {
         this.document = document;
-        eventType = EventType.CHANGE;
     }
     
     /**
@@ -82,40 +66,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     {
         return changedNodes.values();
     }
-    
-    // -------------- DocumentListener interface ------------------
-    
-    public ElementChange getChange(Element elem)
-    {
-        return srcEvent != null ? srcEvent.getChange(elem) : null;
-    }
-    
-    public MoeSyntaxDocument getMoeSyntaxDocument()
-    {
-        return document;
-    }
-    
-    public int getLength()
-    {
-        return srcEvent != null ? srcEvent.getLength() : 0;
-    }
 
-    //MOEFX
-    @Override
-    public Document getDocument()
-    {
-        return null;
-    }
-
-    public int getOffset()
-    {
-        return srcEvent != null ? srcEvent.getOffset() : 0;
-    }
-    
-    public EventType getType()
-    {
-        return eventType;
-    }
     
     // -------------- NodeStructureListener interface ------------------
     
@@ -150,7 +101,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
             }
         }
     }
-    
+
     /**
      * Node change record. Purely used for passing data around, hence public fields.
      */

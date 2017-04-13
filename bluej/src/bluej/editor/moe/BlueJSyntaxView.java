@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2017  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 import bluej.Config;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
+import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
@@ -50,6 +51,10 @@ import java.awt.Color;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.ElementChange;
+import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Segment;
 
@@ -188,10 +193,10 @@ public class BlueJSyntaxView
         paintScopeMarkers(scopes, document, fullWidth, firstLine, lastLine, onlyMethods, false);
     }
 
-    public List<ScopeInfo> recalculateScopes(MoeSyntaxDocument moeSyntaxDocument)
+    public List<ScopeInfo> recalculateScopes(MoeSyntaxDocument moeSyntaxDocument, int firstLineIncl, int lastLineIncl)
     {
         List<ScopeInfo> scopes = new ArrayList<>();
-        paintScopeMarkers(scopes, moeSyntaxDocument, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), 0, moeSyntaxDocument.getDocument().getParagraphs().size(), false);
+        paintScopeMarkers(scopes, moeSyntaxDocument, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), firstLineIncl, lastLineIncl, false);
         return scopes;
     }
 
@@ -376,6 +381,12 @@ public class BlueJSyntaxView
         
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParsedNode();
+
+        if (rootNode == null)
+        {
+            // Not initialised yet
+            return;
+        }
 
         int aboveLine = firstLine - 1;
         List<NodeAndPosition<ParsedNode>> prevScopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
@@ -594,7 +605,6 @@ public class BlueJSyntaxView
         if (editorPane == null)
             return 0;
         double x = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1).map(editorPane::screenToLocal).map(Bounds::getMinX).orElse(0.0);
-        Debug.message("Left edge for " + editorPane.getDocument().getText().charAt(startOffset) + ": " + x);
         // Allow for the left-hand margin.  We don't let it go below zero
         // as zero is our special recalculate value meaning it's not initialised yet:
         x = Math.max(0, x - 24);
@@ -1360,76 +1370,69 @@ public class BlueJSyntaxView
      * Need to override this method to handle node updates. If a node indentation changes,
      * the whole node needs to be repainted.
      */
-    /*MOEFX
-    @Override
-    protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
+    protected void updateDamage(MoeSyntaxEvent changes)
     {
-        if (a == null) {
-            // We have no shape. One cause might be that the editor is not visible.
+        if (changes == null) {
+            // Width has changed, so do it all:
             nodeIndents.clear();
+            document.recalculateAllScopes();
             return;
         }
-        
-        MoeSyntaxDocument document = (MoeSyntaxDocument) getDocument();
-        
+
         int damageStart = document.getLength();
         int damageEnd = 0;
 
-        if (changes instanceof MoeSyntaxEvent) {
-            MoeSyntaxEvent mse = (MoeSyntaxEvent) changes;
-            for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
-                nodeRemoved(node.getNode());
-                damageStart = Math.min(damageStart, node.getPosition());
-                damageEnd = Math.max(damageEnd, node.getEnd());
-                NodeAndPosition<ParsedNode> nap = node;
-                
-                int [] r = clearNap(nap, document, damageStart, damageEnd);
-                damageStart = r[0];
-                damageEnd = r[1];
-            }
-            
-            for (NodeChangeRecord record : mse.getChangedNodes()) {
-                NodeAndPosition<ParsedNode> nap = record.nap;
-                nodeIndents.remove(nap.getNode());
-                damageStart = Math.min(damageStart, nap.getPosition());
-                damageStart = Math.min(damageStart, record.originalPos);
-                damageEnd = Math.max(damageEnd, nap.getEnd());
-                damageEnd = Math.max(damageEnd,record.originalPos + record.originalSize);
-                
-                int [] r = clearNap(nap, document, damageStart, damageEnd);
-                damageStart = r[0];
-                damageEnd = r[1];
-            }
+        MoeSyntaxEvent mse = changes;
+        for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
+            nodeRemoved(node.getNode());
+            damageStart = Math.min(damageStart, node.getPosition());
+            damageEnd = Math.max(damageEnd, node.getEnd());
+            NodeAndPosition<ParsedNode> nap = node;
+
+            int [] r = clearNap(nap, document, damageStart, damageEnd);
+            damageStart = r[0];
+            damageEnd = r[1];
         }
 
-        Component host = getContainer();
-        if (host == null) {
-            return;
-        }
-        Element map = getElement();
+        for (NodeChangeRecord record : mse.getChangedNodes()) {
+            NodeAndPosition<ParsedNode> nap = record.nap;
+            nodeIndents.remove(nap.getNode());
+            damageStart = Math.min(damageStart, nap.getPosition());
+            damageStart = Math.min(damageStart, record.originalPos);
+            damageEnd = Math.max(damageEnd, nap.getEnd());
+            damageEnd = Math.max(damageEnd,record.originalPos + record.originalSize);
 
+            int [] r = clearNap(nap, document, damageStart, damageEnd);
+            damageStart = r[0];
+            damageEnd = r[1];
+        }
+
+
+        Element map = document.getDefaultRootElement();
+        //MOEFX work out where to move this to:
+        /*
         if (changes.getType() == EventType.INSERT) {
             damageStart = Math.min(damageStart, changes.getOffset());
             damageEnd = Math.max(damageEnd, changes.getOffset() + changes.getLength());
-            int [] r = reassessIndentsAdd(a, damageStart, damageEnd);
+            int [] r = reassessIndentsAdd(damageStart, damageEnd);
             damageStart = r[0];
             damageEnd = r[1];
         }
         else if (changes.getType() == EventType.REMOVE) {
             damageStart = Math.min(damageStart, changes.getOffset());
-            ElementChange ec = changes.getChange(document.getDefaultRootElement());
-            boolean multiLine = ec != null;
-            int [] r = reassessIndentsRemove(a, damageStart, multiLine);
+            int [] r = reassessIndentsRemove(damageStart, true); //TODO MOEFX changes.isMultilineChange()
             damageStart = r[0];
             damageEnd = r[1];
         }
+        */
         
         if (damageStart < damageEnd) {
             int line = map.getElementIndex(damageStart);
             int lastline = map.getElementIndex(damageEnd - 1);
-            damageLineRange(line, lastline, a, host);
+            document.recalculateScopesForLinesInRange(line, lastline);
         }
 
+        /*MOEFX is this all handled ok by the code above?
         DocumentEvent.ElementChange ec = changes.getChange(map);
         Element[] added = (ec != null) ? ec.getChildrenAdded() : null;
         Element[] removed = (ec != null) ? ec.getChildrenRemoved() : null;
@@ -1437,18 +1440,19 @@ public class BlueJSyntaxView
                 ((removed != null) && (removed.length > 0))) {
             // This case is handled Ok by the superclass.
             super.updateDamage(changes, a, f);
-        } else {
+        } else*/ {
             // This is the case we have to fix. The PlainView implementation only
             // repaints a single line; we need to repaint the whole range.
-            super.updateDamage(changes, a, f);
+            //super.updateDamage(changes);
+            /*
             int choffset = changes.getOffset();
             int chlength = Math.max(changes.getLength(), 1);
             int line = map.getElementIndex(choffset);
             int lastline = map.getElementIndex(choffset + chlength - 1);
-            damageLineRange(line, lastline, a, host);
+            damageLineRange(line, lastline);
+            */
         }
     }
-    */
 
     /**
      * Clear a node's cached indent information. If the node is an inner node this

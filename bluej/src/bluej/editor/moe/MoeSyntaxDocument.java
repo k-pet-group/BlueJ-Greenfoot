@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -269,8 +269,13 @@ public class MoeSyntaxDocument
                         }
                     }
 
+                    Debug.message("Reparsing: " + ppos + " " + pos);
                     MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
                     pn.reparse(this, ppos, pos, maxParse, mse);
+                    // Dump tree:
+                    Debug.message("Dumping tree:");
+                    dumpTree(parsedNode.getChildren(0), "");
+
                     fireChangedUpdate(mse);
                     return true;
                 }
@@ -291,6 +296,15 @@ public class MoeSyntaxDocument
             Debug.message("--- Source ends ---");
             
             throw e;
+        }
+    }
+
+    private void dumpTree(Iterator<NodeAndPosition<ParsedNode>> iterator, String indent)
+    {
+        for (NodeAndPosition<ParsedNode> nap2 : (Iterable<NodeAndPosition<ParsedNode>>)(() -> iterator))
+        {
+            Debug.message(indent + "Node: " + nap2.getPosition() + " -> " + nap2.getEnd());
+            dumpTree(nap2.getNode().getChildren(nap2.getPosition()), indent + "  ");
         }
     }
 
@@ -316,11 +330,23 @@ public class MoeSyntaxDocument
 
     void fireChangedUpdate(MoeSyntaxEvent mse)
     {
-        List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(this);
-        for (int i = 0; i < paragraphScopeInfo.size(); i++)
+        syntaxView.updateDamage(mse);
+    }
+
+    void recalculateAllScopes()
+    {
+        recalculateScopesForLinesInRange(0, document.getParagraphs().size() - 1);
+    }
+
+    void recalculateScopesForLinesInRange(int firstLineIncl, int lastLineIncl)
+    {
+        List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(this, firstLineIncl, lastLineIncl);
+        if (paragraphScopeInfo.isEmpty())
+            return; // Not initialised yet
+        for (int i = firstLineIncl; i < lastLineIncl; i++)
         {
             ScopeInfo old = document.getParagraphStyle(i);
-            ScopeInfo newStyle = paragraphScopeInfo.get(i);
+            ScopeInfo newStyle = paragraphScopeInfo.get(i - firstLineIncl);
             if (((old == null) != (newStyle == null)) || !old.equals(newStyle))
             {
                 setParagraphStyle(i, newStyle);
@@ -700,6 +726,9 @@ public class MoeSyntaxDocument
         //recordEvent(e);
         // MOEFX
         //super.fireInsertUpdate(mse);
+        int startLine = document.offsetToPosition(offset, Bias.Forward).getMajor();
+        int endLine = document.offsetToPosition(offset + length, Bias.Forward).getMajor();
+        recalculateScopesForLinesInRange(startLine, endLine);
         inNotification = false;
 
         runScheduledUpdates();
@@ -795,6 +824,8 @@ public class MoeSyntaxDocument
         //recordEvent(e);
         //MOEFX
         //super.fireRemoveUpdate(mse);
+        int line = document.offsetToPosition(offset, Bias.Forward).getMajor();
+        recalculateScopesForLinesInRange(line, line);
         inNotification = false;
         
         runScheduledUpdates();
@@ -826,8 +857,9 @@ public class MoeSyntaxDocument
      */
     public void repaintLines(int offset, int length)
     {
-        //MOEFX
-        //fireChangedUpdate(new DefaultDocumentEvent(offset, length, EventType.CHANGE));
+        int startLine = document.offsetToPosition(offset, Bias.Forward).getMajor();
+        int endLine = document.offsetToPosition(offset + length, Bias.Forward).getMajor();
+        recalculateScopesForLinesInRange(startLine, endLine);
     }
 
     public int getLength()
