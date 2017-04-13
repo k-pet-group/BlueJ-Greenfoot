@@ -146,7 +146,7 @@ public class TeamSettingsController
     {
         if (authRequired && password == null) {
             // If we don't yet know the password, prompt the user
-            getTeamSettingsDialog().doTeamSettings();
+            getTeamSettingsDialog().showAndWait();
 
             // If we still don't know it, user cancelled
             if (password == null) {
@@ -189,7 +189,7 @@ public class TeamSettingsController
         if (repository == null) {
             TeamworkProvider provider = settings.getProvider();
             if (password == null && auth) {
-                if (getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
+                if ( ! getTeamSettingsDialog().showAndWait().isPresent() ) {
                     return false;
                 }
             }

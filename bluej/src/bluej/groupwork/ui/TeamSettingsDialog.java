@@ -28,6 +28,7 @@ import bluej.groupwork.TeamSettingsController;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.stage.Modality;
 import javafx.stage.Window;
 
 /**
@@ -39,24 +40,20 @@ import javafx.stage.Window;
 public class TeamSettingsDialog extends Dialog<TeamSettings>
 {
     private String title = Config.getString("team.settings.title");
-    public static final int OK = 0;
-    public static final int CANCEL = 1;
     private TeamSettingsController teamSettingsController;
     private TeamSettingsPanel teamSettingsPanel;
-    private int event;
-
     private Button okButton;
-//    private Button cancelButton;
 
     /**
      * Create a team settings dialog with a reference to the team settings
      * controller that it manipulates.
      */
-    public TeamSettingsDialog(Window owner, TeamSettingsController controller)
+    public TeamSettingsDialog(Window parent, TeamSettingsController controller)
     {
-        initOwner(owner);
+        initOwner(parent);
         teamSettingsController = controller;
-//        event = CANCEL;
+        initModality(Modality.WINDOW_MODAL);
+
         if(teamSettingsController.hasProject()) {
             title += " - " + teamSettingsController.getProject().getProjectName();
         }
@@ -93,8 +90,6 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
                 teamSettingsController.writeToProject();
             }
         });
-
-//      setDefaultButton(okButton);
     }
 
     /**
@@ -107,16 +102,6 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
         teamSettingsPanel.disableRepositorySettings();
     }
 
-    /**
-     * Display the dialog and wait for a response. Returns the user
-     * response as OK or CANCEL.
-     */
-    public int doTeamSettings()
-    {
-        showAndWait();
-        return event;
-    }
-    
     /**
      * Enabled or disable to "Ok" button of the dialog.
      */

@@ -23,11 +23,9 @@ package bluej.groupwork.actions;
 
 import java.io.File;
 
-import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
+import javax.swing.SwingUtilities;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
@@ -35,7 +33,6 @@ import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.ModuleSelectDialog;
-import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.Import;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -43,9 +40,11 @@ import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.SwingWorker;
 
-import javax.swing.SwingUtilities;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An action to perform a checkout of a module in CVS. The module is checked
@@ -72,10 +71,8 @@ public class CheckoutAction extends TeamAction
         // Create a TeamSettingsController for the current project directory,
         // switch it to the new one once it's been created
         final TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
-        TeamSettingsDialog tsd = tsc.getTeamSettingsDialog();
-//        Platform.runLater(() -> tsd.setLocationRelativeTo(oldFrame.getFXWindow()));
 
-        if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
+        if (tsc.getTeamSettingsDialog().showAndWait().isPresent()) {
             FXPlatformConsumer<File> finishCheckout = projectDir -> {
 
                 SwingUtilities.invokeLater(() -> {
