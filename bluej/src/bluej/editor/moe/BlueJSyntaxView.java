@@ -300,7 +300,14 @@ public class BlueJSyntaxView
 
         if (s.isStepLine())
         {
-            for (int x = 0; x < image.getWidth(); x++)
+            ScopeInfo.SingleNestedScope innermostScope = s.nestedScopes.get(s.nestedScopes.size() - 1);
+            double leftSide = innermostScope.leftRight.lhs;
+            double rightSide = innermostScope.leftRight.rhs;
+            for (int x = 0; x < leftSide; x++)
+            {
+                image.getPixelWriter().setArgb(x, (int)(image.getHeight() / 2), 0xFF000000);
+            }
+            for (int x = (int)rightSide; x < image.getWidth(); x++)
             {
                 image.getPixelWriter().setArgb(x, (int)(image.getHeight() / 2), 0xFF000000);
             }
