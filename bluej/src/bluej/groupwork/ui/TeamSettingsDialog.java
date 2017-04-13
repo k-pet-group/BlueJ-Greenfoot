@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,22 +21,14 @@
  */
 package bluej.groupwork.ui;
 
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javafx.application.Platform;
-
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
-import bluej.utility.DialogManager;
-import bluej.utility.javafx.SwingNodeDialog;
+
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.stage.Window;
 
 /**
  * A dialog for teamwork settings.
@@ -44,97 +36,65 @@ import bluej.utility.javafx.SwingNodeDialog;
  * @author fisker
  * @author bquig
  */
-public class TeamSettingsDialog extends SwingNodeDialog
+public class TeamSettingsDialog extends Dialog<TeamSettings>
 {
-    private String title = Config.getString(
-            "team.settings.title");
+    private String title = Config.getString("team.settings.title");
     public static final int OK = 0;
     public static final int CANCEL = 1;
     private TeamSettingsController teamSettingsController;
     private TeamSettingsPanel teamSettingsPanel;
     private int event;
-    
-    private JButton okButton;
+
+    private Button okButton;
+//    private Button cancelButton;
 
     /**
      * Create a team settings dialog with a reference to the team settings
      * controller that it manipulates.
      */
-    public TeamSettingsDialog(TeamSettingsController controller)
+    public TeamSettingsDialog(Window owner, TeamSettingsController controller)
     {
+        initOwner(owner);
         teamSettingsController = controller;
-        event = CANCEL;
+//        event = CANCEL;
         if(teamSettingsController.hasProject()) {
             title += " - " + teamSettingsController.getProject().getProjectName();
         }
         setTitle(title);
-       
-        setModal(true);
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setBorder(BlueJTheme.dialogBorder);
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+//        dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton());
+//        setDialogPane(dialogPane);
+//        Config.addDialogStylesheets(getDialogPane());
 
-        JPanel buttonPanel = makeButtonPanel();
+        makeButtonPane();
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this);
-        setFocusTraversalPolicy(teamSettingsPanel.getTraversalPolicy(
-                getFocusTraversalPolicy()));
-        mainPanel.add(teamSettingsPanel);
-        mainPanel.add(buttonPanel);
-        setContentPane(mainPanel);
-        pack();
+        getDialogPane().getChildren().add(teamSettingsPanel);
     }
 
     /**
      * Set up the panel containing the ok and cancel buttons, with associated
      * actions.
      */
-    private JPanel makeButtonPanel()
+    private void makeButtonPane()
     {
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 
-        {
-            buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
 
-            okButton = BlueJTheme.getOkButton();
-            okButton.addActionListener(new ActionListener() {
-                    /**
-                     * Write the data from the teamSettingsPanel to the project's team.defs file
-                     * If checkbox in teamSettingsPanel is checked, the data is also stored in
-                     * bluej.properties
-                     */
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        TeamSettings settings = teamSettingsPanel.getSettings();
-                        
-                        teamSettingsController.updateSettings(settings,
-                                teamSettingsPanel.getUseAsDefault());
-                        
-                        if (teamSettingsController.hasProject()) {
-                            teamSettingsController.writeToProject();
-                        }
+        /*
+         * Write the data from the teamSettingsPanel to the project's team.defs file
+         * If checkbox in teamSettingsPanel is checked, the data is also stored in
+         * bluej.properties
+         */
+        okButton.setOnAction(event -> {
+            TeamSettings settings = teamSettingsPanel.getSettings();
+            teamSettingsController.updateSettings(settings, teamSettingsPanel.getUseAsDefault());
+            if (teamSettingsController.hasProject()) {
+                teamSettingsController.writeToProject();
+            }
+        });
 
-                        event = OK;
-                        setVisible(false);
-                    }
-                });
-
-            setDefaultButton(okButton);
-
-            JButton cancelButton = BlueJTheme.getCancelButton();
-            cancelButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        setVisible(false);
-                    }
-                });
-
-            Platform.runLater(() -> setCloseIsButton(cancelButton));
-            
-            DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
-        }
-
-        return buttonPanel;
+//      setDefaultButton(okButton);
     }
 
     /**
@@ -153,8 +113,7 @@ public class TeamSettingsDialog extends SwingNodeDialog
      */
     public int doTeamSettings()
     {
-        setVisible(true);
-
+        showAndWait();
         return event;
     }
     
@@ -163,7 +122,7 @@ public class TeamSettingsDialog extends SwingNodeDialog
      */
     public void setOkButtonEnabled(boolean enabled)
     {
-        okButton.setEnabled(enabled);
+        okButton.setDisable(!enabled);
     }
     
     /**
@@ -172,5 +131,10 @@ public class TeamSettingsDialog extends SwingNodeDialog
     public TeamSettings getSettings()
     {
         return teamSettingsPanel.getSettings();
+    }
+
+    public Button getOkButton()
+    {
+        return okButton;
     }
 }

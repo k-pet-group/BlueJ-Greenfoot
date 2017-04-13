@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -70,11 +70,10 @@ public class ImportAction extends TeamAction
         if (project == null) {
             return;
         }
-        
-        doImport(pmf, project);
+
+        Platform.runLater(() -> doImport(pmf, project));
     }
 
-    @OnThread(Tag.Swing)
     private void doImport(final PkgMgrFrame pmf, final Project project)
     {
         // The team settings controller is not initially associated with the

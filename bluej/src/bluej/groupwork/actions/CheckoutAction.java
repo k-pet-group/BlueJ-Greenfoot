@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,7 +73,7 @@ public class CheckoutAction extends TeamAction
         // switch it to the new one once it's been created
         final TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
         TeamSettingsDialog tsd = tsc.getTeamSettingsDialog();
-        Platform.runLater(() -> tsd.setLocationRelativeTo(oldFrame.getFXWindow()));
+//        Platform.runLater(() -> tsd.setLocationRelativeTo(oldFrame.getFXWindow()));
 
         if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
             FXPlatformConsumer<File> finishCheckout = projectDir -> {
