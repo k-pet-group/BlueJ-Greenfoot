@@ -1402,8 +1402,11 @@ public final class Package
         }
 
         if (ct != null || assocTarget != null) {
-            project.removeClassLoader();
-            project.newRemoteClassLoaderLeavingBreakpoints();
+            if (type.keepClasses())
+            {
+                project.removeClassLoader();
+                project.newRemoteClassLoaderLeavingBreakpoints();
+            }
 
             if (ct != null) {
                 EDTCompileObserver observer;
