@@ -118,6 +118,7 @@ public class TestDiff extends TestCase
     }
     
     // This test can take a little while -- 75 seconds on my machine
+    /*
     public void testBruteForceDiffs() throws IOException, InterruptedException
     {
         String[] choices = new String[] {"aaaa", "bbbb", ""};
@@ -162,4 +163,5 @@ public class TestDiff extends TestCase
             }
         }
     }
+    */
 }
