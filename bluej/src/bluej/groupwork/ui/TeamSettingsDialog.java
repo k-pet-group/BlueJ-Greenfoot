@@ -25,6 +25,7 @@ import bluej.Config;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -50,18 +51,24 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
      */
     public TeamSettingsDialog(Window parent, TeamSettingsController controller)
     {
-        initOwner(parent);
+        initOwner(parent);//
         teamSettingsController = controller;
-        initModality(Modality.WINDOW_MODAL);
+        initModality(Modality.WINDOW_MODAL);//
+        setResizable(true);
+        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-settings-content");
 
         if(teamSettingsController.hasProject()) {
             title += " - " + teamSettingsController.getProject().getProjectName();
         }
         setTitle(title);
+          setHeaderText(null);//
+//        setGraphic(new ImageView(this.getClass().getResource("team.png").toString()));
 
 //        dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton());
 //        setDialogPane(dialogPane);
 //        Config.addDialogStylesheets(getDialogPane());
+
+//        getDialogPane().getStyleClass().forEach(s -> bluej.utility.Debug.message("getDialogPane() = " + s.toLowerCase()));
 
         makeButtonPane();
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this);
@@ -74,15 +81,17 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
      */
     private void makeButtonPane()
     {
+        // Set the button types.
+//        ButtonType testConnection = new ButtonType("Test connection", ButtonData.APPLY  OTHER);
+//        getDialogPane().getButtonTypes().addAll(testConnection, ButtonType.OK, ButtonType.CANCEL);
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 
-        okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
-
         /*
-         * Write the data from the teamSettingsPanel to the project's team.defs file
-         * If checkbox in teamSettingsPanel is checked, the data is also stored in
-         * bluej.properties
+         * Write the data from the teamSettingsPanel to the project's team.defs file.
+         * If checkbox in teamSettingsPanel is checked, the data is also stored in bluej.properties
          */
+        // TODO Move this to the dialog result?
+        okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.setOnAction(event -> {
             TeamSettings settings = teamSettingsPanel.getSettings();
             teamSettingsController.updateSettings(settings, teamSettingsPanel.getUseAsDefault());
