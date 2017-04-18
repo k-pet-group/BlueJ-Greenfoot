@@ -25,11 +25,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
 
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
@@ -47,7 +50,7 @@ import java.net.URISyntaxException;
  * 
  * @author fisker
  */
-public class TeamSettingsPanel extends VBox
+public class TeamSettingsPanel extends FlowPane
 {
     private static final int fieldsize = 30;
     private TeamSettingsController teamSettingsController;
@@ -113,13 +116,13 @@ public class TeamSettingsPanel extends VBox
 
 //        errorLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
 
-        JavaFXUtil.addStyleClass(this, "new-class-dialog");//
+        JavaFXUtil.addStyleClass(this, "team-settings-content");
 
         serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
 
         HBox langBox = new HBox();
-        JavaFXUtil.addStyleClass(langBox, "new-class-dialog-hbox");//
+//        JavaFXUtil.addStyleClass(langBox, "new-class-dialog-hbox");//
         langBox.getChildren().add(new Label(Config.getString("team.settings.server")));
         langBox.getChildren().addAll(serverTypes.getButtons());
         langBox.setAlignment(Pos.BASELINE_LEFT);
@@ -231,48 +234,90 @@ public class TeamSettingsPanel extends VBox
     {
 //            String docTitle = Config.getString("team.settings.personal");
 
-            Label yourNameLabel = new Label(Config.getString("team.settings.yourName"));
-            yourNameField = new TextField();
-            yourNameField.setPrefWidth(fieldsize);
+//        authentificationPanel.getStyleClass().add("grid");
 
-            Label yourEmailLabel = new Label(Config.getString("team.settings.yourEmail"));
-            yourEmailField = new TextField();
-            yourEmailField.setPrefWidth(fieldsize);
+//        authentificationPanel.getStyleClass().forEach(s -> bluej.utility.Debug.message("preparePersonalPane getStyleClass = " + s.toLowerCase()));
+
+        authentificationPanel.setHgap(10);
+        authentificationPanel.setVgap(10);
+        authentificationPanel.setPadding(new Insets(20, 150, 10, 10));
+
+
+        Label yourNameLabel = new Label(Config.getString("team.settings.yourName"));
+        yourNameField = new TextField();
+//        yourNameField.setPrefWidth(fieldsize);
+//        yourNameField.setPromptText(Config.getString("team.settings.yourName"));
+        // Request focus on the username field by default.
+//        Platform.runLater(() -> yourNameField.requestFocus());
+
+        Label yourEmailLabel = new Label(Config.getString("team.settings.yourEmail"));
+        yourEmailField = new TextField();
+//        yourEmailField.setPrefWidth(fieldsize);
 
             Label userLabel = new Label(Config.getString("team.settings.user"));
             userField = new TextField();
-            userField.setPrefWidth(fieldsize);
+//            userField.setPrefWidth(fieldsize);
 
             Label passwordLabel = new Label(Config.getString("team.settings.password"));
             passwordField = new PasswordField();
-            passwordField.setPrefWidth(fieldsize);
 
             groupLabel = new Label(Config.getString("team.settings.group"));
             groupField = new TextField();
-            groupField.setPrefWidth(fieldsize);
-            
-            yourNameLabel.setMaxSize(yourNameLabel.getMinWidth(), yourNameLabel.getMinHeight());
-            yourNameField.setMaxSize(yourNameField.getMinWidth(), yourNameField.getMinHeight());
-            yourEmailLabel.setMaxSize(yourEmailLabel.getMinWidth(), yourEmailLabel.getMinHeight());
-            yourEmailField.setMaxSize(yourEmailField.getMinWidth(), yourEmailField.getMinHeight());
 
-            userLabel.setMaxSize(userLabel.getMinWidth(), userLabel.getMinHeight());
-            userField.setMaxSize(userField.getMinWidth(), userField.getMinHeight());
-            passwordLabel.setMaxSize(passwordLabel.getMinWidth(), passwordLabel.getMinHeight());
-            passwordField.setMaxSize(passwordField.getMinWidth(), passwordField.getMinHeight());
-            groupLabel.setMaxSize(groupLabel.getMinWidth(), groupLabel.getMinHeight());
-            groupField.setMaxSize(groupField.getMinWidth(), groupField.getMinHeight());
+        authentificationPanel.setGridLinesVisible(true);
 
-            authentificationPanel.getChildren().add(yourNameLabel);
-            authentificationPanel.getChildren().add(yourNameField);
-            authentificationPanel.getChildren().add(yourEmailLabel);
-            authentificationPanel.getChildren().add(yourEmailField);
-            authentificationPanel.getChildren().add(userLabel);
-            authentificationPanel.getChildren().add(userField);
-            authentificationPanel.getChildren().add(passwordLabel);
-            authentificationPanel.getChildren().add(passwordField);
-            authentificationPanel.getChildren().add(groupLabel);
-            authentificationPanel.getChildren().add(groupField);
+        authentificationPanel.add(yourNameLabel, 0, 0);
+        authentificationPanel.add(yourNameField, 1, 0);
+
+//        authentificationPanel.addRow(1, yourEmailLabel, yourEmailField);
+        authentificationPanel.add(yourEmailLabel, 0, 1);
+        authentificationPanel.add(yourEmailField, 1, 1);
+
+            authentificationPanel.add(userLabel, 0, 2);
+            authentificationPanel.add(userField, 1, 2);
+            authentificationPanel.add(passwordLabel, 0, 3);
+            authentificationPanel.add(passwordField, 1, 3);
+            authentificationPanel.add(groupLabel, 0, 4);
+            authentificationPanel.add(groupField, 1, 4);
+
+
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPrefWidth(100);
+        // Second column gets any extra width
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setHgrow(Priority.ALWAYS);
+        authentificationPanel.getColumnConstraints().addAll(column1, column2);
+
+
+            /*
+// Enable/Disable login button depending on whether a username was entered.
+Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+loginButton.setDisable(true);
+
+// Do some validation (using the Java 8 lambda syntax).
+username.textProperty().addListener((observable, oldValue, newValue) -> {
+    loginButton.setDisable(newValue.trim().isEmpty());
+});
+
+
+
+
+// Convert the result to a username-password-pair when the login button is clicked.
+dialog.setResultConverter(dialogButton -> {
+    if (dialogButton == loginButtonType) {
+        return new Pair<>(username.getText(), password.getText());
+    }
+    return null;
+});
+
+Optional<Pair<String, String>> result = dialog.showAndWait();
+
+result.ifPresent(usernamePassword -> {
+    System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
+});
+*/
+
+
     }
 
     /*
@@ -307,6 +352,8 @@ public class TeamSettingsPanel extends VBox
 
         locationPanel.getChildren().clear();
 //        String docTitle2 = Config.getString("team.settings.location");
+
+//        locationPanel.getStyleClass().add("grid");
 
 //        List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
 //        for (TeamworkProvider provider : teamProviders) {
@@ -348,14 +395,19 @@ public class TeamSettingsPanel extends VBox
                 useAsDefault.setSelected(true); // on git we always save.
                 //for git, we will use a URI field.
                 if (serverLabel.getParent() == locationPanel){
-                    locationPanel.getChildren().remove(serverLabel);
-                    locationPanel.getChildren().remove(serverField);
-                    locationPanel.getChildren().remove(prefixLabel);
-                    locationPanel.getChildren().remove(prefixField);
-                    locationPanel.getChildren().remove(protocolLabel);
-                    locationPanel.getChildren().remove(protocolComboBox);
-                    locationPanel.getChildren().add(uriLabel);
-                    locationPanel.getChildren().add(uriField);
+//                    locationPanel.getChildren().remove(serverLabel);
+//                    locationPanel.getChildren().remove(serverField);
+//                    locationPanel.getChildren().remove(prefixLabel);
+//                    locationPanel.getChildren().remove(prefixField);
+//                    locationPanel.getChildren().remove(protocolLabel);
+//                    locationPanel.getChildren().remove(protocolComboBox);
+
+//                    locationPanel.getChildren().add(uriLabel);
+//                    locationPanel.getChildren().add(uriField);
+
+                    locationPanel.add(uriLabel, 0,0);
+                    locationPanel.add(uriField, 1, 0);
+
 //                            locationPanel.revalidate();
                     groupLabel.setDisable(true);
                     groupField.setDisable(true);
@@ -368,14 +420,21 @@ public class TeamSettingsPanel extends VBox
                 yourEmailField.setDisable(true);
                 //for svn, we will use the old layout.
                 if (serverLabel.getParent() != locationPanel){
-                    locationPanel.getChildren().remove(uriLabel);
-                    locationPanel.getChildren().remove(uriField);
-                    locationPanel.getChildren().add(serverLabel);
-                    locationPanel.getChildren().add(serverField);
-                    locationPanel.getChildren().add(prefixLabel);
-                    locationPanel.getChildren().add(prefixField);
-                    locationPanel.getChildren().add(protocolLabel);
-                    locationPanel.getChildren().add(protocolComboBox);
+//                    locationPanel.getChildren().remove(uriLabel);
+//                    locationPanel.getChildren().remove(uriField);
+
+//                    locationPanel.getChildren().add(serverLabel);
+//                    locationPanel.getChildren().add(serverField);
+//                    locationPanel.getChildren().add(prefixLabel);
+//                    locationPanel.getChildren().add(prefixField);
+//                    locationPanel.getChildren().add(protocolLabel);
+//                    locationPanel.getChildren().add(protocolComboBox);
+
+                    locationPanel.add(serverLabel, 0,0);
+                    locationPanel.add(serverField, 1, 0);
+                    locationPanel.add(prefixLabel, 0, 1);
+                    locationPanel.add(protocolLabel, 1, 1);
+
 //                            locationPanel.revalidate();
                     groupLabel.setDisable(false);
                     groupField.setDisable(false);
