@@ -1,0 +1,14 @@
+# Eclipse project files:
+/.classpath
+/.project
+
+/classes/
+/boot/classes/
+/threadchecker/classes/
+/threadchecker/pluginclasses/
+/test/classes/
+/lib/bluej.jar
+/lib/bluejcore.jar
+/lib/lang-stride.jar
+/lib/bluejeditor.jar
+/lib/bluejext.jar
