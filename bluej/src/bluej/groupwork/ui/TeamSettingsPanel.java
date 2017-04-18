@@ -52,7 +52,6 @@ import java.net.URISyntaxException;
  */
 public class TeamSettingsPanel extends FlowPane
 {
-    private static final int fieldsize = 30;
     private TeamSettingsController teamSettingsController;
     private TeamSettingsDialog teamSettingsDialog;
 
@@ -232,16 +231,16 @@ public class TeamSettingsPanel extends FlowPane
 
     private void preparePersonalPane(GridPane authentificationPanel, ServerType type)
     {
+        authentificationPanel.getChildren().clear();
 //            String docTitle = Config.getString("team.settings.personal");
 
-//        authentificationPanel.getStyleClass().add("grid");
+        authentificationPanel.getStyleClass().add("grid");
 
 //        authentificationPanel.getStyleClass().forEach(s -> bluej.utility.Debug.message("preparePersonalPane getStyleClass = " + s.toLowerCase()));
 
         authentificationPanel.setHgap(10);
         authentificationPanel.setVgap(10);
         authentificationPanel.setPadding(new Insets(20, 150, 10, 10));
-
 
         Label yourNameLabel = new Label(Config.getString("team.settings.yourName"));
         yourNameField = new TextField();
@@ -252,34 +251,23 @@ public class TeamSettingsPanel extends FlowPane
 
         Label yourEmailLabel = new Label(Config.getString("team.settings.yourEmail"));
         yourEmailField = new TextField();
-//        yourEmailField.setPrefWidth(fieldsize);
 
-            Label userLabel = new Label(Config.getString("team.settings.user"));
-            userField = new TextField();
-//            userField.setPrefWidth(fieldsize);
+        Label userLabel = new Label(Config.getString("team.settings.user"));
+        userField = new TextField();
 
-            Label passwordLabel = new Label(Config.getString("team.settings.password"));
-            passwordField = new PasswordField();
+        Label passwordLabel = new Label(Config.getString("team.settings.password"));
+        passwordField = new PasswordField();
 
-            groupLabel = new Label(Config.getString("team.settings.group"));
-            groupField = new TextField();
+        groupLabel = new Label(Config.getString("team.settings.group"));
+        groupField = new TextField();
 
         authentificationPanel.setGridLinesVisible(true);
 
-        authentificationPanel.add(yourNameLabel, 0, 0);
-        authentificationPanel.add(yourNameField, 1, 0);
-
-//        authentificationPanel.addRow(1, yourEmailLabel, yourEmailField);
-        authentificationPanel.add(yourEmailLabel, 0, 1);
-        authentificationPanel.add(yourEmailField, 1, 1);
-
-            authentificationPanel.add(userLabel, 0, 2);
-            authentificationPanel.add(userField, 1, 2);
-            authentificationPanel.add(passwordLabel, 0, 3);
-            authentificationPanel.add(passwordField, 1, 3);
-            authentificationPanel.add(groupLabel, 0, 4);
-            authentificationPanel.add(groupField, 1, 4);
-
+        authentificationPanel.addRow(0, yourNameLabel, yourNameField);
+        authentificationPanel.addRow(1, yourEmailLabel, yourEmailField);
+        authentificationPanel.addRow(2, userLabel, userField);
+        authentificationPanel.addRow(3, passwordLabel, passwordField);
+        authentificationPanel.addRow(4, groupLabel, groupField);
 
         ColumnConstraints column1 = new ColumnConstraints();
         column1.setPrefWidth(100);
@@ -349,11 +337,14 @@ result.ifPresent(usernamePassword -> {
     
     private void prepareLocationPane(GridPane locationPanel, ServerType type)
     {
-
         locationPanel.getChildren().clear();
 //        String docTitle2 = Config.getString("team.settings.location");
 
-//        locationPanel.getStyleClass().add("grid");
+        locationPanel.getStyleClass().add("grid");
+
+        locationPanel.setHgap(10);
+        locationPanel.setVgap(10);
+        locationPanel.setPadding(new Insets(20, 150, 10, 10));
 
 //        List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
 //        for (TeamworkProvider provider : teamProviders) {
@@ -362,11 +353,9 @@ result.ifPresent(usernamePassword -> {
 
         serverLabel = new Label(Config.getString("team.settings.server"));
         serverField = new TextField();
-        serverField.setPrefWidth(fieldsize);
 
         prefixLabel = new Label(Config.getString("team.settings.prefix"));
         prefixField = new TextField();
-        prefixField.setPrefWidth(fieldsize);
 
         protocolLabel = new Label(Config.getString("team.settings.protocol"));
         protocolComboBox = new ComboBox();
@@ -374,14 +363,6 @@ result.ifPresent(usernamePassword -> {
 
         uriLabel = new Label(Config.getString("team.settings.uri"));
         uriField = new TextField();
-        uriField.setPrefWidth(fieldsize);
-
-        prefixLabel.setMaxSize(prefixLabel.getMinWidth(), prefixLabel.getMinHeight());
-        prefixField.setMaxSize(prefixField.getMinWidth(), prefixField.getMinHeight());
-        serverLabel.setMaxSize(serverLabel.getMinWidth(), serverLabel.getMinHeight());
-        serverField.setMaxSize(serverField.getMinWidth(), serverField.getMinHeight());
-        uriLabel.setMaxSize(uriLabel.getMinWidth(), uriLabel.getMinHeight());
-        uriField.setMaxSize(uriField.getMinWidth(), uriField.getMinHeight());
 
         JavaFXUtil.addChangeListener(serverTypes.selectedProperty(), event -> {
             setProviderSettings();
@@ -444,12 +425,18 @@ result.ifPresent(usernamePassword -> {
 //                    teamSettingsDialog.pack();//adjust window size.
         });
 
-        locationPanel.getChildren().add(serverLabel);
-        locationPanel.getChildren().add(serverField);
-        locationPanel.getChildren().add(prefixLabel);
-        locationPanel.getChildren().add(prefixField);
-        locationPanel.getChildren().add(protocolLabel);
-        locationPanel.getChildren().add(protocolComboBox);
+        locationPanel.setGridLinesVisible(true);
+
+        locationPanel.addRow(0, serverLabel, serverField);
+        locationPanel.addRow(1, prefixLabel, prefixField);
+        locationPanel.addRow(2, protocolLabel, protocolComboBox);
+
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPrefWidth(100);
+        // Second column gets any extra width
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setHgrow(Priority.ALWAYS);
+        locationPanel.getColumnConstraints().addAll(column1, column2);
     }
     
     /**
