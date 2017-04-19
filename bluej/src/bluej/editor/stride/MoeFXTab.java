@@ -52,6 +52,8 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     private boolean initialised = false;
     private final MoeEditor moeEditor;
     private final TabMenuManager menuManager;
+    private final StringProperty windowTitleProperty = new SimpleStringProperty();
+    private FXTabbedEditor parent;
 
     @OnThread(Tag.FXPlatform)
     public MoeFXTab(MoeEditor moeEditor, String windowTitle)
