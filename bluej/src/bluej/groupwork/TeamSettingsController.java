@@ -50,7 +50,6 @@ import bluej.utility.Debug;
  *
  * @author fisker
  */
-@OnThread(Tag.Swing)
 public class TeamSettingsController
 {
     // Don't need synchronized because it's never modified again:

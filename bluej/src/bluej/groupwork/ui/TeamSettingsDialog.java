@@ -31,6 +31,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.stage.Modality;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A dialog for teamwork settings.
@@ -38,6 +40,7 @@ import javafx.stage.Window;
  * @author fisker
  * @author bquig
  */
+@OnThread(Tag.FXPlatform)
 public class TeamSettingsDialog extends Dialog<TeamSettings>
 {
     private String title = Config.getString("team.settings.title");
@@ -51,9 +54,9 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
      */
     public TeamSettingsDialog(Window parent, TeamSettingsController controller)
     {
-        initOwner(parent);//
+        initOwner(parent);
         teamSettingsController = controller;
-        initModality(Modality.WINDOW_MODAL);//
+        initModality(Modality.NONE);
         setResizable(true);
         JavaFXUtil.addStyleClass(this.getDialogPane(), "team-settings-content");
 
@@ -66,7 +69,8 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
 
 //        dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton());
 //        setDialogPane(dialogPane);
-//        Config.addDialogStylesheets(getDialogPane());
+        Config.addDialogStylesheets(getDialogPane());
+//        getDialogPane().setPrefSize(360, 600);
 
 //        getDialogPane().getStyleClass().forEach(s -> bluej.utility.Debug.message("getDialogPane() = " + s.toLowerCase()));
 

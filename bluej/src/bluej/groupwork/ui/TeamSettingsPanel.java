@@ -28,11 +28,7 @@ import java.util.List;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
@@ -59,8 +55,8 @@ public class TeamSettingsPanel extends FlowPane
     private Label groupLabel;
     private final HorizontalRadio<ServerType> serverTypes;
 
-    private GridPane personalPane = new GridPane();
-    private GridPane locationPane = new GridPane();
+    private GridPane personalPane;
+    private GridPane locationPane;
 
     private TextField yourNameField;
     private TextField yourEmailField;
@@ -127,6 +123,9 @@ public class TeamSettingsPanel extends FlowPane
         langBox.setAlignment(Pos.BASELINE_LEFT);
         this.getChildren().add(langBox);
 
+        locationPane = createGridPane(Config.getString("team.settings.location"));
+        personalPane = createGridPane(Config.getString("team.settings.personal"));
+
         prepareLocationPane(locationPane, serverTypes.selectedProperty().get()); // addPane(locationLabels);
         preparePersonalPane(personalPane, serverTypes.selectedProperty().get()); // addPane(personalLabels);
         this.getChildren().addAll(new Label("Location"), locationPane,
@@ -164,7 +163,7 @@ public class TeamSettingsPanel extends FlowPane
             // useAsDefault.setEnabled(false);
         }
     }
-    
+
     /**
      * Get the focus traversal policy for the parent window. The new policy
      * overrides some functionality and delegates everything else back to
@@ -229,18 +228,30 @@ public class TeamSettingsPanel extends FlowPane
         return gridPane;
     }
 
+    private GridPane createGridPane(String title)
+    {
+        GridPane pane = new GridPane();
+        pane.getStyleClass().add("grid");
+
+        pane.setHgap(10);
+        pane.setVgap(10);
+        pane.setPadding(new Insets(20, 150, 10, 10));
+
+
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPrefWidth(100);
+        // Second column gets any extra width
+        ColumnConstraints column2 = new ColumnConstraints();
+        column1.setPrefWidth(260);
+        column2.setHgrow(Priority.ALWAYS);
+        pane.getColumnConstraints().addAll(column1, column2);
+
+        return pane;
+    }
+
     private void preparePersonalPane(GridPane authentificationPanel, ServerType type)
     {
         authentificationPanel.getChildren().clear();
-//            String docTitle = Config.getString("team.settings.personal");
-
-        authentificationPanel.getStyleClass().add("grid");
-
-//        authentificationPanel.getStyleClass().forEach(s -> bluej.utility.Debug.message("preparePersonalPane getStyleClass = " + s.toLowerCase()));
-
-        authentificationPanel.setHgap(10);
-        authentificationPanel.setVgap(10);
-        authentificationPanel.setPadding(new Insets(20, 150, 10, 10));
 
         Label yourNameLabel = new Label(Config.getString("team.settings.yourName"));
         yourNameField = new TextField();
@@ -268,13 +279,6 @@ public class TeamSettingsPanel extends FlowPane
         authentificationPanel.addRow(2, userLabel, userField);
         authentificationPanel.addRow(3, passwordLabel, passwordField);
         authentificationPanel.addRow(4, groupLabel, groupField);
-
-        ColumnConstraints column1 = new ColumnConstraints();
-        column1.setPrefWidth(100);
-        // Second column gets any extra width
-        ColumnConstraints column2 = new ColumnConstraints();
-        column2.setHgrow(Priority.ALWAYS);
-        authentificationPanel.getColumnConstraints().addAll(column1, column2);
 
 
             /*
@@ -338,13 +342,6 @@ result.ifPresent(usernamePassword -> {
     private void prepareLocationPane(GridPane locationPanel, ServerType type)
     {
         locationPanel.getChildren().clear();
-//        String docTitle2 = Config.getString("team.settings.location");
-
-        locationPanel.getStyleClass().add("grid");
-
-        locationPanel.setHgap(10);
-        locationPanel.setVgap(10);
-        locationPanel.setPadding(new Insets(20, 150, 10, 10));
 
 //        List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
 //        for (TeamworkProvider provider : teamProviders) {
@@ -430,13 +427,6 @@ result.ifPresent(usernamePassword -> {
         locationPanel.addRow(0, serverLabel, serverField);
         locationPanel.addRow(1, prefixLabel, prefixField);
         locationPanel.addRow(2, protocolLabel, protocolComboBox);
-
-        ColumnConstraints column1 = new ColumnConstraints();
-        column1.setPrefWidth(100);
-        // Second column gets any extra width
-        ColumnConstraints column2 = new ColumnConstraints();
-        column2.setHgrow(Priority.ALWAYS);
-        locationPanel.getColumnConstraints().addAll(column1, column2);
     }
     
     /**

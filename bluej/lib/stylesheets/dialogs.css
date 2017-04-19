@@ -371,3 +371,25 @@
 .non-empty-directory .subDirRow, .non-empty-directory .subDirRow > * {
     -fx-alignment: baseline-left;
 }
+
+/* Team */
+.team-settings {
+    -fx-min-width:  400px;
+    -fx-pref-width: 400px;
+    -fx-max-width:  400px;
+
+    -fx-min-height:  700px;
+    -fx-pref-height: 700px;
+    -fx-max-height:  700px;
+}
+
+.team-settings-content .grid {
+    -fx-min-width:  300px;
+    -fx-pref-width: 300px;
+    -fx-max-width:  300px;
+
+    -fx-hgap: 10;
+    -fx-vgap: 0.5em;
+
+    -fx-padding: 20 150 0.5em 0.5em;  /*10, 10*/
+}
