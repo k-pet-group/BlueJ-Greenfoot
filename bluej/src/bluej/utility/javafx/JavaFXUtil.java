@@ -179,18 +179,30 @@ public class JavaFXUtil
             JavaFXUtil.setPseudoclass(pseudoClasses[i], i == index, node);
         }
     }
+
     /**
      * Adds the given CSS style-class[es] to the node.
-     * 
+     *
+     * @param node The node to apply to
+     * @param styleClasses The CSS style-classes to be added.
+     */
+    public static void addStyleClass(Styleable node, String... styleClasses)
+    {
+        addStyleClass(node, FXCollections.observableArrayList(styleClasses));
+    }
+
+    /**
+     * Adds the given CSS style-class[es] to the node.
+     *
      * JavaFX doesn't usually care if you add the same class many times to a node.  In contrast, this method
-     * makes sure that a class is only applied once (effectively models the classes on a node as a 
+     * makes sure that a class is only applied once (effectively models the classes on a node as a
      * set, not a list).  Generally, you should try to avoid dynamically turning classes on
      * or off, anyway, and use pseudo-classes instead.
-     * 
+     *
      * @param node The node to apply to
      * @param styleClasses The list of CSS style-classes to add.
      */
-    public static void addStyleClass(Styleable node, String... styleClasses)
+    public static void addStyleClass(Styleable node, ObservableList<String> styleClasses)
     {
         for (String styleClass : styleClasses)
         {
