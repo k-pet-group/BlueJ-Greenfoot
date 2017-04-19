@@ -21,6 +21,9 @@
  */
 package bluej.editor.moe;
 
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+
 import java.util.LinkedList;
 
 import javax.swing.event.UndoableEditEvent;
@@ -60,9 +63,6 @@ public class MoeUndoManager implements UndoableEditListener
     public void addEdit(UndoableEdit edit)
     {
         currentEdit.addEdit(edit);
-        if (currentEdit == undoManager) {
-            editor.updateUndoRedoControls();
-        }
     }
     
     public void beginCompoundEdit()
@@ -77,20 +77,18 @@ public class MoeUndoManager implements UndoableEditListener
         CompoundEdit lastEdit = (CompoundEdit) editStack.removeLast();
         lastEdit.addEdit(currentEdit);
         currentEdit = lastEdit;
-        
-        if (currentEdit == undoManager) {
-            editor.updateUndoRedoControls();
-        }
     }
     
-    public boolean canUndo()
+    public BooleanExpression canUndo()
     {
-        return undoManager.canUndo();
+        //MOEFX
+        return new ReadOnlyBooleanWrapper(true);//undoManager.canUndo();
     }
     
-    public boolean canRedo()
+    public BooleanExpression canRedo()
     {
-        return undoManager.canRedo();
+        //MOEFX
+        return new ReadOnlyBooleanWrapper(true);//return undoManager.canRedo();
     }
     
     public void undo()

@@ -122,15 +122,11 @@ import com.google.common.io.CharStreams;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.PopupControl;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Skin;
-import javafx.scene.control.Skinnable;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
@@ -295,7 +291,7 @@ public final class MoeEditor extends BorderPane
     private Info info;                      // the info number label
     private JPanel statusArea;              // the status area
     private StatusLabel saveState;          // the status label
-    private JComboBox<String> interfaceToggle;
+    private ComboBox<String> interfaceToggle;
     @OnThread(Tag.FXPlatform)
     private GoToLineDialog goToLineDialog;
     
@@ -305,12 +301,7 @@ public final class MoeEditor extends BorderPane
     private NaviView naviView;              // Navigation view (mini-source view)
     private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the
                                             // editor and navigation view
-    private JComponent toolbar;             // The toolbar
     private JMenuBar menubar;
-    private final JMenuItem undoMenuItem;
-    private final JMenuItem redoMenuItem;
-    private final JButton undoButton;
-    private final JButton redoButton;
     private JPopupMenu popup;               // Popup menu options
     private String filename;                // name of file or null
     private long lastModified;              // time of last modification of file
@@ -387,10 +378,6 @@ public final class MoeEditor extends BorderPane
             this.fxTab = new MoeFXTab(this, fxWindowTitle);
         });
 
-        undoMenuItem = findMenuItem("undo");
-        redoMenuItem = findMenuItem("redo");
-        undoButton = findToolbarButton("undo");
-        redoButton = findToolbarButton("redo");
     }
 
     // --------------------------------------------------------------------
@@ -733,7 +720,7 @@ public final class MoeEditor extends BorderPane
                 if (new File(docFilename).exists()) {
                     showInterface(true);
                     loaded = true;
-                    interfaceToggle.setEnabled(false);
+                    interfaceToggle.setDisable(true);
                 }
             }
         }
@@ -1221,7 +1208,6 @@ public final class MoeEditor extends BorderPane
     {
         if (readOnly) {
             saveState.setState(StatusLabel.READONLY);
-            updateUndoRedoControls();
         }
         sourcePane.setEditable(!readOnly);
     }
@@ -1235,7 +1221,7 @@ public final class MoeEditor extends BorderPane
     @Override
     public void showInterface(boolean interfaceStatus)
     {
-        interfaceToggle.setSelectedIndex(interfaceStatus ? 1 : 0);
+        interfaceToggle.getSelectionModel().select(interfaceStatus ? 1 : 0);
     }
 
     /**
@@ -1556,26 +1542,6 @@ public final class MoeEditor extends BorderPane
     public ParsedCUNode getParsedNode()
     {
         return sourceDocument.getParser();
-    }
-
-    /**
-     * Update the enabled state of controls bound to "undo" and "redo" to reflect
-     * current editor state.
-     */
-    public void updateUndoRedoControls()
-    {
-        updateUndoRedoControls(undoManager.canUndo(), undoManager.canRedo());
-    }
-
-    /**
-     * Update the enabled state of controls bound to "undo" and "redo".
-     */
-    private void updateUndoRedoControls(boolean canUndo, boolean canRedo)
-    {
-        setEnabled(undoMenuItem, canUndo);
-        setEnabled(redoMenuItem, canRedo);
-        setEnabled(undoButton, canUndo);
-        setEnabled(redoButton, canRedo);
     }
 
     /**
@@ -2216,11 +2182,11 @@ public final class MoeEditor extends BorderPane
         if (!sourceIsCode)
             return;
 
-        if (interfaceToggle.getSelectedIndex() == 0) {
-            interfaceToggle.setSelectedIndex(1);
+        if (interfaceToggle.getSelectionModel().getSelectedIndex() == 0) {
+            interfaceToggle.getSelectionModel().select(1);
         }
         else {
-            interfaceToggle.setSelectedIndex(0);
+            interfaceToggle.getSelectionModel().select(0);
         }
     }
 
@@ -2236,7 +2202,7 @@ public final class MoeEditor extends BorderPane
             return;
         }
 
-        boolean wantHTML = (interfaceToggle.getSelectedItem() == interfaceString);
+        boolean wantHTML = (interfaceToggle.getSelectionModel().getSelectedItem() == interfaceString);
         if (wantHTML && !viewingHTML) {
             switchToInterfaceView();
         }
@@ -2396,18 +2362,7 @@ public final class MoeEditor extends BorderPane
      */
     private void resetMenuToolbar(boolean sourceView)
     {
-        boolean canUndo=false;
-        boolean canRedo=false;
         displayMenubar(sourceView);
-        displayToolbar(sourceView);
-        //if the view is source view need to decide whether to display 
-        //the undo and redo according to the undoManager; if it
-        //is the documentation view then they are always disabled
-        if (sourceView) {
-            canUndo = undoManager.canUndo();
-            canRedo = undoManager.canRedo();
-        }
-        updateUndoRedoControls(canUndo, canRedo);
     }
 
     // --------------------------------------------------------------------
@@ -2435,45 +2390,6 @@ public final class MoeEditor extends BorderPane
         }
     }
 
-    /**
-     * This method changes the display of the toolbar based on the view
-     * (source/documentation) that is selected
-     * 
-     * @param sourceView true if viewing source; false if viewing documentation
-     */
-    private void displayToolbar(boolean sourceView)
-    {
-        Component[] buttons = toolbar.getComponents();
-        for (Component button : buttons) {
-            if (button instanceof JButton) {
-                JButton actionButton = (JButton) button;
-                if (isEditAction(actionButton.getName())) {
-                    actionButton.setEnabled(sourceView);
-                }
-            }
-        }
-    }
-
-    /**
-     * Find a toolbar button by its item name.
-     * 
-     * @return sourceView true if called from sourceView setup; false from documentation View setup
-     */
-    private JButton findToolbarButton(String itemName)
-    {
-        // find the item
-        Component[] buttons = toolbar.getComponents();
-        for (Component button : buttons) {
-            if (button instanceof JButton) {
-                JButton actionButton = (JButton) button;
-                if (actionButton.getName().equals(itemName)) {
-                    return actionButton;
-                }
-            }
-        }
-        return null;
-    }
-    
     /**
      * Find a menu item with a given item name by searching through the menus.
      * 
@@ -3269,11 +3185,8 @@ public final class MoeEditor extends BorderPane
         });
 
         // create toolbar
-        toolbar = createToolbar();
-        toolbar.setName("toolbar");
-        if (!Config.isRaspberryPi()) toolbar.setOpaque(false);
-        //MOEFX
-        //this.add(toolbar, BorderLayout.NORTH);
+        Node toolbar = createToolbar();
+        setTop(new BorderPane(null, null, createInterfaceSelector(), null, toolbar));
         
         //add popup menu
         
@@ -3429,48 +3342,30 @@ public final class MoeEditor extends BorderPane
      *
      * @return The toolbar component, ready made.
      */
-    private JComponent createToolbar()
+    private Node createToolbar()
     {
-        JPanel toolbar = new JPanel();
-        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
-
-        String[] toolGroups = getResource("toolbar").split(" ");
-        for (String group : toolGroups) {
-            addToolbarGroup(toolbar, group);
-        }
-
-        toolbar.add(Box.createHorizontalGlue());
-        toolbar.add(Box.createHorizontalGlue());
-        toolbar.add(createInterfaceSelector());
-
-        return toolbar;
+        return new HBox(
+            createToolbarButton("compile"),
+            createToolbarButton("undo"),
+            createToolbarButton("cut"),
+            createToolbarButton("copy"),
+            createToolbarButton("paste"),
+            createToolbarButton("find"),
+            createToolbarButton("close")
+        );
     }
 
     // --------------------------------------------------------------------
-
-    /**
-     * Create the toolbar.
-     *
-     * @return The toolbar component, ready made.
-     */
-    private void addToolbarGroup(JComponent toolbar, String group)
-    {
-        String[] toolKeys = group.split(":");
-        for (String toolKey : toolKeys) {
-            toolbar.add(createToolbarButton(toolKey));
-            if(!Config.isMacOSLeopard()) toolbar.add(Box.createHorizontalStrut(3));
-        }
-    }
 
     /**
      * Create a button on the toolbar.
      *
      * @param key  The internal key identifying the action and label
      */
-    private AbstractButton createToolbarButton(String key)
+    private ButtonBase createToolbarButton(String key)
     {
         final String label = Config.getString("editor." + key + LabelSuffix);
-        AbstractButton button;
+        ButtonBase button;
 
         String actionName = getResource(key + ActionSuffix);
         if (actionName == null) {
@@ -3480,64 +3375,51 @@ public final class MoeEditor extends BorderPane
 
         if (action != null) {
             Action tbAction = new ToolbarAction(action, label);
-            button = new JButton(tbAction);
+            button = new Button();
+            button.setOnAction(e -> tbAction.actionPerformed(null));
         }
         else {
-            button = new JButton("Unknown");
+            button = new Button("Unknown");
         }
 
-        button.setName(actionName);
+        button.setText(actionName);
 
         if (action == null) {
-            button.setEnabled(false);
+            button.setDisable(true);
             Debug.message("Moe: action not found for button " + label);
         }
 
         if (isNonReadmeAction(actionName) && !sourceIsCode){
-            button.setEnabled(false);
+            button.setDisable(true);
         }
 
-        button.setRequestFocusEnabled(false);
+        button.setFocusTraversable(false);
         // never get keyboard focus
 
-        if (!Config.isMacOS()) {
-            // on all other platforms than MacOS, the default insets needs to
-            // be changed to make the buttons smaller
-            Insets margin = button.getMargin();
-            button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
-        }
-        else {
-            Utility.changeToMacButton(button);
-        }
-        button.setFont(PrefMgr.getStandardFont());
         return button;
     }
 
     /**
      * Create a combo box for the toolbar
      */
-    private JComboBox<String> createInterfaceSelector()
+    private ComboBox<String> createInterfaceSelector()
     {
         String[] choiceStrings = {implementationString, interfaceString};
-        interfaceToggle = new JComboBox<String>(choiceStrings);
+        interfaceToggle = new ComboBox<String>(FXCollections.observableArrayList(choiceStrings));
 
-        interfaceToggle.setRequestFocusEnabled(false);
-        interfaceToggle.setFont(PrefMgr.getStandardFont());
-        interfaceToggle.setBorder(new EmptyBorder(2, 2, 2, 2));
-        interfaceToggle.setForeground(envOpColour);
-        if (!Config.isRaspberryPi()) interfaceToggle.setOpaque(false);
+        interfaceToggle.setFocusTraversable(false);
 
         String actionName = "toggle-interface-view";
         Action action = actions.getActionByName(actionName);
         if (action != null) {           // should never be null...
-            interfaceToggle.setAction(action);
+            interfaceToggle.setOnAction(e -> action.actionPerformed(null));
         }
         else {
-            interfaceToggle.setEnabled(false);
+            interfaceToggle.setDisable(true);
             Debug.message("Moe: action not found: " + actionName);
         }
         if (!sourceIsCode) {
-            interfaceToggle.setEnabled(false);
+            interfaceToggle.setDisable(true);
         }
         return interfaceToggle;
     }
