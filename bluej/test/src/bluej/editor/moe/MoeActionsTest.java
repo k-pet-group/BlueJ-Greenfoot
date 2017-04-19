@@ -24,6 +24,7 @@ package bluej.editor.moe;
 import javax.swing.Action;
 import javax.swing.JTextPane;
 
+import bluej.editor.moe.MoeActions.MoeAbstractAction;
 import bluej.parser.InitConfig;
 import junit.framework.TestCase;
 
@@ -42,8 +43,8 @@ public class MoeActionsTest extends TestCase
     
     public void testActionTable()
     {
-        MoeActions actions = MoeActions.getActions(null, new JTextPane());
-        Action[] actionTable = actions.getActionTable();
+        MoeActions actions = MoeActions.getActions(null);
+        MoeAbstractAction[] actionTable = actions.getActionTable();
         
         // If actions are removed, they should also have no entries in the table - there should be no
         // null entries in the table.

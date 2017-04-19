@@ -185,9 +185,12 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
 
     }
 
+    /**
+     * Selects from the existing anchor position to the new position.
+     */
     public void moveCaretPosition(int position)
     {
-        int prev = getCaretPosition();
+        int prev = getCaretMark();
         selectRange(prev, position);
     }
 

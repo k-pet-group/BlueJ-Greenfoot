@@ -108,6 +108,7 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
+import bluej.editor.moe.MoeActions.MoeAbstractAction;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.MoeFXTab;
@@ -301,7 +302,7 @@ public final class MoeEditor extends BorderPane
     private NaviView naviView;              // Navigation view (mini-source view)
     private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the
                                             // editor and navigation view
-    private JMenuBar menubar;
+    private MenuBar menubar;
     private JPopupMenu popup;               // Popup menu options
     private String filename;                // name of file or null
     private long lastModified;              // time of last modification of file
@@ -2221,11 +2222,11 @@ public final class MoeEditor extends BorderPane
      */
     public void enablePrinting(boolean flag)
     {
-        Action printAction = actions.getActionByName("print");
+        MoeAbstractAction printAction = actions.getActionByName("print");
         if (printAction != null) {
             printAction.setEnabled(flag);
         }
-        Action pageSetupAction = actions.getActionByName("page-setup");
+        MoeAbstractAction pageSetupAction = actions.getActionByName("page-setup");
         if (pageSetupAction != null) {
             pageSetupAction.setEnabled(flag);
         }
@@ -2375,6 +2376,7 @@ public final class MoeEditor extends BorderPane
      */
     private void displayMenubar(boolean sourceView)
     {
+        /*MOEFX
         Component[] menus = menubar.getComponents();
         for (Component menu : menus) {
             if (menu instanceof JMenu) {
@@ -2388,6 +2390,7 @@ public final class MoeEditor extends BorderPane
                 }
             }
         }
+        */
     }
 
     /**
@@ -2396,7 +2399,7 @@ public final class MoeEditor extends BorderPane
      * @return The menu item searched for, or null if not found.
      */
     private JMenuItem findMenuItem(String itemName)
-    {
+    {/*MOEFX
         JMenu jmenu;
         JMenuItem menuItem;
         Component[] menubarComponent = menubar.getComponents();
@@ -2412,7 +2415,7 @@ public final class MoeEditor extends BorderPane
                     }
                 }
             }
-        }
+        }*/
         return null;
     }
 
@@ -3169,28 +3172,21 @@ public final class MoeEditor extends BorderPane
 
         // get table of edit actions
 
-        //MOEFX: editor pane reference
-        actions = MoeActions.getActions(this, new JEditorPane());
-        actions.setUndoEnabled(false);
-        actions.setRedoEnabled(false);
+        actions = MoeActions.getActions(this);
 
         // create menubar and menus
 
         menubar = createMenuBar();
-        menubar.setName("menubar");
-        FXPlatformSupplier<MenuBar> genMenubar = JavaFXUtil.swingMenuBarToFX(menubar, this);
-        Platform.runLater(() -> {
-            fxMenus.clear();
-            genMenubar.get().getMenus().forEach(fxMenus::add);
-        });
+        fxMenus.clear();
+        menubar.getMenus().forEach(fxMenus::add);
 
         // create toolbar
         Node toolbar = createToolbar();
         setTop(new BorderPane(null, null, createInterfaceSelector(), null, toolbar));
         
         //add popup menu
-        
-        popup= createPopupMenu();
+        //MOEFX
+        //popup= createPopupMenu();
 
         // add event listener to handle the window close requests
 
@@ -3223,15 +3219,15 @@ public final class MoeEditor extends BorderPane
     /**
      * Create the editor's menu bar.
      */
-    private JMenuBar createMenuBar()
+    private MenuBar createMenuBar()
     {
-        JMenuBar menubar = new JMenuBar();
+        MenuBar menubar = new MenuBar();
 
         String[] menuKeys = getResource("menubar").split(" ");
         for (String menuKey : menuKeys) {
-            JMenu menu = createMenu(menuKey);
+            Menu menu = createMenu(menuKey);
             if (menu != null) {
-                menubar.add(menu);
+                menubar.getMenus().add(menu);
             }
         }
         return menubar;
@@ -3244,10 +3240,11 @@ public final class MoeEditor extends BorderPane
     /**
      * Create the pop up menu bar
      */
+    /*MOEFX
     private JPopupMenu createPopupMenu()
     {
         JMenuItem menuItem;
-        Action action;
+        MoeAbstractAction action;
         String label;
         String actionName;
         popup = new JPopupMenu();
@@ -3259,7 +3256,7 @@ public final class MoeEditor extends BorderPane
             if (action == null) {
                 Debug.message("Moe: cannot find action " + popupKey);
             } else {
-                menuItem=new JMenuItem(action);
+                menuItem = action.makeMenuItem();
                 menuItem.setText(label);
                 popup.add(menuItem);
             }
@@ -3267,7 +3264,7 @@ public final class MoeEditor extends BorderPane
         return popup;
 
     }
-
+*/
 
 
 
@@ -3277,15 +3274,16 @@ public final class MoeEditor extends BorderPane
      * Create a single menu for the editor's menu bar. The key for the menu (as
      * defined in moe.properties) is supplied.
      */
-    private JMenu createMenu(String key)
+    private Menu createMenu(String key)
     {
-        JMenuItem item;
+        MenuItem item;
         String label;
 
         // get menu title
-        JMenu menu = new JMenu(Config.getString("editor." + key + LabelSuffix));
+        Menu menu = new Menu(Config.getString("editor." + key + LabelSuffix));
         int mnemonic = Config.getMnemonicKey("editor." + key + LabelSuffix);
-        menu.setMnemonic(mnemonic);
+        //MOEFX
+        //menu.setMnemonic(mnemonic);
 
         // get menu definition
         String itemString = getResource(key);
@@ -3300,9 +3298,9 @@ public final class MoeEditor extends BorderPane
         // create menu item for each item
         for (String itemKey : itemKeys) {
             if (itemKey.equals("-")) {
-                menu.addSeparator();
+                menu.getItems().add(new SeparatorMenuItem());
             } else {
-                Action action = actions.getActionByName(itemKey);
+                MoeAbstractAction action = actions.getActionByName(itemKey);
                 if (action == null) {
                     Debug.message("Moe: cannot find action " + itemKey);
                 }
@@ -3313,9 +3311,11 @@ public final class MoeEditor extends BorderPane
                              itemKey.toLowerCase().equals("preferences") )
                         )
                 {
-                    item = menu.add(action);
+                    item = action.makeMenuItem();
+                    menu.getItems().add(item);
                     label = Config.getString("editor." + itemKey + LabelSuffix);
                     item.setText(label);
+                    /*MOEFX
                     KeyStroke[] keys = actions.getKeyStrokesForAction(action);
                     if (keys != null) {
                         KeyStroke keyStroke = chooseKey(keys);
@@ -3329,6 +3329,7 @@ public final class MoeEditor extends BorderPane
                     if (isNonReadmeAction(itemKey)) {
                         item.setEnabled(sourceIsCode);
                     }
+                    */
                 }
             }
         }
@@ -3371,18 +3372,15 @@ public final class MoeEditor extends BorderPane
         if (actionName == null) {
             actionName = key;
         }
-        Action action = actions.getActionByName(actionName);
+        MoeAbstractAction action = actions.getActionByName(actionName);
 
         if (action != null) {
-            Action tbAction = new ToolbarAction(action, label);
-            button = new Button();
-            button.setOnAction(e -> tbAction.actionPerformed(null));
+            button = action.makeButton();
+            button.setText(label);
         }
         else {
             button = new Button("Unknown");
         }
-
-        button.setText(actionName);
 
         if (action == null) {
             button.setDisable(true);
@@ -3409,8 +3407,9 @@ public final class MoeEditor extends BorderPane
 
         interfaceToggle.setFocusTraversable(false);
 
+        /*MOEFX
         String actionName = "toggle-interface-view";
-        Action action = actions.getActionByName(actionName);
+        MoeAbstractAction action = actions.getActionByName(actionName);
         if (action != null) {           // should never be null...
             interfaceToggle.setOnAction(e -> action.actionPerformed(null));
         }
@@ -3421,6 +3420,7 @@ public final class MoeEditor extends BorderPane
         if (!sourceIsCode) {
             interfaceToggle.setDisable(true);
         }
+        */
         return interfaceToggle;
     }
 
@@ -4356,46 +4356,6 @@ public final class MoeEditor extends BorderPane
         public void run()
         {
             actions.textInsertAction(evt, editorPane);
-        }
-    }
-
-    /**
-     * An abstract action which delegates to a sub-action, and which
-     * mirrors the "enabled" state of the sub-action. This allows having
-     * actions with alternative labels.
-     *
-     * @author Davin McCall
-     */
-    class ToolbarAction extends AbstractAction implements PropertyChangeListener
-    {
-        private final Action subAction;
-
-        public ToolbarAction(Action subAction, String label)
-        {
-            super(label);
-            this.subAction = subAction;
-            subAction.addPropertyChangeListener(this);
-            setEnabled(subAction.isEnabled());
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e)
-        {
-            subAction.actionPerformed(e);
-        }
-
-        @Override
-        public void propertyChange(PropertyChangeEvent evt)
-        {
-            // If the enabled state of the sub-action changed,
-            // then we should change our own state.
-            if (evt.getPropertyName().equals("enabled")) {
-                Object newVal = evt.getNewValue();
-                if (newVal instanceof Boolean) {
-                    boolean state = ((Boolean) newVal);
-                    setEnabled(state);
-                }
-            }
         }
     }
 

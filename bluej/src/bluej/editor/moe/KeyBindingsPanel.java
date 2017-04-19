@@ -292,7 +292,8 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
                 if(isPrintable(key, e))
                     helpLabel.setText(getHelpText("cannot-redefine"));
                 else {
-                    actions.addActionForKeyStroke(key, currentAction);
+                    //MOEFX
+                    //actions.addActionForKeyStroke(key, currentAction);
                     handleFuncListSelect();
                 }
             }
@@ -405,7 +406,8 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         if(index == -1)
             return;             // deselection event - ignore
 
-        actions.removeKeyStrokeBinding(currentKeys[index]);
+        //MOEFX
+        //actions.removeKeyStrokeBinding(currentKeys[index]);
         updateKeyList(currentAction);
     }
 
@@ -414,7 +416,8 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      */
     private void updateKeyList(Action action)
     {
-        currentKeys = actions.getKeyStrokesForAction(action);
+        //MOEFX
+        //currentKeys = actions.getKeyStrokesForAction(action);
         if(currentKeys == null)
             clearKeyList();
         else {
@@ -484,8 +487,10 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
     public KeyBindingsPanel(FXPlatformSupplier<Window> parent) {
         super();
         this.parent = parent;
+        /*MOEFX
         actions = MoeActions.getActions(null, new JEditorPane());
         setActionValues(actions.getActionTable(), actions.getCategories(), actions.getCategoryIndex());
+        */
     }
 
 }
