@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -104,14 +105,14 @@ public class TeamSettingsPanel extends FlowPane
             "team.settings.protocol"
     };
 
-    public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog)
+    public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog, ObservableList<String> styleClass)
     {
         this.teamSettingsController = teamSettingsController;
         this.teamSettingsDialog = dialog;
 
 //        errorLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
 
-        JavaFXUtil.addStyleClass(this, "team-settings-content");
+        JavaFXUtil.addStyleClass(this, styleClass);
 
         serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
@@ -242,7 +243,7 @@ public class TeamSettingsPanel extends FlowPane
         column1.setPrefWidth(100);
         // Second column gets any extra width
         ColumnConstraints column2 = new ColumnConstraints();
-        column1.setPrefWidth(260);
+        column2.setPrefWidth(260);
         column2.setHgrow(Priority.ALWAYS);
         pane.getColumnConstraints().addAll(column1, column2);
 

@@ -58,7 +58,7 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
         teamSettingsController = controller;
         initModality(Modality.NONE);
         setResizable(true);
-        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-settings-content");
+        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-settings");
 
         if(teamSettingsController.hasProject()) {
             title += " - " + teamSettingsController.getProject().getProjectName();
@@ -75,7 +75,7 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
 //        getDialogPane().getStyleClass().forEach(s -> bluej.utility.Debug.message("getDialogPane() = " + s.toLowerCase()));
 
         makeButtonPane();
-        teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this);
+        teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, getDialogPane().getStyleClass());
         getDialogPane().getChildren().add(teamSettingsPanel);
     }
 
