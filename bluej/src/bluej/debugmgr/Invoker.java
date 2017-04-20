@@ -45,7 +45,7 @@ import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
-import bluej.compiler.EDTCompileObserver;
+import bluej.compiler.FXCompileObserver;
 import bluej.compiler.EventqueueCompileObserverAdapter;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
@@ -85,7 +85,7 @@ import threadchecker.Tag;
  * @author Michael Kolling
  */
 public class Invoker
-    implements EDTCompileObserver
+    implements FXCompileObserver
 {
     public static final int OBJ_NAME_LENGTH = 8;
     public static final String SHELLNAME = "__SHELL";

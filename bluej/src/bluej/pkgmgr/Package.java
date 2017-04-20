@@ -43,7 +43,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javafx.application.Platform;
-import javax.swing.SwingUtilities;
 
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
@@ -59,7 +58,7 @@ import bluej.collect.DataCollectionCompileObserverWrapper;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.Diagnostic;
-import bluej.compiler.EDTCompileObserver;
+import bluej.compiler.FXCompileObserver;
 import bluej.compiler.EventqueueCompileObserverAdapter;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
@@ -1399,7 +1398,7 @@ public final class Package
             project.newRemoteClassLoaderLeavingBreakpoints();
 
             if (ct != null) {
-                EDTCompileObserver observer;
+                FXCompileObserver observer;
                 if (forceQuiet) {
                     observer = new QuietPackageCompileObserver(compObserver);
                 } else {
@@ -1503,7 +1502,7 @@ public final class Package
     /**
      * Compile a class together with its dependencies, as necessary.
      */
-    private void searchCompile(ClassTarget t, EDTCompileObserver observer, CompileReason reason, CompileType type)
+    private void searchCompile(ClassTarget t, FXCompileObserver observer, CompileReason reason, CompileType type)
     {
         if (t.isQueued()) {
             return;
@@ -1550,7 +1549,7 @@ public final class Package
      * Compile every Target in 'targetList'. Every compilation goes through this method.
      * All targets in the list should have been saved beforehand.
      */
-    private void doCompile(Collection<ClassTarget> targetList, EDTCompileObserver edtObserver, CompileReason reason, CompileType type)
+    private void doCompile(Collection<ClassTarget> targetList, FXCompileObserver edtObserver, CompileReason reason, CompileType type)
     {
         CompileObserver observer = new EventqueueCompileObserverAdapter(new DataCollectionCompileObserverWrapper(project, edtObserver));
         if (targetList.isEmpty()) {
@@ -2466,7 +2465,7 @@ public final class Package
      * Also relay compilation events to any listening extensions.
      */
     private class QuietPackageCompileObserver
-        implements EDTCompileObserver
+        implements FXCompileObserver
     {
         protected CompileObserver chainObserver;
         
