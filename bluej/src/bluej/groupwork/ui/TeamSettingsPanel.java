@@ -52,7 +52,6 @@ public class TeamSettingsPanel extends FlowPane
     private TeamSettingsController teamSettingsController;
     private TeamSettingsDialog teamSettingsDialog;
 
-//  private Label serverTypeLabel;
     private Label groupLabel;
     private final HorizontalRadio<ServerType> serverTypes;
 
@@ -88,9 +87,6 @@ public class TeamSettingsPanel extends FlowPane
 
     }
 
-//    private final DialogPaneAnimateError dialogPane;
-//    private final Label errorLabel;
-
     String[] personalLabels = {
             "team.settings.yourName",
             "team.settings.yourEmail",
@@ -110,15 +106,12 @@ public class TeamSettingsPanel extends FlowPane
         this.teamSettingsController = teamSettingsController;
         this.teamSettingsDialog = dialog;
 
-//        errorLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
-
         JavaFXUtil.addStyleClass(this, styleClass);
 
         serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
 
         HBox langBox = new HBox();
-//        JavaFXUtil.addStyleClass(langBox, "new-class-dialog-hbox");//
         langBox.getChildren().add(new Label(Config.getString("team.settings.server")));
         langBox.getChildren().addAll(serverTypes.getButtons());
         langBox.setAlignment(Pos.BASELINE_LEFT);
@@ -132,7 +125,6 @@ public class TeamSettingsPanel extends FlowPane
         this.getChildren().addAll(new Label("Location"), locationPane,
                                   new Separator(),
                                   new Label("Personal"), personalPane
-//                , errorLabel
         );
 
         JavaFXUtil.addChangeListenerPlatform(serverTypes.selectedProperty(), type -> {
@@ -140,7 +132,6 @@ public class TeamSettingsPanel extends FlowPane
             preparePersonalPane(personalPane, type); // addPane(personalLabels);
 //            update();
         });
-
 
         useAsDefault = new CheckBox(Config.getString("team.settings.rememberSettings"));
         getChildren().add(useAsDefault);
@@ -211,7 +202,7 @@ public class TeamSettingsPanel extends FlowPane
     private GridPane addPane(String[] labels)
     {
         GridPane gridPane = new GridPane();
-//        JavaFXUtil.addStyleClass(gridPane, ".call-dialog-content .grid");
+        JavaFXUtil.addStyleClass(gridPane, "grid");
 
         List<TextField> fields = new ArrayList<>();
 
@@ -256,7 +247,6 @@ public class TeamSettingsPanel extends FlowPane
 
         Label yourNameLabel = new Label(Config.getString("team.settings.yourName"));
         yourNameField = new TextField();
-//        yourNameField.setPrefWidth(fieldsize);
 //        yourNameField.setPromptText(Config.getString("team.settings.yourName"));
         // Request focus on the username field by default.
 //        Platform.runLater(() -> yourNameField.requestFocus());
@@ -335,7 +325,6 @@ result.ifPresent(usernamePassword -> {
                                 .findFirst().ifPresent(node -> node.setVisible(true));
                     }
                     update()
-                    hideError();
                     updateOKButton();
                 });
     */
@@ -715,27 +704,7 @@ result.ifPresent(usernamePassword -> {
 //                .filter(node -> node instanceof TextField)
 //                .anyMatch(node -> ((TextField)node).textProperty().isEmpty().get());
 //
-//        if (present) {
-//            showError("Field path is empty", true);
-//        }
-//        else {
-//            hideError();
-//        }
-//
 //        setOKEnabled(!present);
-    }
-
-    private void hideError()
-    {
-//        errorLabel.setText("");
-//        JavaFXUtil.setPseudoclass("bj-dialog-error", false, nameField);
-    }
-
-    private void showError(String error, boolean problemIsName)
-    {
-        // show error, highlight field red if problem is name:
-//        errorLabel.setText(error);
-//        JavaFXUtil.setPseudoclass("bj-dialog-error", problemIsName, nameField);
     }
 
     private void setOKEnabled(boolean okEnabled)
