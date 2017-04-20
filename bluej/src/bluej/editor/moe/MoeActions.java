@@ -466,9 +466,13 @@ public final class MoeActions
             lineAction.apply(line, doc);
         }
 
-        editor.setSelection(firstLineIndex + 1, 1,
-                text.getElement(lastLineIndex).getEndOffset()
+        // Only select the lines afterwards if there was a selection beforehand:
+        if (selectionStart != selectionEnd)
+        {
+            editor.setSelection(firstLineIndex + 1, 1,
+            text.getElement(lastLineIndex).getEndOffset()
                 - text.getElement(firstLineIndex).getStartOffset());
+        }
 
         editor.setCaretActive(true);
     }
