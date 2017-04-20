@@ -82,11 +82,13 @@ import bluej.utility.javafx.FXRunnable;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
+import javafx.scene.input.KeyCombination.Modifier;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
@@ -112,9 +114,9 @@ public final class MoeActions
     private static final int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
     private static final String spaces = "                                        ";
     private static final char TAB_CHAR = '\t';
-    private static int SHORTCUT_MASK;
+    private static Modifier SHORTCUT_MASK = KeyCombination.SHORTCUT_DOWN;
     private static int ALT_SHORTCUT_MASK;
-    private static int SHIFT_SHORTCUT_MASK;
+    private static Modifier[] SHIFT_SHORTCUT_MASK = { KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN};
     private static int SHIFT_ALT_SHORTCUT_MASK;
     private static int DOUBLE_SHORTCUT_MASK; // two masks (ie. CTRL + META)
 
@@ -141,8 +143,8 @@ public final class MoeActions
     {
         this.editor = editor;
         // sort out modifier keys...
-        SHORTCUT_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
+        /*MOEFX
         if (SHORTCUT_MASK == Event.CTRL_MASK)
             ALT_SHORTCUT_MASK = Event.META_MASK; // alternate (second) modifier
         else
@@ -151,7 +153,7 @@ public final class MoeActions
         SHIFT_SHORTCUT_MASK = SHORTCUT_MASK + Event.SHIFT_MASK;
         SHIFT_ALT_SHORTCUT_MASK = Event.SHIFT_MASK + ALT_SHORTCUT_MASK;
         DOUBLE_SHORTCUT_MASK = SHORTCUT_MASK + ALT_SHORTCUT_MASK;
-
+        */
         createActionTable(editor);
         //MOEFX
         //keyCatcher = new KeyCatcher();
@@ -1257,62 +1259,76 @@ public final class MoeActions
      */
     public void setDefaultKeyBindings()
     {
-        /*MOEFX
-        keymap.removeBindings();
+        keymap.clear();
 
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_MASK), actions.get("save"));
+        // Previously in the Swing editor, no distinction was made between accelerators
+        // and custom key bindings.  Now in the FX editor, we do distinguish.  The rule is:
+        // if an item has a menu item and a command key which can act as an accelerator then
+        // it is set as an accelerator.  If not, it is set as a custom key binding.
+
+
+        setAccelerator(new KeyCodeCombination(KeyCode.S, SHORTCUT_MASK), actions.get("save"));
         // "reload" not bound
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK), actions.get("print"));
+        setAccelerator(new KeyCodeCombination(KeyCode.P, SHORTCUT_MASK), actions.get("print"));
         // "page-setup" not bound
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK), actions.get("close"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_Z, SHORTCUT_MASK), actions.get("undo"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_Y, SHORTCUT_MASK), actions.get("redo"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), actions.get("comment-block"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0), actions.get("uncomment-block"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0), actions.get("indent-block"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), actions.get("deindent-block"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_M, SHORTCUT_MASK), actions.get("insert-method"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), actions.get("indent"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), actions.get("de-indent"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_MASK), actions.get("insert-tab"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), actions.get("new-line"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), actions.get("insert-break"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F, SHORTCUT_MASK), actions.get("find"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_G, SHORTCUT_MASK), actions.get("find-next"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_SHORTCUT_MASK), actions.get("find-next-backward"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK), actions.get("replace"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_L, SHORTCUT_MASK), actions.get("go-to-line"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK), actions.get("compile"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_J, SHORTCUT_MASK), actions.get("toggle-interface-view"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_B, SHORTCUT_MASK), actions.get("toggle-breakpoint"));
+        setAccelerator(new KeyCodeCombination(KeyCode.W, SHORTCUT_MASK), actions.get("close"));
+        setAccelerator(new KeyCodeCombination(KeyCode.Z, SHORTCUT_MASK), actions.get("undo"));
+        setAccelerator(new KeyCodeCombination(KeyCode.Y, SHORTCUT_MASK), actions.get("redo"));
+        setAccelerator(new KeyCodeCombination(KeyCode.F8), actions.get("comment-block"));
+        setAccelerator(new KeyCodeCombination(KeyCode.F7), actions.get("uncomment-block"));
+        setAccelerator(new KeyCodeCombination(KeyCode.F6), actions.get("indent-block"));
+        setAccelerator(new KeyCodeCombination(KeyCode.F5), actions.get("deindent-block"));
+        setAccelerator(new KeyCodeCombination(KeyCode.M, SHORTCUT_MASK), actions.get("insert-method"));
+        keymap.put(new KeyCodeCombination(KeyCode.TAB), actions.get("indent"));
+        keymap.put(new KeyCodeCombination(KeyCode.TAB, KeyCombination.SHIFT_DOWN), actions.get("de-indent"));
+        keymap.put(new KeyCodeCombination(KeyCode.I, SHORTCUT_MASK), actions.get("insert-tab"));
+        keymap.put(new KeyCodeCombination(KeyCode.ENTER), actions.get("new-line"));
+        keymap.put(new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN), actions.get("insert-break"));
+        setAccelerator(new KeyCodeCombination(KeyCode.F, SHORTCUT_MASK), actions.get("find"));
+        setAccelerator(new KeyCodeCombination(KeyCode.G, SHORTCUT_MASK), actions.get("find-next"));
+        setAccelerator(new KeyCodeCombination(KeyCode.G, KeyCombination.SHIFT_DOWN), actions.get("find-next-backward"));
+        setAccelerator(new KeyCodeCombination(KeyCode.R, SHORTCUT_MASK), actions.get("replace"));
+        setAccelerator(new KeyCodeCombination(KeyCode.L, SHORTCUT_MASK), actions.get("go-to-line"));
+        setAccelerator(new KeyCodeCombination(KeyCode.K, SHORTCUT_MASK), actions.get("compile"));
+        setAccelerator(new KeyCodeCombination(KeyCode.J, SHORTCUT_MASK), actions.get("toggle-interface-view"));
+        setAccelerator(new KeyCodeCombination(KeyCode.B, SHORTCUT_MASK), actions.get("toggle-breakpoint"));
         // "key-bindings" not bound
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, SHORTCUT_MASK), actions.get("preferences"));
+        setAccelerator(new KeyCodeCombination(KeyCode.COMMA, SHORTCUT_MASK), actions.get("preferences"));
         // "about-editor" not bound
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_MASK), actions.get("describe-key"));
+        setAccelerator(new KeyCodeCombination(KeyCode.D, SHORTCUT_MASK), actions.get("describe-key"));
         // "help-mouse" not bound
 
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_MASK), actions.get(DefaultEditorKit.copyAction));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_MASK), actions.get(DefaultEditorKit.cutAction));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_MASK), actions.get(DefaultEditorKit.pasteAction));
+        setAccelerator(new KeyCodeCombination(KeyCode.C, SHORTCUT_MASK), actions.get(DefaultEditorKit.copyAction));
+        setAccelerator(new KeyCodeCombination(KeyCode.X, SHORTCUT_MASK), actions.get(DefaultEditorKit.cutAction));
+        setAccelerator(new KeyCodeCombination(KeyCode.V, SHORTCUT_MASK), actions.get(DefaultEditorKit.pasteAction));
 
         // F2, F3, F4
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), actions.get("copy-line"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0), actions.get(DefaultEditorKit.pasteAction));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0), actions.get("cut-line"));
+        setAccelerator(new KeyCodeCombination(KeyCode.F2), actions.get("copy-line"));
+        setAccelerator(new KeyCodeCombination(KeyCode.F3), actions.get(DefaultEditorKit.pasteAction));
+        setAccelerator(new KeyCodeCombination(KeyCode.F4), actions.get("cut-line"));
 
         // cursor block
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.pasteAction));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.deletePrevCharAction));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.deleteNextCharAction));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, SHIFT_ALT_SHORTCUT_MASK), actions.get("cut-line"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, SHIFT_ALT_SHORTCUT_MASK), actions.get("cut-end-of-line"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, DOUBLE_SHORTCUT_MASK), actions.get("cut-word"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, DOUBLE_SHORTCUT_MASK), actions.get("cut-end-of-word"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, SHORTCUT_MASK), actions.get("increase-font"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), actions.get("decrease-font"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), actions.get("code-completion"));
-        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), actions.get("autoindent"));
+        /*MOEFX
+        keymap.put(new KeyCodeCombination(KeyCode.UP, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.pasteAction));
+        keymap.put(new KeyCodeCombination(KeyCode.LEFT, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.deletePrevCharAction));
+        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.deleteNextCharAction));
+        keymap.put(new KeyCodeCombination(KeyCode.LEFT, SHIFT_ALT_SHORTCUT_MASK), actions.get("cut-line"));
+        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, SHIFT_ALT_SHORTCUT_MASK), actions.get("cut-end-of-line"));
+        keymap.put(new KeyCodeCombination(KeyCode.LEFT, DOUBLE_SHORTCUT_MASK), actions.get("cut-word"));
+        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, DOUBLE_SHORTCUT_MASK), actions.get("cut-end-of-word"));
         */
+        setAccelerator(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), actions.get("increase-font"));
+        setAccelerator(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), actions.get("decrease-font"));
+        keymap.put(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), actions.get("code-completion"));
+        setAccelerator(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), actions.get("autoindent"));
+    }
+
+    private void setAccelerator(KeyCombination accelerator, MoeAbstractAction action)
+    {
+        if (action == null)
+            Debug.printCallStack("Setting accelerator for unfound action");
+        else
+            action.setAccelerator(accelerator);
     }
 
     private MoeAbstractAction action(String name, FXRunnable action)
@@ -1349,6 +1365,7 @@ public final class MoeActions
     {
         private final String name;
         private final BooleanProperty disabled = new SimpleBooleanProperty(false);
+        private final ObjectProperty<KeyCombination> accelerator = new SimpleObjectProperty<>(null);
 
         public MoeAbstractAction(String name)
         {
@@ -1370,6 +1387,11 @@ public final class MoeActions
             disabled.set(!enabled);
         }
 
+        public void setAccelerator(KeyCombination accelerator)
+        {
+            this.accelerator.set(accelerator);
+        }
+
         public String getName()
         {
             return name;
@@ -1388,6 +1410,7 @@ public final class MoeActions
             MenuItem menuItem = new MenuItem(name);
             menuItem.disableProperty().bind(disabled);
             menuItem.setOnAction(e -> actionPerformed());
+            menuItem.acceleratorProperty().bind(accelerator);
             return menuItem;
         }
     }
