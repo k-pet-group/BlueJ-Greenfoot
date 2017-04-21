@@ -22,15 +22,23 @@
 package bluej.editor.moe;
 
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
-
-import java.util.LinkedList;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import org.fxmisc.richtext.model.EditableStyledDocument;
+import org.fxmisc.undo.UndoManager;
+import org.fxmisc.undo.UndoManagerFactory;
+import org.reactfx.EventStream;
+import org.reactfx.Guard;
 
 import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.CompoundEdit;
-import javax.swing.undo.UndoManager;
-import javax.swing.undo.UndoableEdit;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 
 /**
  * An undo/redo manager for the editor. A stack of compound edits is maintained;
@@ -39,56 +47,51 @@ import javax.swing.undo.UndoableEdit;
  * 
  * @author Davin McCall
  */
-public class MoeUndoManager implements UndoableEditListener
+public class MoeUndoManager implements UndoManagerFactory
 {
-    LinkedList<CompoundEdit> editStack;
-    UndoManager undoManager;
-    CompoundEdit currentEdit;
-    MoeEditor editor;
-    
+    private final UndoManagerFactory delegate;
+    private UndoManager undoManager;
+    private final MoeEditor editor;
+    private Guard currentEdit;
+    private BooleanProperty canUndo;
+    private BooleanProperty canRedo;
+
     public MoeUndoManager(MoeEditor editor)
     {
         this.editor = editor;
-        undoManager = new UndoManager();
-        currentEdit = undoManager;
-        editStack = new LinkedList<>();
+        delegate = UndoManagerFactory.fixedSizeHistoryFactory(100);
     }
-    
-    @Override
-    public void undoableEditHappened(UndoableEditEvent e)
-    {
-        addEdit(e.getEdit());
-    }
-    
-    public void addEdit(UndoableEdit edit)
-    {
-        currentEdit.addEdit(edit);
-    }
-    
+
+    //MOEFX: change this to using try, not begin/end calls
     public void beginCompoundEdit()
     {
-        editStack.add(currentEdit);
-        currentEdit = new CompoundEdit();
+        currentEdit = ((EditableStyledDocument)editor.getSourcePane().getDocument()).beingUpdatedProperty().suspend();
     }
     
     public void endCompoundEdit()
     {
-        currentEdit.end();
-        CompoundEdit lastEdit = (CompoundEdit) editStack.removeLast();
-        lastEdit.addEdit(currentEdit);
-        currentEdit = lastEdit;
+        currentEdit.close();
+        undoManager.preventMerge();
     }
     
     public BooleanExpression canUndo()
     {
-        //MOEFX
-        return new ReadOnlyBooleanWrapper(true);//undoManager.canUndo();
+        if (canUndo == null)
+        {
+            canUndo = new SimpleBooleanProperty();
+            canUndo.bind(undoManager.undoAvailableProperty());
+        }
+        return canUndo;
     }
     
     public BooleanExpression canRedo()
     {
-        //MOEFX
-        return new ReadOnlyBooleanWrapper(true);//return undoManager.canRedo();
+        if (canRedo == null)
+        {
+            canRedo = new SimpleBooleanProperty();
+            canRedo.bind(undoManager.redoAvailableProperty());
+        }
+        return canRedo;
     }
     
     public void undo()
@@ -99,5 +102,19 @@ public class MoeUndoManager implements UndoableEditListener
     public void redo()
     {
         undoManager.redo();
+    }
+
+    @Override
+    public <C> UndoManager create(EventStream<C> eventStream, Function<? super C, ? extends C> function, Consumer<C> consumer)
+    {
+        undoManager = delegate.create(eventStream, function, consumer);
+        return undoManager;
+    }
+
+    @Override
+    public <C> UndoManager create(EventStream<C> eventStream, Function<? super C, ? extends C> function, Consumer<C> consumer, BiFunction<C, C, Optional<C>> biFunction)
+    {
+        undoManager = delegate.create(eventStream, function, consumer, biFunction);
+        return undoManager;
     }
 }

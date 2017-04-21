@@ -3124,9 +3124,8 @@ public final class MoeEditor extends BorderPane
         */
         //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
         sourcePane = sourceDocument.makeEditorPane(this, compiledProperty);
-        //MOEFX
-        //sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);
+        sourcePane.setUndoManager(undoManager);
         moeCaret = new MoeCaret(this);
         Nodes.addInputMap(sourcePane, org.fxmisc.wellbehaved.event.InputMap.consume(EventPattern.keyPressed(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), e -> createContentAssist()));
         JavaFXUtil.addChangeListenerPlatform(sourcePane.caretPositionProperty(), e -> caretMoved());

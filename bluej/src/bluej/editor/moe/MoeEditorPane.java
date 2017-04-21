@@ -111,7 +111,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
             }
             t.setFill(Color.rgb(s >> 16 & 0xFF, s >> 8 & 0xFF, s & 0xFF));
 
-        }, doc, true);
+        }, doc, false);
         this.editor = editor;
         this.syntaxView = syntaxView;
         setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
