@@ -37,6 +37,7 @@ import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
+import org.reactfx.Subscription;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -84,6 +85,11 @@ public class MoeSyntaxDocument
     protected boolean inNotification = false;
     protected boolean runningScheduledUpdates = false;
     private final BlueJSyntaxView syntaxView;
+
+    public Position createPosition(int initialPos)
+    {
+        return new Position(initialPos);
+    }
 
     private class PendingError
     {
@@ -887,7 +893,7 @@ public class MoeSyntaxDocument
 
     public void replace(int start, int length, String text)
     {
-        document.replace(start, length, ReadOnlyStyledDocument.fromString(text, null, 0, StyledText.textOps()));
+        document.replace(start, start + length, ReadOnlyStyledDocument.fromString(text, null, 0, StyledText.textOps()));
     }
 
     public void remove(int start, int length)
@@ -980,5 +986,42 @@ public class MoeSyntaxDocument
                 return document.getParagraphs().size();
             }
         };
+    }
+
+    public class Position
+    {
+        private final Subscription subscription;
+        private int position;
+
+        public Position(int initial)
+        {
+            this.position = initial;
+            subscription = document.plainChanges().subscribe(this::changed);
+        }
+
+        private void changed(PlainTextChange c)
+        {
+            if (c.getPosition() <= position)
+            {
+                // Insertion was before us, we need to adjust
+
+                // First, adjust for removal.
+                // If we are in removed section, go to start of removal, otherwise subtract length of removed section
+                position -= Math.min(c.getRemovalEnd() - c.getPosition(), position - c.getPosition());
+                // Now adjust for insertion
+                position += (c.getInsertionEnd() - c.getPosition());
+            }
+            // Otherwise it's after us; we can ignore it
+        }
+
+        public void dispose()
+        {
+            subscription.unsubscribe();
+        }
+
+        public int getOffset()
+        {
+            return position;
+        }
     }
 }
