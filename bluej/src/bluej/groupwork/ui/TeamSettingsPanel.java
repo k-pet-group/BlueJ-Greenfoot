@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.utility.Debug;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -77,6 +78,7 @@ public class TeamSettingsPanel extends FlowPane
 
     private ServerType selectedServerType = null;
     private boolean okEnabled = true;
+
     /**
      *
      */
@@ -108,32 +110,35 @@ public class TeamSettingsPanel extends FlowPane
 
         JavaFXUtil.addStyleClass(this, styleClass);
 
+//        List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
+//        for (TeamworkProvider provider : teamProviders) {
+//            serverTypeComboBox.addItem(provider.getProviderName());
+//        }
         serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
 
         HBox langBox = new HBox();
         langBox.getChildren().add(new Label(Config.getString("team.settings.server")));
         langBox.getChildren().addAll(serverTypes.getButtons());
-        langBox.setAlignment(Pos.BASELINE_LEFT);
+        langBox.setAlignment(Pos.BASELINE_CENTER);
         this.getChildren().add(langBox);
 
-        locationPane = createGridPane(Config.getString("team.settings.location"));
-        personalPane = createGridPane(Config.getString("team.settings.personal"));
+        useAsDefault = new CheckBox(Config.getString("team.settings.rememberSettings"));
 
-        prepareLocationPane(locationPane, serverTypes.selectedProperty().get()); // addPane(locationLabels);
-        preparePersonalPane(personalPane, serverTypes.selectedProperty().get()); // addPane(personalLabels);
+        createPanes();
+        preparePanes(serverTypes.selectedProperty().get());
+
         this.getChildren().addAll(new Label("Location"), locationPane,
                                   new Separator(),
                                   new Label("Personal"), personalPane
         );
 
-        JavaFXUtil.addChangeListenerPlatform(serverTypes.selectedProperty(), type -> {
-            prepareLocationPane(locationPane, type); // addPane(locationLabels);
-            preparePersonalPane(personalPane, type); // addPane(personalLabels);
-//            update();
-        });
+        JavaFXUtil.addChangeListenerPlatform(serverTypes.selectedProperty(),
+                type -> {
+                    preparePanes(type);
+                    // update();
+                });
 
-        useAsDefault = new CheckBox(Config.getString("team.settings.rememberSettings"));
         getChildren().add(useAsDefault);
         ValidateConnectionAction validateConnectionAction = new ValidateConnectionAction(
                 Config.getString("team.settings.checkConnection"), this, dialog::getOwner);
@@ -152,7 +157,7 @@ public class TeamSettingsPanel extends FlowPane
         checkOkEnabled();
         if (!teamSettingsController.hasProject()){
             useAsDefault.setSelected(true);
-            // useAsDefault.setEnabled(false);
+//            useAsDefault.setDisable(true);
         }
     }
 
@@ -220,6 +225,12 @@ public class TeamSettingsPanel extends FlowPane
         return gridPane;
     }
 
+    private void createPanes()
+    {
+        locationPane = createGridPane(Config.getString("team.settings.location"));
+        personalPane = createGridPane(Config.getString("team.settings.personal"));
+    }
+
     private GridPane createGridPane(String title)
     {
         GridPane pane = new GridPane();
@@ -241,9 +252,28 @@ public class TeamSettingsPanel extends FlowPane
         return pane;
     }
 
-    private void preparePersonalPane(GridPane authentificationPanel, ServerType type)
+    private void preparePanes(ServerType type)
     {
-        authentificationPanel.getChildren().clear();
+        prepareLocationPane(type);
+        preparePersonalPane(type);
+
+        switch (type) {
+            case Subversion:
+                useAsDefault.setDisable(false);
+                break;
+            case Git:
+                // on git we always save.
+                useAsDefault.setSelected(true);
+                useAsDefault.setDisable(true);
+                break;
+            default:
+                Debug.reportError(type + " is not recognisable as s server type");
+        }
+    }
+
+    private void preparePersonalPane(ServerType type)
+    {
+        personalPane.getChildren().clear();
 
         Label yourNameLabel = new Label(Config.getString("team.settings.yourName"));
         yourNameField = new TextField();
@@ -263,13 +293,23 @@ public class TeamSettingsPanel extends FlowPane
         groupLabel = new Label(Config.getString("team.settings.group"));
         groupField = new TextField();
 
-        authentificationPanel.setGridLinesVisible(true);
+        personalPane.setGridLinesVisible(true);
 
-        authentificationPanel.addRow(0, yourNameLabel, yourNameField);
-        authentificationPanel.addRow(1, yourEmailLabel, yourEmailField);
-        authentificationPanel.addRow(2, userLabel, userField);
-        authentificationPanel.addRow(3, passwordLabel, passwordField);
-        authentificationPanel.addRow(4, groupLabel, groupField);
+        switch (type) {
+            case Subversion:
+                personalPane.addRow(0, userLabel, userField);
+                personalPane.addRow(1, passwordLabel, passwordField);
+                personalPane.addRow(2, groupLabel, groupField);
+                break;
+            case Git:
+                personalPane.addRow(0, yourNameLabel, yourNameField);
+                personalPane.addRow(1, yourEmailLabel, yourEmailField);
+                personalPane.addRow(2, userLabel, userField);
+                personalPane.addRow(3, passwordLabel, passwordField);
+                break;
+            default:
+                Debug.reportError(type + " is not recognisable as s server type");
+        }
 
 
             /*
@@ -303,40 +343,9 @@ result.ifPresent(usernamePassword -> {
 
     }
 
-    /*
-    if (type.equals(ServerType.Git))
-                    {
-                        locationPane.getChildren().stream()
-                                .filter(node -> node instanceof TextField)
-                                .findFirst().ifPresent(node -> node.setVisible(false));
-
-                        locationPane.getChildren().stream()
-                                .filter(node -> node instanceof Label)
-                                .findFirst().ifPresent(node -> node.setVisible(false));
-                    }
-                    if (type.equals(ServerType.SVN))
-                    {
-                        locationPane.getChildren().stream()
-                                .filter(node -> node instanceof TextField)
-                                .findFirst().ifPresent(node -> node.setVisible(true));
-
-                        locationPane.getChildren().stream()
-                                .filter(node -> node instanceof Label)
-                                .findFirst().ifPresent(node -> node.setVisible(true));
-                    }
-                    update()
-                    updateOKButton();
-                });
-    */
-    
-    private void prepareLocationPane(GridPane locationPanel, ServerType type)
+    private void prepareLocationPane(ServerType type)
     {
-        locationPanel.getChildren().clear();
-
-//        List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
-//        for (TeamworkProvider provider : teamProviders) {
-//            serverTypeComboBox.addItem(provider.getProviderName());
-//        }
+        locationPane.getChildren().clear();
 
         serverLabel = new Label(Config.getString("team.settings.server"));
         serverField = new TextField();
@@ -353,70 +362,24 @@ result.ifPresent(usernamePassword -> {
 
         JavaFXUtil.addChangeListener(serverTypes.selectedProperty(), event -> {
             setProviderSettings();
-            //if Git provider selected, enable your name and your email
-            //fields.
-            if (getSelectedProvider().needsEmail() &&  getSelectedProvider().needsName()){
-                //Git was selected. Enable fields.
-                yourNameField.setDisable(false);
-                yourEmailField.setDisable(false);
-                useAsDefault.setVisible(false);
-                useAsDefault.setSelected(true); // on git we always save.
-                //for git, we will use a URI field.
-                if (serverLabel.getParent() == locationPanel){
-//                    locationPanel.getChildren().remove(serverLabel);
-//                    locationPanel.getChildren().remove(serverField);
-//                    locationPanel.getChildren().remove(prefixLabel);
-//                    locationPanel.getChildren().remove(prefixField);
-//                    locationPanel.getChildren().remove(protocolLabel);
-//                    locationPanel.getChildren().remove(protocolComboBox);
-
-//                    locationPanel.getChildren().add(uriLabel);
-//                    locationPanel.getChildren().add(uriField);
-
-                    locationPanel.add(uriLabel, 0,0);
-                    locationPanel.add(uriField, 1, 0);
-
-//                            locationPanel.revalidate();
-                    groupLabel.setDisable(true);
-                    groupField.setDisable(true);
-
-                }
-            } else {
-                useAsDefault.setVisible(true);
-                //Git is not selected. Disable fields.
-                yourNameField.setDisable(true);
-                yourEmailField.setDisable(true);
-                //for svn, we will use the old layout.
-                if (serverLabel.getParent() != locationPanel){
-//                    locationPanel.getChildren().remove(uriLabel);
-//                    locationPanel.getChildren().remove(uriField);
-
-//                    locationPanel.getChildren().add(serverLabel);
-//                    locationPanel.getChildren().add(serverField);
-//                    locationPanel.getChildren().add(prefixLabel);
-//                    locationPanel.getChildren().add(prefixField);
-//                    locationPanel.getChildren().add(protocolLabel);
-//                    locationPanel.getChildren().add(protocolComboBox);
-
-                    locationPanel.add(serverLabel, 0,0);
-                    locationPanel.add(serverField, 1, 0);
-                    locationPanel.add(prefixLabel, 0, 1);
-                    locationPanel.add(protocolLabel, 1, 1);
-
-//                            locationPanel.revalidate();
-                    groupLabel.setDisable(false);
-                    groupField.setDisable(false);
-                }
-            }
+            //if Git provider selected, enable your name and your email fields.
             checkOkEnabled();
-//                    teamSettingsDialog.pack();//adjust window size.
         });
 
-        locationPanel.setGridLinesVisible(true);
 
-        locationPanel.addRow(0, serverLabel, serverField);
-        locationPanel.addRow(1, prefixLabel, prefixField);
-        locationPanel.addRow(2, protocolLabel, protocolComboBox);
+        locationPane.setGridLinesVisible(true);
+        switch (type) {
+            case Subversion:
+                locationPane.addRow(0, serverLabel, serverField);
+                locationPane.addRow(1, prefixLabel, prefixField);
+                locationPane.addRow(2, protocolLabel, protocolComboBox);
+                break;
+            case Git:
+                locationPane.addRow(0, uriLabel, uriField);
+                break;
+            default:
+                Debug.reportError(type + " is not recognisable as s server type");
+        }
     }
     
     /**
@@ -509,7 +472,7 @@ result.ifPresent(usernamePassword -> {
     private void setProviderSettings()
     {
         String keyBase = "bluej.teamsettings."
-            + getSelectedProvider().getProviderName().toLowerCase() + "."; 
+            + getSelectedProvider().getProviderName().toLowerCase() + ".";
         
         String prefix = teamSettingsController.getPropString(keyBase + "repositoryPrefix");
         if (prefix != null) {
