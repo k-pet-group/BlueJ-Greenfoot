@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import bluej.groupwork.ui.TeamSettingsPanel;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -130,11 +131,24 @@ public class TeamSettingsController
     }
     
     /**
-     * Get a list of the teamwork providers (CVS, Subversion).
+     * Get a list of the teamwork providers (Subversion, Git).
      */
     public List<TeamworkProvider> getTeamworkProviders()
     {
         return teamProviders;
+    }
+
+    /**
+     * Get the teamwork provider by name (Subversion, Git).
+     *
+     * @param type The server type that we need to get its provider
+     * @return The teamwork provider for the type passed
+     */
+    public TeamworkProvider getTeamworkProvider(TeamSettingsPanel.ServerType type)
+    {
+        return teamProviders.stream()
+                .filter(teamworkProvider -> teamworkProvider.getProviderName().equals(type.name()))
+                .findAny().get();
     }
     
     /**

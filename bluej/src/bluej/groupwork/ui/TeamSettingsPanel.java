@@ -21,11 +21,11 @@
  */
 package bluej.groupwork.ui;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import bluej.utility.Debug;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -53,29 +53,36 @@ public class TeamSettingsPanel extends FlowPane
     private TeamSettingsController teamSettingsController;
     private TeamSettingsDialog teamSettingsDialog;
 
-    private Label groupLabel;
-    private final HorizontalRadio<ServerType> serverTypes;
-
     private GridPane personalPane;
     private GridPane locationPane;
 
-    private TextField yourNameField;
-    private TextField yourEmailField;
-    private TextField userField;
-    private PasswordField passwordField;
-    private TextField groupField;
-    private TextField prefixField;
-    private TextField serverField;
-    private ComboBox protocolComboBox;
+    private Label serverLabel    = new Label(Config.getString("team.settings.server"));
+    private Label prefixLabel    = new Label(Config.getString("team.settings.prefix"));
+    private Label protocolLabel  = new Label(Config.getString("team.settings.protocol"));
+    private Label uriLabel       = new Label(Config.getString("team.settings.uri"));
+
+    private Label yourNameLabel  = new Label(Config.getString("team.settings.yourName"));
+    private Label yourEmailLabel = new Label(Config.getString("team.settings.yourEmail"));
+    private Label userLabel      = new Label(Config.getString("team.settings.user"));
+    private Label passwordLabel  = new Label(Config.getString("team.settings.password"));
+    private Label groupLabel     = new Label(Config.getString("team.settings.group"));
+
+
+    private final HorizontalRadio<ServerType> serverTypes;
+
+    private final TextField serverField = new TextField();
+    private final TextField prefixField = new TextField();
+    private final ComboBox protocolComboBox = new ComboBox();
+    private final TextField uriField = new TextField();
+
+    private final TextField yourNameField = new TextField();
+    private final TextField yourEmailField = new TextField();
+    private final TextField userField = new TextField();
+    private final PasswordField passwordField = new PasswordField();
+    private final TextField groupField = new TextField();
+
     private Button validateButton;
-
     private CheckBox useAsDefault;
-    private TextField uriField;
-    private Label prefixLabel;
-    private Label serverLabel;
-    private Label protocolLabel;
-    private Label uriLabel;
-
     private ServerType selectedServerType = null;
     private boolean okEnabled = true;
 
@@ -86,7 +93,6 @@ public class TeamSettingsPanel extends FlowPane
     {
         Subversion,
         Git
-
     }
 
     String[] personalLabels = {
@@ -129,7 +135,6 @@ public class TeamSettingsPanel extends FlowPane
         preparePanes(serverTypes.selectedProperty().get());
 
         this.getChildren().addAll(new Label("Location"), locationPane,
-                                  new Separator(),
                                   new Label("Personal"), personalPane
         );
 
@@ -152,7 +157,6 @@ public class TeamSettingsPanel extends FlowPane
         JavaFXUtil.addChangeListener(serverField.textProperty(), s -> checkOkEnabled());
         JavaFXUtil.addChangeListener(uriField.textProperty(), s -> checkOkEnabled());
 
-
         setupContent();
         checkOkEnabled();
         if (!teamSettingsController.hasProject()){
@@ -161,69 +165,26 @@ public class TeamSettingsPanel extends FlowPane
         }
     }
 
-    /**
-     * Get the focus traversal policy for the parent window. The new policy
-     * overrides some functionality and delegates everything else back to
-     * the original policy (the delegate).
-     * 
-     * @param delegate  The original traversal policy
-     */
-//    public FocusTraversalPolicy getTraversalPolicy(FocusTraversalPolicy delegate)
+//    private GridPane addPane(String[] labels)
 //    {
-//        if (yourNameField.isEditable() && getYourName().length()==0){
-//            return delegate;
-//        } else if ((yourEmailField.isEditable() && getYourEmail().length()==0)){
-//            return new TeamPanelFocusPolicy(yourEmailField, delegate);
-//        } else if ( getUser().length() == 0) {
-//            return new TeamPanelFocusPolicy(userField, delegate);
-//        } else {
-//            return new TeamPanelFocusPolicy(passwordField, delegate);
+//        GridPane gridPane = new GridPane();
+//        JavaFXUtil.addStyleClass(gridPane, "grid");
+//
+//        List<TextField> fields = new ArrayList<>();
+//
+//        for (int i = 0; i < labels.length; i++) {
+//            Label label = new Label(Config.getString(labels[i]));
+//            label.setPrefWidth(100);
+//            gridPane.add(label, 0, i);
+//
+//            TextField field = new TextField();
+//            fields.add(field);
+//            JavaFXUtil.addChangeListener(field.textProperty(), text -> updateOKButton());
+//            gridPane.add(field, 1, i);
 //        }
+//
+//        return gridPane;
 //    }
-    
-    /**
-     * Disable the fields used to specify the repository:
-     * group, prefix, server and protocol
-     */
-    public void disableRepositorySettings()
-    {
-        groupField.setDisable(true);
-        prefixField.setDisable(true);
-        serverField.setDisable(true);
-        protocolComboBox.setDisable(true);
-        uriField.setDisable(true);
-        
-        if (uriField.isVisible() && uriField.getText().isEmpty()){
-            //update uri.
-            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getText(), prefixField.getText()));
-        }
-
-        groupLabel.setDisable(true);
-        prefixLabel.setDisable(true);
-        serverLabel.setDisable(true);
-        protocolLabel.setDisable(true);
-    }
-
-    private GridPane addPane(String[] labels)
-    {
-        GridPane gridPane = new GridPane();
-        JavaFXUtil.addStyleClass(gridPane, "grid");
-
-        List<TextField> fields = new ArrayList<>();
-
-        for (int i = 0; i < labels.length; i++) {
-            Label label = new Label(Config.getString(labels[i]));
-            label.setPrefWidth(100);
-            gridPane.add(label, 0, i);
-
-            TextField field = new TextField();
-            fields.add(field);
-            JavaFXUtil.addChangeListener(field.textProperty(), text -> updateOKButton());
-            gridPane.add(field, 1, i);
-        }
-
-        return gridPane;
-    }
 
     private void createPanes()
     {
@@ -257,6 +218,8 @@ public class TeamSettingsPanel extends FlowPane
         prepareLocationPane(type);
         preparePersonalPane(type);
 
+        setProviderSettings();
+
         switch (type) {
             case Subversion:
                 useAsDefault.setDisable(false);
@@ -269,31 +232,19 @@ public class TeamSettingsPanel extends FlowPane
             default:
                 Debug.reportError(type + " is not recognisable as s server type");
         }
+
+        checkOkEnabled();
     }
 
     private void preparePersonalPane(ServerType type)
     {
         personalPane.getChildren().clear();
+        personalPane.setGridLinesVisible(false);
+        personalPane.setGridLinesVisible(true);
 
-        Label yourNameLabel = new Label(Config.getString("team.settings.yourName"));
-        yourNameField = new TextField();
 //        yourNameField.setPromptText(Config.getString("team.settings.yourName"));
         // Request focus on the username field by default.
-//        Platform.runLater(() -> yourNameField.requestFocus());
-
-        Label yourEmailLabel = new Label(Config.getString("team.settings.yourEmail"));
-        yourEmailField = new TextField();
-
-        Label userLabel = new Label(Config.getString("team.settings.user"));
-        userField = new TextField();
-
-        Label passwordLabel = new Label(Config.getString("team.settings.password"));
-        passwordField = new PasswordField();
-
-        groupLabel = new Label(Config.getString("team.settings.group"));
-        groupField = new TextField();
-
-        personalPane.setGridLinesVisible(true);
+        Platform.runLater(() -> yourNameField.requestFocus());
 
         switch (type) {
             case Subversion:
@@ -346,28 +297,11 @@ result.ifPresent(usernamePassword -> {
     private void prepareLocationPane(ServerType type)
     {
         locationPane.getChildren().clear();
-
-        serverLabel = new Label(Config.getString("team.settings.server"));
-        serverField = new TextField();
-
-        prefixLabel = new Label(Config.getString("team.settings.prefix"));
-        prefixField = new TextField();
-
-        protocolLabel = new Label(Config.getString("team.settings.protocol"));
-        protocolComboBox = new ComboBox();
         protocolComboBox.setEditable(false);
 
-        uriLabel = new Label(Config.getString("team.settings.uri"));
-        uriField = new TextField();
-
-        JavaFXUtil.addChangeListener(serverTypes.selectedProperty(), event -> {
-            setProviderSettings();
-            //if Git provider selected, enable your name and your email fields.
-            checkOkEnabled();
-        });
-
-
+        personalPane.setGridLinesVisible(false);
         locationPane.setGridLinesVisible(true);
+
         switch (type) {
             case Subversion:
                 locationPane.addRow(0, serverLabel, serverField);
@@ -379,29 +313,6 @@ result.ifPresent(usernamePassword -> {
                 break;
             default:
                 Debug.reportError(type + " is not recognisable as s server type");
-        }
-    }
-    
-    /**
-     * Empty the protocol selection box, then fill it with the available protocols
-     * from the currently selected teamwork provider.
-     */
-    private void fillProtocolSelections()
-    {
-        ServerType type = serverTypes.selectedProperty().get();
-        if (type != selectedServerType) {
-            selectedServerType = type;
-            protocolComboBox.getItems().clear();
-            List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
-
-            TeamworkProvider provider = teamProviders.stream()
-                    .filter(teamworkProvider -> teamworkProvider.getProviderName().equals(type.name()))
-                    .findAny().get();
-
-            String [] protocols = provider.getProtocols();
-            for (int i = 0; i < protocols.length; i++) {
-                protocolComboBox.getItems().add(protocols[i]);
-            }
         }
     }
         
@@ -482,12 +393,28 @@ result.ifPresent(usernamePassword -> {
         if (server != null) {
             setServer(server);
         }
-        
+
         fillProtocolSelections();
         
         String protocol = readProtocolString();
         if (protocol != null){
             setProtocol(protocol);
+        }
+    }
+
+    /**
+     * Empty the protocol selection box, then fill it with the available protocols
+     * from the currently selected teamwork provider.
+     */
+    private void fillProtocolSelections()
+    {
+        ServerType type = serverTypes.selectedProperty().get();
+        if (type != selectedServerType) {
+            selectedServerType = type;
+            protocolComboBox.getItems().clear();
+
+            TeamworkProvider provider = teamSettingsController.getTeamworkProvider(type);
+            protocolComboBox.getItems().addAll(Arrays.asList(provider.getProtocols()));
         }
     }
     
@@ -673,6 +600,29 @@ result.ifPresent(usernamePassword -> {
     private void setOKEnabled(boolean okEnabled)
     {
         teamSettingsDialog.getOkButton().setDisable(!okEnabled);
+    }
+
+    /**
+     * Disable the fields used to specify the repository:
+     * group, prefix, server and protocol
+     */
+    public void disableRepositorySettings()
+    {
+        groupField.setDisable(true);
+        prefixField.setDisable(true);
+        serverField.setDisable(true);
+        protocolComboBox.setDisable(true);
+        uriField.setDisable(true);
+
+        if (uriField.isVisible() && uriField.getText().isEmpty()){
+            //update uri.
+            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getText(), prefixField.getText()));
+        }
+
+        groupLabel.setDisable(true);
+        prefixLabel.setDisable(true);
+        serverLabel.setDisable(true);
+        protocolLabel.setDisable(true);
     }
 
 
