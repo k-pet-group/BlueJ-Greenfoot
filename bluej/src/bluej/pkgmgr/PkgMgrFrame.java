@@ -2869,6 +2869,7 @@ public class PkgMgrFrame
                 libraryCallDialog = new LibraryCallDialog(getFXWindow(), pkgRef, classLoader);
             }
             libraryCallDialog.setResult(null);
+            libraryCallDialog.requestfocus();
             Optional<CallableView> result = libraryCallDialog.showAndWait();
             result.ifPresent(viewToCall -> SwingUtilities.invokeLater(() -> {
                 pkgRef.getEditor().raiseMethodCallEvent(pkgRef, viewToCall);
