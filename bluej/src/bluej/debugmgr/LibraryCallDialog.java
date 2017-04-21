@@ -107,6 +107,12 @@ public class LibraryCallDialog extends Dialog<CallableView>
     }
 
     /**
+     * set the focus on the class filed .
+     */
+    public  void requestfocus(){
+        this.classField.requestFocus();
+    }
+    /**
      * Show the javadoc documentation for the selected class in a browser.
      */
     private void showDocumentation()
