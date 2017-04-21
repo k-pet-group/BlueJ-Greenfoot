@@ -2169,7 +2169,15 @@ public final class MoeEditor extends BorderPane
         }
         goToLineDialog.setRangeMax(numberOfLines);
         Optional<Integer> o = goToLineDialog.showAndWait();
-        o.ifPresent(n -> setSelection(n , 1, 0));
+        o.ifPresent(n -> {
+            setSelection(n , 1, 0);
+            ensureCaretVisible();
+        });
+    }
+
+    private void ensureCaretVisible()
+    {
+        sourcePane.requestFollowCaret();
     }
 
     // --------------------------------------------------------------------
@@ -3122,6 +3130,13 @@ public final class MoeEditor extends BorderPane
         moeCaret = new MoeCaret(this);
         Nodes.addInputMap(sourcePane, org.fxmisc.wellbehaved.event.InputMap.consume(EventPattern.keyPressed(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), e -> createContentAssist()));
         JavaFXUtil.addChangeListenerPlatform(sourcePane.caretPositionProperty(), e -> caretMoved());
+        JavaFXUtil.addChangeListenerPlatform(sourcePane.estimatedScrollYProperty(), d -> {
+            // The caret won't have actually moved within the document,
+            // but its visibility on screen may well have changed, so we
+            // make sure to redraw things (e.g. error popup) which may have
+            // been affected:
+            caretMoved();
+        });
         sourcePane.setMouseOverTextDelay(java.time.Duration.ofMillis(400));
         sourcePane.addEventHandler(MouseOverTextEvent.ANY, this::mouseOverText);
 
@@ -3901,6 +3916,7 @@ public final class MoeEditor extends BorderPane
                 if (err != null)
                 {
                     sourcePane.setCaretPosition(err.startPos);
+                    ensureCaretVisible();
 
                     if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
                     {
