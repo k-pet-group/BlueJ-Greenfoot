@@ -367,12 +367,7 @@ public class MoeSyntaxDocument
 
     private void setParagraphStyle(int i, ScopeInfo newStyle)
     {
-        //MOEFX Stop working around RichTextFX bug post 0.7 release
-        //document.setParagraphStyle(i, paragraphScopeInfo.get(i));
-        Paragraph<ScopeInfo, StyledText<Integer>, Integer> oldPara = document.getParagraph(i);
-        int startPos = document.getAbsolutePosition(i, 0);
-        int endPos = (i == document.getParagraphs().size() - 1) ? document.getLength() : (document.getAbsolutePosition(i + 1, 0) - 1);
-        document.replace(startPos, endPos, ReadOnlyStyledDocument.fromString(oldPara.getText(), newStyle, 0, StyledText.textOps()));
+        document.setParagraphStyle(i, newStyle);
     }
 
     /**
