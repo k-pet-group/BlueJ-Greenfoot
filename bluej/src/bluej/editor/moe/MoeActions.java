@@ -21,44 +21,6 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Event;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.*;
-
-import javax.swing.Action;
-import javax.swing.InputMap;
-import javax.swing.JComboBox;
-import javax.swing.KeyStroke;
-import javax.swing.event.DocumentEvent;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Caret;
-import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.Keymap;
-import javax.swing.text.TextAction;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
 
 import bluej.Config;
 import bluej.debugger.gentype.JavaType;
@@ -72,14 +34,7 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.util.stream.Collectors;
-
-import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
-import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -87,12 +42,21 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.*;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
+import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.swing.text.DefaultEditorKit;
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A set of actions supported by the Moe editor. This is a singleton: the
@@ -128,7 +92,7 @@ public final class MoeActions
     //public FindNextBackwardAction findNextBackwardAction;
     // frequently needed actions
     public MoeAbstractAction compileOrNextErrorAction;
-    public Action contentAssistAction;
+    public MoeAbstractAction contentAssistAction;
     private MoeAbstractAction[] actionTable; // table of all known actions
     private HashMap<Object, MoeAbstractAction> actions; // the same actions in a hash-map
     private String[] categories;
@@ -236,27 +200,23 @@ public final class MoeActions
     private static int getCurrentColumn(MoeEditorPane textPane)
     {
         int pos = Math.min(textPane.getCaretMark(), textPane.getCaretDot());
-        AbstractDocument doc = (AbstractDocument) textPane.getDocument();
-        int lineStart = doc.getParagraphElement(pos).getStartOffset();
-        return (pos - lineStart);
+        return textPane.offsetToPosition(pos, Bias.Forward).getMinor();
     }
 
     /**
      * Find and return a line by line number
      */
-    private static Element getLine(MoeEditorPane text, int lineNo)
+    private Element getLine(MoeEditorPane text, int lineNo)
     {
-        //MOEFX
-        return null;
-        //return text.getSourceDocument().getDefaultRootElement().getElement(lineNo);
+        return editor.getSourceDocument().getDefaultRootElement().getElement(lineNo);
     }
 
     /**
      * Return the number of the current line.
      */
-    private static int getCurrentLineIndex(MoeEditorPane text)
+    private int getCurrentLineIndex(MoeEditorPane text)
     {
-        MoeSyntaxDocument document = (MoeSyntaxDocument) text.getDocument();
+        MoeSyntaxDocument document = editor.getSourceDocument();
         return document.getDefaultRootElement().getElementIndex(text.getCaretPosition());
     }
 
@@ -371,7 +331,7 @@ public final class MoeActions
      * of characters those are - the caller should make sure they can be
      * removed (usually they should be whitespace).
      */
-    private static void removeTab(MoeEditorPane textPane, MoeSyntaxDocument doc) throws BadLocationException
+    private static void removeTab(MoeEditorPane textPane, MoeSyntaxDocument doc)
     {
         int col = getCurrentColumn(textPane);
         if(col > 0) {
@@ -511,7 +471,8 @@ public final class MoeActions
 
     public void setPasteEnabled(boolean enabled)
     {
-        actions.get(DefaultEditorKit.pasteAction).setEnabled(enabled);
+        //MOEFX
+        //actions.get(DefaultEditorKit.pasteAction).setEnabled(enabled);
     }
 
     // === File: ===
@@ -739,7 +700,7 @@ public final class MoeActions
     /**
      * Called at every insertion of text into the document.
      */
-    public void textInsertAction(DocumentEvent evt, JTextComponent textPane)
+    public void textInsertAction(Object documentEvent, Object textPane)
     {
         //MOEFX
         /*
@@ -769,6 +730,7 @@ public final class MoeActions
     /**
      * We just typed a closing brace character - indent appropriately.
      */
+    /*MOEFX
     private void closingBrace(MoeEditorPane textPane, Document doc, int offset) throws BadLocationException
     {
         int lineIndex = getCurrentLineIndex(textPane);
@@ -794,6 +756,7 @@ public final class MoeActions
             //textPane.getCaret().setMagicCaretPosition(p);
         }
     }
+    */
 
     // --------------------------------------------------------------------
 
@@ -832,96 +795,91 @@ public final class MoeActions
             return;
         }
 
-        MoeSyntaxDocument doc = (MoeSyntaxDocument) textPane.getDocument();
+        MoeSyntaxDocument doc = editor.getSourceDocument();
 
         Element line = getLine(textPane, lineIndex);
         int lineStart = line.getStartOffset();
         int pos = textPane.getCaretPosition();
 
-        try {
-            boolean isOpenBrace = false;
-            boolean isCommentEnd = false, isCommentEndOnly = false;
+        boolean isOpenBrace = false;
+        boolean isCommentEnd = false, isCommentEndOnly = false;
 
-            // if there is any text before the cursor, just insert a tab
+        // if there is any text before the cursor, just insert a tab
 
-            String prefix = doc.getText(lineStart, pos - lineStart);
-            if (prefix.trim().length() > 0) {
-                insertSpacedTab(textPane);
-                return;
-            }
+        String prefix = doc.getText(lineStart, pos - lineStart);
+        if (prefix.trim().length() > 0) {
+            insertSpacedTab(textPane);
+            return;
+        }
 
-            // get indentation string from previous line
+        // get indentation string from previous line
 
-            boolean foundLine = false;
-            int lineOffset = 1;
-            String prevLineText = "";
-            while ((lineIndex - lineOffset >= 0) && !foundLine) {
-                Element prevline = getLine(textPane, lineIndex - lineOffset);
-                int prevLineStart = prevline.getStartOffset();
-                int prevLineEnd = prevline.getEndOffset();
-                prevLineText = doc.getText(prevLineStart, prevLineEnd - prevLineStart);
-                if(!MoeIndent.isWhiteSpaceOnly(prevLineText)) {
-                    foundLine = true;
-                }
-                else {
-                    lineOffset++;
-                }
-            }
-            if(!foundLine) {
-                if(!isNewLine)
-                    insertSpacedTab(textPane);
-                return;
-            }
-
-            if (isOpenBrace(prevLineText)) {
-                isOpenBrace = true;
+        boolean foundLine = false;
+        int lineOffset = 1;
+        String prevLineText = "";
+        while ((lineIndex - lineOffset >= 0) && !foundLine) {
+            Element prevline = getLine(textPane, lineIndex - lineOffset);
+            int prevLineStart = prevline.getStartOffset();
+            int prevLineEnd = prevline.getEndOffset();
+            prevLineText = doc.getText(prevLineStart, prevLineEnd - prevLineStart);
+            if(!MoeIndent.isWhiteSpaceOnly(prevLineText)) {
+                foundLine = true;
             }
             else {
-                isCommentEnd = prevLineText.trim().endsWith("*/");
-                isCommentEndOnly = prevLineText.trim().equals("*/");
-            }
-
-            int indentPos = MoeIndent.findFirstNonIndentChar(prevLineText, isCommentEnd);
-            String indent = prevLineText.substring(0, indentPos);
-
-            if (isOpenBrace) {
-                indentPos += tabSize;
-            }
-
-            // if the cursor is already past the indentation point, insert tab
-            // (unless we just did a line break, then we just stop)
-
-            int caretColumn = getCurrentColumn(textPane);
-            if (caretColumn >= indentPos) {
-                if (!isNewLine) {
-                    insertSpacedTab(textPane);
-                }
-                return;
-            }
-
-            if (isNewLine && isNewCommentStart(indent, doc, lineStart)) {
-                completeNewCommentBlock(textPane, indent);
-                return;
-            }
-
-            // find and replace indentation of current line
-
-            int lineEnd = line.getEndOffset();
-            String lineText = doc.getText(lineStart, lineEnd - lineStart);
-            indentPos = MoeIndent.findFirstNonIndentChar(lineText, true);
-            char firstChar = lineText.charAt(indentPos);
-            doc.remove(lineStart, indentPos);
-            String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
-            if (firstChar == '*') {
-                newIndent = newIndent.replace('*', ' ');
-            }
-            doc.insertString(lineStart, newIndent, null);
-            if(firstChar == '}') {
-                removeTab(textPane, doc);
+                lineOffset++;
             }
         }
-        catch (BadLocationException exc) {
-            throw new RuntimeException(exc);
+        if(!foundLine) {
+            if(!isNewLine)
+                insertSpacedTab(textPane);
+            return;
+        }
+
+        if (isOpenBrace(prevLineText)) {
+            isOpenBrace = true;
+        }
+        else {
+            isCommentEnd = prevLineText.trim().endsWith("*/");
+            isCommentEndOnly = prevLineText.trim().equals("*/");
+        }
+
+        int indentPos = MoeIndent.findFirstNonIndentChar(prevLineText, isCommentEnd);
+        String indent = prevLineText.substring(0, indentPos);
+
+        if (isOpenBrace) {
+            indentPos += tabSize;
+        }
+
+        // if the cursor is already past the indentation point, insert tab
+        // (unless we just did a line break, then we just stop)
+
+        int caretColumn = getCurrentColumn(textPane);
+        if (caretColumn >= indentPos) {
+            if (!isNewLine) {
+                insertSpacedTab(textPane);
+            }
+            return;
+        }
+
+        if (isNewLine && isNewCommentStart(indent, doc, lineStart)) {
+            completeNewCommentBlock(textPane, indent);
+            return;
+        }
+
+        // find and replace indentation of current line
+
+        int lineEnd = line.getEndOffset();
+        String lineText = doc.getText(lineStart, lineEnd - lineStart);
+        indentPos = MoeIndent.findFirstNonIndentChar(lineText, true);
+        char firstChar = lineText.charAt(indentPos);
+        doc.remove(lineStart, indentPos);
+        String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
+        if (firstChar == '*') {
+            newIndent = newIndent.replace('*', ' ');
+        }
+        textPane.replaceText(lineStart, lineStart, newIndent);
+        if(firstChar == '}') {
+            removeTab(textPane, doc);
         }
     }
 
@@ -939,49 +897,44 @@ public final class MoeActions
         // if indentation is same or less than line above: indent one level back
 
         int lineIndex = getCurrentLineIndex(textPane);
-        MoeSyntaxDocument doc = (MoeSyntaxDocument) textPane.getDocument();
+        MoeSyntaxDocument doc = editor.getSourceDocument();
 
-        try {
-            Element line = getLine(textPane, lineIndex);
-            int lineStart = line.getStartOffset();
-            int lineEnd = line.getEndOffset();
-            String lineText = doc.getText(lineStart, lineEnd - lineStart);
+        Element line = getLine(textPane, lineIndex);
+        int lineStart = line.getStartOffset();
+        int lineEnd = line.getEndOffset();
+        String lineText = doc.getText(lineStart, lineEnd - lineStart);
 
-            int currentIndentPos = MoeIndent.findFirstNonIndentChar(lineText, true);
-            char firstChar = lineText.charAt(currentIndentPos);
+        int currentIndentPos = MoeIndent.findFirstNonIndentChar(lineText, true);
+        char firstChar = lineText.charAt(currentIndentPos);
 
-            textPane.setCaretPosition(lineStart + currentIndentPos);
+        textPane.setCaretPosition(lineStart + currentIndentPos);
 
-            if (lineIndex == 0) { // first line
-                removeTab(textPane, doc);
-                return;
-            }
-
-            // get indentation details from previous line
-
-            Element prevline = getLine(textPane, lineIndex - 1);
-            int prevLineStart = prevline.getStartOffset();
-            int prevLineEnd = prevline.getEndOffset();
-            String prevLineText = doc.getText(prevLineStart, prevLineEnd - prevLineStart);
-
-            int targetIndentPos = MoeIndent.findFirstNonIndentChar(prevLineText, true);
-
-            if (currentIndentPos > targetIndentPos) {
-                // indent same as line above
-                String indent = prevLineText.substring(0, targetIndentPos);
-                doc.remove(lineStart, currentIndentPos);
-                doc.insertString(lineStart, indent, null);
-                if(firstChar == '}')
-                    removeTab(textPane, doc);
-            }
-            else {
-                // we are at same level as line above or less - go one indentation
-                // level back
-                removeTab(textPane, doc);
-            }
+        if (lineIndex == 0) { // first line
+            removeTab(textPane, doc);
+            return;
         }
-        catch (BadLocationException exc) {
-            throw new RuntimeException(exc);
+
+        // get indentation details from previous line
+
+        Element prevline = getLine(textPane, lineIndex - 1);
+        int prevLineStart = prevline.getStartOffset();
+        int prevLineEnd = prevline.getEndOffset();
+        String prevLineText = doc.getText(prevLineStart, prevLineEnd - prevLineStart);
+
+        int targetIndentPos = MoeIndent.findFirstNonIndentChar(prevLineText, true);
+
+        if (currentIndentPos > targetIndentPos) {
+            // indent same as line above
+            String indent = prevLineText.substring(0, targetIndentPos);
+            doc.remove(lineStart, currentIndentPos);
+            doc.insertString(lineStart, indent, null);
+            if(firstChar == '}')
+                removeTab(textPane, doc);
+        }
+        else {
+            // we are at same level as line above or less - go one indentation
+            // level back
+            removeTab(textPane, doc);
         }
     }
 
@@ -1472,12 +1425,7 @@ public final class MoeActions
         return action("undo", () ->
         {
             MoeEditor editor = getEditor();
-            try {
-                editor.undoManager.undo();
-            }
-            catch (CannotUndoException ex) {
-                Debug.message("moe: cannot undo...");
-            }
+            editor.undoManager.undo();
         }).bindEnabled(editor.undoManager.canUndo());
     }
 
@@ -1485,12 +1433,7 @@ public final class MoeActions
     {
         return action("redo", () -> {
             MoeEditor editor = getEditor();
-            try {
-                editor.undoManager.redo();
-            }
-            catch (CannotRedoException ex) {
-                Debug.message("moe: cannot redo...");
-            }
+            editor.undoManager.redo();
         }).bindEnabled(editor.undoManager.canRedo());
     }
 
@@ -1724,8 +1667,7 @@ public final class MoeActions
     {
         return action("new-line", () -> {
 
-            MoeAbstractAction action = actions.get(DefaultEditorKit.insertBreakAction);
-            action.actionPerformed();
+            editor.getSourcePane().insertText(editor.getSourcePane().getCaretPosition(), "\n");
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
             {

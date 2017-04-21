@@ -886,6 +886,8 @@ public class MoeSyntaxDocument
         segment.count = s.length();
     }
 
+    //MOEFX: remove attrSet
+    //MOEFX: we may actually want to make this test-only, as it doesn't track the caret position
     public void insertString(int start, String src, Object attrSet)
     {
         document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, 0, StyledText.textOps()));
@@ -898,7 +900,8 @@ public class MoeSyntaxDocument
 
     public void remove(int start, int length)
     {
-        document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, 0));
+        if (length != 0)
+            document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, 0));
     }
 
 
