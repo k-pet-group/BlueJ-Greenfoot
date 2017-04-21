@@ -317,38 +317,29 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
         MenuItem newClass = new MenuItem(Config.getString("menu.edit.newClass"));
         newClass.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
-                pmf.menuCall();
-                pmf.doCreateNewClass(graphLoc.getX(), graphLoc.getY());
-            });
+            pmf.menuCall();
+            pmf.doCreateNewClass(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newClass, "class-action-inbuilt");
 
         MenuItem newPackage = new MenuItem(Config.getString("menu.edit.newPackage"));
         newPackage.setOnAction(e -> {
-            SwingUtilities.invokeLater(() ->
-            {
-                pmf.menuCall();
-                pmf.doCreateNewPackage(graphLoc.getX(), graphLoc.getY());
-            });
+            pmf.menuCall();
+            pmf.doCreateNewPackage(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newPackage, "class-action-inbuilt");
         
         MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newCSS"));
         newCSS.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
-                pmf.menuCall();
-                pmf.doCreateNewCSS(graphLoc.getX(), graphLoc.getY());
-            });
+            pmf.menuCall();
+            pmf.doCreateNewCSS(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newCSS, "class-action-inbuilt");
 
         MenuItem addClassFromFile = new MenuItem(Config.getString("menu.edit.addClass"));
         addClassFromFile.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
-                pmf.menuCall();
-                pmf.doAddFromFile();
-            });
+            pmf.menuCall();
+            pmf.doAddFromFile();
         });
         JavaFXUtil.addStyleClass(addClassFromFile, "class-action-inbuilt");
 

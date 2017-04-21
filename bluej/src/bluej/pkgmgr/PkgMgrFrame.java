@@ -2483,18 +2483,13 @@ public class PkgMgrFrame
      */
     public void doCreateNewClass(double x, double y)
     {
-        // Must take reference on Swing thread:
         SourceType sourceType = this.pkg.getDefaultSourceType();
-        Platform.runLater(() -> {
-            NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
-            Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
+        NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
+        Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
-            result.ifPresent(info -> 
-                SwingUtilities.invokeLater(() ->
-                    createNewClass(info.className, info.templateName, info.sourceType, true, x, y)
-                )
-            );
-        });
+        result.ifPresent(info ->
+            createNewClass(info.className, info.templateName, info.sourceType, true, x, y)
+        );
     }
 
     /**
