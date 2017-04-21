@@ -178,6 +178,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, Integer>
     public void read(Reader reader) throws IOException
     {
         setText(CharStreams.toString(reader));
+        editor.undoManager.forgetHistory();
     }
 
     public void setFont(java.awt.Font standardEditorFont)

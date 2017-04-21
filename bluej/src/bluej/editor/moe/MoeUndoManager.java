@@ -117,4 +117,9 @@ public class MoeUndoManager implements UndoManagerFactory
         undoManager = delegate.create(eventStream, function, consumer, biFunction);
         return undoManager;
     }
+
+    public void forgetHistory()
+    {
+        undoManager.forgetHistory();
+    }
 }
