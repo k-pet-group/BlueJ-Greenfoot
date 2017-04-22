@@ -24,8 +24,12 @@ package bluej.groupwork.ui;
 import java.util.Arrays;
 import java.util.List;
 
-import bluej.utility.Debug;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -38,11 +42,9 @@ import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamSettingsController.ServerType;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
+import bluej.utility.Debug;
 import bluej.utility.javafx.HorizontalRadio;
 import bluej.utility.javafx.JavaFXUtil;
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * A panel for team settings.
@@ -85,7 +87,6 @@ public class TeamSettingsPanel extends FlowPane
     private Button validateButton;
     private CheckBox useAsDefault;
     private ServerType selectedServerType = null;
-    private boolean okEnabled = true;
 
     String[] personalLabels = {
             "team.settings.yourName",
@@ -126,11 +127,10 @@ public class TeamSettingsPanel extends FlowPane
                                   new Label("Personal"), personalPane
         );
 
-        JavaFXUtil.addChangeListenerPlatform(serverTypes.selectedProperty(),
-                type -> {
-                    preparePanes(type);
-                    // update();
-                });
+        JavaFXUtil.addChangeListenerPlatform(serverTypes.selectedProperty(), type -> {
+            preparePanes(type);
+            updateOKButtonBinding();
+        });
 
         getChildren().add(useAsDefault);
         ValidateConnectionAction validateConnectionAction = new ValidateConnectionAction(
@@ -138,18 +138,12 @@ public class TeamSettingsPanel extends FlowPane
         validateButton = new Button(validateConnectionAction.getName());
         validateButton.setOnAction(event -> validateConnectionAction.actionPerformed(null));
         getChildren().add(validateButton);
-        
-        JavaFXUtil.addChangeListener(yourNameField.textProperty(), s -> checkOkEnabled());
-        JavaFXUtil.addChangeListener(yourEmailField.textProperty(), s -> checkOkEnabled());
-        JavaFXUtil.addChangeListener(userField.textProperty(), s -> checkOkEnabled());
-        JavaFXUtil.addChangeListener(serverField.textProperty(), s -> checkOkEnabled());
-        JavaFXUtil.addChangeListener(uriField.textProperty(), s -> checkOkEnabled());
 
         setupContent();
-        checkOkEnabled();
+        updateOKButtonBinding();
         if (!teamSettingsController.hasProject()){
             useAsDefault.setSelected(true);
-//            useAsDefault.setDisable(true);
+            useAsDefault.setDisable(true);
         }
     }
 
@@ -220,8 +214,6 @@ public class TeamSettingsPanel extends FlowPane
             default:
                 Debug.reportError(type + " is not recognisable as s server type");
         }
-
-        checkOkEnabled();
     }
 
     private void preparePersonalPane(ServerType type)
@@ -381,34 +373,7 @@ public class TeamSettingsPanel extends FlowPane
             + getSelectedProvider().getProviderName().toLowerCase() + "."; 
         return teamSettingsController.getPropString(keyBase + "protocol");
     }
-    
-    /**
-     * Check whether the "ok" button should be enabled or disabled according
-     * to whether required fields have been provided.
-     */
-    private void checkOkEnabled()
-    {
-        boolean newOkEnabled = (userField.getText().length() != 0);
 
-        if (!yourEmailField.isDisabled() && !yourNameField.isDisable())
-        {
-            newOkEnabled &= (yourEmailField.getText().length() != 0) && (yourEmailField.getText().contains("@"));
-            newOkEnabled &= yourNameField.getText().length() != 0;
-        }
-        if (uriField.isVisible())
-        {
-            newOkEnabled &= uriField.getText().length() != 0;
-        }
-        else
-        {
-            newOkEnabled &= serverField.getText().length() != 0;
-        }
-        if (newOkEnabled != okEnabled) {
-            okEnabled = newOkEnabled;
-            teamSettingsDialog.setOkButtonEnabled(okEnabled);
-        }
-    }
-    
     private void setUser(String user)
     {
         userField.setText(user);
@@ -545,18 +510,28 @@ public class TeamSettingsPanel extends FlowPane
         return result;
     }
 
-    private void updateOKButton()
+    /**
+     * Check whether the "ok" button should be enabled or disabled according
+     * to whether required fields have been provided.
+     */
+    private void updateOKButtonBinding()
     {
-//        boolean present = locationPane.getChildren().stream()
-//                .filter(node -> node instanceof TextField)
-//                .anyMatch(node -> ((TextField)node).textProperty().isEmpty().get());
-//
-//        setOKEnabled(!present);
-    }
+        teamSettingsDialog.getOkButton().disableProperty().unbind();
 
-    private void setOKEnabled(boolean okEnabled)
-    {
-        teamSettingsDialog.getOkButton().setDisable(!okEnabled);
+        BooleanBinding enabled = userField.textProperty().isEmpty();
+        switch (serverTypes.selectedProperty().get()) {
+            case Subversion:
+                enabled = enabled.or(serverField.textProperty().isEmpty());
+                break;
+            case Git:
+                enabled = enabled.or(uriField.textProperty().isEmpty())
+                        .or(yourNameField.textProperty().isEmpty())
+                        .or(yourEmailField.textProperty().isEmpty())
+                        .or(Bindings.createBooleanBinding(() -> !yourEmailField.getText().contains("@"), yourEmailField.textProperty()));
+                break;
+        }
+
+        teamSettingsDialog.getOkButton().disableProperty().bind(enabled);
     }
 
     /**
