@@ -35,6 +35,7 @@ import javafx.scene.layout.*;
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
+import bluej.groupwork.TeamSettingsController.ServerType;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
 import bluej.utility.javafx.HorizontalRadio;
@@ -86,15 +87,6 @@ public class TeamSettingsPanel extends FlowPane
     private ServerType selectedServerType = null;
     private boolean okEnabled = true;
 
-    /**
-     *
-     */
-    public enum ServerType
-    {
-        Subversion,
-        Git
-    }
-
     String[] personalLabels = {
             "team.settings.yourName",
             "team.settings.yourEmail",
@@ -116,10 +108,6 @@ public class TeamSettingsPanel extends FlowPane
 
         JavaFXUtil.addStyleClass(this, styleClass);
 
-//        List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
-//        for (TeamworkProvider provider : teamProviders) {
-//            serverTypeComboBox.addItem(provider.getProviderName());
-//        }
         serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
 
@@ -261,37 +249,6 @@ public class TeamSettingsPanel extends FlowPane
             default:
                 Debug.reportError(type + " is not recognisable as s server type");
         }
-
-
-            /*
-// Enable/Disable login button depending on whether a username was entered.
-Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-loginButton.setDisable(true);
-
-// Do some validation (using the Java 8 lambda syntax).
-username.textProperty().addListener((observable, oldValue, newValue) -> {
-    loginButton.setDisable(newValue.trim().isEmpty());
-});
-
-
-
-
-// Convert the result to a username-password-pair when the login button is clicked.
-dialog.setResultConverter(dialogButton -> {
-    if (dialogButton == loginButtonType) {
-        return new Pair<>(username.getText(), password.getText());
-    }
-    return null;
-});
-
-Optional<Pair<String, String>> result = dialog.showAndWait();
-
-result.ifPresent(usernamePassword -> {
-    System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
-});
-*/
-
-
     }
 
     private void prepareLocationPane(ServerType type)

@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import bluej.groupwork.ui.TeamSettingsPanel;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -72,7 +71,16 @@ public class TeamSettingsController
                     + ": " + e.getLocalizedMessage());
         }
     }
-    
+
+    /**
+     * An enum with all current use server types.
+     */
+    public enum ServerType
+    {
+        Subversion,
+        Git
+    }
+
     private static TeamworkProvider loadProvider(String name) throws Throwable
     {
         Class<?> c = Class.forName(name);
@@ -144,7 +152,7 @@ public class TeamSettingsController
      * @param type The server type that we need to get its provider
      * @return The teamwork provider for the type passed
      */
-    public TeamworkProvider getTeamworkProvider(TeamSettingsPanel.ServerType type)
+    public TeamworkProvider getTeamworkProvider(ServerType type)
     {
         return teamProviders.stream()
                 .filter(teamworkProvider -> teamworkProvider.getProviderName().equals(type.name()))
