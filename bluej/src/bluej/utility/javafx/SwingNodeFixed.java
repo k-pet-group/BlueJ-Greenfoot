@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2017  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -21,14 +21,14 @@
  */
 package bluej.utility.javafx;
 
+import java.util.function.BiConsumer;
+
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.input.KeyEvent;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.util.function.BiConsumer;
 
 /**
  * In SwingNode, there is a SwingKeyEventHandler class which translates
@@ -51,5 +51,12 @@ public class SwingNodeFixed extends SwingNode
     {
         // Defeat thread checker:
         ((BiConsumer<EventType<KeyEvent>, EventHandler<KeyEvent>>)(this::setEventHandler)).accept(javafx.scene.input.KeyEvent.ANY, new SwingKeyEventHandlerFixed(this));
+        // Above is effectively:
+        //
+    	//     setEventHandler(javafx.scene.input.KeyEvent.ANY, new SwingKeyEventHandlerFixed(this));
+        //
+        // We are allowed to call FX methods if the component is not in a scene, which it can't be at this point.
+        // However, the thread checker doesn't allow for this and flags an error; so for now we use the above
+        // instead.
     }
 }
