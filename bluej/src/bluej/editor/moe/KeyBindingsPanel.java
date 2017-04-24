@@ -45,6 +45,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -59,6 +60,7 @@ import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformSupplier;
+import javafx.util.StringConverter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -89,7 +91,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     // The functions in the current category:
     private final ListView<String> functionList;
     // The keys for the current function:
-    private final ListView<String> keyList;
+    private final ListView<KeyCodeCombination> keyList;
     private final Text helpLabel;
 
     private MoeActions actions;     // The Moe action manager
@@ -135,6 +137,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         // create function list area
         BorderPane funcPanel = new BorderPane();
         functionList = new ListView<>();
+        functionList.setEditable(false);
         funcPanel.setCenter(functionList);
 
         Label label = new Label(categoriesLabel + " ");
@@ -152,6 +155,22 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         JavaFXUtil.addStyleClass(kLabel, "key-header-label");
         keyPanel.setTop(kLabel);
         keyList = new ListView<>();
+        keyList.setCellFactory(lv -> new TextFieldListCell<>(new StringConverter<KeyCodeCombination>()
+        {
+            @Override
+            public String toString(KeyCodeCombination object)
+            {
+                return object.getDisplayText();
+            }
+
+            @Override
+            public KeyCodeCombination fromString(String string)
+            {
+                // Won't be used as no editing:
+                return null;
+            }
+        }));
+        keyList.setEditable(false);
         keyPanel.setCenter(keyList);
 
         HBox keyButtonPanel = new HBox();
@@ -297,9 +316,8 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         if(index == -1)
             return;             // deselection event - ignore
 
-        //MOEFX
-        //actions.removeKeyStrokeBinding(currentKeys[index]);
-        updateKeyList(keyList.getSelectionModel().getSelectedItem());
+        actions.removeKeyStrokeBinding(keyList.getSelectionModel().getSelectedItem());
+        updateKeyList(functionList.getSelectionModel().getSelectedItem());
     }
 
     /**
@@ -307,23 +325,14 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
      */
     private void updateKeyList(String action)
     {
-        List<KeyCombination> currentKeys = actions.getKeyStrokesForAction(action);
+        List<KeyCodeCombination> currentKeys = actions.getKeyStrokesForAction(action);
         if(currentKeys == null)
             clearKeyList();
         else {
-            List<String> keyStrings = getKeyStrings(currentKeys);
-            keyList.getItems().setAll(keyStrings);
+            keyList.getItems().setAll(currentKeys);
             delKeyButton.setDisable(true);
         }
         addKeyButton.setDisable(false);
-    }
-
-    /**
-     * Translate KeyStrokes into String representation.
-     */
-    private List<String> getKeyStrings(List<KeyCombination> keys)
-    {
-        return Utility.mapList(keys, KeyCombination::getDisplayText);
     }
 
     private void clearKeyList()

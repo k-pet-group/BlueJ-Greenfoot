@@ -1100,7 +1100,7 @@ public final class MoeActions
         return new ArrayList<>(actions.values());
     }
 
-    public List<KeyCombination> getKeyStrokesForAction(String actionName)
+    public List<KeyCodeCombination> getKeyStrokesForAction(String actionName)
     {
         return keymap.entrySet().stream().filter(e -> Objects.equals(e.getValue().getName(), actionName)).map(e -> e.getKey()).collect(Collectors.toList());
     }
