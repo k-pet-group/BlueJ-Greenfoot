@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -42,11 +43,11 @@ import bluej.editor.moe.MoeActions.MoeAbstractAction;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyCombination.ModifierValue;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -86,36 +87,45 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     private final Button addKeyButton;
     private final Button delKeyButton;
     private final ComboBox<Category> categoryMenu;
-    private final ListView<MoeAbstractAction> functionList;
+    // The functions in the current category:
+    private final ListView<String> functionList;
+    // The keys for the current function:
     private final ListView<String> keyList;
     private final Text helpLabel;
 
     private MoeActions actions;     // The Moe action manager
-    private MoeAbstractAction currentAction;       // the action currently selected
-    private List<KeyCombination> currentKeys;    // key strokes currently displayed
 
     private Properties help;
-    private List<MoeAbstractAction> functions;     // all user functions
+    private List<ActionInfo> functions;     // all user functions
+
+    private static class ActionInfo
+    {
+        private final String name;
+        private final Category category;
+
+        public ActionInfo(MoeAbstractAction action)
+        {
+            name = action.getName();
+            category = action.getCategory();
+        }
+    }
 
     public void categoryMenuChanged()
     {
         Category selected = categoryMenu.getSelectionModel().getSelectedItem();
 
-        functionList.getItems().setAll(functions.stream().filter(a -> a.getCategory() == selected).collect(Collectors.toList()));
+        functionList.getItems().setAll(functions.stream().filter(a -> a.category == selected).map(a -> a.name).collect(Collectors.toList()));
         clearKeyList();
         clearHelpText();
         addKeyButton.setDisable(true);
         delKeyButton.setDisable(true);
-        currentAction = null;
-        currentKeys = null;
-
     }
 
     public KeyBindingsPanel(FXPlatformSupplier<Window> parent)
     {
         this.parent = parent;
         actions = MoeActions.getActions(null);
-        functions = actions.getAllActions();
+        functions = Utility.mapList(actions.getAllActions(), ActionInfo::new);
 
         // create function list area
         BorderPane funcPanel = new BorderPane();
@@ -191,72 +201,6 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         categoryMenu.getSelectionModel().selectFirst();
     }
 
-    class KeyCatcher extends FocusManager {
-
-        public void processKeyEvent(Component focusedComponent, KeyEvent e) 
-        { 
-            if(e.getID() != KeyEvent.KEY_PRESSED)
-                return;
-
-            int keyCode = e.getKeyCode();
-
-            if(keyCode == KeyEvent.VK_CAPS_LOCK ||    // the keys we want to ignore...
-                    keyCode == KeyEvent.VK_SHIFT ||
-                    keyCode == KeyEvent.VK_CONTROL ||
-                    keyCode == KeyEvent.VK_META ||
-                    keyCode == KeyEvent.VK_ALT ||
-                    keyCode == KeyEvent.VK_ALT_GRAPH ||
-                    keyCode == KeyEvent.VK_COMPOSE ||
-                    keyCode == KeyEvent.VK_NUM_LOCK ||
-                    keyCode == KeyEvent.VK_SCROLL_LOCK ||
-                    keyCode == KeyEvent.VK_UNDEFINED
-            )
-                return;
-
-            if(currentAction == null)
-                Debug.message("FunctionDialog: currentAction is null...");
-            else {
-                KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
-                if(isPrintable(key, e))
-                    helpLabel.setText(getHelpText("cannot-redefine"));
-                else {
-                    //MOEFX
-                    //actions.setKeyCombinationForAction(key, currentAction);
-                    handleFuncListSelect();
-                }
-            }
-            e.consume();
-            removeKeyListener();
-        }
-
-        private boolean isPrintable(KeyStroke key, KeyEvent e)
-        {
-            // all control and alt keys are non-printable
-            int modifiers = key.getModifiers();
-            if(modifiers != 0 && modifiers != Event.SHIFT_MASK)
-                return false;
-
-            // action keys are non-printable
-            if(e.isActionKey())
-                return false;
-
-            // some action keys that the above function not recognises
-            int keyCode = e.getKeyCode();
-            if(keyCode == KeyEvent.VK_BACK_SPACE ||
-                    keyCode == KeyEvent.VK_DELETE ||
-                    keyCode == KeyEvent.VK_ENTER ||
-                    keyCode == KeyEvent.VK_TAB ||
-                    keyCode == KeyEvent.VK_ESCAPE)
-                return false;
-
-            // otherwise it's printable
-            return true;
-        }
-
-        public void focusNextComponent(Component c) {}
-        public void focusPreviousComponent(Component c) {}
-    }
-
     /**
      * Handle click on Defaults button.
      */
@@ -285,12 +229,12 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
 
         // find selected action
 
-        currentAction = functionList.getSelectionModel().getSelectedItem();
+        String currentAction = functionList.getSelectionModel().getSelectedItem();
 
         // display keys and help text
 
         updateKeyList(currentAction);
-        String helpText = getHelpText(currentAction.getName());
+        String helpText = getHelpText(currentAction);
         helpLabel.setText(helpText);
     }
 
@@ -307,7 +251,6 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
      */
     private void handleClose()
     {
-        removeKeyListener();
         if(!actions.save())
             Platform.runLater(() -> DialogManager.showErrorFX(parent.get(), "cannot-save-keys"));
         setVisible(false);
@@ -317,8 +260,16 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
      */
     private void handleAddKey()
     {
-        helpLabel.setText(getHelpText("press-key"));
-        addKeyListener();
+        Optional<KeyCombination> newKey = new KeyCaptureDialog().showAndWait();
+        if (newKey.isPresent())
+        {
+            String action = functionList.getSelectionModel().getSelectedItem();
+            if (action != null)
+            {
+                actions.addKeyCombinationForAction(newKey.get(), action, true);
+                updateKeyList(action);
+            }
+        }
     }
 
     /**
@@ -326,25 +277,21 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
      */
     private void handleDelKey()
     {
-        if(currentKeys == null)
-            return;             // something went wrong here...
-
         int index = keyList.getSelectionModel().getSelectedIndex();
         if(index == -1)
             return;             // deselection event - ignore
 
         //MOEFX
         //actions.removeKeyStrokeBinding(currentKeys[index]);
-        updateKeyList(currentAction);
+        updateKeyList(keyList.getSelectionModel().getSelectedItem());
     }
 
     /**
      * Display key bindings in the key list
      */
-    private void updateKeyList(MoeAbstractAction action)
+    private void updateKeyList(String action)
     {
-        //MOEFX
-        currentKeys = actions.getKeyStrokesForAction(action);
+        List<KeyCombination> currentKeys = actions.getKeyStrokesForAction(action);
         if(currentKeys == null)
             clearKeyList();
         else {
@@ -392,13 +339,34 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         return helpText;
     }
 
-    private void addKeyListener()
+    private static class KeyCaptureDialog extends Dialog<KeyCombination>
     {
-        FocusManager.setCurrentManager(new KeyCatcher());
-    }
+        public KeyCaptureDialog()
+        {
+            TextField textField = new TextField();
+            textField.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent e) -> {
+                // Let escape trigger the cancel button
+                // Also, ignore presses of modifier kyes
+                if (e.getCode() != KeyCode.ESCAPE && e.getCode() != KeyCode.SHIFT && e.getCode() != KeyCode.CONTROL &&
+                        e.getCode() != KeyCode.ALT && e.getCode() != KeyCode.ALT_GRAPH && e.getCode() != KeyCode.META &&
+                        e.getCode() != KeyCode.COMMAND)
+                {
+                    setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()), mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
+                    e.consume();
+                    hide();
+                }
 
-    private void removeKeyListener()
-    {
-    }
+            });
+            getDialogPane().setContent(new VBox(new Label("Press a key, or Escape to cancel"), textField));
+            setOnShown(e -> textField.requestFocus());
+            // Cancel button on the dialog, or otherwise can't close:
+            getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL);
+        }
 
+        private static ModifierValue mod(boolean down)
+        {
+            // We use up here, not any, because e.g. pressing Ctrl-Shift-S shouldn't trigger the Ctrl-S accelerator:
+            return down ? ModifierValue.DOWN : ModifierValue.UP;
+        }
+    }
 }

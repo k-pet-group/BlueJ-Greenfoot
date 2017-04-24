@@ -57,7 +57,6 @@ import threadchecker.Tag;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -555,10 +554,21 @@ public final class MoeActions
     /**
      * Add a new key binding into the action table.
      */
-    public void setKeyCombinationForAction(KeyCombination key, MoeAbstractAction a)
+    public void addKeyCombinationForAction(KeyCombination key, String actionName, boolean allEditors)
     {
-        keymap.put(key, a);
-        updateKeymap();
+        if (allEditors)
+        {
+            moeActions.values().forEach(moeAction -> moeAction.addKeyCombinationForAction(key, actionName, false));
+        }
+        else
+        {
+            MoeAbstractAction action = actions.get(actionName);
+            if (action != null)
+            {
+                keymap.put(key, action);
+                updateKeymap();
+            }
+        }
     }
 
     // --------------------------------------------------------------------
@@ -639,9 +649,8 @@ public final class MoeActions
                     keyCombination = (KeyCombination) keyBinding;
                 }
                 String actionName = (String) stream.readObject();
-                MoeAbstractAction action = actions.get(actionName);
-                if (action != null && keyCombination != null) {
-                    setKeyCombinationForAction(keyCombination, action);
+                if (actionName != null && keyCombination != null) {
+                    addKeyCombinationForAction(keyCombination, actionName, false);
                 }
             }
             istream.close();
@@ -649,18 +658,18 @@ public final class MoeActions
             // set up bindings for new actions in recent releases
 
             if (version < 252) {
-                setKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), actions.get("increase-font"));
-                setKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), actions.get("decrease-font"));
+                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), "increase-font", false);
+                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), "decrease-font", false);
             }
             if (version < 300) {
-                setKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), actions.get("code-completion"));
-                setKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get("autoindent"));
+                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion", false);
+                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), "autoindent", false);
             }
             if (version < 320) {
-                setKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), actions.get("compile"));
+                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), "compile", false);
             }
             if (version < 330) {
-                setKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), actions.get("preferences"));
+                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), "preferences", false);
             }
             return true;
         }
@@ -1104,9 +1113,9 @@ public final class MoeActions
         return new ArrayList<>(actions.values());
     }
 
-    public List<KeyCombination> getKeyStrokesForAction(MoeAbstractAction action)
+    public List<KeyCombination> getKeyStrokesForAction(String actionName)
     {
-        return keymap.entrySet().stream().filter(e -> Objects.equals(e.getValue(), action)).map(e -> e.getKey()).collect(Collectors.toList());
+        return keymap.entrySet().stream().filter(e -> Objects.equals(e.getValue().getName(), actionName)).map(e -> e.getKey()).collect(Collectors.toList());
     }
 
     public static enum Category
@@ -1154,11 +1163,11 @@ public final class MoeActions
         setAccelerator(new KeyCodeCombination(KeyCode.F6), actions.get("indent-block"));
         setAccelerator(new KeyCodeCombination(KeyCode.F5), actions.get("deindent-block"));
         setAccelerator(new KeyCodeCombination(KeyCode.M, SHORTCUT_MASK), actions.get("insert-method"));
-        keymap.put(new KeyCodeCombination(KeyCode.TAB), actions.get("indent"));
-        keymap.put(new KeyCodeCombination(KeyCode.TAB, KeyCombination.SHIFT_DOWN), actions.get("de-indent"));
-        keymap.put(new KeyCodeCombination(KeyCode.I, SHORTCUT_MASK), actions.get("insert-tab"));
-        keymap.put(new KeyCodeCombination(KeyCode.ENTER), actions.get("new-line"));
-        keymap.put(new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN), actions.get("insert-break"));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB), "indent", false);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB, KeyCombination.SHIFT_DOWN), "de-indent", false);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHORTCUT_MASK), "insert-tab", false);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.ENTER), "new-line", false);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN), "insert-break", false);
         setAccelerator(new KeyCodeCombination(KeyCode.F, SHORTCUT_MASK), actions.get("find"));
         setAccelerator(new KeyCodeCombination(KeyCode.G, SHORTCUT_MASK), actions.get("find-next"));
         setAccelerator(new KeyCodeCombination(KeyCode.G, KeyCombination.SHIFT_DOWN), actions.get("find-next-backward"));
@@ -1194,7 +1203,7 @@ public final class MoeActions
         */
         setAccelerator(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), actions.get("increase-font"));
         setAccelerator(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), actions.get("decrease-font"));
-        keymap.put(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), actions.get("code-completion"));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion", false);
         setAccelerator(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), actions.get("autoindent"));
     }
 
