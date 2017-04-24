@@ -43,14 +43,13 @@ import bluej.editor.moe.MoeActions.MoeAbstractAction;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.ModifierValue;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
@@ -127,27 +126,37 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         actions = MoeActions.getActions(null);
         functions = Utility.mapList(actions.getAllActions(), ActionInfo::new);
 
+        ColumnConstraints c = new ColumnConstraints();
+        c.setPercentWidth(50.0);
+        getColumnConstraints().setAll(c, c);
+
+        JavaFXUtil.addStyleClass(this, "prefmgr-key-panel");
+
         // create function list area
         BorderPane funcPanel = new BorderPane();
         functionList = new ListView<>();
         funcPanel.setCenter(functionList);
 
-        Label label = new Label(categoriesLabel);
+        Label label = new Label(categoriesLabel + " ");
         categoryMenu = new ComboBox<>();
-        funcPanel.setTop(new VBox(label, categoryMenu));
+        HBox categoryHBox = new HBox(label, categoryMenu);
+        categoryHBox.setAlignment(Pos.BASELINE_CENTER);
+        BorderPane.setAlignment(categoryHBox, Pos.BASELINE_CENTER);
+        funcPanel.setTop(categoryHBox);
 
         // create control area on right (key bindings and buttons)
         BorderPane controlPanel = new BorderPane();
         // create area for key bindings
         BorderPane keyPanel = new BorderPane();
         Label kLabel = new Label(keyLabel);
+        JavaFXUtil.addStyleClass(kLabel, "key-header-label");
         keyPanel.setTop(kLabel);
         keyList = new ListView<>();
-        //MOEFX
-        //keyList.setPrototypeCellValue("shift-ctrl-delete");
         keyPanel.setCenter(keyList);
 
-        VBox keyButtonPanel = new VBox();
+        HBox keyButtonPanel = new HBox();
+        keyButtonPanel.setAlignment(Pos.BASELINE_CENTER);
+        JavaFXUtil.addStyleClass(keyButtonPanel, "key-bindings-buttons");
         addKeyButton = new Button(addKeyLabel);
         keyButtonPanel.getChildren().add(addKeyButton);
 
@@ -155,13 +164,20 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         keyButtonPanel.getChildren().add(delKeyButton);
 
         defaultsButton = new Button(defaultsLabel);
-        keyButtonPanel.getChildren().add(defaultsButton);
+        controlPanel.setTop(defaultsButton);
+        BorderPane.setAlignment(defaultsButton, Pos.BASELINE_RIGHT);
+
         keyPanel.setBottom(keyButtonPanel);
         controlPanel.setCenter(keyPanel);
 
         // create help text area at bottom
         helpLabel=new Text();
-        controlPanel.setBottom(new TextFlow(helpLabel));
+        TextFlow textFlow = new TextFlow(helpLabel);
+        textFlow.setMinHeight(80);
+        controlPanel.setBottom(textFlow);
+
+        JavaFXUtil.addStyleClass(funcPanel, "key-bindings-column");
+        JavaFXUtil.addStyleClass(controlPanel, "key-bindings-column");
 
         add(funcPanel, 0, 0);
         add(controlPanel, 1, 0);

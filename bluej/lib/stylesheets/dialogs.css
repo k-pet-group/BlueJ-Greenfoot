@@ -353,6 +353,16 @@
 .prefmgr-library-panel .prefmgr-titled-content {
     -fx-padding: 1em 0 1em 0;
 }
+.prefmgr-key-panel .key-bindings-column {
+    -fx-padding: 4em 2em 2em 2em;
+}
+.prefmgr-key-panel .key-bindings-buttons {
+    -fx-spacing: 4em;
+    -fx-padding: 1em;
+}
+.prefmgr-key-panel .key-header-label {
+    -fx-label-padding: 0 0 1em 0;
+}
 
 .not-a-project {
     -fx-spacing: 0.5em;
