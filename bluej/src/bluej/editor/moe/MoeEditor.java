@@ -222,7 +222,7 @@ public final class MoeEditor extends BorderPane
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 330;
+    final static int version = 400;
     final static String versionString = "3.3.0";
 
     // colours

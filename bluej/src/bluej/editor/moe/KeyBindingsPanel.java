@@ -260,7 +260,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
      */
     private void handleAddKey()
     {
-        Optional<KeyCombination> newKey = new KeyCaptureDialog().showAndWait();
+        Optional<KeyCodeCombination> newKey = new KeyCaptureDialog().showAndWait();
         if (newKey.isPresent())
         {
             String action = functionList.getSelectionModel().getSelectedItem();
@@ -339,7 +339,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         return helpText;
     }
 
-    private static class KeyCaptureDialog extends Dialog<KeyCombination>
+    private static class KeyCaptureDialog extends Dialog<KeyCodeCombination>
     {
         public KeyCaptureDialog()
         {

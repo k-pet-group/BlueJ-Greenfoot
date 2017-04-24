@@ -48,6 +48,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
+import javafx.scene.input.KeyCombination.ModifierValue;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -58,8 +59,11 @@ import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**
@@ -78,7 +82,9 @@ public final class MoeActions
 {
     // -------- CONSTANTS --------
 
+    // We only load from the old file name "editor.keys" if the new one "editor_fx.keys" is not present
     private static final String KEYS_FILE = "editor.keys";
+    private static final String KEYS_FILE_FX = "editor_fx.keys";
     private static final int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
     private static final String spaces = "                                        ";
     private static final char TAB_CHAR = '\t';
@@ -98,7 +104,7 @@ public final class MoeActions
     public MoeAbstractAction compileOrNextErrorAction;
     public MoeAbstractAction contentAssistAction;
     private HashMap<String, MoeAbstractAction> actions; // All of the actions in a hash-map by their name
-    private final Map<KeyCombination, MoeAbstractAction> keymap = new HashMap<>();
+    private final Map<KeyCodeCombination, MoeAbstractAction> keymap = new HashMap<>();
     private org.fxmisc.wellbehaved.event.InputMap<javafx.scene.input.KeyEvent> curKeymap; // the editor's keymap
     //MOEFX private final KeyCatcher keyCatcher;
     private boolean lastActionWasCut; // true if last action was a cut action
@@ -499,62 +505,10 @@ public final class MoeActions
         return actions.get(name);
     }
 
-    // --------------------------------------------------------------------
-
-    /**
-     * BUG WORKAROUND: currently, keymap.getKeyStrokesForAction() misses
-     * keystrokes that come from JComponents inputMap. Here, we add those
-     * ourselves...
-     */
-    /*MOEFX: is this still needed?
-    public KeyStroke[] addComponentKeyStrokes(Action action, KeyStroke[] keys)
-    {
-        ArrayList<KeyStroke> keyStrokes = null;
-        KeyStroke[] componentKeys = componentInputMap.allKeys();
-
-        // find all component keys that bind to this action
-        for (KeyStroke componentKey : componentKeys) {
-            if (componentInputMap.get(componentKey).equals(action.getValue(Action.NAME))) {
-                if (keyStrokes == null)
-                    keyStrokes = new ArrayList<>();
-                keyStrokes.add(componentKey);
-            }
-        }
-
-        // test whether this keyStroke was redefined in keymap
-        if (keyStrokes != null) {
-            for (Iterator<KeyStroke> i = keyStrokes.iterator(); i.hasNext();) {
-                if (keymap.getAction(i.next()) != null) {
-                    i.remove();
-                }
-            }
-        }
-
-        // merge found keystrokes into key array
-        if ((keyStrokes == null) || (keyStrokes.isEmpty())) {
-            return keys;
-        }
-
-        KeyStroke[] allKeys;
-        if (keys == null) {
-            allKeys = new KeyStroke[keyStrokes.size()];
-            keyStrokes.toArray(allKeys);
-        }
-        else { // merge new keystrokes into keys
-            allKeys = new KeyStroke[keyStrokes.size() + keys.length];
-            keyStrokes.toArray(allKeys);
-            System.arraycopy(allKeys, 0, allKeys, keys.length, keyStrokes.size());
-            System.arraycopy(keys, 0, allKeys, 0, keys.length);
-        }
-        return allKeys;
-    }*/
-
-    // --------------------------------------------------------------------
-
     /**
      * Add a new key binding into the action table.
      */
-    public void addKeyCombinationForAction(KeyCombination key, String actionName, boolean allEditors)
+    public void addKeyCombinationForAction(KeyCodeCombination key, String actionName, boolean allEditors)
     {
         if (allEditors)
         {
@@ -588,28 +542,22 @@ public final class MoeActions
      */
     public boolean save()
     {
-        /*MOEFX
         try {
-            File file = Config.getUserConfigFile(KEYS_FILE);
-            FileOutputStream ostream = new FileOutputStream(file);
-            ObjectOutputStream stream = new ObjectOutputStream(ostream);
-            KeyStroke[] keys = keymap.getBoundKeyStrokes();
-            stream.writeInt(MoeEditor.version);
-            stream.writeInt(keys.length);
-            for (KeyStroke key : keys) {
-                stream.writeObject(key);
-                stream.writeObject(keymap.getAction(key).getValue(Action.NAME));
+            File file = Config.getUserConfigFile(KEYS_FILE_FX);
+            ArrayList<String> lines = new ArrayList<>();
+            lines.add("version " + MoeEditor.version);
+            lines.add("# ALT CTRL META SHIFT SHORT KEYCODE ACTION");
+            for (Entry<KeyCodeCombination, MoeAbstractAction> binding : keymap.entrySet()) {
+                KeyCodeCombination k = binding.getKey();
+                lines.add(k.getAlt().name() + " " + k.getControl().name() + " " + k.getMeta() + " " + k.getShift() + " " + k.getShortcut() + " " + k.getCode().name() + " " + binding.getValue().getName());
             }
-            stream.flush();
-            ostream.close();
+            Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
             return true;
         }
         catch (Exception exc) {
             Debug.message("Cannot save key bindings: " + exc);
             return false;
         }
-        */
-        return false;
     }
 
     // --------------------------------------------------------------------
@@ -620,58 +568,97 @@ public final class MoeActions
     public boolean load()
     {
         try {
-            File file = Config.getUserConfigFile(KEYS_FILE);
-            FileInputStream istream = new FileInputStream(file);
-            ObjectInputStream stream = new ObjectInputStream(istream);
-            //KeyStroke[] keys = keymap.getBoundKeyStrokes();
-            int version = 0;
-            int count = stream.readInt();
-            if (count > 100) { // it was new format: version number stored first
-                version = count;
-                count = stream.readInt();
+            File file = Config.getUserConfigFile(KEYS_FILE_FX);
+            if (file.exists())
+            {
+                List<String> lines = Files.readAllLines(file.toPath(), Charset.forName("UTF-8")).stream()
+                        .filter(l -> !l.startsWith("#") && !l.trim().isEmpty()).collect(Collectors.toList());
+                if (!lines.get(0).startsWith("version"))
+                    return false;
+                // Skip first line:
+                try
+                {
+                    for (int i = 1; i < lines.size() ; i++)
+                    {
+                        String line = lines.get(i);
+                        String[] split = line.split(" +");
+                        //# ALT CTRL META SHIFT SHORT KEYCODE ACTION;
+                        addKeyCombinationForAction(new KeyCodeCombination(
+                                KeyCode.valueOf(split[5]),
+                                ModifierValue.valueOf(split[3]),
+                                ModifierValue.valueOf(split[1]),
+                                ModifierValue.valueOf(split[0]),
+                                ModifierValue.valueOf(split[2]),
+                                ModifierValue.valueOf(split[4])
+                            ), split[6], false);
+                    }
+                    return true;
+                }
+                catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e)
+                {
+                    Debug.reportError(e);
+                    return false;
+                }
             }
-            if (Config.isMacOS() && (version < 140)) {
-                // do not attempt to load old bindings on MacOS when switching
-                // to jdk 1.4.1
+            else
+            {
+                file = Config.getUserConfigFile(KEYS_FILE);
+                FileInputStream istream = new FileInputStream(file);
+                ObjectInputStream stream = new ObjectInputStream(istream);
+                //KeyStroke[] keys = keymap.getBoundKeyStrokes();
+                int version = 0;
+                int count = stream.readInt();
+                if (count > 100)
+                { // it was new format: version number stored first
+                    version = count;
+                    count = stream.readInt();
+                }
+                if (Config.isMacOS() && (version < 140))
+                {
+                    // do not attempt to load old bindings on MacOS when switching
+                    // to jdk 1.4.1
+                    istream.close();
+                    return false;
+                }
+
+                for (int i = 0; i < count; i++)
+                {
+                    Object keyBinding = stream.readObject();
+                    KeyCodeCombination keyCombination = null;
+                    if (keyBinding instanceof KeyStroke)
+                    {
+                        keyCombination = convertSwingBindingToFX((KeyStroke) keyBinding);
+                    }
+                    String actionName = (String) stream.readObject();
+                    if (actionName != null && keyCombination != null)
+                    {
+                        addKeyCombinationForAction(keyCombination, actionName, false);
+                    }
+                }
                 istream.close();
-                return false;
-            }
 
-            for (int i = 0; i < count; i++) {
-                Object keyBinding = stream.readObject();
-                KeyCombination keyCombination = null;
-                if (keyBinding instanceof KeyStroke)
+                // set up bindings for new actions in recent releases
+
+                if (version < 252)
                 {
-                    keyCombination = convertSwingBindingToFX((KeyStroke)keyBinding);
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), "increase-font", false);
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), "decrease-font", false);
                 }
-                else if (keyBinding instanceof KeyCombination)
+                if (version < 300)
                 {
-                    keyCombination = (KeyCombination) keyBinding;
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion", false);
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), "autoindent", false);
                 }
-                String actionName = (String) stream.readObject();
-                if (actionName != null && keyCombination != null) {
-                    addKeyCombinationForAction(keyCombination, actionName, false);
+                if (version < 320)
+                {
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), "compile", false);
                 }
+                if (version < 330)
+                {
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), "preferences", false);
+                }
+                return true;
             }
-            istream.close();
-
-            // set up bindings for new actions in recent releases
-
-            if (version < 252) {
-                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), "increase-font", false);
-                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), "decrease-font", false);
-            }
-            if (version < 300) {
-                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion", false);
-                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), "autoindent", false);
-            }
-            if (version < 320) {
-                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), "compile", false);
-            }
-            if (version < 330) {
-                addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), "preferences", false);
-            }
-            return true;
         }
         catch (IOException | ClassNotFoundException exc) {
             // ignore - file probably didn't exist (yet)
@@ -679,7 +666,7 @@ public final class MoeActions
         }
     }
 
-    private KeyCombination convertSwingBindingToFX(KeyStroke swing)
+    private static KeyCodeCombination convertSwingBindingToFX(KeyStroke swing)
     {
         List<Modifier> modifiers = new ArrayList<>();
         if ((swing.getModifiers() & Event.CTRL_MASK) != 0)
