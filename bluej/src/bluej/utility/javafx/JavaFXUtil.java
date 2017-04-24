@@ -1816,7 +1816,7 @@ public class JavaFXUtil
     /**
      * Converts an integer AWT key code to a JavaFX enum.
      */
-    private static KeyCode awtKeyCodeToFX(int code)
+    public static KeyCode awtKeyCodeToFX(int code)
     {
         // There may be a better way of doing this:
         switch (code)
@@ -1859,10 +1859,14 @@ public class JavaFXUtil
             case java.awt.event.KeyEvent.VK_9: return KeyCode.DIGIT9;
             case java.awt.event.KeyEvent.VK_COMMA: return KeyCode.COMMA;
             case java.awt.event.KeyEvent.VK_PERIOD: return KeyCode.PERIOD;
+            case java.awt.event.KeyEvent.VK_MINUS: return KeyCode.MINUS;
             case java.awt.event.KeyEvent.VK_BACK_QUOTE: return KeyCode.BACK_QUOTE;
+            case java.awt.event.KeyEvent.VK_QUOTE: return KeyCode.QUOTE;
+            case java.awt.event.KeyEvent.VK_QUOTEDBL: return KeyCode.QUOTEDBL;
             case java.awt.event.KeyEvent.VK_BACK_SLASH: return KeyCode.BACK_SLASH;
             case java.awt.event.KeyEvent.VK_SLASH: return KeyCode.SLASH;
             case java.awt.event.KeyEvent.VK_TAB: return KeyCode.TAB;
+            case java.awt.event.KeyEvent.VK_SPACE: return KeyCode.SPACE;
             case java.awt.event.KeyEvent.VK_BACK_SPACE: return KeyCode.BACK_SPACE;
             case java.awt.event.KeyEvent.VK_F1: return KeyCode.F1;
             case java.awt.event.KeyEvent.VK_F2: return KeyCode.F2;
@@ -1888,6 +1892,7 @@ public class JavaFXUtil
             case java.awt.event.KeyEvent.VK_F22: return KeyCode.F22;
             case java.awt.event.KeyEvent.VK_F23: return KeyCode.F23;
             case java.awt.event.KeyEvent.VK_F24: return KeyCode.F24;
+            case java.awt.event.KeyEvent.VK_EQUALS: return KeyCode.EQUALS;
             case java.awt.event.KeyEvent.VK_SEMICOLON: return KeyCode.SEMICOLON;
             case java.awt.event.KeyEvent.VK_COLON: return KeyCode.COLON;
             case java.awt.event.KeyEvent.VK_NUMBER_SIGN: return KeyCode.NUMBER_SIGN;
@@ -1898,8 +1903,17 @@ public class JavaFXUtil
             case java.awt.event.KeyEvent.VK_END: return KeyCode.END;
             case java.awt.event.KeyEvent.VK_PAGE_UP: return KeyCode.PAGE_UP;
             case java.awt.event.KeyEvent.VK_PAGE_DOWN: return KeyCode.PAGE_DOWN;
+            case java.awt.event.KeyEvent.VK_UP: return KeyCode.UP;
+            case java.awt.event.KeyEvent.VK_DOWN: return KeyCode.DOWN;
+            case java.awt.event.KeyEvent.VK_LEFT: return KeyCode.LEFT;
+            case java.awt.event.KeyEvent.VK_RIGHT: return KeyCode.RIGHT;
+            case java.awt.event.KeyEvent.VK_OPEN_BRACKET: return KeyCode.OPEN_BRACKET;
+            case java.awt.event.KeyEvent.VK_CLOSE_BRACKET: return KeyCode.CLOSE_BRACKET;
+            case java.awt.event.KeyEvent.VK_LEFT_PARENTHESIS: return KeyCode.LEFT_PARENTHESIS;
+            case java.awt.event.KeyEvent.VK_RIGHT_PARENTHESIS: return KeyCode.RIGHT_PARENTHESIS;
 
         }
+        Debug.message("Unknown key code: " + code);
         return null;
     }
 
