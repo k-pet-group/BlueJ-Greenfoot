@@ -35,6 +35,7 @@ import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.Token;
+import bluej.editor.moe.Token.TokenType;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.DocumentReader;
 import bluej.parser.JavaParser;
@@ -374,7 +375,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     public Token getMarkTokensFor(int pos, int length, int nodePos,
             MoeSyntaxDocument document)
     {
-        Token tok = new Token(0, Token.END); // dummy
+        Token tok = new Token(0, TokenType.END); // dummy
         if (length == 0) {
             return tok;
         }
@@ -388,7 +389,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             if (cp < np.getPosition()) {
                 int nextTokLen = np.getPosition() - cp;
                 tok.next = tokenizeText(document, cp, nextTokLen);
-                while (tok.next.id != Token.END) tok = tok.next;
+                while (tok.next.id != TokenType.END) tok = tok.next;
                 cp = np.getPosition();
             }
             
@@ -398,7 +399,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             if (remaining != 0) {
                 tok.next = np.getNode().getMarkTokensFor(cp, remaining, np.getPosition(), document);
                 cp += remaining;
-                while (tok.next.id != Token.END) {
+                while (tok.next.id != TokenType.END) {
                     tok = tok.next;
                 }
             }
@@ -409,10 +410,10 @@ public abstract class JavaParentNode extends ParentParsedNode
         if (cp < pos + length) {
             int nextTokLen = pos + length - cp;
             tok.next = tokenizeText(document, cp, nextTokLen);
-            while (tok.next.id != Token.END) tok = tok.next;
+            while (tok.next.id != TokenType.END) tok = tok.next;
         }
 
-        tok.next = new Token(0, Token.END);
+        tok.next = new Token(0, TokenType.END);
         return dummyTok.next;
     }
     
@@ -422,7 +423,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         TokenStream lexer = JavaParser.getLexer(dr);
         TokenStream tokenStream = new JavaTokenFilter(lexer, null);
 
-        Token dummyTok = new Token(0, Token.END);
+        Token dummyTok = new Token(0, TokenType.END);
         Token token = dummyTok;
 
         boolean lastWasWildcard = false;
@@ -431,30 +432,30 @@ public abstract class JavaParentNode extends ParentParsedNode
             LocatableToken lt = (LocatableToken) tokenStream.nextToken();
 
             if (lt.getLine() > 1 || lt.getColumn() - curcol >= length) {
-                token.next = new Token(length, Token.NULL);
+                token.next = new Token(length, TokenType.NULL);
                 token = token.next;
                 break;
             }
             if (lt.getColumn() > curcol) {
                 // some space before the token
-                token.next = new Token(lt.getColumn() - curcol, Token.NULL);
+                token.next = new Token(lt.getColumn() - curcol, TokenType.NULL);
                 token = token.next;
                 length -= token.length;
                 curcol += token.length;
             }
 
-            byte tokType = Token.NULL;
+            TokenType tokType = TokenType.NULL;
             if (JavaParser.isPrimitiveType(lt)) {
-                tokType = Token.PRIMITIVE;
+                tokType = TokenType.PRIMITIVE;
             }
             else if (JavaParser.isModifier(lt)) {
-                tokType = Token.KEYWORD1;
+                tokType = TokenType.KEYWORD1;
             }
             else if (lt.getType() == JavaTokenTypes.STRING_LITERAL) {
-                tokType = Token.LITERAL1;
+                tokType = TokenType.LITERAL1;
             }
             else if (lt.getType() == JavaTokenTypes.CHAR_LITERAL) {
-                tokType = Token.LITERAL2;
+                tokType = TokenType.LITERAL2;
             }
             else {
                 switch (lt.getType()) {
@@ -476,7 +477,7 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_if:
                 case JavaTokenTypes.LITERAL_else:
                 case JavaTokenTypes.LITERAL_new:
-                    tokType = Token.KEYWORD1;
+                    tokType = TokenType.KEYWORD1;
                     break;
 
                 case JavaTokenTypes.LITERAL_class:
@@ -486,25 +487,25 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_interface:
                 case JavaTokenTypes.LITERAL_enum:
                 case JavaTokenTypes.LITERAL_implements:
-                    tokType = Token.KEYWORD2;
+                    tokType = TokenType.KEYWORD2;
                     break;
 
                 case JavaTokenTypes.LITERAL_super:
                     if (lastWasWildcard)
-                        tokType = Token.KEYWORD2;
+                        tokType = TokenType.KEYWORD2;
                     else
-                        tokType = Token.KEYWORD3;
+                        tokType = TokenType.KEYWORD3;
                     break;
                 case JavaTokenTypes.LITERAL_this:
                 case JavaTokenTypes.LITERAL_null:
 
                 case JavaTokenTypes.LITERAL_true:
                 case JavaTokenTypes.LITERAL_false:
-                    tokType = Token.KEYWORD3;
+                    tokType = TokenType.KEYWORD3;
                     break;
                 
                 case JavaTokenTypes.LITERAL_instanceof:
-                    tokType = Token.OPERATOR;
+                    tokType = TokenType.OPERATOR;
                     break;
 
                 default:
@@ -521,7 +522,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             curcol += toklen;
         }
         
-        token.next = new Token(0, Token.END);
+        token.next = new Token(0, TokenType.END);
         return dummyTok.next;
     }
 }

@@ -26,6 +26,7 @@ import java.io.Reader;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.Token;
+import bluej.editor.moe.Token.TokenType;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.DocumentReader;
 import bluej.parser.lexer.JavaLexer;
@@ -46,12 +47,12 @@ public class CommentNode extends ParsedNode
     private static byte ML_JAVADOC = 3;
     private static byte ML_SPECIAL = 4;
     
-    private static byte [] colours = {
-        Token.COMMENT1,
-        Token.COMMENT3,
-        Token.COMMENT1,
-        Token.COMMENT2,
-        Token.COMMENT3
+    private static TokenType [] colours = {
+        TokenType.COMMENT1,
+        TokenType.COMMENT3,
+        TokenType.COMMENT1,
+        TokenType.COMMENT2,
+        TokenType.COMMENT3
     };
     
     public CommentNode(ParsedNode parentNode, LocatableToken token)
@@ -106,7 +107,7 @@ public class CommentNode extends ParsedNode
             MoeSyntaxDocument document)
     {
         Token tok = new Token(length, colours[type]);
-        tok.next = new Token(0, Token.END);
+        tok.next = new Token(0, TokenType.END);
         return tok;
     }
 

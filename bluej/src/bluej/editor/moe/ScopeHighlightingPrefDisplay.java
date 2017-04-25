@@ -72,7 +72,6 @@ public class ScopeHighlightingPrefDisplay
      */
     public ScopeHighlightingPrefDisplay()
     {
-        MoeSyntaxDocument.getColors();
         //bg = MoeSyntaxDocument.getBackgroundColor();
         //initialises the slider functionality
         {
@@ -156,7 +155,7 @@ public class ScopeHighlightingPrefDisplay
      */
     private Color getReducedColor(Color c)
     {
-        return toFX(BlueJSyntaxView.getReducedColor((int)(255.0 * c.getRed()), (int)(255.0 * c.getGreen()),
+        return toFX(new BlueJSyntaxView(null).getReducedColor((int)(255.0 * c.getRed()), (int)(255.0 * c.getGreen()),
             (int)(255.0 * c.getBlue()), getStrengthValue()));
     }
 

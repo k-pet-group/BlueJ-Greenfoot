@@ -1933,7 +1933,8 @@ public final class Config
                 "editor-slot-choice",
                 "editor-suggestions",
                 "editor-tabs",
-                "moe"};
+                "moe",
+                "java-colors"};
         
         for (String stem : stylesheetStems)
         {

@@ -24,6 +24,7 @@ package bluej.editor.moe;
 import bluej.Config;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
+import bluej.editor.moe.Token.TokenType;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
@@ -98,7 +99,6 @@ public class BlueJSyntaxView
     private MoeEditorPane editorPane;
 
     {
-        MoeSyntaxDocument.getColors(); // initialize colors
         resetColors();
     }
 
@@ -157,26 +157,17 @@ public class BlueJSyntaxView
      *
      * Returns null if there are no styles to apply (e.g. on a blank line or one with only whitespace).
      */
-    protected final StyleSpans<Integer> getTokenStylesFor(int lineIndex, MoeSyntaxDocument document)
+    protected final StyleSpans<List<String>> getTokenStylesFor(int lineIndex, MoeSyntaxDocument document)
     {
-        StyleSpansBuilder<Integer> lineStyle = new StyleSpansBuilder<>();
-        Color[] colors = MoeSyntaxDocument.getColors();
+        StyleSpansBuilder<List<String>> lineStyle = new StyleSpansBuilder<>();
         Token tokens = document.getTokensForLine(lineIndex);
         boolean addedAny = false;
         for(;;) {
-            byte id = tokens.id;
-            if(id == Token.END)
+            TokenType id = tokens.id;
+            if(id == TokenType.END)
                 break;
 
-            int color;
-            if (id == Token.NULL || id >= colors.length) {
-                color = 0;
-            }
-            else {
-                // Mask out the alpha as we use it for the error bit:
-                color = colors[id].getRGB() & 0x00FFFFFF;
-            }
-            lineStyle.add(color, tokens.length);
+            lineStyle.add(Collections.singletonList("token-" + id.toString().toLowerCase()), tokens.length);
             addedAny = true;
 
             tokens = tokens.next;
@@ -647,13 +638,18 @@ public class BlueJSyntaxView
         return !nodeSkipsEnd(napPos, napEnd, info.lines.thisLineEl, info.lines.thisLineSeg);
     }
 
+    private Color getBackgroundColor()
+    {
+        return Color.WHITE; // MOEFX take from CSS
+    }
+
     /**
      * Get the scope highlighting colours for a given node.
      */
     private Color[] colorsForNode(ParsedNode node)
     {
         if (node.isInner()) {
-            return new Color[] { C3, MoeSyntaxDocument.getBackgroundColor() };
+            return new Color[] { C3, getBackgroundColor() };
         }
         else {
             if (node.getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
@@ -1561,14 +1557,14 @@ public class BlueJSyntaxView
     public static void setHighlightStrength(int strength)
     {
         BlueJSyntaxView.strength = strength;
-        resetColors();
+        //MOEFX resetColors();
     }
 
     /**
      * Sets up the colors based on the strength value 
      * (from strongest (20) to white (0)
      */
-    private static void resetColors()
+    private void resetColors()
     {       
         C1 = getGreenContainerBorder();
         C2 = getGreenWash(); 
@@ -1581,7 +1577,7 @@ public class BlueJSyntaxView
         I2 = getPinkWash();             
     }
 
-    private static Color getReducedColor(Color c)
+    private Color getReducedColor(Color c)
     {
         return getReducedColor(c.getRed(), c.getGreen(), c.getBlue(), strength);
     }
@@ -1592,9 +1588,9 @@ public class BlueJSyntaxView
      * is faded.
      */
     @OnThread(Tag.Any)
-    public static Color getReducedColor(int r, int g, int b, int colorStrength)
+    public Color getReducedColor(int r, int g, int b, int colorStrength)
     {
-        Color bg = MoeSyntaxDocument.getBackgroundColor();
+        Color bg = getBackgroundColor();
         double factor = colorStrength / (float) ScopeHighlightingPrefDisplay.MAX;
         double other = 1 - factor;
         int nr = Math.min((int)(r * factor + bg.getRed() * other), 255);
@@ -1607,7 +1603,7 @@ public class BlueJSyntaxView
      * Return the green wash color
      * modified to become less strong based on the 'strength' value
      */
-    private static Color getGreenWash()
+    private Color getGreenWash()
     {
         return getReducedColor(GREEN_BASE);
     }
@@ -1616,7 +1612,7 @@ public class BlueJSyntaxView
      * Return the green container border color
      * modified to become less strong based on the 'strength' value
      */
-    private static Color getGreenContainerBorder()
+    private Color getGreenContainerBorder()
     {
         return getReducedColor(GREEN_OUTER_BASE);
     }
@@ -1625,7 +1621,7 @@ public class BlueJSyntaxView
      * Return the green border color
      * modified to become less strong based on the 'strength' value
      */
-    private static Color getGreenBorder()
+    private Color getGreenBorder()
     {
         return getReducedColor(GREEN_INNER_BASE);
     }
@@ -1634,7 +1630,7 @@ public class BlueJSyntaxView
      * Return the yellow border color
      * modified to become less strong (until white) based on the 'strength' value
      */
-    private static Color getYellowBorder()
+    private Color getYellowBorder()
     {
         return getReducedColor(YELLOW_OUTER_BASE);
     }
@@ -1643,7 +1639,7 @@ public class BlueJSyntaxView
      * Return the yellow wash color
      * modified to become less strong (until white) based on the 'strength' value
      */
-    private static Color getYellowWash()
+    private Color getYellowWash()
     {
         return getReducedColor(YELLOW_BASE);
     }
@@ -1652,7 +1648,7 @@ public class BlueJSyntaxView
      * Return the blue border (selection) color
      * modified to become less strong (until white) based on the 'strength' value
      */
-    private static Color getBlueBorder()
+    private Color getBlueBorder()
     {
         return getReducedColor(BLUE_OUTER_BASE);
     }
@@ -1661,7 +1657,7 @@ public class BlueJSyntaxView
      * Return the blue wash color
      * modified to become less strong (until white) based on the 'strength' value
      */
-    private static Color getBlueWash()
+    private Color getBlueWash()
     {
         return getReducedColor(BLUE_BASE);
     }
@@ -1670,7 +1666,7 @@ public class BlueJSyntaxView
      *  Return the pink border (iteration) color
      *  modified to become less strong (until white) based on the 'strength' value
      */
-    private static Color getPinkBorder()
+    private Color getPinkBorder()
     {
         return getReducedColor(PINK_OUTER_BASE);
     }
@@ -1679,7 +1675,7 @@ public class BlueJSyntaxView
      *  Return the pink wash colour
      *  modified to become less strong (until white) based on the 'strength' value
      */
-    private static Color getPinkWash()
+    private Color getPinkWash()
     {
         return getReducedColor(PINK_BASE);
     }

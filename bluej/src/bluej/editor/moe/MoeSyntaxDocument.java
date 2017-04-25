@@ -60,15 +60,7 @@ import bluej.utility.PersistentMarkDocument;
  */
 public class MoeSyntaxDocument
 {
-    private final SimpleEditableStyledDocument<ScopeInfo, Integer> document;
-
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private static Color[] colors = null;
-
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private static Color defaultColour = null;
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private static Color backgroundColour = null;
+    private final SimpleEditableStyledDocument<ScopeInfo, List<String>> document;
     
     /** Maximum amount of document to reparse in one hit (advisory) */
     private final static int MAX_PARSE_PIECE = 8000;
@@ -156,7 +148,7 @@ public class MoeSyntaxDocument
         getUserColors();
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        document = new SimpleEditableStyledDocument<>(null, 0);
+        document = new SimpleEditableStyledDocument<>(null, Collections.emptyList());
         syntaxView = new BlueJSyntaxView(this);
 
         document.plainChanges().subscribe(c -> {
@@ -359,7 +351,7 @@ public class MoeSyntaxDocument
 
             }
 
-            StyleSpans<Integer> styleSpans = syntaxView.getTokenStylesFor(i, this);
+            StyleSpans<List<String>> styleSpans = syntaxView.getTokenStylesFor(i, this);
             if (styleSpans != null)
                 document.setStyleSpans(i, 0, styleSpans);
         }
@@ -497,34 +489,7 @@ public class MoeSyntaxDocument
     {
         syntaxView.setParagraphAttributes(document.offsetToPosition(offset, Bias.Forward).getMajor() + 1, alterAttr);
     }
-    
-    /**
-     * Get the default colour for MoeSyntaxDocuments.
-     */
-    public static synchronized Color getDefaultColor()
-    {
-        return defaultColour;
-    }
-    
-    /**
-     * Get the background colour for MoeSyntaxDocuments.
-     */
-    @OnThread(Tag.Any)
-    public static synchronized Color getBackgroundColor()
-    {
-        return backgroundColour;
-    }
-    
-    /**
-     * Get an array of colours as specified in the configuration file for different
-     * token types. The indexes for each token type are defined in the Token class.
-     */
-    @OnThread(Tag.Any)
-    public static Color[] getColors()
-    {
-        return getUserColors();
-    }
-    
+
     /**
      * Allows user-defined colours to be set for syntax highlighting. The file
      * containing the colour values is 'lib/moe.defs'. If this file is
@@ -536,17 +501,18 @@ public class MoeSyntaxDocument
      */
     @OnThread(Tag.Any)
     private static synchronized Color[] getUserColors()
-    { 
+    {
+        Color[] colors = null;/*MOEFX
         if(colors == null) {
             // Replace with user-defined colours.
             int    colorInt;
                         
             // First determine default colour and background colour
             colorInt = getPropHexInt("other", 0x000000);
-            defaultColour = new Color(colorInt);
+            Color defaultColour = new Color(colorInt);
             
             colorInt = getPropHexInt("background", 0x000000);
-            backgroundColour = new Color(colorInt);
+            Color backgroundColour = new Color(colorInt);
 
             // Build colour table.     
             colors = new Color[Token.ID_COUNT];
@@ -593,7 +559,7 @@ public class MoeSyntaxDocument
             
             // Operator is not produced by token marker
             colors[Token.OPERATOR] = new Color(0xcc9900);
-        }
+        }*/
         return colors;
     }
     
@@ -885,18 +851,18 @@ public class MoeSyntaxDocument
     //MOEFX: we may actually want to make this test-only, as it doesn't track the caret position
     public void insertString(int start, String src, Object attrSet)
     {
-        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, 0, StyledText.textOps()));
+        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, Collections.emptyList(), StyledText.textOps()));
     }
 
     public void replace(int start, int length, String text)
     {
-        document.replace(start, start + length, ReadOnlyStyledDocument.fromString(text, null, 0, StyledText.textOps()));
+        document.replace(start, start + length, ReadOnlyStyledDocument.fromString(text, null, Collections.emptyList(), StyledText.textOps()));
     }
 
     public void remove(int start, int length)
     {
         if (length != 0)
-            document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, 0));
+            document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, Collections.emptyList()));
     }
 
 
@@ -924,7 +890,7 @@ public class MoeSyntaxDocument
             @Override
             public Element getElement(int index)
             {
-                Paragraph<ScopeInfo, StyledText<Integer>, Integer> p = document.getParagraph(index);
+                Paragraph<ScopeInfo, StyledText<List<String>>, List<String>> p = document.getParagraph(index);
                 int pos = document.getAbsolutePosition(index, 0);
                 return new Element()
                 {

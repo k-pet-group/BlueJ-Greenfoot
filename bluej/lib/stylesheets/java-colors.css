@@ -1,0 +1,33 @@
+.token-keyword1 {
+    -fx-fill: #660033;
+}
+.token-keyword2 {
+    -fx-fill: #cc0000;
+}
+.token-comment1 {
+    -fx-fill: #999999;
+}
+.token-comment2 {
+    -fx-fill: #000099;
+}
+.token-comment3 {
+    -fx-fill: #ee00bb;
+}
+.token-keyword3 {
+    -fx-fill: #006699;
+}
+.token-primitive {
+    -fx-fill: #cc0000;
+}
+.token-string {
+    -fx-fill: #006600;
+}
+.token-label {
+    -fx-fill: #999999;
+}
+.token-invalid {
+    -fx-fill: #ff3300;
+}
+.token-other {
+    -fx-fill: #000000;
+}

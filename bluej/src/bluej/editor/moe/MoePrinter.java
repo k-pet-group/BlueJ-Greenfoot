@@ -44,6 +44,7 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.TabExpander;
 import javax.swing.text.Utilities;
 
+import bluej.editor.moe.Token.TokenType;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -305,7 +306,7 @@ public class MoePrinter
             // Get some style information:
             StyleContext context = new StyleContext();
             final FontMetrics fontMetrics = context.getFontMetrics(font);
-            Color[] colors = MoeSyntaxDocument.getColors();
+            Color[] colors = new Color[0]; // MOEFX MoeSyntaxDocument.getColors();
             Color def = Color.black;
 
             // print a header
@@ -344,19 +345,20 @@ public class MoePrinter
                 
                 Token tokens = document.getParser().getMarkTokensFor(line.getStartOffset(), Math.min(line.getEndOffset(),document.getLength()) - line.getStartOffset(), 0, document);
                 int offset = 0;
-                while (tokens.id != Token.END) {
-                    byte id = tokens.id;
+                while (tokens.id != TokenType.END) {
+                    TokenType id = tokens.id;
                     
                     int length = tokens.length;
                     Color color;
-                    if(id == Token.NULL)
+                    if(id == TokenType.NULL)
                         color = def;
                     else {
                         // check we are within the array bounds
                         // safeguard for updated syntax package
+                        /*MOEFX
                         if(id < colors.length)
                             color = colors[id];
-                        else color = def;
+                        else */ color = def;
                     }
                     if (syntaxHighlighting)
                     {
