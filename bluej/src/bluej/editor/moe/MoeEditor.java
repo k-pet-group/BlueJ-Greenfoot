@@ -216,7 +216,7 @@ import threadchecker.Tag;
  * @author Damiano Bolla
  */
 
-public final class MoeEditor extends BorderPane
+public final class MoeEditor extends ScopeColorsBorderPane
     implements bluej.editor.TextEditor, BlueJEventListener
 {
     // -------- CONSTANTS --------
@@ -3102,10 +3102,10 @@ public final class MoeEditor extends BorderPane
         // create the text document
 
         if (projectResolver != null) {
-            sourceDocument = new MoeSyntaxDocument(projectResolver);
+            sourceDocument = new MoeSyntaxDocument(projectResolver, this);
         }
         else {
-            sourceDocument = new MoeSyntaxDocument();  // README file
+            sourceDocument = new MoeSyntaxDocument(this);  // README file
         }
         listenToChanges(sourceDocument);
         //MOEFX

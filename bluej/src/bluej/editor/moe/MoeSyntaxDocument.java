@@ -143,12 +143,12 @@ public class MoeSyntaxDocument
     /**
      * Create an empty MoeSyntaxDocument.
      */
-    public MoeSyntaxDocument()
+    public MoeSyntaxDocument(ScopeColors scopeColors)
     {
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
         document = new SimpleEditableStyledDocument<>(null, Collections.emptyList());
-        syntaxView = new BlueJSyntaxView(this);
+        syntaxView = new BlueJSyntaxView(this, scopeColors);
 
         document.plainChanges().subscribe(c -> {
             // Must fire remove before insert:
@@ -167,9 +167,9 @@ public class MoeSyntaxDocument
      * Create an empty MoeSyntaxDocument, which uses the given entity resolver
      * to resolve symbols.
      */
-    public MoeSyntaxDocument(EntityResolver parentResolver)
+    public MoeSyntaxDocument(EntityResolver parentResolver, ScopeColors scopeColors)
     {
-        this();
+        this(scopeColors);
         // parsedNode = new ParsedCUNode(this);
         this.parentResolver = parentResolver;
         if (parentResolver != null) {
@@ -181,9 +181,9 @@ public class MoeSyntaxDocument
      * Create an empty MoeSyntaxDocument, which uses the given entity resolver to
      * resolve symbols, and which sends parser events to the specified listener.
      */
-    public MoeSyntaxDocument(EntityResolver parentResolver, MoeDocumentListener listener)
+    public MoeSyntaxDocument(EntityResolver parentResolver, MoeDocumentListener listener, ScopeColors scopeColors)
     {
-        this(parentResolver);
+        this(parentResolver, scopeColors);
         this.listener = listener;
     }
 

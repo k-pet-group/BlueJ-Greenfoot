@@ -320,13 +320,11 @@
     -fx-fill-width: false;
 }
 .prefmgr-scope-colour-container {
-    -fx-background: white;
     -fx-border-width: 1px;
     -fx-border-color: -fx-outer-border;
 }
 .prefmgr-scope-colour-rectangles {
     -fx-padding: 0.5em;
-    -fx-background: white;
 }
 .prefmgr-java-editor-top {
     -fx-hgap: 4em;

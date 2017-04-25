@@ -62,7 +62,7 @@ public class ReparseRunner implements FXPlatformRunnable
     {
         MoeSyntaxDocument document = editor.getSourceDocument();
         long begin = System.currentTimeMillis();
-        if (PrefMgr.getScopeHighlightStrength() != 0 && document != null && document.pollReparseQueue()) {
+        if (PrefMgr.getScopeHighlightStrength().get() != 0 && document != null && document.pollReparseQueue()) {
             // Continue processing
             while (System.currentTimeMillis() - begin < this.procTime) {
                 if (! document.pollReparseQueue()) {

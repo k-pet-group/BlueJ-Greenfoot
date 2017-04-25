@@ -38,6 +38,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import bluej.debugger.gentype.ConstructorReflective;
+import bluej.editor.moe.ScopeColors;
+import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.entity.PackageResolver;
@@ -631,7 +633,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         {
             if (document == null)
             {
-                document = new MoeSyntaxDocument(projectResolver);
+                document = new MoeSyntaxDocument(projectResolver, ScopeColors.dummy());
                 document.insertString(0, src, null);
                 document.enableParser(true);
             }

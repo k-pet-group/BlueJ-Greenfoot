@@ -1981,14 +1981,8 @@ public final class Config
     @OnThread(Tag.FX)
     public static void addDialogStylesheets(DialogPane dialogPane)
     {
-        try
-        {
-            dialogPane.getStylesheets().add(new File (bluejLibDir + "/stylesheets", "dialogs.css").toURI().toURL().toString());
-        }
-        catch (MalformedURLException e)
-        {
-            Debug.reportError(e);
-        }
+        addStylesheet(dialogPane.getStylesheets(), "dialogs");
+        addStylesheet(dialogPane.getStylesheets(), "java-colors");
     }
 
     @OnThread(Tag.Swing)

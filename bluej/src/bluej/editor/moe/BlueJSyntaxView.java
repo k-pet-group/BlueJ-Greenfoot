@@ -29,11 +29,13 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 import bluej.utility.javafx.FXCache;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
@@ -43,19 +45,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.Color;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentEvent.ElementChange;
-import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Segment;
 
@@ -90,42 +88,27 @@ public class BlueJSyntaxView
             {1, 2, 2, 2},
             {1, 2, 2, 2}
     };
-
-    private static int strength = PrefMgr.getScopeHighlightStrength();
     private final MoeSyntaxDocument document;
     private final FXCache<ScopeInfo, Image> imageCache;
+    private final ScopeColors scopeColors;
     private int imageCacheLineHeight;
     private ReadOnlyDoubleProperty widthProperty; // width of editor view
     private MoeEditorPane editorPane;
 
-    {
-        resetColors();
-    }
-
     /* Scope painting colours */
-    public static final Color GREEN_BASE = new Color(225, 248, 225);
-    public static final Color BLUE_BASE = new Color(233, 233, 248);
-    public static final Color YELLOW_BASE = new Color(250, 250, 180);
-    public static final Color PINK_BASE = new Color(248, 233, 248);
-    public static final Color GREEN_OUTER_BASE = new Color(188, 218, 188);
-    public static final Color BLUE_OUTER_BASE = new Color(188, 188, 210);
-    public static final Color YELLOW_OUTER_BASE = new Color(215, 215, 205);
-    public static final Color PINK_OUTER_BASE = new Color(210, 177, 210);
-    public static final Color GREEN_INNER_BASE = new Color(210, 230, 210);
-    
     /* The following are initialized by resetColors() */
-    private static Color C1; // green border (container)
-    private static Color C2; // green wash
-    private static Color C3; // green border (inner).
+    private Color C1; // green border (container)
+    private Color C2; // green wash
+    private Color C3; // green border (inner).
 
-    private static Color M1; // yellow border (methods)
-    private static Color M2; // yellow wash
+    private Color M1; // yellow border (methods)
+    private Color M2; // yellow wash
 
-    private static Color S1; // blue border (selection)
-    private static Color S2; // blue wash
+    private Color S1; // blue border (selection)
+    private Color S2; // blue wash
 
-    private static Color I1; // pink border (iteration)
-    private static Color I2; // pink wash
+    private Color I1; // pink border (iteration)
+    private Color I2; // pink wash
 
     public static enum ParagraphAttribute
     {
@@ -146,10 +129,27 @@ public class BlueJSyntaxView
     /**
      * Creates a new BlueJSyntaxView.
      */
-    public BlueJSyntaxView(MoeSyntaxDocument document)
+    public BlueJSyntaxView(MoeSyntaxDocument document, ScopeColors scopeColors)
     {
         this.document = document;
         this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 200);
+        this.scopeColors = scopeColors;
+        resetColors();
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
+            resetColors();
+            imageCache.clear();
+            document.recalculateAllScopes();
+        });
+        // We use class color as a proxy for listening to all colors:
+        JavaFXUtil.addChangeListenerPlatform(scopeColors.scopeClassColorProperty(), str -> {
+            // runLater to make sure all colours have been set:
+            Platform.runLater(() ->
+            {
+                resetColors();
+                imageCache.clear();
+                document.recalculateAllScopes();
+            });
+        });
     }
 
     /**
@@ -212,10 +212,10 @@ public class BlueJSyntaxView
             LeftRight leftRight = singleNestedScope.leftRight;
             int sideTopMargin = leftRight.starts ? CURVED_CORNER_SIZE : 0;
             int sideBottomMargin = leftRight.ends ? CURVED_CORNER_SIZE : 0;
-            fillRect(image.getPixelWriter(), leftRight.lhs, 0 + sideTopMargin, leftRight.padding, lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor.getRGB() | 0xFF000000);
+            fillRect(image.getPixelWriter(), leftRight.lhs, 0 + sideTopMargin, leftRight.padding, lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
             for (int y = sideTopMargin; y < lineHeight - sideBottomMargin; y++)
             {
-                image.getPixelWriter().setArgb(leftRight.lhs, y, leftRight.edgeColor.getRGB() | 0xFF000000);
+                image.getPixelWriter().setColor(leftRight.lhs, y, leftRight.edgeColor);
             }
 
             // I realise it seems crazy to be drawing the curved corners manually here.  But
@@ -232,9 +232,9 @@ public class BlueJSyntaxView
                     for (int y = 0; y < CURVED_CORNER_SIZE; y++)
                     {
                         if (CORNER_TEMPLATE[y][x] == 1)
-                            image.getPixelWriter().setArgb(leftRight.lhs + x, y, leftRight.edgeColor.getRGB() | 0xFF000000);
+                            image.getPixelWriter().setColor(leftRight.lhs + x, y, leftRight.edgeColor);
                         else if (CORNER_TEMPLATE[y][x] == 2)
-                            image.getPixelWriter().setArgb(leftRight.lhs + x, y, leftRight.fillColor.getRGB() | 0xFF000000);
+                            image.getPixelWriter().setColor(leftRight.lhs + x, y, leftRight.fillColor);
                     }
                 }
             }
@@ -245,9 +245,9 @@ public class BlueJSyntaxView
                     for (int y = 0; y < CURVED_CORNER_SIZE; y++)
                     {
                         if (CORNER_TEMPLATE[y][x] == 1)
-                            image.getPixelWriter().setArgb(leftRight.lhs + x, lineHeight - 1 - y, leftRight.edgeColor.getRGB() | 0xFF000000);
+                            image.getPixelWriter().setColor(leftRight.lhs + x, lineHeight - 1 - y, leftRight.edgeColor);
                         else if (CORNER_TEMPLATE[y][x] == 2)
-                            image.getPixelWriter().setArgb(leftRight.lhs + x, lineHeight - 1 - y, leftRight.fillColor.getRGB() | 0xFF000000);
+                            image.getPixelWriter().setColor(leftRight.lhs + x, lineHeight - 1 - y, leftRight.fillColor);
                     }
                 }
             }
@@ -255,13 +255,13 @@ public class BlueJSyntaxView
 
             Middle middle = singleNestedScope.middle;
 
-            fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, lineHeight, middle.bodyColor.getRGB() | 0xFF000000);
+            fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, lineHeight, middle.bodyColor);
 
             if (middle.topColor != null)
             {
                 for (int x = middle.lhs; x < middle.rhs; x++)
                 {
-                    image.getPixelWriter().setArgb(x, 0, middle.topColor.getRGB() | 0xFF000000);
+                    image.getPixelWriter().setColor(x, 0, middle.topColor);
                 }
             }
 
@@ -269,16 +269,16 @@ public class BlueJSyntaxView
             {
                 for (int x = middle.lhs; x < middle.rhs; x++)
                 {
-                    image.getPixelWriter().setArgb(x, lineHeight - 1, middle.bottomColor.getRGB() | 0xFF000000);
+                    image.getPixelWriter().setColor(x, lineHeight - 1, middle.bottomColor);
                 }
             }
 
 
             // Right edge:
-            fillRect(image.getPixelWriter(), leftRight.rhs - leftRight.padding, 0 + sideTopMargin, leftRight.padding, lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor.getRGB() | 0xFF000000);
+            fillRect(image.getPixelWriter(), leftRight.rhs - leftRight.padding, 0 + sideTopMargin, leftRight.padding, lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
             for (int y = sideTopMargin; y < lineHeight - sideBottomMargin; y++)
             {
-                image.getPixelWriter().setArgb(leftRight.rhs, y, leftRight.edgeColor.getRGB() | 0xFF000000);
+                image.getPixelWriter().setColor(leftRight.rhs, y, leftRight.edgeColor);
             }
 
             if (leftRight.starts)
@@ -288,9 +288,9 @@ public class BlueJSyntaxView
                     for (int y = 0; y < CURVED_CORNER_SIZE; y++)
                     {
                         if (CORNER_TEMPLATE[y][x] == 1)
-                            image.getPixelWriter().setArgb(leftRight.rhs - x, y, leftRight.edgeColor.getRGB() | 0xFF000000);
+                            image.getPixelWriter().setColor(leftRight.rhs - x, y, leftRight.edgeColor);
                         else if (CORNER_TEMPLATE[y][x] == 2)
-                            image.getPixelWriter().setArgb(leftRight.rhs - x, y, leftRight.fillColor.getRGB() | 0xFF000000);
+                            image.getPixelWriter().setColor(leftRight.rhs - x, y, leftRight.fillColor);
                     }
                 }
             }
@@ -301,9 +301,9 @@ public class BlueJSyntaxView
                     for (int y = 0; y < CURVED_CORNER_SIZE; y++)
                     {
                         if (CORNER_TEMPLATE[y][x] == 1)
-                            image.getPixelWriter().setArgb(leftRight.rhs - x, lineHeight - 1 - y, leftRight.edgeColor.getRGB() | 0xFF000000);
+                            image.getPixelWriter().setColor(leftRight.rhs - x, lineHeight - 1 - y, leftRight.edgeColor);
                         else if (CORNER_TEMPLATE[y][x] == 2)
-                            image.getPixelWriter().setArgb(leftRight.rhs - x, lineHeight - 1 - y, leftRight.fillColor.getRGB() | 0xFF000000);
+                            image.getPixelWriter().setColor(leftRight.rhs - x, lineHeight - 1 - y, leftRight.fillColor);
                     }
                 }
             }
@@ -327,13 +327,13 @@ public class BlueJSyntaxView
         return image;
     }
 
-    private void fillRect(PixelWriter pixelWriter, int x, int y, int w, int h, int argb)
+    private static void fillRect(PixelWriter pixelWriter, int x, int y, int w, int h, Color c)
     {
         for (int i = 0; i < w; i++)
         {
             for (int j = 0; j < h; j++)
             {
-                pixelWriter.setArgb(x + i, y + j, argb);
+                pixelWriter.setColor(x + i, y + j, c);
             }
         }
     }
@@ -366,9 +366,9 @@ public class BlueJSyntaxView
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
         //optimization for the raspberry pi.
-        if (strength == 0) {
-            return;
-        }
+        //if (strength == 0) {
+            //return;
+        //}
         
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParsedNode();
@@ -1554,130 +1554,26 @@ public class BlueJSyntaxView
         return paragraphAttributes.getOrDefault(lineNo, EnumSet.noneOf(ParagraphAttribute.class));
     }
 
-    public static void setHighlightStrength(int strength)
-    {
-        BlueJSyntaxView.strength = strength;
-        //MOEFX resetColors();
-    }
-
     /**
      * Sets up the colors based on the strength value 
      * (from strongest (20) to white (0)
      */
     private void resetColors()
-    {       
-        C1 = getGreenContainerBorder();
-        C2 = getGreenWash(); 
-        C3 = getGreenBorder();
-        M1 = getYellowBorder();
-        M2 = getYellowWash();
-        S1 = getBlueBorder();
-        S2 = getBlueWash();
-        I1 = getPinkBorder();
-        I2 = getPinkWash();             
+    {
+        C1 = getReducedColor(scopeColors.scopeClassOuterColorProperty());
+        C2 = getReducedColor(scopeColors.scopeClassColorProperty());
+        C3 = getReducedColor(scopeColors.scopeClassInnerColorProperty());
+        M1 = getReducedColor(scopeColors.scopeMethodOuterColorProperty());
+        M2 = getReducedColor(scopeColors.scopeMethodColorProperty());
+        S1 = getReducedColor(scopeColors.scopeSelectionOuterColorProperty());
+        S2 = getReducedColor(scopeColors.scopeSelectionColorProperty());
+        I1 = getReducedColor(scopeColors.scopeIterationOuterColorProperty());
+        I2 = getReducedColor(scopeColors.scopeIterationColorProperty());
     }
 
-    private Color getReducedColor(Color c)
+    private Color getReducedColor(ObjectExpression<Color> c)
     {
-        return getReducedColor(c.getRed(), c.getGreen(), c.getBlue(), strength);
-    }
-    
-    /**
-     * Get a colour which has been faded toward the background according to the
-     * given strength value. The higher the strength value, the less the colour
-     * is faded.
-     */
-    @OnThread(Tag.Any)
-    public Color getReducedColor(int r, int g, int b, int colorStrength)
-    {
-        Color bg = getBackgroundColor();
-        double factor = colorStrength / (float) ScopeHighlightingPrefDisplay.MAX;
-        double other = 1 - factor;
-        int nr = Math.min((int)(r * factor + bg.getRed() * other), 255);
-        int ng = Math.min((int)(g * factor + bg.getGreen() * other), 255);
-        int nb = Math.min((int)(b * factor + bg.getBlue() * other), 255);
-        return new Color(nr, ng, nb);
-    }
-    
-    /** 
-     * Return the green wash color
-     * modified to become less strong based on the 'strength' value
-     */
-    private Color getGreenWash()
-    {
-        return getReducedColor(GREEN_BASE);
-    }
-
-    /** 
-     * Return the green container border color
-     * modified to become less strong based on the 'strength' value
-     */
-    private Color getGreenContainerBorder()
-    {
-        return getReducedColor(GREEN_OUTER_BASE);
-    }
-
-    /** 
-     * Return the green border color
-     * modified to become less strong based on the 'strength' value
-     */
-    private Color getGreenBorder()
-    {
-        return getReducedColor(GREEN_INNER_BASE);
-    }
-
-    /**
-     * Return the yellow border color
-     * modified to become less strong (until white) based on the 'strength' value
-     */
-    private Color getYellowBorder()
-    {
-        return getReducedColor(YELLOW_OUTER_BASE);
-    }
-    
-    /**
-     * Return the yellow wash color
-     * modified to become less strong (until white) based on the 'strength' value
-     */
-    private Color getYellowWash()
-    {
-        return getReducedColor(YELLOW_BASE);
-    }
-
-    /**
-     * Return the blue border (selection) color
-     * modified to become less strong (until white) based on the 'strength' value
-     */
-    private Color getBlueBorder()
-    {
-        return getReducedColor(BLUE_OUTER_BASE);
-    }
-
-    /**
-     * Return the blue wash color
-     * modified to become less strong (until white) based on the 'strength' value
-     */
-    private Color getBlueWash()
-    {
-        return getReducedColor(BLUE_BASE);
-    }
-
-    /**
-     *  Return the pink border (iteration) color
-     *  modified to become less strong (until white) based on the 'strength' value
-     */
-    private Color getPinkBorder()
-    {
-        return getReducedColor(PINK_OUTER_BASE);
-    }
-
-    /**
-     *  Return the pink wash colour
-     *  modified to become less strong (until white) based on the 'strength' value
-     */
-    private Color getPinkWash()
-    {
-        return getReducedColor(PINK_BASE);
+        return scopeColors.getReducedColor(c, PrefMgr.getScopeHighlightStrength()).getValue();
     }
 
     private static class Middle

@@ -132,15 +132,13 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
         int strength = scopeHighlightingPrefDisplay.getStrengthValue();
-        SwingUtilities.invokeLater(() -> {
-            try {
-                PrefMgr.setEditorFontSize(Integer.parseInt(fontText));
-            }
-            catch (NumberFormatException nfe) { }
-            PrefMgr.setScopeHighlightStrength(strength);
-            MoeSyntaxView.resetSyntaxHighlighting();
-            EditorManager.getEditorManager().refreshAll();
-        });
+        try {
+            PrefMgr.setEditorFontSize(Integer.parseInt(fontText));
+        }
+        catch (NumberFormatException nfe) { }
+        PrefMgr.setScopeHighlightStrength(strength);
+        MoeSyntaxView.resetSyntaxHighlighting();
+        EditorManager.getEditorManager().refreshAll();
     }
 
 }

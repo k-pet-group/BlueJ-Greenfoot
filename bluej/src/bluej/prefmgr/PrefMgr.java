@@ -107,8 +107,8 @@ public class PrefMgr
     // preference variables: (other than fonts)
     
     /** transparency of the scope highlighting */
-    @OnThread(Tag.Any)
-    private static int highlightStrength; 
+    @OnThread(Tag.FXPlatform)
+    private static IntegerProperty highlightStrength = new SimpleIntegerProperty(0);
     
     // last value of naviviewExpanded
     private static boolean isNaviviewExpanded=true;
@@ -356,7 +356,7 @@ public class PrefMgr
     }
 
     @OnThread(Tag.Any)
-    public static int getScopeHighlightStrength()
+    public static ObservableIntegerValue getScopeHighlightStrength()
     {
         return highlightStrength;
     }
@@ -367,8 +367,7 @@ public class PrefMgr
      */
     public static void setScopeHighlightStrength(int strength)
     {
-        highlightStrength = strength;
-        BlueJSyntaxView.setHighlightStrength(strength);
+        highlightStrength.set(strength);
         Config.putPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, strength);
     }
 
@@ -435,7 +434,7 @@ public class PrefMgr
         targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
         
         // preferences other than fonts:
-        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20);
+        highlightStrength = new SimpleIntegerProperty(Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20));
         isNaviviewExpanded=initializeisNavivewExpanded();
         
         projectDirectory = Config.getPropString("bluej.projectPath", System.getProperty("user.home"));
