@@ -70,10 +70,7 @@ import java.util.stream.Collectors;
 public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
 {
     public static final String ERROR_CLASS = "code-error";
-    private static PaintObjectBinding latestBinding;
-    private static MoeEditorPane latestEditor; // MOEFX: TODO this is a total hack
     private final MoeEditor editor;
-    private final BlueJSyntaxView syntaxView;
 
     /**
      * Create an editor pane specifically for Moe.
@@ -116,22 +113,11 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
 
         }, doc, false);
         this.editor = editor;
-        this.syntaxView = syntaxView;
         setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
         JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
         JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
         syntaxView.setEditorPane(this);
-        latestEditor = this;
-        /*MOEFX Maybe stop using style for this?
-        getParagraphs().addListener((ListChangeListener<? super Paragraph<Integer, StyledText<String>, String>>) c -> {
-            for (int n = 0; n < getParagraphs().size(); n++)
-            {
-                if (getParagraph(n).getParagraphStyle() != n)
-                    setParagraphStyle(n, n);
-            }
-        });
-        */
     }
 
     private static double measureLineHeight()
