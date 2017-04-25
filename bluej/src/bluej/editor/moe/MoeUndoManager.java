@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import bluej.utility.javafx.FXPlatformRunnable;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
@@ -52,7 +53,6 @@ public class MoeUndoManager implements UndoManagerFactory
     private final UndoManagerFactory delegate;
     private UndoManager undoManager;
     private final MoeEditor editor;
-    private Guard currentEdit;
     private BooleanProperty canUndo;
     private BooleanProperty canRedo;
 
@@ -62,16 +62,18 @@ public class MoeUndoManager implements UndoManagerFactory
         delegate = UndoManagerFactory.fixedSizeHistoryFactory(100);
     }
 
-    //MOEFX: change this to using try, not begin/end calls
-    public void beginCompoundEdit()
+    /**
+     * Carry out the given edit and treat it as a single compound edit; listeners
+     * for edits will only be informed of the final state not any intermediate states,
+     * and the edit will not merge in the undo manager with other edits before or after.
+     */
+    public void compoundEdit(FXPlatformRunnable edit)
     {
         breakEdit();
-        currentEdit = ((EditableStyledDocument)editor.getSourcePane().getDocument()).beingUpdatedProperty().suspend();
-    }
-    
-    public void endCompoundEdit()
-    {
-        currentEdit.close();
+        try(Guard currentEdit = ((EditableStyledDocument)editor.getSourcePane().getDocument()).beingUpdatedProperty().suspend())
+        {
+            edit.run();
+        }
         breakEdit();
     }
     

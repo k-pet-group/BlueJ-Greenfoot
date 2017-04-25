@@ -942,9 +942,7 @@ public final class MoeActions
      */
     private void doBlockIndent(MoeEditor editor)
     {
-        editor.undoManager.beginCompoundEdit();
-        blockAction(editor, new IndentLineAction());
-        editor.undoManager.endCompoundEdit();
+        editor.undoManager.compoundEdit(() -> blockAction(editor, new IndentLineAction()));
     }
 
     // --------------------------------------------------------------------
@@ -955,9 +953,7 @@ public final class MoeActions
      */
     private void doBlockDeIndent(MoeEditor editor)
     {
-        editor.undoManager.beginCompoundEdit();
-        blockAction(editor, new DeindentLineAction());
-        editor.undoManager.endCompoundEdit();
+        editor.undoManager.compoundEdit(() -> blockAction(editor, new DeindentLineAction()));
     }
 
     // --------------------------------------------------------------------
@@ -1385,9 +1381,7 @@ public final class MoeActions
     {
         return action("comment-block", Category.EDIT, () -> {
             MoeEditor editor = getEditor();
-            editor.undoManager.beginCompoundEdit();
-            blockAction(editor, new CommentLineAction());
-            editor.undoManager.endCompoundEdit();
+            editor.undoManager.compoundEdit(() -> blockAction(editor, new CommentLineAction()));
         });
     }
 
@@ -1397,9 +1391,7 @@ public final class MoeActions
     {
         return action("uncomment-block", Category.EDIT, () -> {
             MoeEditor editor = getEditor();
-            editor.undoManager.beginCompoundEdit();
-            blockAction(editor, new UncommentLineAction());
-            editor.undoManager.endCompoundEdit();
+            editor.undoManager.compoundEdit(() -> blockAction(editor, new UncommentLineAction()));
         });
     }
 
@@ -1432,15 +1424,14 @@ public final class MoeActions
 
             int prevCaretPos = editor.getSourcePane().getCaretPosition();
             editor.setCaretActive(false);
-            editor.undoManager.beginCompoundEdit();
-            AutoIndentInformation info = MoeIndent.calculateIndentsAndApply(doc, prevCaretPos);
-            editor.undoManager.endCompoundEdit();
-            editor.setCaretPositionForward(info.getNewCaretPosition() - prevCaretPos);
+            editor.undoManager.compoundEdit(() -> {
+                AutoIndentInformation info = MoeIndent.calculateIndentsAndApply(doc, prevCaretPos);
+                editor.setCaretPositionForward(info.getNewCaretPosition() - prevCaretPos);
+                if (info.isPerfect()) {
+                    editor.writeMessage(Config.getString("editor.info.perfectIndent"));
+                }
+            });
             editor.setCaretActive(true);
-
-            if (info.isPerfect()) {
-                editor.writeMessage(Config.getString("editor.info.perfectIndent"));
-            }
         });
     }
 
@@ -1454,9 +1445,7 @@ public final class MoeActions
             if (!editor.containsSourceCode()){
                 return;
             }
-            editor.undoManager.beginCompoundEdit();
-            insertTemplate("method");
-            editor.undoManager.endCompoundEdit();
+            editor.undoManager.compoundEdit(() -> insertTemplate("method"));
         });
     }
 
@@ -1527,11 +1516,12 @@ public final class MoeActions
 
                     newComment.append(indent).append(" */\n").append(indent);
 
-                    editor.undoManager.beginCompoundEdit();
-                    editor.getCurrentTextPane().setCaretPosition(node.getPosition());
-                    editor.getCurrentTextPane().replaceSelection(newComment.toString());
-                    editor.getCurrentTextPane().setCaretPosition((caretPos + newComment.length()));
-                    editor.undoManager.endCompoundEdit();
+                    NodeAndPosition<ParsedNode> nodeFinal = node;
+                    editor.undoManager.compoundEdit(() -> {
+                        editor.getCurrentTextPane().setCaretPosition(nodeFinal.getPosition());
+                        editor.getCurrentTextPane().replaceSelection(newComment.toString());
+                        editor.getCurrentTextPane().setCaretPosition((caretPos + newComment.length()));
+                    });
                 }
             }
         });

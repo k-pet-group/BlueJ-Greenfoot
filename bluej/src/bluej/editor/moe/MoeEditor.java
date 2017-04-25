@@ -3772,15 +3772,16 @@ public final class MoeEditor extends ScopeColorsBorderPane
         //insert before that:
         for (int pos = node.getEnd() - 1; pos >= 0; pos--) {
             if ("}".equals(e.getText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos+1)))) {
-                undoManager.beginCompoundEdit();
-                int originalLength = node.getSize();
-                // First insert the text:
-                e.setText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos), text);
-                // Then auto-indent the method to make sure our indents were correct:
-                int oldPos = getSourcePane().getCaretPosition();
-                MoeIndent.calculateIndentsAndApply(sourceDocument, node.getPosition(), 
-                        node.getPosition() + originalLength + text.length(), oldPos);
-                undoManager.endCompoundEdit();
+                int posFinal = pos;
+                undoManager.compoundEdit(() -> {
+                    int originalLength = node.getSize();
+                    // First insert the text:
+                    e.setText(e.getTextLocationFromOffset(posFinal), e.getTextLocationFromOffset(posFinal), text);
+                    // Then auto-indent the method to make sure our indents were correct:
+                    int oldPos = getSourcePane().getCaretPosition();
+                    MoeIndent.calculateIndentsAndApply(sourceDocument, node.getPosition(),
+                            node.getPosition() + originalLength + text.length(), oldPos);
+                });
                 e.setCaretLocation(e.getTextLocationFromOffset(pos));
                 return;
             }
