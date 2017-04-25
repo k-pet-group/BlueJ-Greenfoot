@@ -39,3 +39,13 @@
 .moe-background {
     -fx-background-image: url("../images/grey-diagonal.png");
 }
+
+.moe-code-error {
+    /* In theory we could set the underline image from CSS as below.
+       However it seems there is a bug (JavaFX, not RichTextFX) which
+       prevents use of URLs relative to the style file in image patterns.
+       So we do it in code until the bug is fixed: */
+    /*-rtfx-underline-color: repeating-image-pattern("../images/error-underline.png");*/
+    /* underline height, really: */
+    -rtfx-underline-width: 4;
+}

@@ -1309,7 +1309,12 @@ public final class Config
         catch (NullPointerException npe) { }
         return null;
     }
-    
+
+    /**
+     * Gets an image as an FX image.  Note that you pass the property name
+     * as the parameter, which gets resolved via getPropString.
+     * If you don't want this resolution, use getFixedImageAsFXImage
+     */
     @OnThread(Tag.FX)
     public static javafx.scene.image.Image getImageAsFXImage(String propname)
     {
@@ -1340,7 +1345,12 @@ public final class Config
         catch (java.net.MalformedURLException mue) { }
         return null;
     }
-    
+
+    /**
+     * Gets the given file name from the images directory as an image.
+     * @param filename
+     * @return
+     */
     @OnThread(Tag.FX)
     public static javafx.scene.image.Image getFixedImageAsFXImage(String filename)
     {

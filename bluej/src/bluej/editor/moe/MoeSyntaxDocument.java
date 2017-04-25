@@ -60,6 +60,17 @@ import bluej.utility.PersistentMarkDocument;
  */
 public class MoeSyntaxDocument
 {
+    /**
+     * A RichTextFX document can have paragraph styles, and text-segment styles.
+     *
+     * We use RichTextFX such that one RichTextFX paragraph = one line of Java source code.
+     * Our paragraph styles are thus line styles, and we use this to store information
+     * about the scope boxes that need painting on the background for scope highlighting.
+     *
+     * Our text-segment styles are a list of style-classes to apply to a text-segment.
+     * This is usually a single token-style (our tokens never overlap), and possibly
+     * the error state class.
+     */
     private final SimpleEditableStyledDocument<ScopeInfo, List<String>> document;
     
     /** Maximum amount of document to reparse in one hit (advisory) */

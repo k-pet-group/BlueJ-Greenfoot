@@ -69,7 +69,8 @@ import java.util.stream.Collectors;
  */
 public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
 {
-    public static final String ERROR_CLASS = "code-error";
+    public static final String ERROR_CLASS = "moe-code-error";
+    private static final Image UNDERLINE_IMAGE = Config.getFixedImageAsFXImage("error-underline.png");
     private final MoeEditor editor;
 
     /**
@@ -87,28 +88,15 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
         }, Collections.emptyList(), (t, s) -> {
             if (s.contains(ERROR_CLASS))
             {
-                // MOEFX TODO Turn this into an image file on disk (so that we can also add a retina version)
-                WritableImage image = new WritableImage(4, 4);
-                image.getPixelWriter().setColor(0, 0, Color.RED);
-                image.getPixelWriter().setColor(1, 1, Color.RED);
-                image.getPixelWriter().setColor(2, 2, Color.RED);
-                image.getPixelWriter().setColor(3, 1, Color.RED);
-
-                image.getPixelWriter().setColor(0, 1, Color.RED);
-                image.getPixelWriter().setColor(1, 2, Color.RED);
-                image.getPixelWriter().setColor(2, 3, Color.RED);
-                image.getPixelWriter().setColor(3, 2, Color.RED);
                 // RichTextFX has built-in support for underlines, which is much easier than trying to construct
                 // our own overlay.  It turns out we can even draw a squiggly underline rather than straight underline
-                // by using an image-pattern for the stroke:
-                t.setUnderlineColor(new ImagePattern(image, 0, 0, 4, 4, false));
-                t.setUnderlineWidth(3);
+                // by using an image-pattern for the stroke.
+
+                // In theory, this is settable using JavaFX CSS, but it seems there is a bug
+                // which prevents use of relative URLs in image patterns, so we set it from
+                // code instead:
+                t.setUnderlineColor(new ImagePattern(UNDERLINE_IMAGE, 0, 0, 4, 4, false));
             }
-            else
-            {
-                t.setUnderlineWidth(0);
-            }
-            //t.setFill(Color.rgb(s >> 16 & 0xFF, s >> 8 & 0xFF, s & 0xFF));
             t.getStyleClass().addAll(s);
 
         }, doc, false);
