@@ -67,8 +67,11 @@ public class StdClassRole extends ClassRole
     @OnThread(Tag.FXPlatform)
     public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, State state)
     {
-        menu.add(new SeparatorMenuItem());
-        menu.add(ct.new CreateTestAction());
+       if (ct.getAssociation() == null)
+        {
+                menu.add(new SeparatorMenuItem());
+                menu.add(ct.new CreateTestAction());
+        }
         return true;
     }
 
