@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.groupwork.ui;
 
 import javafx.application.Platform;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -44,7 +45,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  */
 @OnThread(Tag.FXPlatform)
-public class CheckConnectionDialog extends javafx.scene.control.Dialog<Void>
+public class CheckConnectionDialog extends Dialog<Void>
 {
     private ProgressBar activityIndicator;
     private Text connLabel;
@@ -52,8 +53,7 @@ public class CheckConnectionDialog extends javafx.scene.control.Dialog<Void>
     private TeamSettings settings;
     private TeamworkProvider provider;
 
-    public CheckConnectionDialog(Window owner, TeamworkProvider provider,
-                                 TeamSettings settings)
+    public CheckConnectionDialog(Window owner, TeamworkProvider provider, TeamSettings settings)
     {
         initOwner(owner);
         initModality(Modality.WINDOW_MODAL);
@@ -107,5 +107,4 @@ public class CheckConnectionDialog extends javafx.scene.control.Dialog<Void>
         }.start();
         showAndWait();
     }
-
 }
