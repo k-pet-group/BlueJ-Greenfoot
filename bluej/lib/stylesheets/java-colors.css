@@ -30,11 +30,14 @@
 .token-invalid {
     -fx-fill: #ff3300;
 }
-.token-other {
+/* Default text colour */
+.token-default {
     -fx-fill: #000000;
 }
 
 .scope-colors {
+    -bj-background-color: white;
+
     -bj-class-color: rgb(225, 248, 225);
     -bj-class-outer-color: rgb(188, 218, 188);
     -bj-class-inner-color: rgb(210, 230, 210);

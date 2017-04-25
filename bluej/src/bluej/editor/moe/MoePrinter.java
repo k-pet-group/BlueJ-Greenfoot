@@ -36,9 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
-import javax.swing.text.PlainDocument;
 import javax.swing.text.Segment;
 import javax.swing.text.StyleContext;
 import javax.swing.text.TabExpander;
@@ -350,7 +348,7 @@ public class MoePrinter
                     
                     int length = tokens.length;
                     Color color;
-                    if(id == TokenType.NULL)
+                    if(id == TokenType.DEFAULT)
                         color = def;
                     else {
                         // check we are within the array bounds

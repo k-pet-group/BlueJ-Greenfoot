@@ -28,8 +28,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.text.Document;
-
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -432,19 +430,19 @@ public abstract class JavaParentNode extends ParentParsedNode
             LocatableToken lt = (LocatableToken) tokenStream.nextToken();
 
             if (lt.getLine() > 1 || lt.getColumn() - curcol >= length) {
-                token.next = new Token(length, TokenType.NULL);
+                token.next = new Token(length, TokenType.DEFAULT);
                 token = token.next;
                 break;
             }
             if (lt.getColumn() > curcol) {
                 // some space before the token
-                token.next = new Token(lt.getColumn() - curcol, TokenType.NULL);
+                token.next = new Token(lt.getColumn() - curcol, TokenType.DEFAULT);
                 token = token.next;
                 length -= token.length;
                 curcol += token.length;
             }
 
-            TokenType tokType = TokenType.NULL;
+            TokenType tokType = TokenType.DEFAULT;
             if (JavaParser.isPrimitiveType(lt)) {
                 tokType = TokenType.PRIMITIVE;
             }

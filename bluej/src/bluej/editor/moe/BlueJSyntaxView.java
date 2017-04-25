@@ -97,6 +97,8 @@ public class BlueJSyntaxView
 
     /* Scope painting colours */
     /* The following are initialized by resetColors() */
+    private Color BK; // background
+
     private Color C1; // green border (container)
     private Color C2; // green wash
     private Color C3; // green border (inner).
@@ -640,7 +642,7 @@ public class BlueJSyntaxView
 
     private Color getBackgroundColor()
     {
-        return Color.WHITE; // MOEFX take from CSS
+        return BK;
     }
 
     /**
@@ -1560,6 +1562,7 @@ public class BlueJSyntaxView
      */
     private void resetColors()
     {
+        BK = scopeColors.scopeBackgroundColorProperty().get();
         C1 = getReducedColor(scopeColors.scopeClassOuterColorProperty());
         C2 = getReducedColor(scopeColors.scopeClassColorProperty());
         C3 = getReducedColor(scopeColors.scopeClassInnerColorProperty());

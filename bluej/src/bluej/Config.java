@@ -1933,13 +1933,13 @@ public final class Config
                 "editor-slot-choice",
                 "editor-suggestions",
                 "editor-tabs",
-                "moe",
-                "java-colors"};
+                "moe"};
         
         for (String stem : stylesheetStems)
         {
             addStylesheet(scene.getStylesheets(), stem);
         }
+        addJavaColorsStylesheet(scene.getStylesheets());
     }
 
     @OnThread(Tag.FX)
@@ -1972,7 +1972,8 @@ public final class Config
         try
         {
             sheetList.add(new File(bluejLibDir + "/stylesheets", stem + ".css").toURI().toURL().toString());
-        } catch (MalformedURLException e)
+        }
+        catch (MalformedURLException e)
         {
             Debug.reportError(e);
         }
@@ -1982,7 +1983,29 @@ public final class Config
     public static void addDialogStylesheets(DialogPane dialogPane)
     {
         addStylesheet(dialogPane.getStylesheets(), "dialogs");
-        addStylesheet(dialogPane.getStylesheets(), "java-colors");
+        addJavaColorsStylesheet(dialogPane.getStylesheets());
+    }
+
+    private static void addJavaColorsStylesheet(ObservableList<String> stylesheets)
+    {
+        // First add ours, so that it acts as a default:
+        addStylesheet(stylesheets, "java-colors");
+        // Then add the users, so that it will take precendence:
+
+        File userColorsFile = getUserConfigFile("java-colors.css");
+        if (userColorsFile.exists())
+        {
+            try
+            {
+                stylesheets.add(userColorsFile.toURI().toURL().toString());
+                // Note this, in case we get support requests about weird colours:
+                Debug.log("Using user-specified java-colors file.");
+            }
+            catch (MalformedURLException e)
+            {
+                Debug.reportError(e);
+            }
+        }
     }
 
     @OnThread(Tag.Swing)
