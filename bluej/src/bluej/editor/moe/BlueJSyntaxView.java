@@ -167,7 +167,7 @@ public class BlueJSyntaxView
             if(id == TokenType.END)
                 break;
 
-            lineStyle.add(Collections.singletonList("token-" + id.toString().toLowerCase()), tokens.length);
+            lineStyle.add(Collections.singletonList(id.getCSSClass()), tokens.length);
             addedAny = true;
 
             tokens = tokens.next;

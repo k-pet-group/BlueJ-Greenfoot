@@ -145,7 +145,6 @@ public class MoeSyntaxDocument
      */
     public MoeSyntaxDocument()
     {
-        getUserColors();
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
         document = new SimpleEditableStyledDocument<>(null, Collections.emptyList());
@@ -488,79 +487,6 @@ public class MoeSyntaxDocument
     public void setParagraphAttributes(int offset, Map<ParagraphAttribute, Boolean> alterAttr)
     {
         syntaxView.setParagraphAttributes(document.offsetToPosition(offset, Bias.Forward).getMajor() + 1, alterAttr);
-    }
-
-    /**
-     * Allows user-defined colours to be set for syntax highlighting. The file
-     * containing the colour values is 'lib/moe.defs'. If this file is
-     * not found, or not all colours are defined, the BlueJ default colours are
-     * used.
-     * 
-     * @author This method was added by Jo Wood (jwo@soi.city.ac.uk), 9th March,
-     *         2001.
-     */
-    @OnThread(Tag.Any)
-    private static synchronized Color[] getUserColors()
-    {
-        Color[] colors = null;/*MOEFX
-        if(colors == null) {
-            // Replace with user-defined colours.
-            int    colorInt;
-                        
-            // First determine default colour and background colour
-            colorInt = getPropHexInt("other", 0x000000);
-            Color defaultColour = new Color(colorInt);
-            
-            colorInt = getPropHexInt("background", 0x000000);
-            Color backgroundColour = new Color(colorInt);
-
-            // Build colour table.     
-            colors = new Color[Token.ID_COUNT];
-
-            // Comments.
-            colorInt = getPropHexInt("comment", 0x1a1a80);
-            colors[Token.COMMENT1] = new Color(colorInt);    
-
-            // Javadoc comments.
-            colorInt = getPropHexInt("javadoc", 0x1a1a80);
-            colors[Token.COMMENT2] = new Color(colorInt);
-
-            // Stand-out comments (/*#).
-            colorInt = getPropHexInt("stand-out", 0xee00bb);
-            colors[Token.COMMENT3] = new Color(colorInt);
-
-            // Java keywords.
-            colorInt = getPropHexInt("keyword1", 0x660033);
-            colors[Token.KEYWORD1] = new Color(colorInt);
-
-            // Class-based keywords.
-            colorInt = getPropHexInt("keyword2", 0xcc8033);
-            colors[Token.KEYWORD2] = new Color(colorInt);
-
-            // Other Java keywords (true, false, this, super).
-            colorInt = getPropHexInt("keyword3", 0x006699);
-            colors[Token.KEYWORD3] = new Color(colorInt);
-
-            // Primitives.
-            colorInt = getPropHexInt("primitive", 0xcc0000);
-            colors[Token.PRIMITIVE] = new Color(colorInt);
-
-            // String literals.
-            colorInt = getPropHexInt("string", 0x339933);
-            colors[Token.LITERAL1] = new Color(colorInt);
-
-            // Labels
-            colorInt = getPropHexInt("label", 0x999999);
-            colors[Token.LABEL] = new Color(colorInt);
-            
-            // Invalid (eg unclosed string literal)
-            colorInt = getPropHexInt("invalid", 0xff3300);
-            colors[Token.INVALID] = new Color(colorInt);
-            
-            // Operator is not produced by token marker
-            colors[Token.OPERATOR] = new Color(0xcc9900);
-        }*/
-        return colors;
     }
     
     /**

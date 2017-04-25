@@ -38,7 +38,12 @@ public class Token
 
     public static enum TokenType
     {
-        NULL, COMMENT1, COMMENT2, COMMENT3, KEYWORD1, KEYWORD2, KEYWORD3, PRIMITIVE, LITERAL1, LITERAL2, LABEL, OPERATOR, INVALID, END;
+        NULL, COMMENT_NORMAL, COMMENT_JAVADOC, COMMENT_SPECIAL, KEYWORD1, KEYWORD2, KEYWORD3, PRIMITIVE, LITERAL1, LITERAL2, LABEL, OPERATOR, INVALID, END;
+
+        public String getCSSClass()
+        {
+            return "token-" + name().toLowerCase().replace("_", "-");
+        }
     }
     
     public Token(int length, TokenType id)
