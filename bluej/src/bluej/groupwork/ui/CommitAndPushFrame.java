@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,7 @@
  */
 package bluej.groupwork.ui;
 
-import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.extensions.event.PackageListener;
 import bluej.groupwork.CommitFilter;
 import bluej.groupwork.Repository;
 import bluej.groupwork.StatusHandle;
@@ -36,17 +34,10 @@ import bluej.groupwork.actions.CommitAction;
 import bluej.groupwork.actions.PushAction;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
-import bluej.utility.DBox;
-import bluej.utility.DBoxLayout;
 import bluej.utility.DialogManager;
-import bluej.utility.SwingWorker;
+import bluej.utility.FXWorker;
 import bluej.utility.Utility;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -58,23 +49,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import javafx.application.Platform;
-
-import bluej.utility.javafx.SwingNodeDialog;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyListWrapper;
+import javafx.collections.ObservableList;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -84,7 +70,7 @@ import threadchecker.Tag;
  *
  * @author Fabio Heday
  */
-public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPushInterface
+public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
 {
 
     private final Project project;
@@ -93,20 +79,17 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
     private Repository repository;
 
    
-    private JPanel topPanel, middlePanel, bottomPanel;
-    private ActivityIndicator progressBar;
-    private JCheckBox includeLayout;
-    private JTextArea commitText;
-    private JList commitFiles, pushFiles;
-    private DefaultListModel commitListModel, pushListModel;
-    private JButton commitButton, pushButton;
+    private VBox topPanel, middlePanel, bottomPanel;
+    private ActivityIndicatorFX progressBar;
+    private CheckBox includeLayout;
+    private TextArea commitText;
+    private ListView commitFiles, pushFiles;
+    private ObservableList commitListModel, pushListModel;
+    private Button commitButton, pushButton;
 
     private CommitAction commitAction;
-
     private PushAction pushAction;
-
     private CommitAndPushWorker commitAndPushWorker;
-    
     private boolean emptyCommitText = true;
     
     //sometimes, usually after a conflict resolution, we need to push in order
@@ -114,9 +97,7 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
     private boolean pushWithNoChanges = false;
 
     private static final String noFilesToCommit = Config.getString("team.nocommitfiles");
-
     private static final String noFilesToPush = Config.getString("team.nopushfiles");
-    
     private static final String pushNeeded = Config.getString("team.pushNeeded");
 
     public CommitAndPushFrame(Project proj)
@@ -126,7 +107,7 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
         repository = project.getTeamSettingsController().getRepository(false);
 
         createUI();
-        DialogManager.centreDialog(this);
+//        DialogManager.centreDialog(this);
     }
 
     /**
@@ -136,124 +117,87 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
     {
 
         setTitle(Config.getString("team.commit.dcvs.title"));
-        commitListModel = new DefaultListModel();
-        pushListModel = new DefaultListModel();
+        commitListModel = new ReadOnlyListWrapper();
+        pushListModel = new ReadOnlyListWrapper();
 
-        rememberPosition("bluej.commitdisplay");
+//        rememberPosition("bluej.commitdisplay");
         
-        topPanel = new JPanel();
-        topPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-        JPanel windowPanel = new JPanel();
-        windowPanel.setBorder(BlueJTheme.generalBorder);
+        topPanel = new VBox();//
+//        topPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        VBox windowPanel = new VBox();//
+//        windowPanel.setBorder(BlueJTheme.generalBorder);
 
-        JScrollPane commitFileScrollPane = new JScrollPane();
+        ScrollPane commitFileScrollPane = new ScrollPane();
         
         {
-            topPanel.setLayout(new BorderLayout());
-            windowPanel.setLayout(new BorderLayout());
-            topPanel.setBorder(BorderFactory.createEmptyBorder());
+//            topPanel.setLayout(new BorderLayout());
+//            windowPanel.setLayout(new BorderLayout());
+//            topPanel.setBorder(BorderFactory.createEmptyBorder());
 
-            JLabel commitFilesLabel = new JLabel(Config.getString(
-                    "team.commitPush.commit.files"));
-            commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-            topPanel.add(commitFilesLabel, BorderLayout.NORTH);
-            commitFiles = new JList(commitListModel);
-            commitFiles.setVisibleRowCount(4);
-            commitFiles.setCellRenderer(new FileRenderer(project, false));
-            commitFiles.setEnabled(false);
+            Label commitFilesLabel = new Label(Config.getString("team.commitPush.commit.files"));
+//            commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+            topPanel.getChildren().add(commitFilesLabel);
+            commitFiles = new ListView(commitListModel);
+//            commitFiles.setVisibleRowCount(4);
+//            commitFiles.setCellRenderer(new FileRenderer(project, false));
+            commitFiles.setDisable(true);
             
-            commitFileScrollPane.setViewportView(commitFiles);
-            commitFiles.setMaximumSize(commitFiles.getMaximumSize());
-            commitFiles.setMinimumSize(commitFiles.getMaximumSize());
-            commitFiles.setBackground(new Color(windowPanel.getBackground().getRGB()));
+            commitFileScrollPane.setContent(commitFiles);
+            commitFiles.setMaxSize(commitFiles.getMaxWidth(), commitFiles.getMaxHeight());
+            commitFiles.setMinSize(commitFiles.getMaxWidth(), commitFiles.getMaxHeight());
+            commitFiles.setBackground(windowPanel.getBackground());//
 
-            topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
+            topPanel.getChildren().add(commitFileScrollPane);
         }
-        windowPanel.add(topPanel, BorderLayout.NORTH);
-        middlePanel = new JPanel();
-        JButton closeButton = BlueJTheme.getCancelButton();
-        closeButton.setText(Config.getString("close"));
-        Platform.runLater(() -> setCloseIsButton(closeButton));
+        windowPanel.getChildren().add(topPanel);
+        middlePanel = new VBox();//
 
-        {
-            middlePanel.setLayout(new BorderLayout());
-            middlePanel.setBorder(BorderFactory.createEmptyBorder());
+        Button closeButton = new Button(Config.getString("close"));
+        closeButton.setOnAction(event -> abort());
+        setOnCloseRequest(event -> abort());
 
-            JLabel commentLabel = new JLabel(Config.getString(
-                    "team.commit.comment"));
-            commentLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
-            middlePanel.add(commentLabel, BorderLayout.NORTH);
+//            middlePanel.setLayout(new BorderLayout());
+//            middlePanel.setBorder(BorderFactory.createEmptyBorder());
 
-            commitText = new JTextArea("");
-            commitText.setRows(5);
-            commitText.setColumns(35);
+            Label commentLabel = new Label(Config.getString("team.commit.comment"));
+//            commentLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
+            middlePanel.getChildren().add(commentLabel);
 
-            Dimension size = commitText.getPreferredSize();
-            size.width = commitText.getMinimumSize().width;
-            commitText.setMinimumSize(size);
-            
-            //create listeners to enable the commit button if there is a comment.
-            commitText.getDocument().addDocumentListener(new DocumentListener()
-            {
-                @Override
-                public void insertUpdate(DocumentEvent e)
-                {
-                    emptyCommitText = false;
-                    if (commitText.isEnabled()){
-                        commitAction.setEnabled(!emptyCommitText);
-                    }
-                }
+            commitText = new TextArea("");
+            commitText.setPrefRowCount(5);
+            commitText.setPrefColumnCount(35);
+            commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
 
-                @Override
-                public void removeUpdate(DocumentEvent e)
-                {
-                    emptyCommitText = commitText.getText().isEmpty();
-                    if (commitText.isEnabled()) {
-                        commitAction.setEnabled(!emptyCommitText);
-                    }
-                }
+            ScrollPane commitTextScrollPane = new ScrollPane(commitText);
+            commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
+            middlePanel.getChildren().add(commitTextScrollPane);
 
-                @Override
-                public void changedUpdate(DocumentEvent e)
-                {
-                    emptyCommitText = commitText.getText().isEmpty();
-                    if (commitText.isEnabled()) {
-                        commitAction.setEnabled(!emptyCommitText);
-                    }
-                }
-            });
-            
-            JScrollPane commitTextScrollPane = new JScrollPane(commitText);
-            commitTextScrollPane.setMinimumSize(size);
-            middlePanel.add(commitTextScrollPane, BorderLayout.CENTER);
 
-            commitAction = new CommitAction(this);
-            commitButton = BlueJTheme.getOkButton();
-            commitButton.setAction(commitAction);
+        commitAction = new CommitAction(this);
+        commitButton = new Button(Config.getString("team.commitButton"));
+        commitButton.setOnAction(event -> commitAction.actionPerformed(null));
+        //Bind commitText properties to enable the commit button if there is a comment.
+        commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
 
-            pushAction = new PushAction(this);
-            pushButton = BlueJTheme.getOkButton();
-            pushButton.setAction(pushAction);
+        pushAction = new PushAction(this);
+        pushButton = new Button(Config.getString("team.push"));
+        pushButton.setOnAction(event -> pushAction.actionPerformed(null));
 
-            closeButton.addActionListener((ActionEvent e) -> {
-                commitAndPushWorker.abort();
-                commitAction.cancel();
-                setVisible(false);
-            });
-
-            DBox middleBox = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-            middleBox.setBorder(BlueJTheme.generalBorder);
-            DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-            checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(10,0,10,10));
+        HBox middleBox = new HBox();
+//        DBox middleBox = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+//        middleBox.setBorder(BlueJTheme.generalBorder);
+        VBox checkBoxPanel = new VBox();
+//        DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+//        checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(10,0,10,10));
                         
-            includeLayout = new JCheckBox(Config.getString("team.commit.includelayout"));
-            includeLayout.setEnabled(false);
-            includeLayout.addActionListener((ActionEvent e) -> {
-                JCheckBox layoutCheck = (JCheckBox) e.getSource();
+            includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
+            includeLayout.setDisable(true);
+            includeLayout.setOnAction(event -> {
+                CheckBox layoutCheck = (CheckBox) event.getSource();
                 if (layoutCheck.isSelected()) {
                     addModifiedLayouts();
-                    if (!commitButton.isEnabled()) {
-                        commitAction.setEnabled(!emptyCommitText);
+                    if (commitButton.isDisable()) {
+                        commitAction.setEnabled(!emptyCommitText);/////
                     }
                 } // unselected
                 else {
@@ -264,56 +208,54 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
                 }
             });
 
-            checkBoxPanel.add(includeLayout);
-            JPanel commitArea = new JPanel(new BorderLayout());
-            commitArea.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 6));
-            commitArea.add(commitButton, BorderLayout.EAST);
-            middleBox.add(checkBoxPanel);
-            middleBox.add(commitArea);
-            middlePanel.add(middleBox, BorderLayout.SOUTH);
-        }
+            checkBoxPanel.getChildren().add(includeLayout);
+            HBox commitArea = new HBox();
+            commitArea.setAlignment(Pos.CENTER_RIGHT);
+//            commitArea.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 6));
+            commitArea.getChildren().add(commitButton);
+            middleBox.getChildren().addAll(checkBoxPanel, commitArea);
+            middlePanel.getChildren().add(middleBox);
 
-        topPanel.add(middlePanel, BorderLayout.SOUTH);
-        bottomPanel = new JPanel();
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        topPanel.getChildren().add(middlePanel);
+        bottomPanel = new VBox();
+//        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
-        JScrollPane pushFileScrollPane = new JScrollPane();
-        
+        ScrollPane pushFileScrollPane = new ScrollPane();
+
         {
-            bottomPanel.setLayout(new BorderLayout());
+            Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
+//            pushFilesLabel.setBorder(BorderFactory.createEmptyBorder(6, 0, 5, 0));
+            bottomPanel.getChildren().add(pushFilesLabel);
+            pushFiles = new ListView(pushListModel);
+//            pushFiles.setCellRenderer(new FileRenderer(project, true));
+            pushFiles.setDisable(true);
+//            pushFiles.setVisibleRowCount(4);
+            pushFileScrollPane.setContent(pushFiles);
+            pushFiles.setBackground(bottomPanel.getBackground());
 
-            JLabel pushFilesLabel = new JLabel(Config.getString(
-                    "team.commitPush.push.files"));
-            pushFilesLabel.setBorder(BorderFactory.createEmptyBorder(6, 0, 5, 0));
-            bottomPanel.add(pushFilesLabel, BorderLayout.NORTH);
-            pushFiles = new JList(pushListModel);
-            pushFiles.setCellRenderer(new FileRenderer(project, true));
-            pushFiles.setEnabled(false);
-            pushFiles.setVisibleRowCount(4);
-            pushFileScrollPane.setViewportView(pushFiles);
-            pushFiles.setBackground(new Color(bottomPanel.getBackground().getRGB()));
-
-            bottomPanel.add(pushFileScrollPane, BorderLayout.CENTER);
+            bottomPanel.getChildren().add(pushFileScrollPane);
         }
 
-        
-        DBox pushButtonPanel = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-        pushButtonPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
-        progressBar = new ActivityIndicator();
+        HBox pushButtonPanel = new HBox();
+//        pushButtonPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
+        progressBar = new ActivityIndicatorFX();
         progressBar.setRunning(false);
-        pushButtonPanel.add(progressBar);
-        pushButtonPanel.add(pushButton);
-        pushButtonPanel.add(closeButton);
+        pushButtonPanel.getChildren().addAll(progressBar, pushButton, closeButton);
         
-        bottomPanel.add(pushButtonPanel, BorderLayout.SOUTH);
+        bottomPanel.getChildren().add(pushButtonPanel);
         
-        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
-        separator.setForeground(Color.black);
-        windowPanel.add(separator, BorderLayout.CENTER);
-        windowPanel.add(bottomPanel, BorderLayout.SOUTH);
+        Separator separator = new Separator(Orientation.HORIZONTAL);
+//        separator.setForeground(Color.black);
+        windowPanel.getChildren().addAll(separator, bottomPanel);
         
-        getContentPane().add(windowPanel);
-        pack();
+        getDialogPane().setContent(windowPanel);
+    }
+
+    private void abort()
+    {
+        commitAndPushWorker.abort();
+        commitAction.cancel();
+        close();
     }
 
     @Override
@@ -322,15 +264,15 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
         if (show) {
             // we want to set comments and commit action to disabled
             // until we know there is something to commit
-            commitAction.setEnabled(false);
-            commitText.setEnabled(false);
-            commitText.setText("");
+            commitAction.setEnabled(false);//
+            commitText.setDisable(true);//
+            commitText.setText("");//
             includeLayout.setSelected(false);
-            includeLayout.setEnabled(false);
+            includeLayout.setDisable(true);//
             changedLayoutFiles.clear();
-            commitListModel.removeAllElements();
+            commitListModel.clear();
             pushAction.setEnabled(false);
-            pushListModel.removeAllElements();
+            pushListModel.clear();
 
             repository = project.getTeamSettingsController().getRepository(false);
 
@@ -351,10 +293,12 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
                 commitAndPushWorker.start();
 
             } else {
-                super.setVisible(false);
+                hide();
             }
+            show(); // looking at the else before, this line is maybe wrong
+        } else {
+            hide();
         }
-        super.setVisible(show);
     }
 
     public void setComment(String newComment)
@@ -374,11 +318,11 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
     {
         // remove modified layouts from list of files shown for commit
         for (TeamStatusInfo info : changedLayoutFiles) {
-            commitListModel.removeElement(info);
+            commitListModel.remove(info);
         }
         if (commitListModel.isEmpty()) {
-            commitListModel.addElement(noFilesToCommit);
-            commitText.setEnabled(false);
+            commitListModel.add(noFilesToCommit);
+            commitText.setDisable(true);
         }
     }
 
@@ -442,15 +386,15 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
     private void addModifiedLayouts()
     {
         if (commitListModel.contains(noFilesToCommit)) {
-            commitListModel.removeElement(noFilesToCommit);
-            commitText.setEnabled(true);
+            commitListModel.remove(noFilesToCommit);
+            commitText.setDisable(false);
         }
         // add diagram layout files to list of files to be committed
         Set<File> displayedLayouts = new HashSet<>();
         for (TeamStatusInfo info : changedLayoutFiles) {
             File parentFile = info.getFile().getParentFile();
             if (!displayedLayouts.contains(parentFile)) {
-                commitListModel.addElement(info);
+                commitListModel.add(info);
                 displayedLayouts.add(info.getFile().getParentFile());
             }
         }
@@ -482,7 +426,7 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
 
     private void setLayoutChanged(boolean hasChanged)
     {
-        includeLayout.setEnabled(hasChanged);
+        includeLayout.setDisable(!hasChanged);
     }
     
     public void displayMessage(String msg)
@@ -490,7 +434,17 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
         progressBar.setMessage(msg);
     }
 
-    class CommitAndPushWorker extends SwingWorker implements StatusListener
+    @OnThread(Tag.FXPlatform)
+    public Window asWindow()
+    {
+        Scene scene = getDialogPane().getScene();
+        if (scene == null)
+            return null;
+        else
+            return scene.getWindow();
+    }
+
+    class CommitAndPushWorker extends FXWorker implements StatusListener
     {
 
         List<TeamStatusInfo> response;
@@ -553,7 +507,9 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
             stopProgress();
             if (!aborted) {
                 if (result.isError()) {
-                    CommitAndPushFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, CommitAndPushFrame.this.asWindow()));
+//                    CommitAndPushFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, CommitAndPushFrame.this.asWindow()));
+                    TeamUtils.handleServerResponseFX(result, CommitAndPushFrame.this.asWindow());
+                    CommitAndPushFrame.this.hide();
                 } else if (response != null) {
                     //populate files to commit.
                     Set<File> filesToCommit = new HashSet<>();
@@ -662,18 +618,18 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
                 }
 
                 if (commitListModel.isEmpty()) {
-                    commitListModel.addElement(noFilesToCommit);
+                    commitListModel.add(noFilesToCommit);
                 } else {
-                    commitText.setEnabled(true);
-                    commitText.requestFocusInWindow();
+                    commitText.setDisable(false);
+                    commitText.requestFocus();
                     commitAction.setEnabled(!emptyCommitText);
                 }
                 
                 if (pushListModel.isEmpty()){
                     if (isPushAvailable){
-                        pushListModel.addElement(pushNeeded);
+                        pushListModel.add(pushNeeded);
                     } else {
-                        pushListModel.addElement(noFilesToPush);
+                        pushListModel.add(noFilesToPush);
                     }
                 } 
 
@@ -698,12 +654,16 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
                 filesList = buildConflictsList(otherConflicts);
             } else {
                 stopProgress();
-                CommitAndPushFrame.this.dialogThenHide(() -> DialogManager.showMessageFX(CommitAndPushFrame.this.asWindow(), "team-uptodate-failed"));
+                // CommitAndPushFrame.this.dialogThenHide(() -> DialogManager.showMessageFX(CommitAndPushFrame.this.asWindow(), "team-uptodate-failed"));
+                DialogManager.showMessageFX(CommitAndPushFrame.this.asWindow(), "team-uptodate-failed");
+                CommitAndPushFrame.this.hide();
                 return;
             }
 
             stopProgress();
-            CommitAndPushFrame.this.dialogThenHide(() -> DialogManager.showMessageWithTextFX(CommitAndPushFrame.this.asWindow(), dlgLabel, filesList));
+            // CommitAndPushFrame.this.dialogThenHide(() -> DialogManager.showMessageWithTextFX(CommitAndPushFrame.this.asWindow(), dlgLabel, filesList));
+            DialogManager.showMessageWithTextFX(CommitAndPushFrame.this.asWindow(), dlgLabel, filesList);
+            CommitAndPushFrame.this.hide();
         }
 
         /**
@@ -744,7 +704,7 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
          * conflicts (locally deleted, remotely modified).
          * @param needsMerge The set of files which are updated locally as well
          * as in the repository (required merging).
-         * @param conflicts The set to store unresolved conflicts in
+//         * @param conflicts The set to store unresolved conflicts in
          *
          * @param remote false if this is a non-distributed repository.
          */
@@ -830,11 +790,11 @@ public class CommitAndPushFrame extends SwingNodeDialog implements CommitAndPush
          * @param fileSet
          * @param info 
          */
-        private void updateListModel(DefaultListModel listModel, Set<File> fileSet, List<TeamStatusInfo> info)
+        private void updateListModel(ObservableList listModel, Set<File> fileSet, List<TeamStatusInfo> info)
         {
             fileSet.stream().map((f) -> getTeamStatusInfoFromFile(f,info)).filter((tsi) -> (!listModel.contains(tsi))).forEach((tsi) -> {
                 if (tsi!= null){
-                    listModel.addElement(tsi);
+                    listModel.add(tsi);
                 }
             });
         }
