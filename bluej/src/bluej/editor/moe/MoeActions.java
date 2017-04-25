@@ -1617,6 +1617,7 @@ public final class MoeActions
             {
                 doIndent(getTextComponent(), true);
             }
+            editor.undoManager.breakEdit();
         });
     }
 

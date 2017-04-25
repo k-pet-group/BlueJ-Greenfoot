@@ -65,13 +65,14 @@ public class MoeUndoManager implements UndoManagerFactory
     //MOEFX: change this to using try, not begin/end calls
     public void beginCompoundEdit()
     {
+        breakEdit();
         currentEdit = ((EditableStyledDocument)editor.getSourcePane().getDocument()).beingUpdatedProperty().suspend();
     }
     
     public void endCompoundEdit()
     {
         currentEdit.close();
-        undoManager.preventMerge();
+        breakEdit();
     }
     
     public BooleanExpression canUndo()
@@ -121,5 +122,14 @@ public class MoeUndoManager implements UndoManagerFactory
     public void forgetHistory()
     {
         undoManager.forgetHistory();
+    }
+
+    /**
+     * Stops edits before this point merging with later edits into one single undoable item
+     * (which is what happens by default).
+     */
+    public void breakEdit()
+    {
+        undoManager.preventMerge();
     }
 }
