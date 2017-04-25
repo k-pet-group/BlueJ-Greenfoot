@@ -56,7 +56,7 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
     {
         initOwner(parent);
         teamSettingsController = controller;
-        initModality(Modality.NONE);
+        initModality(Modality.WINDOW_MODAL);
         setResizable(true);
         JavaFXUtil.addStyleClass(this.getDialogPane(), "team-settings");
 
