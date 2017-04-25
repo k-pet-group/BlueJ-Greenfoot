@@ -2626,7 +2626,10 @@ public final class Package
                     catch (Exception ex) {
                         ex.printStackTrace();
                     }
-
+                    // if the src file has last-modified date greater than the class file's one, then
+                    // set the last-modified date of the class file equal to the src file last-modified date,
+                    // this will remove uncompiled strips on the class
+                    t.setEqualModifiedDates();
                     // Empty class files should not be marked compiled,
                     // even though compilation is "successful".
                     newCompiledState &= t.upToDate();

@@ -867,6 +867,22 @@ public class ClassTarget extends DependentTarget
         return true;
     }
 
+    public boolean setEqualModifiedDates()
+    {
+        File src = getSourceFile();
+        File clss = getClassFile();
+
+        // if just a .class file with no src, it better be up to date
+        if (sourceAvailable == SourceType.NONE) {
+            return true;
+        }
+
+        // if the src file has last-modified date greater than the class file's one, then
+        // set the last-modified date of the class file equal to the src file last-modified date,
+        if (src.exists() && (src.lastModified() > clss.lastModified())) src.setLastModified(clss.lastModified());
+        return true;
+    }
+
     /**
      * Mark this class as modified, and mark all dependent classes too
      */
