@@ -3235,16 +3235,12 @@ public final class MoeEditor extends BorderPane
      */
     private MenuBar createMenuBar()
     {
-        MenuBar menubar = new MenuBar();
-
-        String[] menuKeys = getResource("menubar").split(" ");
-        for (String menuKey : menuKeys) {
-            Menu menu = createMenu(menuKey);
-            if (menu != null) {
-                menubar.getMenus().add(menu);
-            }
-        }
-        return menubar;
+        return new MenuBar(
+            createMenu("class", "save reload - page-setup print - close"),
+            createMenu("edit", "undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block autoindent - insert-method add-javadoc"),
+            createMenu("tools", "find find-next find-next-backward replace go-to-line - compile toggle-breakpoint - toggle-interface-view"),
+            createMenu("option", "key-bindings preferences")
+        );
     }
 
 
@@ -3262,7 +3258,7 @@ public final class MoeEditor extends BorderPane
         String label;
         String actionName;
         popup = new JPopupMenu();
-        String [] popupKeys=getResource("popupmenu").split(" ");
+        String [] popupKeys="cut copy paste".split(" ");
         for (String popupKey : popupKeys) {
             label = Config.getString("editor." + popupKey + LabelSuffix);
             actionName = getResource(popupKey + ActionSuffix);
@@ -3288,26 +3284,16 @@ public final class MoeEditor extends BorderPane
      * Create a single menu for the editor's menu bar. The key for the menu (as
      * defined in moe.properties) is supplied.
      */
-    private Menu createMenu(String key)
+    private Menu createMenu(String titleKey, String itemList)
     {
         MenuItem item;
         String label;
 
         // get menu title
-        Menu menu = new Menu(Config.getString("editor." + key + LabelSuffix));
-        int mnemonic = Config.getMnemonicKey("editor." + key + LabelSuffix);
-        //MOEFX
-        //menu.setMnemonic(mnemonic);
-
-        // get menu definition
-        String itemString = getResource(key);
-        if (itemString == null) {
-            Debug.message("Moe: cannot find menu definition for " + key);
-            return null;
-        }
+        Menu menu = new Menu(Config.getString("editor." + titleKey + LabelSuffix));
 
         // cut menu definition into separate items
-        String[] itemKeys = itemString.split(" ");
+        String[] itemKeys = itemList.split(" ");
 
         // create menu item for each item
         for (String itemKey : itemKeys) {
@@ -3321,7 +3307,7 @@ public final class MoeEditor extends BorderPane
                 // Forbid Preferences from being added to the Options menu when using
                 // Mac screen menubar, as it is already exist in the Application menu.
                 else if ( !( Config.usingMacScreenMenubar() &&
-                             key.toLowerCase().equals("option") &&
+                             titleKey.toLowerCase().equals("option") &&
                              itemKey.toLowerCase().equals("preferences") )
                         )
                 {
@@ -3329,21 +3315,6 @@ public final class MoeEditor extends BorderPane
                     menu.getItems().add(item);
                     label = Config.getString("editor." + itemKey + LabelSuffix);
                     item.setText(label);
-                    /*MOEFX
-                    KeyStroke[] keys = actions.getKeyStrokesForAction(action);
-                    if (keys != null) {
-                        KeyStroke keyStroke = chooseKey(keys);
-                        item.setAccelerator(keyStroke);
-                        // This is work around a bug: double execution of action when triggered by a shortcut.
-                        // This was caused by placing the Swing editor in JavaFX Pane.
-                        // Removing the binding is not enough as it makes the handler looking in the super binding tables.
-                        actions.setKeyStrokeBindingToDoNothingAction(keyStroke, this);
-                    }
-                    item.setName(itemKey);
-                    if (isNonReadmeAction(itemKey)) {
-                        item.setEnabled(sourceIsCode);
-                    }
-                    */
                 }
             }
         }

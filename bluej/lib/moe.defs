@@ -1,11 +1,5 @@
 # Moe editor default properties
 
-##
-##  Define the toolbar
-##
-
-toolbar = compile undo cut copy paste find close
-
 # actions for toolbar commands (only needed when it differs from command name)
 
 openAction = open-file
@@ -13,28 +7,6 @@ cutAction = cut-to-clipboard
 copyAction = copy-to-clipboard
 pasteAction = paste-from-clipboard
 find-nextAction = find-next
-
-##
-##  Define the popup menu
-##
-
-popupmenu = cut copy paste
-
-##
-##  Define the menus. Each menu gets a key, which is used afterwards to
-##  define the menu's details.
-##
-
-menubar = class edit tools option
-
-# Actions for menus. Each value must be a defined moe action name. Each 
-#   action becomes an item in the menu. Use the minus sign (-) to create 
-#   a separator.
-
-class = save reload - page-setup print - close
-edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block autoindent - insert-method add-javadoc
-tools = find find-next find-next-backward replace go-to-line - compile toggle-breakpoint - toggle-interface-view
-option = key-bindings preferences
 
 # Syntax colour definitions
 # =========================
