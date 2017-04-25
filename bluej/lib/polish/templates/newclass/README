@@ -1,0 +1,40 @@
+README - <bluej-home>/lib/<language>/templates/newclass/README
+--------------------------------------------------------------
+
+This directory contains class templates for BlueJ.
+
+These class templates appear as choices in the "New Class" dialogue in the
+BlueJ environment.
+
+
+Changing templates
+------------------
+Templates can easily be changed by editing these files.
+
+
+Adding new templates
+--------------------
+To add a template, create a new file in this directory with a ".tmpl"
+suffix (for example "mainclass.tmpl").
+
+Names for applets, interfaces, abstract, unittest or enum classes should start with
+"appletj", "interface", "abstract", "unittest" or "enum" respectively. Everything else
+will be treated as a standard class.
+
+By default, this template will be listed in the New Class dialogue at the
+end of the selection list with the base of its filename ("mainclass").
+
+The name appearing in the dialogue may be defined by defining a property
+"pkgmgr.newClass.<template-name>" in the labels file (the labels file
+is at <bluej-home>/lib/<language>/labels). For example, defining
+
+   pkgmgr.newClass.mainclass=Class with Main
+
+will result in "Class with Main" appearing in the dialogue for our new 
+choice.
+
+The position in the list may be specified by adding this new template to
+the list specified in the "bluej.classTemplates" property in the BlueJ
+definitions file (<bluej-home>/lib/bluej.defs). All templates listed here
+will appear in the specified order, other templates in this directory will
+be appended to the list in random order.
