@@ -617,7 +617,7 @@ public class Project implements DebuggerListener, InspectorManager
                         }
                         catch (IOException ioe) {
                             // TODO should propagate this exception
-                            Debug.message("I/O error while creating project.");
+                            Debug.message("I/O error while creating project: " + ioe.getMessage());
                         }
                     }
                 } catch (IOException ioe) {

@@ -25,7 +25,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
@@ -60,7 +59,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Screen;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import javax.swing.ImageIcon;
@@ -156,6 +154,7 @@ public final class Config
     private static BlueJPropStringSource propSource; // source for properties
     private static File bluejLibDir;
     private static File userPrefDir;
+    private static File templateDir;
     /** The greenfoot subdirectory of the "lib"-directory*/ 
     private static File greenfootLibDir;
     private static boolean usingMacOSScreenMenubar;
@@ -1444,11 +1443,20 @@ public final class Config
      */
     public static File getTemplateDir()
     {
-        String path = commandProps.getProperty("bluej.templatePath" , "");
-        if(path.length() == 0) {
-            return getLanguageFile("templates");
-        }
-        return new File(path);
+    	if (templateDir == null) {
+    		String path = commandProps.getProperty("bluej.templatePath" , "");
+    		if(path.length() == 0) {
+    			templateDir = getLanguageFile("templates");
+    			if (! templateDir.exists()) {
+    				templateDir = getDefaultLanguageFile("templates");
+    			}
+    			return templateDir;
+    		}
+    		else {
+    			templateDir = new File(path); 
+    		}
+    	}
+        return templateDir;
     }
 
     /**
