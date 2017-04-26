@@ -28,6 +28,7 @@ import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.slots.SuggestionList;
+import bluej.stride.slots.SuggestionList.SuggestionListParent;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -69,7 +70,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 @OnThread(Tag.FX)
-public interface InteractionManager
+public interface InteractionManager extends SuggestionListParent
 {
     /**
      * Gets completions at that point in the file
@@ -195,11 +196,6 @@ public interface InteractionManager
      */
     public void setupFocusableSlotComponent(EditableSlot parent, Node focusableComponent, boolean canCodeComplete, FXSupplier<List<ExtensionDescription>> getExtensions, List<FrameCatalogue.Hint> hints);
 
-    /**
-     * Add any necessary listeners to a code completion window
-     */
-    public void setupSuggestionWindow(Stage window);
-    
     /**
      * Focuses the nearest frame cursor to the given point, because a click event
      * was processed at that point.

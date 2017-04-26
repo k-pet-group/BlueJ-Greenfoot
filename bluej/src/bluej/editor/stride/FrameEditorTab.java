@@ -67,6 +67,7 @@ import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.slots.SuggestionList;
+import bluej.stride.slots.SuggestionList.SuggestionListParent;
 import bluej.stride.slots.SuggestionList.SuggestionShown;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.javafx.CircleCountdown;
@@ -190,7 +191,7 @@ import bluej.utility.javafx.JavaFXUtil;
  * (frames, slots, etc) via the InteractionManager interface, so that class is a good place
  * to understand the public interface of this class.
  */
-public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements InteractionManager
+public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements InteractionManager, SuggestionListParent
 {
     @OnThread(Tag.Any)
     private final static List<Future<List<AssistContentThreadSafe>>> popularImports = new ArrayList<>();

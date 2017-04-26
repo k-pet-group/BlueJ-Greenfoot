@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -411,7 +412,7 @@ public class SuggestionList
     /**
      * Create a SuggestionList.
      * 
-     * @param editor Editor (used to get overlay panes)
+     * @param listParent Editor (used to get overlay panes)
      * @param choices The strings of the choices to match the user's input against
      * @param suffixes Non-matchable bits on the end of a suggestion, e.g. param types.
      *                 Should either be null or same length as choices, one suffix per choice. 
@@ -419,7 +420,7 @@ public class SuggestionList
      * @param highlightListener A listener for the highlighted item changing.  Can be null.
      * @param clickListener A listener for a choice being clicked (and thus selected).  Cannot be null.
      */
-    public SuggestionList(InteractionManager editor, List<? extends SuggestionDetails> choices, String targetType,
+    public SuggestionList(SuggestionListParent listParent, List<? extends SuggestionDetails> choices, String targetType,
                           SuggestionShown startShown, Consumer<Integer> highlightListener, final SuggestionListListener listener)
     {
         if (listener == null)
@@ -451,7 +452,7 @@ public class SuggestionList
         listBox.setBackground(null);
         listBox.setItems(this.showingItems);
 
-        listBox.setStyle("-fx-font-size: " + editor.getFontSizeCSS().get() + ";");
+        listBox.setStyle("-fx-font-size: " + listParent.getFontSizeCSS().get() + ";");
 
         this.docPane = new Pane();
         docPane.setMinWidth(400.0);
@@ -530,7 +531,7 @@ public class SuggestionList
         Config.addEditorStylesheets(scene);
         window.setScene(scene);
 
-        editor.setupSuggestionWindow(window);
+        listParent.setupSuggestionWindow(window);
         
         for (int j = 0; j <= 1; j++)
         {
@@ -1070,5 +1071,18 @@ public class SuggestionList
     private void hideDocDisplay()
     {
         docPane.getChildren().clear();
+    }
+
+    public static interface SuggestionListParent
+    {
+        /**
+         * Gets font size, ready to put after "-fx-font-size" in inline style.
+         */
+        public StringExpression getFontSizeCSS();
+
+        /**
+         * Add any necessary listeners to a code completion window
+         */
+        public void setupSuggestionWindow(Stage window);
     }
 }
