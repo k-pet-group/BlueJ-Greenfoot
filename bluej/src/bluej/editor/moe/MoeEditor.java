@@ -23,26 +23,13 @@ package bluej.editor.moe;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,6 +44,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -65,45 +53,20 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentEvent.EventType;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.AbstractDocument.DefaultDocumentEvent;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Caret;
-import javax.swing.text.Document;
-import javax.swing.text.EditorKit;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -113,56 +76,57 @@ import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
+import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ImportsCollection;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
+import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.stride.slots.SuggestionList;
+import bluej.stride.slots.SuggestionList.SuggestionDetails;
+import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
+import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.stride.slots.SuggestionList.SuggestionListParent;
+import bluej.stride.slots.SuggestionList.SuggestionShown;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
-import com.google.common.io.CharStreams;
 import javafx.application.Platform;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyCombination.Modifier;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.*;
-import javafx.stage.Popup;
 
-import javafx.util.Duration;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.MouseOverTextEvent;
-import org.fxmisc.wellbehaved.event.*;
+import org.fxmisc.richtext.model.TwoDimensional.Bias;
+import org.fxmisc.richtext.model.TwoDimensional.Position;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.compiler.CompileReason;
-import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
-import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FrameEditor;
-import bluej.editor.stride.MoeFXTab;
-import bluej.extensions.SourceType;
 import bluej.extensions.editor.Editor;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;
-import bluej.parser.ImportsCollection;
 import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.ParseUtils;
 import bluej.parser.ParseUtils.AssistContentConsumer;
@@ -172,8 +136,6 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
-import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -185,12 +147,6 @@ import bluej.utility.DBoxLayout;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.FXSupplier;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.Utility;
-import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.PopupControl;
@@ -198,11 +154,7 @@ import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.PopupWindow;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * Moe is the editor of the BlueJ environment. This class is the main class of
@@ -3127,7 +3079,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         sourcePane.setCaretPosition(0);
         sourcePane.setUndoManager(undoManager);
         moeCaret = new MoeCaret(this);
-        Nodes.addInputMap(sourcePane, org.fxmisc.wellbehaved.event.InputMap.consume(EventPattern.keyPressed(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), e -> createContentAssist()));
         JavaFXUtil.addChangeListenerPlatform(sourcePane.caretPositionProperty(), e -> caretMoved());
         JavaFXUtil.addChangeListenerPlatform(sourcePane.estimatedScrollYProperty(), d -> {
             // The caret won't have actually moved within the document,
@@ -3521,22 +3472,152 @@ public final class MoeEditor extends ScopeColorsBorderPane
         int xpos = 0, ypos = 0;
         //get screen positioning too.
         cpos = sourcePane.getCaretPosition();
-            Bounds pos = sourcePane.getCharacterBoundsOnScreen(cpos, cpos + 1).orElse(null);
-            if (pos == null)
-                return;
-            Bounds spLoc = sourcePane.localToScene(sourcePane.getBoundsInLocal());
-            xpos = (int)(pos.getMinX() /*+ spLoc.getMinX()*/);
-            ypos = (int)(pos.getMinY() + pos.getHeight() /*+ spLoc.getMinY()*/);
-        if (suggests != null) {
+        Bounds screenPos = sourcePane.getCharacterBoundsOnScreen(cpos, cpos).orElse(null);
+        if (screenPos == null)
+            return;
+        Bounds spLoc = sourcePane.screenToLocal(screenPos);
+        if (suggests != null)
+        {
             suggestToken = suggests.getSuggestionToken();
+            /*
             PopulateCompletionsWorker worker = new PopulateCompletionsWorker(suggests, suggestToken, xpos, ypos);
             worker.execute();
+            */
+            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null);
+            List<SuggestionDetails> suggestionDetails = Arrays.stream(possibleCompletions)
+                .map(AssistContentThreadSafe::new)
+                .map(ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), ExpressionCompletionCalculator.getParamsCompletionDisplay(ac), ac.getType(), SuggestionShown.COMMON, ac.getDocHTML()))
+                .collect(Collectors.toList());
+
+            int originalPosition = suggestToken == null ? sourcePane.getCaretPosition() : suggestToken.getPosition();
+            SuggestionList suggestionList = new SuggestionList(new SuggestionListParent()
+            {
+                @Override
+                public StringExpression getFontSizeCSS()
+                {
+                    return new ReadOnlyStringWrapper("14pt"); //TODO
+                }
+
+                @Override
+                public void setupSuggestionWindow(Stage window)
+                {
+                    sourcePane.setFakeCaret(true);
+                }
+            }, suggestionDetails, null, SuggestionShown.RARE, i ->
+            {
+            }, new SuggestionListListener()
+            {
+                @Override
+                public @OnThread(Tag.FXPlatform) void suggestionListChoiceClicked(int highlighted)
+                {
+                    codeComplete(possibleCompletions[highlighted], originalPosition, sourcePane.getCaretPosition());
+                }
+
+                @Override
+                public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
+                {
+                    if (event.getCharacter().equals("\b"))
+                    {
+                        sourcePane.deletePreviousChar();
+                    }
+                    else if (event.getCharacter().equals("\n"))
+                    {
+                        suggestionListChoiceClicked(highlighted);
+                        return Response.DISMISS;
+                    }
+                    else
+                    {
+                        sourcePane.insertText(sourcePane.getCaretPosition(), event.getCharacter());
+                    }
+
+                    String prefix = sourcePane.getText(originalPosition, sourcePane.getCaretPosition());
+                    suggestionList.calculateEligible(prefix, true, false);
+                    suggestionList.updateVisual(prefix);
+                    return Response.CONTINUE;
+                }
+
+                @Override
+                public @OnThread(Tag.FXPlatform) SuggestionList.SuggestionListListener.Response suggestionListKeyPressed(KeyEvent event, int highlighted)
+                {
+                    if (event.getCode() == KeyCode.ESCAPE)
+                    {
+                        return Response.DISMISS;
+                    }
+                    else if (event.getCode() == KeyCode.ENTER)
+                    {
+                        suggestionListChoiceClicked(highlighted);
+                        return Response.DISMISS;
+                    }
+                    return Response.CONTINUE;
+                }
+
+                @Override
+                public @OnThread(Tag.FXPlatform) void hidden()
+                {
+                    sourcePane.setFakeCaret(false);
+                }
+            });
+            String prefix = sourcePane.getText(originalPosition, sourcePane.getCaretPosition());
+            suggestionList.calculateEligible(prefix, true, false);
+            suggestionList.updateVisual(prefix);
+            suggestionList.show(sourcePane, new ReadOnlyDoubleWrapper(spLoc.getMinX()), new ReadOnlyDoubleWrapper(spLoc.getMaxY()));
+
         } else {
+            /*
             //no completions found. no need to search.
             info.message ("No completions available.");
             CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, watcher,
                             null, new AssistContent[0], null);
+
             initialiseContentAssist(codeCompletionDlg, xpos, ypos);
+            */
+        }
+    }
+
+    /**
+     * codeComplete prints the selected text in the editor
+     */
+    private void codeComplete(AssistContent selected, int prefixBegin, int prefixEnd)
+    {
+        String start = selected.getName();
+        List<ParamInfo> params = selected.getParams();
+        if (params != null)
+            start += "(";
+        // Replace prefix with the full name:
+        sourcePane.select(prefixBegin, prefixEnd);
+        String prefix = sourcePane.getSelectedText();
+        insertText(start, false);
+        String inserted = start;
+
+        if (params != null)
+        {
+            // Record position before we add first parameter,
+            // so that we can come back and select it:
+            int selLoc = sourcePane.getCaretPosition();
+            // Put all available params in, separated by ", "
+            if (!params.isEmpty())
+            {
+                final String joinedParams = params.stream().map(ParamInfo::getDummyName).collect(Collectors.joining(", "));
+                insertText(joinedParams, false);
+                inserted += joinedParams;
+            }
+
+            insertText(")", false);
+            inserted += ")";
+
+            // If there were any dummy parameters, go back and select first one:
+            if (params.size() > 0)
+                sourcePane.select(selLoc, selLoc + params.get(0).getDummyName().length());
+        }
+        Position prefixBeginPos = sourcePane.offsetToPosition(prefixBegin, Bias.Forward);
+        watcher.recordCodeCompletionEnded(prefixBeginPos.getMajor() + 1, prefixBeginPos.getMinor() + 1, null, null, prefix, inserted);
+        try
+        {
+            save();
+        }
+        catch (IOException e)
+        {
+            Debug.reportError(e);
         }
     }
  

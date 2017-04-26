@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javafx.application.Platform;
+
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ObjectProperty;
@@ -207,7 +207,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             }
             
             @Override
-            public Response suggestionListKeyTyped(KeyEvent event, int highlighted)
+            public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
             {
                 if (event.getCharacter().equals(" "))
                 {
@@ -309,7 +309,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         dropdown.get().calculateEligible(curDisplay.getText(), false, false);
         dropdown.get().setHighlighted(curHighlight == null ? -1 : choices.indexOf(curHighlight), true);
         // Must come after we've set highlight:
-        dropdown.get().updateVisual(curDisplay.getText(), true);
+        dropdown.get().updateVisual(curDisplay.getText());
     }
 
     /**
@@ -439,7 +439,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             else
             {
                 curDisplay.setText(newVal);
-                JavaFXUtil.runNowOrLater(() -> dropdown.get().updateVisual(newVal, false));
+                JavaFXUtil.runNowOrLater(() -> dropdown.get().updateVisual(newVal));
             }
         }
     }

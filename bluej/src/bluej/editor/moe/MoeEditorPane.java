@@ -190,6 +190,11 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
         return editor;
     }
 
+    public void setFakeCaret(boolean on)
+    {
+        setShowCaret(on ? CaretVisibility.ON : CaretVisibility.AUTO);
+    }
+
     private static class PaintObjectBinding extends ObjectBinding<Background>
     {
         private final TextFlow t;

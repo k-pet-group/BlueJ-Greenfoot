@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
@@ -70,7 +69,6 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
-import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -573,7 +571,7 @@ public class SuggestionList
                 {
                     shownState.set(SuggestionShown.RARE);
                     calculateEligible(lastPrefix, lastAllowSimilar, false);
-                    updateVisual(lastPrefix, false);
+                    updateVisual(lastPrefix);
                 }
             }
         });
@@ -585,11 +583,11 @@ public class SuggestionList
                 {
                     shownState.set(SuggestionShown.RARE);
                     calculateEligible(lastPrefix, lastAllowSimilar, false);
-                    updateVisual(lastPrefix, false);
+                    updateVisual(lastPrefix);
                 }
             }
             // On Mac, some keypresses can produce null character, so guard against that:
-            else if (!e.getCharacter().contains("\u0000") && listener.suggestionListKeyTyped(e, getHighlighted()) == SuggestionListListener.Response.DISMISS)
+            else if (!e.getCharacter().contains("\u0000") && listener.suggestionListKeyTyped(this, e, getHighlighted()) == SuggestionListListener.Response.DISMISS)
             {
                 expectingToLoseFocus = true;
                 hiding = true;
@@ -885,11 +883,9 @@ public class SuggestionList
      * Updates the available options in the dropdown, restricting it to those
      * that are currently marked as eligible.  Thus this function only has a useful effect
      * if you call calculateEligible first.
-     * 
-     * @param immediate Whether to make the change immediately (true) or animate it (false)
+     *
      */
-    @OnThread(Tag.FXPlatform)
-    public void updateVisual(String prefix, boolean immediate)
+    public void updateVisual(String prefix)
     {
         boolean showingAnySimilar = false;
 
@@ -976,11 +972,16 @@ public class SuggestionList
     
     public static interface SuggestionListListener
     {
+        /**
+         * An item has been selected by clicking on it.
+         * @param highlighted The index of the item in the original list passed
+         *                    to the SuggestionList constructor (regardless of what is
+         *                    currently eligible/ineligible)
+         */
         @OnThread(Tag.FXPlatform)
         void suggestionListChoiceClicked(int highlighted);
 
-        @OnThread(Tag.FXPlatform)
-        Response suggestionListKeyTyped(KeyEvent event, int highlighted);
+        Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted);
 
         // Note: UP, DOWN are automatically handled, but not ESCAPE, ENTER, etc
         @OnThread(Tag.FXPlatform)
