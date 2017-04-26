@@ -1097,7 +1097,7 @@ public class ClassTarget extends DependentTarget
      *         there was a problem opening this editor.
      */
     // TODO should be Swing_WaitsForFX
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     private Editor getEditor(boolean showInterface) // TODO remove the ignoreParent = true, and tag calls properly
     {
         // ClassTarget must have source code if it is to provide an editor
@@ -1127,22 +1127,12 @@ public class ClassTarget extends DependentTarget
                         project.getJavadocResolver(), this::recordEditorOpen);
             }
             else if (sourceAvailable == SourceType.Stride) {
-                final CompletableFuture<Editor> q = new CompletableFuture<>();
-                // need to pull some parameters out while on the Swing thread:
                 File frameSourceFile = getFrameSourceFile();
                 File javaSourceFile = getJavaSourceFile();
                 JavadocResolver javadocResolver = project.getJavadocResolver();
                 Package pkg = getPackage();
                 final Runnable openCallback = this::recordEditorOpen;
-                Platform.runLater(() -> {
-                    q.complete(new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback));
-                });
-
-                try {
-                    editor = q.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    Debug.reportError(e);
-                }
+                editor = new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback);
             }
             
             // editor may be null if source has been deleted
