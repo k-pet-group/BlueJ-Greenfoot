@@ -1,60 +1,51 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
- 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
- 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
- This file is subject to the Classpath exception as provided in the  
+ This file is part of the BlueJ program.
+ Copyright (C) 1999-2009,2010,2016,2017  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.groupwork.ui;
 
-import bluej.BlueJTheme;
 import bluej.Config;
-
 import bluej.pkgmgr.Project;
-import bluej.utility.javafx.SwingNodeDialog;
-
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Font;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import bluej.utility.javafx.FXCustomizedDialog;
 
 import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 /**
  * A dialog which presents conflicts after an update.
- * 
+ *
  * @author fisker
+ * @author Amjad Altadmri
  */
-public class ConflictsDialog extends SwingNodeDialog
+public class ConflictsDialog extends FXCustomizedDialog
 {
-    private JLabel heading;
+    private Label heading;
     private List<String> bluejConflicts;
     private List<String> nonBluejConflicts;
     private Project project;
@@ -65,7 +56,7 @@ public class ConflictsDialog extends SwingNodeDialog
      * @param nonBlueJConflicts
      */
     public ConflictsDialog(Project project, List<String> bluejConflicts,
-        List<String> nonBlueJConflicts)
+                           List<String> nonBlueJConflicts)
     {
         super();
         this.project = project;
@@ -77,105 +68,79 @@ public class ConflictsDialog extends SwingNodeDialog
 
     private void makeWindow()
     {
-        JPanel mainPanel = new JPanel();
-        JPanel bluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
+        VBox mainPanel = new VBox();
+        Pane bluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
                 bluejConflicts);
-        JPanel nonBluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
+        Pane nonBluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
                 nonBluejConflicts);
-        JPanel buttonPanel = makeButtonPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BlueJTheme.generalBorder);
-        mainPanel.add(bluejConflictsPanel);
+        Pane buttonPanel = makeButtonPanel();
 
+        mainPanel.getChildren().add(bluejConflictsPanel);
         if (nonBluejConflicts.size() > 0) {
-            mainPanel.add(nonBluejConflictsPanel);
+            mainPanel.getChildren().add(nonBluejConflictsPanel);
         }
-
-        mainPanel.add(buttonPanel);
-        getContentPane().add(mainPanel);
+        mainPanel.getChildren().add(buttonPanel);
+        getDialogPane().getChildren().add(mainPanel);
 
         rememberPosition("bluej.teamwork.conflicts");
-        pack();
         setResizable(true);
     }
 
-    private JPanel makeConflictsPanel(String headline, List<String> conflicts)
+    private Pane makeConflictsPanel(String headline, List<String> conflicts)
     {
-        JPanel labelPanel = new JPanel();
+        VBox labelPanel = new VBox();
+//        labelPanel.setBorder(BlueJTheme.dialogBorder);
+        labelPanel.setAlignment(Pos.BASELINE_LEFT);
 
-        {
-            labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
-            labelPanel.setBorder(BlueJTheme.dialogBorder);
+        //heading
+        labelPanel.getChildren().addAll(new Label(headline), new Separator(Orientation.VERTICAL));//5
 
-            /*labelPanel.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder("Conflict"),
-                    BlueJTheme.generalBorder));*/
-            labelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        VBox conflictsPanel = new VBox();
+        conflictsPanel.setAlignment(Pos.BASELINE_LEFT);
 
-            //heading
-            heading = new JLabel(headline);
-
-            Font smallFont = heading.getFont().deriveFont(Font.BOLD, 12.0f);
-            heading.setFont(smallFont);
-            labelPanel.add(heading);
-            labelPanel.add(Box.createVerticalStrut(5));
-
-            JPanel conflictsPanel = new JPanel();
-            conflictsPanel.setLayout(new BoxLayout(conflictsPanel,
-                    BoxLayout.Y_AXIS));
-            conflictsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-            //the conflicting files labels
-            for (Iterator<String> i = conflicts.iterator(); i.hasNext();) {
-                String conflict = i.next();
-                conflictsPanel.add(new JLabel(conflict));
-            }
-
-            JScrollPane scrollPane = new JScrollPane(conflictsPanel);
-            labelPanel.add(scrollPane);
+        //the conflicting files labels
+        //TODO make it stream
+        for (Iterator<String> i = conflicts.iterator(); i.hasNext();) {
+            String conflict = i.next();
+            conflictsPanel.getChildren().add(new Label(conflict));
         }
+
+        ScrollPane scrollPane = new ScrollPane(conflictsPanel);
+        labelPanel.getChildren().add(scrollPane);
 
         return labelPanel;
     }
 
     /**
      * Create the button panel with a Resolve button and a close button
-     * @return JPanel the buttonPanel
+     * @return Pane the buttonPanel
      */
-    private JPanel makeButtonPanel()
+    private Pane makeButtonPanel()
     {
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        Pane buttonPanel = new FlowPane();
 
-        {
-            buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        //TODO
+//        buttonPanel.setAlignment(??);
+//        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+//        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            //close button
-            JButton closeButton = new JButton(Config.getString("close"));
-            closeButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt)
-                    {
-                        setVisible(false);
-                    }
-                });
 
-            //resolve button
-            JButton resolveButton = new JButton(Config.getString("team.conflicts.show"));
-            resolveButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt)
-                    {
-                        project.openEditorsForSelectedTargets();
+        //close button
+        Button closeButton = new Button(Config.getString("close"));
+        closeButton.setOnAction(event -> close());
 
-                        // move to resolve button
-                        dispose();
-                    }
-                });
+        //resolve button
+        Button resolveButton = new Button(Config.getString("team.conflicts.show"));
+        resolveButton.setOnAction(event -> {
+            project.openEditorsForSelectedTargets();
+            // move to resolve button
+            close();
+        });
 
-            setDefaultButton(resolveButton);
+        resolveButton.requestFocus();
 
-            buttonPanel.add(resolveButton);
-            buttonPanel.add(closeButton);
-            resolveButton.setEnabled(bluejConflicts.size() > 0);
-        }
+        buttonPanel.getChildren().addAll(resolveButton, closeButton);
+        resolveButton.setDisable(bluejConflicts.size() <= 0);
 
         return buttonPanel;
     }
