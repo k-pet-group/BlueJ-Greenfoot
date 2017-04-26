@@ -93,17 +93,17 @@ public class SuggestionList
 {
     private final SuggestionListListener listener;
 
-    private static class SuggestionVBox extends ListView<SuggestionListItem>
+    private static class SuggestionListView extends ListView<SuggestionListItem>
     {
         private final SimpleStyleableDoubleProperty cssTypeWidthProperty = new SimpleStyleableDoubleProperty(TYPE_WIDTH_META_DATA);
         public final SimpleStyleableDoubleProperty cssTypeWidthProperty() { return cssTypeWidthProperty; }
         private final SimpleStyleableDoubleProperty cssMaxWidthProperty = new SimpleStyleableDoubleProperty(MAX_WIDTH_META_DATA);
         public final SimpleStyleableDoubleProperty cssMaxWidthProperty() { return cssMaxWidthProperty; }
 
-        private static final CssMetaData<SuggestionVBox, Number> TYPE_WIDTH_META_DATA =
-                JavaFXUtil.cssSize("-bj-type-width", SuggestionVBox::cssTypeWidthProperty);
-        private static final CssMetaData<SuggestionVBox, Number> MAX_WIDTH_META_DATA =
-                JavaFXUtil.cssSize("-bj-max-width", SuggestionVBox::cssMaxWidthProperty);
+        private static final CssMetaData<SuggestionListView, Number> TYPE_WIDTH_META_DATA =
+                JavaFXUtil.cssSize("-bj-type-width", SuggestionListView::cssTypeWidthProperty);
+        private static final CssMetaData<SuggestionListView, Number> MAX_WIDTH_META_DATA =
+                JavaFXUtil.cssSize("-bj-max-width", SuggestionListView::cssMaxWidthProperty);
 
         private static final List <CssMetaData <? extends Styleable, ? > > cssMetaDataList =
                 JavaFXUtil.extendCss(ListView.getClassCssMetaData())
@@ -114,7 +114,7 @@ public class SuggestionList
         public static List <CssMetaData <? extends Styleable, ? > > getClassCssMetaData() { return cssMetaDataList; }
         @Override public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() { return getClassCssMetaData(); }
 
-        public SuggestionVBox(DoubleExpression typeWidth, FXPlatformConsumer<SuggestionListItem> clickListener)
+        public SuggestionListView(DoubleExpression typeWidth, FXPlatformConsumer<SuggestionListItem> clickListener)
         {
             setEditable(false);
             setCellFactory(lv -> new SuggestionCell(typeWidth, clickListener));
@@ -130,7 +130,7 @@ public class SuggestionList
     /**
      * Element containing all the suggestion items:
      */
-    private final SuggestionVBox listBox;
+    private final SuggestionListView listBox;
 
     /**
      * The window containing the pane
@@ -435,7 +435,7 @@ public class SuggestionList
         JavaFXUtil.addStyleClass(noneLabel, "suggestion-none");
         this.typeWidth = new SimpleDoubleProperty();
         this.window = new Stage(StageStyle.TRANSPARENT);
-        this.listBox = new SuggestionVBox(this.typeWidth, item -> {
+        this.listBox = new SuggestionListView(this.typeWidth, item -> {
             highlighted = doubleSuggestions.indexOf(item);
             listener.suggestionListChoiceClicked(getHighlighted());
             expectingToLoseFocus = true;
