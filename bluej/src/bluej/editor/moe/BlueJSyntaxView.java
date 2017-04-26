@@ -296,7 +296,7 @@ public class BlueJSyntaxView
                     }
                 }
             }
-            if (leftRight.ends)
+            if (leftRight.ends && leftRight.rhs > CURVED_CORNER_SIZE)
             {
                 for (int x = 0; x < CURVED_CORNER_SIZE; x++)
                 {
@@ -331,6 +331,19 @@ public class BlueJSyntaxView
 
     private static void fillRect(PixelWriter pixelWriter, int x, int y, int w, int h, Color c)
     {
+        // If we're trying to draw off the left-hand/top edge, just truncate the rectangles
+        if (x < 0)
+        {
+            // If x is -4, we want to take +4 off the width:
+            w -= -x;
+            x = 0;
+        }
+        if (y < 0)
+        {
+            h -= -y;
+            y = 0;
+        }
+
         for (int i = 0; i < w; i++)
         {
             for (int j = 0; j < h; j++)
