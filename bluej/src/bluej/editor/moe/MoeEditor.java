@@ -3484,6 +3484,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             worker.execute();
             */
             AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null);
+            Arrays.sort(possibleCompletions, AssistContent.getComparator());
             List<SuggestionDetails> suggestionDetails = Arrays.stream(possibleCompletions)
                 .map(AssistContentThreadSafe::new)
                 .map(ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), ExpressionCompletionCalculator.getParamsCompletionDisplay(ac), ac.getType(), SuggestionShown.COMMON, ac.getDocHTML()))
@@ -4274,12 +4275,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return r;
     }
 
-    @OnThread(Tag.Swing)
-    private static void initialiseContentAssist(CodeCompletionDisplay codeCompletionDlg, int xpos, int ypos)
-    {
-        codeCompletionDlg.showFrontFocusedAt(xpos, ypos);
-    }
-
     @OnThread(Tag.FXPlatform)
     public javafx.stage.Window getWindow()
     {
@@ -4425,93 +4420,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             actions.textInsertAction(evt, editorPane);
         }
-    }
-
-    /**
-     * PopulateCompletionsWorker creates a thread that searches for code completion suggestions and populate 
-     * the JList incrementally.
-     */
-    class PopulateCompletionsWorker extends SwingWorker<AssistContent[], AssistContent>
-    {
-        CodeCompletionDisplay codeCompletionDlg;
-        CodeSuggestions suggests;
-        LocatableToken suggestToken;
-        int xpos = 0, ypos = 0;
-
-        public PopulateCompletionsWorker(CodeSuggestions sug, LocatableToken sugT, int x, int y)
-        {
-            this.suggests = sug;
-            this.suggestToken = sugT;
-            this.xpos = x;
-            this.ypos = y;
-        }
-
-        /*
-         * Calculate the available completions. 
-         */
-        @Override
-        protected AssistContent[] doInBackground() throws Exception
-        {
-            AssistContent[] completions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, new AssistContentConsumer()
-            {
-                @Override
-                public void consume(AssistContent ac, boolean overridden)
-                {
-                    if (!overridden && ac.getKind() == CompletionKind.METHOD)
-                        publish(ac);
-                }
-            });
-
-            return completions;
-        }
-
-        /*
-         * Add published content (completions) to the dialog.
-         */
-        @Override
-        protected void process(List<AssistContent> chunks)
-        {
-            if (chunks != null && !chunks.isEmpty())
-            {
-                //there are elements to show
-                if (codeCompletionDlg == null)
-                {
-                    AssistContent[] initialElements = chunks.toArray(new AssistContent[chunks.size()]);
-                    codeCompletionDlg = new CodeCompletionDisplay(MoeEditor.this, watcher,
-                            suggests.getSuggestionType().toString(false),
-                            initialElements, suggestToken);
-                    initialiseContentAssist(codeCompletionDlg, xpos, ypos);
-                } else
-                {
-                    //component was already created. update it.
-                    codeCompletionDlg.addElements(chunks);
-                }
-            }
-        }
-
-        @Override
-        protected void done()
-        {
-            try
-            {
-                AssistContent[] result = get();
-                if (result != null && result.length == 0)
-                {
-                    //set message on status bar
-                    info.message ("No completions available.");
-                } else
-                {
-                    // No need to update the JList, as all results have been
-                    // published already.
-                }
-            } catch (InterruptedException ie)
-            {
-            } catch (ExecutionException ee)
-            {
-                Debug.reportError(ee);
-            }
-        }
-
     }
 
 }
