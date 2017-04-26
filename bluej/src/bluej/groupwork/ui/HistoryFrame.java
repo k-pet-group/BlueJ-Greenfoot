@@ -22,10 +22,10 @@
 package bluej.groupwork.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -63,19 +63,19 @@ import threadchecker.Tag;
  */
 public class HistoryFrame extends FXCustomizedDialog
 {
-    Project project;
-    ActivityIndicatorFX activityBar;
-    HistoryWorker worker;
+    private Project project;
+    private ActivityIndicatorFX activityBar;
+    private HistoryWorker worker;
 
-    ObservableList<HistoryInfo> listModel = new SimpleListProperty<>();
-    ListView<HistoryInfo> historyList = new ListView(listModel);
-    ScrollPane historyPane;
-    List<HistoryInfo> historyInfoList;
+    private ObservableList<HistoryInfo> listModel = new SimpleListProperty<>();
+    private ListView<HistoryInfo> historyList = new ListView<>(listModel);
+    private ScrollPane historyPane = new ScrollPane(historyList);
+    private List<HistoryInfo> historyInfoList;
 
-    ComboBox fileFilterCombo;
-    ComboBox userFilterCombo;
-    EventHandler<ActionEvent> filterActionListener;
-    Label filterSpacer;
+    private ComboBox<String> fileFilterCombo = new ComboBox<>();
+    private ComboBox<String> userFilterCombo = new ComboBox<>();
+    private EventHandler<ActionEvent> filterActionListener;
+    private Label filterSpacer;
 
     /**
      * Create a new HistoryFrame.
@@ -99,8 +99,6 @@ public class HistoryFrame extends FXCustomizedDialog
 
         // History list
         historyList.setCellFactory(param -> new HistoryCell());
-
-        historyPane = new ScrollPane(historyList);
         historyPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
         contentPane.getChildren().add(historyPane);
 
@@ -116,17 +114,16 @@ public class HistoryFrame extends FXCustomizedDialog
         // File and user filter boxes
         HBox filterBox = new HBox();
         filterBox.getChildren().add(new Label(Config.getString("team.history.filefilter") + " "));
-        fileFilterCombo = new ComboBox();
         fileFilterCombo.setDisable(true);
         filterBox.getChildren().add(fileFilterCombo);
         filterBox.getChildren().add(new Separator(Orientation.HORIZONTAL));
         filterBox.getChildren().add(new Label(Config.getString("team.history.userfilter") + " "));
 
-        userFilterCombo = new ComboBox();
         userFilterCombo.setDisable(true);
         filterBox.getChildren().add(userFilterCombo);
         // Add in a spacer, which helps ensure the initial size of the frame is ok.
         // When the filter combo boxes are filled, the spacer is removed.
+        // TODO these should be changed to Separators and styled in the CSS
         filterSpacer = new Label("                              ");
         userFilterCombo.getItems().add("         ");
         fileFilterCombo.getItems().add("               ");
@@ -169,7 +166,7 @@ public class HistoryFrame extends FXCustomizedDialog
         return tempList;
     }
 
-    public void prepareData()
+    private void prepareData()
     {
         Repository repository;
         if (project.getTeamSettingsController().isDVCS()){
@@ -203,13 +200,13 @@ public class HistoryFrame extends FXCustomizedDialog
         String user = null;
         int userIndex = userFilterCombo.getSelectionModel().getSelectedIndex();
         if (userIndex != 0) {
-            user = (String) userFilterCombo.getItems().get(userIndex);
+            user = userFilterCombo.getItems().get(userIndex);
         }
 
         String file = null;
         int fileIndex = fileFilterCombo.getSelectionModel().getSelectedIndex();
         if (fileIndex != 0) {
-            file = (String) fileFilterCombo.getItems().get(fileIndex);
+            file = fileFilterCombo.getItems().get(fileIndex);
         }
 
         List<HistoryInfo> displayList;
@@ -217,13 +214,13 @@ public class HistoryFrame extends FXCustomizedDialog
             displayList = historyInfoList;
         }
         else {
-            displayList = new ArrayList<HistoryInfo>();
-            for (Iterator<HistoryInfo> i = historyInfoList.iterator(); i.hasNext(); ) {
-                HistoryInfo info = (HistoryInfo) i.next();
-                if (user != null && ! info.getUser().equals(user)) {
+            // TODO change to streams
+            displayList = new ArrayList<>();
+            for (HistoryInfo info : historyInfoList) {
+                if (user != null && !info.getUser().equals(user)) {
                     continue;
                 }
-                if (file != null && ! hinfoHasFile(info, file)) {
+                if (file != null && !historyInfoHasFile(info, file)) {
                     continue;
                 }
 
@@ -237,15 +234,9 @@ public class HistoryFrame extends FXCustomizedDialog
     /**
      * Check whether a history item pertains at all to a particular file
      */
-    private boolean hinfoHasFile(HistoryInfo info, String file)
+    private boolean historyInfoHasFile(HistoryInfo info, String file)
     {
-        String [] files = info.getFiles();
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].equals(file)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(info.getFiles()).anyMatch(f -> f.equals(file));
     }
 
     /**
@@ -254,36 +245,28 @@ public class HistoryFrame extends FXCustomizedDialog
      */
     private void resetFilterBoxes()
     {
-        Set<String> users = new HashSet<String>();
-        Set<String> files = new HashSet<String>();
+        Set<String> users = new HashSet<>();
+        Set<String> files = new HashSet<>();
 
-        for (Iterator<HistoryInfo> i = historyInfoList.iterator(); i.hasNext(); ) {
-            HistoryInfo info = i.next();
-            String [] infoFiles = info.getFiles();
-            for (int j = 0; j < infoFiles.length; j++) {
-                files.add(infoFiles[j]);
-            }
+        for (HistoryInfo info : historyInfoList) {
             users.add(info.getUser());
+            Collections.addAll(files, info.getFiles());
         }
 
-        List<String> usersList = new ArrayList<String>(users);
+        List<String> usersList = new ArrayList<>(users);
         Collections.sort(usersList);
-        List<String> filesList = new ArrayList<String>(files);
+        List<String> filesList = new ArrayList<>(files);
         Collections.sort(filesList);
 
         userFilterCombo.getItems().clear();
         userFilterCombo.getItems().add(Config.getString("team.history.allUsers"));
-        Iterator<String> i = usersList.iterator();
-        while (i.hasNext()) {
-            userFilterCombo.getItems().add(i.next());
-        }
+        userFilterCombo.getItems().addAll(usersList);
         userFilterCombo.setOnAction(filterActionListener);
         userFilterCombo.setDisable(false);
 
         fileFilterCombo.getItems().clear();
         fileFilterCombo.getItems().add(Config.getString("team.history.allFiles"));
         fileFilterCombo.getItems().addAll(filesList);
-
         fileFilterCombo.setOnAction(filterActionListener);
         fileFilterCombo.setDisable(false);
 
@@ -303,8 +286,7 @@ public class HistoryFrame extends FXCustomizedDialog
 
         public HistoryWorker(Repository repository)
         {
-            this.responseList = new ArrayList<HistoryInfo>();
-
+            this.responseList = new ArrayList<>();
             command = repository.getLogHistory(this);
             this.repository = repository;
         }
@@ -331,7 +313,7 @@ public class HistoryFrame extends FXCustomizedDialog
                     HistoryFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(response, HistoryFrame.this.asWindow()));
                 }
                 else {
-                    Collections.sort(responseList, new DateCompare());
+                    responseList.sort(new DateCompare());
 
                     // Make the history list forget the preferred size that was forced
                     // upon it when we built the frame.
