@@ -36,7 +36,7 @@ import threadchecker.Tag;
  * An FX dialog containing all repeated to code needed when creating
  * version control dialogs.
  *
- * @author amjad
+ * @author Amjad Altadmri
  */
 public class FXCustomizedDialog<R> extends Dialog<R>
 {
@@ -65,11 +65,6 @@ public class FXCustomizedDialog<R> extends Dialog<R>
     protected void rememberPosition(String locationPrefix)
     {
         setOnShown(e -> Config.rememberPosition(asWindow(), locationPrefix));
-    }
-
-    protected Node getContentPane()
-    {
-        return getDialogPane().getContent();
     }
 
     protected void setContentPane(Node content)
