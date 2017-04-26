@@ -150,6 +150,7 @@ public class MoeErrorManager
     /**
      * Returns null if no error on that line
      */
+    @OnThread(Tag.FXPlatform)
     public ErrorDetails getErrorOnLine(int lineIndex)
     {
         final int lineStart = editor.getOffsetFromLineColumn(new SourceLocation(lineIndex + 1, 1));

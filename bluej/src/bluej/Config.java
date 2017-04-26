@@ -1996,6 +1996,7 @@ public final class Config
         addJavaColorsStylesheet(dialogPane.getStylesheets());
     }
 
+    @OnThread(Tag.FX)
     private static void addJavaColorsStylesheet(ObservableList<String> stylesheets)
     {
         // First add ours, so that it acts as a default:

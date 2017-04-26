@@ -1051,7 +1051,7 @@ public class FrameEditor implements Editor
         }
     }
 
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     public void codeModified()
     {
         changedSinceLastSave = true;

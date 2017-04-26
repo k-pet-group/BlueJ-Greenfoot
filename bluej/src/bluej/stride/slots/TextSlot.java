@@ -214,6 +214,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 }
 
                 @Override
+                @OnThread(Tag.FXPlatform)
                 public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
                 {
                     // Space completes single selections and moves to next slot:

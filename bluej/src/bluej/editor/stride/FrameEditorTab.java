@@ -200,7 +200,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     // This static field can be accessed by any thread from an instance, but is initialised once
     // in the FrameEditorTab constructor by the first constructed instance, so is thread safe:
     @OnThread(Tag.Any) private static Future<List<AssistContentThreadSafe>> javaLangImports;
-    @OnThread(Tag.Swing) private static List<AssistContentThreadSafe> prims;
+    @OnThread(Tag.FX) private static List<AssistContentThreadSafe> prims;
     // We keep track ourselves of which item is focused.  Only focusable things in the editor
     // should be frame cursors and slots:
     private final SimpleObjectProperty<CursorOrSlot> focusedItem = new SimpleObjectProperty<>(null);

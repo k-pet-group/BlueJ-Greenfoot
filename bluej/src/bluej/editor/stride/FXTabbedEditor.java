@@ -617,11 +617,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /**
      * Removes the given tab from this tabbed editor window
      */
+    @OnThread(Tag.FXPlatform)
     public void close(FXTab tab)
     {
         close(tab, false);
     }
 
+    @OnThread(Tag.FXPlatform)
     private void close(FXTab tab, boolean partOfMove)
     {
         tabPane.getTabs().remove(tab);

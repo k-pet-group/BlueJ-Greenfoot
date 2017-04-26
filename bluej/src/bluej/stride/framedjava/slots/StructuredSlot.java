@@ -1389,6 +1389,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     @Override
     public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
     {

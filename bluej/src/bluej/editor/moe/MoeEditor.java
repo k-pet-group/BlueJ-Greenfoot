@@ -167,7 +167,7 @@ import javafx.stage.PopupWindow;
  * @author Bruce Quig
  * @author Damiano Bolla
  */
-
+@OnThread(Tag.FXPlatform)
 public final class MoeEditor extends ScopeColorsBorderPane
     implements bluej.editor.TextEditor, BlueJEventListener
 {
@@ -326,11 +326,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         callbackOnOpen = parameters.getCallbackOnOpen();
 
-        Platform.runLater(() -> {
-            this.fxTabbedEditor = getDefaultEditor.get();
-            this.fxTab = new MoeFXTab(this, fxWindowTitle);
-        });
-
+        this.fxTabbedEditor = getDefaultEditor.get();
+        this.fxTab = new MoeFXTab(this, fxWindowTitle);
     }
 
     // --------------------------------------------------------------------
@@ -534,18 +531,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         return key;
     }
-    
-    /**
-     * Removes the selection in the textpane specified
-     * @param textPane specified textpane (source/html)
-     */
-    private static void removeSelection(JEditorPane textPane)
-    {
-        if (textPane != null) {
-            textPane.setSelectionEnd(textPane.getSelectionStart());
-        }
-    }
-    
+
     /**
      * Does some clever formatting to ensure that the replacement matches
      * the original on the formatting eg upper/lower case
@@ -704,6 +690,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * Wipe out contents of the editor.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void clear()
     {
         ignoreChanges = true;
