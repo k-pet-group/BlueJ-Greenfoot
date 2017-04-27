@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,8 +40,8 @@ import bluej.pkgmgr.Project;
 public class StatusTableModel extends AbstractTableModel
 {
     final String resourceLabel = Config.getString("team.status.resource");
-    String statusLabel = Config.getString("team.status.status");
-    final String remoteStatusLabel = Config.getString("team.status.remoteStatus");
+    String statusLabel = Config.getString("team.status.local");
+    final String remoteStatusLabel = Config.getString("team.status.remote");
     final String versionLabel = Config.getString("team.status.version");
  
     private Project project;
@@ -58,7 +58,7 @@ public class StatusTableModel extends AbstractTableModel
             resources.add(new TeamStatusInfo());
         }
         if (project.getTeamSettingsController().isDVCS()){
-            statusLabel = Config.getString("team.status.status");
+            statusLabel = Config.getString("team.status.local");
         } else {
             statusLabel = Config.getString("team.status");
         }
