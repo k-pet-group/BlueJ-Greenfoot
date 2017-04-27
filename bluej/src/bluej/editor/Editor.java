@@ -267,8 +267,18 @@ public interface Editor
     void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodCall, Consumer<Boolean> after);
 
     void cancelFreshState();
-    
-    void focusMethod(String methodName);
+
+    /**
+     * Focuses the method of the given name in the editor.  If the paramTypes are non-null
+     * then it uses them to distinguish between overloaded methods.  If paramTypes is null,
+     * it focuses an arbitrary choice of any overloaded methods with that name.
+     *
+     * @param methodName The name of the method to focus in the editor
+     * @param paramTypes The types of the parameters, to narrow down overloads, or null
+     *                   if you don't know them (in which case if the method is overloaded,
+     *                   it will show an arbitrary pick for the method.)
+     */
+    void focusMethod(String methodName, List<String> paramTypes);
 
     /**
      * For a class, set the extends section to extend the given className

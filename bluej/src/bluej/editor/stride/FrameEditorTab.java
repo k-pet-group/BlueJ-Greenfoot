@@ -1206,7 +1206,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 callback.accept(Optional.of(new LinkedIdentifier(methodDisplayName, link.getStartPosition(), link.getEndPosition(), link.getSlot(), () -> {
                     link.getSlot().removeAllUnderlines();
                     classTarget.open();
-                    classTarget.getEditor().focusMethod(methodName);
+                    classTarget.getEditor().focusMethod(methodName, null);
                 })));
                 return;
             }

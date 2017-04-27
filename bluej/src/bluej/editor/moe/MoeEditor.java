@@ -52,6 +52,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractButton;
@@ -64,6 +66,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -75,6 +81,8 @@ import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ImportsCollection;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.nodes.MethodNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
@@ -110,6 +118,8 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.MouseOverTextEvent;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
@@ -606,6 +616,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         boolean loaded = false;
 
         if (filename != null) {
+            setupJavadocMangler();
             try {
                 // check for crash file
                 String crashFilename = filename + CRASHFILE_SUFFIX;
@@ -2218,6 +2229,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         resetMenuToolbar(true);
         viewingHTML.set(false);
+        interfaceToggle.getSelectionModel().selectFirst();
         watcher.showingInterface(false);
         //MOEFX
         //dividerPanel.endTemporaryHide();
@@ -2248,6 +2260,23 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
+     * Traverses the document using the given traversal operation (next parameter),
+     * until the stopWhen test returns true, beginning at the start node.  The start
+     * node is not tested.  Once the traversal returns null, this method returns null.
+     */
+    private static org.w3c.dom.Node findHTMLNode(org.w3c.dom.Node start, UnaryOperator<org.w3c.dom.Node> next, Predicate<org.w3c.dom.Node> stopWhen)
+    {
+        org.w3c.dom.Node n = start;
+        while (n != null)
+        {
+            n = next.apply(n);
+            if (n != null && stopWhen.test(n))
+                return n;
+        }
+        return null;
+    }
+
+    /**
      * Refresh the HTML display.
      */
     private void refreshHtmlDisplay()
@@ -2258,7 +2287,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             URL myURL = urlFile.toURI().toURL();
 
             htmlPane.getEngine().load(myURL.toString());
-
 
             info.message(Config.getString("editor.info.docLoaded"));
         }
@@ -2272,6 +2300,66 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 catch (Exception e) {}
             }
         }
+    }
+
+    /**
+     * Sets up the processor for loaded Javdoc.  Currently this inserts a link
+     * next to a method name to allow you to jump back to the BlueJ source, if
+     * there is source code available.
+     */
+    private void setupJavadocMangler()
+    {
+        JavaFXUtil.addChangeListenerPlatform(htmlPane.getEngine().documentProperty(), doc -> {
+            if (doc != null)
+            {
+                /* Javadoc looks like this:
+                <a name="sampleMethod--">
+                <!--   -->
+                </a>
+                <ul class="blockList">
+                <li class="blockList">
+                <h4>sampleMethod</h4>
+                 */
+
+                // First find the anchor.  Ignore anchors with names that have dots (they are not methods):
+                NodeList anchors = doc.getElementsByTagName("a");
+                for (int i = 0; i < anchors.getLength(); i++)
+                {
+                    org.w3c.dom.Node anchorItem = anchors.item(i);
+                    org.w3c.dom.Node anchorName = anchorItem.getAttributes().getNamedItem("name");
+                    if (anchorName != null && anchorName.getNodeValue() != null && !anchorName.getNodeValue().contains("."))
+                    {
+                        // Then find the ul child, then the li child of that, then the h4 child of that:
+                        org.w3c.dom.Node ulNode = findHTMLNode(anchorItem, org.w3c.dom.Node::getNextSibling, n -> "ul".equals(n.getLocalName()));
+                        if (ulNode == null)
+                            continue;
+                        org.w3c.dom.Node liNode = findHTMLNode(ulNode.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "li".equals(n.getLocalName()));
+                        if (liNode == null)
+                            continue;
+                        org.w3c.dom.Node headerNode = findHTMLNode(liNode.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "h4".equals(n.getLocalName()));
+                        if (headerNode != null)
+                        {
+                            // Make a link, and set a listener for it:
+                            org.w3c.dom.Element newLink = doc.createElement("a");
+                            newLink.setAttribute("style", "padding-left: 2em;cursor:pointer;");
+                            newLink.insertBefore(doc.createTextNode("[Show source in BlueJ]"), null);
+                            headerNode.insertBefore(newLink, null);
+
+                            ((EventTarget) newLink).addEventListener("click", e ->
+                            {
+                                String[] tokens = anchorName.getNodeValue().split("-");
+                                List<String> paramTypes = new ArrayList<>();
+                                for (int t = 1; t < tokens.length; t++)
+                                {
+                                    paramTypes.add(tokens[t]);
+                                }
+                                focusMethod(tokens[0], paramTypes);
+                            }, false);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     // --------------------------------------------------------------------
@@ -2767,29 +2855,59 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     @Override
-    public void focusMethod(String methodName)
+    public void focusMethod(String methodName, List<String> paramTypes)
     {
-        focusMethod(methodName, new NodeAndPosition<ParsedNode>(getParsedNode(), 0, 0), 0);
+        focusMethod(methodName, paramTypes, new NodeAndPosition<ParsedNode>(getParsedNode(), 0, 0), 0);
     }
 
-    private boolean focusMethod(String methodName, NodeAndPosition<ParsedNode> tree, int offset)
+    private boolean focusMethod(String methodName, List<String> paramTypes, NodeAndPosition<ParsedNode> tree, int offset)
     {
         // This is a fairly naive traversal, which may find methods in inner classes rather
         // than one in the outer class; but then we don't actually pass which class we are interested in,
         // so it may be right to pick the one in the inner class anyway:
-        if (tree.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF && methodName.equals(tree.getNode().getName()))
+        if (tree.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF && methodName.equals(tree.getNode().getName())
+                && paramsMatch(tree.getNode(), paramTypes))
         {
             switchToSourceView();
             sourcePane.setCaretPosition(offset);
+            sourcePane.requestFollowCaret();
             return true;
         }
         else
         {
             for (NodeAndPosition<ParsedNode> child : (Iterable<NodeAndPosition<ParsedNode>>)(() -> tree.getNode().getChildren(0)))
             {
-                if (focusMethod(methodName, child, offset + child.getPosition()))
+                if (focusMethod(methodName, paramTypes, child, offset + child.getPosition()))
                     return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the parameter types match the parameters of the given node,
+     * if it is a method node.  (If not a method node, false is returned)
+     * @param node The node which should be a MethodNode.
+     * @param paramTypes Parameter types.  null matches anything.
+     * @return
+     */
+    private boolean paramsMatch(ParsedNode node, List<String> paramTypes)
+    {
+        if (paramTypes == null)
+            return true;
+        if (node instanceof MethodNode)
+        {
+            MethodNode methodNode = (MethodNode)node;
+            if (methodNode.getParamTypes().size() != paramTypes.size())
+                return false;
+            for (int i = 0; i < paramTypes.size(); i++)
+            {
+                JavaEntity paramType = methodNode.getParamTypes().get(i);
+                if (!paramType.getName().equals(paramTypes.get(i)))
+                    return false;
+            }
+            // If we get here, all paramTypes must have matched:
+            return true;
         }
         return false;
     }

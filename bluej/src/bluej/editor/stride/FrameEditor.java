@@ -704,9 +704,9 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void focusMethod(String methodName)
+            public void focusMethod(String methodName, List<String> paramTypes)
             {
-                FrameEditor.this.focusMethod(methodName);
+                FrameEditor.this.focusMethod(methodName, paramTypes);
             }
 
             @Override
@@ -1290,7 +1290,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void focusMethod(String methodName)
+    public void focusMethod(String methodName, List<String> paramTypes)
     {
         if (panel == null) {
             createPanel(true, true);
