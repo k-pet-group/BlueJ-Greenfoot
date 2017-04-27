@@ -244,7 +244,7 @@ public class DocuGenerator
                 }
                 
                 final int finalExitValue = exitValue;
-                EventQueue.invokeLater(new Runnable() {
+                Platform.runLater(new Runnable() {
                     public void run() {
                         if (finalExitValue == 0) {
                             BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED, null);
@@ -260,9 +260,9 @@ public class DocuGenerator
                         }
                         else {
                             BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
-                            Platform.runLater(() -> DialogManager.showMessageWithTextFX(null,
+                            DialogManager.showMessageWithTextFX(null,
                                     "doctool-error",
-                                    logFile.getPath()));
+                                    logFile.getPath());
                         }
                     }
                 });

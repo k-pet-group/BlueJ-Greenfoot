@@ -51,19 +51,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
@@ -97,6 +94,7 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Worker;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -125,11 +123,9 @@ import bluej.editor.moe.MoeErrorManager.ErrorDetails;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions.editor.Editor;
 import bluej.parser.AssistContent;
-import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.ParseUtils;
-import bluej.parser.ParseUtils.AssistContentConsumer;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.lexer.LocatableToken;
@@ -262,7 +258,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private String docFilename;             // path to javadoc html file
     private Charset characterSet;           // character set of the file
     private final boolean sourceIsCode;           // true if current buffer is code
-    private boolean viewingHTML;
+    private final BooleanProperty viewingHTML; // changing this alters the interface accordingly
     private int currentStepPos;             // position of step mark (or -1)
     private boolean mayHaveBreakpoints;     // true if there were BP here
     private boolean ignoreChanges = false;
@@ -314,7 +310,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         filename = null;
         windowTitle = parameters.getTitle();
         sourceIsCode = parameters.isCode();
-        viewingHTML = false;
+        viewingHTML = new SimpleBooleanProperty(false);
         currentStepPos = -1;
         mayHaveBreakpoints = false;
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
@@ -1172,7 +1168,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     public boolean isShowingInterface()
     {
-        return viewingHTML;
+        return viewingHTML.get();
     }
     
     // --------------------------------------------------------------------
@@ -2146,6 +2142,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     public void toggleInterface()
     {
+        /*MOEFX
         if (!sourceIsCode) {
             return;
         }
@@ -2156,7 +2153,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         else if (!wantHTML && viewingHTML) {
             switchToSourceView();
-        }
+        }*/
     }
 
     /**
@@ -2216,13 +2213,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void switchToSourceView()
     {
-        if (!viewingHTML) {
+        if (!viewingHTML.get()) {
             return;
         }
         resetMenuToolbar(true);
-        viewingHTML = false;
+        viewingHTML.set(false);
         watcher.showingInterface(false);
-        dividerPanel.endTemporaryHide();
+        //MOEFX
+        //dividerPanel.endTemporaryHide();
         initSearch();
     }
 
@@ -2232,11 +2230,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void switchToInterfaceView()
     {
-        if (viewingHTML) {
+        if (viewingHTML.get()) {
             return;
         }
         resetMenuToolbar(false);
-        dividerPanel.beginTemporaryHide();
+        //MOEFX
+        //dividerPanel.beginTemporaryHide();
         try {
             save();
             displayInterface();
@@ -2259,6 +2258,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             URL myURL = urlFile.toURI().toURL();
 
             htmlPane.getEngine().load(myURL.toString());
+
 
             info.message(Config.getString("editor.info.docLoaded"));
         }
@@ -2341,32 +2341,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
-     * Find a menu item with a given item name by searching through the menus.
-     * 
-     * @return The menu item searched for, or null if not found.
-     */
-    private JMenuItem findMenuItem(String itemName)
-    {/*MOEFX
-        JMenu jmenu;
-        JMenuItem menuItem;
-        Component[] menubarComponent = menubar.getComponents();
-        for (Component menu : menubarComponent) {
-            if (menu instanceof JMenu) {
-                jmenu = (JMenu) menu; 
-                for (int j=0; j<jmenu.getMenuComponentCount(); j++){
-                    if (jmenu.getMenuComponent(j) instanceof JMenuItem){
-                        menuItem = (JMenuItem)jmenu.getMenuComponent(j);
-                        if (menuItem.getName().equals(itemName)){                   
-                            return menuItem;
-                        }
-                    }
-                }
-            }
-        }*/
-        return null;
-    }
-
-    /**
      * We want to display the interface view. This will generate the
      * documentation if necessary.
      * 
@@ -2376,51 +2350,24 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private void displayInterface()
     {
         //MOEFX
-        /*
-        info.message(Config.getString("editor.info.loadingDoc"));
+        //info.message(Config.getString("editor.info.loadingDoc"));
         boolean generateDoc = ! docUpToDate();
 
-        // The following all used to be done in a separate thread, but this is not
-        // necessary - setPage() operates asynchronously anyway.
-        if (htmlPane == null) {
-            createHTMLPane();
-            if (! generateDoc) {
-                refreshHtmlDisplay();
-            }
-        }
-        else if (! generateDoc) {
-            info.message(Config.getString("editor.info.docLoaded"));
-        }
-
-        if (generateDoc) {
-            // clear the existing document
-            htmlDocument = new HTMLDocument();
-            htmlPane.setDocument(htmlDocument);
-
+        if (generateDoc)
+        {
             // interface needs to be re-generated
             info.message(Config.getString("editor.info.generatingDoc"));
             BlueJEvent.addListener(this);
             if (watcher != null) {
                 watcher.generateDoc();
             }
+            refreshHtmlDisplay();
         }
 
-        document = htmlDocument;
-        currentTextPane = htmlPane;
-        viewingHTML = true;
+        viewingHTML.set(true);
         watcher.showingInterface(true);
-        scrollPane.setViewportView(htmlPane);
-        currentTextPane.requestFocus();
-        initSearch();
-        */
-    }
-
-    /**
-     * Create the HTML plane used to display javadoc.
-     */
-    private void createHTMLPane()
-    {
-        htmlPane = new WebView();
+        //MOEFX
+        //initSearch();
     }
 
     // --------------------------------------------------------------------
@@ -2563,7 +2510,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private boolean viewingCode()
     {
-        return sourceIsCode && (!viewingHTML);
+        return sourceIsCode && (!viewingHTML.get());
     }
     
     /**
@@ -3115,12 +3062,15 @@ public final class MoeEditor extends ScopeColorsBorderPane
         //editorPane.add(dividerPanel);
         //editorPane.add(naviView);
 
+        htmlPane = new WebView();
+        htmlPane.visibleProperty().bind(viewingHTML);
+
         editorPane.setFillHeight(true);
         //HBox.setHgrow(scrollPane, Priority.ALWAYS);
         //setCenter(editorPane);
         BorderPane background = new BorderPane();
         JavaFXUtil.addStyleClass(background, "moe-background");
-        setCenter(new StackPane(background, new VirtualizedScrollPane<>(sourcePane)));
+        setCenter(new StackPane(background, new VirtualizedScrollPane<>(sourcePane), htmlPane));
 
         // get table of edit actions
 
@@ -3329,6 +3279,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
         interfaceToggle = new ComboBox<String>(FXCollections.observableArrayList(choiceStrings));
 
         interfaceToggle.setFocusTraversable(false);
+        JavaFXUtil.addChangeListenerPlatform(interfaceToggle.valueProperty(), v -> {
+            if (v.equals(interfaceString))
+                switchToInterfaceView();
+            else
+                switchToSourceView();
+        });
 
         /*MOEFX
         String actionName = "toggle-interface-view";

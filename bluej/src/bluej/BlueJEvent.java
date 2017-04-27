@@ -86,7 +86,7 @@ public class BlueJEvent
      * Raise a BlueJ event with an argument. All registered listeners
      * will be informed of this event.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static void raiseEvent(int eventId, Object arg)
     {
         Object[] listenersCopy = listeners.toArray();

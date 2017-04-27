@@ -316,7 +316,7 @@ public class Utility
      * @param url the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static boolean openWebBrowser(String url)
     {
         if (Config.isWinOS()) { // Windows
@@ -363,7 +363,7 @@ public class Utility
      * @param url the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static boolean openWebBrowser(URL url)
     {
         if (Config.isWinOS()) {
