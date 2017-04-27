@@ -283,7 +283,7 @@ public class BlueJSyntaxView
                 image.getPixelWriter().setColor(leftRight.rhs, y, leftRight.edgeColor);
             }
 
-            if (leftRight.starts)
+            if (leftRight.starts && leftRight.rhs > CURVED_CORNER_SIZE)
             {
                 for (int x = 0; x < CURVED_CORNER_SIZE; x++)
                 {
