@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -98,7 +98,10 @@ public class StatusFrame extends SwingNodeDialog
         setTitle(Config.getString("team.status"));
         // try and set up a reasonable default amount of entries that avoids resizing
         // and scrolling once we get info back from repository
-        statusModel = new StatusTableModel(project, estimateInitialEntries());
+        statusModel = project.getTeamSettingsController().isDVCS() ?
+                new StatusTableModelDVCS(project, estimateInitialEntries()) :
+                new StatusTableModelNonDVCS(project, estimateInitialEntries());
+
         statusTable = new JTable(statusModel);
         statusTable.getTableHeader().setReorderingAllowed(false);
         
