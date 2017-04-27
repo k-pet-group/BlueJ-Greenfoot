@@ -36,11 +36,15 @@ import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.DataFormat;
@@ -51,13 +55,14 @@ import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyCombination.ModifierValue;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
+import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
-import java.awt.*;
+import java.awt.Event;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -104,7 +109,7 @@ public final class MoeActions
     public MoeAbstractAction compileOrNextErrorAction;
     public MoeAbstractAction contentAssistAction;
     private HashMap<String, MoeAbstractAction> actions; // All of the actions in a hash-map by their name
-    private final Map<KeyCodeCombination, MoeAbstractAction> keymap = new HashMap<>();
+    private final ObservableMap<KeyCodeCombination, MoeAbstractAction> keymap = FXCollections.observableHashMap();
     private org.fxmisc.wellbehaved.event.InputMap<javafx.scene.input.KeyEvent> curKeymap; // the editor's keymap
     //MOEFX private final KeyCatcher keyCatcher;
     private boolean lastActionWasCut; // true if last action was a cut action
@@ -142,8 +147,11 @@ public final class MoeActions
         {
             if (curKeymap != null)
                 Nodes.removeInputMap(getTextComponent(), curKeymap);
-            curKeymap = org.fxmisc.wellbehaved.event.InputMap.sequence(keymap.entrySet().stream()
-                    .map(e -> org.fxmisc.wellbehaved.event.InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed())).collect(Collectors.toList()).toArray(new org.fxmisc.wellbehaved.event.InputMap[0]));
+            curKeymap = InputMap.sequence(keymap.entrySet().stream()
+                    // Only use keymap if item isn't on a menu accelerator:
+                    .filter(e -> !e.getValue().hasMenuItem())
+                    .map(e -> InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed()))
+                    .collect(Collectors.toList()).toArray(new InputMap[0]));
             Nodes.addInputMap(getTextComponent(), curKeymap);
         }
     }
@@ -498,31 +506,32 @@ public final class MoeActions
     // --------------------------------------------------------------------
 
     /**
-     * Return an action with a given name.
+     * Add a new key binding into the action table.
      */
-    public MoeAbstractAction getActionByName(String name)
+    public static void addKeyCombinationForActionToAllEditors(KeyCodeCombination key, String actionName)
     {
-        return actions.get(name);
+        moeActions.values().forEach(moeAction -> moeAction.addKeyCombinationForAction(key, actionName));
     }
 
     /**
      * Add a new key binding into the action table.
      */
-    public void addKeyCombinationForAction(KeyCodeCombination key, String actionName, boolean allEditors)
+    private void addKeyCombinationForAction(KeyCodeCombination key, String actionName)
     {
-        if (allEditors)
+        MoeAbstractAction action = actions.get(actionName);
+        if (action != null)
         {
-            moeActions.values().forEach(moeAction -> moeAction.addKeyCombinationForAction(key, actionName, false));
+            keymap.put(key, action);
+            updateKeymap();
         }
-        else
-        {
-            MoeAbstractAction action = actions.get(actionName);
-            if (action != null)
-            {
-                keymap.put(key, action);
-                updateKeymap();
-            }
-        }
+    }
+
+    /**
+     * Return an action with a given name.
+     */
+    public MoeAbstractAction getActionByName(String name)
+    {
+        return actions.get(name);
     }
 
     // --------------------------------------------------------------------
@@ -590,7 +599,7 @@ public final class MoeActions
                                 ModifierValue.valueOf(split[0]),
                                 ModifierValue.valueOf(split[2]),
                                 ModifierValue.valueOf(split[4])
-                            ), split[6], false);
+                            ), split[6]);
                     }
                     return true;
                 }
@@ -632,7 +641,7 @@ public final class MoeActions
                     String actionName = (String) stream.readObject();
                     if (actionName != null && keyCombination != null)
                     {
-                        addKeyCombinationForAction(keyCombination, actionName, false);
+                        addKeyCombinationForAction(keyCombination, actionName);
                     }
                 }
                 istream.close();
@@ -641,21 +650,21 @@ public final class MoeActions
 
                 if (version < 252)
                 {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), "increase-font", false);
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), "decrease-font", false);
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), "increase-font");
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), "decrease-font");
                 }
                 if (version < 300)
                 {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion", false);
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), "autoindent", false);
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), "autoindent");
                 }
                 if (version < 320)
                 {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), "compile", false);
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), "compile");
                 }
                 if (version < 330)
                 {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), "preferences", false);
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), "preferences");
                 }
                 return true;
             }
@@ -1134,68 +1143,60 @@ public final class MoeActions
         // it is set as an accelerator.  If not, it is set as a custom key binding.
 
 
-        setAccelerator(new KeyCodeCombination(KeyCode.S, SHORTCUT_MASK), actions.get("save"));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.S, SHORTCUT_MASK), "save");
         // "reload" not bound
-        setAccelerator(new KeyCodeCombination(KeyCode.P, SHORTCUT_MASK), actions.get("print"));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.P, SHORTCUT_MASK), "print");
         // "page-setup" not bound
-        setAccelerator(new KeyCodeCombination(KeyCode.W, SHORTCUT_MASK), actions.get("close"));
-        setAccelerator(new KeyCodeCombination(KeyCode.Z, SHORTCUT_MASK), actions.get("undo"));
-        setAccelerator(new KeyCodeCombination(KeyCode.Y, SHORTCUT_MASK), actions.get("redo"));
-        setAccelerator(new KeyCodeCombination(KeyCode.F8), actions.get("comment-block"));
-        setAccelerator(new KeyCodeCombination(KeyCode.F7), actions.get("uncomment-block"));
-        setAccelerator(new KeyCodeCombination(KeyCode.F6), actions.get("indent-block"));
-        setAccelerator(new KeyCodeCombination(KeyCode.F5), actions.get("deindent-block"));
-        setAccelerator(new KeyCodeCombination(KeyCode.M, SHORTCUT_MASK), actions.get("insert-method"));
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB), "indent", false);
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB, KeyCombination.SHIFT_DOWN), "de-indent", false);
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHORTCUT_MASK), "insert-tab", false);
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.ENTER), "new-line", false);
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN), "insert-break", false);
-        setAccelerator(new KeyCodeCombination(KeyCode.F, SHORTCUT_MASK), actions.get("find"));
-        setAccelerator(new KeyCodeCombination(KeyCode.G, SHORTCUT_MASK), actions.get("find-next"));
-        setAccelerator(new KeyCodeCombination(KeyCode.G, KeyCombination.SHIFT_DOWN), actions.get("find-next-backward"));
-        setAccelerator(new KeyCodeCombination(KeyCode.R, SHORTCUT_MASK), actions.get("replace"));
-        setAccelerator(new KeyCodeCombination(KeyCode.L, SHORTCUT_MASK), actions.get("go-to-line"));
-        setAccelerator(new KeyCodeCombination(KeyCode.K, SHORTCUT_MASK), actions.get("compile"));
-        setAccelerator(new KeyCodeCombination(KeyCode.J, SHORTCUT_MASK), actions.get("toggle-interface-view"));
-        setAccelerator(new KeyCodeCombination(KeyCode.B, SHORTCUT_MASK), actions.get("toggle-breakpoint"));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.W, SHORTCUT_MASK), "close");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.Z, SHORTCUT_MASK), "undo");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.Y, SHORTCUT_MASK), "redo");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F8), "comment-block");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F7), "uncomment-block");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F6), "indent-block");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F5), "deindent-block");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.M, SHORTCUT_MASK), "insert-method");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB), "indent");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB, KeyCombination.SHIFT_DOWN), "de-indent");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHORTCUT_MASK), "insert-tab");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.ENTER), "new-line");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN), "insert-break");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F, SHORTCUT_MASK), "find");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.G, SHORTCUT_MASK), "find-next");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.G, KeyCombination.SHIFT_DOWN), "find-next-backward");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.R, SHORTCUT_MASK), "replace");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.L, SHORTCUT_MASK), "go-to-line");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, SHORTCUT_MASK), "compile");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.J, SHORTCUT_MASK), "toggle-interface-view");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.B, SHORTCUT_MASK), "toggle-breakpoint");
         // "key-bindings" not bound
-        setAccelerator(new KeyCodeCombination(KeyCode.COMMA, SHORTCUT_MASK), actions.get("preferences"));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, SHORTCUT_MASK), "preferences");
         // "about-editor" not bound
-        setAccelerator(new KeyCodeCombination(KeyCode.D, SHORTCUT_MASK), actions.get("describe-key"));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.D, SHORTCUT_MASK), "describe-key");
         // "help-mouse" not bound
 
-        setAccelerator(new KeyCodeCombination(KeyCode.C, SHORTCUT_MASK), actions.get(DefaultEditorKit.copyAction));
-        setAccelerator(new KeyCodeCombination(KeyCode.X, SHORTCUT_MASK), actions.get(DefaultEditorKit.cutAction));
-        setAccelerator(new KeyCodeCombination(KeyCode.V, SHORTCUT_MASK), actions.get(DefaultEditorKit.pasteAction));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.C, SHORTCUT_MASK), DefaultEditorKit.copyAction);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.X, SHORTCUT_MASK), DefaultEditorKit.cutAction);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.V, SHORTCUT_MASK), DefaultEditorKit.pasteAction);
 
         // F2, F3, F4
-        setAccelerator(new KeyCodeCombination(KeyCode.F2), actions.get("copy-line"));
-        setAccelerator(new KeyCodeCombination(KeyCode.F3), actions.get(DefaultEditorKit.pasteAction));
-        setAccelerator(new KeyCodeCombination(KeyCode.F4), actions.get("cut-line"));
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F2), "copy-line");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F3), DefaultEditorKit.pasteAction);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F4), "cut-line");
 
         // cursor block
         /*MOEFX
-        keymap.put(new KeyCodeCombination(KeyCode.UP, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.pasteAction));
-        keymap.put(new KeyCodeCombination(KeyCode.LEFT, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.deletePrevCharAction));
-        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, ALT_SHORTCUT_MASK), actions.get(DefaultEditorKit.deleteNextCharAction));
-        keymap.put(new KeyCodeCombination(KeyCode.LEFT, SHIFT_ALT_SHORTCUT_MASK), actions.get("cut-line"));
-        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, SHIFT_ALT_SHORTCUT_MASK), actions.get("cut-end-of-line"));
-        keymap.put(new KeyCodeCombination(KeyCode.LEFT, DOUBLE_SHORTCUT_MASK), actions.get("cut-word"));
-        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, DOUBLE_SHORTCUT_MASK), actions.get("cut-end-of-word"));
+        keymap.put(new KeyCodeCombination(KeyCode.UP, ALT_SHORTCUT_MASK), DefaultEditorKit.pasteAction);
+        keymap.put(new KeyCodeCombination(KeyCode.LEFT, ALT_SHORTCUT_MASK), DefaultEditorKit.deletePrevCharAction);
+        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, ALT_SHORTCUT_MASK), DefaultEditorKit.deleteNextCharAction);
+        keymap.put(new KeyCodeCombination(KeyCode.LEFT, SHIFT_ALT_SHORTCUT_MASK), "cut-line");
+        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, SHIFT_ALT_SHORTCUT_MASK), "cut-end-of-line");
+        keymap.put(new KeyCodeCombination(KeyCode.LEFT, DOUBLE_SHORTCUT_MASK), "cut-word");
+        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, DOUBLE_SHORTCUT_MASK), "cut-end-of-word");
         */
-        setAccelerator(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), actions.get("increase-font"));
-        setAccelerator(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), actions.get("decrease-font"));
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion", false);
-        setAccelerator(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), actions.get("autoindent"));
-    }
-
-    private void setAccelerator(KeyCombination accelerator, MoeAbstractAction action)
-    {
-        if (action == null)
-            Debug.printCallStack("Setting accelerator for unfound action");
-        else
-            action.setAccelerator(accelerator);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), "increase-font");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), "decrease-font");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), "autoindent");
     }
 
     private MoeAbstractAction action(String name, Category category, FXRunnable action)
@@ -1231,14 +1232,18 @@ public final class MoeActions
     abstract class MoeAbstractAction
     {
         private final String name;
+        private boolean hasMenuItem = false;
         private final BooleanProperty disabled = new SimpleBooleanProperty(false);
-        private final ObjectProperty<KeyCombination> accelerator = new SimpleObjectProperty<>(null);
+        private final ObjectBinding<KeyCombination> accelerator;
         private final Category category;
 
         public MoeAbstractAction(String name, Category category)
         {
             this.name = name;
             this.category = category;
+            this.accelerator = Bindings.createObjectBinding(() -> {
+                return keymap.entrySet().stream().filter(e -> e.getValue().equals(this)).map(e -> e.getKey()).findFirst().orElse(null);
+            }, keymap);
         }
 
         public abstract void actionPerformed();
@@ -1257,11 +1262,6 @@ public final class MoeActions
             disabled.set(!enabled);
         }
 
-        public void setAccelerator(KeyCombination accelerator)
-        {
-            this.accelerator.set(accelerator);
-        }
-
         public String getName()
         {
             return name;
@@ -1275,8 +1275,15 @@ public final class MoeActions
             return button;
         }
 
+        /**
+         * Note: calling this method indicates that the item will have
+         * a menu item with the accelerator available for use.  Actions with a menu item
+         * don't set a separate entry in the key map.  So don't call this
+         * unless you're actually going to have the menu item available on the menu.
+         */
         public MenuItem makeMenuItem()
         {
+            hasMenuItem = true;
             MenuItem menuItem = new MenuItem(name);
             menuItem.disableProperty().bind(disabled);
             menuItem.setOnAction(e -> actionPerformed());
@@ -1309,6 +1316,11 @@ public final class MoeActions
         public int hashCode()
         {
             return name.hashCode();
+        }
+
+        public boolean hasMenuItem()
+        {
+            return hasMenuItem;
         }
     }
 

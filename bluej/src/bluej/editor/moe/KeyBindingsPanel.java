@@ -301,7 +301,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
             String action = functionList.getSelectionModel().getSelectedItem();
             if (action != null)
             {
-                actions.addKeyCombinationForAction(newKey.get(), action, true);
+                MoeActions.addKeyCombinationForActionToAllEditors(newKey.get(), action);
                 updateKeyList(action);
             }
         }
