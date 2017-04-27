@@ -174,6 +174,9 @@ class TCScanner extends TreePathScanner<Void, Void>
                 "javafx.scene.layout"
                 ).forEach(pkg -> packageAnns.put(pkg, new LocatedTag(Tag.FX, false, true, "<JavaFX: " + pkg + ">")));
 
+        // Web must be done solely on actual FX thread:
+        packageAnns.put("javafx.scene.web", new LocatedTag(Tag.FXPlatform, false, true, "<JavaFX javafx.scene.web>"))
+
         classAnns.put("javafx.event.EventHandler", new LocatedTag(Tag.FXPlatform, false, true, "<JavaFX EventHandler>"));
         
         Arrays.asList(
