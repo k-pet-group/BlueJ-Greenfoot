@@ -465,10 +465,6 @@ public class DocuGenerator
         call.add(project.getProjectCharset().name());
         call.add("-charset");
         call.add(project.getProjectCharset().name());
-        call.add("-docletpath");
-        call.add(new File(Config.getBlueJLibDir(), "bjdoclet.jar").getPath());
-        call.add("-doclet");
-        call.add("bluej.doclet.doclets.formats.html.HtmlDoclet");
     }
 
     /**

@@ -514,7 +514,6 @@
                 <include name="*.jar"/>
                 <exclude name="bluej*.jar"/>
                 <exclude name="lang-stride.jar"/>
-                <exclude name="bjdoclet.jar"/>
                 <exclude name="greenfoot-native.jar"/>
 
                 <!-- Now we exclude all files for which the license is correctly noted in the

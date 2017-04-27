@@ -45,7 +45,6 @@
         <include name="lib/guava-17.0.jar" />
         <include name="lib/javassist-3.18.0.jar" />
         <include name="lib/xom-1.2.9.jar" />
-    	<include name="lib/bjdoclet.jar" />
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/userlib/README.TXT" />
@@ -652,7 +651,6 @@
                 <include name="boot/src/bluej/splash@2x.png" />
                 <include name="threadchecker/src/**/*" />
                 <include name="threadchecker/pluginsrc/**/*" />
-                <include name="bjdoclet/**" />
 	            <include name="doc/HOWTO.*" />    
 	            <include name="doc/THIRDPARTYLICENSE.txt" />
 	            <include name="doc/LICENSE.txt" />
