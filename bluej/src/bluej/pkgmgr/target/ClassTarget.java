@@ -2064,7 +2064,7 @@ public class ClassTarget extends DependentTarget
         public EditAction(boolean enable)
         {
             super(editStr);
-            setOnAction(e -> SwingUtilities.invokeLater(() -> open()));
+            setOnAction(e -> open());
             setDisable(!enable);
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
