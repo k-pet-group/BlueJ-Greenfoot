@@ -67,7 +67,7 @@ public class CSSTarget extends NonCodeEditableTarget
     @Override
     public @OnThread(Tag.FXPlatform) void doubleClick()
     {
-        SwingUtilities.invokeLater(() -> open());
+        open();
     }
 
     /**
