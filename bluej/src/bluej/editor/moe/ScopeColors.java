@@ -29,7 +29,6 @@ public interface ScopeColors
      * given strength value. The higher the strength value, the less the colour
      * is faded.
      */
-    @OnThread(Tag.Any)
     public default ObjectExpression<Color> getReducedColor(ObjectExpression<Color> original, ObservableIntegerValue colorStrength)
     {
         return Bindings.createObjectBinding(() ->

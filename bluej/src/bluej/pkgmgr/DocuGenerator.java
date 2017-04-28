@@ -346,71 +346,65 @@ public class DocuGenerator
         File startPage = new File(docDir, "index.html");
         File logFile = new File(docDir, "logfile.txt");
 
-        Platform.runLater(() ->
+        if (documentationExists(logFile))
         {
-            if (documentationExists(logFile))
+            int result = DialogManager.askQuestionFX(null, "show-or-generate");
+            if (result == 0)
+            {  // show only
+                Utility.openWebBrowser(startPage.getPath());
+                return "";
+            }
+            if (result == 2)
+            {  // cancel
+                return "";
+            }
+        }
+        // tool-specific infos for javadoc
+
+        ArrayList<String> call = new ArrayList<String>();
+        call.add(docCommand);
+        call.add("-sourcepath");
+        call.add(projectDirPath);
+        addGeneralOptions(call);
+        call.add("-doctitle");
+        call.add(project.getProjectName());
+        call.add("-windowtitle");
+        call.add(project.getProjectName());
+        call.addAll(Utility.dequoteCommandLine(fixedJavadocParams));
+
+        // get the parameter that enables javadoc to link the generated
+        // documentation to the API documentation
+        addLinkParam(call);
+
+        // add the names of all the targets for the documentation tool.
+        // first: get the names of all packages that contain java sources.
+        List<String> packageNames = project.getPackageNames();
+        for (Iterator<String> names = packageNames.iterator(); names.hasNext(); )
+        {
+            String packageName = names.next();
+            // as javadoc doesn't like packages with no java-files, we have to
+            // pass only names of packages that really contain java files.
+            Package pack = project.getPackage(packageName);
+            if (FileUtility.containsFile(pack.getPath(), "." + SourceType.Java.toString().toLowerCase()))
             {
-                int result = DialogManager.askQuestionFX(null, "show-or-generate");
-                if (result == 0)
-                {  // show only
-                    SwingUtilities.invokeLater(() -> Utility.openWebBrowser(startPage.getPath()));
-                    return;
-                }
-                if (result == 2)
-                {  // cancel
-                    return;
+                if (packageName.length() > 0)
+                {
+                    call.add(packageName);
                 }
             }
-            SwingUtilities.invokeLater(() ->
-            {
+        }
 
-                // tool-specific infos for javadoc
+        // second: get class names of classes in unnamed package, if any
+        List<String> classNames = project.getPackage("").getAllClassnamesWithSource();
+        String dirName = project.getProjectDir().getAbsolutePath();
+        for (Iterator<String> names = classNames.iterator(); names.hasNext(); )
+        {
+            call.add(dirName + "/" + names.next() + "." + SourceType.Java.toString().toLowerCase());
+        }
+        String[] javadocCall = call.toArray(new String[0]);
 
-                ArrayList<String> call = new ArrayList<String>();
-                call.add(docCommand);
-                call.add("-sourcepath");
-                call.add(projectDirPath);
-                addGeneralOptions(call);
-                call.add("-doctitle");
-                call.add(project.getProjectName());
-                call.add("-windowtitle");
-                call.add(project.getProjectName());
-                call.addAll(Utility.dequoteCommandLine(fixedJavadocParams));
+        generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
 
-                // get the parameter that enables javadoc to link the generated
-                // documentation to the API documentation
-                addLinkParam(call);
-
-                // add the names of all the targets for the documentation tool.
-                // first: get the names of all packages that contain java sources.
-                List<String> packageNames = project.getPackageNames();
-                for (Iterator<String> names = packageNames.iterator(); names.hasNext(); )
-                {
-                    String packageName = names.next();
-                    // as javadoc doesn't like packages with no java-files, we have to
-                    // pass only names of packages that really contain java files.
-                    Package pack = project.getPackage(packageName);
-                    if (FileUtility.containsFile(pack.getPath(), "." + SourceType.Java.toString().toLowerCase()))
-                    {
-                        if (packageName.length() > 0)
-                        {
-                            call.add(packageName);
-                        }
-                    }
-                }
-
-                // second: get class names of classes in unnamed package, if any
-                List<String> classNames = project.getPackage("").getAllClassnamesWithSource();
-                String dirName = project.getProjectDir().getAbsolutePath();
-                for (Iterator<String> names = classNames.iterator(); names.hasNext(); )
-                {
-                    call.add(dirName + "/" + names.next() + "." + SourceType.Java.toString().toLowerCase());
-                }
-                String[] javadocCall = call.toArray(new String[0]);
-
-                generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
-            });
-        });
         return "";
     }
 

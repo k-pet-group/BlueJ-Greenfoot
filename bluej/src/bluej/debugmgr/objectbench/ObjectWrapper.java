@@ -170,7 +170,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * @param instanceName  The name for the object reference
      * @return A new object wrapper for the user's object
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     static public ObjectWrapper getWrapper(PkgMgrFrame pmf, ObjectBench ob,
                                             DebuggerObject obj,
                                             GenTypeClass iType,
@@ -184,7 +184,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         }
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     protected ObjectWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, GenTypeClass iType, String instanceName)
     {
         // first one we construct will give us more info about the size of the screen
@@ -211,37 +211,35 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
         Class<?> cl = findIType();
         ExtensionsManager extMgr = ExtensionsManager.getInstance();
-        Platform.runLater(() -> {
-            createMenu(extMgr, cl);
-            JavaFXUtil.listenForContextMenu(this, (x, y) -> {
-                menu.show(this, x, y);
-                return true;
-            }, KeyCode.SPACE, KeyCode.ENTER);
-            
-            setMinWidth(WIDTH);
-            setMinHeight(HEIGHT);
-            setMaxWidth(WIDTH);
-            setMaxHeight(HEIGHT);
-            setCursor(Cursor.HAND);
-            
-            setFocusTraversable(true);
-            
-            setOnMouseClicked(this::clicked);
-    
-            JavaFXUtil.addFocusListener(this, focused -> {
-                if (focused)
-                    ob.objectGotFocus(this);
-                else if (ob.getSelectedObject() == this)
-                    ob.setSelectedObject(null);
-            });
-            
-            JavaFXUtil.addStyleClass(this, "object-wrapper");
 
-            Label label = new Label(getName() + ":\n" + displayClassName);
-            JavaFXUtil.addStyleClass(label, "object-wrapper-text");
-            createComponent(label);
-            
+        createMenu(extMgr, cl);
+        JavaFXUtil.listenForContextMenu(this, (x, y) -> {
+            menu.show(this, x, y);
+            return true;
+        }, KeyCode.SPACE, KeyCode.ENTER);
+
+        setMinWidth(WIDTH);
+        setMinHeight(HEIGHT);
+        setMaxWidth(WIDTH);
+        setMaxHeight(HEIGHT);
+        setCursor(Cursor.HAND);
+
+        setFocusTraversable(true);
+
+        setOnMouseClicked(this::clicked);
+
+        JavaFXUtil.addFocusListener(this, focused -> {
+            if (focused)
+                ob.objectGotFocus(this);
+            else if (ob.getSelectedObject() == this)
+                ob.setSelectedObject(null);
         });
+
+        JavaFXUtil.addStyleClass(this, "object-wrapper");
+
+        Label label = new Label(getName() + ":\n" + displayClassName);
+        JavaFXUtil.addStyleClass(label, "object-wrapper-text");
+        createComponent(label);
     }
 
     protected void createComponent(Label label)
@@ -283,7 +281,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * same as the actual (dynamic) type of the object.
      */
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public JavaType getGenType()
     {
         return iType;
@@ -315,7 +313,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * There should be only one BObject object associated with each Package.
      * @return the BPackage associated with this Package.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.SwingIsFX)
     public synchronized final BObject getBObject ()
     {
         if ( singleBObject == null )
@@ -339,7 +337,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * @param cl  The class to check for accessibility
      * @return    True if the class is accessible, false otherwise
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private boolean classIsAccessible(Class<?> cl)
     {
         int clMods = cl.getModifiers();
@@ -356,7 +354,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * 
      * @return  The class of the chosen type.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private Class<?> findIType()
     {
         String className = obj.getClassName();
@@ -409,7 +407,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         item.setOnAction(e -> removeObject());
 
         FXMenuManager menuManager = new FXMenuManager(menu, extMgr, new ObjectExtensionMenu(this));
-        SwingUtilities.invokeLater(() -> menuManager.addExtensionMenu(pkg.getProject()));
+        menuManager.addExtensionMenu(pkg.getProject());
     }
     
     /**
@@ -651,7 +649,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 }
 
                 item = new MenuItem(methodDescription);
-                item.setOnAction(e -> SwingUtilities.invokeLater(() -> il.executeMethod(method)));
+                item.setOnAction(e -> il.executeMethod(method));
 
                 // check whether it's time for a submenu
                 int itemCount = menu.size();
@@ -843,7 +841,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * actual invocation, and update open object viewers after the call.
      */
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void executeMethod(final MethodView method)
     {
         ResultWatcher watcher = null;
@@ -876,14 +874,14 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 executionEvent.setResultObject(result);
                 BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
                 
-                Platform.runLater(() -> pkg.getProject().updateInspectors());
+                pkg.getProject().updateInspectors();
                 expressionInformation.setArgumentValues(ir.getArgumentValues());
                 ob.addInteraction(ir);
                 
                 // a void result returns a name of null
                 if (result != null && ! result.isNullObject()) {
-                    Platform.runLater(() -> pkg.getProject().getResultInspectorInstance(result, name, pkg,
-                            ir, expressionInformation, pmf.getFXWindow()));
+                    pkg.getProject().getResultInspectorInstance(result, name, pkg,
+                            ir, expressionInformation, pmf.getFXWindow());
                 }
             }
             
@@ -902,7 +900,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 executionEvent.setException(exception);
                 BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
-                Platform.runLater(() -> pkg.getProject().updateInspectors());
+                pkg.getProject().updateInspectors();
                 pkg.exceptionMessage(exception);
             }
             
@@ -922,7 +920,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         }
     }
 
-    @OnThread(Tag.Swing)
+    @Override
     public void callConstructor(ConstructorView cv)
     {
         // do nothing (satisfy the InvokeListener interface)

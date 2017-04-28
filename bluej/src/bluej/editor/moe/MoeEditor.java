@@ -772,6 +772,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * This method may be called often.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void save()
         throws IOException
     {
@@ -3481,6 +3482,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * Get the source document that this editor is editing.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public MoeSyntaxDocument getSourceDocument()
     {
         return sourceDocument;
@@ -4156,7 +4158,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
         }
         catch (IOException ioe) {
-            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
 

@@ -210,8 +210,7 @@ public class TextAnalyzer
 
         return null;
     }
-    
-    @OnThread(Tag.Swing)
+
     private EntityResolver getResolver()
     {
         EntityResolver resolver = new EntityResolver()
@@ -260,7 +259,7 @@ public class TextAnalyzer
             }
             
             @Override
-            @OnThread(value = Tag.Swing, ignoreParent = true)
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public JavaEntity getValueEntity(String name, Reflective querySource)
             {
                 NamedValue obVal = objectBench.getNamedValue(name);

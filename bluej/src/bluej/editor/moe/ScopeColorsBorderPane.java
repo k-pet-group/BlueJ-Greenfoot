@@ -8,12 +8,15 @@ import javafx.css.SimpleStyleableObjectProperty;
 import javafx.css.Styleable;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.List;
 
 /**
  * Created by neil on 29/06/2016.
  */
+@OnThread(Tag.FXPlatform)
 public class ScopeColorsBorderPane extends BorderPane implements ScopeColors
 {
     private final CssMetaData<ScopeColorsBorderPane, Color> BACKGROUND_COLOR_META_DATA =

@@ -49,6 +49,8 @@ import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.TextExt;
 import org.fxmisc.richtext.model.Paragraph;
 import org.fxmisc.richtext.model.StyledText;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.swing.text.Caret;
 import javax.swing.text.StyledDocument;
@@ -67,6 +69,7 @@ import java.util.stream.Collectors;
  *
  * @author Michael Kolling
  */
+@OnThread(Tag.FXPlatform)
 public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
 {
     public static final String ERROR_CLASS = "moe-code-error";

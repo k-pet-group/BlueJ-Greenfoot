@@ -155,7 +155,7 @@ public class Invoker
             String instanceName, Charset sourceCharset)
     {
         if (frame != null)
-            Platform.runLater(() -> { this.parent = frame; });
+            this.parent = frame;
         this.member = member;
         this.watcher = watcher;
         if (member instanceof ConstructorView) {
@@ -277,7 +277,7 @@ public class Invoker
         this.member = member;
         this.instanceName = instanceName;
         this.typeMap = typeMap;
-        Platform.runLater(() -> { this.parent = pmf.getFXWindow(); });
+        this.parent = pmf.getFXWindow();
         this.pkg = pmf.getPackage();
         final Package pkg = pmf.getPackage();
         this.pkgPath = pkg.getPath();
@@ -328,28 +328,27 @@ public class Invoker
             doInvocation(null, (JavaType []) null, null);
         }
         else {
-            Platform.runLater(() -> {
-                CallDialog cDialog;
-                if (member instanceof MethodView)
-                {
-                    // Method requires a method dialog
-                    MethodView mmember = (MethodView)member;
-                    MethodDialog mDialog = new MethodDialog(parent, objectBench, callHistory, instanceName, mmember, typeMap, this);
-                    cDialog = mDialog;
-                }
-                else
-                {
-                    // Constructor
-                    ConstructorView cmember = (ConstructorView)member;
-                    ConstructorDialog conDialog = new ConstructorDialog(parent, objectBench, callHistory, objName, cmember, this);
-                    cDialog = conDialog;
-                }
 
-                cDialog.show();
-                //org.scenicview.ScenicView.show(cDialog.getDialogPane());
+            CallDialog cDialog;
+            if (member instanceof MethodView)
+            {
+                // Method requires a method dialog
+                MethodView mmember = (MethodView)member;
+                MethodDialog mDialog = new MethodDialog(parent, objectBench, callHistory, instanceName, mmember, typeMap, this);
+                cDialog = mDialog;
+            }
+            else
+            {
+                // Constructor
+                ConstructorView cmember = (ConstructorView)member;
+                ConstructorDialog conDialog = new ConstructorDialog(parent, objectBench, callHistory, objName, cmember, this);
+                cDialog = conDialog;
+            }
 
-                dialog = cDialog;
-            });
+            cDialog.show();
+            //org.scenicview.ScenicView.show(cDialog.getDialogPane());
+
+            dialog = cDialog;
         }
     }
 
@@ -364,12 +363,10 @@ public class Invoker
         String newInstanceName = dialog.getNewInstanceName();
         String[] args = dialog.getArgs();
         JavaType[] argGenTypes = dialog.getArgGenTypes(true);
-        SwingUtilities.invokeLater(() -> {
-            gotError = false;
-            objName = newInstanceName;
-            benchName = objName;
-            doInvocation(args, argGenTypes, actualTypeParams);
-        });
+        gotError = false;
+        objName = newInstanceName;
+        benchName = objName;
+        doInvocation(args, argGenTypes, actualTypeParams);
     }
 
     // -- end of CallDialogWatcher interface --
@@ -524,7 +521,7 @@ public class Invoker
                     
                     final DebuggerResult result = debugger.instantiateClass(className);
 
-                    EventQueue.invokeLater(new Runnable() {
+                    Platform.runLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
@@ -833,7 +830,7 @@ public class Invoker
             shell.close();
         }
         catch (IOException e) {
-            Platform.runLater(() -> DialogManager.showErrorFX(parent, "could-not-write-shell-file"));
+            DialogManager.showErrorFX(parent, "could-not-write-shell-file");
             if (shell != null) {
                 try {
                     shell.close();
@@ -1052,12 +1049,10 @@ public class Invoker
     {
         DataCollector.invokeCompileError(pkg, commandString, message);
         
-        Platform.runLater(() -> {
-            if (dialog != null)
-            {
-                dialog.setErrorMessage("Error: " + message);
-            }
-        });
+        if (dialog != null)
+        {
+            dialog.setErrorMessage("Error: " + message);
+        }
         watcher.putError(message, ir);
     }
     
@@ -1068,16 +1063,14 @@ public class Invoker
     @Override
     public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
     {
-        Platform.runLater(() -> {
-            if (dialog != null)
+        if (dialog != null)
+        {
+            dialog.setWaitCursor(false);
+            if (successful)
             {
-                dialog.setWaitCursor(false);
-                if (successful)
-                {
-                    closeCallDialog();
-                }
+                closeCallDialog();
             }
-        });
+        }
 
         if (successful) {
             watcher.beginExecution(ir);
@@ -1095,15 +1088,13 @@ public class Invoker
     private void finishCall(boolean successful)
     {
         deleteShellFiles();
-        
-        Platform.runLater(() -> {
-            if (!successful && dialog != null)
-            {
-                // Re-enable call dialog: use can try again with
-                // different parameters.
-                dialog.setOKEnabled(true);
-            }
-        });
+
+        if (!successful && dialog != null)
+        {
+            // Re-enable call dialog: use can try again with
+            // different parameters.
+            dialog.setOKEnabled(true);
+        }
     }
     
     @OnThread(Tag.FXPlatform)
@@ -1157,7 +1148,7 @@ public class Invoker
                 try {
                     final DebuggerResult result = debugger.runClassMain(shellClassName);
                     
-                    EventQueue.invokeLater(new Runnable() {
+                    Platform.runLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
@@ -1185,7 +1176,7 @@ public class Invoker
      * 
      * <p>This method is called on the Swing event thread.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void handleResult(DebuggerResult result, boolean unwrap)
     {
         try {
@@ -1271,7 +1262,6 @@ public class Invoker
             mypackage = p;
         }
 
-        @OnThread(value = Tag.Swing, ignoreParent = true)
         public String transform(String n)
         {
             return cleverQualifyTypeName(mypackage, n);
