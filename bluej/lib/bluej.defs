@@ -345,8 +345,8 @@ bluej.terminal.font=Monospaced
 # Courier-bold, 18pt. Only the font face is specified here, the font
 # size is specified in the BlueJ preference dialogue. Some examples:
 
-bluej.editor.font=Monospaced
-bluej.editor.MacOS.font=Monaco
+bluej.editor.font=Source Code Pro
+bluej.editor.MacOS.font=Source Code Pro
 # bluej.editor.font=Monospaced-bold
 # bluej.editor.font=SansSerif
 # bluej.editor.font=SansSerif-bold

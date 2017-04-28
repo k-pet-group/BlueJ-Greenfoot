@@ -39,6 +39,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableIntegerValue;
 
 import threadchecker.OnThread;
@@ -93,7 +95,7 @@ public class PrefMgr
     // initialised by a call to setEditorFontSize()
     @OnThread(Tag.FX)
     private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(12);
-    private static Font editorStandardFont;
+    private static final StringProperty editorStandardFont = new SimpleStringProperty("Source Code Pro");
     @OnThread(Tag.FX)
     private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
 
@@ -196,11 +198,6 @@ public class PrefMgr
         return popupMenuFont;   
     }
 
-    public static Font getStandardEditorFont()
-    {
-        return editorStandardFont;
-    }
-    
     /**
      * Get the value for a flag. Flags are boolean preferences.
      * 'flag' must be one of the flag names defined as public
@@ -304,14 +301,14 @@ public class PrefMgr
 
             Config.putPropInteger(editorFontSizePropertyName, size);
 
-            Font font;
+            String font;
             if(Config.isMacOS()) {
-                font = Config.getFont(editorMacFontPropertyName, "Monaco", size);
+                font = Config.getPropString(editorMacFontPropertyName, "Source Code Pro");
             }
             else {
-                font = Config.getFont(editorFontPropertyName, "Monospaced", size);
+                font = Config.getPropString(editorFontPropertyName, "Source Code Pro");
             }
-            editorStandardFont = font;
+            editorStandardFont.set(font);
         }
     }
     
@@ -335,7 +332,10 @@ public class PrefMgr
     {
         if (editorFontCSS == null)
         {
-            editorFontCSS = Bindings.concat("-fx-font-size: ", editorFontSize, "pt;");
+            editorFontCSS = Bindings.concat(
+                "-fx-font-size: ", editorFontSize, "pt;",
+                "-fx-font-family: \"", editorStandardFont, "\";"
+            );
         }
         return editorFontCSS;
     }
