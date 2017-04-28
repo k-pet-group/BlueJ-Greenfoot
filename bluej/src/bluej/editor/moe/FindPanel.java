@@ -91,7 +91,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
         openIcon = Config.getFixedImageAsIcon("bluej_arrow_open.gif");
         closedIcon = Config.getFixedImageAsIcon("bluej_arrow_close.gif");
-        findFont = PrefMgr.getStandardFont();
 
         editor = ed;
         initDisplay();

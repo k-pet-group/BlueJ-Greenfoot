@@ -66,7 +66,6 @@ public class ReplacePanel extends JPanel implements ActionListener, DocumentList
     {
         super(new BorderLayout());
         this.finder = finder;
-        font = PrefMgr.getStandardFont();
         addReplaceBody();
         editor = ed;
     }

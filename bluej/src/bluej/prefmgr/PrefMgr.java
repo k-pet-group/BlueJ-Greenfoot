@@ -77,7 +77,6 @@ public class PrefMgr
     public static final String START_WITH_SUDO = "bluej.startWithSudo";
     public static final String STRIDE_SIDEBAR_SHOWING = "bluej.editor.stride.sidebarShowing";
     
-    public static final String USE_THEMES = "bluej.useTheme";
     public static final int MIN_STRIDE_FONT_SIZE = 6;
     public static final int MAX_STRIDE_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
@@ -87,12 +86,7 @@ public class PrefMgr
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
     // other constants
     private static final int NUM_RECENT_PROJECTS = Config.getPropInteger("bluej.numberOfRecentProjects", 12);
-    // preference variables: FONTS
-    private static int fontSize;
-    private static Font normalFont;
     // initialised by a call to setMenuFontSize()
-    private static int menuFontSize;
-    private static Font menuFont;
     private static Font popupMenuFont;
     private static Font italicMenuFont;
     // initialised by a call to setEditorFontSize()
@@ -188,17 +182,6 @@ public class PrefMgr
             Config.putPropString("bluej.recentProject" + i, recentProjects.get(i));
         }
     }
-    
-    public static Font getStandardFont()
-    {
-        return normalFont;
-    }
-
-    public static Font getStandardMenuFont()
-    {
-        return menuFont;
-    }
-
     public static Font getStandoutMenuFont()
     {
         return italicMenuFont;
@@ -406,17 +389,13 @@ public class PrefMgr
         initEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
 
         //bluej menu font
-        menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
-        menuFont = Config.getFont("bluej.menu.font", "SansSerif", menuFontSize);
+        int menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
+        Font menuFont = Config.getFont("bluej.menu.font", "SansSerif", menuFontSize);
         
         // popup menus are not permitted to be bold (MIK style guide) at present
         // make popup menus same font as drop down menus
         italicMenuFont = menuFont.deriveFont(Font.ITALIC);
         popupMenuFont = menuFont.deriveFont(Font.PLAIN);
-
-        //standard font for UI components
-        fontSize = Config.getPropInteger("bluej.fontsize", 12);
-        normalFont = Config.getFont("bluej.font", "SansSerif", fontSize);
 
         // preferences other than fonts:
         highlightStrength = new SimpleIntegerProperty(Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20));
@@ -431,7 +410,6 @@ public class PrefMgr
         flags.put(MAKE_BACKUP, Config.getPropString(MAKE_BACKUP, "false"));
         flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
         flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
-        flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
         flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
         flags.put(SHOW_TEAM_TOOLS, Config.getPropString(SHOW_TEAM_TOOLS, "false"));
         flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));

@@ -262,15 +262,7 @@ public final class Config
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);      
 
         usingMacOSScreenMenubar = isMacOS() && macOSscreenMenuBar.equals("true");
-        
-        boolean themed = Config.getPropBoolean("bluej.useTheme");
-        if(themed) {    
-            MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
-        }
 
-        String laf = Config.getPropString("bluej.lookAndFeel", "bluejdefault");
-        setLookAndFeel(laf);
-        
         //read any debug vm args
         initDebugVMArgs();
         Config.setVMLocale();
@@ -1794,78 +1786,7 @@ public final class Config
         Locale loc = new Locale(lang, region);
         Locale.setDefault(loc);
     }
-    
-    /**
-     * Set Look and Feel for BlueJ interface
-     * @param laf the l&f specified. Should be one of 3 options:
-     * "system", "crossplatform" or "default"
-     */
-    private static void setLookAndFeel(String laf)
-    {
-        try {
-            if (laf.equals("default")) {
-                return;
-            }
-            
-            // if system specified
-            if(laf.equals("system")) {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                return;
-            }
-            else if(laf.equals("crossplatform")) {
-                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-                usingMacOSScreenMenubar = false; // Screen menu bar requires aqua look-and-feel
-                return;
-            }
-            
-            if (! laf.equals("bluejdefault")) {
-                LookAndFeelInfo [] lafi = UIManager.getInstalledLookAndFeels();
-                for (LookAndFeelInfo aLafi : lafi) {
-                    if (aLafi.getName().equals(laf)) {
-                        UIManager.setLookAndFeel(aLafi.getClassName());
-                        return;
-                    }
-                }
-                
-                // Try as a class name
-                UIManager.setLookAndFeel(laf);
-                return;
-            }
-            
-            // do the "default, ie. let BlueJ decide
-            // Windows - System l&F, Linux & Solaris - cross-platform
-            if (isWinOS()){
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            }
-            // treat Linux and Solaris the same at the moment
-            else if(isLinux() || isSolaris()) {
-                LookAndFeelInfo [] lafi = UIManager.getInstalledLookAndFeels();
-                LookAndFeelInfo nimbus = null;
-                for (LookAndFeelInfo lafInstance : lafi) {
-                    if (lafInstance.getName().equals("Nimbus")) {
-                        nimbus = lafInstance;
-                        break;
-                    }
-                }
-                
-                if (nimbus != null) {
-                    UIManager.setLookAndFeel(nimbus.getClassName());
-                }
-                else {
-                    UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            Debug.log("Could not find look-and-feel class: " + e.getMessage());
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (UnsupportedLookAndFeelException e) {
-            Debug.log("Unsupported look-and-feel: " + e.getMessage());
-        }
-    }
-    
+
     /**
      * Initialise debug VM args from bluej config file
      * Should only be called once in Config.initialise(...)

@@ -39,24 +39,11 @@ import threadchecker.Tag;
 import bluej.prefmgr.PrefMgr;
 
 /**
- * Class to provide simple UI customisations such as colours and fonts.
- * Specifically created to allow access to default Fonts for user interface
- * components for i18n purposes.
- *
- * @author  Bruce Quig
+ * Some helper methods for setting visual details.
  */
 @OnThread(Tag.Swing)
-public class BlueJTheme extends DefaultMetalTheme
+public class BlueJTheme
 {
-    private final FontUIResource controlFont = 
-        new FontUIResource(PrefMgr.getStandardFont());
-    private final FontUIResource systemFont = 
-        new FontUIResource(controlFont);
-    private final FontUIResource userFont = 
-        new FontUIResource(controlFont);  
-    private final FontUIResource menuFont = 
-        new FontUIResource(PrefMgr.getStandardMenuFont());
-
     private static final String SMALL_ICON_SUFFIX = "-icon-32.png";
     private static final String MEDIUM_ICON_SUFFIX = "-icon-48.png";
     private static final String LARGE_ICON_SUFFIX = "-icon-256.png";
@@ -98,10 +85,7 @@ public class BlueJTheme extends DefaultMetalTheme
 
     public static final int dialogCommandButtonsVertical = 17;
 
-    // This tag is not really accurate, but we barely support this option
-    // anyway:
-    @OnThread(Tag.Any)
-    public BlueJTheme()
+    private BlueJTheme()
     {
         
     }
@@ -124,44 +108,10 @@ public class BlueJTheme extends DefaultMetalTheme
     }
 
     /**
-     * Name of theme
-     */
-    public String getName() 
-    {  
-        return "BlueJTheme"; 
-    } 
-
-    public FontUIResource getControlTextFont() 
-    {  
-        return controlFont;
-    }
-
-    public FontUIResource getSystemTextFont() 
-    {  
-        return systemFont;
-    }
-
-    public FontUIResource getUserTextFont() 
-    {  
-        return userFont;
-    }
-
-    public FontUIResource getMenuTextFont() 
-    {  
-        return menuFont;
-    }
-
-    /**
      * Get the icon for most BlueJ frames.
      *
      * @return    an icon to be used as the frame icon for most BlueJ windows
      */
-    public static Image getIconImage()
-    {
-        String appName = Config.getApplicationName().toLowerCase();
-        return getApplicationIcon (appName);
-    }
-
     @OnThread(Tag.FX)
     public static javafx.scene.image.Image getIconImageFX()
     {
