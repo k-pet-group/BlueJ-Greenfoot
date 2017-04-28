@@ -35,7 +35,6 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
@@ -114,7 +113,19 @@ public class BlueJSyntaxView
 
     public static enum ParagraphAttribute
     {
-        STEP_MARK, BREAKPOINT, ERROR;
+        STEP_MARK("bj-step-mark"), BREAKPOINT("bj-breakpoint"), ERROR("bj-error");
+
+        private final String pseudoClass;
+
+        ParagraphAttribute(String pseudoClass)
+        {
+            this.pseudoClass = pseudoClass;
+        }
+
+        public String getPseudoclass()
+        {
+            return pseudoClass;
+        }
     }
 
     // The line numbers in both maps start at one:
@@ -195,6 +206,11 @@ public class BlueJSyntaxView
 
     public Image getImageFor(ScopeInfo s, int lineHeight)
     {
+        if (lineHeight == 0)
+        {
+            return new WritableImage(1, 1);
+        }
+
         // Many of the images we use will be duplicated, e.g. for multiple lines in the same body of a block
         // So we keep them in a cache to save unnecessary effort drawing new line backgrounds:
         if (lineHeight != imageCacheLineHeight)
@@ -1530,7 +1546,12 @@ public class BlueJSyntaxView
         FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = attr -> {
             Label l = weakLabel.get();
             if (l != null)
-                JavaFXUtil.setPseudoclass("bj-breakpoint", attr.contains(ParagraphAttribute.BREAKPOINT), l);
+            {
+                for (ParagraphAttribute possibleAttribute : ParagraphAttribute.values())
+                {
+                    JavaFXUtil.setPseudoclass(possibleAttribute.getPseudoclass(), attr.contains(possibleAttribute), l);
+                }
+            }
             else
                 paragraphAttributeListeners.remove(lineNumberFinal);
         };
@@ -1540,6 +1561,12 @@ public class BlueJSyntaxView
     }
 
 
+    /**
+     * Sets attributes for a particular line number.
+     *
+     * @param offset the line number for which to change the attributes (first line is 1)
+     * @param alterAttr the attributes to set the value for (other attributes will be unaffected)
+     */
     public void setParagraphAttributes(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
     {
         EnumSet<ParagraphAttribute> attr = paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));

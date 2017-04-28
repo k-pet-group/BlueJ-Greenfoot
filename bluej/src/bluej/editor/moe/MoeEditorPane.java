@@ -31,10 +31,12 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.StyledText;
@@ -69,11 +71,16 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
         super(null, (p, s) -> {
             //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
             if (s == null)
+            {
+                p.backgroundProperty().unbind();
                 p.setBackground(null);
+            }
             else
+            {
                 p.backgroundProperty().bind(Bindings.createObjectBinding(() ->
-                    new Background(new BackgroundImage(syntaxView.getImageFor(s, (int)p.getHeight()), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT))
-                , p.heightProperty()));
+                        new Background(new BackgroundImage(syntaxView.getImageFor(s, (int) p.getHeight()), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT))
+                    , p.heightProperty()));
+            }
         }, Collections.emptyList(), (t, s) -> {
             if (s.contains(ERROR_CLASS))
             {

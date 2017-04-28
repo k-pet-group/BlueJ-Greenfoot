@@ -15,16 +15,16 @@
     -fx-background-color: rgb(245, 245, 245);
 }
 .moe-editor-pane:bj-uncompiled .moe-line-label {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
-    /*-fx-background-image: url("../images/green-diagonal-4px.png");*/
-}
-.moe-editor-pane:bj-uncompiled .moe-line-label:bj-odd {
-    -fx-background-color: rgba(245, 245, 245, 0.9);
-    /*-fx-background-image: url("../images/green-diagonal-4px.png");*/
+    -fx-background-image: url("../images/grey-diagonal.png");
+    -fx-background-size: 100% 100%;
 }
 .moe-editor-pane .moe-line-label:bj-breakpoint {
     -fx-content-display: graphic-only;
     -fx-graphic: url("../images/break.gif");
+}
+.moe-editor-pane:bj-uncompiled .moe-line-label:bj-error {
+    -fx-background-color: red;
+    -fx-background-image: null;
 }
 
 .moe-editor-pane .moe-line-label {
@@ -37,7 +37,8 @@
     -fx-background-color: transparent;
 }
 .moe-background {
-    -fx-background-image: url("../images/grey-diagonal.png");
+    -fx-background-color: white;
+    /*-fx-background-image: url("../images/grey-diagonal.png");*/
 }
 
 .moe-code-error {

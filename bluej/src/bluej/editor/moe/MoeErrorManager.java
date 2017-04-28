@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -30,6 +31,7 @@ import javax.swing.JEditorPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 
+import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -72,12 +74,10 @@ public class MoeErrorManager
             s.add(MoeEditorPane.ERROR_CLASS);
             return s;
         }));
-            //MOEFX: re-enable painting error highlight in the margin
-            //MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
-            //AdvancedHighlightPainter painter = new MoeSquigglyUnderlineHighlighterPainter(Color.RED, offs -> editor.getLineColumnFromOffset(offs).getLine());
-            errorInfos.add(new ErrorDetails(startPos, endPos, message, identifier));
-            setNextErrorEnabled.accept(true);
-            editor.updateHeaderHasErrors(true);
+        editor.getSourceDocument().setParagraphAttributes(startPos, Collections.singletonMap(ParagraphAttribute.ERROR, true));
+        errorInfos.add(new ErrorDetails(startPos, endPos, message, identifier));
+        setNextErrorEnabled.accept(true);
+        editor.updateHeaderHasErrors(true);
     }
     
     /**
@@ -93,6 +93,7 @@ public class MoeErrorManager
                 s.remove(MoeEditorPane.ERROR_CLASS);
                 return s;
             }));
+            editor.getSourceDocument().setParagraphAttributes(err.startPos, Collections.singletonMap(ParagraphAttribute.ERROR, false));
         }
         errorInfos.clear();
         setNextErrorEnabled.accept(false);
