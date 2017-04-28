@@ -22,6 +22,14 @@
     -fx-content-display: graphic-only;
     -fx-graphic: url("../images/break.gif");
 }
+.moe-editor-pane:bj-uncompiled .moe-line-label:bj-error-below {
+    -fx-background-image: url("../images/red-diagonal-down.png");
+    -fx-background-size: 100% 100%;
+}
+.moe-editor-pane:bj-uncompiled .moe-line-label:bj-error-above {
+    -fx-background-image: url("../images/red-diagonal-up.png");
+    -fx-background-size: 100% 100%;
+}
 .moe-editor-pane:bj-uncompiled .moe-line-label:bj-error {
     -fx-background-color: red;
     -fx-background-image: null;
@@ -48,5 +56,5 @@
        So we do it in code until the bug is fixed: */
     /*-rtfx-underline-color: repeating-image-pattern("../images/error-underline.png");*/
     /* underline height, really: */
-    -rtfx-underline-width: 4;
+    -rtfx-underline-width: 5;
 }

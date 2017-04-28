@@ -113,7 +113,7 @@ public class BlueJSyntaxView
 
     public static enum ParagraphAttribute
     {
-        STEP_MARK("bj-step-mark"), BREAKPOINT("bj-breakpoint"), ERROR("bj-error");
+        STEP_MARK("bj-step-mark"), BREAKPOINT("bj-breakpoint"), ERROR("bj-error"), ERROR_ABOVE("bj-error-above"), ERROR_BELOW("bj-error-below");
 
         private final String pseudoClass;
 
@@ -1569,7 +1569,7 @@ public class BlueJSyntaxView
      */
     public void setParagraphAttributes(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
     {
-        EnumSet<ParagraphAttribute> attr = paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));
+        EnumSet<ParagraphAttribute> attr = getParaAttr(lineNumber);
         for (Entry<ParagraphAttribute, Boolean> alter : alterAttr.entrySet())
         {
             if (alter.getValue())
@@ -1581,11 +1581,47 @@ public class BlueJSyntaxView
                 attr.remove(alter.getKey());
             }
         }
+        if (alterAttr.containsKey(ParagraphAttribute.ERROR))
+        {
+            // Update above/below states by finding nearest error then pointing up
+            // and down accordingly
+            int totalLines = editorPane.getParagraphs().size();
+            int[] errorLines = paragraphAttributes.entrySet().stream().filter(e -> e.getValue().contains(ParagraphAttribute.ERROR)).mapToInt(e -> e.getKey()).sorted().toArray();
+            for (int i = 1; i <= totalLines;i++)
+            {
+                int nearest = Arrays.binarySearch(errorLines, i);
+                if (nearest >= 0)
+                {
+                    // Actually an error; remove above/below designation:
+                    getParaAttr(i).removeAll(Arrays.asList(ParagraphAttribute.ERROR_ABOVE, ParagraphAttribute.ERROR_BELOW));
+                }
+                else
+                {
+                    // Returns insertion point - 1 if not found:
+                    nearest = -nearest - 1;
+                    // Is nearest one above or below?
+                    boolean nearestIsBelow = nearest <= 0 || (nearest < errorLines.length && (errorLines[nearest] - i) < (i - errorLines[nearest - 1]));
+                    getParaAttr(i).remove(nearestIsBelow ? ParagraphAttribute.ERROR_ABOVE : ParagraphAttribute.ERROR_BELOW);
+                    getParaAttr(i).add(nearestIsBelow ? ParagraphAttribute.ERROR_BELOW : ParagraphAttribute.ERROR_ABOVE);
+                }
+            }
+        }
+
+
         FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = paragraphAttributeListeners.get(lineNumber);
         if (listener != null)
         {
             listener.accept(attr);
         }
+    }
+
+    /**
+     * Gets the paragraph attributes for a particular line.  If none found, returns the empty set.
+     * The set is the live set in the map, so updating it will affect the stored attributes for the line.
+     */
+    private EnumSet<ParagraphAttribute> getParaAttr(int lineNumber)
+    {
+        return paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));
     }
 
     /**
