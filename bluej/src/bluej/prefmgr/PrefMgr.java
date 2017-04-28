@@ -89,9 +89,7 @@ public class PrefMgr
     private static final int NUM_RECENT_PROJECTS = Config.getPropInteger("bluej.numberOfRecentProjects", 12);
     // preference variables: FONTS
     private static int fontSize;
-    private static int targetFontSize;
     private static Font normalFont;
-    private static Font targetFont;
     // initialised by a call to setMenuFontSize()
     private static int menuFontSize;
     private static Font menuFont;
@@ -195,11 +193,6 @@ public class PrefMgr
     {
         return normalFont;
     }
-    
-    public static Font getStandoutFont()
-    {
-        return normalFont;
-    }
 
     public static Font getStandardMenuFont()
     {
@@ -214,11 +207,6 @@ public class PrefMgr
     public static Font getPopupMenuFont()
     {
         return popupMenuFont;   
-    }
-    
-    public static Font getTargetFont()
-    {
-        return targetFont;        
     }
 
     public static Font getStandardEditorFont()
@@ -430,9 +418,6 @@ public class PrefMgr
         fontSize = Config.getPropInteger("bluej.fontsize", 12);
         normalFont = Config.getFont("bluej.font", "SansSerif", fontSize);
 
-        targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
-        targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
-        
         // preferences other than fonts:
         highlightStrength = new SimpleIntegerProperty(Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20));
         isNaviviewExpanded=initializeisNavivewExpanded();

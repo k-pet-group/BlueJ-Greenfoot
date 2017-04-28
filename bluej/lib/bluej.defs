@@ -363,10 +363,6 @@ bluej.menu.fontsize=12
 # END OF THEME FONTS
 #######################################################################
 
-# fonts for Targets (classes in display)
-bluej.target.font=SansSerif-bold
-bluej.target.fontsize=12
-
 # default fontsize for the editor (can be changed in Preferences dialog)
 bluej.editor.fontsize=12
 
