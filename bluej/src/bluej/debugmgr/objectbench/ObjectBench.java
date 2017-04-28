@@ -456,7 +456,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         invokerRecords = new LinkedList<InvokerRecord>();
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void addInteraction(InvokerRecord ir)
     {
         if (invokerRecords == null)

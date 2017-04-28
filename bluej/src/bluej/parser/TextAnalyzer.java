@@ -115,7 +115,7 @@ public class TextAnalyzer
      * <p>If the parsed string is then executed, the confirmCommand() method should
      * subsequently be called.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public String parseCommand(String command)
     {
         importCandidate = "";
@@ -296,7 +296,7 @@ public class TextAnalyzer
      * executed. This allows TextParser to update internal state to reflect
      * changes caused by the execution of the command.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void confirmCommand()
     {
         if (importCandidate.length() != 0) {
