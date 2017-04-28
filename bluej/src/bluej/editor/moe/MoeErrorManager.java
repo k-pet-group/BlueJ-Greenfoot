@@ -67,11 +67,11 @@ public class MoeErrorManager
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
         
         MoeEditorPane sourcePane = editor.getSourcePane();
-        Platform.runLater(() -> sourcePane.setStyleSpans(startPos, sourcePane.getStyleSpans(startPos, endPos).mapStyles(s -> {
+        sourcePane.setStyleSpans(startPos, sourcePane.getStyleSpans(startPos, endPos).mapStyles(s -> {
             s = new ArrayList<>(s);
             s.add(MoeEditorPane.ERROR_CLASS);
             return s;
-        })));
+        }));
             //MOEFX: re-enable painting error highlight in the margin
             //MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
             //AdvancedHighlightPainter painter = new MoeSquigglyUnderlineHighlighterPainter(Color.RED, offs -> editor.getLineColumnFromOffset(offs).getLine());
@@ -88,11 +88,11 @@ public class MoeErrorManager
         MoeEditorPane sourcePane = editor.getSourcePane();
         for (ErrorDetails err : errorInfos)
         {
-            Platform.runLater(() -> sourcePane.setStyleSpans(err.startPos, sourcePane.getStyleSpans(err. startPos, err.endPos).mapStyles(s -> {
+            sourcePane.setStyleSpans(err.startPos, sourcePane.getStyleSpans(err. startPos, err.endPos).mapStyles(s -> {
                 s = new ArrayList<>(s);
                 s.remove(MoeEditorPane.ERROR_CLASS);
                 return s;
-            })));
+            }));
         }
         errorInfos.clear();
         setNextErrorEnabled.accept(false);

@@ -34,6 +34,7 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
@@ -1199,12 +1200,12 @@ public final class MoeActions
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), "autoindent");
     }
 
-    private MoeAbstractAction action(String name, Category category, FXRunnable action)
+    private MoeAbstractAction action(String name, Category category, FXPlatformRunnable action)
     {
         return new MoeAbstractAction(name, category)
         {
             @Override
-            public @OnThread(value = Tag.FX, ignoreParent = true) void actionPerformed()
+            public @OnThread(value = Tag.FXPlatform) void actionPerformed()
             {
                 action.run();
             }
@@ -1228,7 +1229,7 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     abstract class MoeAbstractAction
     {
         private final String name;

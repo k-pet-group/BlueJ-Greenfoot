@@ -76,23 +76,19 @@ public class ReadmeTarget extends NonCodeEditableTarget
         // create the target with an identifier name that cannot be
         // a valid java name
         super(pkg, README_ID);
-        
-        Platform.runLater(() -> {
-            if (readmeImage == null)
-                readmeImage = Config.getImageAsFXImage("image.readme");
-            if (selectedReadmeImage == null)
-                selectedReadmeImage= Config.getImageAsFXImage("image.readme-selected");
 
-            setPos(10, 10);
-            setSize((int)readmeImage.getWidth(), (int)readmeImage.getHeight());
-            JavaFXUtil.addStyleClass(pane, "readme-target");
-            pane.setTop(null);
-            imageView = new ImageView();
-            imageView.setImage(readmeImage);
-            pane.setCenter(imageView);
-        });
+        if (readmeImage == null)
+            readmeImage = Config.getImageAsFXImage("image.readme");
+        if (selectedReadmeImage == null)
+            selectedReadmeImage= Config.getImageAsFXImage("image.readme-selected");
 
-
+        setPos(10, 10);
+        setSize((int)readmeImage.getWidth(), (int)readmeImage.getHeight());
+        JavaFXUtil.addStyleClass(pane, "readme-target");
+        pane.setTop(null);
+        imageView = new ImageView();
+        imageView.setImage(readmeImage);
+        pane.setCenter(imageView);
     }
 
     @Override
@@ -170,7 +166,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
     @OnThread(Tag.FXPlatform)
     public void doubleClick()
     {
-        SwingUtilities.invokeLater(() -> openEditor());
+        openEditor();
     }
 
     /*
@@ -191,7 +187,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
     private ContextMenu createMenu()
     {
         MenuItem open = new MenuItem(openStr);
-        open.setOnAction(e -> SwingUtilities.invokeLater(() -> openEditor()));
+        open.setOnAction(e -> openEditor());
         JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
         return new ContextMenu(open);
     }

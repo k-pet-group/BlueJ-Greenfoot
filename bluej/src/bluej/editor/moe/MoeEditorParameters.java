@@ -26,6 +26,7 @@ import java.util.Properties;
 import bluej.editor.EditorWatcher;
 import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.JavadocResolver;
+import bluej.utility.javafx.FXPlatformRunnable;
 
 /**
  * Parameters for the Moe editor.
@@ -43,7 +44,7 @@ public class MoeEditorParameters
     private Properties resources;
     private EntityResolver projectResolver;
     private JavadocResolver javadocResolver;
-    private Runnable callbackOnOpen;
+    private FXPlatformRunnable callbackOnOpen;
 
     public MoeEditorParameters(String title, EditorWatcher watcher,
             Properties resources, EntityResolver projectResolver,
@@ -136,12 +137,12 @@ public class MoeEditorParameters
         this.javadocResolver = javadocResolver;
     }
 
-    public Runnable getCallbackOnOpen()
+    public FXPlatformRunnable getCallbackOnOpen()
     {
         return callbackOnOpen;
     }
 
-    public void setCallbackOnOpen(Runnable callbackOnOpen)
+    public void setCallbackOnOpen(FXPlatformRunnable callbackOnOpen)
     {
         this.callbackOnOpen = callbackOnOpen;
     }

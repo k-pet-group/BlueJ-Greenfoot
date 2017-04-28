@@ -694,7 +694,7 @@ public class CodePad extends VBox
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
             textParser.confirmCommand();
-            Platform.runLater(() -> inputField.setEditable(true));    // allow next input
+            inputField.setEditable(true);    // allow next input
             busy = false;
         }
 

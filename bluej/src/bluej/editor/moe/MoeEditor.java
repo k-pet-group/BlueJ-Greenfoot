@@ -93,6 +93,7 @@ import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.stride.slots.SuggestionList.SuggestionListParent;
 import bluej.stride.slots.SuggestionList.SuggestionShown;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -300,7 +301,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /**
      * A callback to call (on the Swing thread) when this editor is opened.
      */
-    private final Runnable callbackOnOpen;
+    private final FXPlatformRunnable callbackOnOpen;
     @OnThread(Tag.FX)
     private final List<Menu> fxMenus = new ArrayList<>();
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
@@ -626,7 +627,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     File backupFile = new File(backupFilename);
                     backupFile.delete();
                     crashFile.renameTo(backupFile);
-                    Platform.runLater(() -> DialogManager.showMessageFX(fxTabbedEditor.getWindow(), "editor-crashed"));
+                    DialogManager.showMessageFX(fxTabbedEditor.getWindow(), "editor-crashed");
                 }
 
                 // FileReader reader = new FileReader(filename);
@@ -736,22 +737,18 @@ public final class MoeEditor extends ScopeColorsBorderPane
             sourcePane.setFont(PrefMgr.getStandardEditorFont());
             checkBracketStatus();
         }
-        Platform.runLater(() -> {
-            if (fxTabbedEditor == null)
-                fxTabbedEditor = defaultFXTabbedEditor.get();
+        if (fxTabbedEditor == null)
+            fxTabbedEditor = defaultFXTabbedEditor.get();
 
-            if (vis)
-                fxTabbedEditor.addTab(fxTab, vis, true);
-            fxTabbedEditor.setWindowVisible(vis, fxTab);
-            if (vis)
-            {
-                fxTabbedEditor.bringToFront(fxTab);
-                SwingUtilities.invokeLater(() -> {
-                    if (callbackOnOpen != null)
-                        callbackOnOpen.run();
-                });
-            }
-        });
+        if (vis)
+            fxTabbedEditor.addTab(fxTab, vis, true);
+        fxTabbedEditor.setWindowVisible(vis, fxTab);
+        if (vis)
+        {
+            fxTabbedEditor.bringToFront(fxTab);
+            if (callbackOnOpen != null)
+                callbackOnOpen.run();
+        }
     }
 
     /**

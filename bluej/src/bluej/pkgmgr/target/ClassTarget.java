@@ -68,6 +68,7 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.utility.*;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
 import bluej.views.ConstructorView;
@@ -146,12 +147,12 @@ public class ClassTarget extends DependentTarget
     // role should be accessed using getRole() and set using
     // setRole(). A role should not contain important state information
     // because role objects are thrown away at a whim.
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(value = Tag.FXPlatform)
     private ClassRole role = new StdClassRole();
 
     // a flag indicating whether an editor, when opened for the first
     // time, should display the interface of this class
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(value = Tag.FXPlatform)
     private boolean openWithInterface = false;
 
     // cached information obtained by parsing the source code
@@ -161,14 +162,14 @@ public class ClassTarget extends DependentTarget
     
     // caches whether the class is abstract. Only accurate when the
     // classtarget state is normal (ie. the class is compiled).
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private boolean isAbstract;
     
     // a flag indicating whether an editor should have the naviview expanded/collapsed
-    @OnThread(value = Tag.Any, requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private Optional<Boolean> isNaviviewExpanded = Optional.empty();
 
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private final List<Integer> cachedBreakpoints = new ArrayList<>();
     
     // flag to prevent recursive calls to analyseDependancies()
@@ -180,19 +181,19 @@ public class ClassTarget extends DependentTarget
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
 
-    @OnThread(value = Tag.Any, requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private String typeParameters = "";
     
     //properties map to store values used in the editor from the props (if necessary)
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private Map<String,String> properties = new HashMap<String,String>();
     // Keep track of whether the editor is open or not; we get a lot of
     // potential open events, and don't want to keep recording ourselves as re-opening
     private boolean recordedAsOpen = false;
-    @OnThread(Tag.Any)
-    private final AtomicBoolean visible = new AtomicBoolean(true);
+    @OnThread(Tag.FXPlatform)
+    private boolean visible = true;
     private static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     private static String[] pseudos;
 
     // The body of the class target which goes hashed, etc:
@@ -214,7 +215,7 @@ public class ClassTarget extends DependentTarget
     private static final Color RED_STRIPE = Color.rgb(170, 80, 60);
     @OnThread(Tag.FX)
     private static final Color GREY_STRIPE = Color.rgb(158, 139, 116);
-    @OnThread(value = Tag.Any, requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private boolean showingInterface;
     @OnThread(Tag.FXPlatform)
     private boolean drawingExtends = false;
@@ -248,29 +249,27 @@ public class ClassTarget extends DependentTarget
             pseudos = Utility.mapList(Arrays.<Class<? extends ClassRole>>asList(StdClassRole.class, UnitTestClassRole.class, AbstractClassRole.class, InterfaceClassRole.class, EnumClassRole.class), ClassTarget::pseudoFor).toArray(new String[0]);
         }
 
-        Platform.runLater(() -> {
-            JavaFXUtil.addStyleClass(pane, "class-target");
+        JavaFXUtil.addStyleClass(pane, "class-target");
 
-            nameLabel = new Label(baseName);
-            JavaFXUtil.addStyleClass(nameLabel, "class-target-name");
-            nameLabel.setMaxWidth(9999.0);
-            stereotypeLabel = new Label();
-            stereotypeLabel.setMaxWidth(9999.0);
-            stereotypeLabel.visibleProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
-            stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
-            JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
-            pane.setTop(new VBox(stereotypeLabel, nameLabel));
-            canvas = new ResizableCanvas() {
-                @Override
-                @OnThread(Tag.FX)
-                public void resize(double width, double height)
-                {
-                    super.resize(width, height);
-                    redraw();
-                }
-            };
-            pane.setCenter(canvas);
-        });
+        nameLabel = new Label(baseName);
+        JavaFXUtil.addStyleClass(nameLabel, "class-target-name");
+        nameLabel.setMaxWidth(9999.0);
+        stereotypeLabel = new Label();
+        stereotypeLabel.setMaxWidth(9999.0);
+        stereotypeLabel.visibleProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
+        stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
+        JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
+        pane.setTop(new VBox(stereotypeLabel, nameLabel));
+        canvas = new ResizableCanvas() {
+            @Override
+            @OnThread(Tag.FX)
+            public void resize(double width, double height)
+            {
+                super.resize(width, height);
+                redraw();
+            }
+        };
+        pane.setCenter(canvas);
 
         // This must come after GUI init because it might try to affect GUI:
         calcSourceAvailable();
@@ -313,7 +312,9 @@ public class ClassTarget extends DependentTarget
         }
     }
 
+    @OnThread(Tag.SwingIsFX)
     private BClass singleBClass;  // Every Target has none or one BClass
+    @OnThread(Tag.SwingIsFX)
     private BClassTarget singleBClassTarget; // Every Target has none or one BClassTarget
     // Set from Swing thread but read on FX for display:
     
@@ -322,7 +323,8 @@ public class ClassTarget extends DependentTarget
      * There should be only one BProject object associated with each Project.
      * @return the BProject associated with this Project.
      */
-    public synchronized final BClass getBClass ()
+    @OnThread(Tag.SwingIsFX)
+    public final BClass getBClass ()
     {
         if ( singleBClass == null ) {
             singleBClass = ExtensionBridge.newBClass(this);
@@ -338,7 +340,8 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The {@link BClassTarget} associated with this {@link ClassTarget}.
      */
-    public synchronized final BClassTarget getBClassTarget()
+    @OnThread(Tag.SwingIsFX)
+    public final BClassTarget getBClassTarget()
     {
         if (singleBClassTarget == null) {
             singleBClassTarget = ExtensionBridge.newBClassTarget(this);
@@ -438,8 +441,8 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The typeParameters value
      */
-    @OnThread(Tag.Any)
-    private synchronized String getTypeParameters()
+    @OnThread(Tag.FXPlatform)
+    private String getTypeParameters()
     {
         return typeParameters;
     }
@@ -462,8 +465,8 @@ public class ClassTarget extends DependentTarget
         if (getState() != newState)
         {
             String qualifiedName = getQualifiedName();
-            @OnThread(Tag.Any) Project proj = getPackage().getProject();
-            Platform.runLater(() -> proj.removeInspectorInstance(qualifiedName));
+            Project proj = getPackage().getProject();
+            proj.removeInspectorInstance(qualifiedName);
             
             // Notify extensions if necessary.
             if (newState == State.COMPILED)
@@ -476,7 +479,7 @@ public class ClassTarget extends DependentTarget
             ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), newState == State.COMPILED, newState == State.HAS_ERROR);
             ExtensionsManager.getInstance().delegateEvent(event);
 
-            Platform.runLater(() -> {redraw();});
+            redraw();
             super.setState(newState);
         }
     }
@@ -502,8 +505,8 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The role value
      */
-    @OnThread(Tag.Any)
-    public synchronized ClassRole getRole()
+    @OnThread(Tag.FXPlatform)
+    public ClassRole getRole()
     {
         return role;
     }
@@ -515,7 +518,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param newRole The new role value
      */
-    protected synchronized final void setRole(ClassRole newRole)
+    protected final void setRole(ClassRole newRole)
     {
         if (role == null || role.getRoleName() != newRole.getRoleName()) {
             role = newRole;
@@ -523,14 +526,12 @@ public class ClassTarget extends DependentTarget
             String select = pseudoFor(role.getClass());
             String stereotype = role.getStereotypeLabel();
             boolean shouldBeFront = role == null || !(role instanceof UnitTestClassRole);
-            Platform.runLater(() -> {
-                isFront = shouldBeFront;
-                JavaFXUtil.selectPseudoClass(pane, Arrays.asList(pseudos).indexOf(select), pseudos);
-                if (stereotype != null)
-                    stereotypeLabel.setText(STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE);
-                else
-                    stereotypeLabel.setText("");
-            });
+            isFront = shouldBeFront;
+            JavaFXUtil.selectPseudoClass(pane, Arrays.asList(pseudos).indexOf(select), pseudos);
+            if (stereotype != null)
+                stereotypeLabel.setText(STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE);
+            else
+                stereotypeLabel.setText("");
         }
     }
 
@@ -598,12 +599,7 @@ public class ClassTarget extends DependentTarget
     public void determineRole(Class<?> cl)
     {
         if (cl != null) {
-            boolean isAbs;
-            synchronized (this)
-            {
-                isAbstract = Modifier.isAbstract(cl.getModifiers());
-                isAbs = isAbstract;
-            }
+            isAbstract = Modifier.isAbstract(cl.getModifiers());
             
             ClassLoader clLoader = cl.getClassLoader();
             Class<?> junitClass = null;
@@ -637,7 +633,7 @@ public class ClassTarget extends DependentTarget
             else if (JavaUtils.getJavaUtils().isEnum(cl)) {
                 setRole(new EnumClassRole());
             }
-            else if (isAbs) {
+            else if (isAbstract) {
                 setRole(new AbstractClassRole());
             }
             else if (isJunit4TestClass(cl)) {
@@ -648,10 +644,7 @@ public class ClassTarget extends DependentTarget
             }
         }
         else {
-            synchronized (this)
-            {
-                isAbstract = false;
-            }
+            isAbstract = false;
             
             // try the parsed source code
             ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
@@ -673,12 +666,9 @@ public class ClassTarget extends DependentTarget
                     // We shouldn't override applet/unit test class roles based only
                     // on source analysis: if they inherit only indirectly from Applet
                     // or UnitTest, source analysis won't give the correct role
-                    synchronized (this)
+                    if (!(role instanceof UnitTestClassRole))
                     {
-                        if (!(role instanceof UnitTestClassRole))
-                        {
-                            setRole(new StdClassRole());
-                        }
+                        setRole(new StdClassRole());
                     }
                 }
             }
@@ -706,10 +696,7 @@ public class ClassTarget extends DependentTarget
         String type = props.getProperty(prefix + ".type");
 
         String intf = props.getProperty(prefix + ".showInterface");
-        synchronized (this)
-        {
-            openWithInterface = Boolean.valueOf(intf).booleanValue();
-        }
+        openWithInterface = Boolean.valueOf(intf).booleanValue();
 
         if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type)) {
             setRole(new UnitTestClassRole(false));
@@ -741,30 +728,24 @@ public class ClassTarget extends DependentTarget
             analyseSource();    
         }
         else {
-            synchronized (this)
-            {
-                typeParameters = typeParams;
-            }
+            typeParameters = typeParams;
         }
 
-        synchronized (this)
+        cachedBreakpoints.clear();
+        try
         {
-            cachedBreakpoints.clear();
-            try
+            for (int i = 0; ; i++)
             {
-                for (int i = 0; ; i++)
+                String s = props.getProperty(prefix + ".breakpoint." + Integer.toString(i), "");
+                if (s != null && !s.isEmpty())
                 {
-                    String s = props.getProperty(prefix + ".breakpoint." + Integer.toString(i), "");
-                    if (s != null && !s.isEmpty())
-                    {
-                        cachedBreakpoints.add(Integer.parseInt(s));
-                    } else
-                        break;
-                }
-            } catch (NumberFormatException e)
-            {
-                Debug.reportError("Error parsing breakpoint line number", e);
+                    cachedBreakpoints.add(Integer.parseInt(s));
+                } else
+                    break;
             }
+        } catch (NumberFormatException e)
+        {
+            Debug.reportError("Error parsing breakpoint line number", e);
         }
     }
 
@@ -787,23 +768,20 @@ public class ClassTarget extends DependentTarget
         }
 
         boolean intf;
-        synchronized (this)
-        {
-            openWithInterface = showingInterface;
-            intf = openWithInterface;
+        openWithInterface = showingInterface;
+        intf = openWithInterface;
 
-            //saving the state of the naviview (open/close) to the props
-            //setting the value of the expanded according to the value from the editor (if there is)
-            //else if there was a previous setting use that
-            if (getProperty(NAVIVIEW_EXPANDED_PROPERTY) != null)
-            {
-                props.put(prefix + ".naviview.expanded", String.valueOf(getProperty(NAVIVIEW_EXPANDED_PROPERTY)));
-            } else if (isNaviviewExpanded.isPresent())
-            {
-                props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
-            }
-            props.put(prefix + ".typeParameters", getTypeParameters());
+        //saving the state of the naviview (open/close) to the props
+        //setting the value of the expanded according to the value from the editor (if there is)
+        //else if there was a previous setting use that
+        if (getProperty(NAVIVIEW_EXPANDED_PROPERTY) != null)
+        {
+            props.put(prefix + ".naviview.expanded", String.valueOf(getProperty(NAVIVIEW_EXPANDED_PROPERTY)));
+        } else if (isNaviviewExpanded.isPresent())
+        {
+            props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
         }
+        props.put(prefix + ".typeParameters", getTypeParameters());
         
         props.put(prefix + ".showInterface", Boolean.valueOf(intf).toString());
 
@@ -815,10 +793,7 @@ public class ClassTarget extends DependentTarget
         }
         else
         {
-            synchronized (this)
-            {
-                breakpoints = cachedBreakpoints;
-            }
+            breakpoints = cachedBreakpoints;
         }
         for (int i = 0; i < breakpoints.size(); i++)
         {
@@ -923,8 +898,8 @@ public class ClassTarget extends DependentTarget
      * 
      * The return is only valid if isCompiled() is true.
      */
-    @OnThread(Tag.Any)
-    public synchronized boolean isAbstract()
+    @OnThread(Tag.FXPlatform)
+    public boolean isAbstract()
     {
         return isAbstract;
     }
@@ -976,10 +951,10 @@ public class ClassTarget extends DependentTarget
         return null;
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public boolean isVisible()
     {
-        return visible.get();
+        return visible;
     }
 
     public void markCompiled()
@@ -1077,14 +1052,11 @@ public class ClassTarget extends DependentTarget
      *         there was a problem opening this editor.
      */
     @Override
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public Editor getEditor()
     {
         boolean withInterface;
-        synchronized (this)
-        {
-            withInterface = this.openWithInterface;
-        }
+        withInterface = this.openWithInterface;
         return getEditor(withInterface);
     }
 
@@ -1096,8 +1068,7 @@ public class ClassTarget extends DependentTarget
      * @return the editor object associated with this target. May be null if
      *         there was a problem opening this editor.
      */
-    // TODO should be Swing_WaitsForFX
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private Editor getEditor(boolean showInterface) // TODO remove the ignoreParent = true, and tag calls properly
     {
         // ClassTarget must have source code if it is to provide an editor
@@ -1131,7 +1102,7 @@ public class ClassTarget extends DependentTarget
                 File javaSourceFile = getJavaSourceFile();
                 JavadocResolver javadocResolver = project.getJavadocResolver();
                 Package pkg = getPackage();
-                final Runnable openCallback = this::recordEditorOpen;
+                final FXPlatformRunnable openCallback = this::recordEditorOpen;
                 editor = new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback);
             }
             
@@ -1208,9 +1179,7 @@ public class ClassTarget extends DependentTarget
                     DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName(), true);
                     PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
                     Project proj = getPackage().getProject();
-                    Platform.runLater(() -> {
-                        proj.getClassInspectorInstance(clss, getPackage(), pmf.getFXWindow(), ClassTarget.this.getNode());
-                    });
+                    proj.getClassInspectorInstance(clss, getPackage(), pmf.getFXWindow(), ClassTarget.this.getNode());
                 }
                 catch (ClassNotFoundException cnfe) {}
             }
@@ -1299,10 +1268,7 @@ public class ClassTarget extends DependentTarget
             // So we cache them as properties and use that here if
             // the editor has not been opened yet:
             List<Integer> breakpoints;
-            synchronized (this)
-            {
-                breakpoints = new ArrayList<>(this.cachedBreakpoints);
-            }
+            breakpoints = new ArrayList<>(this.cachedBreakpoints);
             for (Integer line : breakpoints)
             {
                 breakpointToggleEvent(line, true);
@@ -1369,10 +1335,7 @@ public class ClassTarget extends DependentTarget
             boolean success;
             switch (sourceType) {
                 case Java:
-                    synchronized (this)
-                    {
-                        success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
-                    }
+                    success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
                     break;
                 case Stride:
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
@@ -1540,16 +1503,10 @@ public class ClassTarget extends DependentTarget
             }
             newTypeParameters += ">";
         }
-        synchronized (this)
+        if (!newTypeParameters.equals(typeParameters))
         {
-            if (!newTypeParameters.equals(typeParameters))
-            {
-                typeParameters = newTypeParameters;
-                Platform.runLater(() ->
-                {
-                    updateSize();
-                });
-            }
+            typeParameters = newTypeParameters;
+            updateSize();
         }
     }
 
@@ -1739,7 +1696,7 @@ public class ClassTarget extends DependentTarget
             String oldName = getIdentifierName();
             setIdentifierName(newName);
             setDisplayName(newName);
-            Platform.runLater(() -> {updateSize();});
+            updateSize();
             
             // Update the BClass object
             BClass bClass = getBClass();
@@ -1809,47 +1766,40 @@ public class ClassTarget extends DependentTarget
 
         boolean packageInvalid = dstPkg == null;
         boolean packageNameClash = dstPkg != null && dstPkg.getTarget(getBaseName()) != null;
-        
-        Platform.runLater(() -> {
-            
-            if (packageInvalid)
-            {
-                DialogManager.showErrorFX(null, "package-name-invalid");
-            }
-            else
-            {
-                // fix for bug #382. Potentially could clash with a package
-                // in the destination package with the same name
-                if (packageNameClash)
-                {
-                    DialogManager.showErrorFX(null, "package-name-clash");
-                    // fall through to enforcePackage, below.
-                }
-                else if (DialogManager.askQuestionFX(null, "package-name-changed") == 0)
-                {
-                    SwingUtilities.invokeLater(() -> {
-                        dstPkg.importFile(getSourceFile());
-                        prepareForRemoval();
-                        getPackage().removeTarget(this);
-                        close();
-                    });
-                    return;
-                }
-            }
 
-            SwingUtilities.invokeLater(() -> {
-                // all non working paths lead here.. lets fix the package line
-                // up so it is back to what we expect
-                try
-                {
-                    enforcePackage(getPackage().getQualifiedName());
-                    getEditor().reloadFile();
-                }
-                catch (IOException ioe)
-                {
-                }
-            });
-        });
+        if (packageInvalid)
+        {
+            DialogManager.showErrorFX(null, "package-name-invalid");
+        }
+        else
+        {
+            // fix for bug #382. Potentially could clash with a package
+            // in the destination package with the same name
+            if (packageNameClash)
+            {
+                DialogManager.showErrorFX(null, "package-name-clash");
+                // fall through to enforcePackage, below.
+            }
+            else if (DialogManager.askQuestionFX(null, "package-name-changed") == 0)
+            {
+                dstPkg.importFile(getSourceFile());
+                prepareForRemoval();
+                getPackage().removeTarget(this);
+                close();
+                return;
+            }
+        }
+
+        // all non working paths lead here.. lets fix the package line
+        // up so it is back to what we expect
+        try
+        {
+            enforcePackage(getPackage().getQualifiedName());
+            getEditor().reloadFile();
+        }
+        catch (IOException ioe)
+        {
+        }
     }
 
     /**
@@ -1859,14 +1809,10 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     private void updateSize()
     {
-        SwingUtilities.invokeLater(() -> {
-            String displayName = getDisplayName();
-            Platform.runLater(() -> {
-                int width = calculateWidth(displayName);
-                setSize(width, getHeight());
-                repaint();
-            });
-        });
+        String displayName = getDisplayName();
+        int width = calculateWidth(displayName);
+        setSize(width, getHeight());
+        repaint();
     }
 
     /**
@@ -1879,45 +1825,44 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     public void popupMenu(int x, int y, PackageEditor graphEditor)
     {
-        SwingUtilities.invokeLater(() ->
-        {
-            Class<?> cl = null;
+        Class<?> cl = null;
 
-            if (getState() == State.COMPILED)
+        if (getState() == State.COMPILED)
+        {
+            // handle error causes when loading classes which are compiled
+            // but not loadable in the current VM. (Eg if they were compiled
+            // for a later VM).
+            // we detect the error, remove the class file, and invalidate
+            // to allow them to be recompiled
+            cl = getPackage().loadClass(getQualifiedName());
+            if (cl == null)
             {
-                // handle error causes when loading classes which are compiled
-                // but not loadable in the current VM. (Eg if they were compiled
-                // for a later VM).
-                // we detect the error, remove the class file, and invalidate
-                // to allow them to be recompiled
-                cl = getPackage().loadClass(getQualifiedName());
-                if (cl == null)
+                // trouble loading the class
+                // remove the class file and invalidate the target
+                if (sourceAvailable != SourceType.NONE)
                 {
-                    // trouble loading the class
-                    // remove the class file and invalidate the target
-                    if (sourceAvailable != SourceType.NONE)
-                    {
-                        getClassFile().delete();
-                        invalidate();
-                    }
+                    getClassFile().delete();
+                    invalidate();
                 }
             }
+        }
 
-            // check that the class loading hasn't changed out state
-            if (getState() != State.COMPILED)
-                cl = null;
-            // Need a bunch of info from the Swing thread before hopping to FX:
-            Class<?> clFinal = cl;
-            final ClassRole roleFinal;
-            synchronized (this)
-            {
-                roleFinal = role;
-            }
-            SourceType sourceAvailableFinal = sourceAvailable;
-            boolean docExists = getDocumentationFile().exists();
+        // check that the class loading hasn't changed out state
+        if (getState() != State.COMPILED)
+            cl = null;
+        // Need a bunch of info from the Swing thread before hopping to FX:
+        Class<?> clFinal = cl;
+        final ClassRole roleFinal;
+        roleFinal = role;
+        SourceType sourceAvailableFinal = sourceAvailable;
+        boolean docExists = getDocumentationFile().exists();
+        SwingUtilities.invokeLater(() ->
+        {
             ExtensionsManager extMgr = ExtensionsManager.getInstance();
-            Platform.runLater(() -> {
-                withMenu(clFinal,  roleFinal, sourceAvailableFinal, docExists, menu -> {
+            Platform.runLater(() ->
+            {
+                withMenu(clFinal, roleFinal, sourceAvailableFinal, docExists, menu ->
+                {
                     showingMenu(menu);
                     menu.show(pane, x, y);
                 }, extMgr);
@@ -2018,11 +1963,11 @@ public class ClassTarget extends DependentTarget
         public CreateTestAction()
         {
             super(createTestStr);
-            setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
+            setOnAction(e -> actionPerformed(e));
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
         
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         private void actionPerformed(ActionEvent e)
         {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
@@ -2044,13 +1989,10 @@ public class ClassTarget extends DependentTarget
                 }
                 DependentTarget assocFinal = assoc;
                 PackageEditor pkgEd = getPackage().getEditor();
-                Platform.runLater(() -> {
-                    if (assocFinal != null)
-                        setAssociation(assocFinal);
-                    updateAssociatePosition();
-                    pkgEd.repaint();
-                });
-
+                if (assocFinal != null)
+                    setAssociation(assocFinal);
+                updateAssociatePosition();
+                pkgEd.repaint();
             }
         }
     }
@@ -2079,9 +2021,9 @@ public class ClassTarget extends DependentTarget
         public CompileAction(boolean enable)
         {
             super(compileStr);
-            setOnAction(e -> SwingUtilities.invokeLater(() -> {
+            setOnAction(e -> {
                 getPackage().compile(ClassTarget.this, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
-            }));
+            });
             setDisable(!enable);
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
@@ -2096,20 +2038,18 @@ public class ClassTarget extends DependentTarget
         public RemoveAction()
         {
             super(removeStr);
-            setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
+            setOnAction(e -> actionPerformed(e));
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
 
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         private void actionPerformed(ActionEvent e)
         {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-            Platform.runLater(() -> {
-                if (pmf.askRemoveClass())
-                {
-                    SwingUtilities.invokeLater(() -> getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this));
-                }
-            });
+            if (pmf.askRemoveClass())
+            {
+                    getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
+            }
         }
     }
 
@@ -2122,12 +2062,12 @@ public class ClassTarget extends DependentTarget
         public InspectAction(boolean enable)
         {
             super(inspectStr);
-            setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
+            setOnAction(e -> actionPerformed(e));
             setDisable(!enable);
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
 
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         private void actionPerformed(ActionEvent e)
         {
             if (checkDebuggerState()) {
@@ -2150,7 +2090,7 @@ public class ClassTarget extends DependentTarget
         {
             if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", (Stage)ClassTarget.this.pane.getScene().getWindow(), true))
             {
-                SwingUtilities.invokeLater(() -> removeStride());
+                removeStride();
             }
         }
     }
@@ -2161,46 +2101,44 @@ public class ClassTarget extends DependentTarget
         public ConvertToStrideAction()
         {
             super(convertToStrideStr);
-            setOnAction(e -> SwingUtilities.invokeLater(() -> convertToStride()));
+            setOnAction(e -> convertToStride());
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
     
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void convertToStride()
     {
         File javaSourceFile = getJavaSourceFile();
         Charset projectCharset = getPackage().getProject().getProjectCharset();
-        Platform.runLater(() -> {
-            Stage window = null;
-            if (pane.getScene() != null)
-                window = (Stage)pane.getScene().getWindow();
-            if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", window, true))
+        Stage window = null;
+        if (pane.getScene() != null)
+            window = (Stage)pane.getScene().getWindow();
+        if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", window, true))
+        {
+            try
             {
-                try
+                Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath(), projectCharset).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
+                if (!javaConvertResult.getWarnings().isEmpty())
                 {
-                    Parser.ConversionResult javaConvertResult = Parser.javaToStride(Files.readAllLines(javaSourceFile.toPath(), projectCharset).stream().collect(Collectors.joining("\n")), Parser.JavaContext.TOP_LEVEL, false);
-                    if (!javaConvertResult.getWarnings().isEmpty())
-                    {
-                        new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
-                    }
-                    List<CodeElement> elements = javaConvertResult.getElements();
-                    
-                    if (elements.size() != 1 || !(elements.get(0) instanceof TopLevelCodeElement))
-                    {
-                        JavaFXUtil.errorDialog("convert.to.stride.error.title", "convert.to.stride.error.message");
-                        return; // Abort
-                    }
-                    SwingUtilities.invokeLater(() -> addStride((TopLevelCodeElement)elements.get(0)));    
+                    new ConvertResultDialog(javaConvertResult.getWarnings().stream().map(ConversionWarning::getMessage).collect(Collectors.toList())).showAndWait();
                 }
-                catch (IOException | ParseFailure pf)
+                List<CodeElement> elements = javaConvertResult.getElements();
+
+                if (elements.size() != 1 || !(elements.get(0) instanceof TopLevelCodeElement))
                 {
-                    Debug.reportError(pf);
-                    new ConvertResultDialog(pf.getMessage()).showAndWait();
-                    // Abort the conversion
+                    JavaFXUtil.errorDialog("convert.to.stride.error.title", "convert.to.stride.error.message");
+                    return; // Abort
                 }
+                addStride((TopLevelCodeElement)elements.get(0));
             }
-        });
+            catch (IOException | ParseFailure pf)
+            {
+                Debug.reportError(pf);
+                new ConvertResultDialog(pf.getMessage()).showAndWait();
+                // Abort the conversion
+            }
+        }
     }
 
     /**
@@ -2232,8 +2170,8 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     public void setVisible(boolean vis)
     {
-        if (vis != this.visible.get()) {
-            this.visible.set(vis);
+        if (vis != this.visible) {
+            this.visible = vis;
             pane.setVisible(vis);
             
             SwingUtilities.invokeLater(() -> {
@@ -2420,9 +2358,7 @@ public class ClassTarget extends DependentTarget
         catch (IOException e)
         {
             Debug.reportError(e);
-            Platform.runLater(() ->
-                JavaFXUtil.errorDialog(Config.getString("convert.to.stride.title"), e.getMessage())
-            );
+            JavaFXUtil.errorDialog(Config.getString("convert.to.stride.title"), e.getMessage());
             return;
         }
         sourceAvailable = SourceType.Stride;
@@ -2481,8 +2417,8 @@ public class ClassTarget extends DependentTarget
      * Returns the naviview expanded value from the properties file
      * @return 
      */
-    @OnThread(Tag.Any)
-    public synchronized boolean isNaviviewExpanded()
+    @OnThread(Tag.FXPlatform)
+    public boolean isNaviviewExpanded()
     {
         return isNaviviewExpanded.orElse(false);
     }
@@ -2491,7 +2427,7 @@ public class ClassTarget extends DependentTarget
      * Sets the naviview expanded value from the properties file to this local variable
      * @param isNaviviewExpanded
      */
-    public synchronized void setNaviviewExpanded(boolean isNaviviewExpanded)
+    public void setNaviviewExpanded(boolean isNaviviewExpanded)
     {
         this.isNaviviewExpanded = Optional.of(isNaviviewExpanded);
     }
@@ -2500,8 +2436,8 @@ public class ClassTarget extends DependentTarget
      * Retrieves a property from the editor
      */
     @Override
-    @OnThread(Tag.Any)
-    public synchronized String getProperty(String key)
+    @OnThread(Tag.FXPlatform)
+    public String getProperty(String key)
     {
         return properties.get(key);
     }
@@ -2510,7 +2446,7 @@ public class ClassTarget extends DependentTarget
      * Sets a property for the editor
      */
     @Override
-    public synchronized void setProperty(String key, String value)
+    public void setProperty(String key, String value)
     {
         properties.put(key, value);
     }
@@ -2642,7 +2578,7 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public synchronized void showingInterface(boolean showing)
+    public void showingInterface(boolean showing)
     {
         this.showingInterface = showing;
     }
@@ -2667,6 +2603,6 @@ public class ClassTarget extends DependentTarget
         super.setDisplayName(name);
         // Don't just use name; getDisplayName adds template params info
         String newDisplayName = getDisplayName();
-        Platform.runLater(() -> nameLabel.setText(newDisplayName));
+        nameLabel.setText(newDisplayName);
     }
 }

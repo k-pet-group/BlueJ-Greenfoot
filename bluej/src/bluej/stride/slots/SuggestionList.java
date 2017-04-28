@@ -342,6 +342,7 @@ public class SuggestionList
             return false;
         }
 
+        @OnThread(Tag.FXPlatform)
         public Pane makeDocPane()
         {
             return null;
@@ -369,6 +370,8 @@ public class SuggestionList
             return true;
         }
 
+        @Override
+        @OnThread(Tag.FXPlatform)
         public Pane makeDocPane()
         {
             WebView webView = new WebView();
@@ -981,6 +984,7 @@ public class SuggestionList
         @OnThread(Tag.FXPlatform)
         void suggestionListChoiceClicked(int highlighted);
 
+        @OnThread(Tag.FXPlatform)
         Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted);
 
         // Note: UP, DOWN are automatically handled, but not ESCAPE, ENTER, etc

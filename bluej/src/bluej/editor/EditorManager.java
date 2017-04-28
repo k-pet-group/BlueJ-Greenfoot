@@ -28,6 +28,7 @@ import bluej.editor.moe.MoeEditorManager;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.JavadocResolver;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 
 /**
@@ -78,7 +79,7 @@ public abstract class EditorManager
         EditorWatcher watcher, 
         boolean compiled,
         EntityResolver projectResolver,
-        JavadocResolver javadocResolver, Runnable callbackOnOpen);
+        JavadocResolver javadocResolver, FXPlatformRunnable callbackOnOpen);
 
 
     /**

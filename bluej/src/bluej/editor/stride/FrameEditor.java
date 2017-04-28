@@ -102,6 +102,7 @@ import bluej.stride.generic.InteractionManager.Kind;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -169,7 +170,7 @@ public class FrameEditor implements Editor
      * Callback can be accessed from any thread to be queued up, but should always
      * be passed to SwingUtilities.invokeLater
      */
-    @OnThread(Tag.Any) private final Runnable callbackOnOpen;
+    @OnThread(Tag.Any) private final FXPlatformRunnable callbackOnOpen;
     
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<Integer> latestBreakpoints = Collections.emptyList();
@@ -210,7 +211,7 @@ public class FrameEditor implements Editor
     }
 
     @OnThread(Tag.FX)
-    public FrameEditor(File frameFilename, File javaFilename, EditorWatcher watcher, EntityResolver resolver, JavadocResolver javadocResolver, bluej.pkgmgr.Package pkg, Runnable callbackOnOpen)
+    public FrameEditor(File frameFilename, File javaFilename, EditorWatcher watcher, EntityResolver resolver, JavadocResolver javadocResolver, bluej.pkgmgr.Package pkg, FXPlatformRunnable callbackOnOpen)
     {
         this.frameFilename = frameFilename;
         this.javaFilename = javaFilename;
@@ -1002,7 +1003,7 @@ public class FrameEditor implements Editor
         {
             panel.setWindowVisible(show, bringToFront);
             if (callbackOnOpen != null && show)
-                SwingUtilities.invokeLater(callbackOnOpen);
+                callbackOnOpen.run();
         }
 
 

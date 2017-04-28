@@ -210,7 +210,7 @@ public class PackageTarget extends Target
     @OnThread(Tag.FXPlatform)
     public void doubleClick()
     {
-        SwingUtilities.invokeLater(() -> {getPackage().getEditor().raiseOpenPackageEvent(this, getOpenPkgName());});
+        getPackage().getEditor().raiseOpenPackageEvent(this, getOpenPkgName());
     }
 
     /**
@@ -234,19 +234,19 @@ public class PackageTarget extends Target
     private ContextMenu createMenu()
     {
         MenuItem open = new MenuItem(openStr);
-        open.setOnAction(e -> SwingUtilities.invokeLater(() -> {
+        open.setOnAction(e -> {
             getPackage().getEditor().raiseOpenPackageEvent(this, getOpenPkgName());
-        }));
+        });
         JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
         ContextMenu contextMenu = new ContextMenu(open);
 
         if (isRemovable())
         {
             MenuItem remove = new MenuItem(removeStr);
-            remove.setOnAction(e -> SwingUtilities.invokeLater(() ->
+            remove.setOnAction(e ->
             {
                 getPackage().getEditor().raiseRemoveTargetEvent(this);
-            }));
+            });
             JavaFXUtil.addStyleClass(remove, "class-action-inbuilt");
             contextMenu.getItems().add(remove);
         }
@@ -274,29 +274,23 @@ public class PackageTarget extends Target
         String name = getQualifiedName();
         PkgMgrFrame[] f = PkgMgrFrame.getAllProjectFrames(pmf.getProject(), name);
 
-        Platform.runLater(() ->
+        if (f != null)
         {
-            if (f != null)
-            {
-                DialogManager.showErrorFX(pmf.getFXWindow(), "remove-package-open");
-            }
-            else
-            {
-                // Check they realise that this will delete ALL the files.
-                int response = DialogManager.askQuestionFX(pmf.getFXWindow(), "really-remove-package");
+            DialogManager.showErrorFX(pmf.getFXWindow(), "remove-package-open");
+        }
+        else
+        {
+            // Check they realise that this will delete ALL the files.
+            int response = DialogManager.askQuestionFX(pmf.getFXWindow(), "really-remove-package");
 
-                // if they agree
-                if (response == 0)
-                {
-                    SwingUtilities.invokeLater(() ->
-                    {
-                        deleteFiles();
-                        getPackage().getProject().removePackage(getQualifiedName());
-                        getPackage().removeTarget(this);
-                    });
-                }
+            // if they agree
+            if (response == 0)
+            {
+                deleteFiles();
+                getPackage().getProject().removePackage(getQualifiedName());
+                getPackage().removeTarget(this);
             }
-        });
+        }
     }
 
     /**

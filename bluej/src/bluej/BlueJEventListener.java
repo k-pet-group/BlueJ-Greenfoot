@@ -29,7 +29,7 @@ import threadchecker.Tag;
  **
  ** @author Michael Kolling
  **/
-@OnThread(Tag.Swing)
+@OnThread(Tag.FXPlatform)
 public interface BlueJEventListener
 {
     /**
