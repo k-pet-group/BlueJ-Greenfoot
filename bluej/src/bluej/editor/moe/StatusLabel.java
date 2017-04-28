@@ -37,7 +37,7 @@ public final class StatusLabel extends JLabel
     // ---------------- CONSTANTS -----------------
 
     private static Font statusFont = new Font("SansSerif",
-            Font.BOLD | Font.ITALIC, PrefMgr.getEditorFontSize() - 1);
+            Font.BOLD | Font.ITALIC, PrefMgr.getEditorFontSize().get() - 1);
 
     // current save state
     static final int READONLY = 0;
@@ -95,7 +95,7 @@ public final class StatusLabel extends JLabel
     
     public static void resetFont()
     {
-        int fontSize = Math.max(PrefMgr.getEditorFontSize() - 1, 1);
+        int fontSize = Math.max(PrefMgr.getEditorFontSize().get() - 1, 1);
         statusFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, fontSize);
     }
 }

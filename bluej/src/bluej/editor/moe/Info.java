@@ -40,7 +40,7 @@ import javax.swing.border.EmptyBorder;
  */
 public final class Info extends JPanel
 {
-    private static Font infoFont = new Font("SansSerif", Font.BOLD, PrefMgr.getEditorFontSize() - 1);
+    private static Font infoFont = new Font("SansSerif", Font.BOLD, PrefMgr.getEditorFontSize().get() - 1);
     private final FXPlatformSupplier<javafx.stage.Window> fxParent;
 
     // -------- INSTANCE VARIABLES --------
@@ -91,7 +91,7 @@ public final class Info extends JPanel
      */
     public static void resetFont()
     {
-        int fsize = Math.max(PrefMgr.getEditorFontSize() - 1, 1);
+        int fsize = Math.max(PrefMgr.getEditorFontSize().get() - 1, 1);
         infoFont = new Font("SansSerif", Font.BOLD, fsize);
     }
 

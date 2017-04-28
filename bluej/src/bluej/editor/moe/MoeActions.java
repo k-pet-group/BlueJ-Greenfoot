@@ -34,6 +34,7 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -1667,13 +1668,7 @@ public final class MoeActions
     private MoeAbstractAction increaseFontAction()
     {
         return action("increase-font", Category.MISC, () -> {
-            MoeEditorPane textPane = getTextComponent();
-            /*MOEFX
-            Font textPFont= textPane.getFont();           
-            int newFont=textPFont.getSize()+1;
-            PrefMgr.setEditorFontSize(newFont);
-            getTextComponent(e).setFont(textPane.getFont().deriveFont((float)newFont));
-            */
+            Utility.increaseFontSize(PrefMgr.getEditorFontSize());
         });
     }
 
@@ -1682,13 +1677,7 @@ public final class MoeActions
     private MoeAbstractAction decreaseFontAction()
     {
         return action("decrease-font", Category.MISC, () -> {
-            /*MOEFX
-            JTextComponent textPane = getTextComponent(e);
-            Font textPFont= textPane.getFont();            
-            int newFont=textPFont.getSize()-1;
-            PrefMgr.setEditorFontSize(newFont);
-            getTextComponent(e).setFont(textPFont.deriveFont((float)newFont));
-            */
+            Utility.decreaseFontSize(PrefMgr.getEditorFontSize());
         });
     }
 

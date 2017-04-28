@@ -22,46 +22,31 @@
 package bluej.editor.moe;
 
 import bluej.Config;
-import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.io.CharStreams;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.ListChangeListener;
-import javafx.geometry.Bounds;
 import javafx.geometry.Side;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.*;
-import javafx.scene.paint.*;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import org.fxmisc.richtext.CodeArea;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.paint.ImagePattern;
 import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.richtext.TextExt;
-import org.fxmisc.richtext.model.Paragraph;
 import org.fxmisc.richtext.model.StyledText;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.text.Caret;
-import javax.swing.text.StyledDocument;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
@@ -83,11 +68,12 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
     {
         super(null, (p, s) -> {
             //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
-            double lineHeight = measureLineHeight();
             if (s == null)
                 p.setBackground(null);
             else
-                p.setBackground(new Background(new BackgroundImage(syntaxView.getImageFor(s, (int)lineHeight), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT)));
+                p.backgroundProperty().bind(Bindings.createObjectBinding(() ->
+                    new Background(new BackgroundImage(syntaxView.getImageFor(s, (int)p.getHeight()), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT))
+                , p.heightProperty()));
         }, Collections.emptyList(), (t, s) -> {
             if (s.contains(ERROR_CLASS))
             {
@@ -104,24 +90,13 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
 
         }, doc, false);
         this.editor = editor;
+        styleProperty().bind(PrefMgr.getEditorFontCSS());
         setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
         JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
         JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
         syntaxView.setEditorPane(this);
     }
-
-    private static double measureLineHeight()
-    {
-        //MOEFX: cache this value (per font face and font size)
-        //Not a very elegant way to get the size of the text, but only way to really do it
-        //See e.g. http://stackoverflow.com/questions/13015698/
-        Text text = new Text(" ");
-        //MOEFX: Use editor font
-        //text.setFont(f);
-        return text.getLayoutBounds().getHeight();
-    }
-
 
     /*
      * Make sure, when we are scrolling to follow the caret,
@@ -161,11 +136,6 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
         editor.undoManager.forgetHistory();
     }
 
-    public void setFont(java.awt.Font standardEditorFont)
-    {
-
-    }
-
     /**
      * Selects from the existing anchor position to the new position.
      */
@@ -196,40 +166,5 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
     public void setFakeCaret(boolean on)
     {
         setShowCaret(on ? CaretVisibility.ON : CaretVisibility.AUTO);
-    }
-
-    private static class PaintObjectBinding extends ObjectBinding<Background>
-    {
-        private final TextFlow t;
-        private final int lineNo;
-        private MoeEditorPane editor;
-
-        public PaintObjectBinding(TextFlow t, int line, MoeEditorPane e)
-        {
-            this.t = t;
-            this.lineNo = line;
-            super.bind(t.getChildren());
-            setEditor(e);
-        }
-
-        @Override
-        protected Background computeValue()
-        {
-            return null;
-            /*
-            String line = ""; //editor.getParagraph(lineNo).getText();
-            int startingSpaces = line.indexOf(line.trim());
-            int pos = editor.getAbsolutePosition(lineNo, startingSpaces);
-            double spaceStartX = editor.getCharacterBoundsOnScreen(pos, pos + 1).map(editor::screenToLocal).map(Bounds::getMinX).orElse(0.0);
-            Debug.message("Line " + lineNo + ": " + spaceStartX);
-            return new Background(new BackgroundFill(new LinearGradient(0, 0, spaceStartX + 1, 0, false, CycleMethod.NO_CYCLE, new Stop(0, Color.WHITE), new Stop(0.99, Color.RED), new Stop(1.0, Color.GREEN)), null, null));
-            */
-        }
-
-        public void setEditor(MoeEditorPane moeEditorPane)
-        {
-            this.editor = moeEditorPane;
-            super.bind(moeEditorPane.widthProperty());
-        }
     }
 }

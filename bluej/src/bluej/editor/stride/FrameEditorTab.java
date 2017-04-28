@@ -21,7 +21,6 @@
  */
 package bluej.editor.stride;
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -2046,16 +2045,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     void decreaseFontSize()
     {
         final IntegerProperty fontSize = PrefMgr.strideFontSizeProperty();
-        int prev = fontSize.get();
-        fontSize.set(Math.max(PrefMgr.MIN_STRIDE_FONT_SIZE, prev >= 36 ? prev - 4 : (prev >= 16 ? prev - 2 : prev - 1)));
+        Utility.decreaseFontSize(fontSize);
     }
-    
+
     //package-visible
     void increaseFontSize()
     {
         final IntegerProperty fontSize = PrefMgr.strideFontSizeProperty();
-        int prev = fontSize.get();
-        fontSize.set(Math.min(PrefMgr.MAX_STRIDE_FONT_SIZE, prev < 32 ? (prev < 14 ? prev + 1 : prev + 2) : prev + 4));
+        Utility.increaseFontSize(fontSize);
     }
 
     @Override

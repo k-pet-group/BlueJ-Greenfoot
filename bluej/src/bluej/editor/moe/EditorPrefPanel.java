@@ -109,7 +109,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
 
     public void beginEditing()
     {
-        editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
+        editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize().get()));
         highlightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HILIGHTING));
         autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));

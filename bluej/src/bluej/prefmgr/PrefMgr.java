@@ -31,19 +31,20 @@ import java.util.List;
 
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.IntegerExpression;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableIntegerValue;
-import javafx.beans.value.ObservableValue;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
 import bluej.editor.EditorManager;
-import bluej.editor.moe.BlueJSyntaxView;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.terminal.Terminal;
@@ -77,8 +78,8 @@ public class PrefMgr
     public static final String START_WITH_SUDO = "bluej.startWithSudo";
     public static final String STRIDE_SIDEBAR_SHOWING = "bluej.editor.stride.sidebarShowing";
     
-    public static final int MIN_STRIDE_FONT_SIZE = 6;
-    public static final int MAX_STRIDE_FONT_SIZE = 160;
+    public static final int MIN_EDITOR_FONT_SIZE = 6;
+    public static final int MAX_EDITOR_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
     // font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
@@ -90,8 +91,8 @@ public class PrefMgr
     private static Font popupMenuFont;
     private static Font italicMenuFont;
     // initialised by a call to setEditorFontSize()
-    @OnThread(Tag.Any)
-    private static int editorFontSize;
+    @OnThread(Tag.FX)
+    private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(12);
     private static Font editorStandardFont;
     @OnThread(Tag.FX)
     private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
@@ -100,7 +101,7 @@ public class PrefMgr
     
     /** transparency of the scope highlighting */
     @OnThread(Tag.FXPlatform)
-    private static IntegerProperty highlightStrength = new SimpleIntegerProperty(0);
+    private static final IntegerProperty highlightStrength = new SimpleIntegerProperty(0);
     
     // last value of naviviewExpanded
     private static boolean isNaviviewExpanded=true;
@@ -120,6 +121,9 @@ public class PrefMgr
     // is shared between all uses of that property flag.
     @OnThread(Tag.FXPlatform)
     private static HashMap<String, BooleanProperty> flagProperties = new HashMap<>();
+    // The CSS style needed to apply the editor font styling
+    @OnThread(Tag.FX)
+    private static StringExpression editorFontCSS;
 
     /**
      * Private constructor to prevent instantiation
@@ -295,8 +299,8 @@ public class PrefMgr
      */
     private static void initEditorFontSize(int size)
     {
-        if (size > 0 && size != editorFontSize) {
-            editorFontSize = size;
+        if (size > 0 && size != editorFontSize.get()) {
+            editorFontSize.set(size);
 
             Config.putPropInteger(editorFontSizePropertyName, size);
 
@@ -321,9 +325,19 @@ public class PrefMgr
      * (use getStandardEditorFont() if access to the actual font is required)
      */
     @OnThread(Tag.Any)
-    public static int getEditorFontSize()
+    public static IntegerProperty getEditorFontSize()
     {
         return editorFontSize;
+    }
+
+    @OnThread(Tag.FX)
+    public static StringExpression getEditorFontCSS()
+    {
+        if (editorFontCSS == null)
+        {
+            editorFontCSS = Bindings.concat("-fx-font-size: ", editorFontSize, "pt;");
+        }
+        return editorFontCSS;
     }
 
     @OnThread(Tag.Any)
@@ -369,7 +383,7 @@ public class PrefMgr
         {
             String fontSizePropName = "bluej.stride.editor.fontSize";
             int sizeFromConfig = Config.getPropInteger(fontSizePropName,DEFAULT_STRIDE_FONT_SIZE);
-            int clampedSize = Math.max(MIN_STRIDE_FONT_SIZE, Math.min(MAX_STRIDE_FONT_SIZE, sizeFromConfig));
+            int clampedSize = Math.max(MIN_EDITOR_FONT_SIZE, Math.min(MAX_EDITOR_FONT_SIZE, sizeFromConfig));
             strideFontSize = new SimpleIntegerProperty(clampedSize);
             
             strideFontSize.addListener((a, b, newVal) -> {
@@ -398,7 +412,7 @@ public class PrefMgr
         popupMenuFont = menuFont.deriveFont(Font.PLAIN);
 
         // preferences other than fonts:
-        highlightStrength = new SimpleIntegerProperty(Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20));
+        highlightStrength.set(Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20));
         isNaviviewExpanded=initializeisNavivewExpanded();
         
         projectDirectory = Config.getPropString("bluej.projectPath", System.getProperty("user.home"));

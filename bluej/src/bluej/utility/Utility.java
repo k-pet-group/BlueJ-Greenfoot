@@ -22,7 +22,6 @@
 package bluej.utility;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -30,14 +29,11 @@ import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.Window;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -46,9 +42,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,9 +55,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -80,14 +71,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.AbstractButton;
-import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.text.TabExpander;
 
-import bluej.pkgmgr.target.Target;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXPlatformSupplier;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.stage.Stage;
 
 import nu.xom.Document;
@@ -1384,6 +1375,26 @@ public class Utility
     {
         // Simplest implementation I could think of:
         return 0.5 + Math.round(x - 0.5);
+    }
+
+    /**
+     * Decreases the given font size by one "notch", where a notch changes
+     * in size depending on the current font size (bigger notches at bigger sizes)
+     */
+    public static void decreaseFontSize(IntegerProperty fontSize)
+    {
+        int prev = fontSize.get();
+        fontSize.set(Math.max(PrefMgr.MIN_EDITOR_FONT_SIZE, prev >= 36 ? prev - 4 : (prev >= 16 ? prev - 2 : prev - 1)));
+    }
+
+    /**
+     * Increases the given font size by one "notch", where a notch changes
+     * in size depending on the current font size (bigger notches at bigger sizes)
+     */
+    public static void increaseFontSize(IntegerProperty fontSize)
+    {
+        int prev = fontSize.get();
+        fontSize.set(Math.min(PrefMgr.MAX_EDITOR_FONT_SIZE, prev < 32 ? (prev < 14 ? prev + 1 : prev + 2) : prev + 4));
     }
 
     @FunctionalInterface

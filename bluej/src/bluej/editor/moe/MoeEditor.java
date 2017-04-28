@@ -677,8 +677,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             return false;
         }
 
-        sourcePane.setFont(PrefMgr.getStandardEditorFont());
-
         setCompileStatus(compiled);
 
         return true;
@@ -734,7 +732,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public void setEditorVisible(boolean vis)
     {
         if (vis) {
-            sourcePane.setFont(PrefMgr.getStandardEditorFont());
             checkBracketStatus();
         }
         if (fxTabbedEditor == null)
@@ -757,7 +754,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @Override
     public void refresh()
     {
-        sourcePane.setFont(PrefMgr.getStandardEditorFont());
         checkBracketStatus();
         scheduleReparseRunner(); //whenever we change the scope highlighter, call scheduleReparseRunner to create a reparser to that file: if the scope highlighter is 0, it will do nothing. However, if it is not zero, it will ensure the editor is updated accordingly.
 
@@ -3556,7 +3552,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 @Override
                 public StringExpression getFontSizeCSS()
                 {
-                    return new ReadOnlyStringWrapper("14pt"); //TODO
+                    return PrefMgr.getEditorFontCSS();
                 }
 
                 @Override
@@ -4365,7 +4361,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             TextFlow flow = new TextFlow(text);
             flow.setMaxWidth(600.0);
             JavaFXUtil.addStyleClass(text, "java-error");
-            text.setStyle("-fx-font-size: " + PrefMgr.getEditorFontSize() + "px");
+            text.styleProperty().bind(PrefMgr.getEditorFontCSS());
             Pane p = new BorderPane(flow);
             this.popup.setSkin(new Skin<Skinnable>()
             {

@@ -109,7 +109,7 @@ public final class Terminal
         
     // initialise to config value or zero.
     private static int terminalFontSize = Config.getPropInteger(
-            TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
+            TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize().get());
     
     private static boolean isMacOs = Config.isMacOS();
     private final String title;
@@ -173,7 +173,7 @@ public final class Terminal
         //reload terminal fontsize from configurations.
 
         terminalFontSize = Config.getPropInteger(
-                TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
+                TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize().get());
         return Config.getFont(
                 TERMINALFONTPROPNAME, "Monospaced", terminalFontSize);
     }
