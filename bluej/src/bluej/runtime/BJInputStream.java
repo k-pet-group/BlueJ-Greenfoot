@@ -51,7 +51,9 @@ public class BJInputStream extends InputStream
     }
     
     public int read() throws IOException {
-        
+        // show terminal on input
+        ExecServer.showTerminalOnInput();
+
         if (exOnEOL && endOfLine)
             throw new IOException();
         
@@ -70,6 +72,9 @@ public class BJInputStream extends InputStream
     
     public int read(byte [] b, int off, int len) throws IOException
     {
+        // show terminal on input
+        ExecServer.showTerminalOnInput();
+
         // reads are line buffered. If a complete line is read, we don't
         // want to read any more. So we flag this and it is handled in the
         // read() method.

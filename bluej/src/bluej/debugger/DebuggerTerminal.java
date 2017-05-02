@@ -35,4 +35,10 @@ public interface DebuggerTerminal
     Writer getWriter();
 
     Reader getReader();
+
+    /**
+     * This is called when there is reading request from the terminal on the remote virtual machine
+     *
+     */
+    void  showOnInput();
 }

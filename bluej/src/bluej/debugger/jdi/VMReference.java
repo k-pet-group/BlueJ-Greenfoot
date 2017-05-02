@@ -140,6 +140,9 @@ class VMReference
     // the name of the method used to suspend the ExecServer
     static final String SERVER_SUSPEND_METHOD_NAME = "vmSuspend";
 
+    // the name of the method used to show  the terminal on input
+    static final String SERVER_SHOW_TERMINAL_ON_INPUT_NAME = "showTerminalOnInput";
+
     // A map which can be used to map instances of VirtualMachine to VMReference 
     private static Map<VirtualMachine, VMReference> vmToReferenceMap = new HashMap<VirtualMachine, VMReference>();
     
@@ -148,7 +151,7 @@ class VMReference
     // we have a tight coupling between us and the JdiDebugger
     // that creates us
     private JdiDebugger owner = null;
-
+    private DebuggerTerminal term;
     // The remote virtual machine and process we are referring to
     private VirtualMachine machine = null;
     private Process remoteVMprocess = null;
@@ -579,7 +582,7 @@ class VMReference
         throws JdiVmCreationException
     {
         this.owner = owner;
-        
+        this.term=term;
         // machine will be suspended at startup
         machine = localhostSocketLaunch(initialDirectory, libraries, term, Bootstrap.virtualMachineManager());
         //machine = null; //uncomment to simulate inabilty to create debug VM
@@ -713,6 +716,16 @@ class VMReference
             workerBreakpoint.putProperty(VMEventHandler.DONT_RESUME, "yes");
             workerBreakpoint.putProperty(Debugger.PERSIST_BREAKPOINT_PROPERTY, "yes");
             workerBreakpoint.enable();
+        }
+
+        // set a breakpoint inset a breakpoint in the showTerminaOnInput method
+        {
+            BreakpointRequest serverBreakpoint = erm.createBreakpointRequest(findMethodLocation(serverClass, SERVER_SHOW_TERMINAL_ON_INPUT_NAME));
+            serverBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+            // the presence of this property indicates to breakEvent that we are
+            // a special type of breakpoint
+            serverBreakpoint.putProperty(SERVER_SHOW_TERMINAL_ON_INPUT_NAME, "yes");
+            serverBreakpoint.enable();
         }
 
     }
@@ -1246,7 +1259,7 @@ class VMReference
         // after completing some work. We want to leave it suspended here until
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
-            
+
             if (workerThread == null) {
                 workerThread = event.thread();
             }
@@ -1256,6 +1269,12 @@ class VMReference
                 workerThread.notifyAll();
             }
         }
+        // if the breakpoint is marked with the SERVER_SHOW_TERMINAL_ON_INPUT_NAME
+        //
+        else if (event.request().getProperty(SERVER_SHOW_TERMINAL_ON_INPUT_NAME) != null) {
+                this.term.showOnInput();
+        }
+
         else {
             // breakpoint set by user in user code
             if (serverThread.equals(event.thread())) {

@@ -299,6 +299,15 @@ public class ExecServer
     }
 
     /**
+     * This method is used to show the terminal window in case
+     * the java program asks for input from the user.
+     */
+    public static void showTerminalOnInput()
+    {
+        // <<READING-REQUEST BREAKPOINT!>
+    }
+
+    /**
      * Add the object to our list of open windows
      *
      * @param   o   a window object which has just been opened

@@ -463,6 +463,24 @@ public final class Terminal
         return out;
     }
 
+    /**
+     * It implements the method on the interface DebuggerTerminal which is called
+     * when there is reading request from the terminal on the remote virtual machine
+     */
+    public void showOnInput()
+    {
+        Platform.runLater(()  ->  // to enable running the window.requestFocus() operation on the JavaFX application thread
+        {
+            if (!this.isShown())
+                this.showHide(true);
+
+            if (this.isShown())
+                window.requestFocus();
+
+        }
+        );
+    }
+
 
     /**
      * Return the output stream that can be used to write error output to this terminal
