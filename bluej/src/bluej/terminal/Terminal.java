@@ -78,7 +78,6 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -111,7 +110,6 @@ public final class Terminal
     private static int terminalFontSize = Config.getPropInteger(
             TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
     
-    private static boolean isMacOs = Config.isMacOS();
     private final String title;
 
     // -- instance --
@@ -147,6 +145,7 @@ public final class Terminal
     @OnThread(Tag.FX)
     private Stage window;
     private JPanel mainPanel;
+    
     /**
      * Since all the decisions to show or hide the window pass through the Swing
      * thread, we can actually keep track reliably on the Swing thread of whether
@@ -469,18 +468,16 @@ public final class Terminal
      */
     public void showOnInput()
     {
-        Platform.runLater(()  ->  // to enable running the window.requestFocus() operation on the JavaFX application thread
-        {
-            if (!this.isShown())
+        Platform.runLater(() -> {
+            if (!this.isShown()) {
                 this.showHide(true);
+            }
 
-            if (this.isShown())
+            if (this.isShown()) {
                 window.requestFocus();
-
-        }
-        );
+            }
+        });
     }
-
 
     /**
      * Return the output stream that can be used to write error output to this terminal

@@ -582,11 +582,10 @@ class VMReference
         throws JdiVmCreationException
     {
         this.owner = owner;
-        this.term=term;
+        this.term = term;
+        
         // machine will be suspended at startup
         machine = localhostSocketLaunch(initialDirectory, libraries, term, Bootstrap.virtualMachineManager());
-        //machine = null; //uncomment to simulate inabilty to create debug VM
-        
         if (machine == null) {
             throw new JdiVmCreationException();
         }
@@ -718,10 +717,10 @@ class VMReference
             workerBreakpoint.enable();
         }
 
-        // set a breakpoint inset a breakpoint in the showTerminaOnInput method
+        // set a breakpoint in the showTerminaOnInput method
         {
             BreakpointRequest serverBreakpoint = erm.createBreakpointRequest(findMethodLocation(serverClass, SERVER_SHOW_TERMINAL_ON_INPUT_NAME));
-            serverBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+            serverBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_NONE);
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
             serverBreakpoint.putProperty(SERVER_SHOW_TERMINAL_ON_INPUT_NAME, "yes");
@@ -1275,7 +1274,6 @@ class VMReference
         else if (event.request().getProperty(SERVER_SHOW_TERMINAL_ON_INPUT_NAME) != null) {
                 this.term.showOnInput();
         }
-
         else {
             // breakpoint set by user in user code
             if (serverThread.equals(event.thread())) {
