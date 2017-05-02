@@ -34,6 +34,9 @@ import javax.swing.text.Segment;
 
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
+import bluej.utility.Utility;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
@@ -60,6 +63,7 @@ import bluej.utility.PersistentMarkDocument;
  */
 public class MoeSyntaxDocument
 {
+    public static final String MOE_FIND_RESULT = "moe-find-result";
     /**
      * A RichTextFX document can have paragraph styles, and text-segment styles.
      *
@@ -67,11 +71,11 @@ public class MoeSyntaxDocument
      * Our paragraph styles are thus line styles, and we use this to store information
      * about the scope boxes that need painting on the background for scope highlighting.
      *
-     * Our text-segment styles are a list of style-classes to apply to a text-segment.
+     * Our text-segment styles are a set of style-classes to apply to a text-segment.
      * This is usually a single token-style (our tokens never overlap), and possibly
-     * the error state class.
+     * the error state class and/or search highlight class.
      */
-    private final SimpleEditableStyledDocument<ScopeInfo, List<String>> document;
+    private final SimpleEditableStyledDocument<ScopeInfo, ImmutableSet<String>> document;
     
     /** Maximum amount of document to reparse in one hit (advisory) */
     private final static int MAX_PARSE_PIECE = 8000;
@@ -92,6 +96,19 @@ public class MoeSyntaxDocument
     public Position createPosition(int initialPos)
     {
         return new Position(initialPos);
+    }
+
+    public void markFindResult(int start, int end)
+    {
+        document.setStyleSpans(start, document.getStyleSpans(start, end).overlay(new StyleSpansBuilder<ImmutableSet<String>>().add(ImmutableSet.of(MOE_FIND_RESULT), end - start).create(), Utility::setUnion));
+    }
+
+    public void removeSearchHighlights()
+    {
+        for (int i = 0; i < document.getParagraphs().size(); i++)
+        {
+            document.setStyleSpans(i, 0, document.getStyleSpans(i).mapStyles(ss -> Utility.setMinus(ss, MOE_FIND_RESULT)));
+        }
     }
 
     private class PendingError
@@ -158,7 +175,7 @@ public class MoeSyntaxDocument
     {
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        document = new SimpleEditableStyledDocument<>(null, Collections.emptyList());
+        document = new SimpleEditableStyledDocument<>(null, ImmutableSet.of());
         syntaxView = new BlueJSyntaxView(this, scopeColors);
 
         document.plainChanges().subscribe(c -> {
@@ -361,7 +378,7 @@ public class MoeSyntaxDocument
 
             }
 
-            StyleSpans<List<String>> styleSpans = syntaxView.getTokenStylesFor(i, this);
+            StyleSpans<ImmutableSet<String>> styleSpans = syntaxView.getTokenStylesFor(i, this);
             if (styleSpans != null)
                 document.setStyleSpans(i, 0, styleSpans);
         }
@@ -788,18 +805,18 @@ public class MoeSyntaxDocument
     //MOEFX: we may actually want to make this test-only, as it doesn't track the caret position
     public void insertString(int start, String src, Object attrSet)
     {
-        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, Collections.emptyList(), StyledText.textOps()));
+        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, ImmutableSet.of(), StyledText.textOps()));
     }
 
     public void replace(int start, int length, String text)
     {
-        document.replace(start, start + length, ReadOnlyStyledDocument.fromString(text, null, Collections.emptyList(), StyledText.textOps()));
+        document.replace(start, start + length, ReadOnlyStyledDocument.fromString(text, null, ImmutableSet.of(), StyledText.textOps()));
     }
 
     public void remove(int start, int length)
     {
         if (length != 0)
-            document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, Collections.emptyList()));
+            document.replace(start, start + length, new SimpleEditableStyledDocument<>(null, ImmutableSet.of()));
     }
 
 
@@ -827,7 +844,7 @@ public class MoeSyntaxDocument
             @Override
             public Element getElement(int index)
             {
-                Paragraph<ScopeInfo, StyledText<List<String>>, List<String>> p = document.getParagraph(index);
+                Paragraph<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> p = document.getParagraph(index);
                 int pos = document.getAbsolutePosition(index, 0);
                 return new Element()
                 {

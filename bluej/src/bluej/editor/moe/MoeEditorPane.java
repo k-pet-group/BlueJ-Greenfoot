@@ -25,6 +25,7 @@ import bluej.Config;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
@@ -57,7 +58,7 @@ import java.util.List;
  * @author Michael Kolling
  */
 @OnThread(Tag.FXPlatform)
-public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
+public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<String>>
 {
     public static final String ERROR_CLASS = "moe-code-error";
     private static final Image UNDERLINE_IMAGE = Config.getFixedImageAsFXImage("error-underline.png");
@@ -66,7 +67,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane(MoeEditor editor, org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<List<String>>, List<String>> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
+    public MoeEditorPane(MoeEditor editor, org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
     {
         super(null, (p, s) -> {
             //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
@@ -81,7 +82,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, List<String>>
                         new Background(new BackgroundImage(syntaxView.getImageFor(s, (int) p.getHeight()), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT))
                     , p.heightProperty()));
             }
-        }, Collections.emptyList(), (t, s) -> {
+        }, ImmutableSet.of(), (t, s) -> {
             if (s.contains(ERROR_CLASS))
             {
                 // RichTextFX has built-in support for underlines, which is much easier than trying to construct

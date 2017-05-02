@@ -77,6 +77,8 @@ import javax.swing.text.TabExpander;
 
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXPlatformSupplier;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.stage.Stage;
@@ -1395,6 +1397,30 @@ public class Utility
     {
         int prev = fontSize.get();
         fontSize.set(Math.min(PrefMgr.MAX_EDITOR_FONT_SIZE, prev < 32 ? (prev < 14 ? prev + 1 : prev + 2) : prev + 4));
+    }
+
+    /**
+     * Make a new set containing the previous set, plus the new item (if not already in previous set)
+     */
+    public static <T> ImmutableSet<T> setAdd(ImmutableSet<T> set, T item)
+    {
+        return setUnion(set, ImmutableSet.of(item));
+    }
+
+    /**
+     * Returns the union of the two sets
+     */
+    public static <T> ImmutableSet<T> setUnion(ImmutableSet<T> a, ImmutableSet<T> b)
+    {
+        return Sets.union(a, b).immutableCopy();
+    }
+
+    /**
+     * Returns the set, without the given item (if it was present).
+     */
+    public static <T> ImmutableSet<T> setMinus(ImmutableSet<T> set, T item)
+    {
+        return Sets.difference(set, ImmutableSet.of(item)).immutableCopy();
     }
 
     @FunctionalInterface

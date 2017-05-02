@@ -32,6 +32,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
+import bluej.utility.Utility;
 import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -69,11 +70,7 @@ public class MoeErrorManager
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
         
         MoeEditorPane sourcePane = editor.getSourcePane();
-        sourcePane.setStyleSpans(startPos, sourcePane.getStyleSpans(startPos, endPos).mapStyles(s -> {
-            s = new ArrayList<>(s);
-            s.add(MoeEditorPane.ERROR_CLASS);
-            return s;
-        }));
+        sourcePane.setStyleSpans(startPos, sourcePane.getStyleSpans(startPos, endPos).mapStyles(s -> Utility.setAdd(s, MoeEditorPane.ERROR_CLASS)));
         editor.getSourceDocument().setParagraphAttributes(startPos, Collections.singletonMap(ParagraphAttribute.ERROR, true));
         errorInfos.add(new ErrorDetails(startPos, endPos, message, identifier));
         setNextErrorEnabled.accept(true);
@@ -88,11 +85,7 @@ public class MoeErrorManager
         MoeEditorPane sourcePane = editor.getSourcePane();
         for (ErrorDetails err : errorInfos)
         {
-            sourcePane.setStyleSpans(err.startPos, sourcePane.getStyleSpans(err. startPos, err.endPos).mapStyles(s -> {
-                s = new ArrayList<>(s);
-                s.remove(MoeEditorPane.ERROR_CLASS);
-                return s;
-            }));
+            sourcePane.setStyleSpans(err.startPos, sourcePane.getStyleSpans(err. startPos, err.endPos).mapStyles(s -> Utility.setMinus(s, MoeEditorPane.ERROR_CLASS)));
             editor.getSourceDocument().setParagraphAttributes(err.startPos, Collections.singletonMap(ParagraphAttribute.ERROR, false));
         }
         errorInfos.clear();

@@ -32,6 +32,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXCache;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.collect.ImmutableSet;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -170,9 +171,9 @@ public class BlueJSyntaxView
      *
      * Returns null if there are no styles to apply (e.g. on a blank line or one with only whitespace).
      */
-    protected final StyleSpans<List<String>> getTokenStylesFor(int lineIndex, MoeSyntaxDocument document)
+    protected final StyleSpans<ImmutableSet<String>> getTokenStylesFor(int lineIndex, MoeSyntaxDocument document)
     {
-        StyleSpansBuilder<List<String>> lineStyle = new StyleSpansBuilder<>();
+        StyleSpansBuilder<ImmutableSet<String>> lineStyle = new StyleSpansBuilder<>();
         Token tokens = document.getTokensForLine(lineIndex);
         boolean addedAny = false;
         for(;;) {
@@ -180,7 +181,7 @@ public class BlueJSyntaxView
             if(id == TokenType.END)
                 break;
 
-            lineStyle.add(Collections.singletonList(id.getCSSClass()), tokens.length);
+            lineStyle.add(ImmutableSet.of(id.getCSSClass()), tokens.length);
             addedAny = true;
 
             tokens = tokens.next;
