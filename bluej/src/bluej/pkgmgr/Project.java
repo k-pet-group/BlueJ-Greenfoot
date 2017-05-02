@@ -55,7 +55,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
 
 import bluej.BlueJEvent;
 import bluej.Boot;
@@ -289,10 +288,6 @@ public class Project implements DebuggerListener, InspectorManager
         setProjectProperties(props);
         packages.put("", unnamedPackage);
 
-        // This line initialises JavaFX:
-        new JFXPanel();
-        // Prevent JavaFX exiting when all JavaFX windows are closed (would prevent re-opening editor):
-        Platform.setImplicitExit(false);
         shelfStorage = new FrameShelfStorage(this.projectDir);
         Platform.runLater(() -> createNewFXTabbedEditor());
 

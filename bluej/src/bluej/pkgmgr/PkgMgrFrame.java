@@ -169,7 +169,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -405,7 +404,6 @@ public class PkgMgrFrame
             makeFrame();
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
-            new JFXPanel();
             Platform.runLater(() -> {
                 Stage stage = new Stage();
                 BlueJTheme.setWindowIconFX(stage);
