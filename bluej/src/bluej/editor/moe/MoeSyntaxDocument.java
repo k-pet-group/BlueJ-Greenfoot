@@ -92,6 +92,7 @@ public class MoeSyntaxDocument
     protected boolean inNotification = false;
     protected boolean runningScheduledUpdates = false;
     private final BlueJSyntaxView syntaxView;
+    private boolean hasFindHighlights = false;
 
     public Position createPosition(int initialPos)
     {
@@ -100,14 +101,19 @@ public class MoeSyntaxDocument
 
     public void markFindResult(int start, int end)
     {
+        hasFindHighlights = true;
         document.setStyleSpans(start, document.getStyleSpans(start, end).overlay(new StyleSpansBuilder<ImmutableSet<String>>().add(ImmutableSet.of(MOE_FIND_RESULT), end - start).create(), Utility::setUnion));
     }
 
     public void removeSearchHighlights()
     {
-        for (int i = 0; i < document.getParagraphs().size(); i++)
+        if (hasFindHighlights)
         {
-            document.setStyleSpans(i, 0, document.getStyleSpans(i).mapStyles(ss -> Utility.setMinus(ss, MOE_FIND_RESULT)));
+            for (int i = 0; i < document.getParagraphs().size(); i++)
+            {
+                document.setStyleSpans(i, 0, document.getStyleSpans(i).mapStyles(ss -> Utility.setMinus(ss, MOE_FIND_RESULT)));
+            }
+            hasFindHighlights = false;
         }
     }
 

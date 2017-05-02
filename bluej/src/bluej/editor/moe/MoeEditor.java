@@ -363,44 +363,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
     /**
      * Find the position of a substring in a given string, 
-     * can specify direction and whether the search should ignore case
-     * Return the position of the substring or -1.
-     *
-     * @param  text        the full string to be searched
-     * @param  sub         the substring that we're looking for
-     * @param  ignoreCase  if true, case is ignored
-     * @param  backwards   Description of the Parameter
-     * @return             Description of the Return Value
-     * @returns            the index of the substring, or -1 if not found
-     */
-    private static int findSubstring(String text, String sub, boolean ignoreCase, boolean backwards)
-    {
-        int strlen = text.length();
-        int sublen = sub.length();
-
-        if (sublen == 0) {
-            return -1;
-        }
-
-        boolean found = false;
-        int pos = (backwards ? strlen - sublen : 0);
-        boolean itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
-
-        while (!found && !itsOver) {
-            found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);
-            if (found) {
-                return pos;
-            }
-            if (!found) {
-                pos = (backwards ? pos - 1 : pos + 1);
-                itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
-            }
-        }       
-        return -1;
-    }
-
-    /**
-     * Find the position of a substring in a given string, 
      * can specify direction and whether the search should ignoring case
      * Return the position of the substring or -1.
      *
@@ -537,6 +499,18 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
         }
         return key;
+    }
+
+
+    /**
+     * Removes the selection in the textpane specified
+     */
+    private void removeSelection()
+    {
+        if (sourcePane != null) {
+            int caretPos = sourcePane.getCaretPosition();
+            sourcePane.select(caretPos, caretPos);
+        }
     }
 
     /**
@@ -1775,7 +1749,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
         if (getSourcePane().getSelectedText()==null|| getSourcePane().getSelectedText().length()<=0){
             //in case the selection has been lost due to moving it in the editor
             if (finder.getSearchString()!=null && finder.getSearchString().length()>0)
-                searchString=finder.getSearchTextfield();
+                //MOEFX
+                //searchString=finder.getSearchTextfield();
+                {}
             else {
                 writeMessage("Invalid search string ");
                 return;
@@ -1794,11 +1770,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /**
      * Implementation of "find-next" user function.
      */
-    //MOEFX
-    /*
     public void findNext(boolean backwards)
     {
-        String selection= currentTextPane.getSelectedText();
+        String selection= sourcePane.getSelectedText();
         if (selection==null){
             selection=finder.getSearchString();
         }
@@ -1815,17 +1789,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         else {
             removeSearchHighlights();
-            removeSelection(currentTextPane);
+            removeSelection();
             findString(selection, backwards, !finder.getMatchCase(), true);
         }
     }
-    */
 
     /**
      * Do a find with info in the info area.
      */
-    //MOEFX
-    /*
     boolean findString(String s, boolean backward,
             boolean ignoreCase, boolean wrap)
     {
@@ -1836,11 +1807,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         boolean found;
         if (backward){
-            found = doFindBackward(s, ignoreCase, wrap);
+            found = doFind(s, ignoreCase, wrap, true);
         }
         else {
             setCaretPositionForward(1);
-            found = doFind(s, ignoreCase, wrap);
+            found = doFind(s, ignoreCase, wrap, false);
         }
 
         StringBuilder msg = new StringBuilder(Config.getString("editor.find.find.label") + " ");
@@ -1871,128 +1842,48 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         return found;
     }
-    */
 
-    /**
-     * Search for and select the given search string forwards from
-     * the current caret position. Returns false if not found.
-     */
-    //MOEFX
-    /*
-    boolean doFind(String s, boolean ignoreCase, boolean wrap)
-    {
-        int docLength = document.getLength();
-        int startPosition = currentTextPane.getCaretPosition();
-        int endPos = docLength;
-
-        boolean found = false;
-        boolean finished = false;
-
-        // first line searched starts from current caret position
-        int start = startPosition;
-        Element line = getLineAt(start);
-        int lineEnd = Math.min(line.getEndOffset(), endPos);
-
-        // following lines search from start of line
-        try {
-            while (!found && !finished) {
-                String lineText = document.getText(start, lineEnd - start);
-
-                if (lineText != null && lineText.length() > 0) {
-                    int foundPos = findSubstring(lineText, s, ignoreCase, false);
-                    if (foundPos != -1) {
-                        currentTextPane.select(start + foundPos, start + foundPos + s.length());
-                        currentTextPane.getCaret().setSelectionVisible(true);
-                        found = true;
-                    }
-                }
-                if (lineEnd >= endPos) {
-                    if (wrap) {
-                        // do the wrapping
-                        endPos = startPosition;
-                        line = document.getParagraphElement(0);
-                        start = line.getStartOffset();
-                        lineEnd = Math.min(line.getEndOffset(), endPos);
-                        wrap = false;
-                        // don't wrap again
-                    }
-                    else {
-                        finished = true;
-                    }
-                }
-                else {
-                    // go to next line
-                    line = document.getParagraphElement(lineEnd + 1);
-                    start = line.getStartOffset();
-                    lineEnd = Math.min(line.getEndOffset(), endPos);
-                }
-            }
-        }
-        catch (BadLocationException ex) {
-            Debug.reportError("Error in editor find operation", ex);
-        }
-        return found;
-    }
-    */
 
     /**
      * Do a find backwards without visible feedback. Returns
      * false if not found.
      */
-    //MOEFX
-    /*
-    boolean doFindBackward(String s, boolean ignoreCase, boolean wrap)
+    boolean doFind(String s, boolean ignoreCase, boolean wrap, boolean backwards)
     {
-        int docLength = document.getLength();
-        int startPosition = currentTextPane.getCaretPosition() - 1;
-        if (startPosition < 0) {
-            startPosition = docLength;
-        }
-        int endPos = 0;                   // where the search ends
+        sourceDocument.removeSearchHighlights();
+        String content = sourcePane.getText();
 
-        boolean found = false;
+        int startPosition = sourcePane.getCaretPosition();
+        int curPosition = startPosition + (backwards ? -1 : 0);
         boolean finished = false;
+        boolean found = false;
 
-        int start = startPosition;        // start of next partial search
-        Element line = getLineAt(start);
-        int lineStart = Math.max(line.getStartOffset(), endPos);
-
-        try {
-            while (!found && !finished) {
-                String lineText = document.getText(lineStart, start - lineStart);
-                if (lineText != null && lineText.length() > 0) {
-                    int foundPos = findSubstring(lineText, s, ignoreCase, true);
-                    if (foundPos != -1) {
-                        currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
-                        currentTextPane.getCaret().setSelectionVisible(true);
-                        found = true;
-                    }
-                }
-                if (lineStart <= endPos) {            // reached end of search
-                    if (wrap) {                       // do the wrapping around
-                        endPos = startPosition;
-                        line = document.getParagraphElement(docLength);
-                        start = line.getEndOffset();
-                        lineStart = Math.max(line.getStartOffset(), endPos);
-                        wrap = false;                 // don't wrap again
-                    }
-                    else {
-                        finished = true;
-                    }
-                }
-                else {                                // go to next line
-                    line = document.getParagraphElement(lineStart - 1);
-                    start = line.getEndOffset();
-                    lineStart = Math.max(line.getStartOffset(), endPos);
-                }
+        while (!finished)
+        {
+            int foundPos = findSubstring(content, s, ignoreCase, backwards, curPosition);
+            if (foundPos != -1)
+            {
+                sourceDocument.markFindResult(foundPos, foundPos + s.length());
+                curPosition = backwards ? foundPos - 1 : foundPos + s.length();
+                found = true;
             }
-        }
-        catch (BadLocationException ex) {
-            Debug.reportError("Error in editor find operation", ex);
+            else if (backwards && curPosition < startPosition && !wrap)
+            {
+                curPosition = sourcePane.getLength();
+                wrap = true;
+            }
+            else if (!backwards && curPosition >= startPosition && !wrap)
+            {
+                curPosition = 0;
+                wrap = true;
+            }
+            else
+            {
+                finished = true;
+            }
         }
         return found;
     }
-    */
 
     // --------------------------------------------------------------------
     
@@ -2191,25 +2082,26 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         //current caret position may be invalid in the new view
         //so reset it to the current pos in that pane/0 in the documentation
+        /*MOEFX
         if (isShowingInterface()){
             finder.setSearchStart(0);
         }    
         else{
             finder.setSearchStart(getCurrentTextPane().getCaretPosition());
         }
+        */
         //reset the search string to null
         finder.setSearchString(null);
         //as the search is cleared between switches in the view
         //there should be no selections/highlights from the previous search
         removeSearchHighlights();
-        removeSelections();
+        removeSelection();
         //reset the search and replace strings
         finder.setSearchString(null);
         replacer.setReplaceString(null);
         replacer.populateReplaceField(null);
         if (finder.isVisible()){
-            //MOEFX
-            //initFindPanel();
+            initFindPanel();
         }
     }
 
@@ -3052,29 +2944,25 @@ public final class MoeEditor extends ScopeColorsBorderPane
         bottomArea.setLayout(new BorderLayout(6, 1));
         if (!Config.isRaspberryPi()) bottomArea.setOpaque(false);
         
-        JPanel finderPanel = new JPanel(new DBoxLayout(DBox.Y_AXIS, 0, 0));
-        finderPanel.setBorder(BorderFactory.createEmptyBorder(0, BlueJTheme.componentSpacingLarge, 0, 0));
-        if (!Config.isRaspberryPi()) finderPanel.setOpaque(false);
-        
+        VBox finderPanel = new VBox();
+
         int smallSpc = BlueJTheme.componentSpacingSmall;
         
         //area for new find functionality
         finder=new FindPanel(this);
         finder.setVisible(false);
-        finder.setBorder(BorderFactory.createEmptyBorder(0, 0, smallSpc, 0));
-        finder.setName("FinderPanel");
-        finder.setAlignmentX(0.0f);
-        if (!Config.isRaspberryPi()) finder.setOpaque(false);
-        finderPanel.add(finder);
+        finderPanel.getChildren().add(finder);
 
         replacer=new ReplacePanel(this, finder);
         replacer.setVisible(false);
         replacer.setBorder(BorderFactory.createEmptyBorder(0, 0, smallSpc, 0));
         replacer.setAlignmentX(0.0f);
         if (!Config.isRaspberryPi()) replacer.setOpaque(false);
-        finderPanel.add(replacer);
-        
-        bottomArea.add(finderPanel, BorderLayout.NORTH);
+        //MOEFX
+        //finderPanel.getChildren().add(replacer);
+
+        //MOEFX
+        //bottomArea.add(finderPanel, BorderLayout.NORTH);
 
         statusArea = new JPanel();
         statusArea.setLayout(new GridLayout(0, 1));
@@ -3096,6 +2984,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         //MOEFX
         //this.add(bottomArea, BorderLayout.SOUTH);
+        setBottom(finderPanel);
 
         // create the text document
 
@@ -3421,11 +3310,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * it is the source pane then the replace button is enabled; if it is the interface pane 
      * then the replace button and replace panel are set to disabled and invisible
      */
-    //MOEFX
-    /*
     public void initFindPanel()
     {
-        finder.displayFindPanel(currentTextPane.getSelectedText());
+        finder.displayFindPanel(sourcePane.getSelectedText());
         //functionality for the replace button to be enabled/disabled according to view
         if (isShowingInterface())
         {
@@ -3437,7 +3324,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             finder.setReplaceEnabled(true);
         }
     }
-    */
 
     /**
      * Sets the caret forward by the value indicated if this does not 
@@ -3490,30 +3376,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     public void removeSearchHighlights()
     {
-        //MOEFX
-        /*
-        for (Object tag : sourceSearchHighlightTags) {
-            sourcePane.getHighlighter().removeHighlight(tag);
-        }
-        sourceSearchHighlightTags.clear();
-        
-        for (Object tag : htmlSearchHighlightTags) {
-            htmlPane.getHighlighter().removeHighlight(tag);
-        }
-        htmlSearchHighlightTags.clear();
-        */
+        sourceDocument.removeSearchHighlights();
     }
-    
-    /**
-     * Removes the selections 
-     */
-    public void removeSelections()
-    {
-        //MOEFX
-        //removeSelection(sourcePane);
-        //removeSelection(htmlPane);
-    }
-    
+
     /**
      * Create and pop up the content assist (code completion) dialog.
      */

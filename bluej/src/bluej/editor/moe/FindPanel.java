@@ -22,35 +22,29 @@ LICENSE.txt file that accompanied this code.
 package bluej.editor.moe;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 
 /**
  * The FindPanel class implements the find functionality of the MoeEditor.
@@ -60,9 +54,14 @@ import bluej.utility.DBoxLayout;
  * @author  Marion Zalk
  * @author  Michael Kölling
  */
-public class FindPanel extends JPanel implements ActionListener, DocumentListener, MouseListener
+public class FindPanel extends BorderPane
 {
     private MoeEditor editor;
+    private final CheckBox matchCaseCheckBox;
+    private final Button previousButton;
+    private final Button nextButton;
+    private final TextField findField;
+    /*MOEFX
     private JComponent findBody;
     private DBox findTextBody;
     private DBox optionsBody;
@@ -81,31 +80,111 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private ImageIcon openIcon;
     private ImageIcon closedIcon;
     private int searchStart = -1;
+    */
 
     /**
      * Constructor that creates and displays the different elements of the Find Panel
      */
     public FindPanel(MoeEditor ed)
     {
-        super(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
-        openIcon = Config.getFixedImageAsIcon("bluej_arrow_open.gif");
-        closedIcon = Config.getFixedImageAsIcon("bluej_arrow_close.gif");
+        //MOEFX: replace these with our drawing
+        ImageView openIcon = new ImageView(Config.getFixedImageAsFXImage("bluej_arrow_open.gif"));
+        ImageView closedIcon = new ImageView(Config.getFixedImageAsFXImage("bluej_arrow_close.gif"));
 
         editor = ed;
-        initDisplay();
 
-        setFindDisplay();
-        setCaseCheckDisplay();
-        setCloseDisplay();
-        setPrevNextDisplay();
-        setReplaceDisplay();
+        // Various MoeEditor calls make us invisible; take us out of the layout when that happens
+        managedProperty().bind(visibleProperty());
 
-        addDisplayElements();
+        HBox findBody = new HBox();
+        HBox findTextBody = new HBox();
+        //prev, next
+        HBox optionsBody = new HBox();
+        HBox mcBody = new HBox();
+
+        BorderPane closeBody = new BorderPane();
+
+        Label findLabel = new Label(Config.getString("editor.findpanel.findLabel"));
+
+        Label replaceLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
+
+        HBox findLabelBox = new HBox();
+        findLabelBox.getChildren().add(findLabel);
+
+        findField = new TextField();
+        JavaFXUtil.addChangeListenerPlatform(findField.textProperty(), search -> {
+            //TODO MOEFX take from DocumentListener
+            findEvent();
+        });
+        findField.setOnAction(e -> {
+            // TODO MOEFX take on ActionListener
+        });
+        matchCaseCheckBox = new CheckBox();
+        matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
+        matchCaseCheckBox.setSelected(false);
+        JavaFXUtil.addChangeListenerPlatform(matchCaseCheckBox.selectedProperty(), cs -> {
+            // TODO MOEFX take from ActionListener
+        });
+        Label closeIconLabel = new Label();
+        // MOEFX: replace this with custom-drawn graphic?
+        closeIconLabel.setGraphic(new ImageView(Config.getFixedImageAsFXImage("cross.png")));
+        // MOEFX
+        //closeIconLabel.addMouseListener(this);
+
+        previousButton = new Button();
+        previousButton.setOnAction(e -> {
+            //MOEFX take from ActionListener
+        });
+        previousButton.setText(Config.getString("editor.findpanel.findPrevious") + " ");
+        previousButton.setDisable(true);
+
+        nextButton = new Button();
+        nextButton.setOnAction(e -> {
+            //MOEFX take from ActionListener
+        });
+        nextButton.setText(Config.getString("editor.findpanel.findNext"));
+        nextButton.setDisable(true);
+
+
+        Label replaceIconLabel = new Label(Config.getString("editor.findpanel.replacePanel"));
+        replaceIconLabel.setGraphic(closedIcon);
+        //MOEFX
+        //replaceIconLabel.addMouseListener(this);
+
+        findTextBody.getChildren().add(findLabelBox);
+        findTextBody.getChildren().add(findField);
+
+        optionsBody.getChildren().add(previousButton);
+        optionsBody.getChildren().add(nextButton);
+
+        closeBody.setRight(closeIconLabel);
+
+        mcBody.getChildren().add(matchCaseCheckBox);
+        mcBody.getChildren().add(replaceIconLabel);
+
+        findBody.getChildren().add(findTextBody);
+        findBody.getChildren().add(optionsBody);
+        findBody.getChildren().add(mcBody);
+
+        setLeft(findBody);
+        setRight(closeBody);
+
+        /*MOEFX
+        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "escapeAction");
+        this.getActionMap().put("escapeAction", new AbstractAction()
+        { //$NON-NLS-1$
+
+            public void actionPerformed(ActionEvent e)
+            {
+                close();
+            }
+        });
+        */
 
         //MOEFX
         /*
-        findTField.addFocusListener(new FocusListener()
+        findField.addFocusListener(new FocusListener()
         {
 
             public void focusGained(FocusEvent e)
@@ -123,6 +202,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         */
     }
 
+    /*MOEFX
     @Override
     public void setVisible(boolean aFlag)
     {
@@ -137,101 +217,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             findTField.requestFocus();
         }
     }
+    */
 
     /**
      * Get the maximum and preferred width of the "find:" label.
      */
     public int getLabelBoxWidth()
     {
-        return findLabelBox.getPreferredSize().width;
-    }
-
-    /**
-     * Initialise the structure for the display panel
-     */
-    private void initDisplay()
-    {
-        findBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
-        findTextBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-        //prev, next
-        optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-        mcBody = new DBox(DBoxLayout.X_AXIS, 0, 0, 0.5f);
-
-        if (!Config.isRaspberryPi()) findBody.setOpaque(false);
-        if (!Config.isRaspberryPi()) findTextBody.setOpaque(false);
-        if (!Config.isRaspberryPi()) optionsBody.setOpaque(false);
-        if (!Config.isRaspberryPi()) mcBody.setOpaque(false);
-
-        closeBody = new JPanel(new BorderLayout());
-        if (!Config.isRaspberryPi()) closeBody.setOpaque(false);
-    }
-
-    /**
-     * Initialise find buttons and labels
-     */
-    private void setFindDisplay()
-    {
-        JLabel findLabel = new JLabel(Config.getString("editor.findpanel.findLabel"));
-        findLabel.setFont(findFont);
-
-        replaceLabel = new JLabel(Config.getString("editor.replacePanel.replaceLabel"));
-        replaceLabel.setFont(findFont);
-
-        Dimension lblSize = findLabel.getPreferredSize();
-        lblSize.width = Math.max(lblSize.width, replaceLabel.getPreferredSize().width);
-
-        findLabelBox = new DBox(DBox.X_AXIS, 0.5f);
-        findLabelBox.setMaximumSize(lblSize);
-        findLabelBox.setPreferredSize(lblSize);
-        findLabelBox.add(Box.createHorizontalGlue());
-        findLabelBox.add(findLabel);
-        findLabelBox.setOpaque(false);
-
-        findTField = new JTextField(11);
-        findTField.setMaximumSize(findTField.getPreferredSize());
-        findTField.setFont(findFont);
-        setSearchString("");
-        setfindTextField("");
-        findTField.getDocument().addDocumentListener(this);
-        findTField.addActionListener(this);
-    }
-
-    /**
-     * Initialise the previous and next buttons
-     */
-    private void setPrevNextDisplay()
-    {
-        previousButton = new JButton();
-        previousButton.addActionListener(this);
-        previousButton.setText(Config.getString("editor.findpanel.findPrevious") + " ");
-        previousButton.setEnabled(false);
-        previousButton.setFont(findFont);
-
-        nextButton = new JButton();
-        nextButton.addActionListener(this);
-        nextButton.setText(Config.getString("editor.findpanel.findNext"));
-        nextButton.setEnabled(false);
-        nextButton.setFont(findFont);
-
-        if (Config.isMacOS()) {
-            previousButton.putClientProperty("JButton.buttonType", "segmentedTextured");
-            previousButton.putClientProperty("JButton.segmentPosition", "first");
-            nextButton.putClientProperty("JButton.buttonType", "segmentedTextured");
-            nextButton.putClientProperty("JButton.segmentPosition", "last");
-        }
-    }
-
-    /**
-     * Initialise the check case check box
-     */
-    private void setCaseCheckDisplay()
-    {
-        matchCaseCheckBox = new JCheckBox();
-        matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
-        matchCaseCheckBox.setSelected(false);
-        matchCaseCheckBox.setFont(findFont);
-        matchCaseCheckBox.addActionListener(this);
-        if (!Config.isRaspberryPi()) matchCaseCheckBox.setOpaque(false);
+        return 0; //MOEFX
     }
 
     /**
@@ -243,78 +236,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     }
 
     /**
-     * Initialise the close button
-     */
-    private void setCloseDisplay()
-    {
-        closeIconLabel = new JLabel();
-        closeIconLabel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 10));
-        closeIconLabel.setIcon(Config.getFixedImageAsIcon("cross.png"));
-        closeIconLabel.addMouseListener(this);
-    }
-
-    /**
-     * Initialise the buttons and labels for replace functionality
-     */
-    private void setReplaceDisplay()
-    {
-        replaceIconLabel = new JLabel(Config.getString("editor.findpanel.replacePanel"));
-        replaceIconLabel.setFont(findFont);
-        replaceIconLabel.setIcon(closedIcon);
-        replaceIconLabel.addMouseListener(this);
-    }
-
-    /**
-     * Adds the different elements into the display
-     */
-    private void addDisplayElements()
-    {
-        findTextBody.add(findLabelBox);
-        findTextBody.add(findTField);
-
-        if (Config.isMacOS()) {
-            DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
-            if (!Config.isRaspberryPi()) buttonBox.setOpaque(false);
-            buttonBox.add(previousButton);
-            buttonBox.add(nextButton);
-            optionsBody.add(buttonBox);
-        } else {
-            optionsBody.add(previousButton);
-            optionsBody.add(nextButton);
-        }
-
-        closeBody.add(closeIconLabel, BorderLayout.EAST);
-
-        mcBody.add(matchCaseCheckBox);
-        mcBody.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingLarge * 2));
-        mcBody.add(replaceIconLabel);
-
-        findBody.add(findTextBody);
-        findBody.add(optionsBody);
-        findBody.add(mcBody);
-
-        add(findBody, BorderLayout.WEST);
-        add(closeBody, BorderLayout.EAST);
-
-        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "escapeAction");
-        this.getActionMap().put("escapeAction", new AbstractAction()
-        { //$NON-NLS-1$
-
-            public void actionPerformed(ActionEvent e)
-            {
-                close();
-            }
-        });
-
-    }
-
-    /**
      * Performs the required action dependent on source of action event 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
+        /*MOEFX
         JComponent src = (JComponent) e.getSource();
 
         if (src == nextButton || src == findTField) {
@@ -326,6 +253,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             //editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
             find(true);
         }
+        */
     }
 
     /**
@@ -354,15 +282,16 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void findEvent()
     {
-        //MOEFX
-        /*
-        int selBegin = editor.getCurrentTextPane().getSelectionStart();
+        editor.doFind(getSearchString(), matchCaseCheckBox.isSelected(), true, false);
+        /*MOEFX
+        int selBegin = editor.getCurrentTextPane().getCaretPosition();
+        int searchStart = selBegin;
 
         //check there has been a legitimate change in the search criteria            
         if (getSearchString() != null) {
             //previous search had a value and this search is empty
             //need to remove highlighting and have no message
-            if (findTField.getText().length() == 0) {
+            if (findField.getText().length() == 0) {
                 //need to reset the search to the beginning of the last selected
                 editor.removeSearchHighlights();
                 setSearchString(null);
@@ -379,8 +308,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             // the search started.
             editor.getCurrentTextPane().setCaretPosition(searchStart);
         }
-        updateDisplay(found);
-        */
+        updateDisplay(found);*/
     }
 
     /**
@@ -399,7 +327,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
     public String getSearchString()
     {
-        return searchString;
+        return findField.getText();
     }
 
     /**
@@ -408,7 +336,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void setSearchString(String searchString)
     {
-        this.searchString = searchString;
+        this.findField.setText(searchString);
     }
 
     /**
@@ -417,8 +345,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void updateDisplay(boolean enable)
     {
-        previousButton.setEnabled(enable);
-        nextButton.setEnabled(enable);
+        previousButton.setDisable(!enable);
+        nextButton.setDisable(!enable);
         editor.enableReplaceButtons(enable);
     }
 
@@ -430,8 +358,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setFindValues()
     {
+        /*MOEFX
         setSearchString(findTField.getText());
         findTField.requestFocus();
+        */
     }
 
     /**
@@ -532,11 +462,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         return highlightAll(!matchCaseCheckBox.isSelected(), forward);
     }
 
-    public String getSearchTextfield()
-    {
-        return findTField.getText();
-    }
-
     public void changedUpdate(DocumentEvent e)
     {
     }
@@ -554,10 +479,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void removeUpdate(DocumentEvent e)
     {
+        /*MOEFX
         if (findTField.getText().length() == 0) {
             //need to reset the search to the beginning of the last selected
             editor.removeSearchHighlights();
-            editor.removeSelections();
             setSearchString(null);
             if (searchStart != -1) {
                 //MOEFX
@@ -568,13 +493,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         } else {
             findEvent();
         }
+        */
     }
 
-    public void setfindTextField(String selection)
-    {
-        findTField.setText(selection);
-    }
-
+    /*MOEFX
     public void mouseClicked(MouseEvent e)
     {
         JComponent src = (JComponent) e.getSource();
@@ -594,6 +516,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             }
         }
     }
+    */
 
     public void mouseEntered(MouseEvent e)
     {
@@ -611,10 +534,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
     }
 
+    /*MOEFX is this called?
     public void setTextfieldSelected()
+
     {
         findTField.selectAll();
     }
+    */
 
     /**
      * setFindReplaceIcon can set the icon for the replace as being open/closed
@@ -622,11 +548,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     protected void setFindReplaceIcon(boolean open)
     {
+        /*MOEFX
         if (open) {
             replaceIconLabel.setIcon(openIcon);
         } else {
             replaceIconLabel.setIcon(closedIcon);
         }
+        */
     }
 
     /**
@@ -639,24 +567,27 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         this.setVisible(false);
         editor.setReplacePanelVisible(false);
         editor.getCurrentTextPane().requestFocus();
-        replaceIconLabel.setIcon(closedIcon);
+        //MOEFX
+        //replaceIconLabel.setIcon(closedIcon);
     }
 
     /**
      * 
      * @return text field for search text
      */
+    /*MOEFX is this called?
     protected JTextField getFindTField()
     {
         return findTField;
     }
+    */
 
     /**
      * Puts the focus in the find field
      */
     protected void requestFindfieldFocus()
     {
-        findTField.requestFocus();
+        findField.requestFocus();
     }
 
     /**
@@ -664,9 +595,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     protected void populateFindTextfield(String selection)
     {
-        setfindTextField(selection);
-        findTField.selectAll();
-        findTField.requestFocus();
+        findField.setText(selection);
+        findField.selectAll();
+        findField.requestFocus();
     }
 
     /**
@@ -675,28 +606,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     protected void setReplaceEnabled(boolean isEnabled)
     {
+        /*MOEFX
         replaceIconLabel.setEnabled(isEnabled);
         //if it is in documentation view (i.e disabled) the icon should be closed (even though it is disabled)
         if (!isEnabled) {
             setFindReplaceIcon(false);
         }
-    }
-
-    /**
-     * Returns current search location
-     * @return current search location
-     */
-    protected int getSearchStart()
-    {
-        return searchStart;
-    }
-
-    /**
-     * Sets the search location to the specified value
-     * @param searchStart SourceLocation specifying the beginning of the search
-     */
-    protected void setSearchStart(int searchStart)
-    {
-        this.searchStart = searchStart;
+        */
     }
 }

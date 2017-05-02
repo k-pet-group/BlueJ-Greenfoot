@@ -58,3 +58,7 @@
     /* underline height, really: */
     -rtfx-underline-width: 5;
 }
+.moe-find-result {
+    -fx-text-fill: orange;
+    -rtfx-background-color: green;
+}
