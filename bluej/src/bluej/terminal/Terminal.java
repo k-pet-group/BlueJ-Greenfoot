@@ -162,7 +162,8 @@ public final class Terminal
     {
         this.title = WINDOWTITLE + " - " + project.getProjectName();
         this.project = project;
-        initialise();
+        //MOEFX
+        //initialise();
         BlueJEvent.addListener(this);
     }
 

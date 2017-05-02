@@ -128,7 +128,7 @@ public class Main
             Platform.runLater(() -> {
 
                 DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
-                SwingUtilities.invokeLater(() -> processArgs(args));
+                processArgs(args);
             });
         });
         
