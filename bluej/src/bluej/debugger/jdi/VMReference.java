@@ -725,6 +725,7 @@ class VMReference
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
             serverBreakpoint.putProperty(SERVER_SHOW_TERMINAL_ON_INPUT_NAME, "yes");
+            serverBreakpoint.putProperty(Debugger.PERSIST_BREAKPOINT_PROPERTY, "yes");
             serverBreakpoint.enable();
         }
 
