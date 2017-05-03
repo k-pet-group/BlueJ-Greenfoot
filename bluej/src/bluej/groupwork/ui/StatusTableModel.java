@@ -44,8 +44,11 @@ public abstract class StatusTableModel extends AbstractTableModel
     protected final String versionLabel = Config.getString("team.status.version");
 
     protected Project project;
-    protected List<TeamStatusInfo> resources;
     protected String statusLabel;
+    protected List<String> labelsList;
+    protected List<TeamStatusInfo> resources;
+
+    private final int COLUMN_COUNT = 3;
 
     /**
      *
@@ -76,9 +79,26 @@ public abstract class StatusTableModel extends AbstractTableModel
      */
     public int getColumnCount()
     {
-        return 3;
+        return COLUMN_COUNT;
     }
-    
+
+    /**
+     * Return the name of a particular column
+     *
+     * @param col   the column we are naming
+     * @return      a string of the columns name
+     */
+    public String getColumnName(int col)
+    {
+        try {
+            return labelsList.get(col);
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("bad column number in StatusTableModel::getColumnName()");
+        }
+    }
+
+
     /**
      * Indicate that nothing is editable
      */
@@ -111,4 +131,10 @@ public abstract class StatusTableModel extends AbstractTableModel
         resources = statusResources;
         fireTableDataChanged();
     }
+
+    public List<TeamStatusInfo> getResources()
+    {
+        return resources;
+    }
+
 }

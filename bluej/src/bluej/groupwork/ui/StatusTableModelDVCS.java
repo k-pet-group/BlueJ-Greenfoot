@@ -42,24 +42,9 @@ public class StatusTableModelDVCS extends StatusTableModel
     {
         super(project, initialRows);
         statusLabel = Config.getString("team.status.local");
+        labelsList = Arrays.asList(resourceLabel, statusLabel, remoteStatusLabel);
     }
     
-    /**
-     * Return the name of a particular column
-     *
-     * @param col   the column we are naming
-     * @return      a string of the columns name
-     */
-    public String getColumnName(int col)
-    {
-        try {
-            return Arrays.asList(resourceLabel, statusLabel, remoteStatusLabel).get(col);
-        }
-        catch (Exception e) {
-            throw new IllegalArgumentException("bad column number in StatusTableModel::getColumnName()");
-        }
-    }
-
     /**
      * Find the table entry at a particular row and column
      *

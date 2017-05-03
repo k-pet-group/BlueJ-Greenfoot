@@ -25,6 +25,8 @@ import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Project;
 
+import java.util.Arrays;
+
 /**
  * Given a list of StatusEntry(s) returns a table model which allows them to
  * be edited in a JTable.
@@ -41,28 +43,7 @@ public class StatusTableModelNonDVCS extends StatusTableModel
     {
         super(project, initialRows);
         statusLabel = Config.getString("team.status");
-    }
-    
-    /**
-     * Return the name of a particular column
-     *
-     * @param col   the column we are naming
-     * @return      a string of the columns name
-     */
-    public String getColumnName(int col)
-    {
-        switch (col) {
-            case 0:
-                return resourceLabel;
-            case 1:
-                return versionLabel;
-            case 2:
-                return statusLabel;
-            default:
-                break;
-        }
-
-        throw new IllegalArgumentException("bad column number in StatusTableModel::getColumnName()");
+        labelsList = Arrays.asList(resourceLabel, versionLabel, statusLabel);
     }
 
     /**
