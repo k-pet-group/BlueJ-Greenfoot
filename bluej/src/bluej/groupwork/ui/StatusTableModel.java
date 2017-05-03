@@ -21,9 +21,9 @@
  */
 package bluej.groupwork.ui;
 
-import java.util.ArrayList;
 import java.util.List;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javax.swing.table.AbstractTableModel;
 
 import bluej.Config;
@@ -46,7 +46,7 @@ public abstract class StatusTableModel extends AbstractTableModel
     protected Project project;
     protected String statusLabel;
     protected List<String> labelsList;
-    protected List<TeamStatusInfo> resources;
+    protected ObservableList<TeamStatusInfo> resources;
 
     private final int COLUMN_COUNT = 3;
 
@@ -56,7 +56,7 @@ public abstract class StatusTableModel extends AbstractTableModel
     public StatusTableModel(Project project, int initialRows)
     {
         this.project = project;
-        resources = new ArrayList<>();
+        resources = FXCollections.observableArrayList();
         for(int i = 0; i < initialRows; i++) {
             resources.add(new TeamStatusInfo());
         }
@@ -126,15 +126,14 @@ public abstract class StatusTableModel extends AbstractTableModel
         fireTableDataChanged();
     }
     
-    public void setStatusData(List<TeamStatusInfo> statusResources)
+    public void setStatusData(ObservableList<TeamStatusInfo> statusResources)
     {
         resources = statusResources;
         fireTableDataChanged();
     }
 
-    public List<TeamStatusInfo> getResources()
+    public ObservableList<TeamStatusInfo> getResources()
     {
         return resources;
     }
-
 }
