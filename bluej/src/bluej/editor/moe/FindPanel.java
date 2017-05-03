@@ -43,8 +43,12 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
 
 /**
  * The FindPanel class implements the find functionality of the MoeEditor.
@@ -119,6 +123,7 @@ public class FindPanel extends BorderPane
         findField.setOnAction(e -> {
             // TODO MOEFX take on ActionListener
         });
+        Nodes.addInputMap(findField, InputMap.consume(EventPattern.keyPressed(KeyCode.ESCAPE), e -> cancelFind()));
         matchCaseCheckBox = new CheckBox();
         matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
         matchCaseCheckBox.setSelected(false);
@@ -200,6 +205,12 @@ public class FindPanel extends BorderPane
             }
         });
         */
+    }
+
+    private void cancelFind()
+    {
+        findField.clear();
+        setVisible(false);
     }
 
     /*MOEFX
