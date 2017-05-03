@@ -59,6 +59,11 @@
     -rtfx-underline-width: 5;
 }
 .moe-find-result {
-    -fx-text-fill: orange;
     -rtfx-background-color: green;
+}
+.moe-find-result-active {
+    -rtfx-background-color: yellow;
+}
+.moe-find-field:bj-no-find-result {
+    -fx-text-fill: red;
 }

@@ -64,6 +64,7 @@ import bluej.utility.PersistentMarkDocument;
 public class MoeSyntaxDocument
 {
     public static final String MOE_FIND_RESULT = "moe-find-result";
+    public static final String MOE_FIND_RESULT_SPECIAL = "moe-find-result-active";
     /**
      * A RichTextFX document can have paragraph styles, and text-segment styles.
      *
@@ -99,10 +100,16 @@ public class MoeSyntaxDocument
         return new Position(initialPos);
     }
 
-    public void markFindResult(int start, int end)
+    public void markFindResult(int start, int end, boolean specialHighlight)
     {
         hasFindHighlights = true;
-        document.setStyleSpans(start, document.getStyleSpans(start, end).overlay(new StyleSpansBuilder<ImmutableSet<String>>().add(ImmutableSet.of(MOE_FIND_RESULT), end - start).create(), Utility::setUnion));
+        document.setStyleSpans(start, document.getStyleSpans(start, end).mapStyles(ss -> {
+            // Add special/non-special and remove the converse:
+            return Utility.setAdd(
+                Utility.setMinus(ss, specialHighlight ? MOE_FIND_RESULT : MOE_FIND_RESULT_SPECIAL),
+                specialHighlight ? MOE_FIND_RESULT_SPECIAL : MOE_FIND_RESULT);
+
+        }));
     }
 
     public void removeSearchHighlights()
@@ -111,7 +118,7 @@ public class MoeSyntaxDocument
         {
             for (int i = 0; i < document.getParagraphs().size(); i++)
             {
-                document.setStyleSpans(i, 0, document.getStyleSpans(i).mapStyles(ss -> Utility.setMinus(ss, MOE_FIND_RESULT)));
+                document.setStyleSpans(i, 0, document.getStyleSpans(i).mapStyles(ss -> Utility.setMinus(Utility.setMinus(ss, MOE_FIND_RESULT), MOE_FIND_RESULT_SPECIAL)));
             }
             hasFindHighlights = false;
         }

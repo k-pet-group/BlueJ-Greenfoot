@@ -277,7 +277,8 @@ public class PrefMgr
             while (i.hasNext()) {
                 Project project = i.next();
                 if (project.hasTerminal()) {
-                    project.getTerminal().resetFont();
+                    //MOEFX
+                    //project.getTerminal().resetFont();
                 }
             }
             for (PkgMgrFrame frame : frames)

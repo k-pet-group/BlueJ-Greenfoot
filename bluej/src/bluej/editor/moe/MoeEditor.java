@@ -97,11 +97,15 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Worker;
 import javafx.geometry.Bounds;
@@ -283,6 +287,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /** Search highlight tags for both text panes */
     private final List<Object> sourceSearchHighlightTags = new ArrayList<>();
     private final List<Object> htmlSearchHighlightTags = new ArrayList<>();
+    // The most recent active FindNavigator.  Returns null if there has been no search,
+    // or if the document has been modified since the last search.
+    private final ObjectProperty<FindNavigator> currentSearchResult = new SimpleObjectProperty<>(null);
     /**
      * Property map, allows BlueJ extensions to associate property values with
      * this editor instance; otherwise unused.
@@ -1545,6 +1552,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         clearMessage();
         removeSearchHighlights();
+        currentSearchResult.setValue(null);
         errorManager.removeAllErrorHighlights();
         errorManager.documentContentChanged();
         if (!saveState.isChanged()) {
@@ -1807,11 +1815,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         boolean found;
         if (backward){
-            found = doFind(s, ignoreCase, wrap, true);
+            found = doFind(s, ignoreCase) != null;
         }
         else {
             setCaretPositionForward(1);
-            found = doFind(s, ignoreCase, wrap, false);
+            found = doFind(s, ignoreCase) != null;
         }
 
         StringBuilder msg = new StringBuilder(Config.getString("editor.find.find.label") + " ");
@@ -1844,45 +1852,105 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
 
+    public static interface FindNavigator
+    {
+        public void highlightAll();
+        public void highlightNextAsSpecial();
+        public void highlightPrevAsSpecial();
+        public BooleanExpression validProperty();
+    }
+
     /**
-     * Do a find backwards without visible feedback. Returns
-     * false if not found.
+     * Do a find forwards or backwards, and highlight all cases.
+     *
+     * The case after the cursor (if backwards is false) or before it (if
+     * backwards is true) is given a special highlight.
+     *
+     * Returns null if nothing was found.  If something was found, gives
+     * you back a class you can use to cycle between search results.  It
+     * becomes invalid next time doFind is called, or if the document is modified.
      */
-    boolean doFind(String s, boolean ignoreCase, boolean wrap, boolean backwards)
+    FindNavigator doFind(String s, boolean ignoreCase)
     {
         sourceDocument.removeSearchHighlights();
         String content = sourcePane.getText();
 
         int startPosition = sourcePane.getCaretPosition();
-        int curPosition = startPosition + (backwards ? -1 : 0);
+        int curPosition = startPosition;
         boolean finished = false;
-        boolean found = false;
+
+        List<Integer> foundStarts = new ArrayList<>();
+        boolean wrapped = false;
 
         while (!finished)
         {
-            int foundPos = findSubstring(content, s, ignoreCase, backwards, curPosition);
+            int foundPos = findSubstring(content, s, ignoreCase, false, curPosition);
             if (foundPos != -1)
             {
-                sourceDocument.markFindResult(foundPos, foundPos + s.length());
-                curPosition = backwards ? foundPos - 1 : foundPos + s.length();
-                found = true;
+                foundStarts.add(foundPos);
+                curPosition = foundPos + s.length();
             }
-            else if (backwards && curPosition < startPosition && !wrap)
-            {
-                curPosition = sourcePane.getLength();
-                wrap = true;
-            }
-            else if (!backwards && curPosition >= startPosition && !wrap)
+            else if (curPosition >= startPosition && !wrapped)
             {
                 curPosition = 0;
-                wrap = true;
+                wrapped = true;
             }
             else
             {
                 finished = true;
             }
         }
-        return found;
+        currentSearchResult.set(foundStarts.isEmpty() ? null : new FindNavigator()
+        {
+            int prevSpecial = -1;
+            int curHighlight = 0;
+
+            @Override
+            public void highlightAll()
+            {
+                for (Integer foundPos : foundStarts)
+                {
+                    sourceDocument.markFindResult(foundPos, foundPos + s.length(), false);
+                }
+            }
+
+            @Override
+            public void highlightNextAsSpecial()
+            {
+                switchSpecialHighlightToCur();
+                curHighlight = (curHighlight + 1) % foundStarts.size();
+            }
+
+            private void switchSpecialHighlightToCur()
+            {
+                if (prevSpecial != -1)
+                {
+                    int foundPos = foundStarts.get(prevSpecial);
+                    sourceDocument.markFindResult(foundPos, foundPos + s.length(), false);
+                }
+                int foundPos = foundStarts.get(curHighlight);
+                prevSpecial = curHighlight;
+                sourceDocument.markFindResult(foundPos, foundPos + s.length(), true);
+            }
+
+            @Override
+            public void highlightPrevAsSpecial()
+            {
+                switchSpecialHighlightToCur();
+                curHighlight -= 1;
+                if (curHighlight < 0)
+                {
+                    curHighlight = foundStarts.size() - 1;
+                }
+            }
+
+            @Override
+            public BooleanExpression validProperty()
+            {
+                return currentSearchResult.isEqualTo(this);
+            }
+        });
+        return currentSearchResult.get();
     }
 
     // --------------------------------------------------------------------

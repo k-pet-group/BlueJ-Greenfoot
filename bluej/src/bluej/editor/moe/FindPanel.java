@@ -35,6 +35,7 @@ import javax.swing.event.DocumentEvent;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.editor.moe.MoeEditor.FindNavigator;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 import bluej.utility.javafx.JavaFXUtil;
@@ -44,11 +45,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
+
+import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 
 /**
  * The FindPanel class implements the find functionality of the MoeEditor.
@@ -65,6 +69,7 @@ public class FindPanel extends BorderPane
     private final Button previousButton;
     private final Button nextButton;
     private final TextField findField;
+    private FindNavigator currentNavigator;
     /*MOEFX
     private JComponent findBody;
     private DBox findTextBody;
@@ -116,14 +121,11 @@ public class FindPanel extends BorderPane
         findLabelBox.getChildren().add(findLabel);
 
         findField = new TextField();
+        JavaFXUtil.addStyleClass(findField, "moe-find-field");
         JavaFXUtil.addChangeListenerPlatform(findField.textProperty(), search -> {
             //TODO MOEFX take from DocumentListener
             findEvent();
         });
-        findField.setOnAction(e -> {
-            // TODO MOEFX take on ActionListener
-        });
-        Nodes.addInputMap(findField, InputMap.consume(EventPattern.keyPressed(KeyCode.ESCAPE), e -> cancelFind()));
         matchCaseCheckBox = new CheckBox();
         matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
         matchCaseCheckBox.setSelected(false);
@@ -146,10 +148,19 @@ public class FindPanel extends BorderPane
         nextButton = new Button();
         nextButton.setOnAction(e -> {
             //MOEFX take from ActionListener
+            if (currentNavigator != null && currentNavigator.validProperty().get())
+            {
+                currentNavigator.highlightNextAsSpecial();
+            }
         });
         nextButton.setText(Config.getString("editor.findpanel.findNext"));
         nextButton.setDisable(true);
 
+        Nodes.addInputMap(findField, InputMap.sequence(
+            InputMap.consume(EventPattern.keyPressed(KeyCode.ESCAPE), e -> cancelFind()),
+            InputMap.consume(EventPattern.keyPressed(KeyCode.ENTER), e -> nextButton.fire()),
+            InputMap.consume(EventPattern.keyPressed(KeyCode.ENTER, SHIFT_DOWN), e -> previousButton.fire())
+        ));
 
         Label replaceIconLabel = new Label(Config.getString("editor.findpanel.replacePanel"));
         replaceIconLabel.setGraphic(closedIcon);
@@ -293,7 +304,26 @@ public class FindPanel extends BorderPane
      */
     private void findEvent()
     {
-        editor.doFind(getSearchString(), matchCaseCheckBox.isSelected(), true, false);
+        currentNavigator = editor.doFind(getSearchString(), !matchCaseCheckBox.isSelected());
+        previousButton.disableProperty().unbind();
+        nextButton.disableProperty().unbind();
+        if (currentNavigator == null)
+        {
+            // Don't turn us red if the search string is empty:
+            JavaFXUtil.setPseudoclass("bj-no-find-result", !getSearchString().isEmpty(), findField);
+            previousButton.setDisable(true);
+            nextButton.setDisable(true);
+        }
+        else
+        {
+
+            JavaFXUtil.setPseudoclass("bj-no-find-result", false, findField);
+            currentNavigator.highlightAll();
+            previousButton.disableProperty().bind(currentNavigator.validProperty().not());
+            nextButton.disableProperty().bind(currentNavigator.validProperty().not());
+        }
+
+
         /*MOEFX
         int selBegin = editor.getCurrentTextPane().getCaretPosition();
         int searchStart = selBegin;
