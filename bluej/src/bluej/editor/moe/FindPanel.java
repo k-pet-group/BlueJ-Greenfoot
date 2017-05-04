@@ -77,26 +77,6 @@ public class FindPanel extends BorderPane
     private final Button nextButton;
     private final TextField findField;
     private FindNavigator currentNavigator;
-    /*MOEFX
-    private JComponent findBody;
-    private DBox findTextBody;
-    private DBox optionsBody;
-    private JPanel mcBody;
-    private JPanel closeBody;
-    private DBox findLabelBox;
-    private JLabel replaceLabel;
-    private JTextField findTField;
-    private JButton previousButton;
-    private JButton nextButton;
-    private JCheckBox matchCaseCheckBox;
-    private JLabel replaceIconLabel;
-    private JLabel closeIconLabel;
-    private String searchString = "";
-    private static Font findFont;
-    private ImageIcon openIcon;
-    private ImageIcon closedIcon;
-    private int searchStart = -1;
-    */
 
     /**
      * Constructor that creates and displays the different elements of the Find Panel
@@ -130,14 +110,13 @@ public class FindPanel extends BorderPane
         findField = new TextField();
         JavaFXUtil.addStyleClass(findField, "moe-find-field");
         JavaFXUtil.addChangeListenerPlatform(findField.textProperty(), search -> {
-            //TODO MOEFX take from DocumentListener
             findEvent();
         });
         matchCaseCheckBox = new CheckBox();
         matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
         matchCaseCheckBox.setSelected(false);
         JavaFXUtil.addChangeListenerPlatform(matchCaseCheckBox.selectedProperty(), cs -> {
-            // TODO MOEFX take from ActionListener
+            findEvent();
         });
         Label closeIconLabel = new Label();
         closeIconLabel.setGraphic(makeCloseIcon());
@@ -198,19 +177,6 @@ public class FindPanel extends BorderPane
 
         setLeft(findBody);
         setRight(closeBody);
-
-        /*MOEFX
-        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "escapeAction");
-        this.getActionMap().put("escapeAction", new AbstractAction()
-        { //$NON-NLS-1$
-
-            public void actionPerformed(ActionEvent e)
-            {
-                close();
-            }
-        });
-        */
 
         //MOEFX
         /*
@@ -289,27 +255,6 @@ public class FindPanel extends BorderPane
     public boolean getMatchCase()
     {
         return matchCaseCheckBox.isSelected();
-    }
-
-    /**
-     * Performs the required action dependent on source of action event 
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-        /*MOEFX
-        JComponent src = (JComponent) e.getSource();
-
-        if (src == nextButton || src == findTField) {
-            getNext();
-        } else if (src == previousButton) {
-            getPrev();
-        } else if (src == matchCaseCheckBox) {
-            //MOEFX
-            //editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
-            find(true);
-        }
-        */
     }
 
     /**
@@ -412,17 +357,6 @@ public class FindPanel extends BorderPane
     public void setSearchString(String searchString)
     {
         this.findField.setText(searchString);
-    }
-
-    /**
-     * Enable (previous and next) buttons if there is a valid search string.
-     * If not these buttons should be disabled
-     */
-    private void updateDisplay(boolean enable)
-    {
-        previousButton.setDisable(!enable);
-        nextButton.setDisable(!enable);
-        editor.enableReplaceButtons(enable);
     }
 
     /**
