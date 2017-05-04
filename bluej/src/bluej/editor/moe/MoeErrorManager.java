@@ -85,6 +85,7 @@ public class MoeErrorManager
         MoeEditorPane sourcePane = editor.getSourcePane();
         for (ErrorDetails err : errorInfos)
         {
+            //MOEFX this is too fragile if positions change.  We should just remove throughout document.
             sourcePane.setStyleSpans(err.startPos, sourcePane.getStyleSpans(err. startPos, err.endPos).mapStyles(s -> Utility.setMinus(s, MoeEditorPane.ERROR_CLASS)));
             editor.getSourceDocument().setParagraphAttributes(err.startPos, Collections.singletonMap(ParagraphAttribute.ERROR, false));
         }

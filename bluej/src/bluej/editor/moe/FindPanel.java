@@ -182,6 +182,12 @@ public class FindPanel extends BorderPane
                 setCurrentNavigator(currentNavigator.replaceCurrent(replaceField.getText()));
             }
         });
+        replaceAll.setOnAction(e -> {
+            if (currentNavigator.validProperty().get())
+            {
+                currentNavigator.replaceAll(replaceField.getText());
+            }
+        });
 
         replaceOne.disableProperty().bind(findField.textProperty().isEmpty().or(replaceField.textProperty().isEmpty()).or(findResultsFound.not()));
         replaceAll.disableProperty().bind(replaceOne.disableProperty());

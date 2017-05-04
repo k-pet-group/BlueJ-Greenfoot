@@ -1869,6 +1869,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         public void highlightPrevAsSpecial();
         public BooleanExpression validProperty();
         public FindNavigator replaceCurrent(String replacement);
+        public void replaceAll(String replacement);
     }
 
     /**
@@ -1896,7 +1897,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
         while (!finished)
         {
             int foundPos = findSubstring(content, s, ignoreCase, false, curPosition);
-            if (foundPos != -1)
+            // If we've wrapped, don't go past our start position again:
+            if (foundPos != -1 && (!wrapped || foundPos < startPosition))
             {
                 foundStarts.add(foundPos);
                 curPosition = foundPos + s.length();
@@ -1933,6 +1935,15 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 sourceDocument.replace(pos, s.length(), replacement);
                 sourcePane.setCaretPosition(pos + s.length());
                 return doFind(s, ignoreCase);
+            }
+
+            public void replaceAll(String replacement)
+            {
+                // Sort all the found positions in descending order, so we can replace them
+                // in order without affecting the later positions in the list (earlier in file):
+                foundStarts.stream().sorted(Comparator.reverseOrder()).forEach(pos ->
+                    sourceDocument.replace(pos, s.length(), replacement)
+                );
             }
 
             @Override
