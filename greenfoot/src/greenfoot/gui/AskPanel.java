@@ -25,8 +25,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.ActionListener;
-
+import java.awt.event.MouseMotionListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -39,7 +40,7 @@ import javax.swing.JTextField;
  * for an input string, given a prompt string.  Used in the IDE and standalone versions.
  *
  */
-public class AskPanel implements ActionListener
+public class AskPanel implements ActionListener, MouseMotionListener
 {
     private static final Color BACKGROUND = new Color(222, 166, 41);
     private JLabel promptDisplay;
@@ -111,9 +112,10 @@ public class AskPanel implements ActionListener
         answerListener = listener;
         panel.setVisible(true);
         
-        answer.setText("");    
+
         promptDisplay.setText("<html>" + prompt + "</html>");
         answer.requestFocusInWindow();
+        panel.addMouseMotionListener(this);// to keep focus on the textfield even when the mouse cursor moves
     }
     
     /**
@@ -146,5 +148,20 @@ public class AskPanel implements ActionListener
     public JPanel getComponent()
     {
         return panel;
+    }
+
+    /**
+     * implementation  of the interface MouseMotionListener mouseMoved method to keep the focus on the answer textfield the mouse cursor moves
+     */
+    public void mouseMoved(MouseEvent e)
+    {
+      answer.requestFocus();
+    }
+    /**
+     * This is the mouseDragged method of interface MouseMotionListener, not yet implemented!
+     */
+    public void mouseDragged(MouseEvent e)
+    {
+
     }
 }
