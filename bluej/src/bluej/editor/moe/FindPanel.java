@@ -39,6 +39,8 @@ import bluej.editor.moe.MoeEditor.FindNavigator;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -50,6 +52,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -71,12 +74,14 @@ import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
  */
 public class FindPanel extends BorderPane
 {
-    private MoeEditor editor;
+    private final TextField replaceField;
+    private final MoeEditor editor;
     private final CheckBox matchCaseCheckBox;
     private final Button previousButton;
     private final Button nextButton;
     private final TextField findField;
     private FindNavigator currentNavigator;
+    private final BooleanProperty findResultsFound = new SimpleBooleanProperty(false);
 
     /**
      * Constructor that creates and displays the different elements of the Find Panel
@@ -92,8 +97,7 @@ public class FindPanel extends BorderPane
         // Various MoeEditor calls make us invisible; take us out of the layout when that happens
         managedProperty().bind(visibleProperty());
 
-        HBox findBody = new HBox();
-        HBox findTextBody = new HBox();
+        GridPane findBody = new GridPane();
         //prev, next
         HBox optionsBody = new HBox();
         HBox mcBody = new HBox();
@@ -102,10 +106,7 @@ public class FindPanel extends BorderPane
 
         Label findLabel = new Label(Config.getString("editor.findpanel.findLabel"));
 
-        Label replaceLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
-
-        HBox findLabelBox = new HBox();
-        findLabelBox.getChildren().add(findLabel);
+        Label replaceFoldOutLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
 
         findField = new TextField();
         JavaFXUtil.addStyleClass(findField, "moe-find-field");
@@ -130,7 +131,7 @@ public class FindPanel extends BorderPane
             }
         });
         Label prevShortcut = new Label("\u21e7\u23ce");
-        previousButton.setText(Config.getString("editor.findpanel.findPrevious") + " ");
+        previousButton.setText(Config.getString("editor.findpanel.findPrevious"));
         previousButton.setGraphic(prevShortcut);
         previousButton.setDisable(true);
 
@@ -160,9 +161,6 @@ public class FindPanel extends BorderPane
         //MOEFX
         //replaceIconLabel.addMouseListener(this);
 
-        findTextBody.getChildren().add(findLabelBox);
-        findTextBody.getChildren().add(findField);
-
         optionsBody.getChildren().add(previousButton);
         optionsBody.getChildren().add(nextButton);
 
@@ -170,10 +168,34 @@ public class FindPanel extends BorderPane
 
         mcBody.getChildren().add(matchCaseCheckBox);
         mcBody.getChildren().add(replaceIconLabel);
+        mcBody.getChildren().add(replaceFoldOutLabel);
 
-        findBody.getChildren().add(findTextBody);
-        findBody.getChildren().add(optionsBody);
-        findBody.getChildren().add(mcBody);
+        Label replaceLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
+        replaceField = new TextField();
+
+        Button replaceOne = new Button(Config.getString("editor.replacePanel.replaceOnce"));
+        Button replaceAll = new Button(Config.getString("editor.replacePanel.replaceAll"));
+
+        replaceOne.setOnAction(e -> {
+            if (currentNavigator.validProperty().get())
+            {
+                setCurrentNavigator(currentNavigator.replaceCurrent(replaceField.getText()));
+            }
+        });
+
+        replaceOne.disableProperty().bind(findField.textProperty().isEmpty().or(replaceField.textProperty().isEmpty()).or(findResultsFound.not()));
+        replaceAll.disableProperty().bind(replaceOne.disableProperty());
+
+        HBox replaceButtons = new HBox(replaceOne, replaceAll);
+
+        findBody.add(findLabel, 0, 0);
+        findBody.add(findField, 1, 0);
+        findBody.add(optionsBody, 2, 0);
+        findBody.add(mcBody, 3, 0);
+
+        findBody.add(replaceLabel, 0, 1);
+        findBody.add(replaceField, 1, 1);
+        findBody.add(replaceButtons, 2, 1);
 
         setLeft(findBody);
         setRight(closeBody);
@@ -221,6 +243,7 @@ public class FindPanel extends BorderPane
     private void cancelFind()
     {
         findField.clear();
+        replaceField.clear();
         setVisible(false);
     }
 
@@ -283,24 +306,7 @@ public class FindPanel extends BorderPane
      */
     private void findEvent()
     {
-        currentNavigator = editor.doFind(getSearchString(), !matchCaseCheckBox.isSelected());
-        previousButton.disableProperty().unbind();
-        nextButton.disableProperty().unbind();
-        if (currentNavigator == null)
-        {
-            // Don't turn us red if the search string is empty:
-            JavaFXUtil.setPseudoclass("bj-no-find-result", !getSearchString().isEmpty(), findField);
-            previousButton.setDisable(true);
-            nextButton.setDisable(true);
-        }
-        else
-        {
-
-            JavaFXUtil.setPseudoclass("bj-no-find-result", false, findField);
-            currentNavigator.highlightAll();
-            previousButton.disableProperty().bind(currentNavigator.validProperty().not());
-            nextButton.disableProperty().bind(currentNavigator.validProperty().not());
-        }
+        setCurrentNavigator(editor.doFind(getSearchString(), !matchCaseCheckBox.isSelected()));
 
 
         /*MOEFX
@@ -329,6 +335,30 @@ public class FindPanel extends BorderPane
             editor.getCurrentTextPane().setCaretPosition(searchStart);
         }
         updateDisplay(found);*/
+    }
+
+    private void setCurrentNavigator(FindNavigator navigator)
+    {
+        currentNavigator = navigator;
+        previousButton.disableProperty().unbind();
+        nextButton.disableProperty().unbind();
+        if (currentNavigator == null)
+        {
+            // Don't turn us red if the search string is empty:
+            JavaFXUtil.setPseudoclass("bj-no-find-result", !getSearchString().isEmpty(), findField);
+            previousButton.setDisable(true);
+            nextButton.setDisable(true);
+            findResultsFound.set(false);
+        }
+        else
+        {
+
+            JavaFXUtil.setPseudoclass("bj-no-find-result", false, findField);
+            currentNavigator.highlightAll();
+            previousButton.disableProperty().bind(currentNavigator.validProperty().not());
+            nextButton.disableProperty().bind(currentNavigator.validProperty().not());
+            findResultsFound.set(true);
+        }
     }
 
     /**

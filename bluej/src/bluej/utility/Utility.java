@@ -1423,6 +1423,14 @@ public class Utility
         return Sets.difference(set, ImmutableSet.of(item)).immutableCopy();
     }
 
+    /**
+     * Returns the first set, without any items from the second set.
+     */
+    public static <T> ImmutableSet<T> setMinus(ImmutableSet<T> a, ImmutableSet<T> b)
+    {
+        return Sets.difference(a, b).immutableCopy();
+    }
+
     @FunctionalInterface
     public static interface BackgroundRunnable
     {

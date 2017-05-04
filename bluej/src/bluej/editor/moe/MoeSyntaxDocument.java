@@ -34,6 +34,7 @@ import javax.swing.text.Segment;
 
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
+import bluej.editor.moe.Token.TokenType;
 import bluej.utility.Utility;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -118,7 +119,7 @@ public class MoeSyntaxDocument
         {
             for (int i = 0; i < document.getParagraphs().size(); i++)
             {
-                document.setStyleSpans(i, 0, document.getStyleSpans(i).mapStyles(ss -> Utility.setMinus(Utility.setMinus(ss, MOE_FIND_RESULT), MOE_FIND_RESULT_SPECIAL)));
+                document.setStyleSpans(i, 0, document.getStyleSpans(i).mapStyles(ss -> Utility.setMinus(ss, ImmutableSet.of(MOE_FIND_RESULT, MOE_FIND_RESULT_SPECIAL))));
             }
             hasFindHighlights = false;
         }
@@ -393,8 +394,18 @@ public class MoeSyntaxDocument
 
             StyleSpans<ImmutableSet<String>> styleSpans = syntaxView.getTokenStylesFor(i, this);
             if (styleSpans != null)
-                document.setStyleSpans(i, 0, styleSpans);
+            {
+                document.setStyleSpans(i, 0, document.getStyleSpans(i).overlay(styleSpans, MoeSyntaxDocument::setTokenStyles));
+            }
         }
+    }
+
+    /**
+     * Removes any existing token styles from allStyles, then adds them in from newTokenStyle.
+     */
+    private static ImmutableSet<String> setTokenStyles(ImmutableSet<String> allStyles, ImmutableSet<String> newTokenStyle)
+    {
+        return Utility.setUnion(Utility.setMinus(allStyles, TokenType.allCSSClasses()), newTokenStyle);
     }
 
     private void setParagraphStyle(int i, ScopeInfo newStyle)

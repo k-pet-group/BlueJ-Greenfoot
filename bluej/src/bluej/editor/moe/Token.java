@@ -21,8 +21,12 @@
  */
 package bluej.editor.moe;
 
+import com.google.common.collect.ImmutableSet;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * This is a replacement for the Token class from jedit.
@@ -43,6 +47,17 @@ public class Token
         public String getCSSClass()
         {
             return "token-" + name().toLowerCase().replace("_", "-");
+        }
+
+        private static ImmutableSet<String> ALL_CLASSES;
+
+        public static ImmutableSet<String> allCSSClasses()
+        {
+            if (ALL_CLASSES == null)
+            {
+                ALL_CLASSES = ImmutableSet.copyOf(Arrays.stream(values()).map(TokenType::getCSSClass).collect(Collectors.toList()));
+            }
+            return ALL_CLASSES;
         }
     }
     

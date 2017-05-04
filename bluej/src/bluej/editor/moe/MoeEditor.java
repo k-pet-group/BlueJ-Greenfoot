@@ -1868,6 +1868,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         public void highlightNextAsSpecial();
         public void highlightPrevAsSpecial();
         public BooleanExpression validProperty();
+        public FindNavigator replaceCurrent(String replacement);
     }
 
     /**
@@ -1882,7 +1883,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     FindNavigator doFind(String s, boolean ignoreCase)
     {
-        sourceDocument.removeSearchHighlights();
+        removeSearchHighlights();
         String content = sourcePane.getText();
 
         int startPosition = sourcePane.getCaretPosition();
@@ -1923,6 +1924,15 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     sourceDocument.markFindResult(foundPos, foundPos + s.length(), false);
                 }
                 switchSpecialHighlightToCur();
+            }
+
+            @Override
+            public FindNavigator replaceCurrent(String replacement)
+            {
+                int pos = foundStarts.get(curHighlight);
+                sourceDocument.replace(pos, s.length(), replacement);
+                sourcePane.setCaretPosition(pos + s.length());
+                return doFind(s, ignoreCase);
             }
 
             @Override
