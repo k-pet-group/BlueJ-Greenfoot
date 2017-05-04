@@ -446,7 +446,7 @@ public class UpdateAction extends AbstractAction
 
                             ConflictsDialog conflictsDialog = new ConflictsDialog(project,
                                 blueJconflicts, nonBlueJConflicts);
-                            conflictsDialog.setVisible(true);
+                            conflictsDialog.show();
                         }
                     });
                 });
