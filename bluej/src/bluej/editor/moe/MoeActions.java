@@ -101,9 +101,6 @@ public final class MoeActions
     // -------- INSTANCE VARIABLES --------
     private static final IdentityHashMap<MoeEditor, MoeActions> moeActions = new IdentityHashMap<>();
     private final MoeEditor editor;
-    //MOEFX: do we still need to keep reference to these?
-    public FindNextAction findNextAction;
-    public FindNextBackwardAction findNextBackwardAction;
     // frequently needed actions
     public MoeAbstractAction compileOrNextErrorAction;
     public MoeAbstractAction contentAssistAction;
@@ -140,7 +137,8 @@ public final class MoeActions
         updateKeymap();
     }
 
-    private void updateKeymap()
+    // package-visible
+    void updateKeymap()
     {
         if (getTextComponent() != null)
         {
@@ -1064,9 +1062,9 @@ public final class MoeActions
                 cutWordAction(),
                 cutEndOfWordAction(),
 
-                new FindAction(),
-                findNextAction=new FindNextAction(),
-                findNextBackwardAction=new FindNextBackwardAction(),
+                findAction(),
+                findNextAction(),
+                findPrevAction(),
                 replaceAction(),
                 compileOrNextErrorAction,
                 goToLineAction(),
@@ -1886,48 +1884,27 @@ public final class MoeActions
         });
     }
 
-    class FindAction extends MoeAbstractAction
+    private MoeAbstractAction findAction()
     {
-        public FindAction()
-        {
-            super("find", Category.MISC);
-        }
-
-        @Override
-        public void actionPerformed()
-        {
+        return action("find", Category.MISC, () -> {
             //getEditor(e).find();
             MoeEditor editor=getEditor();
             editor.initFindPanel();
-        }
+        });
     }
 
-    public class FindNextAction extends MoeAbstractAction
+    private MoeAbstractAction findNextAction()
     {
-        public FindNextAction()
-        {
-            super("find-next", Category.MISC);
-        }
-
-        @Override
-        public void actionPerformed()
-        {
+        return action("find-next", Category.MISC, () -> {
             getEditor().findNext(false);
-        }
+        });
     }
 
-    public class FindNextBackwardAction extends MoeAbstractAction
+    private MoeAbstractAction findPrevAction()
     {
-        public FindNextBackwardAction()
-        {
-            super("find-next-backward", Category.MISC);
-        }
-
-        @Override
-        public void actionPerformed()
-        {
+        return action("find-next-backward", Category.MISC, () -> {
             getEditor().findNext(true);
-        }
+        });
     }
 
     private MoeAbstractAction replaceAction()

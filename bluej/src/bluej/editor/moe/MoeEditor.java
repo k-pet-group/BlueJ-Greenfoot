@@ -55,6 +55,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -66,10 +67,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -93,21 +90,19 @@ import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.stride.slots.SuggestionList.SuggestionListParent;
 import bluej.stride.slots.SuggestionList.SuggestionShown;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Worker;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -153,8 +148,6 @@ import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
-import bluej.utility.DBox;
-import bluej.utility.DBoxLayout;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -313,6 +306,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
     @OnThread(Tag.FXPlatform)
     private boolean respondingToChange;
+    private String lastSearchString = "";
 
     /**
      * Constructor. Title may be null.
@@ -1768,25 +1762,19 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     public void findNext(boolean backwards)
     {
-        String selection= sourcePane.getSelectedText();
-        if (selection==null){
-            selection=finder.getSearchString();
+        if (currentSearchResult.get() == null || !currentSearchResult.get().validProperty().get())
+        {
+            String search = sourcePane.getSelectedText();
+            if (search.isEmpty())
+                search = lastSearchString;
+            doFind(search, true);
         }
-        //if the find panel is open- next/backwards should function like prev, next
-        //if it is not open, it should do a single find forward or backwards
-        if (finder.isVisible()){
-            finder.setSearchString(selection);
-            if (backwards) {
-                finder.getPrev();
-            }
-            else {
-                finder.getNext();
-            }
-        }
-        else {
-            removeSearchHighlights();
-            removeSelection();
-            findString(selection, backwards, !finder.getMatchCase(), true);
+        if (currentSearchResult.get() != null)
+        {
+            if (backwards)
+                currentSearchResult.get().selectPrev();
+            else
+                currentSearchResult.get().selectNext();
         }
     }
 
@@ -1843,8 +1831,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public static interface FindNavigator
     {
         public void highlightAll();
-        public void highlightNextAsSpecial();
-        public void highlightPrevAsSpecial();
+        public void selectNext();
+        public void selectPrev();
         public BooleanExpression validProperty();
         public FindNavigator replaceCurrent(String replacement);
         public void replaceAll(String replacement);
@@ -1860,31 +1848,24 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * you back a class you can use to cycle between search results.  It
      * becomes invalid next time doFind is called, or if the document is modified.
      */
-    FindNavigator doFind(String s, boolean ignoreCase)
+    FindNavigator doFind(String searchFor, boolean ignoreCase)
     {
         removeSearchHighlights();
+        lastSearchString = searchFor;
         String content = sourcePane.getText();
 
-        int startPosition = sourcePane.getCaretPosition();
-        int curPosition = startPosition;
+        int curPosition = 0;
         boolean finished = false;
 
         List<Integer> foundStarts = new ArrayList<>();
-        boolean wrapped = false;
 
         while (!finished)
         {
-            int foundPos = findSubstring(content, s, ignoreCase, false, curPosition);
-            // If we've wrapped, don't go past our start position again:
-            if (foundPos != -1 && (!wrapped || foundPos < startPosition))
+            int foundPos = findSubstring(content, searchFor, ignoreCase, false, curPosition);
+            if (foundPos != -1)
             {
                 foundStarts.add(foundPos);
-                curPosition = foundPos + s.length();
-            }
-            else if (curPosition >= startPosition && !wrapped)
-            {
-                curPosition = 0;
-                wrapped = true;
+                curPosition = foundPos + searchFor.length();
             }
             else
             {
@@ -1893,26 +1874,26 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         currentSearchResult.set(foundStarts.isEmpty() ? null : new FindNavigator()
         {
-            int prevSpecial = -1;
-            int curHighlight = 0;
-
             @Override
             public void highlightAll()
             {
                 for (Integer foundPos : foundStarts)
                 {
-                    sourceDocument.markFindResult(foundPos, foundPos + s.length(), false);
+                    sourceDocument.markFindResult(foundPos, foundPos + searchFor.length());
                 }
-                switchSpecialHighlightToCur();
             }
 
             @Override
             public FindNavigator replaceCurrent(String replacement)
             {
-                int pos = foundStarts.get(curHighlight);
-                sourceDocument.replace(pos, s.length(), replacement);
-                sourcePane.setCaretPosition(pos + s.length());
-                return doFind(s, ignoreCase);
+                if (!sourcePane.getSelectedText().equals(searchFor))
+                {
+                    selectNext();
+                }
+                int pos = sourcePane.getSelection().getStart();
+                sourceDocument.replace(pos, searchFor.length(), replacement);
+                sourcePane.setCaretPosition(pos + searchFor.length());
+                return doFind(searchFor, ignoreCase);
             }
 
             public void replaceAll(String replacement)
@@ -1920,40 +1901,42 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 // Sort all the found positions in descending order, so we can replace them
                 // in order without affecting the later positions in the list (earlier in file):
                 foundStarts.stream().sorted(Comparator.reverseOrder()).forEach(pos ->
-                    sourceDocument.replace(pos, s.length(), replacement)
+                    sourceDocument.replace(pos, searchFor.length(), replacement)
                 );
             }
 
             @Override
-            public void highlightNextAsSpecial()
+            public void selectNext()
             {
-                curHighlight = (curHighlight + 1) % foundStarts.size();
-                switchSpecialHighlightToCur();
+                if (validProperty().get())
+                {
+                    int selStart = sourcePane.getSelection().getStart();
+                    int position = foundStarts.stream()
+                            .filter(pos -> pos > selStart)
+                            .findFirst()
+                            .orElse(foundStarts.get(0));
+                    select(position);
+                }
             }
 
-            private void switchSpecialHighlightToCur()
+            private void select(int position)
             {
-                if (prevSpecial != -1)
-                {
-                    int foundPos = foundStarts.get(prevSpecial);
-                    sourceDocument.markFindResult(foundPos, foundPos + s.length(), false);
-                }
-                int foundPos = foundStarts.get(curHighlight);
-                prevSpecial = curHighlight;
-                sourceDocument.markFindResult(foundPos, foundPos + s.length(), true);
-                sourcePane.setCaretPosition(foundPos);
+                sourcePane.select(position, position + searchFor.length());
                 sourcePane.requestFollowCaret();
             }
 
             @Override
-            public void highlightPrevAsSpecial()
+            public void selectPrev()
             {
-                curHighlight -= 1;
-                if (curHighlight < 0)
+                if (validProperty().get())
                 {
-                    curHighlight = foundStarts.size() - 1;
+                    int selStart = sourcePane.getSelection().getStart();
+                    int position = Utility.streamReversed(foundStarts)
+                            .filter(pos -> pos < selStart)
+                            .findFirst()
+                            .orElse(foundStarts.get(foundStarts.size() - 1));
+                    select(position);
                 }
-                switchSpecialHighlightToCur();
             }
 
             @Override
@@ -3110,6 +3093,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // create menubar and menus
 
         menubar = createMenuBar();
+        actions.updateKeymap();
         fxMenus.clear();
         menubar.getMenus().forEach(fxMenus::add);
 

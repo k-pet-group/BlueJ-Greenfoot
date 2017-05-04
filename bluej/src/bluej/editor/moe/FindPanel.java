@@ -36,7 +36,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.InnerShadow;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -113,7 +112,7 @@ public class FindPanel extends BorderPane
         previousButton.setOnAction(e -> {
             if (currentNavigator != null && currentNavigator.validProperty().get())
             {
-                currentNavigator.highlightPrevAsSpecial();
+                currentNavigator.selectPrev();
             }
         });
         Label prevShortcut = new Label("\u21e7\u23ce");
@@ -125,7 +124,7 @@ public class FindPanel extends BorderPane
         nextButton.setOnAction(e -> {
             if (currentNavigator != null && currentNavigator.validProperty().get())
             {
-                currentNavigator.highlightNextAsSpecial();
+                currentNavigator.selectNext();
             }
         });
         nextButton.setText(Config.getString("editor.findpanel.findNext"));
@@ -366,6 +365,7 @@ public class FindPanel extends BorderPane
 
             JavaFXUtil.setPseudoclass("bj-no-find-result", false, findField);
             currentNavigator.highlightAll();
+            currentNavigator.selectNext();
             previousButton.disableProperty().bind(currentNavigator.validProperty().not());
             nextButton.disableProperty().bind(currentNavigator.validProperty().not());
             findResultsFound.set(true);

@@ -68,6 +68,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.AbstractButton;
@@ -1429,6 +1430,13 @@ public class Utility
     public static <T> ImmutableSet<T> setMinus(ImmutableSet<T> a, ImmutableSet<T> b)
     {
         return Sets.difference(a, b).immutableCopy();
+    }
+
+    public static <T> Stream<T> streamReversed(List<T> srcList)
+    {
+        // From http://stackoverflow.com/questions/29403614/how-to-get-ordered-stream-from-a-list-in-reverse-order-in-java-8
+        int num = srcList.size() - 1;
+        return IntStream.rangeClosed(0, num).mapToObj(i -> srcList.get(num - i));
     }
 
     @FunctionalInterface
