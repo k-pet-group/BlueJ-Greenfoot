@@ -21,19 +21,9 @@
  */
 package bluej.groupwork.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -46,8 +36,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.groupwork.Repository;
@@ -63,8 +54,6 @@ import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
 
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -72,11 +61,12 @@ import threadchecker.Tag;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
+ * @author Amjad Altadmri
+ *
  */
 public class StatusFrame extends FXCustomizedDialog
 {
     private Project project;
-    private TableView<TeamStatusInfo> statusTable;
     private StatusTableModel statusModel;
     private Button refreshButton;
     private ActivityIndicatorFX progressBar;
@@ -107,10 +97,9 @@ public class StatusFrame extends FXCustomizedDialog
                 new StatusTableModelNonDVCS(project, estimateInitialEntries());
 
         //TODO check the next line
-        statusTable = new TableView<>(statusModel.getResources());
+        TableView<TeamStatusInfo> statusTable = new TableView<>(statusModel.getResources());
         //TODO implements the next line
         // statusTable.getTableHeader().setReorderingAllowed(false);
-
 
 
         //set up custom renderer to colour code status message field
@@ -270,27 +259,14 @@ public class StatusFrame extends FXCustomizedDialog
                     StatusFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, StatusFrame.this.asWindow()));
                 }
                 else {
-                    Collections.sort(resources, new Comparator<TeamStatusInfo>() {
-                        public int compare(TeamStatusInfo arg0, TeamStatusInfo arg1)
-                        {
-                            TeamStatusInfo tsi0 = (TeamStatusInfo) arg0;
-                            TeamStatusInfo tsi1 = (TeamStatusInfo) arg1;
-
-                            return tsi1.getStatus() - tsi0.getStatus();
-                        }
-                    });
+                    resources.sort((info0, info1) -> info1.getStatus() - info0.getStatus());
 
                     TeamViewFilter filter = new TeamViewFilter();
                     // Remove old package files from display
-                    for (Iterator<TeamStatusInfo> iterator = resources.iterator(); iterator.hasNext();) {
-                        TeamStatusInfo info = iterator.next();
-                        if(! filter.accept(info)) {
-                            iterator.remove();
-                        }
-                    }
+                    resources.removeIf(info -> !filter.accept(info));
                     statusModel.setStatusData(resources);
 
-                    Map<File, String> statusMap = new HashMap<File, String>();
+                    Map<File, String> statusMap = new HashMap<>();
 
                     for (TeamStatusInfo s : resources)
                     {
