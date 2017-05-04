@@ -1912,13 +1912,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 {
                     sourceDocument.markFindResult(foundPos, foundPos + s.length(), false);
                 }
+                switchSpecialHighlightToCur();
             }
 
             @Override
             public void highlightNextAsSpecial()
             {
-                switchSpecialHighlightToCur();
                 curHighlight = (curHighlight + 1) % foundStarts.size();
+                switchSpecialHighlightToCur();
             }
 
             private void switchSpecialHighlightToCur()
@@ -1931,17 +1932,19 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 int foundPos = foundStarts.get(curHighlight);
                 prevSpecial = curHighlight;
                 sourceDocument.markFindResult(foundPos, foundPos + s.length(), true);
+                sourcePane.setCaretPosition(foundPos);
+                sourcePane.requestFollowCaret();
             }
 
             @Override
             public void highlightPrevAsSpecial()
             {
-                switchSpecialHighlightToCur();
                 curHighlight -= 1;
                 if (curHighlight < 0)
                 {
                     curHighlight = foundStarts.size() - 1;
                 }
+                switchSpecialHighlightToCur();
             }
 
             @Override

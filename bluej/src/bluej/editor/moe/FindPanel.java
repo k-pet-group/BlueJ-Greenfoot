@@ -140,14 +140,16 @@ public class FindPanel extends BorderPane
 
         previousButton = new Button();
         previousButton.setOnAction(e -> {
-            //MOEFX take from ActionListener
+            if (currentNavigator != null && currentNavigator.validProperty().get())
+            {
+                currentNavigator.highlightPrevAsSpecial();
+            }
         });
         previousButton.setText(Config.getString("editor.findpanel.findPrevious") + " ");
         previousButton.setDisable(true);
 
         nextButton = new Button();
         nextButton.setOnAction(e -> {
-            //MOEFX take from ActionListener
             if (currentNavigator != null && currentNavigator.validProperty().get())
             {
                 currentNavigator.highlightNextAsSpecial();
