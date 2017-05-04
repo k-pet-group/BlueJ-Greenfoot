@@ -39,15 +39,22 @@ import bluej.editor.moe.MoeEditor.FindNavigator;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -133,10 +140,8 @@ public class FindPanel extends BorderPane
             // TODO MOEFX take from ActionListener
         });
         Label closeIconLabel = new Label();
-        // MOEFX: replace this with custom-drawn graphic?
-        closeIconLabel.setGraphic(new ImageView(Config.getFixedImageAsFXImage("cross.png")));
-        // MOEFX
-        //closeIconLabel.addMouseListener(this);
+        closeIconLabel.setGraphic(makeCloseIcon());
+        closeIconLabel.setOnMouseClicked(e -> cancelFind());
 
         previousButton = new Button();
         previousButton.setOnAction(e -> {
@@ -145,7 +150,9 @@ public class FindPanel extends BorderPane
                 currentNavigator.highlightPrevAsSpecial();
             }
         });
+        Label prevShortcut = new Label("\u21e7\u23ce");
         previousButton.setText(Config.getString("editor.findpanel.findPrevious") + " ");
+        previousButton.setGraphic(prevShortcut);
         previousButton.setDisable(true);
 
         nextButton = new Button();
@@ -156,7 +163,12 @@ public class FindPanel extends BorderPane
             }
         });
         nextButton.setText(Config.getString("editor.findpanel.findNext"));
+        Label nextShortcut = new Label("\u23ce");
+        nextButton.setGraphic(nextShortcut);
         nextButton.setDisable(true);
+
+        nextShortcut.visibleProperty().bind(findField.focusedProperty());
+        prevShortcut.visibleProperty().bind(findField.focusedProperty());
 
         Nodes.addInputMap(findField, InputMap.sequence(
             InputMap.consume(EventPattern.keyPressed(KeyCode.ESCAPE), e -> cancelFind()),
@@ -218,6 +230,26 @@ public class FindPanel extends BorderPane
             }
         });
         */
+    }
+
+    private static Node makeCloseIcon()
+    {
+        // Some of this could be moved to CSS, but the size of the circle and lines must be specified in code,
+        // and various display aspects like shadow size and stroke width are dependent on size, so it makes
+        // sense to have it all together in one place:
+        Circle circle = new Circle(10);
+        circle.setEffect(new InnerShadow(BlurType.GAUSSIAN, Color.rgb(128, 128, 128, 0.4), 2, 0.5, 1, 1));
+        circle.setFill(Color.rgb(190, 190, 190, 1.0));
+        Line lineA = new Line(0, 0, 7, 7);
+        lineA.setStrokeWidth(3);
+        lineA.setStroke(Color.rgb(240, 240, 240));
+        Line lineB = new Line(0, 7, 7, 0);
+        lineB.setStrokeWidth(3);
+        lineB.setStroke(Color.rgb(240, 240, 240));
+        StackPane stackPane = new StackPane(circle, lineA, lineB);
+        // Make it a bit easier to click on by using square bounds, not the inner circle:
+        stackPane.setPickOnBounds(true);
+        return stackPane;
     }
 
     private void cancelFind()
