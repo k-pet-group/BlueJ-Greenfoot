@@ -261,7 +261,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     
     // find functionality
     private FindPanel finder;
-    private ReplacePanel replacer;
     private NaviView naviView;              // Navigation view (mini-source view)
     private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the
                                             // editor and navigation view
@@ -1721,39 +1720,18 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     // --------------------------------------------------------------------
-    
-    /**
-     * toggleReplacePanelVisible sets the replace panel editor in/visible
-     * if visible sets the necessary other values
-     */
-    public void toggleReplacePanelVisible()
-    {
-        if (replacer.isVisible() || !finder.isVisible()) {
-            replacer.setVisible(false);
-            return;
-        }
-        replacer.setVisible(true);
-        finder.requestFindfieldFocus();
-    }
 
     /**
      * Opens or close the replace panel (and if opening it, set the focus into
      * the find field).
      */
-    protected void setReplacePanelVisible(boolean visible)
+    protected void showReplacePanel()
     {
-        if (visible) {
-            if (!finder.isVisible()) {
-                finder.setVisible(visible);
-            }
-            replacer.setVisible(visible);
-            finder.requestFindfieldFocus();
-            finder.setFindReplaceIcon(true);
+        if (!finder.isVisible()) {
+            finder.setVisible(true);
         }
-        else {
-            replacer.setVisible(false);
-            finder.setFindReplaceIcon(false);
-        }
+        finder.requestFindfieldFocus();
+        finder.setReplaceEnabled(true);
     }
 
     /**
@@ -2173,38 +2151,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             pageSetupAction.setEnabled(flag);
         }
 
-    }   
-
-    /**
-     * Sets the search start to the beginning of the document/current pos in the
-     * sourcepane; removes all the selections and highlights; resets search string 
-     * and initiates a search (if the find panel is visible)
-     */
-    private void initSearch()
-    {
-        //current caret position may be invalid in the new view
-        //so reset it to the current pos in that pane/0 in the documentation
-        /*MOEFX
-        if (isShowingInterface()){
-            finder.setSearchStart(0);
-        }    
-        else{
-            finder.setSearchStart(getCurrentTextPane().getCaretPosition());
-        }
-        */
-        //reset the search string to null
-        finder.setSearchString(null);
-        //as the search is cleared between switches in the view
-        //there should be no selections/highlights from the previous search
-        removeSearchHighlights();
-        removeSelection();
-        //reset the search and replace strings
-        finder.setSearchString(null);
-        replacer.setReplaceString(null);
-        replacer.populateReplaceField(null);
-        if (finder.isVisible()){
-            initFindPanel();
-        }
     }
 
     /**
@@ -2221,7 +2167,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         watcher.showingInterface(false);
         //MOEFX
         //dividerPanel.endTemporaryHide();
-        initSearch();
     }
 
     /**
@@ -2793,9 +2738,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         int caretPos = sourcePane.getCaretPosition();
         showErrorPopupForCaretPos(caretPos, false);
         
-        // the selection may have changed and therefore need to determine
-        // whether it is logical to have the buttons enabled/disabled
-        enableReplaceButtons();
         if (matchBrackets) {
             doBracketMatch();
         }
@@ -3045,26 +2987,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // create panel for info/status
         bottomArea.setLayout(new BorderLayout(6, 1));
         if (!Config.isRaspberryPi()) bottomArea.setOpaque(false);
-        
-        VBox finderPanel = new VBox();
 
         int smallSpc = BlueJTheme.componentSpacingSmall;
         
         //area for new find functionality
         finder=new FindPanel(this);
         finder.setVisible(false);
-        finderPanel.getChildren().add(finder);
-
-        replacer=new ReplacePanel(this, finder);
-        replacer.setVisible(false);
-        replacer.setBorder(BorderFactory.createEmptyBorder(0, 0, smallSpc, 0));
-        replacer.setAlignmentX(0.0f);
-        if (!Config.isRaspberryPi()) replacer.setOpaque(false);
-        //MOEFX
-        //finderPanel.getChildren().add(replacer);
-
-        //MOEFX
-        //bottomArea.add(finderPanel, BorderLayout.NORTH);
 
         statusArea = new JPanel();
         statusArea.setLayout(new GridLayout(0, 1));
@@ -3086,7 +3014,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         //MOEFX
         //this.add(bottomArea, BorderLayout.SOUTH);
-        setBottom(finderPanel);
+        setBottom(finder);
 
         // create the text document
 
@@ -3415,16 +3343,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public void initFindPanel()
     {
         finder.displayFindPanel(sourcePane.getSelectedText());
-        //functionality for the replace button to be enabled/disabled according to view
-        if (isShowingInterface())
-        {
-            finder.setReplaceEnabled(false);
-            replacer.setVisible(false);
-        }
-        else
-        {
-            finder.setReplaceEnabled(true);
-        }
     }
 
     /**
@@ -3715,31 +3633,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             mcaret.setPersistentHighlight();
         }
         */
-    }
-
-    /**
-     * getFindSearchString() returns the search string in the find panel
-     */
-    protected String getFindSearchString()
-    {
-        return finder.getSearchString();
-    }
-
-    /**
-     * Enables/disables the once and all buttons on the replace panel
-     * @param enable  True to setEnabled; false to disable
-     */
-    protected void enableReplaceButtons(boolean enable)
-    {
-        replacer.enableButtons(enable);
-    }
-
-    /**
-     * Enables/disables the once and all buttons on the replace panel
-     */
-    protected void enableReplaceButtons()
-    {
-        replacer.enableButtons();
     }
 
     public void mouseOverText(MouseOverTextEvent e)

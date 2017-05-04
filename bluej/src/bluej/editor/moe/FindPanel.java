@@ -21,24 +21,12 @@ LICENSE.txt file that accompanied this code.
  */
 package bluej.editor.moe;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Box;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.editor.moe.MoeEditor.FindNavigator;
-import bluej.utility.DBox;
-import bluej.utility.DBoxLayout;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
@@ -50,7 +38,7 @@ import javafx.scene.effect.BlurType;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCombination.Modifier;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -58,6 +46,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -82,16 +71,13 @@ public class FindPanel extends BorderPane
     private final TextField findField;
     private FindNavigator currentNavigator;
     private final BooleanProperty findResultsFound = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty showingReplace;
 
     /**
      * Constructor that creates and displays the different elements of the Find Panel
      */
     public FindPanel(MoeEditor ed)
     {
-        //MOEFX: replace these with our drawing
-        ImageView openIcon = new ImageView(Config.getFixedImageAsFXImage("bluej_arrow_open.gif"));
-        ImageView closedIcon = new ImageView(Config.getFixedImageAsFXImage("bluej_arrow_close.gif"));
-
         editor = ed;
 
         // Various MoeEditor calls make us invisible; take us out of the layout when that happens
@@ -106,7 +92,7 @@ public class FindPanel extends BorderPane
 
         Label findLabel = new Label(Config.getString("editor.findpanel.findLabel"));
 
-        Label replaceFoldOutLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
+        Label replaceFoldOutLabel = new Label(Config.getString("editor.findpanel.replacePanel"));
 
         findField = new TextField();
         JavaFXUtil.addStyleClass(findField, "moe-find-field");
@@ -156,10 +142,17 @@ public class FindPanel extends BorderPane
             InputMap.consume(EventPattern.keyPressed(KeyCode.ENTER, SHIFT_DOWN), e -> previousButton.fire())
         ));
 
-        Label replaceIconLabel = new Label(Config.getString("editor.findpanel.replacePanel"));
-        replaceIconLabel.setGraphic(closedIcon);
-        //MOEFX
-        //replaceIconLabel.addMouseListener(this);
+        showingReplace = new SimpleBooleanProperty(false);
+        Polygon triangle = new Polygon(0, 0, 8, 5, 0, 10);
+        triangle.rotateProperty().bind(Bindings.when(showingReplace).then(90).otherwise(0));
+        replaceFoldOutLabel.setGraphic(triangle);
+        // We must use an event filter on pressed, rather than a handler
+        // on clicked, so that we intercept the click and stop it hitting the
+        // background, which moves focus to the editor.
+        replaceFoldOutLabel.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            showingReplace.set(!showingReplace.get());
+            e.consume();
+        });
 
         optionsBody.getChildren().add(previousButton);
         optionsBody.getChildren().add(nextButton);
@@ -167,11 +160,14 @@ public class FindPanel extends BorderPane
         closeBody.setRight(closeIconLabel);
 
         mcBody.getChildren().add(matchCaseCheckBox);
-        mcBody.getChildren().add(replaceIconLabel);
         mcBody.getChildren().add(replaceFoldOutLabel);
 
         Label replaceLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
         replaceField = new TextField();
+
+        Nodes.addInputMap(replaceField, InputMap.sequence(
+                InputMap.consume(EventPattern.keyPressed(KeyCode.ESCAPE), e -> cancelFind())
+        ));
 
         Button replaceOne = new Button(Config.getString("editor.replacePanel.replaceOnce"));
         Button replaceAll = new Button(Config.getString("editor.replacePanel.replaceAll"));
@@ -189,7 +185,9 @@ public class FindPanel extends BorderPane
             }
         });
 
-        replaceOne.disableProperty().bind(findField.textProperty().isEmpty().or(replaceField.textProperty().isEmpty()).or(findResultsFound.not()));
+        // The find field needs to be filled to do a replace,
+        // but the replace field can be empty (to remove the find string)
+        replaceOne.disableProperty().bind(findField.textProperty().isEmpty().or(findResultsFound.not()));
         replaceAll.disableProperty().bind(replaceOne.disableProperty());
 
         HBox replaceButtons = new HBox(replaceOne, replaceAll);
@@ -202,6 +200,13 @@ public class FindPanel extends BorderPane
         findBody.add(replaceLabel, 0, 1);
         findBody.add(replaceField, 1, 1);
         findBody.add(replaceButtons, 2, 1);
+
+        for (Node n : new Node[] {replaceLabel, replaceField, replaceButtons})
+        {
+            n.visibleProperty().bind(showingReplace);
+            n.managedProperty().bind(n.visibleProperty());
+        }
+
 
         setLeft(findBody);
         setRight(closeBody);
@@ -294,7 +299,7 @@ public class FindPanel extends BorderPane
         //MOEFX
         //editor.getCurrentTextPane().setCaretPosition((editor.getCurrentTextPane().getSelectionStart() + 1));
         find(true);
-        editor.enableReplaceButtons();
+        //editor.enableReplaceButtons();
     }
 
     /**
@@ -303,7 +308,7 @@ public class FindPanel extends BorderPane
     public void getPrev()
     {
         find(false);
-        editor.enableReplaceButtons();
+        //editor.enableReplaceButtons();
     }
 
     /**
@@ -563,21 +568,6 @@ public class FindPanel extends BorderPane
     }
     */
 
-    public void mouseEntered(MouseEvent e)
-    {
-    }
-
-    public void mouseExited(MouseEvent e)
-    {
-    }
-
-    public void mousePressed(MouseEvent e)
-    {
-    }
-
-    public void mouseReleased(MouseEvent e)
-    {
-    }
 
     /*MOEFX is this called?
     public void setTextfieldSelected()
@@ -610,7 +600,6 @@ public class FindPanel extends BorderPane
     {
         editor.removeSearchHighlights();
         this.setVisible(false);
-        editor.setReplacePanelVisible(false);
         editor.getCurrentTextPane().requestFocus();
         //MOEFX
         //replaceIconLabel.setIcon(closedIcon);
@@ -651,12 +640,6 @@ public class FindPanel extends BorderPane
      */
     protected void setReplaceEnabled(boolean isEnabled)
     {
-        /*MOEFX
-        replaceIconLabel.setEnabled(isEnabled);
-        //if it is in documentation view (i.e disabled) the icon should be closed (even though it is disabled)
-        if (!isEnabled) {
-            setFindReplaceIcon(false);
-        }
-        */
+        showingReplace.set(isEnabled);
     }
 }

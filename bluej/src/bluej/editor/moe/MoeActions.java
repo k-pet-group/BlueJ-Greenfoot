@@ -36,15 +36,12 @@ import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.Button;
@@ -1939,7 +1936,7 @@ public final class MoeActions
         {
             MoeEditor editor = getEditor();
             editor.setFindPanelVisible();
-            editor.setReplacePanelVisible(true);
+            editor.showReplacePanel();
             if (editor.getSourcePane().getSelectedText() != null)
             {
                 editor.setFindTextfield(editor.getSourcePane().getSelectedText());
