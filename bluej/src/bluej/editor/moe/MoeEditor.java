@@ -312,6 +312,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FX)
     private final List<Menu> fxMenus = new ArrayList<>();
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
+    @OnThread(Tag.FXPlatform)
+    private boolean respondingToChange;
 
     /**
      * Constructor. Title may be null.
@@ -1536,6 +1538,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void documentContentChanged(boolean singleLineChange, boolean inserted)
     {
+        // Prevent re-entry to this method.  In theory this shouldn't happen as we
+        // shouldn't modify the document in this function.  But it seems like sometimes
+        // the styled changes we make cause RichTextFX to generate a plain text change event:
+        if (respondingToChange)
+            return;
+        respondingToChange = true;
+
         if (!singleLineChange) // For a multi-line change, always compile:
         {
             saveState.setState(StatusLabel.CHANGED);
@@ -1572,6 +1581,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         recordEdit(false);        
         
         scheduleReparseRunner();
+        respondingToChange = false;
     }
 
     // --------------------------------------------------------------------
