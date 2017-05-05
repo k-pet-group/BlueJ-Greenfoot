@@ -88,9 +88,7 @@ public class MoeSyntaxDocument
     private ParsedCUNode parsedNode;
     private EntityResolver parentResolver;
     private NodeTree<ReparseRecord> reparseRecordTree;
-    
-    private MoeDocumentListener listener;
-    
+
     /** Tasks scheduled for when we are not locked */ 
     private Runnable[] scheduledUpdates;
     protected boolean inNotification = false;
@@ -143,23 +141,6 @@ public class MoeSyntaxDocument
         document.setStyleSpans(start, document.getStyleSpans(start, end).mapStyles(ss -> Utility.setAdd(ss, style)));
     }
 
-    private class PendingError
-    {
-        int position;
-        int size;
-        String errCode;
-        
-        PendingError(int position, int size, String errCode)
-        {
-            this.position = position;
-            this.size = size;
-            this.errCode = errCode;
-        }
-    }
-    
-    /** A list of parse errors which have been detected but not yet indicated to the listener. */
-    private List<PendingError> pendingErrors = new LinkedList<PendingError>();
-    
     /*
      * We'll keep track of recent events, to aid in hunting down bugs in the event
      * that we get an unexpected exception. 
@@ -235,16 +216,6 @@ public class MoeSyntaxDocument
         if (parentResolver != null) {
             reparseRecordTree = new NodeTree<ReparseRecord>();
         }
-    }
-    
-    /**
-     * Create an empty MoeSyntaxDocument, which uses the given entity resolver to
-     * resolve symbols, and which sends parser events to the specified listener.
-     */
-    public MoeSyntaxDocument(EntityResolver parentResolver, MoeDocumentListener listener, ScopeColors scopeColors)
-    {
-        this(parentResolver, scopeColors);
-        this.listener = listener;
     }
 
     /**
@@ -480,21 +451,7 @@ public class MoeSyntaxDocument
     public void markSectionParsed(int pos, int size)
     {
         repaintLines(pos, size);
-        
-        // We must first report the range reparsed, and then report and parse errors in the range
-        // to the listener.
-        if (listener != null) {
-            listener.reparsingRange(pos, size);
-            Iterator<PendingError> i = pendingErrors.iterator();
-            while (i.hasNext()) {
-                PendingError pe = i.next();
-                if (pe.position >= pos && pe.position <= pos + size) {
-                    listener.parseError(pe.position, pe.size, pe.errCode);
-                    i.remove();
-                }
-            }
-        }
-        
+
         NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos);
         while (existing != null && existing.getPosition() <= pos) {
             NodeAndPosition<ReparseRecord> next = existing.nextSibling();
@@ -543,9 +500,6 @@ public class MoeSyntaxDocument
      */
     public void parseError(int position, int size, String message)
     {
-        if (listener != null) {
-            pendingErrors.add(new PendingError(position, size, message));
-        }
     }
     
     /**
