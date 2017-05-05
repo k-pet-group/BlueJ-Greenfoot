@@ -1,82 +1,70 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
- 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
- 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
- This file is subject to the Classpath exception as provided in the  
+ This file is part of the BlueJ program.
+ Copyright (C) 1999-2009,2010,2014,2016,2017  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.groupwork.ui;
 
-import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Orientation;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.SwingNodeDialog;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
-import bluej.utility.SwingWorker;
+import bluej.utility.FXWorker;
+import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.FXPlatformSupplier;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A dialog for selecting a module to checkout.
- * 
+ *
  * @author Davin McCall
+ * @author Amjad Altadmri
  */
-public class ModuleSelectDialog extends SwingNodeDialog implements ListSelectionListener
+public class ModuleSelectDialog extends FXCustomizedDialog
 {
     private Repository repository;
-    
-    private ActivityIndicator progressBar;
-    private JTextField moduleField;
-    private JButton okButton;
-    private JList moduleList;
+
+    private ActivityIndicatorFX progressBar;
+    private TextField moduleField;
+    private ListView moduleList;
     private ModuleListerThread worker;
-    
+
     private boolean wasOk;
-    
+
     public ModuleSelectDialog(FXPlatformSupplier<Window> owner, Repository repository)
     {
         super(owner);
@@ -84,9 +72,8 @@ public class ModuleSelectDialog extends SwingNodeDialog implements ListSelection
         setModal(true);
         this.repository = repository;
         buildUI();
-        pack();
     }
-    
+
     /**
      * Get the selected module name, or null if no module was selected
      * (dialog was cancelled).
@@ -100,7 +87,7 @@ public class ModuleSelectDialog extends SwingNodeDialog implements ListSelection
             return null;
         }
     }
-    
+
     /**
      * Start the progress bar. Safe to call from any thread.
      */
@@ -108,7 +95,7 @@ public class ModuleSelectDialog extends SwingNodeDialog implements ListSelection
     {
         progressBar.setRunning(true);
     }
-    
+
     /**
      * Stop the progress bar. Safe to call from any thread.
      */
@@ -116,175 +103,136 @@ public class ModuleSelectDialog extends SwingNodeDialog implements ListSelection
     {
         progressBar.setRunning(false);
     }
-    
-    private void setModuleList(List<String> modules)
+
+    private void setModuleList(ObservableList<String> modules)
     {
-        Object [] listData = modules.toArray();
-        moduleList.setListData(listData);
+        moduleList.setItems(modules);
     }
-    
+
     private void buildUI()
     {
         // Content pane
-        JPanel contentPane = new JPanel();
-        BoxLayout layout = new BoxLayout(contentPane, BoxLayout.Y_AXIS);
-        contentPane.setLayout(layout);    
-        contentPane.setBorder(BlueJTheme.dialogBorder);
+        VBox contentPane = new VBox();
         setContentPane(contentPane);
-        
+
+        moduleField = new TextField();
+        moduleField.setPrefColumnCount(20);
+
         // Module text field
-        Box moduleBox = new Box(BoxLayout.X_AXIS);
-        moduleBox.add(new JLabel(Config.getString("team.moduleselect.label")));
-        moduleBox.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
-        moduleField = new JTextField(20);
-        moduleField.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e)
-            {
-                resetOk();
-            }
-            
-            public void insertUpdate(DocumentEvent e)
-            {
-                resetOk();
-            }
-            
-            public void removeUpdate(DocumentEvent e)
-            {
-                resetOk();
-            }
-            
-            public void resetOk()
-            {
-                okButton.setEnabled(moduleField.getText().length() != 0);
-            }
-        });
-        moduleBox.add(moduleField);
-        addXAligned(contentPane, moduleBox, 0.0f);
-        contentPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        
-        addXAligned(contentPane, new JSeparator(), 0.0f);
-        contentPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        HBox moduleBox = new HBox();
+        moduleBox.getChildren().addAll(new Label(Config.getString("team.moduleselect.label")),
+                new Separator(Orientation.HORIZONTAL), moduleField);
+
+        contentPane.getChildren().addAll(moduleBox,
+                new Separator(Orientation.VERTICAL),
+                new Separator(),
+                new Separator(Orientation.VERTICAL),
+                new Label(Config.getString("team.moduleselect.available")));
 
         // Modules list
-        addXAligned(contentPane, new JLabel(Config.getString("team.moduleselect.available")), 0f);
-        
-        Box moduleListBox = new Box(BoxLayout.X_AXIS);
-        moduleList = new JList();
-        moduleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        moduleList.getSelectionModel().addListSelectionListener(this);
-        moduleList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e)
-            {
-                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-                    int index = moduleList.locationToIndex(e.getPoint());
-                    if (index != -1) {
-                        wasOk = true;
-                        dispose();
-                    }
-                }
-            }
-        });
-        moduleList.setAlignmentY(0f);
-        JScrollPane moduleListSP = new JScrollPane(moduleList);
-        moduleListSP.setAlignmentY(0f);
-        moduleListBox.add(moduleListSP);
-        moduleListBox.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
-        final JButton listButton = new JButton(Config.getString("team.moduleselect.show"));
-        listButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                listButton.setEnabled(false);
-                startProgressBar();
-                worker = new ModuleListerThread();
-                worker.start();
-            }
-        });
-        listButton.setAlignmentY(0f);
-        moduleListBox.add(listButton);
-        
-        addXAligned(contentPane, moduleListBox, 0f);
+        HBox moduleListBox = new HBox();
+        moduleList = new ListView();
 
-        contentPane.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
-        
-        // Button box
-        Box buttonBox = new Box(BoxLayout.X_AXIS);
-        progressBar = new ActivityIndicator();
-        buttonBox.add(progressBar);
-        buttonBox.add(Box.createHorizontalGlue());
-        addXAligned(contentPane, buttonBox, 0.0f);
-        
-        // Ok button
-        buttonBox.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
-        okButton = BlueJTheme.getOkButton();
-        setDefaultButton(okButton);
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                wasOk = true;
-                dispose();
-            }
-        });
-        okButton.setEnabled(false);
-        buttonBox.add(okButton);
-        
-        // Cancel button
-        buttonBox.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
-        JButton cancelButton = BlueJTheme.getCancelButton();
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                if (worker != null) {
-                    worker.cancel();
+        /*moduleList.setSelectionMode(ObservableList.SINGLE_SELECTION);
+        moduleList.getSelectionModel().addListSelectionListener(
+                // ---- ListSelectionListener interface ----
+
+        public void valueChanged(ListSelectionEvent e)
+        {
+            if (! e.getValueIsAdjusting()) {
+                int selected = moduleList.getSelectedIndex();
+                if (selected != -1) {
+                    String module = moduleList.getModel().getElementAt(selected).toString();
+                    moduleField.setText(module);
                 }
-                dispose();
-            }
-        });
-        buttonBox.add(cancelButton);
-    }
-    
-    private void addXAligned(Container parent, JComponent child, float alignment)
-    {
-        child.setAlignmentX(alignment);
-        parent.add(child);
-    }
-    
-    // ---- ListSelectionListener interface ----
-    
-    public void valueChanged(ListSelectionEvent e)
-    {
-        if (! e.getValueIsAdjusting()) {
-            int selected = moduleList.getSelectedIndex();
-            if (selected != -1) {
-                String module = moduleList.getModel().getElementAt(selected).toString();
-                moduleField.setText(module);
             }
         }
+        );
+        */
+
+        moduleList.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+//                int index = moduleList.getlocationToIndex(event.getSource());
+//                int index = moduleList.getEditingIndex();??
+                if (moduleList.getItems().contains(event.getSource())) {
+                    wasOk = true;
+                    hide();
+                }
+            }
+        });
+
+        ScrollPane moduleListSP = new ScrollPane(moduleList);
+        final Button listButton = new Button(Config.getString("team.moduleselect.show"));
+        listButton.setOnAction(event -> {
+            listButton.setDisable(true);
+            startProgressBar();
+            worker = new ModuleListerThread();
+            worker.start();
+        });
+        moduleListBox.getChildren().addAll(moduleListSP,
+                new Separator(Orientation.HORIZONTAL),
+                listButton);
+
+        contentPane.getChildren().addAll(moduleListBox, new Separator(Orientation.VERTICAL));
+
+        // Button box
+        HBox buttonBox = new HBox();
+        progressBar = new ActivityIndicatorFX();
+        buttonBox.getChildren().add(progressBar);
+//        buttonBox.getChildren().add(Box.createHorizontalGlue());//
+        buttonBox.getChildren().add(new Separator(Orientation.HORIZONTAL));
+
+        contentPane.getChildren().addAll(buttonBox);
+
+        // Ok button
+        buttonBox.getChildren().add(new Separator(Orientation.HORIZONTAL));
+
+        Button okButton = new Button();
+        okButton.requestFocus();
+        okButton.disableProperty().bind(moduleField.textProperty().isEmpty());
+        okButton.setOnAction(event -> {
+            wasOk = true;
+            hide();
+        });
+        okButton.setDisable(true);
+        buttonBox.getChildren().add(okButton);
+
+        // Cancel button
+        buttonBox.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        Button cancelButton = new Button(); //BlueJTheme.getCancelButton();
+        cancelButton.setOnAction(event -> {
+            if (worker != null) {
+                worker.cancel();
+            }
+            hide();
+        });
+         buttonBox.getChildren().add(cancelButton);
     }
-    
+
     /**
      * A thread to find the available modules in the background.
-     * 
+     *
      * @author Davin McCall
      */
-    private class ModuleListerThread extends SwingWorker
+    private class ModuleListerThread extends FXWorker
     {
         private TeamworkCommand command;
         private TeamworkCommandResult result;
-        private List<String> modules;
-        
+        private ObservableList<String> modules;
+
         public ModuleListerThread()
         {
-            modules = new ArrayList<String>();
+            modules = FXCollections.observableArrayList();
             command = repository.getModules(modules);
         }
-        
+
         @OnThread(Tag.Unique)
         public Object construct()
         {
             result = command.getResult();
             return result;
         }
-        
+
         public void finished()
         {
             stopProgressBar();
@@ -297,7 +245,7 @@ public class ModuleSelectDialog extends SwingNodeDialog implements ListSelection
                 }
             }
         }
-        
+
         public void cancel()
         {
             if (command != null) {
