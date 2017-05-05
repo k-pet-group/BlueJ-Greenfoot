@@ -111,8 +111,7 @@ public class AskPanel implements ActionListener, MouseMotionListener
     {
         answerListener = listener;
         panel.setVisible(true);
-        
-
+        answer.setText("");
         promptDisplay.setText("<html>" + prompt + "</html>");
         answer.requestFocusInWindow();
         panel.addMouseMotionListener(this);// to keep focus on the textfield even when the mouse cursor moves
@@ -150,18 +149,13 @@ public class AskPanel implements ActionListener, MouseMotionListener
         return panel;
     }
 
-    /**
-     * implementation  of the interface MouseMotionListener mouseMoved method to keep the focus on the answer textfield the mouse cursor moves
-     */
+    @Override
     public void mouseMoved(MouseEvent e)
     {
       answer.requestFocus();
     }
-    /**
-     * This is the mouseDragged method of interface MouseMotionListener, not yet implemented!
-     */
-    public void mouseDragged(MouseEvent e)
-    {
 
-    }
+    @Override
+    public void mouseDragged(MouseEvent e){}
+
 }
