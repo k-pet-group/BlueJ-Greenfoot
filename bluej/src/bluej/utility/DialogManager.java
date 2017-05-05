@@ -22,7 +22,6 @@
 package bluej.utility;
 
 import java.awt.Component;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
@@ -36,11 +35,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 
 import bluej.utility.javafx.SwingNodeDialog;
@@ -459,10 +454,9 @@ public class DialogManager
         centreWindow(dialog, (Window)dialog.getParent());
     }
 
-    public static void centreDialog(SwingNodeDialog dialog)
-    {
-        
-    }
+    public static void centreDialog(SwingNodeDialog dialog) { }
+
+    public static void centreDialog(Dialog dialog) { }
 
 
     /**
