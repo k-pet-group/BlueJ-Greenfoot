@@ -244,7 +244,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private MoeActions actions;
     private MoeEditorPane sourcePane;         // the component holding the source text
     private WebView htmlPane;           // the component holding the javadoc html
-    private MoeCaret moeCaret;
     private Info info;                      // the info number label
     private JPanel statusArea;              // the status area
     private StatusLabel saveState;          // the status label
@@ -843,7 +842,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         sourcePane.setCaretPosition(pos);
         sourcePane.moveCaretPosition(line.getEndOffset() - 1);  // w/o line break
-        moeCaret.setPersistentHighlight();
+        //MOEFX I think highlight is persistent in RichTextFX anyway?
+        //moeCaret.setPersistentHighlight();
 
         // display the message
         info.messageImportant(message);
@@ -3045,7 +3045,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         sourcePane = sourceDocument.makeEditorPane(this, compiledProperty);
         sourcePane.setCaretPosition(0);
         sourcePane.setUndoManager(undoManager);
-        moeCaret = new MoeCaret(this);
         JavaFXUtil.addChangeListenerPlatform(sourcePane.caretPositionProperty(), e -> caretMoved());
         JavaFXUtil.addChangeListenerPlatform(sourcePane.estimatedScrollYProperty(), d -> {
             // The caret won't have actually moved within the document,
