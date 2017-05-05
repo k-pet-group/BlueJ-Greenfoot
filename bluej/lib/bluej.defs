@@ -408,17 +408,6 @@ bluej.editor.codecompletion=true
 bluej.testing.showtools=false
 bluej.teamwork.showtools=false
 
-#######################################################################
-### Colours. All are specified as RGB values.
-#######################################################################
-
-#colour for selections (in text and otherwise)
-colour.selection=233,225,0
-colour.selection2=255,250,0
-
-#colour for highlights (in text editor)
-colour.highlight=180,220,255
-colour.highlight2=110,190,255
 
 #####################################################################
 ## Compiler options. 

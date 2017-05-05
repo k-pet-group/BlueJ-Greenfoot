@@ -181,13 +181,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
     final static String versionString = "3.3.0";
 
     // colours
-    //MOEFX move to CSS
-    final static Color cursorColor = new Color(255, 0, 100);                 // cursor
-
     final static Color infoColor = new Color(240, 240, 240);
     final static Color lightGrey = new Color(224, 224, 224);
-    //MOEFX move to CSS
-    final static Color selectionColour = Config.getSelectionColour();
     final static Color envOpColour = Config.ENV_COLOUR;
     // suffixes for resources
     final static String LabelSuffix = "Label";
@@ -204,10 +199,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // Fonts
     private static final int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
     private static final Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
-    private static final AdvancedHighlightPainter searchHighlightPainter =
-        new MoeBorderHighlighterPainter(highlightBorderColor, Config.getHighlightColour(),
-                Config.getHighlightColour2(), Config.getSelectionColour2(),
-                Config.getSelectionColour());
 
     // -------- CLASS VARIABLES --------
     private static boolean matchBrackets = false;

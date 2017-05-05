@@ -1575,50 +1575,6 @@ public final class Config
     }
 
     /**
-     * Return a color value for selections.
-     */
-    public static Color getSelectionColour()
-    {
-        if(selectionColour == null) {
-            selectionColour = Config.getItemColour("colour.selection");
-        }
-        return selectionColour;
-    }
-
-    /**
-     * Return the second (gradient) color value for selections.
-     */
-    public static Color getSelectionColour2()
-    {
-        if(selectionColour2 == null) {
-            selectionColour2 = Config.getItemColour("colour.selection2");
-        }
-        return selectionColour2;
-    }
-
-    /**
-     * Return a color value for selections.
-     */
-    public static Color getHighlightColour()
-    {
-        if(highlightColour == null) {
-            highlightColour = Config.getItemColour("colour.highlight");
-        }
-        return highlightColour;
-    }
-
-    /**
-     * Return the second (gradient) color value for selections.
-     */
-    public static Color getHighlightColour2()
-    {
-        if(highlightColour2 == null) {
-            highlightColour2 = Config.getItemColour("colour.highlight2");
-        }
-        return highlightColour2;
-    }
-    
-    /**
      * Get a font from a specified property, using the given default font name and
      * the given size. Font name can end with "-bold" to indicate bold style.
      */
