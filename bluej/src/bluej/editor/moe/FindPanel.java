@@ -124,7 +124,7 @@ public class FindPanel extends BorderPane
         nextButton.setOnAction(e -> {
             if (currentNavigator != null && currentNavigator.validProperty().get())
             {
-                currentNavigator.selectNext();
+                currentNavigator.selectNext(false);
             }
         });
         nextButton.setText(Config.getString("editor.findpanel.findNext"));
@@ -365,7 +365,7 @@ public class FindPanel extends BorderPane
 
             JavaFXUtil.setPseudoclass("bj-no-find-result", false, findField);
             currentNavigator.highlightAll();
-            currentNavigator.selectNext();
+            currentNavigator.selectNext(true);
             previousButton.disableProperty().bind(currentNavigator.validProperty().not());
             nextButton.disableProperty().bind(currentNavigator.validProperty().not());
             findResultsFound.set(true);

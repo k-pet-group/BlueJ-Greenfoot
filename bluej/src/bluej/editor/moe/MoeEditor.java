@@ -1774,7 +1774,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             if (backwards)
                 currentSearchResult.get().selectPrev();
             else
-                currentSearchResult.get().selectNext();
+                currentSearchResult.get().selectNext(false);
         }
     }
 
@@ -1831,7 +1831,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public static interface FindNavigator
     {
         public void highlightAll();
-        public void selectNext();
+        public void selectNext(boolean canBeAtCurrentPos);
         public void selectPrev();
         public BooleanExpression validProperty();
         public FindNavigator replaceCurrent(String replacement);
@@ -1888,7 +1888,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             {
                 if (!sourcePane.getSelectedText().equals(searchFor))
                 {
-                    selectNext();
+                    selectNext(true);
                 }
                 int pos = sourcePane.getSelection().getStart();
                 sourceDocument.replace(pos, searchFor.length(), replacement);
@@ -1906,13 +1906,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
 
             @Override
-            public void selectNext()
+            public void selectNext(boolean canBeAtCurrentPos)
             {
                 if (validProperty().get())
                 {
                     int selStart = sourcePane.getSelection().getStart();
                     int position = foundStarts.stream()
-                            .filter(pos -> pos > selStart)
+                            .filter(pos -> pos > selStart || (canBeAtCurrentPos && pos == selStart))
                             .findFirst()
                             .orElse(foundStarts.get(0));
                     select(position);
