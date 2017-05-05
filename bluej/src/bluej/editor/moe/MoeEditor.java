@@ -61,7 +61,6 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -259,7 +258,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the
                                             // editor and navigation view
     private MenuBar menubar;
-    private JPopupMenu popup;               // Popup menu options
     private String filename;                // name of file or null
     private long lastModified;              // time of last modification of file
     private String windowTitle;             // title of editor window
@@ -2970,11 +2968,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
         setTop(new BorderPane(null, null, createInterfaceSelector(), null, toolbar));
         
         //add popup menu
-        //MOEFX
-        //popup= createPopupMenu();
+        sourcePane.setContextMenu(createPopupMenu());
 
         // add event listener to handle the window close requests
 
+        //MOEFX (or was this already commented out?)
         /*
         addWindowListener(new WindowAdapter() {
             @Override
@@ -3021,31 +3019,28 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /**
      * Create the pop up menu bar
      */
-    /*MOEFX
-    private JPopupMenu createPopupMenu()
+    private ContextMenu createPopupMenu()
     {
-        JMenuItem menuItem;
-        MoeAbstractAction action;
-        String label;
-        String actionName;
-        popup = new JPopupMenu();
+        ContextMenu popup = new ContextMenu();
         String [] popupKeys="cut copy paste".split(" ");
         for (String popupKey : popupKeys) {
-            label = Config.getString("editor." + popupKey + LabelSuffix);
-            actionName = getResource(popupKey + ActionSuffix);
-            action = actions.getActionByName(actionName);
-            if (action == null) {
+            String label = Config.getString("editor." + popupKey + LabelSuffix);
+            String actionName = getResource(popupKey + ActionSuffix);
+            MoeAbstractAction action = actions.getActionByName(actionName);
+            if (action == null)
+            {
                 Debug.message("Moe: cannot find action " + popupKey);
-            } else {
-                menuItem = action.makeMenuItem();
+            }
+            else
+            {
+                MenuItem menuItem = action.makeContextMenuItem();
                 menuItem.setText(label);
-                popup.add(menuItem);
+                popup.getItems().add(menuItem);
             }
         }      
         return popup;
 
     }
-*/
 
 
 
@@ -3494,16 +3489,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         if (caretPos != mouseCaretPos)
         {
             showErrorPopupForCaretPos(caretPos, true);
-        }
-    }
-
-    /**
-     * Displays the popup menu, if triggered by the given mouse event
-     */
-    private void showPopup(MouseEvent e)
-    {
-        if (e.isPopupTrigger()) {
-            popup.show(e.getComponent(), e.getX(), e.getY());
         }
     }
 

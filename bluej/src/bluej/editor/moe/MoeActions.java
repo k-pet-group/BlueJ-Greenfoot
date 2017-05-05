@@ -1208,11 +1208,20 @@ public final class MoeActions
          */
         public MenuItem makeMenuItem()
         {
+            MenuItem menuItem = makeContextMenuItem();
             hasMenuItem = true;
+            menuItem.acceleratorProperty().bind(accelerator);
+            return menuItem;
+        }
+
+        /**
+         * Makes a MenuItem which will run this action, but without an accelerator.
+         */
+        public MenuItem makeContextMenuItem()
+        {
             MenuItem menuItem = new MenuItem(name);
             menuItem.disableProperty().bind(disabled);
             menuItem.setOnAction(e -> actionPerformed());
-            menuItem.acceleratorProperty().bind(accelerator);
             return menuItem;
         }
 
