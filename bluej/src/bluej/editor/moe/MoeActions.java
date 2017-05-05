@@ -93,10 +93,7 @@ public final class MoeActions
     private static final String spaces = "                                        ";
     private static final char TAB_CHAR = '\t';
     private static Modifier SHORTCUT_MASK = KeyCombination.SHORTCUT_DOWN;
-    private static int ALT_SHORTCUT_MASK;
     private static Modifier[] SHIFT_SHORTCUT_MASK = { KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN};
-    private static int SHIFT_ALT_SHORTCUT_MASK;
-    private static int DOUBLE_SHORTCUT_MASK; // two masks (ie. CTRL + META)
 
     // -------- INSTANCE VARIABLES --------
     private static final IdentityHashMap<MoeEditor, MoeActions> moeActions = new IdentityHashMap<>();
@@ -107,7 +104,6 @@ public final class MoeActions
     private HashMap<String, MoeAbstractAction> actions; // All of the actions in a hash-map by their name
     private final ObservableMap<KeyCodeCombination, MoeAbstractAction> keymap = FXCollections.observableHashMap();
     private org.fxmisc.wellbehaved.event.InputMap<javafx.scene.input.KeyEvent> curKeymap; // the editor's keymap
-    //MOEFX private final KeyCatcher keyCatcher;
     private boolean lastActionWasCut; // true if last action was a cut action
     private MoeAbstractAction[] overrideActions;
 
@@ -115,20 +111,7 @@ public final class MoeActions
     {
         this.editor = editor;
         // sort out modifier keys...
-
-        /*MOEFX
-        if (SHORTCUT_MASK == Event.CTRL_MASK)
-            ALT_SHORTCUT_MASK = Event.META_MASK; // alternate (second) modifier
-        else
-            ALT_SHORTCUT_MASK = Event.CTRL_MASK;
-
-        SHIFT_SHORTCUT_MASK = SHORTCUT_MASK + Event.SHIFT_MASK;
-        SHIFT_ALT_SHORTCUT_MASK = Event.SHIFT_MASK + ALT_SHORTCUT_MASK;
-        DOUBLE_SHORTCUT_MASK = SHORTCUT_MASK + ALT_SHORTCUT_MASK;
-        */
         createActionTable(editor);
-        //MOEFX
-        //keyCatcher = new KeyCatcher();
         if (!load())
             setDefaultKeyBindings();
         lastActionWasCut = false;
@@ -443,10 +426,10 @@ public final class MoeActions
 
         // Only select the lines afterwards if there was a selection beforehand:
         if (selectionStart != selectionEnd)
-        {
+        {/*
             editor.setSelection(firstLineIndex + 1, 1,
             text.getElement(lastLineIndex).getEndOffset()
-                - text.getElement(firstLineIndex).getStartOffset());
+                - text.getElement(firstLineIndex).getStartOffset());*/
         }
 
         editor.setCaretActive(true);
@@ -455,49 +438,6 @@ public final class MoeActions
     private static String getNodeContents(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
         return doc.getText(nap.getPosition(), nap.getSize());
-    }
-
-    // ============================ USER ACTIONS =============================
-
-    public void setPasteEnabled(boolean enabled)
-    {
-        //MOEFX
-        //actions.get(DefaultEditorKit.pasteAction).setEnabled(enabled);
-    }
-
-    // === File: ===
-    // --------------------------------------------------------------------
-
-
-    // --------------------------------------------------------------------
-    //MOEFX
-/*
-    public FindNextAction getFindNextAction()
-    {
-        return findNextAction;
-    }
-
-    // --------------------------------------------------------------------
-
-    public FindNextBackwardAction getFindNextBackwardAction()
-    {
-        return findNextBackwardAction;
-    }
-*/
-    // --------------------------------------------------------------------
-
-    /**
-     * Allow the enabling/disabling of an action.
-     * @param action  String representing name of action
-     * @param flag  true to enable action from menu.
-     */
-
-    public void enableAction(String action, boolean flag)
-    {
-        MoeAbstractAction moeAction = getActionByName(action);
-        if (moeAction != null) {
-            moeAction.setEnabled(flag);
-        }
     }
 
     // --------------------------------------------------------------------
@@ -973,39 +913,30 @@ public final class MoeActions
      */
     private static int convertTabsToSpaces(MoeEditor editor)
     {
-        /*MOEFX
         int count = 0;
         int lineNo = 0;
-        AbstractDocument doc = (AbstractDocument) textPane.getDocument();
-        //MOEFX
-        Element root = null;//doc.getDefaultRootElement();
+        MoeSyntaxDocument doc = editor.getSourceDocument();
+        Element root = doc.getDefaultRootElement();
         Element line = root.getElement(lineNo);
-        try {
-            while (line != null) {
-                int start = line.getStartOffset();
-                int length = line.getEndOffset() - start;
-                String text = doc.getText(start, length);
-                int startCount = count;
-                int tabIndex = text.indexOf('\t');
-                while (tabIndex != -1) {
-                    text = expandTab(text, tabIndex);
-                    count++;
-                    tabIndex = text.indexOf('\t');
-                }
-                if (count != startCount) { // there was a TAB in this line...
-                    doc.remove(start, length);
-                    doc.insertString(start, text, null);
-                }
-                lineNo++;
-                line = root.getElement(lineNo);
+        while (line != null) {
+            int start = line.getStartOffset();
+            int length = line.getEndOffset() - start;
+            String text = doc.getText(start, length);
+            int startCount = count;
+            int tabIndex = text.indexOf('\t');
+            while (tabIndex != -1) {
+                text = expandTab(text, tabIndex);
+                count++;
+                tabIndex = text.indexOf('\t');
             }
-        }
-        catch (BadLocationException exc) {
-            throw new RuntimeException(exc);
+            if (count != startCount) { // there was a TAB in this line...
+                doc.remove(start, length);
+                doc.insertString(start, text, null);
+            }
+            lineNo++;
+            line = root.getElement(lineNo);
         }
         return count;
-        */
-        return 0;
     }
 
     // --------------------------------------------------------------------
@@ -1073,8 +1004,6 @@ public final class MoeActions
 
                 keyBindingsAction(),
                 preferencesAction(),
-
-                describeKeyAction(),
 
                 increaseFontAction(),
                 decreaseFontAction(),
@@ -1556,12 +1485,10 @@ public final class MoeActions
                 }
 
                 if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
-                    //MOEFX
-                    //doIndent(textPane, false);
+                    doIndent(ed.getCurrentTextPane(), false);
                 }
                 else {
-                    //MOEFX
-                    //insertSpacedTab(textPane);
+                    insertSpacedTab(ed.getCurrentTextPane());
                 }
 
                 if (converted > 0) {
@@ -1591,8 +1518,7 @@ public final class MoeActions
                     if (converted > 0)
                         ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
                 }
-                //MOEFX
-                //doDeIndent(textPane);
+                doDeIndent(ed.getCurrentTextPane());
             }
         });
     }
@@ -1956,21 +1882,6 @@ public final class MoeActions
         return action("preferences", Category.MISC, () -> PrefMgrDialog.showDialog(0)); // 0 is the index of the editor pane in the pref dialog
     }
 
-    // --------------------------------------------------------------------
-
-    private MoeAbstractAction describeKeyAction()
-    {
-        return action("describe-key", Category.MISC, () -> {
-            /*MOEFX
-            JTextComponent textComponent = getTextComponent(e);
-            textComponent.addKeyListener(keyCatcher);
-            MoeEditor ed = getEditor();
-            keyCatcher.setEditor(ed);
-            ed.writeMessage("Describe key: ");
-            */
-        });
-    }
-
     private MoeAbstractAction goToLineAction()
     {
         return action("go-to-line", Category.MISC, () -> getEditor().goToLine());
@@ -2079,68 +1990,4 @@ public final class MoeActions
             catch (Exception exc) {}
         }
     }
-
-    /**
-     * Class KeyCatcher - used for implementation of "describe-key" command to
-     * catch the next key press so that we can see what it does.
-     */
-    /*MOEFX
-    class KeyCatcher extends KeyAdapter
-    {
-        MoeEditor editor;
-
-        @Override
-        public void keyPressed(KeyEvent e)
-        {
-            int keyCode = e.getKeyCode();
-
-            if (keyCode == KeyEvent.VK_CAPS_LOCK || // the keys we want to
-                    // ignore...
-                    keyCode == KeyEvent.VK_SHIFT || keyCode == KeyEvent.VK_CONTROL || keyCode == KeyEvent.VK_META
-                    || keyCode == KeyEvent.VK_ALT || keyCode == KeyEvent.VK_ALT_GRAPH || keyCode == KeyEvent.VK_COMPOSE
-                    || keyCode == KeyEvent.VK_NUM_LOCK || keyCode == KeyEvent.VK_SCROLL_LOCK
-                    || keyCode == KeyEvent.VK_UNDEFINED)
-                return;
-
-            KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
-            String modifierName = KeyEvent.getKeyModifiersText(key.getModifiers());
-            String keyName = KeyEvent.getKeyText(keyCode);
-            if (modifierName.length() > 0)
-                keyName = modifierName + "+" + keyName;
-
-            Keymap map = keymap;
-            Action action = null;
-
-            while (map != null && action == null) {
-                action = map.getAction(key);
-                map = map.getResolveParent();
-            }
-
-            if (action == null) {
-                // BUG workaround: bindings inhertited from component are not
-                // found
-                // through the keymap. we search for them explicitly here...
-                Object binding = componentInputMap.get(key);
-                if (binding == null){
-                    editor.writeMessage(keyName + " " + Config.getString("editor.keypressed.keyIsNotBound").trim());
-                }
-                else {
-                    editor.writeMessage(keyName + " " +Config.getString("editor.keypressed.callsTheFunction").trim() + binding + "\"");
-                }
-            }
-            else {
-                String name = (String) action.getValue(Action.NAME);
-                editor.writeMessage(keyName + Config.getString("editor.keypressed.callsTheFunction") + name + "\"");
-            }
-            e.getComponent().removeKeyListener(keyCatcher);
-            e.consume();
-        }
-
-        public void setEditor(MoeEditor ed)
-        {
-            editor = ed;
-        }
-
-    }
-    */
 }
