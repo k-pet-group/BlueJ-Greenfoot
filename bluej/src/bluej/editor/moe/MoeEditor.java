@@ -1727,35 +1727,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         finder.requestFindfieldFocus();
         finder.setReplaceEnabled(true);
     }
-
-    /**
-     * Replaces the selected text with the replaceString; moves the caret to the 
-     * position it was in before the replace was requested and writes a message
-     */
-    public void replace(String replaceString)
-    {
-        int caretPos = sourcePane.getCaretPosition();
-        String searchString=finder.getSearchString();
-        if (getSourcePane().getSelectedText()==null|| getSourcePane().getSelectedText().length()<=0){
-            //in case the selection has been lost due to moving it in the editor
-            if (finder.getSearchString()!=null && finder.getSearchString().length()>0)
-                //MOEFX
-                //searchString=finder.getSearchTextfield();
-                {}
-            else {
-                writeMessage("Invalid search string ");
-                return;
-            }
-        }
-        String replaceText = smartFormat(searchString, replaceString);
-        insertText(replaceText, true);
-        //move the caret back to where it was before the replace
-        sourcePane.setCaretPosition(caretPos);
-        finder.find(true);
-        //editor.writeMessage("Replaced " + count + " instances of " + searchString);
-        writeMessage("Replaced an instance of " + 
-                searchString);
-    }
     
     /**
      * Implementation of "find-next" user function.
@@ -1828,13 +1799,50 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
 
+    /**
+     * An interface for dealing with search results.
+     */
     public static interface FindNavigator
     {
+        /**
+         * Highlights all search results
+         */
         public void highlightAll();
+
+        /**
+         * Selects the next search result, wrapping if necessary
+         *
+         * @param canBeAtCurrentPos If true, "next" result can include one beginning
+         *                          at the start of the current selection (e.g. when
+         *                          typing in search field).  If false, next result
+         *                          must be beyond start of selection (e.g. when pressing
+         *                          find next button).
+         */
         public void selectNext(boolean canBeAtCurrentPos);
+
+        /**
+         * Selects the previous search result, wrapping backwards if necessary.
+         */
         public void selectPrev();
+
+        /**
+         * Is this search result still valid?  Search results get invalidated
+         * by modifying the document, or performing a new search.
+         */
         public BooleanExpression validProperty();
+
+        /**
+         * Replaces the current selected search result with the given replacement
+         * string, and returns the updated search.  THis search object will no longer
+         * be valid, and you should switch to using the returned result.
+         */
         public FindNavigator replaceCurrent(String replacement);
+
+        /**
+         * Replaces all search results with the given replacement string.
+         * This search result will no longer be valid, but there's no point
+         * searching again, as all instances will have been replaced.
+         */
         public void replaceAll(String replacement);
     }
 
@@ -2613,7 +2621,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             catch (IOException ioe) {}
 
             if (finder != null && finder.isVisible()) {
-               finder.find(true);
+               findNext(false);
             }
         }
     }
