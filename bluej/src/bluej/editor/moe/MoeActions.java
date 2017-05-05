@@ -983,6 +983,10 @@ public final class MoeActions
                 indentAction(),
                 deIndentAction(),
                 newLineAction(),
+
+                cutAction(),
+                copyAction(),
+                pasteAction(),
                 copyLineAction(),
                 cutLineAction(),
                 cutEndOfLineAction(),
@@ -1536,6 +1540,27 @@ public final class MoeActions
     }
 
     // --------------------------------------------------------------------
+
+    private MoeAbstractAction cutAction()
+    {
+        return action("cut-to-clipboard", Category.EDIT, () -> {
+            editor.getSourcePane().cut();
+        });
+    }
+
+    private MoeAbstractAction copyAction()
+    {
+        return action("copy-to-clipboard", Category.EDIT, () -> {
+            editor.getSourcePane().copy();
+        });
+    }
+
+    private MoeAbstractAction pasteAction()
+    {
+        return action("paste-from-clipboard", Category.EDIT, () -> {
+            editor.getSourcePane().paste();
+        });
+    }
 
     private MoeAbstractAction copyLineAction()
     {
