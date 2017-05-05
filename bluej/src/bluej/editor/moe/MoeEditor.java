@@ -182,10 +182,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
     final static String versionString = "3.3.0";
 
     // colours
+    //MOEFX move to CSS
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
 
     final static Color infoColor = new Color(240, 240, 240);
     final static Color lightGrey = new Color(224, 224, 224);
+    //MOEFX move to CSS
     final static Color selectionColour = Config.getSelectionColour();
     final static Color envOpColour = Config.ENV_COLOUR;
     // suffixes for resources
@@ -842,8 +844,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         sourcePane.setCaretPosition(pos);
         sourcePane.moveCaretPosition(line.getEndOffset() - 1);  // w/o line break
-        //MOEFX I think highlight is persistent in RichTextFX anyway?
-        //moeCaret.setPersistentHighlight();
 
         // display the message
         info.messageImportant(message);
@@ -1956,110 +1956,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return currentSearchResult.get();
     }
 
-    // --------------------------------------------------------------------
-    
-    /**
-     * doFindSelect - finds all the instances in the document from where the 
-     * caret position is, optionally selects the first one and highlights all others
-     * @param s search string
-     * @param ignoreCase true to ignore the letters case
-     * @param wrap true if the search to include wrapping
-     *
-     * @return Returns false if not found.
-     */
-    //MOEFX
-    /*
-    int doFindSelect(String s, boolean ignoreCase, boolean wrap)
-    {
-        boolean select=true; //first item found should be selected so initialised to true
-        int docLength = document.getLength();
-        int startPosition = currentTextPane.getCaretPosition();
-        int endPos = docLength;
-        int highlightCount = 0;
-
-        boolean finished = false;
-
-        int start = startPosition;
-        Element line = document.getParagraphElement(start);
-        int lineEnd = line.getEndOffset();   
-        int foundPos =0; 
-        try {
-            while (!finished) {
-                String lineText = document.getText(start, lineEnd - start);
-                while (lineText != null && lineText.length() > 0) {
-                    foundPos = findSubstring(lineText, s, ignoreCase, false, foundPos);
-                    if (foundPos != -1) {
-                        addSearchHighlight(start + foundPos, start + foundPos + s.length());
-                        highlightCount++;
-                        if (select) {
-                            currentTextPane.select(start + foundPos, start + foundPos + s.length());
-                            setSelectionVisible();  
-                            //reset the start position to the first selection start
-                            //in order to ensure that none are missed
-                            startPosition=start+foundPos;
-                            select=false;
-                        }
-                        foundPos=foundPos+s.length();
-                    } else {
-                        lineText=null;
-                    }
-                }
-                if (lineEnd >= endPos) {
-                    if (wrap) {
-                        // do the wrapping
-                        endPos = Math.min(startPosition + s.length() - 1, document.getLength());
-                        line = document.getParagraphElement(0);
-                        start = line.getStartOffset();
-                        lineEnd = Math.min(line.getEndOffset(), endPos);
-                        wrap = false;
-                        // don't wrap again
-                    }
-                    else {
-                        finished = true;
-                    }
-                }
-                else {
-                    // go to next line
-                    line = document.getParagraphElement(lineEnd + 1);
-                    start = line.getStartOffset();
-                    lineEnd = Math.min(line.getEndOffset(), endPos);
-                }
-            }
-        }
-        catch (BadLocationException ex) {
-            Debug.reportError("Error in editor find operation", ex);
-        }
-        return highlightCount;
-    }
-    */
-
-    // --------------------------------------------------------------------
-    
-    /**
-     * Add a search highlight to the currently displayed pane.
-     */
-    //MOEFX
-    /*
-    private void addSearchHighlight(int startPos, int endPos)
-    {
-        try {
-            MoeHighlighter highlighter = (MoeHighlighter) currentTextPane.getHighlighter();
-            Object tag = highlighter.addHighlight(startPos, endPos, searchHighlightPainter);
-            if (currentTextPane == sourcePane) {
-                sourceSearchHighlightTags.add(tag);
-            }
-            else {
-                htmlSearchHighlightTags.add(tag);
-            }
-        }
-        catch (BadLocationException ble) {
-            Debug.reportError("Error adding search highlight", ble);
-        }
-    }
-    */
-
-    // --------------------------------------------------------------------
-    
     /**
      * Transfers caret to user specified line number location.
      */
@@ -2644,36 +2540,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             removeBracketHighlight();
         }
     }
-    
-    /**
-     * Set the caret inactive or active. When "inactive" the standard Moe caret is replaced
-     * with a dummy caret which does not paint or do anything which the default caret does.
-     * This makes it much, much faster to move around (any text insert or remove operation
-     * moves the caret, so these become faster as well).
-     * 
-     * <p>Calls to setCaretActive(false) should always be paired with calls to
-     * setCaretActive(true).
-     * 
-     * @param active  True, if the Moe caret should be active; false to replace it temporarily
-     *                with a fast dummy caret.
-     */
-    public void setCaretActive(boolean active)
-    {
-        //MOEFX
-        /*
-        if (! active) {
-            //moeCaret.deinstall(currentTextPane);
-            currentTextPane.setCaret(new NullCaret(moeCaret.getMark(), moeCaret.getDot()));
-        }
-        else {
-            //moeCaret.install(currentTextPane);
-            Caret caret = currentTextPane.getCaret();
-            currentTextPane.setCaret(moeCaret);
-            moeCaret.setDot(caret.getMark());
-            moeCaret.moveDot(caret.getDot());
-        }
-        */
-    }
 
     /**
      * Toggle the editor's 'compiled' status. If compiled, setEnabled the breakpoint
@@ -3057,24 +2923,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
         sourcePane.addEventHandler(MouseOverTextEvent.ANY, this::mouseOverText);
 
         //MOEFX
-        //sourcePane.setCaret(moeCaret);
         //sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
         //FXTabbedEditor.disableCtrlTabTraversal(sourcePane);
-        
-        // *** Disabled due to Java bug - see http://davmac.wordpress.com/2014/05/13/javas-nimbus-look-and-feel-and-custom-keymaps/ ***
-        // The Nimbus look-and-feel doesn't normally respect the background colour setting;
-        // try to encourage it to do so:
-        //UIDefaults defaults = new UIDefaults();
-        // We can set this to anything as long it's not actually a background painter. In that case
-        // Nimbus will use the background color that's been set with setBackground(...) - which is
-        // what we want.
-        //defaults.put("EditorPane[Enabled].backgroundPainter", versionString);
-        //sourcePane.putClientProperty("Nimbus.Overrides", defaults);
-        //sourcePane.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
-
-        //MOEFX
-        //sourcePane.setSelectionColor(selectionColour);
-        //sourcePane.setCaretColor(cursorColor);
 
         // default showing:
         //currentTextPane = sourcePane;

@@ -402,8 +402,6 @@ public final class MoeActions
      */
     private static void blockAction(MoeEditor editor, LineAction lineAction)
     {
-        editor.setCaretActive(false);
-
         int selectionStart = editor.getSourcePane().getCaretMark();
         int selectionEnd = editor.getSourcePane().getCaretDot();
         if (selectionStart > selectionEnd) {
@@ -431,8 +429,6 @@ public final class MoeActions
             text.getElement(lastLineIndex).getEndOffset()
                 - text.getElement(firstLineIndex).getStartOffset());*/
         }
-
-        editor.setCaretActive(true);
     }
 
     private static String getNodeContents(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
@@ -1360,7 +1356,6 @@ public final class MoeActions
             }
 
             int prevCaretPos = editor.getSourcePane().getCaretPosition();
-            editor.setCaretActive(false);
             editor.undoManager.compoundEdit(() -> {
                 AutoIndentInformation info = MoeIndent.calculateIndentsAndApply(doc, prevCaretPos);
                 editor.setCaretPositionForward(info.getNewCaretPosition() - prevCaretPos);
@@ -1368,7 +1363,6 @@ public final class MoeActions
                     editor.writeMessage(Config.getString("editor.info.perfectIndent"));
                 }
             });
-            editor.setCaretActive(true);
         });
     }
 
@@ -1479,9 +1473,7 @@ public final class MoeActions
                 int converted = 0;
                 if (ed.checkExpandTabs()) {
                     // do TABs need expanding?
-                    ed.setCaretActive(false);
                     converted = convertTabsToSpaces(ed);
-                    ed.setCaretActive(true);
                 }
 
                 if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
@@ -1511,9 +1503,7 @@ public final class MoeActions
             else {
                 // if necessary, convert all TABs in the current editor to spaces
                 if (ed.checkExpandTabs()) { // do TABs need expanding?
-                    ed.setCaretActive(false);
                     int converted = convertTabsToSpaces(ed);
-                    ed.setCaretActive(true);
 
                     if (converted > 0)
                         ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
