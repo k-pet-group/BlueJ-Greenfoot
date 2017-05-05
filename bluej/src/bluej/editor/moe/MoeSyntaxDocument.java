@@ -42,6 +42,7 @@ import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.reactfx.Subscription;
+import org.reactfx.collection.LiveList;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -65,6 +66,8 @@ import bluej.utility.PersistentMarkDocument;
 public class MoeSyntaxDocument
 {
     public static final String MOE_FIND_RESULT = "moe-find-result";
+    public static final String MOE_BRACKET_HIGHLIGHT = "moe-bracket-highlight";
+
     /**
      * A RichTextFX document can have paragraph styles, and text-segment styles.
      *
@@ -114,12 +117,30 @@ public class MoeSyntaxDocument
     {
         if (hasFindHighlights)
         {
-            for (int i = 0; i < document.getParagraphs().size(); i++)
-            {
-                document.setStyleSpans(i, 0, document.getStyleSpans(i).mapStyles(ss -> Utility.setMinus(ss, MOE_FIND_RESULT)));
-            }
+            removeStyleThroughout(MOE_FIND_RESULT);
             hasFindHighlights = false;
         }
+    }
+
+    public void removeStyleThroughout(String spanStyle)
+    {
+        // Goes paragraph by paragraph, and only alters the style if necessary.
+        LiveList<Paragraph<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>>> paragraphs = document.getParagraphs();
+        for (int i = 0; i < paragraphs.size(); i++)
+        {
+            Paragraph<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> para = paragraphs.get(i);
+            StyleSpans<ImmutableSet<String>> styleSpans = para.getStyleSpans();
+            boolean present = styleSpans.stream().anyMatch(s -> s.getStyle().contains(spanStyle));
+            if (present)
+            {
+                document.setStyleSpans(i, 0, styleSpans.mapStyles(ss -> Utility.setMinus(ss, spanStyle)));
+            }
+        }
+    }
+
+    public void addStyle(int start, int end, String style)
+    {
+        document.setStyleSpans(start, document.getStyleSpans(start, end).mapStyles(ss -> Utility.setAdd(ss, style)));
     }
 
     private class PendingError

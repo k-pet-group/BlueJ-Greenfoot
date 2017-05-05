@@ -2641,7 +2641,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             doBracketMatch();
         }
         else {
-            moeCaret.removeBracket();
+            removeBracketHighlight();
         }
     }
     
@@ -2915,8 +2915,19 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void doBracketMatch()
     {
-        //MOEFX
-        //moeCaret.paintMatchingBracket();
+        int matchBracket = getBracketMatch();
+        // remove existing bracket if needed
+        removeBracketHighlight();
+        if(matchBracket != -1)
+        {
+            sourceDocument.addStyle(getSourcePane().getCaretPosition() - 1, getSourcePane().getCaretPosition(), MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
+            sourceDocument.addStyle(matchBracket, matchBracket + 1, MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
+        }
+    }
+
+    private void removeBracketHighlight()
+    {
+        sourceDocument.removeStyleThroughout(MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
     }
 
     // --------------------------------------------------------------------
