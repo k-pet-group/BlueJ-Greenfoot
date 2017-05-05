@@ -2915,7 +2915,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
             // but its visibility on screen may well have changed, so we
             // make sure to redraw things (e.g. error popup) which may have
             // been affected:
-            caretMoved();
+
+            // It's important to use runAfterCurrent, because this listener
+            // can get called during the layout pass, and altering the styles
+            // during this pass can cause an exception, so we must do it later:
+            JavaFXUtil.runAfterCurrent(() -> caretMoved());
         });
         sourcePane.setMouseOverTextDelay(java.time.Duration.ofMillis(400));
         sourcePane.addEventHandler(MouseOverTextEvent.ANY, this::mouseOverText);
@@ -3417,70 +3421,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         finder.setVisible(true);
     };
-    
-    /**
-     * Replace all instances of the search String with a replacement.
-     * -check for valid search criteria
-     * -start at beginning
-     * -do initial find
-     * -replace until not found, no wrapping!
-     * -print out number of replacements (?)
-     */
-    //MOEFX
-    /*
-    public void replaceAll(String replaceString)
-    {
-        //remove selection and remove highlighting 
-        int caretPos = sourcePane.getCaretPosition();
-        if (getSelectionBegin()!=null) {
-            sourcePane.setCaretPosition(getSelectionBegin().getColumn());
-        }
-        removeSearchHighlights();
-        String searchString = finder.getSearchString();
-        boolean isMatchCase=finder.getMatchCase();
-        int count = 0;
-        while(doFindBackward(searchString, !isMatchCase, false)) {
-            insertText(smartFormat(searchString, replaceString), true);
-            count++;
-        }        
-        while(doFind(searchString, !isMatchCase,false)) 
-        {
-            insertText(smartFormat(searchString, replaceString), false);
-            count++;
-        }
-
-        removeSearchHighlights();
-        sourcePane.setCaretPosition(caretPos);
-
-
-        if(count > 0) {
-            writeMessage(Config.getString("editor.replaceAll.replaced").trim() + " " +
-                    count + " " + Config.getString("editor.replaceAll.intancesOf").trim() + " " +
-                    searchString);
-        }
-        else {
-            writeMessage(Config.getString("editor.replaceAll.string").trim() + " " +
-                    searchString + " " + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
-        }
-    }
-    */
-
-    /**
-     * Sets the caret selection visible. The visibility will be persistent,
-     * until the caret is repositioned.
-     */
-    protected void setSelectionVisible()
-    {
-        //MOEFX
-        /*
-        Caret caret = currentTextPane.getCaret();
-        caret.setSelectionVisible(true);
-        if (caret instanceof MoeCaret) {
-            MoeCaret mcaret = (MoeCaret) caret;
-            mcaret.setPersistentHighlight();
-        }
-        */
-    }
 
     public void mouseOverText(MouseOverTextEvent e)
     {
