@@ -1,32 +1,26 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
- 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
- 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
- This file is subject to the Classpath exception as provided in the  
+ This file is part of the BlueJ program.
+ Copyright (C) 1999-2009,2010,2014,2016,2017  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.groupwork.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -39,19 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-
-import bluej.utility.javafx.SwingNodeDialog;
+import bluej.utility.javafx.FXCustomizedDialog;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.CommitFilter;
 import bluej.groupwork.Repository;
@@ -64,43 +53,40 @@ import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.actions.CommitAction;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
-import bluej.utility.DBox;
-import bluej.utility.DBoxLayout;
 import bluej.utility.DialogManager;
-import bluej.utility.SwingWorker;
+import bluej.utility.FXWorker;
 import bluej.utility.Utility;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
 import javafx.application.Platform;
 
 
 /**
  * A Swing based user interface to add commit comments.
  * @author Bruce Quig
+ * @author Amjad Altadmri
  */
-public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPushInterface
+public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAndPushInterface
 {
-    private JList commitFiles;
-    private JPanel topPanel;
-    private JPanel bottomPanel;
-    private JTextArea commitText;
-    private JButton commitButton;
-    private JCheckBox includeLayout;
-    private ActivityIndicator progressBar;
+    private ListView commitFiles;
+    private VBox topPanel;
+    private VBox bottomPanel;
+    private TextArea commitText;
+    private Button commitButton;
+    private CheckBox includeLayout;
+    private ActivityIndicatorFX progressBar;
     private CommitAction commitAction;
     private CommitWorker commitWorker;
 
     private Project project;
-    
+
     private Repository repository;
-    private DefaultListModel commitListModel;
-    
+    private ObservableList commitListModel;
+
     private Set<TeamStatusInfo> changedLayoutFiles;
-    
+
     /** The packages whose layout should be committed compulsorily */
     private Set<File> packagesToCommmit = new HashSet<File>();
-    
-    private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 
+
+    private static String noFilesToCommit = Config.getString("team.nocommitfiles");
 
     public CommitCommentsFrame(Project proj)
     {
@@ -109,22 +95,22 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
         createUI();
         DialogManager.centreDialog(this);
     }
-    
-    public void setVisible(boolean show)
+
+    public void setVisible(boolean visible)
     {
-        super.setVisible(show);
-        if (show) {
+        if (visible) {
+            show();
             // we want to set comments and commit action to disabled
             // until we know there is something to commit
             commitAction.setEnabled(false);
-            commitText.setEnabled(false);
+            commitText.setDisable(true);
             includeLayout.setSelected(false);
-            includeLayout.setEnabled(false);
+            includeLayout.setDisable(true);
             changedLayoutFiles.clear();
-            commitListModel.removeAllElements();
-            
+            commitListModel.clear();
+
             repository = project.getRepository();
-            
+
             if (repository != null) {
                 try {
                     project.saveAllEditors();
@@ -143,128 +129,111 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
                 commitWorker.start();
             }
             else {
-                super.setVisible(false);
+                hide();
             }
         }
+        else {
+            hide();
+        }
     }
-    
+
     /**
      * Create the user-interface for the error display dialog.
      */
     protected void createUI()
     {
         setTitle(Config.getString("team.commit.title"));
-        commitListModel = new DefaultListModel();
-        
+        commitListModel = FXCollections.emptyObservableList();
+
         //setIconImage(BlueJTheme.getIconImage());
         rememberPosition("bluej.commitdisplay");
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setBorder(BlueJTheme.generalBorderWithStatusBar);
-        splitPane.setResizeWeight(0.5);
+        SplitPane splitPane = new SplitPane();
+        splitPane.setDividerPositions(0.5);
 
-        topPanel = new JPanel();
+        topPanel = new VBox();
 
-        JScrollPane commitFileScrollPane = new JScrollPane();
+        ScrollPane commitFileScrollPane = new ScrollPane();
 
         {
-            topPanel.setLayout(new BorderLayout());
+            Label commitFilesLabel = new Label(Config.getString(
+                    "team.commit.files"));
+             topPanel.getChildren().add(commitFilesLabel);
 
-            JLabel commitFilesLabel = new JLabel(Config.getString(
-                        "team.commit.files"));
-            commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-            topPanel.add(commitFilesLabel, BorderLayout.NORTH);
+            commitFiles = new ListView(commitListModel);
+            commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
+            commitFiles.setDisable(true);
+            commitFileScrollPane.setContent(commitFiles);
 
-            commitFiles = new JList(commitListModel);
-            commitFiles.setCellRenderer(new FileRenderer(project));
-            commitFiles.setEnabled(false);
-            commitFileScrollPane.setViewportView(commitFiles);
-
-            topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
+             topPanel.getChildren().add(commitFileScrollPane);
         }
 
-        splitPane.setTopComponent(topPanel);
+        splitPane.getItems().add(topPanel);
 
-        bottomPanel = new JPanel();
-
+        bottomPanel = new VBox();
         {
-            bottomPanel.setLayout(new BorderLayout());
+            Label commentLabel = new Label(Config.getString(
+                    "team.commit.comment"));
+             bottomPanel.getChildren().add(commentLabel);
 
-            JLabel commentLabel = new JLabel(Config.getString(
-                        "team.commit.comment"));
-            commentLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-            bottomPanel.add(commentLabel, BorderLayout.NORTH);
+            commitText = new TextArea("");
+            commitText.setPrefRowCount(6);
+            commitText.setPrefColumnCount(42);
 
-            commitText = new JTextArea("");
-            commitText.setRows(6);
-            commitText.setColumns(42);
+            commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
 
-            Dimension size = commitText.getPreferredSize();
-            size.width = commitText.getMinimumSize().width;
-            commitText.setMinimumSize(size);
-
-            JScrollPane commitTextScrollPane = new JScrollPane(commitText);
-            commitTextScrollPane.setMinimumSize(size);
-            bottomPanel.add(commitTextScrollPane, BorderLayout.CENTER);
+            ScrollPane commitTextScrollPane = new ScrollPane(commitText);
+            commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
+            bottomPanel.getChildren().add(commitTextScrollPane);
 
             commitAction = new CommitAction(this);
-            commitButton = BlueJTheme.getOkButton();
-            commitButton.setAction(commitAction);
-            setDefaultButton(commitButton);
-            
-            JButton closeButton = BlueJTheme.getCancelButton();
-            closeButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    commitWorker.abort();
-                    commitAction.cancel();
-                    setVisible(false);
-                }
+            commitButton = new Button();// BlueJTheme.getOkButton();
+            commitButton.setOnAction(event -> commitAction.actionPerformed(null));
+            commitButton.requestFocus();
+
+            Button closeButton = new Button();// BlueJTheme.getCancelButton();
+            closeButton.setOnAction(event -> {
+                commitWorker.abort();
+                commitAction.cancel();
+                setVisible(false);
             });
 
-            Platform.runLater(() -> setCloseIsButton(closeButton));
-           
-            DBox buttonPanel = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-            buttonPanel.setBorder(BlueJTheme.generalBorder);
-            
-            progressBar = new ActivityIndicator();
+
+            HBox buttonPanel = new HBox();
+
+            progressBar = new ActivityIndicatorFX();
             progressBar.setRunning(false);
-            
-            DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-            includeLayout = new JCheckBox(Config.getString("team.commit.includelayout"));
-            includeLayout.setEnabled(false);
-            includeLayout.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                JCheckBox layoutCheck = (JCheckBox)e.getSource();
+
+            VBox checkBoxPanel = new VBox();
+            includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
+            includeLayout.setDisable(true);
+            includeLayout.setOnAction(event -> {
+                CheckBox layoutCheck = (CheckBox)event.getSource();
                 if(layoutCheck.isSelected()) {
                     addModifiedLayouts();
-                    if(!commitButton.isEnabled())
+                    if(commitButton.isDisabled())
                         commitAction.setEnabled(true);
-                    }
+                }
                 // unselected
                 else {
                     removeModifiedLayouts();
-                    if(isCommitListEmpty())
+                    if (isCommitListEmpty())
                         commitAction.setEnabled(false);
-                    }
                 }
             });
 
-            checkBoxPanel.add(includeLayout);
-            checkBoxPanel.add(buttonPanel);
-            
-            buttonPanel.add(progressBar);
-            buttonPanel.add(commitButton);
-            buttonPanel.add(closeButton);
-            bottomPanel.add(checkBoxPanel, BorderLayout.SOUTH);
+            checkBoxPanel.getChildren().add(includeLayout);
+            checkBoxPanel.getChildren().add(buttonPanel);
+
+             buttonPanel.getChildren().add(progressBar);
+             buttonPanel.getChildren().add(commitButton);
+             buttonPanel.getChildren().add(closeButton);
+             bottomPanel.getChildren().add(checkBoxPanel);
         }
 
-        splitPane.setBottomComponent(bottomPanel);
+        splitPane.getItems().add(bottomPanel);
 
-        getContentPane().add(splitPane);
-        pack();
+     getDialogPane().getChildren().add(splitPane);
     }
 
     public String getComment()
@@ -282,32 +251,32 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
         commitListModel.clear();
         setComment("");
     }
-    
+
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
         for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
             TeamStatusInfo info = it.next();
             if (! packagesToCommmit.contains(info.getFile().getParentFile())) {
-                commitListModel.removeElement(info);
+                commitListModel.remove(info);
             }
         }
         if (commitListModel.isEmpty()) {
-            commitListModel.addElement(noFilesToCommit);
-            commitText.setEnabled(false);
+            commitListModel.add(noFilesToCommit);
+            commitText.setDisable(true);
         }
     }
-    
+
     private boolean isCommitListEmpty()
     {
         return commitListModel.isEmpty() || commitListModel.contains(noFilesToCommit);
     }
-    
+
     private void addModifiedLayouts()
     {
         if(commitListModel.contains(noFilesToCommit)) {
-            commitListModel.removeElement(noFilesToCommit);
-            commitText.setEnabled(true);
+            commitListModel.remove(noFilesToCommit);
+            commitText.setDisable(false);
         }
         // add diagram layout files to list of files to be committed
         Set<File> displayedLayouts = new HashSet<File>();
@@ -316,12 +285,12 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
             File parentFile = info.getFile().getParentFile();
             if (! displayedLayouts.contains(parentFile)
                     && ! packagesToCommmit.contains(parentFile)) {
-                commitListModel.addElement(info);
+                commitListModel.add(info);
                 displayedLayouts.add(info.getFile().getParentFile());
             }
         }
     }
-    
+
     /**
      * Get a list of the layout files to be committed
      */
@@ -334,7 +303,7 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
         }
         return files;
     }
-    
+
     /**
      * Remove a file from the list of changes layout files.
      */
@@ -346,9 +315,9 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
                 it.remove();
                 return;
             }
-        }        
+        }
     }
-    
+
     /**
      * Get a set of the layout files which have changed (with status info).
      */
@@ -356,12 +325,12 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
     {
         return changedLayoutFiles;
     }
-    
+
     public boolean includeLayout()
     {
         return includeLayout != null && includeLayout.isSelected();
     }
-    
+
     /**
      * Start the activity indicator.
      */
@@ -377,22 +346,22 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
     {
         progressBar.setRunning(false);
     }
-    
+
     public Project getProject()
     {
         return project;
     }
-    
+
     private void setLayoutChanged(boolean hasChanged)
     {
-        includeLayout.setEnabled(hasChanged);
+        includeLayout.setDisable(!hasChanged);
     }
-    
-        /**
-    * Inner class to do the actual cvs status check to populate commit dialog
-    * to ensure that the UI is not blocked during remote call
-    */
-    class CommitWorker extends SwingWorker implements StatusListener
+
+    /**
+     * Inner class to do the actual cvs status check to populate commit dialog
+     * to ensure that the UI is not blocked during remote call
+     */
+    class CommitWorker extends FXWorker implements StatusListener
     {
         List<TeamStatusInfo> response;
         TeamworkCommand command;
@@ -477,17 +446,17 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
                 }
 
                 if (commitListModel.isEmpty()) {
-                    commitListModel.addElement(noFilesToCommit);
+                    commitListModel.add(noFilesToCommit);
                 } else {
-                    commitText.setEnabled(true);
-                    commitText.requestFocusInWindow();
+                    commitText.setDisable(false);
+                    commitText.requestFocus();
                     commitAction.setEnabled(true);
                 }
             }
         }
 
         private void handleConflicts(Set<File> mergeConflicts, Set<File> deleteConflicts,
-                Set<File> otherConflicts, Set<File> needsMerge)
+                                     Set<File> otherConflicts, Set<File> needsMerge)
         {
             String dlgLabel;
             String filesList;
@@ -550,11 +519,11 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
          * @param needsMerge     The set of files which are updated locally as
          *                       well as in the repository (required merging).
          * @param conflicts      The set to store unresolved conflicts in
-         * 
+         *
          */
         private void getCommitFileSets(List<TeamStatusInfo> info, Set<File> filesToCommit, Set<File> filesToAdd,
-                Set<File> filesToRemove, Set<File> mergeConflicts, Set<File> deleteConflicts,
-                Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles)
+                                       Set<File> filesToRemove, Set<File> mergeConflicts, Set<File> deleteConflicts,
+                                       Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles)
         {
 
             CommitFilter filter = new CommitFilter();
@@ -567,14 +536,14 @@ public class CommitCommentsFrame extends SwingNodeDialog implements CommitAndPus
                 int status = statusInfo.getStatus();
                 if (filter.accept(statusInfo,true)) {
                     if (!isPkgFile) {
-                        commitListModel.addElement(statusInfo);
+                        commitListModel.add(statusInfo);
                         filesToCommit.add(file);
                     } else if (status == TeamStatusInfo.STATUS_NEEDSADD
                             || status == TeamStatusInfo.STATUS_DELETED
                             || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
                         // Package file which must be committed.
                         if (packagesToCommmit.add(statusInfo.getFile().getParentFile())) {
-                            commitListModel.addElement(statusInfo);
+                            commitListModel.add(statusInfo);
                             File otherPkgFile = modifiedLayoutDirs.remove(file.getParentFile());
                             if (otherPkgFile != null) {
                                 removeChangedLayoutFile(otherPkgFile);
