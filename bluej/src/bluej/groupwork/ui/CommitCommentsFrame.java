@@ -32,15 +32,21 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import bluej.utility.javafx.FXCustomizedDialog;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import threadchecker.OnThread;
-import threadchecker.Tag;
+
 import bluej.Config;
 import bluej.groupwork.CommitFilter;
 import bluej.groupwork.Repository;
@@ -55,9 +61,11 @@ import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
+import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
-import javafx.application.Platform;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A Swing based user interface to add commit comments.
@@ -66,9 +74,6 @@ import javafx.application.Platform;
  */
 public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAndPushInterface
 {
-    private ListView commitFiles;
-    private VBox topPanel;
-    private VBox bottomPanel;
     private TextArea commitText;
     private Button commitButton;
     private CheckBox includeLayout;
@@ -84,14 +89,14 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
     private Set<TeamStatusInfo> changedLayoutFiles;
 
     /** The packages whose layout should be committed compulsorily */
-    private Set<File> packagesToCommmit = new HashSet<File>();
+    private Set<File> packagesToCommmit = new HashSet<>();
 
     private static String noFilesToCommit = Config.getString("team.nocommitfiles");
 
     public CommitCommentsFrame(Project proj)
     {
         project = proj;
-        changedLayoutFiles = new HashSet<TeamStatusInfo>();
+        changedLayoutFiles = new HashSet<>();
         createUI();
         DialogManager.centreDialog(this);
     }
@@ -151,89 +156,77 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
         SplitPane splitPane = new SplitPane();
         splitPane.setDividerPositions(0.5);
 
-        topPanel = new VBox();
+        VBox topPanel = new VBox();
 
         ScrollPane commitFileScrollPane = new ScrollPane();
 
-        {
-            Label commitFilesLabel = new Label(Config.getString(
-                    "team.commit.files"));
-             topPanel.getChildren().add(commitFilesLabel);
+        Label commitFilesLabel = new Label(Config.getString("team.commit.files"));
+        topPanel.getChildren().add(commitFilesLabel);
 
-            commitFiles = new ListView(commitListModel);
-            commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
-            commitFiles.setDisable(true);
-            commitFileScrollPane.setContent(commitFiles);
+        ListView commitFiles = new ListView(commitListModel);
+        commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
+        commitFiles.setDisable(true);
+        commitFileScrollPane.setContent(commitFiles);
 
-             topPanel.getChildren().add(commitFileScrollPane);
-        }
+        topPanel.getChildren().add(commitFileScrollPane);
 
         splitPane.getItems().add(topPanel);
 
-        bottomPanel = new VBox();
-        {
-            Label commentLabel = new Label(Config.getString(
-                    "team.commit.comment"));
-             bottomPanel.getChildren().add(commentLabel);
+        VBox bottomPanel = new VBox();
+        Label commentLabel = new Label(Config.getString("team.commit.comment"));
+        bottomPanel.getChildren().add(commentLabel);
 
-            commitText = new TextArea("");
-            commitText.setPrefRowCount(6);
-            commitText.setPrefColumnCount(42);
+        commitText = new TextArea("");
+        commitText.setPrefRowCount(6);
+        commitText.setPrefColumnCount(42);
 
-            commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
+        commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
 
-            ScrollPane commitTextScrollPane = new ScrollPane(commitText);
-            commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
-            bottomPanel.getChildren().add(commitTextScrollPane);
+        ScrollPane commitTextScrollPane = new ScrollPane(commitText);
+        commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
+        bottomPanel.getChildren().add(commitTextScrollPane);
 
-            commitAction = new CommitAction(this);
-            commitButton = new Button();// BlueJTheme.getOkButton();
-            commitButton.setOnAction(event -> commitAction.actionPerformed(null));
-            commitButton.requestFocus();
+        commitAction = new CommitAction(this);
+        commitButton = new Button();// BlueJTheme.getOkButton();
+        commitButton.setOnAction(event -> commitAction.actionPerformed(null));
+        commitButton.requestFocus();
 
-            Button closeButton = new Button();// BlueJTheme.getCancelButton();
-            closeButton.setOnAction(event -> {
-                commitWorker.abort();
-                commitAction.cancel();
-                setVisible(false);
-            });
+        Button closeButton = new Button();// BlueJTheme.getCancelButton();
+        closeButton.setOnAction(event -> {
+            commitWorker.abort();
+            commitAction.cancel();
+            setVisible(false);
+        });
 
+        HBox buttonPanel = new HBox();
 
-            HBox buttonPanel = new HBox();
+        progressBar = new ActivityIndicatorFX();
+        progressBar.setRunning(false);
 
-            progressBar = new ActivityIndicatorFX();
-            progressBar.setRunning(false);
+        VBox checkBoxPanel = new VBox();
+        includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
+        includeLayout.setDisable(true);
+        includeLayout.setOnAction(event -> {
+            CheckBox layoutCheck = (CheckBox)event.getSource();
+            if(layoutCheck.isSelected()) {
+                addModifiedLayouts();
+                if(commitButton.isDisabled())
+                    commitAction.setEnabled(true);
+            }
+            // unselected
+            else {
+                removeModifiedLayouts();
+                if (isCommitListEmpty())
+                    commitAction.setEnabled(false);
+            }
+        });
 
-            VBox checkBoxPanel = new VBox();
-            includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
-            includeLayout.setDisable(true);
-            includeLayout.setOnAction(event -> {
-                CheckBox layoutCheck = (CheckBox)event.getSource();
-                if(layoutCheck.isSelected()) {
-                    addModifiedLayouts();
-                    if(commitButton.isDisabled())
-                        commitAction.setEnabled(true);
-                }
-                // unselected
-                else {
-                    removeModifiedLayouts();
-                    if (isCommitListEmpty())
-                        commitAction.setEnabled(false);
-                }
-            });
-
-            checkBoxPanel.getChildren().add(includeLayout);
-            checkBoxPanel.getChildren().add(buttonPanel);
-
-             buttonPanel.getChildren().add(progressBar);
-             buttonPanel.getChildren().add(commitButton);
-             buttonPanel.getChildren().add(closeButton);
-             bottomPanel.getChildren().add(checkBoxPanel);
-        }
+        checkBoxPanel.getChildren().addAll(includeLayout, buttonPanel);
+        buttonPanel.getChildren().addAll(progressBar, commitButton, closeButton);
+        bottomPanel.getChildren().add(checkBoxPanel);
 
         splitPane.getItems().add(bottomPanel);
-
-     getDialogPane().getChildren().add(splitPane);
+        getDialogPane().getChildren().add(splitPane);
     }
 
     public String getComment()
@@ -255,9 +248,8 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
-        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            TeamStatusInfo info = it.next();
-            if (! packagesToCommmit.contains(info.getFile().getParentFile())) {
+        for (TeamStatusInfo info : changedLayoutFiles) {
+            if (!packagesToCommmit.contains(info.getFile().getParentFile())) {
                 commitListModel.remove(info);
             }
         }
@@ -279,12 +271,11 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
             commitText.setDisable(false);
         }
         // add diagram layout files to list of files to be committed
-        Set<File> displayedLayouts = new HashSet<File>();
-        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            TeamStatusInfo info = it.next();
+        Set<File> displayedLayouts = new HashSet<>();
+        for (TeamStatusInfo info : changedLayoutFiles) {
             File parentFile = info.getFile().getParentFile();
-            if (! displayedLayouts.contains(parentFile)
-                    && ! packagesToCommmit.contains(parentFile)) {
+            if (!displayedLayouts.contains(parentFile)
+                    && !packagesToCommmit.contains(parentFile)) {
                 commitListModel.add(info);
                 displayedLayouts.add(info.getFile().getParentFile());
             }
@@ -296,12 +287,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
      */
     public Set<File> getChangedLayoutFiles()
     {
-        Set<File> files = new HashSet<File>();
-        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            TeamStatusInfo info = it.next();
-            files.add(info.getFile());
-        }
-        return files;
+        return changedLayoutFiles.stream().map(TeamStatusInfo::getFile).collect(Collectors.toSet());
     }
 
     /**
@@ -371,7 +357,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
         public CommitWorker()
         {
             super();
-            response = new ArrayList<TeamStatusInfo>();
+            response = new ArrayList<>();
             FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
             command = repository.getStatus(this, filter, false);
         }
@@ -491,7 +477,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
             String filesList = "";
             Iterator<File> i = conflicts.iterator();
             for (int j = 0; j < 10 && i.hasNext(); j++) {
-                File conflictFile = (File) i.next();
+                File conflictFile = i.next();
                 filesList += "    " + conflictFile.getName() + "\n";
             }
 
@@ -507,18 +493,18 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
          * of those which are to be added (i.e. which aren't in the repository) and
          * which are to be removed.
          *
-         * @param info  The list of files with status (List of TeamStatusInfo)
-         * @param filesToCommit  The set to store the files to commit in
-         * @param filesToAdd     The set to store the files to be added in
-         * @param filesToRemove  The set to store the files to be removed in
-         * @param mergeConflicts The set to store files with merge conflicts in.
-         * @param deleteConflicts The set to store files with conflicts in, which
-         *                        need to be resolved by first deleting the local file
-         * @param otherConflicts  The set to store files with "locally deleted" conflicts
-         *                        (locally deleted, remotely modified).
-         * @param needsMerge     The set of files which are updated locally as
-         *                       well as in the repository (required merging).
-         * @param conflicts      The set to store unresolved conflicts in
+         * @param info                  The list of files with status (List of TeamStatusInfo)
+         * @param filesToCommit         The set to store the files to commit in
+         * @param filesToAdd            The set to store the files to be added in
+         * @param filesToRemove         The set to store the files to be removed in
+         * @param mergeConflicts        The set to store files with merge conflicts in.
+         * @param deleteConflicts       The set to store files with conflicts in, which
+         *                                  need to be resolved by first deleting the local file
+         * @param otherConflicts        The set to store files with "locally deleted" conflicts
+         *                                  (locally deleted, remotely modified).
+         * @param needsMerge            The set of files which are updated locally as
+         *                                  well as in the repository (required merging).
+         * @param modifiedLayoutFiles
          *
          */
         private void getCommitFileSets(List<TeamStatusInfo> info, Set<File> filesToCommit, Set<File> filesToAdd,
@@ -529,12 +515,11 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
             CommitFilter filter = new CommitFilter();
             Map<File,File> modifiedLayoutDirs = new HashMap<>();
 
-            for (Iterator<TeamStatusInfo> it = info.iterator(); it.hasNext();) {
-                TeamStatusInfo statusInfo = it.next();
+            for (TeamStatusInfo statusInfo : info) {
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
                 int status = statusInfo.getStatus();
-                if (filter.accept(statusInfo,true)) {
+                if (filter.accept(statusInfo, true)) {
                     if (!isPkgFile) {
                         commitListModel.add(statusInfo);
                         filesToCommit.add(file);
