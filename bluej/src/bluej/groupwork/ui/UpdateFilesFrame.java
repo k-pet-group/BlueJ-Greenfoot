@@ -29,11 +29,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-
-import bluej.utility.javafx.FXCustomizedDialog;
 import javafx.application.Platform;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -43,9 +41,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import threadchecker.OnThread;
-import threadchecker.Tag;
+
 import bluej.Config;
+import bluej.groupwork.actions.UpdateAction;
 import bluej.groupwork.Repository;
 import bluej.groupwork.StatusHandle;
 import bluej.groupwork.StatusListener;
@@ -55,12 +53,15 @@ import bluej.groupwork.TeamViewFilter;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateFilter;
-import bluej.groupwork.actions.UpdateAction;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
+import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A user interface for showing files to be updated
@@ -71,7 +72,6 @@ import bluej.utility.Utility;
  */
 public class UpdateFilesFrame extends FXCustomizedDialog
 {
-    private ListView<UpdateStatus> updateFiles;
     private Button updateButton;
     private CheckBox includeLayoutCheckbox;
     private ActivityIndicatorFX progressBar;
@@ -95,8 +95,8 @@ public class UpdateFilesFrame extends FXCustomizedDialog
     public UpdateFilesFrame(Project proj)
     {
         project = proj;
-        changedLayoutFiles = new HashSet<TeamStatusInfo>();
-        forcedLayoutFiles = new HashSet<File>();
+        changedLayoutFiles = new HashSet<>();
+        forcedLayoutFiles = new HashSet<>();
         createUI();
         DialogManager.centreDialog(this);
     }
@@ -145,7 +145,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog
     /**
      * Create the user-interface for the error display dialog.
      */
-    protected void createUI()
+    private void createUI()
     {
         setTitle(Config.getString("team.update.title"));
         updateListModel = FXCollections.emptyObservableList();
@@ -160,7 +160,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog
         Label updateFilesLabel = new Label(Config.getString("team.update.files"));
         topPanel.getChildren().add(updateFilesLabel);
 
-        updateFiles = new ListView<UpdateStatus>(updateListModel);
+        ListView<UpdateStatus> updateFiles = new ListView<>(updateListModel);
         if (project.getTeamSettingsController().isDVCS()){
             updateFiles.setCellFactory(param -> new FileRendererCell(project, true));//
         } else {
@@ -234,9 +234,8 @@ public class UpdateFilesFrame extends FXCustomizedDialog
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
-        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext();) {
-            updateListModel.remove(it.next());
-        }
+        updateListModel.removeAll(changedLayoutFiles);
+
         if(updateListModel.isEmpty()) {
             updateListModel.add(noFilesToUpdate);
         }
@@ -262,12 +261,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog
      */
     public Set<File> getChangedLayoutFiles()
     {
-        Set<File> files = new HashSet<File>();
-        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            TeamStatusInfo info = it.next();
-            files.add(info.getFile());
-        }
-        return files;
+        return changedLayoutFiles.stream().map(TeamStatusInfo::getFile).collect(Collectors.toSet());
     }
 
     public boolean includeLayout()
@@ -311,12 +305,9 @@ public class UpdateFilesFrame extends FXCustomizedDialog
      */
     private void resetForcedFiles()
     {
-        Set<File> forcedFiles = new HashSet<File>(forcedLayoutFiles);
+        Set<File> forcedFiles = new HashSet<>(forcedLayoutFiles);
         if (includeLayout) {
-            for (Iterator<TeamStatusInfo> i = changedLayoutFiles.iterator(); i.hasNext(); ) {
-                TeamStatusInfo info = i.next();
-                forcedFiles.add(info.getFile());
-            }
+            forcedFiles.addAll(changedLayoutFiles.stream().map(TeamStatusInfo::getFile).collect(Collectors.toSet()));
         }
         updateAction.setFilesToForceUpdate(forcedFiles);
     }
@@ -336,7 +327,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog
         public UpdateWorker()
         {
             super();
-            response = new ArrayList<TeamStatusInfo>();
+            response = new ArrayList<>();
             FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
             command = repository.getStatus(this, filter, true);
         }
@@ -381,9 +372,9 @@ public class UpdateFilesFrame extends FXCustomizedDialog
                     UpdateFilesFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, UpdateFilesFrame.this.asWindow()));
                 }
                 else {
-                    Set<File> filesToUpdate = new HashSet<File>();
-                    Set<File> conflicts = new HashSet<File>();
-                    Set<File> modifiedLayoutFiles = new HashSet<File>();
+                    Set<File> filesToUpdate = new HashSet<>();
+                    Set<File> conflicts = new HashSet<>();
+                    Set<File> modifiedLayoutFiles = new HashSet<>();
 
                     List<TeamStatusInfo> info = response;
                     getUpdateFileSet(info, filesToUpdate, conflicts, modifiedLayoutFiles);
@@ -409,19 +400,13 @@ public class UpdateFilesFrame extends FXCustomizedDialog
 
                     // Build the actual set of files to update. If there are new or removed
                     // directories, don't include files within.
-                    Set<File> updateFiles = new HashSet<File>();
-                    for (Iterator<File> i = filesToUpdate.iterator(); i.hasNext(); ) {
-                        File file = i.next();
-                        if (! filesToUpdate.contains(file.getParentFile())) {
+                    Set<File> updateFiles = new HashSet<>();
+                    for (File file : filesToUpdate) {
+                        if (!filesToUpdate.contains(file.getParentFile())) {
                             updateFiles.add(file);
                         }
                     }
-                    for (Iterator<File> i = forcedLayoutFiles.iterator(); i.hasNext(); ) {
-                        File file = (File) i.next();
-                        if (filesToUpdate.contains(file.getParentFile())) {
-                            i.remove();
-                        }
-                    }
+                    forcedLayoutFiles.removeIf(file -> filesToUpdate.contains(file.getParentFile()));
 
                     updateAction.setStatusHandle(statusHandle);
                     updateAction.setFilesToUpdate(updateFiles);
@@ -458,17 +443,16 @@ public class UpdateFilesFrame extends FXCustomizedDialog
         {
             UpdateFilter filter = new UpdateFilter();
             TeamViewFilter viewFilter = new TeamViewFilter();
-            for (Iterator<TeamStatusInfo> it = info.iterator(); it.hasNext();) {
-                TeamStatusInfo statusInfo = it.next();
+            for (TeamStatusInfo statusInfo : info) {
                 //update must look in the remoteStatus in a DVCS. if not DVCS, look into the local status.
-                int status = project.getTeamSettingsController().isDVCS()?statusInfo.getRemoteStatus():statusInfo.getStatus();
-                if(filter.accept(statusInfo)) {
+                int status = project.getTeamSettingsController().isDVCS() ? statusInfo.getRemoteStatus() : statusInfo.getStatus();
+                if (filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                         updateListModel.add(new UpdateStatus(statusInfo));
                         filesToUpdate.add(statusInfo.getFile());
                     }
                     else {
-                        if( !viewFilter.accept(statusInfo)) {
+                        if (!viewFilter.accept(statusInfo)) {
                             // If the file should not be viewed, just ignore it.
                         }
                         else if (filter.updateAlways(statusInfo)) {
@@ -491,7 +475,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog
                     conflict |= status == TeamStatusInfo.STATUS_CONFLICT_ADD;
                     conflict |= status == TeamStatusInfo.STATUS_CONFLICT_LMRD;
                     if (conflict) {
-                        if(!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
+                        if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                             conflicts.add(statusInfo.getFile());
                         }
                         else {
