@@ -137,7 +137,6 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         }
         catch (NumberFormatException nfe) { }
         PrefMgr.setScopeHighlightStrength(strength);
-        MoeSyntaxView.resetSyntaxHighlighting();
         EditorManager.getEditorManager().refreshAll();
     }
 
