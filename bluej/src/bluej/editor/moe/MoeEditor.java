@@ -21,11 +21,9 @@
  */
 package bluej.editor.moe;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
@@ -55,10 +53,6 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.text.BadLocationException;
@@ -233,7 +227,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private MoeEditorPane sourcePane;         // the component holding the source text
     private WebView htmlPane;           // the component holding the javadoc html
     private Info info;                      // the info number label
-    private JPanel statusArea;              // the status area
     private StatusLabel saveState;          // the status label
     private ComboBox<String> interfaceToggle;
     @OnThread(Tag.FXPlatform)
@@ -470,24 +463,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return matchBrackets;
     }
 
-    /**
-     * Choose a key to use in the menu from all defined keys.
-     */
-    private static KeyStroke chooseKey(KeyStroke[] keys)
-    {
-        if (keys.length == 1) {
-            return keys[0];
-        }
-        KeyStroke key = keys[0];
-        // give preference to shortcuts using letter keys (CTRL-V, rather than F2)
-        for (int i = 1; i < keys.length; i++) {
-            if (keys[i].getKeyCode() >= 'A' && keys[i].getKeyCode() <= 'Z') {
-                key = keys[i];
-            }
-        }
-        return key;
-    }
-
 
     /**
      * Removes the selection in the textpane specified
@@ -715,11 +690,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         checkBracketStatus();
         scheduleReparseRunner(); //whenever we change the scope highlighter, call scheduleReparseRunner to create a reparser to that file: if the scope highlighter is 0, it will do nothing. However, if it is not zero, it will ensure the editor is updated accordingly.
-
-        Info.resetFont();
-        info.refresh();
-        StatusLabel.resetFont();
-        saveState.refresh();
     }
 
     /*
@@ -1106,7 +1076,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public void setReadOnly(boolean readOnly)
     {
         if (readOnly) {
-            saveState.setState(StatusLabel.READONLY);
+            saveState.setState(StatusLabel.Status.READONLY);
         }
         sourcePane.setEditable(!readOnly);
     }
@@ -1443,17 +1413,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return sourceDocument.getParser();
     }
 
-    /**
-     * Enable or disable a menu item or toolbar button; with null-check.
-     * @param item The item to modify
-     * @param enable The new enabled status
-     */
-    private void setEnabled(AbstractButton item, boolean enable)
-    {
-        if (item != null) {
-            item.setEnabled(enable);
-        }
-    }
 
     // --------------------------------------------------------------------
     
@@ -1522,7 +1481,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         if (!singleLineChange) // For a multi-line change, always compile:
         {
-            saveState.setState(StatusLabel.CHANGED);
+            saveState.setState(StatusLabel.Status.CHANGED);
             setChanged();
             if (watcher != null) {
                 watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
@@ -1540,7 +1499,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         errorManager.removeAllErrorHighlights();
         errorManager.documentContentChanged();
         if (!saveState.isChanged()) {
-            saveState.setState(StatusLabel.CHANGED);
+            saveState.setState(StatusLabel.Status.CHANGED);
             setChanged();
         }
         actions.userAction();
@@ -2407,7 +2366,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             // We want to inform the watcher that the editor content has changed,
             // and then inform it that we are in "saved" state (synced with file).
             // But first set state to saved to avoid unnecessary writes to disk.
-            saveState.setState(StatusLabel.SAVED);
+            saveState.setState(StatusLabel.Status.SAVED);
             setChanged(); // contents may have changed - notify watcher
             setSaved();  // notify watcher that we are saved
             
@@ -2473,7 +2432,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private void setSaved()
     {
         info.message(Config.getString("editor.info.saved"));
-        saveState.setState(StatusLabel.SAVED);
+        saveState.setState(StatusLabel.Status.SAVED);
         if (watcher != null) {
             watcher.saveEvent(this);
         }
@@ -2756,39 +2715,24 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         // create and add info and status areas
 
-        JPanel bottomArea = new JPanel();
+        BorderPane bottomArea = new BorderPane();
 
         // create panel for info/status
-        bottomArea.setLayout(new BorderLayout(6, 1));
-        if (!Config.isRaspberryPi()) bottomArea.setOpaque(false);
 
-        int smallSpc = BlueJTheme.componentSpacingSmall;
-        
         //area for new find functionality
         finder=new FindPanel(this);
         finder.setVisible(false);
 
-        statusArea = new JPanel();
-        statusArea.setLayout(new GridLayout(0, 1));
-        // one column, many rows
-        statusArea.setBackground(infoColor);
-        statusArea.setBorder(BorderFactory.createLineBorder(Color.black));
+        saveState = new StatusLabel(StatusLabel.Status.SAVED);
 
-        saveState = new StatusLabel(StatusLabel.SAVED);
-        statusArea.add(saveState);
-        //bottomArea.add(statusArea, BorderLayout.EAST);
+        info = new Info();
+        BorderPane commentsPanel = new BorderPane();
+        commentsPanel.setCenter(info);
+        commentsPanel.setRight(saveState);
 
-        info = new Info(() -> fxTabbedEditor.getWindow());
-        JPanel commentsPanel=new JPanel(new BorderLayout(6,1));
-        if (!Config.isRaspberryPi()) commentsPanel.setOpaque(false);
-        commentsPanel.add(info, BorderLayout.CENTER);
-        commentsPanel.add(statusArea, BorderLayout.EAST);
-
-        bottomArea.add(commentsPanel, BorderLayout.SOUTH);
-
-        //MOEFX
-        //this.add(bottomArea, BorderLayout.SOUTH);
-        setBottom(finder);
+        bottomArea.setBottom(commentsPanel);
+        bottomArea.setTop(finder);
+        setBottom(bottomArea);
 
         // create the text document
 
@@ -3149,7 +3093,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 @Override
                 public StringExpression getFontSizeCSS()
                 {
-                    return PrefMgr.getEditorFontCSS();
+                    return PrefMgr.getEditorFontCSS(true);
                 }
 
                 @Override
@@ -3849,7 +3793,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             TextFlow flow = new TextFlow(text);
             flow.setMaxWidth(600.0);
             JavaFXUtil.addStyleClass(text, "java-error");
-            text.styleProperty().bind(PrefMgr.getEditorFontCSS());
+            text.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             Pane p = new BorderPane(flow);
             this.popup.setSkin(new Skin<Skinnable>()
             {

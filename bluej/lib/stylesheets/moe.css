@@ -67,9 +67,19 @@
     -fx-text-fill: red;
 }
 .moe-bracket-highlight {
-    -rtfx-background-color: hsb(0, 0%, 40%);
+    -rtfx-background-color: hsb(0, 0%, 70%);
 }
 
 .moe-editor-pane .caret {
    -fx-stroke: rgb(255, 0, 100);
+}
+
+.moe-status-label {
+    -fx-font-family: "Source Sans Pro";
+    -fx-font-style: italic;
+    -fx-text-fill: hsb(0, 0%, 70%);
+    -fx-label-padding: 0 8 0 8;
+}
+.moe-info {
+    -fx-font-family: "Source Sans Pro";
 }

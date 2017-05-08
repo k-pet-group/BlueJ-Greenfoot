@@ -126,6 +126,10 @@ public class PrefMgr
     // The CSS style needed to apply the editor font styling
     @OnThread(Tag.FX)
     private static StringExpression editorFontCSS;
+    // The CSS style needed to apply the editor font size styling, but
+    // slightly shrunken and doesn't set family
+    @OnThread(Tag.FX)
+    private static StringExpression editorFontSizeSmallCSS;
 
     /**
      * Private constructor to prevent instantiation
@@ -329,16 +333,18 @@ public class PrefMgr
     }
 
     @OnThread(Tag.FX)
-    public static StringExpression getEditorFontCSS()
+    public static StringExpression getEditorFontCSS(boolean includeFamily)
     {
         if (editorFontCSS == null)
         {
+            editorFontSizeSmallCSS = Bindings.concat(
+                    "-fx-font-size: ", Bindings.max(8, editorFontSize.subtract(3)), "pt;");
             editorFontCSS = Bindings.concat(
                 "-fx-font-size: ", editorFontSize, "pt;",
                 "-fx-font-family: \"", editorStandardFont, "\";"
             );
         }
-        return editorFontCSS;
+        return includeFamily ? editorFontCSS : editorFontSizeSmallCSS;
     }
 
     @OnThread(Tag.Any)

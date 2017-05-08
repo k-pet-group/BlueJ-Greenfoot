@@ -23,45 +23,45 @@ package bluej.editor.moe;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.control.Label;
 
-import java.awt.*;              // New Event model    
-import javax.swing.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Status label for the Moe editor.
  * 
  * @author Michael Kolling
  */
-public final class StatusLabel extends JLabel
+public final class StatusLabel extends Label
 {
-    // ---------------- CONSTANTS -----------------
-
-    private static Font statusFont = new Font("SansSerif",
-            Font.BOLD | Font.ITALIC, PrefMgr.getEditorFontSize().get() - 1);
-
-    // current save state
-    static final int READONLY = 0;
-    static final int SAVED = 1;   
-    static final int CHANGED = 2; 
-
-    private final String[] stateString = { 
-        Config.getString("editor.state.readOnly"), 
-        Config.getString("editor.state.saved"),
-        Config.getString("editor.state.changed")
-    };
-
-    // ------------ INSTANCE VARIABLES ------------
-
-    private int state;
-
-    // -------------- CONSTRUCTORS ----------------
-
-    public StatusLabel(int initialState)
+    public static enum Status
     {
-        super("", JLabel.CENTER);
-        setText(stateString[initialState]);
-        setFont(statusFont);
-        setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        READONLY("editor.state.readOnly"),
+        SAVED("editor.state.saved"),
+        CHANGED("editor.state.changed");
+
+        private final String displayText;
+
+        private Status(String displayKey)
+        {
+            this.displayText = Config.getString(displayKey);
+        }
+
+        public String getDisplayText()
+        {
+            return displayText;
+        }
+    }
+
+    private Status state;
+
+    public StatusLabel(Status initialState)
+    {
+        JavaFXUtil.addStyleClass(this, "moe-status-label");
+        styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+        setText(initialState.getDisplayText());
         state = initialState;
     }
 
@@ -69,33 +69,24 @@ public final class StatusLabel extends JLabel
 
     public boolean isSaved() 
     {
-        return (state != CHANGED);
+        return (state != Status.CHANGED);
     }
 
     public boolean isChanged() 
     {
-        return (state == CHANGED);
+        return (state == Status.CHANGED);
     }
 
     public boolean isReadOnly() 
     {
-        return (state == READONLY);
+        return (state == Status.READONLY);
     }
 
-    public void setState(int newState)
+    public void setState(Status newState)
     {
         state = newState;
-        setText(stateString[state]);
-    }
-    
-    public void refresh()
-    {
-        setFont(statusFont);
-    }
-    
-    public static void resetFont()
-    {
-        int fontSize = Math.max(PrefMgr.getEditorFontSize().get() - 1, 1);
-        statusFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, fontSize);
+        setText(state.getDisplayText() + (state != Status.SAVED ? "" :
+                DateTimeFormatter.ofPattern("(HH:mm)").format(LocalDateTime.now()
+        )));
     }
 }
