@@ -89,10 +89,7 @@ public class MoeSyntaxDocument
     private EntityResolver parentResolver;
     private NodeTree<ReparseRecord> reparseRecordTree;
 
-    /** Tasks scheduled for when we are not locked */ 
-    private Runnable[] scheduledUpdates;
     protected boolean inNotification = false;
-    protected boolean runningScheduledUpdates = false;
     private final BlueJSyntaxView syntaxView;
     private boolean hasFindHighlights = false;
 
@@ -534,66 +531,7 @@ public class MoeSyntaxDocument
         int length = lineEl.getEndOffset() - pos - 1;
         return parsedNode.getMarkTokensFor(pos, length, 0, this);
     }
-    
-    /**
-     * Schedule a document update to be run at a suitable time (after all current
-     * document notifications have been dispatched to listeners). This can be
-     * used to avoid locking issues (AbstractDocument does not allow document
-     * modifications to be made from within listener callbacks).
-     */
-    public void scheduleUpdate(Runnable r)
-    {
-        if (! inNotification) {
-            // If we're not actually in the listener notification, just run the update immediately:
-            r.run();
-            return;
-        }
-        
-        if (scheduledUpdates == null) {
-            scheduledUpdates = new Runnable[1];
-        }
-        else {
-            Runnable[] newScheduledTasks = new Runnable[scheduledUpdates.length + 1];
-            System.arraycopy(scheduledUpdates, 0, newScheduledTasks, 0, scheduledUpdates.length);
-            scheduledUpdates = newScheduledTasks;
-        }
-        
-        scheduledUpdates[scheduledUpdates.length - 1] = r;        
-    }
 
-    /**
-     * Run any scheduled document updates. This is called from update handlers.
-     */
-    private void runScheduledUpdates()
-    {
-        // Sometimes a callback wants to modify the document. AbstractDocument doesn't allow that;
-        // we have 'scheduled updates' to work around the problem.
-        if (scheduledUpdates != null && ! runningScheduledUpdates) {
-            // Mark the queue as running, to avoid running it twice:
-            runningScheduledUpdates = true;
-            for (int i = 0; i < scheduledUpdates.length; i++) {
-                // Note the callback may schedule further updates!
-                // They will be appended to the array, and so will be
-                // processed after any updates that are already pending.
-                scheduledUpdates[i].run();
-            }
-            scheduledUpdates = null;
-            runningScheduledUpdates = false;
-        }
-    }
-    
-    /**
-     * Check if scheduled updates are being run presently. This might be used as a cue to
-     * recognize that document updates do not need processing in the normal fashion,
-     * because they have been generated automatically rather than being due to user input. 
-     * 
-     * @return  true if scheduled updates are currently being run
-     */
-    public boolean isRunningScheduledUpdates()
-    {
-        return runningScheduledUpdates;
-    }
-    
     /**
      * Get an integer value from a property whose value is hex-encoded.
      * @param propName  The name of the property
@@ -653,8 +591,6 @@ public class MoeSyntaxDocument
         int endLine = document.offsetToPosition(offset + length, Bias.Forward).getMajor();
         recalculateScopesForLinesInRange(startLine, endLine);
         inNotification = false;
-
-        runScheduledUpdates();
     }
     
     
@@ -746,8 +682,6 @@ public class MoeSyntaxDocument
         int line = document.offsetToPosition(offset, Bias.Forward).getMajor();
         recalculateScopesForLinesInRange(line, line);
         inNotification = false;
-        
-        runScheduledUpdates();
     }
 
     /**

@@ -262,7 +262,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private boolean tabsAreExpanded = false;
     private MoePrinter printer;
     private PrintDialog printDialog;
-    private final TextInsertNotifier doTextInsert = new TextInsertNotifier();
     /** Used to obtain javadoc for arbitrary methods */
     private final JavadocResolver javadocResolver;
     private ReparseRunner reparseRunner;
@@ -1059,7 +1058,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // This may be a callback in response to a modification event.
         // If we try to remove breakpoints during the modification notification,
         // AbstractDocument throws an exception.
-        getSourceDocument().scheduleUpdate(() -> clearAllBreakpoints());
+        JavaFXUtil.runAfterCurrent(() -> clearAllBreakpoints());
     }
 
     /**
@@ -1511,14 +1510,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
         msd.getDocument().plainChanges().subscribe(c -> {
             boolean singleLineChange = !c.getInserted().contains("\n") && !c.getRemoved().contains("\n");
             boolean inserted = !c.getInserted().isEmpty();
-            documentContentChanged(singleLineChange, inserted);
+            documentContentChanged(singleLineChange, inserted, c.getPosition(), c.getInsertionEnd() - c.getPosition());
         });
     }
 
     /**
      * A change has been made to the source code content.
      */
-    private void documentContentChanged(boolean singleLineChange, boolean inserted)
+    private void documentContentChanged(boolean singleLineChange, boolean inserted, int offset, int insertionLength)
     {
         // Prevent re-entry to this method.  In theory this shouldn't happen as we
         // shouldn't modify the document in this function.  But it seems like sometimes
@@ -1551,13 +1550,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
             setChanged();
         }
         actions.userAction();
-        //MOEFX
-        //doTextInsert.setEvent(e, sourcePane);
         
         // This may handle re-indentation; as this mutates the
         // document, it must be done outside the notification.
-        if (inserted && ! sourceDocument.isRunningScheduledUpdates()) {
-            sourceDocument.scheduleUpdate(doTextInsert);
+        if (inserted) {
+            JavaFXUtil.runAfterCurrent(() -> actions.textInsertAction(offset, insertionLength));
         }
         
         recordEdit(false);        
@@ -4076,34 +4073,4 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
         }
     }
-
-    /**
-     * Class for thread listening to edit changes.
-     */
-    class TextInsertNotifier
-    implements Runnable
-    {
-        private DocumentEvent evt;
-        private JEditorPane editorPane;
-
-        /**
-         * Sets the event attribute of the TextInsertNotifier object
-         */
-        public void setEvent(DocumentEvent e, JEditorPane editorPane)
-        {
-            evt = e;
-            this.editorPane = editorPane;
-        }
-
-        /**
-         * Main processing method for the TextInsertNotifier object
-         */
-        @Override
-        @OnThread(value = Tag.Swing, ignoreParent = true)
-        public void run()
-        {
-            actions.textInsertAction(evt, editorPane);
-        }
-    }
-
 }
