@@ -874,7 +874,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
             info.messageImportant(Config.getString("editor.info.compileError"));
             repaint();
-            //MOEFX
+            //NAVIFX
             //naviView.repaintLines((int)diagnostic.getStartLine(), (int)diagnostic.getEndLine());
         }
 
@@ -1676,7 +1676,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         setEditorVisible(false);
         if (watcher != null) {
             //setting the naviview visible property when an editor is closed
-            //MOEFX
+            //NAVIFX
             //watcher.setProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
             watcher.closeEvent(this);
         }
@@ -2038,7 +2038,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         viewingHTML.set(false);
         interfaceToggle.getSelectionModel().selectFirst();
         watcher.showingInterface(false);
-        //MOEFX
+        //NAVIFX
         //dividerPanel.endTemporaryHide();
     }
 
@@ -2052,7 +2052,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             return;
         }
         resetMenuToolbar(false);
-        //MOEFX
+        //NAVIFX
         //dividerPanel.beginTemporaryHide();
         try {
             save();
@@ -2466,7 +2466,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
             sourceDocument.enableParser(false);
-            //MOEFX
+            //NAVIFX
             //naviView.setDocument(sourceDocument);
 
             // flag document type as a java file by associating a
@@ -2921,7 +2921,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         HBox editorPane = new HBox();
 
-        //MOEFX: sourceDocument, scroll bar
+        //NAVIFX: sourceDocument, scroll bar
         //naviView = new NaviView(null /*sourceDocument*/, errorManager, new JScrollPane().getVerticalScrollBar());
         //naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
         //naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
@@ -2929,7 +2929,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         //dividerPanel=new EditorDividerPanel(naviView, getNaviviewExpandedProperty());
         //if (!Config.isRaspberryPi()) dividerPanel.setOpaque(false);
 
-        //MOEFX
+        //NAVIFX
         //editorPane.getChildren().add(scrollPane);
         //editorPane.add(dividerPanel);
         //editorPane.add(naviView);

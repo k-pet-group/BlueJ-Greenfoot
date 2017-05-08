@@ -62,12 +62,12 @@ public class NaviviewView
     
     public NaviviewView(MoeSyntaxDocument.Element elem, NaviView naviView, MoeErrorManager errors)
     {
-        //MOEFX
+        //NAVIFX
         //super(elem, 0, errors);
         this.naviView = naviView;
     }
 
-    /*MOEFX
+    /*NAVIFX
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g,
             int x, int y, MoeSyntaxDocument document, MoeErrorManager errorMgr, Color def,
             MoeSyntaxDocument.Element lineElement, TabExpander tx)
@@ -148,7 +148,7 @@ public class NaviviewView
 
     }*/
 
-    /*MOEFX
+    /*NAVIFX
     @Override
     public void paint(Graphics g, Shape a)
     {

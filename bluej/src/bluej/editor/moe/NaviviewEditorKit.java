@@ -52,7 +52,7 @@ public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
 
     public View create(Element elem)
     {
-        //MOEFX
+        //NAVIFX
         return null;
         //return new NaviviewView(elem, naviView, errorMgr);
     }
@@ -60,7 +60,7 @@ public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
     @Override
     public Document createDefaultDocument()
     {
-        //MOEFX
+        //NAVIFX
         return null;
         //return new MoeSyntaxDocument();
     }

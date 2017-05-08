@@ -371,7 +371,7 @@ public class NaviView extends JPanel implements AdjustmentListener
         int myHeight = imgBuffer.getHeight();
         View view = editorPane.getUI().getRootView(editorPane);
 
-        Color background = Color.BLACK; //MOEFX MoeSyntaxDocument.getBackgroundColor();
+        Color background = Color.BLACK; //NAVIFX MoeSyntaxDocument.getBackgroundColor();
         
         Graphics2D g = imgBuffer.createGraphics();
 
@@ -522,7 +522,7 @@ public class NaviView extends JPanel implements AdjustmentListener
         
         g.drawImage(imgBuffer, insets.left + frw, insets.top + frw, null);
         
-        Color background = Color.BLACK; //MOEFX MoeSyntaxDocument.getBackgroundColor();
+        Color background = Color.BLACK; //NAVIFX MoeSyntaxDocument.getBackgroundColor();
         
         int lx = insets.left;
         int rx = getWidth() - insets.right;
