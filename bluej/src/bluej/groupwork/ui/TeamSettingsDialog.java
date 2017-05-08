@@ -39,6 +39,7 @@ import threadchecker.Tag;
  *
  * @author fisker
  * @author bquig
+ * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
 public class TeamSettingsDialog extends Dialog<TeamSettings>
@@ -58,7 +59,7 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
         teamSettingsController = controller;
         initModality(Modality.WINDOW_MODAL);
         setResizable(true);
-        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-settings");
+
 
         if(teamSettingsController.hasProject()) {
             title += " - " + teamSettingsController.getProject().getProjectName();
@@ -69,6 +70,8 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
 
 //        dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton());
 //        setDialogPane(dialogPane);
+
+        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-settings");
         Config.addDialogStylesheets(getDialogPane());
 //        getDialogPane().setPrefSize(360, 600);
 

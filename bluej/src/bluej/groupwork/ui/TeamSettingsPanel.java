@@ -50,6 +50,7 @@ import bluej.utility.javafx.JavaFXUtil;
  * A panel for team settings.
  * 
  * @author fisker
+ * @author Amjad Altadmri
  */
 public class TeamSettingsPanel extends FlowPane
 {
@@ -486,6 +487,9 @@ public class TeamSettingsPanel extends FlowPane
             }
         }
         int protocol = protocolComboBox.getSelectionModel().getSelectedIndex();
+        if (protocol == -1) {
+            return null;
+        }
         return getSelectedProvider().getProtocolKey(protocol);
     }
     
