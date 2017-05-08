@@ -664,7 +664,10 @@ public class BlueJSyntaxView
          * However, here's the trick.  If the line off-screen is *more* indented than any line on screen, it
          * won't affect our scope drawing (because we are looking for the left edge).  If the line off-screen
          * is indented *less* than any of the lines on screen then we can use the line on-screen with the highest
-         * indent to calculate the scope that we need.
+         * indent to calculate the scope that we need.  This is because if you've got a line with say 20 spaces,
+         * and you need to know the indent for an 8-space line, then you can just calculate it by asking for
+         * the 8th character position on the 20-space line.  So as long as we want an indent with less spaces
+         * than the largest line on screen, we can calculate it.
          *
          * We store cached indent sizes (to cut down on continual recalculation) in the cachedSpaceSizes
          * array, where item at index 0 is the pixel indent for 0 spaces, item 1 is the pixel indent for 1 spaces, etc.
