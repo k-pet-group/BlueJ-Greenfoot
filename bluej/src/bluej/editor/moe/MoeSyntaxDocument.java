@@ -512,6 +512,16 @@ public class MoeSyntaxDocument
     {
         syntaxView.setParagraphAttributes(document.offsetToPosition(offset, Bias.Forward).getMajor() + 1, alterAttr);
     }
+
+    /**
+     * Sets attributes for all paragraphs.
+     *
+     * @param alterAttr the attributes to set the value for (other attributes will be unaffected)
+     */
+    public void setParagraphAttributes(Map<ParagraphAttribute, Boolean> alterAttr)
+    {
+        syntaxView.setParagraphAttributes(alterAttr);
+    }
     
     /**
      * Identify the token types and positions in a line. This is used for syntax colouring.

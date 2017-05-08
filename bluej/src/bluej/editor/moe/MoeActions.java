@@ -1109,15 +1109,6 @@ public final class MoeActions
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F4), "cut-line");
 
         // cursor block
-        /*MOEFX
-        keymap.put(new KeyCodeCombination(KeyCode.UP, ALT_SHORTCUT_MASK), DefaultEditorKit.pasteAction);
-        keymap.put(new KeyCodeCombination(KeyCode.LEFT, ALT_SHORTCUT_MASK), DefaultEditorKit.deletePrevCharAction);
-        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, ALT_SHORTCUT_MASK), DefaultEditorKit.deleteNextCharAction);
-        keymap.put(new KeyCodeCombination(KeyCode.LEFT, SHIFT_ALT_SHORTCUT_MASK), "cut-line");
-        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, SHIFT_ALT_SHORTCUT_MASK), "cut-end-of-line");
-        keymap.put(new KeyCodeCombination(KeyCode.LEFT, DOUBLE_SHORTCUT_MASK), "cut-word");
-        keymap.put(new KeyCodeCombination(KeyCode.RIGHT, DOUBLE_SHORTCUT_MASK), "cut-end-of-word");
-        */
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), "increase-font");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), "decrease-font");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");

@@ -1625,6 +1625,19 @@ public class BlueJSyntaxView
         return label;
     }
 
+    /**
+     * Sets attributes throughout the document.
+     *
+     * @param alterAttr Anything mapped to true will be added to all lines, anything mapped to false will be removed from all lines
+     */
+    public void setParagraphAttributes(Map<ParagraphAttribute, Boolean> alterAttr)
+    {
+        for (int line = 1; line <= document.getDocument().getParagraphs().size(); line++)
+        {
+            setParagraphAttributes(line, alterAttr);
+        }
+    }
+
 
     /**
      * Sets attributes for a particular line number.

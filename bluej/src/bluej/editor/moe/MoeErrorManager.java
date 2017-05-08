@@ -83,10 +83,7 @@ public class MoeErrorManager
     public void removeAllErrorHighlights()
     {
         editor.getSourceDocument().removeStyleThroughout(MoeEditorPane.ERROR_CLASS);
-        for (ErrorDetails err : errorInfos)
-        {
-            editor.getSourceDocument().setParagraphAttributes(err.startPos, Collections.singletonMap(ParagraphAttribute.ERROR, false));
-        }
+        editor.getSourceDocument().setParagraphAttributes(Collections.singletonMap(ParagraphAttribute.ERROR, false));
         errorInfos.clear();
         setNextErrorEnabled.accept(false);
         editor.updateHeaderHasErrors(false);
