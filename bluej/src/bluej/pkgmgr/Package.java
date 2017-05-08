@@ -45,6 +45,7 @@ import java.util.TreeSet;
 import javafx.application.Platform;
 import javax.swing.SwingUtilities;
 
+import bluej.extensions.BDependency;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -2923,7 +2924,17 @@ public final class Package
     {
         addDependency(dependency, dependency instanceof UsesDependency);
     }
-    
+
+    /**
+      * This is a new constructor to add dependency type when type is required to
+      * distinguish between the extends dependency type and implements dependency type.
+      */
+    public void addDependency(Dependency dependency, BDependency.Type type )
+    {
+        dependency.type=type;
+        addDependency(dependency, dependency instanceof UsesDependency);
+    }
+
     public void addDependency(Dependency dependency, boolean recalc)
     {
         PackageEditor ed = getEditor();

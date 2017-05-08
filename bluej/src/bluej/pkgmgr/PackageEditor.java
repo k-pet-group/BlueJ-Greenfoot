@@ -588,12 +588,14 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         private final Dependency.Line line;
         private final boolean selected;
         private final boolean creating;
+        private BDependency.Type type;
 
         public ExtendsDepInfo(Dependency d)
         {
             this.line = d.computeLine();
             this.selected = d.isSelected();
             this.creating = false;
+            this.type=d.type;
         }
 
         // When we have a firm from, but the to point is not currently
@@ -673,7 +675,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         {
             g.setStroke(d.creating ? Color.BLUE : Color.BLACK);
             g.setLineWidth(d.selected ? 3.0 : 1.0);
-            g.setLineDashes();
             Dependency.Line line = d.line;
             double fromY = line.from.getY();
             double fromX = line.from.getX();
@@ -691,8 +692,16 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
                     toX + (ARROW_SIZE * Math.cos(angle - ARROW_ANGLE))};
             double[] yPoints = {toY, toY - ((ARROW_SIZE) * Math.sin(angle + ARROW_ANGLE)),
                     toY - (ARROW_SIZE * Math.sin(angle - ARROW_ANGLE))};
-
+            g.setLineDashes();
             g.strokePolygon(xPoints, yPoints, 3);
+            if (d.type==BDependency.Type.IMPLEMENTS)
+            {
+                g.setLineDashes(DASHES);
+            }
+            else
+            {
+                g.setLineDashes();
+            }
             g.strokeLine(fromX, fromY, arrowJoinX, arrowJoinY);
         }
 
