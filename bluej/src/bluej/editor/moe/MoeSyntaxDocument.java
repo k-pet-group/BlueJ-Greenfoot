@@ -298,7 +298,7 @@ public class MoeSyntaxDocument
                     }
 
                     Debug.message("Reparsing: " + ppos + " " + pos);
-                    MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
+                    MoeSyntaxEvent mse = new MoeSyntaxEvent(this, -1, -1, false, false);
                     pn.reparse(this, ppos, pos, maxParse, mse);
                     // Dump tree:
                     Debug.message("Dumping tree:");
@@ -621,8 +621,7 @@ public class MoeSyntaxDocument
             }
         }
 
-        //MOEFX: Why was this here?
-        //MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
+        MoeSyntaxEvent mse = new MoeSyntaxEvent(this, offset, length, true, false);
         if (parsedNode != null) {
             parsedNode.textInserted(this, 0, offset, length, new NodeStructureListener()
             {
@@ -639,10 +638,7 @@ public class MoeSyntaxDocument
                 }
             });
         }
-        //MOEFX: sort out undo
-        //recordEvent(e);
-        // MOEFX
-        //super.fireInsertUpdate(mse);
+        fireChangedUpdate(mse);
         int startLine = document.offsetToPosition(offset, Bias.Forward).getMajor();
         int endLine = document.offsetToPosition(offset + length, Bias.Forward).getMajor();
         recalculateScopesForLinesInRange(startLine, endLine);
@@ -719,8 +715,7 @@ public class MoeSyntaxDocument
             }
         }
 
-        //MOEFX: Why was this here?
-        //MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
+        MoeSyntaxEvent mse = new MoeSyntaxEvent(this, offset, length, false, true);
         if (parsedNode != null) {
             parsedNode.textRemoved(this, 0, offset, length, new NodeStructureListener()
             {
@@ -737,10 +732,7 @@ public class MoeSyntaxDocument
                 }
             });
         }
-        //MOEFX: Sort out undo
-        //recordEvent(e);
-        //MOEFX
-        //super.fireRemoveUpdate(mse);
+        fireChangedUpdate(mse);
         int line = document.offsetToPosition(offset, Bias.Forward).getMajor();
         recalculateScopesForLinesInRange(line, line);
         inNotification = false;

@@ -1044,8 +1044,7 @@ public class BlueJSyntaxView
     
     private int[] reassessIndentsAdd(int dmgStart, int dmgEnd)
     {
-        //MOEFX
-        MoeSyntaxDocument doc = null;
+        MoeSyntaxDocument doc = document;
         ParsedCUNode pcuNode = doc.getParsedNode();
         if (pcuNode == null) {
             return new int[] {dmgStart, dmgEnd};
@@ -1219,8 +1218,7 @@ public class BlueJSyntaxView
 
     private int[] reassessIndentsRemove(int dmgPoint, boolean multiLine)
     {
-        //MOEFX
-        MoeSyntaxDocument doc = null;
+        MoeSyntaxDocument doc = document;
         ParsedCUNode pcuNode = doc.getParsedNode();
         
         int [] dmgRange = new int[2];
@@ -1506,22 +1504,19 @@ public class BlueJSyntaxView
 
 
         Element map = document.getDefaultRootElement();
-        //MOEFX work out where to move this to:
-        /*
-        if (changes.getType() == EventType.INSERT) {
+        if (changes.isInsert()) {
             damageStart = Math.min(damageStart, changes.getOffset());
             damageEnd = Math.max(damageEnd, changes.getOffset() + changes.getLength());
             int [] r = reassessIndentsAdd(damageStart, damageEnd);
             damageStart = r[0];
             damageEnd = r[1];
         }
-        else if (changes.getType() == EventType.REMOVE) {
+        else if (changes.isRemove()) {
             damageStart = Math.min(damageStart, changes.getOffset());
             int [] r = reassessIndentsRemove(damageStart, true); //TODO MOEFX changes.isMultilineChange()
             damageStart = r[0];
             damageEnd = r[1];
         }
-        */
         
         if (damageStart < damageEnd) {
             int line = map.getElementIndex(damageStart);

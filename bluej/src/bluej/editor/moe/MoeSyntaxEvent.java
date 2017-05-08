@@ -42,13 +42,21 @@ import bluej.parser.nodes.ParsedNode;
 @OnThread(Tag.Any)
 public class MoeSyntaxEvent implements NodeStructureListener
 {
-    private MoeSyntaxDocument document;
-    private List<NodeAndPosition<ParsedNode>> removedNodes = new ArrayList<>();
-    private Map<ParsedNode, NodeChangeRecord> changedNodes = new HashMap<>();
+    private final int offset;
+    private final int length;
+    private final MoeSyntaxDocument document;
+    private final List<NodeAndPosition<ParsedNode>> removedNodes = new ArrayList<>();
+    private final Map<ParsedNode, NodeChangeRecord> changedNodes = new HashMap<>();
+    private final boolean insert;
+    private final boolean remove;
 
-    public MoeSyntaxEvent(MoeSyntaxDocument document)
+    public MoeSyntaxEvent(MoeSyntaxDocument document, int offset, int length, boolean isInsert, boolean isRemove)
     {
         this.document = document;
+        this.offset = offset;
+        this.length = length;
+        this.insert = isInsert;
+        this.remove = isRemove;
     }
     
     /**
@@ -100,6 +108,26 @@ public class MoeSyntaxEvent implements NodeStructureListener
                 r.nap = nap;
             }
         }
+    }
+
+    public int getOffset()
+    {
+        return offset;
+    }
+
+    public int getLength()
+    {
+        return length;
+    }
+
+    public boolean isInsert()
+    {
+        return insert;
+    }
+
+    public boolean isRemove()
+    {
+        return remove;
     }
 
     /**
