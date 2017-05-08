@@ -595,7 +595,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             this.line = d.computeLine();
             this.selected = d.isSelected();
             this.creating = false;
-            this.type=d.type;
+            this.type=d.getType();
         }
 
         // When we have a firm from, but the to point is not currently

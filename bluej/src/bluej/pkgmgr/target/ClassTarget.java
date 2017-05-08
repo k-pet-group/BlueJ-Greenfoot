@@ -1707,7 +1707,7 @@ public class ClassTarget extends DependentTarget
             DependentTarget interfce = getPackage().getDependentTarget(interfaceName);
 
             if (interfce != null) {
-                getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce),BDependency.Type.IMPLEMENTS);
+                getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce));
                 if (interfce.getState() != State.COMPILED) {
                     markModified();
                 }
