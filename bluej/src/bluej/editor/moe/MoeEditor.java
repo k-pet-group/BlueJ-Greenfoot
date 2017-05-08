@@ -606,10 +606,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 lastModified = file.lastModified();
 
                 listenToChanges(sourceDocument);
-                //MOEFX
-                //sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
+                //NAVIFX
                 //naviView.setDocument(sourceDocument);
-                //sourceDocument.addUndoableEditListener(undoManager);
                 
                 sourceDocument.enableParser(false);
                 loaded = true;
@@ -2427,8 +2425,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
             listenToChanges(sourceDocument);
-            //MOEFX
-            //sourceDocument.addUndoableEditListener(undoManager);
 
             // We want to inform the watcher that the editor content has changed,
             // and then inform it that we are in "saved" state (synced with file).
@@ -2491,15 +2487,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         actions.getActionByName("toggle-breakpoint").setEnabled(compiled && viewingCode());
         if (!compiled)
             compiledProperty.set(false);
-        //MOEFX
-        /*
-        if (compiled) {
-            sourceDocument.putProperty(COMPILED, Boolean.TRUE);
-        }
-        else {
-            sourceDocument.putProperty(COMPILED, Boolean.FALSE);
-        }
-        */
     }
 
     /**
@@ -2834,21 +2821,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
             sourceDocument = new MoeSyntaxDocument(this);  // README file
         }
         listenToChanges(sourceDocument);
-        //MOEFX
-        //sourceDocument.addUndoableEditListener(undoManager);
 
         // create the text pane
-
-        /*MOEFX
-        EditorKit kit;
-        if (projectResolver != null) {
-            kit = new MoeSyntaxEditorKit(projectResolver, errorManager, errorManager);
-        }
-        else {
-            kit = new ReadmeEditorKit();
-        }
-        */
-        //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
         sourcePane = sourceDocument.makeEditorPane(this, compiledProperty);
         sourcePane.setCaretPosition(0);
         sourcePane.setUndoManager(undoManager);
@@ -2866,10 +2840,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         });
         sourcePane.setMouseOverTextDelay(java.time.Duration.ofMillis(400));
         sourcePane.addEventHandler(MouseOverTextEvent.ANY, this::mouseOverText);
-
-        //MOEFX
-        //sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
-        //FXTabbedEditor.disableCtrlTabTraversal(sourcePane);
 
         // default showing:
         //currentTextPane = sourcePane;
@@ -2917,22 +2887,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         //add popup menu
         sourcePane.setContextMenu(createPopupMenu());
 
-        // add event listener to handle the window close requests
-
-        //MOEFX (or was this already commented out?)
-        /*
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                close();
-            }
-            @Override
-            public void windowActivated(WindowEvent e) {
-                checkForChangeOnDisk();
-            }
-        });
-        */
-        
         // Set the size, respecting the current environment maximums.
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Rectangle maxBounds = ge.getMaximumWindowBounds();
@@ -3857,17 +3811,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             if (locatableImport.getStart() != -1)
             {
-                //MOEFX
-                /*
-                try
-                {
-                    getSourcePane().getDocument().remove(locatableImport.getStart(), locatableImport.getLength());
-                }
-                catch (BadLocationException e)
-                {
-                    Debug.reportError(e);
-                }
-                */
+                getSourcePane().replaceText(locatableImport.getStart(), locatableImport.getStart() + locatableImport.getLength(), "");
             }
         }
     }
