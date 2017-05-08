@@ -562,7 +562,7 @@ public class Project implements DebuggerListener, InspectorManager
         }
         
         if (project.statusFrame != null) {
-            project.statusFrame.dispose();
+            project.statusFrame.close();
         }
 
         Platform.runLater(() -> project.removeAllInspectors());
