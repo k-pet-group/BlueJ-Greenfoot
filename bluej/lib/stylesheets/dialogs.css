@@ -377,8 +377,8 @@
     -fx-min-width:  30em;
     -fx-pref-width: 43em;
 
-     -fx-min-height:  35em;
-     -fx-pref-height: 38em;
+    -fx-min-height:  35em;
+    -fx-pref-height: 38em;
 }
 
 .team-settings .grid {
@@ -389,4 +389,12 @@
     -fx-vgap: 0.5em;
 
     -fx-padding: 1em 1em 1.5em 2em;
+}
+
+.team-test-connection {
+    -fx-min-width:  10em;
+    -fx-pref-width: 25em;
+
+    -fx-min-height:  16em;
+    -fx-pref-height: 18em;
 }

@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.ui;
 
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -59,6 +60,9 @@ public class CheckConnectionDialog extends Dialog<Void>
         initModality(Modality.WINDOW_MODAL);
         setTitle(Config.getString("team.settings.checkConnection"));
         setResizable(true);
+
+        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-test-connection");
+        Config.addDialogStylesheets(getDialogPane());
 
         this.provider = provider;
         this.settings = settings;
