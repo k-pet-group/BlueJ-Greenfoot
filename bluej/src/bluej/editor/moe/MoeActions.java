@@ -1845,15 +1845,7 @@ public final class MoeActions
     private MoeAbstractAction toggleInterfaceAction()
     {
         return action("toggle-interface-view", Category.MISC, () -> {
-            /*MOEFX
-            Object source = e.getSource();
-            if (source instanceof JComboBox) {
-                getEditor().toggleInterface();
-            }
-            else {
-                getEditor().toggleInterfaceMenu();
-            }
-            */
+            getEditor().toggleInterface();
         });
     }
 

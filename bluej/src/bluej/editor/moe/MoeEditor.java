@@ -27,7 +27,6 @@ import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.io.BufferedOutputStream;
@@ -55,16 +54,13 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 
 import bluej.compiler.CompileReason;
@@ -1965,44 +1961,17 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     // --------------------------------------------------------------------
-    
-    /**
-     * Toggle the interface popup menu. This is used when using keys to toggle
-     * the interface view. Toggling the menu will result in invoking the action.
-     */
-    public void toggleInterfaceMenu()
-    {
-        if (!sourceIsCode)
-            return;
 
-        if (interfaceToggle.getSelectionModel().getSelectedIndex() == 0) {
-            interfaceToggle.getSelectionModel().select(1);
-        }
-        else {
-            interfaceToggle.getSelectionModel().select(0);
-        }
-    }
-
-    // --------------------------------------------------------------------
-    
     /**
      * Implementation of "toggle-interface-view" user function. The menu has
      * already been changed - now see what it is and do it.
      */
     public void toggleInterface()
     {
-        /*MOEFX
-        if (!sourceIsCode) {
-            return;
-        }
-
-        boolean wantHTML = (interfaceToggle.getSelectionModel().getSelectedItem() == interfaceString);
-        if (wantHTML && !viewingHTML) {
-            switchToInterfaceView();
-        }
-        else if (!wantHTML && viewingHTML) {
+        if (isShowingInterface())
             switchToSourceView();
-        }*/
+        else
+            switchToInterfaceView();
     }
 
     /**
@@ -2056,7 +2025,23 @@ public final class MoeEditor extends ScopeColorsBorderPane
         //dividerPanel.beginTemporaryHide();
         try {
             save();
-            displayInterface();
+            info.message(Config.getString("editor.info.loadingDoc"));
+            boolean generateDoc = ! docUpToDate();
+
+            if (generateDoc)
+            {
+                // interface needs to be re-generated
+                info.message(Config.getString("editor.info.generatingDoc"));
+                BlueJEvent.addListener(this);
+                if (watcher != null) {
+                    watcher.generateDoc();
+                }
+                refreshHtmlDisplay();
+            }
+
+            interfaceToggle.getSelectionModel().selectLast();
+            viewingHTML.set(true);
+            watcher.showingInterface(true);
         }
         catch (IOException ioe) {
             // Could display a dialog here. However, the error message
@@ -2232,36 +2217,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
         }
         */
-    }
-
-    /**
-     * We want to display the interface view. This will generate the
-     * documentation if necessary.
-     * 
-     * Don't call this directly to switch to the interface view. Call
-     * switchToInterfaceView() instead.
-     */
-    private void displayInterface()
-    {
-        //MOEFX
-        //info.message(Config.getString("editor.info.loadingDoc"));
-        boolean generateDoc = ! docUpToDate();
-
-        if (generateDoc)
-        {
-            // interface needs to be re-generated
-            info.message(Config.getString("editor.info.generatingDoc"));
-            BlueJEvent.addListener(this);
-            if (watcher != null) {
-                watcher.generateDoc();
-            }
-            refreshHtmlDisplay();
-        }
-
-        viewingHTML.set(true);
-        watcher.showingInterface(true);
-        //MOEFX
-        //initSearch();
     }
 
     // --------------------------------------------------------------------
@@ -3156,20 +3111,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 switchToSourceView();
         });
 
-        /*MOEFX
-        String actionName = "toggle-interface-view";
-        MoeAbstractAction action = actions.getActionByName(actionName);
-        if (action != null) {           // should never be null...
-            interfaceToggle.setOnAction(e -> action.actionPerformed(null));
-        }
-        else {
-            interfaceToggle.setDisable(true);
-            Debug.message("Moe: action not found: " + actionName);
-        }
-        if (!sourceIsCode) {
-            interfaceToggle.setDisable(true);
-        }
-        */
         return interfaceToggle;
     }
 

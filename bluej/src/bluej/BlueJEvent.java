@@ -103,7 +103,8 @@ public class BlueJEvent
     @OnThread(Tag.Any)
     public static void addListener(BlueJEventListener listener)
     {
-        listeners.add(listener);
+        if (!listeners.contains(listener))
+            listeners.add(listener);
     }
     
     /**
