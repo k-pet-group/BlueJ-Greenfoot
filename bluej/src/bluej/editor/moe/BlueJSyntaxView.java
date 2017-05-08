@@ -48,6 +48,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.richtext.model.TwoDimensional.Bias;
+import org.fxmisc.richtext.model.TwoDimensional.Position;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -112,6 +114,10 @@ public class BlueJSyntaxView
     private Color I1; // pink border (iteration)
     private Color I2; // pink wash
 
+
+    // Each item in the list maps the list index (as number of spaces) to indent amount
+    private final List<Integer> cachedSpaceSizes = new ArrayList<>();
+
     public static enum ParagraphAttribute
     {
         STEP_MARK("bj-step-mark"), BREAKPOINT("bj-breakpoint"), ERROR("bj-error"), ERROR_ABOVE("bj-error-above"), ERROR_BELOW("bj-error-below");
@@ -152,6 +158,12 @@ public class BlueJSyntaxView
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
             resetColors();
             imageCache.clear();
+            document.recalculateAllScopes();
+        });
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
+            imageCache.clear();
+            nodeIndents.clear();
+            cachedSpaceSizes.clear();
             document.recalculateAllScopes();
         });
         // We use class color as a proxy for listening to all colors:
@@ -623,15 +635,76 @@ public class BlueJSyntaxView
         }
     }
 
-    private int getLeftEdge(int startOffset)
+    /**
+     * Gets the left edge of the character at the given offset into the document, if we can calculate it.
+     */
+    private OptionalInt getLeftEdge(int startOffset)
     {
         if (editorPane == null)
-            return 0;
-        double x = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1).map(editorPane::screenToLocal).map(Bounds::getMinX).orElse(0.0);
-        // Allow for the left-hand margin.  We don't let it go below zero
-        // as zero is our special recalculate value meaning it's not initialised yet:
-        x = Math.max(0, x - 24);
-        return (int)x;
+            return OptionalInt.empty();
+
+        /*
+         * So, if a character is on screen, it's trivial to calculate the indent in pixels, we just ask the
+         * editor pane.  If the character is not on screen, the editor pane won't tell us the indent.  Which
+         * would prevent us drawing the scope boxes correctly.  Consider this case:
+         *                                <----- This is the top of the viewport
+         * class A
+         * {
+         *     public void method foo()
+         *     {
+         *
+         *                                <----- This is the bottom of the viewport
+         *  } //line X
+         * }
+         *
+         * Because we can't calculate the indent for line X, we would draw the scope box for the method with
+         * its left-hand edge 4 spaces in, rather than 1 as it should be, and when we scrolled down, it would
+         * either be wrong or we would need a redraw, which would look ugly.
+         *
+         * However, here's the trick.  If the line off-screen is *more* indented than any line on screen, it
+         * won't affect our scope drawing (because we are looking for the left edge).  If the line off-screen
+         * is indented *less* than any of the lines on screen then we can use the line on-screen with the highest
+         * indent to calculate the scope that we need.
+         *
+         * We store cached indent sizes (to cut down on continual recalculation) in the cachedSpaceSizes
+         * array, where item at index 0 is the pixel indent for 0 spaces, item 1 is the pixel indent for 1 spaces, etc.
+         * We are making the assumption that spaces are always the same sizes on each line, but I can't
+         * think of any situation where that is not the case.  We clear the array when the font size changes.
+         */
+
+        Position position = document.getDocument().offsetToPosition(startOffset, Bias.Forward);
+        if (document.getDocument().getParagraph(position.getMajor()).getText().substring(0, position.getMinor()).chars().allMatch(c -> c == ' '))
+        {
+            // All spaces, we can use/update cached space indents
+            int numberOfSpaces = position.getMinor();
+            while (numberOfSpaces >= cachedSpaceSizes.size())
+            {
+                // We have more spaces than the cache; we must update it if we can
+                Optional<Bounds> screenBounds = editorPane.getCharacterBoundsOnScreen(startOffset - numberOfSpaces + cachedSpaceSizes.size(), startOffset - numberOfSpaces + cachedSpaceSizes.size() + 1);
+                // If the character isn't on screen, we're not going to be able to calculate indent,
+                // and we know we haven't got a cached indent, so give up:
+                if (!screenBounds.isPresent())
+                    return OptionalInt.empty();
+                double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
+                cachedSpaceSizes.add((int)indent);
+            }
+            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces));
+        }
+        else
+        {
+            Optional<Bounds> screenBounds = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1);
+            if (screenBounds.isPresent())
+            {
+                // Minus 24 to allow for the left-hand margin:
+                double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
+                return OptionalInt.of((int)indent);
+            }
+            else
+            {
+                // Not on screen, wider than any indent we have cached, nothing we can do:
+                return OptionalInt.empty();
+            }
+        }
     }
 
     /**
@@ -765,8 +838,11 @@ public class BlueJSyntaxView
         // node short so that the text does not appear to be part of the node.
         int nwsb = findNonWhitespaceComment(nap, lineEl, lineSeg, napEnd - lineEl.getStartOffset());
         if (nwsb != -1) {
-            int eboundsX = getLeftEdge(napEnd);
-            return Math.min(rbound, eboundsX);
+            OptionalInt eboundsX = getLeftEdge(napEnd);
+            if (eboundsX.isPresent())
+                return Math.min(rbound, eboundsX.getAsInt());
+            else
+                return rbound;
         }
         return rbound;
     }
@@ -873,8 +949,11 @@ public class BlueJSyntaxView
             // we can do it without hitting non-whitespace (which must belong to another node).
             int nws = findNonWhitespaceBwards(segment, napPos - lineEl.getStartOffset() - 1, 0);
             if (nws != -1) {
-                int lboundsX = getLeftEdge(lineEl.getStartOffset() + nws + 1);
-                xpos = Math.max(xpos, lboundsX);
+                OptionalInt lboundsX = getLeftEdge(lineEl.getStartOffset() + nws + 1);
+                if (lboundsX.isPresent())
+                {
+                    xpos = Math.max(xpos, lboundsX.getAsInt());
+                }
             }
         }
 
@@ -939,8 +1018,11 @@ public class BlueJSyntaxView
 
                 if (nws == lineOffset) {
                     // Ok, at this position we have non-white space and are not in an inner
-                    int cboundsX = getLeftEdge(curpos);
-                    indent = Math.min(indent, cboundsX);
+                    OptionalInt cboundsX = getLeftEdge(curpos);
+                    if (cboundsX.isPresent())
+                    {
+                        indent = Math.min(indent, cboundsX.getAsInt());
+                    }
                     curpos = lineEl.getEndOffset();
                 }
                 else if (nws == -1) {
@@ -953,10 +1035,11 @@ public class BlueJSyntaxView
             }
 
             return indent == Integer.MAX_VALUE ? -1 : indent;
-        } finally {}
-        //catch (BadLocationException ble) {
-        //    return -1;
-        //}
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            return -1;
+        }
     }
     
     private int[] reassessIndentsAdd(int dmgStart, int dmgEnd)
@@ -1061,8 +1144,8 @@ public class BlueJSyntaxView
                 //   which start on or before the current line.
 
                 // Calculate/store indent
-                int cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                int indent = cboundsX;
+                OptionalInt cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
+                int indent = cboundsX.orElse(0); //MOEFX: is this right?
                 for (j = scopeStack.listIterator(scopeStack.size()); j.hasPrevious(); ) {
                     NodeAndPosition<ParsedNode> next = j.previous();
                     if (next.getPosition() <= curpos) {
@@ -1075,7 +1158,7 @@ public class BlueJSyntaxView
                         Integer oindent = nodeIndents.get(next.getNode());
                         if (oindent != null && nws != -1) {
                             cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                            indent = cboundsX;
+                            indent = cboundsX.orElse(0); //MOEFX: is this right?
                             updateNodeIndent(next, indent, oindent, dmgRange);
                         }
                     }
@@ -1109,7 +1192,7 @@ public class BlueJSyntaxView
                                 Integer oindent = nodeIndents.get(nap.getNode());
                                 if (oindent != null && nws != -1) {
                                     cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                                    indent = cboundsX;
+                                    indent = cboundsX.orElse(0); //MOEFX: is this right?
                                     updateNodeIndent(nap, indent, oindent, dmgRange);
                                 }
                             }
@@ -1188,8 +1271,8 @@ public class BlueJSyntaxView
 
             boolean doContinue = true;
 
-            int cboundsX = getLeftEdge(dmgPoint);
-            int dpI = cboundsX; // damage point indent
+            OptionalInt cboundsX = getLeftEdge(dmgPoint);
+            int dpI = cboundsX.orElse(0); //MOEFX: is this right?; // damage point indent
 
             while (doContinue && ! rscopeStack.isEmpty()) {
                 NodeAndPosition<ParsedNode> rtop = rscopeStack.remove(rscopeStack.size() - 1);
@@ -1238,7 +1321,7 @@ public class BlueJSyntaxView
                     }
 
                     cboundsX = getLeftEdge(nws + lineEl.getStartOffset());
-                    int newIndent = cboundsX;
+                    int newIndent = cboundsX.orElse(0); //MOEFX: is this right?
 
                     if (newIndent < cachedIndent) {
                         nodeIndents.put(rtop.getNode(), newIndent);
@@ -1379,20 +1462,6 @@ public class BlueJSyntaxView
         }
         return endPos - 1;
     }
-
-    /**
-     * Check whether a given line is tagged with a given tag.
-     * @param line The line to check
-     * @param tag  The name of the tag
-     * @return     True, if the tag is set
-     */
-    protected final boolean hasTag(Element line, String tag)
-    {
-        //MOEFX
-        return false;
-        //return Boolean.TRUE.equals(line.getAttributes().getAttribute(tag));
-    }
-
 
     /*
      * Need to override this method to handle node updates. If a node indentation changes,
