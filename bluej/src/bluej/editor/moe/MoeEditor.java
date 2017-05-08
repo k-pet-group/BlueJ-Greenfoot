@@ -2187,35 +2187,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void resetMenuToolbar(boolean sourceView)
     {
-        displayMenubar(sourceView);
+        if (sourceView)
+            actions.makeAllAvailable();
+        else
+            actions.makeAllUnavailableExcept("close", "toggle-interface-view");
     }
 
     // --------------------------------------------------------------------
-    
-    /**
-     * This method changes the display of the menubar based on the
-     * view (source/documentation) that is selected.
-     * 
-     * @param sourceView true if viewing source; false if viewing documentation
-     */
-    private void displayMenubar(boolean sourceView)
-    {
-        /*MOEFX
-        Component[] menus = menubar.getComponents();
-        for (Component menu : menus) {
-            if (menu instanceof JMenu) {
-                JMenu jmenu = (JMenu) menu; 
-                for (int j=0; j<jmenu.getMenuComponentCount(); j++){
-                    if (jmenu.getMenuComponent(j) instanceof JMenuItem){
-                        if (isEditAction(((JMenuItem)jmenu.getMenuComponent(j)).getName())){                  
-                            ((JMenuItem)jmenu.getMenuComponent(j)).setEnabled(sourceView);
-                        }
-                    }
-                }
-            }
-        }
-        */
-    }
 
     // --------------------------------------------------------------------
 

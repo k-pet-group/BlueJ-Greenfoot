@@ -1010,6 +1010,26 @@ public final class MoeActions
         return keymap.entrySet().stream().filter(e -> Objects.equals(e.getValue().getName(), actionName)).map(e -> e.getKey()).collect(Collectors.toList());
     }
 
+    /**
+     * Makes all actions unavailable (i.e. force disable) except the given actions
+     */
+    public void makeAllUnavailableExcept(String... actionNames)
+    {
+        Set<String> keepEnabled = new HashSet<>(Arrays.asList(actionNames));
+        for (Entry<String, MoeAbstractAction> action : this.actions.entrySet())
+        {
+            action.getValue().setAvailable(keepEnabled.contains(action.getKey()));
+        }
+    }
+
+    public void makeAllAvailable()
+    {
+        for (Entry<String, MoeAbstractAction> action : this.actions.entrySet())
+        {
+            action.getValue().setAvailable(true);
+        }
+    }
+
     public static enum Category
     {
         EDIT("editor.functions.editFunctions"), MOVE_SCROLL("editor.functions.moveScroll"), CLASS("editor.functions.classFunctions"), MISC("editor.functions.misc");
@@ -1124,6 +1144,7 @@ public final class MoeActions
     {
         private final String name;
         private boolean hasMenuItem = false;
+        private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
         private final BooleanProperty disabled = new SimpleBooleanProperty(false);
         private final ObjectBinding<KeyCombination> accelerator;
         private final Category category;
@@ -1153,6 +1174,18 @@ public final class MoeActions
             disabled.set(!enabled);
         }
 
+        /**
+         * There's two ways in which actions become disabled.  One is that their inherent
+         * state in the editor changes, e.g. no undo if you haven't made any changes.
+         * The other is that they become what we call unavailable, which happens when
+         * the documentation view is showing, for example.  So their GUI enabled status
+         * is actually the conjunction of being enabled and available.
+         */
+        public void setAvailable(boolean available)
+        {
+            unavailable.set(!available);
+        }
+
         public String getName()
         {
             return name;
@@ -1161,7 +1194,7 @@ public final class MoeActions
         public Button makeButton()
         {
             Button button = new Button(name);
-            button.disableProperty().bind(disabled);
+            button.disableProperty().bind(disabled.or(unavailable));
             button.setOnAction(e -> actionPerformed());
             return button;
         }
@@ -1186,7 +1219,7 @@ public final class MoeActions
         public MenuItem makeContextMenuItem()
         {
             MenuItem menuItem = new MenuItem(name);
-            menuItem.disableProperty().bind(disabled);
+            menuItem.disableProperty().bind(disabled.or(unavailable));
             menuItem.setOnAction(e -> actionPerformed());
             return menuItem;
         }
