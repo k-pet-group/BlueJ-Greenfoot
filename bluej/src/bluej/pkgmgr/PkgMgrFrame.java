@@ -3308,11 +3308,9 @@ public class PkgMgrFrame
             });
         });
         button.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
             	action.setFrame(this);
                 action.actionPerformed(this);
             });
-        });
     }
     
     /**
