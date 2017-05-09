@@ -75,8 +75,6 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
         Config.addDialogStylesheets(getDialogPane());
 //        getDialogPane().setPrefSize(360, 600);
 
-//        getDialogPane().getStyleClass().forEach(s -> bluej.utility.Debug.message("getDialogPane() = " + s.toLowerCase()));
-
         makeButtonPane();
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, getDialogPane().getStyleClass());
         getDialogPane().getChildren().add(teamSettingsPanel);

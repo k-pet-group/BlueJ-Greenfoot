@@ -220,8 +220,6 @@ public class TeamSettingsPanel extends FlowPane
     private void preparePersonalPane(ServerType type)
     {
         personalPane.getChildren().clear();
-        personalPane.setGridLinesVisible(false);
-        personalPane.setGridLinesVisible(true);
 
 //        yourNameField.setPromptText(Config.getString("team.settings.yourName"));
         // Request focus on the username field by default.
@@ -248,9 +246,6 @@ public class TeamSettingsPanel extends FlowPane
     {
         locationPane.getChildren().clear();
         protocolComboBox.setEditable(false);
-
-        personalPane.setGridLinesVisible(false);
-        locationPane.setGridLinesVisible(true);
 
         switch (type) {
             case Subversion:
