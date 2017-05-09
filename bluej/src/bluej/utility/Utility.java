@@ -780,62 +780,6 @@ public class Utility
     }
 
     /**
-     * Check if this is the first time a particular event (identified by the
-     * context string) has occurred "ever" (in this BlueJ installation).
-     * 
-     * @param context Identifies the event (a property name)
-     * @return true the first time the method was called with the given context;
-     *         false every subsequent time.
-     */
-    public static boolean firstTimeEver(String context)
-    {
-        boolean occurred = Config.getPropBoolean(context);
-        if (occurred) {
-            return false;
-        }
-
-        Config.putPropBoolean(context, true);
-        return true;
-    }
-
-    /**
-     * This method creates a MacOS button. It will create a "textured" button on
-     * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
-     * 
-     * @param button The button that should be changed.
-     */
-    @OnThread(Tag.Swing)
-    public static void changeToMacButton(AbstractButton button)
-    {
-        // available button styles, as of MacOS 10.5:
-        // square, gradient, bevel, textured, roundRect, recessed, help
-        // segmented styles:
-        // segmented, segmentedRoundRect, segmentedCapsule, segmentedTextured
-        // see: http://developer.apple.com/technotes/tn2007/tn2196.html
-
-        if (!Config.isMacOS()) {
-            return;
-        }
-
-        Border oldBorder = button.getBorder();
-
-        // the following works since MacOS 10.5
-        button.putClientProperty("JButton.buttonType", "square");
-
-        if (oldBorder == button.getBorder()) {
-            // if the border didn't change the "square" type probably doesn't
-            // exist, which means we are running on MacOS < 10.5. This means we
-            // should use the old pre-10.5 "toolbar" style instead.
-            button.putClientProperty("JButton.buttonType", "toolbar");
-        }
-        else {
-            // if we get to this point, the square button type is available, and
-            // we can continue configuring for that one.
-            button.setMargin(new Insets(3, 1, 3, 1));
-        }
-    }
-    
-    /**
      * Attempt to determine the prefix folder of a zip or jar archive.
      * That is, if all files in the archive are stored under a first-level
      * folder, return the name of that folder; otherwise return null.
