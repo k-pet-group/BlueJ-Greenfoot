@@ -40,15 +40,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.Properties;
-import java.util.Scanner;
+import java.util.*;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
@@ -132,6 +127,9 @@ public final class Config
     public static Properties moeSystemProps;  // moe (editor) properties
     public static Properties moeUserProps;    // moe (editor) properties
 
+    // We only want at most one BooleanProperty per property-name,
+    // so we have to keep track of the ones we've made:
+    private static final Map<String, BooleanProperty> booleanProperties = new HashMap<>();
 
     // bluej configuration properties hierarchy
     // (command overrides user which overrides system)
@@ -1229,6 +1227,27 @@ public final class Config
         }
         return value;
     }
+
+    /**
+     * Gets a boolean value from the BlueJ properties as JavaFX observable
+     * property.  Any changes to the property will be saved to the BlueJ properties
+     * automatically.
+     *
+     * Only one instance is created per property name for the lifetime of
+     * the program.  This is generally good as you can call this method twice
+     * and updates will be reflected in both returned properties (because it
+     * will be the same property object!).  But be careful if you bind
+     * the property as you may be unbinding an earlier binding.
+     */
+    public static BooleanProperty getPropBooleanProperty(String propname)
+    {
+        return booleanProperties.computeIfAbsent(propname, p -> {
+            boolean initial = getPropBoolean(propname);
+            SimpleBooleanProperty prop = new SimpleBooleanProperty(initial);
+            JavaFXUtil.addChangeListener(prop, b -> putPropBoolean(propname, b));
+            return prop;
+        });
+    }
     
     /**
      * Get a boolean value from the BlueJ properties. The default value is false.
@@ -1236,7 +1255,7 @@ public final class Config
     public static boolean getPropBoolean(String propname)
     {
         return parseBoolean(getPropString(propname, null));
-    }    
+    }
     
     /**
      * Get a boolean value from the BlueJ properties, with the specified default.

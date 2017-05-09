@@ -23,23 +23,17 @@ package bluej.terminal;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -53,14 +47,14 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 
 import bluej.BlueJTheme;
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingNode;
+import javafx.beans.property.BooleanProperty;
 import javafx.scene.Scene;
-import javafx.scene.control.MenuBar;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import bluej.BlueJEvent;
@@ -75,11 +69,13 @@ import bluej.debugmgr.ExecutionEvent;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.utility.javafx.FXSupplier;
-import bluej.utility.javafx.JavaFXUtil;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.StyledTextArea;
+import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
+import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
+import org.fxmisc.richtext.model.StyledText;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -91,9 +87,25 @@ import threadchecker.Tag;
  * @author  Philip Stevens
  */
 @SuppressWarnings("serial")
+@OnThread(Tag.FXPlatform)
 public final class Terminal
     implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
+
+    private VirtualizedScrollPane<?> errorScrollPane;
+
+    // The style for text in the stdout pane: was it output by the program, or input by the user?
+    // Or third option: details about method recording
+    private static enum StdoutStyle
+    {
+        OUTPUT, INPUT, METHOD_RECORDING;
+    }
+    // MOEFX TODO: add styles for formatting stack traces
+    private static enum StderrStyle
+    {
+        NORMAL;
+    }
+
     private static final String WINDOWTITLE = Config.getApplicationName() + ": " + Config.getString("terminal.title");
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -111,48 +123,32 @@ public final class Terminal
     private static int terminalFontSize = Config.getPropInteger(
             TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize().get());
     
-    private static boolean isMacOs = Config.isMacOS();
     private final String title;
 
     // -- instance --
 
     private final Project project;
     
-    private TermTextArea text;
-    private TermTextArea errorText;
-    private JScrollPane errorScrollPane;
-    private JScrollPane scrollPane;
-    private JSplitPane splitPane;
+    private final StyledTextArea<Void, StdoutStyle> text;
+    private StyledTextArea<Void, StderrStyle> errorText = null;
+    private final TextField input;
+    private final SplitPane splitPane;
     private boolean isActive = false;
-    private static boolean recordMethodCalls =
-            Config.getPropBoolean(RECORDMETHODCALLSPROPNAME);
-    private static boolean clearOnMethodCall =
-            Config.getPropBoolean(CLEARONMETHODCALLSPROPNAME);
-    private static boolean unlimitedBufferingCall =
-            Config.getPropBoolean(UNLIMITEDBUFFERINGCALLPROPNAME);
+    private static BooleanProperty recordMethodCalls =
+            Config.getPropBooleanProperty(RECORDMETHODCALLSPROPNAME);
+    private static BooleanProperty clearOnMethodCall =
+            Config.getPropBooleanProperty(CLEARONMETHODCALLSPROPNAME);
+    private static BooleanProperty unlimitedBufferingCall =
+            Config.getPropBooleanProperty(UNLIMITEDBUFFERINGCALLPROPNAME);
     private boolean newMethodCall = true;
     private boolean errorShown = false;
-    private InputBuffer buffer;
-
-    private JCheckBoxMenuItem autoClear;
-    private JCheckBoxMenuItem recordCalls;
-    private JCheckBoxMenuItem unlimitedBuffering;
+    private final InputBuffer buffer;
 
     @OnThread(Tag.Any) private final Reader in = new TerminalReader();
     @OnThread(Tag.Any) private final Writer out = new TerminalWriter(false);
     @OnThread(Tag.Any) private final Writer err = new TerminalWriter(true);
 
-    /** Used for lazy initialisation  */
-    private boolean initialised = false;
-    @OnThread(Tag.FX)
     private Stage window;
-    private JPanel mainPanel;
-    /**
-     * Since all the decisions to show or hide the window pass through the Swing
-     * thread, we can actually keep track reliably on the Swing thread of whether
-     * the FX window is currently showing:
-     */
-    private boolean isShowing;
 
     /**
      * Create a new terminal window with default specifications.
@@ -162,8 +158,65 @@ public final class Terminal
     {
         this.title = WINDOWTITLE + " - " + project.getProjectName();
         this.project = project;
+
+        buffer = new InputBuffer(256);
+        int width = Config.isGreenfoot() ? 80 : Config.getPropInteger("bluej.terminal.width", 80);
+        int height = Config.isGreenfoot() ? 10 : Config.getPropInteger("bluej.terminal.height", 22);
+        text = new StyledTextArea<Void, StdoutStyle>(null, (t, v) -> {}, StdoutStyle.OUTPUT, (t, s) -> {/*MOEFX TODO*/});
+        //MOEFX: set size
+                //height, width, buffer, this.project, this, false);
+
+        VirtualizedScrollPane<?> scrollPane = new VirtualizedScrollPane<>(text);
         //MOEFX
-        //initialise();
+        //text.setFont(getTerminalFont());
+        text.setEditable(false);
+        //MOEFX
+        //text.setMargin(new Insets(6, 6, 6, 6));
+        //MOEFX
+        //text.addKeyListener(this);
+        unlimitedBufferingCall.addListener(c -> {
+            //MOEFX toggle unlimited buffering
+        });
+
+        input = new TextField();
+        input.setOnAction(e -> {
+            buffer.putString(input.getText() + "\n");
+            buffer.notifyReaders();
+            input.clear();
+            e.consume();
+        });
+
+        splitPane = new SplitPane(new BorderPane(input, scrollPane, null, null, null));
+
+        BorderPane mainPanel = new BorderPane();
+        mainPanel.setCenter(splitPane);
+
+        mainPanel.setTop(makeMenuBar());
+        window = new Stage();
+        window.setWidth(500);
+        window.setHeight(500);
+        BlueJTheme.setWindowIconFX(window);
+        window.setTitle(title);
+        window.setScene(new Scene(mainPanel));
+
+        // Close Action when close button is pressed
+        window.setOnCloseRequest(e -> {
+            // We consume the event whatever happens, then decide if we can close:
+            e.consume();
+
+            // don't allow them to close the window if the debug machine
+            // is running.. tries to stop them from closing down the
+            // input window before finishing off input in the terminal
+            if (project != null) {
+                if (project.getDebugger().getStatus() == Debugger.RUNNING)
+                    return;
+            }
+            showHide(false);
+        });
+
+        Config.rememberPositionAndSize(window, "bluej.terminal");
+        //MOEFX
+        //text.setUnlimitedBuffering(unlimitedBufferingCall);
         BlueJEvent.addListener(this);
     }
 
@@ -194,21 +247,6 @@ public final class Terminal
         Config.putPropInteger(TERMINALFONTSIZEPROPNAME, terminalFontSize);
     }
 
-    
-    /**
-     * Initialise the terminal; create the UI.
-     */
-    private synchronized void initialise()
-    {
-        if(! initialised) {            
-            buffer = new InputBuffer(256);
-            int width = Config.isGreenfoot() ? 80 : Config.getPropInteger("bluej.terminal.width", 80);
-            int height = Config.isGreenfoot() ? 10 : Config.getPropInteger("bluej.terminal.height", 22);
-            makeWindow(width, height);
-            initialised = true;
-            text.setUnlimitedBuffering(unlimitedBufferingCall);
-        }
-    }
 
     /**
      * Show or hide the Terminal window.
@@ -217,16 +255,15 @@ public final class Terminal
     {
         DataCollector.showHideTerminal(project, show);
 
-        isShowing = show;
-        Platform.runLater(() -> {
-            if (show)
-                window.show();
-            else
-                window.hide();
-            if(show) {
-                SwingUtilities.invokeLater(() -> text.requestFocus());
-            }
-        });
+        if (show)
+        {
+            window.show();
+            input.requestFocus();
+        }
+        else
+        {
+            window.hide();
+        }
     }
     
     public void dispose()
@@ -242,7 +279,7 @@ public final class Terminal
      */
     public boolean isShown()
     {
-        return isShowing;
+        return window.isShowing();
     }
 
     /**
@@ -251,10 +288,7 @@ public final class Terminal
     public void activate(boolean active)
     {
         if(active != isActive) {
-            text.setEditable(active);
-            if (!active) {
-                text.getCaret().setVisible(false);
-            }
+            input.setEditable(active);
             isActive = active;
         }
     }
@@ -272,11 +306,13 @@ public final class Terminal
      */
     public void resetFont()
     {
+        /*MOEFX
         Font terminalFont = getTerminalFont();
         text.setFont(terminalFont);
         if (errorText != null) {
             errorText.setFont(terminalFont);
         }
+        */
     }
 
     /**
@@ -284,9 +320,9 @@ public final class Terminal
      */
     public void clear()
     {
-        text.setText("");
+        text.replaceText("");
         if(errorText!=null) {
-            errorText.setText("");
+            errorText.replaceText("");
         }
         hideErrorPane();
     }
@@ -310,7 +346,7 @@ public final class Terminal
                     try
                     {
                         FileWriter writer = new FileWriter(fileName);
-                        text.write(writer);
+                        writer.write(text.getText());
                         writer.close();
                     } catch (IOException ex)
                     {
@@ -327,7 +363,8 @@ public final class Terminal
         int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
         Font font = new Font("Monospaced", Font.PLAIN, printFontSize);
         if (job.printDialog()) {
-            TerminalPrinter.printTerminal(job, text, job.defaultPage(), font);
+            //MOEFX
+            //TerminalPrinter.printTerminal(job, text, job.defaultPage(), font);
         }
     }
 
@@ -336,6 +373,7 @@ public final class Terminal
      */
     private void writeToPane(boolean stdout, String s)
     {
+        //MOEFX: What about styling?
         prepare();
         if (!stdout)
             showErrorPane();
@@ -347,10 +385,10 @@ public final class Terminal
             s = s.substring(n + 1);
         }
         
-        TermTextArea tta = stdout ? text : errorText;
+        StyledTextArea<?, ?> tta = stdout ? text : errorText;
         
-        tta.append(s);
-        tta.setCaretPosition(tta.getDocument().getLength());       
+        tta.appendText(s);
+        tta.end(SelectionPolicy.CLEAR);
     }
     
     public void writeToTerminal(String s)
@@ -369,7 +407,7 @@ public final class Terminal
         }
         else if (Config.isGreenfoot()) {
             // In greenfoot new output should always show the terminal
-            if (!isShowing) {
+            if (!window.isShowing()) {
                 showHide(true);
             }
         }
@@ -381,31 +419,36 @@ public final class Terminal
     private void methodCall(String callString)
     {
         newMethodCall = false;
-        if(clearOnMethodCall) {
+        if(clearOnMethodCall.get()) {
             clear();
         }
-        if(recordMethodCalls) {
-            text.appendMethodCall(callString + "\n");
+        if(recordMethodCalls.get()) {
+            text.append(styled(callString + "\n", StdoutStyle.METHOD_RECORDING));
         }
         newMethodCall = true;
     }
-    
+
+    private static <S> ReadOnlyStyledDocument<Void,StyledText<S>, S> styled(String text, S style)
+    {
+        return ReadOnlyStyledDocument.fromString(text, null, style, StyledText.textOps());
+    }
+
     private void constructorCall(InvokerRecord ir)
     {
         newMethodCall = false;
-        if(clearOnMethodCall) {
+        if(clearOnMethodCall.get()) {
             clear();
         }
-        if(recordMethodCalls) {
+        if(recordMethodCalls.get()) {
             String callString = ir.getResultTypeString() + " " + ir.getResultName() + " = " + ir.toExpression() + ";";
-            text.appendMethodCall(callString + "\n");
+            text.append(styled(callString + "\n", StdoutStyle.METHOD_RECORDING));
         }
         newMethodCall = true;
     }
     
     private void methodResult(ExecutionEvent event)
     {
-        if (recordMethodCalls) {
+        if (recordMethodCalls.get()) {
             String result = null;
             String resultType = event.getResult();
             
@@ -439,7 +482,7 @@ public final class Terminal
             }
             
             if (result != null) {
-                text.appendMethodCall(result + "\n");
+                text.append(styled(result + "\n", StdoutStyle.METHOD_RECORDING));
             }
         }
     }
@@ -581,6 +624,8 @@ public final class Terminal
 
     private void backspace()
     {
+        //MOEFX
+        /*
         if (buffer.backSpace()) {
             try {
                 int length = text.getDocument().getLength();
@@ -589,6 +634,7 @@ public final class Terminal
                 Debug.reportError("bad location " + exc);
             }
         }
+        */
     }
 
 
@@ -630,106 +676,6 @@ public final class Terminal
     // ---- make window frame ----
 
     /**
-     * Create the Swing window.
-     */
-    private void makeWindow(int columns, int rows)
-    {
-        text = new TermTextArea(rows, columns, buffer, project, this, false);
-        final InputMap origInputMap = text.getInputMap();
-        text.setInputMap(JComponent.WHEN_FOCUSED, new InputMap() {
-            {
-                setParent(origInputMap);
-            }
-            
-            @Override
-            public Object get(KeyStroke keyStroke)
-            {
-                Object actionName = super.get(keyStroke);
-                
-                if (actionName == null) {
-                    return null;
-                }
-                
-                char keyChar = keyStroke.getKeyChar();
-                if (keyChar == KeyEvent.CHAR_UNDEFINED || keyChar < 32) {
-                    // We might want to filter the action
-                    if ("copy-to-clipboard".equals(actionName)) {
-                        return actionName;
-                    }
-                    if ("paste-from-clipboard".equals(actionName)) {
-                        // Handled via paste() in TermTextArea
-                        return actionName;
-                    }
-                    return PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT) ? actionName : null;
-                }
-                
-                return actionName;
-            }
-        });
-        
-        scrollPane = new JScrollPane(text);
-        text.setFont(getTerminalFont());
-        text.setEditable(false);
-        text.setMargin(new Insets(6, 6, 6, 6));
-        text.addKeyListener(this);
-
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-
-        SwingNode swingNode = new SwingNodeFixed();
-        swingNode.setContent(mainPanel);
-        FXPlatformSupplier<MenuBar> makeFXMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), mainPanel);
-        Platform.runLater(() -> {
-            window = new Stage();
-            window.setWidth(500);
-            window.setHeight(500);
-            BlueJTheme.setWindowIconFX(window);
-            window.setTitle(title);
-            MenuBar fxMenuBar = makeFXMenuBar.get();
-            fxMenuBar.setUseSystemMenuBar(true);
-            VBox.setVgrow(swingNode, Priority.ALWAYS);
-            window.setScene(new Scene(new VBox(fxMenuBar, swingNode)));
-
-            // Close Action when close button is pressed
-            window.setOnCloseRequest(e -> {
-                // We consume the event on the FX thread, then hop to the Swing
-                // thread to decide if we can close:
-                e.consume();
-    
-                SwingUtilities.invokeLater(() -> {
-                    // don't allow them to close the window if the debug machine
-                    // is running.. tries to stop them from closing down the
-                    // input window before finishing off input in the terminal
-                    if (project != null) {
-                        if (project.getDebugger().getStatus() == Debugger.RUNNING)
-                            return;
-                    }
-                    showHide(false);
-                });
-            });
-
-            Config.rememberPositionAndSize(window, "bluej.terminal");
-        });
-    }
-
-    /**
-     * Create a second scrolled text area to the window, for error output.
-     */
-    private void createErrorPane()
-    {
-        errorText = new TermTextArea(Config.isGreenfoot() ? 15 : 5, 80, null, project, this, true);
-        errorScrollPane = new JScrollPane(errorText);
-        errorText.setFont(getTerminalFont());
-        errorText.setEditable(false);
-        errorText.setMargin(new Insets(6, 6, 6, 6));
-        errorText.setUnlimitedBuffering(true);
-
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                   scrollPane, errorScrollPane); 
-    }
-    
-    /**
      * Show the errorPane for error output
      */
     private void showErrorPane()
@@ -743,24 +689,19 @@ public final class Terminal
         boolean isFirstShow = false; 
         if(errorText == null) {
             isFirstShow = true;
-            createErrorPane();
+            errorText = new StyledTextArea<Void, StderrStyle>(null, (t, v) -> {}, StderrStyle.NORMAL, (t, s) -> {/*MOEFX TODO*/});
+            //MOEFX: set size
+            //TermTextArea(Config.isGreenfoot() ? 15 : 5, 80, null, project, this, true);
+            errorScrollPane = new VirtualizedScrollPane<>(errorText);
+            //MOEFX
+            //errorText.setFont(getTerminalFont());
+            errorText.setEditable(false);
+            //MOEFX
+            //errorText.setMargin(new Insets(6, 6, 6, 6));
+            //MOEFX
+            //errorText.setUnlimitedBuffering(true);
         }
-     
-        mainPanel.remove(scrollPane);
-  
-        // We want to know if it is not the first time
-        // This means a "clear" has been used to remove the splitpane
-        // when this re-adds the scrollPane to the terminal area
-        // it implicitly removes it from the splitpane as it can only have one
-        // owner. The side-effect of this is the splitpane's
-        // top component becomes null.
-        if(!isFirstShow)
-            splitPane.setTopComponent(scrollPane);
-        mainPanel.add(splitPane, BorderLayout.CENTER);       
-        splitPane.resetToPreferredSizes();
-            
-        mainPanel.validate();
-        
+        splitPane.getItems().add(errorScrollPane);
         errorShown = true;
     }
     
@@ -772,51 +713,54 @@ public final class Terminal
         if(!errorShown) {
             return;
         }
-        mainPanel.remove(splitPane);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);        
-        errorShown = false; 
-        mainPanel.validate();
+        splitPane.getItems().remove(errorScrollPane);
+        errorShown = false;
     }
     
     /**
      * Create the terminal's menubar, all menus and items.
      */
-    private JMenuBar makeMenuBar()
+    private MenuBar makeMenuBar()
     {
-        JMenuBar menubar = new JMenuBar();
-        JMenu menu = new JMenu(Config.getString("terminal.options"));
-        JMenuItem item;
-        item = menu.add(new ClearAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,
-                                                   SHORTCUT_MASK));
-        item = menu.add(getCopyAction());
-        item.setText(Config.getString("terminal.copy"));
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-                                                   SHORTCUT_MASK));
-        item = menu.add(new SaveAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                                                   SHORTCUT_MASK));
-        menu.add(new PrintAction());
-        menu.add(new JSeparator());
+        MenuBar menubar = new MenuBar();
+        menubar.setUseSystemMenuBar(true);
+        Menu menu = new Menu(Config.getString("terminal.options"));
+        MenuItem clearItem = new MenuItem(Config.getString("terminal.clear"));
+        clearItem.setOnAction(e -> clear());
+        clearItem.setAccelerator(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN));
 
-        autoClear = new JCheckBoxMenuItem(new AutoClearAction());
-        autoClear.setSelected(clearOnMethodCall);
-        menu.add(autoClear);
+        MenuItem copyItem = new MenuItem(Config.getString("terminal.copy"));
+        copyItem.setOnAction(e -> text.copy());
+        copyItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
 
-        recordCalls = new JCheckBoxMenuItem(new RecordCallAction());
-        recordCalls.setSelected(recordMethodCalls);
-        menu.add(recordCalls);
+        MenuItem saveItem = new MenuItem(Config.getString("terminal.save"));
+        saveItem.setOnAction(e -> save());
+        saveItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
 
-        unlimitedBuffering = new JCheckBoxMenuItem(new BufferAction());
-        unlimitedBuffering.setSelected(unlimitedBufferingCall);
-        menu.add(unlimitedBuffering);
+        MenuItem printItem = new MenuItem("terminal.print");
+        printItem.setOnAction(e -> print());
+        printItem.setAccelerator(new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN));
 
-        menu.add(new JSeparator());
-        item = menu.add(new CloseAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-                                                   SHORTCUT_MASK));
+        menu.getItems().addAll(clearItem, copyItem, saveItem, printItem, new SeparatorMenuItem());
 
-        menubar.add(menu);
+        CheckMenuItem autoClear = new CheckMenuItem("terminal.clearScreen");
+        autoClear.selectedProperty().bindBidirectional(clearOnMethodCall);
+
+        CheckMenuItem recordCalls = new CheckMenuItem("terminal.recordCalls");
+        recordCalls.selectedProperty().bindBidirectional(recordMethodCalls);
+
+        CheckMenuItem unlimitedBuffering = new CheckMenuItem("terminal.buffering");
+        unlimitedBuffering.selectedProperty().bindBidirectional(unlimitedBufferingCall);
+
+        menu.getItems().addAll(autoClear, recordCalls, unlimitedBuffering);
+
+        MenuItem closeItem = new MenuItem("terminal.close");
+        closeItem.setOnAction(e -> showHide(false));
+        closeItem.setAccelerator(new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN));
+
+        menu.getItems().addAll(new SeparatorMenuItem(), closeItem);
+
+        menubar.getMenus().add(menu);
         return menubar;
     }
 
@@ -829,114 +773,6 @@ public final class Terminal
         BlueJEvent.removeListener(this);
     }
 
-
-    private class ClearAction extends AbstractAction
-    {
-        public ClearAction()
-        {
-            super(Config.getString("terminal.clear"));
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            clear();
-        }
-    }
-
-    private class SaveAction extends AbstractAction
-    {
-        public SaveAction()
-        {
-            super(Config.getString("terminal.save"));
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            save();
-        }
-    }
-    
-    private class PrintAction extends AbstractAction
-    {
-        public PrintAction()
-        {
-            super(Config.getString("terminal.print"));
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            print();
-        }
-    }
-
-    private class CloseAction extends AbstractAction
-    {
-        public CloseAction()
-        {
-            super(Config.getString("terminal.close"));
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            showHide(false);
-        }
-    }
-
-    private Action getCopyAction()
-    {
-        Action[] textActions = text.getActions();
-        for (int i=0; i < textActions.length; i++) {
-            if(textActions[i].getValue(Action.NAME).equals("copy-to-clipboard")) {
-                return textActions[i];
-            }
-        }
-
-        return null;
-    }
-
-    private class AutoClearAction extends AbstractAction
-    {
-        public AutoClearAction()
-        {
-            super(Config.getString("terminal.clearScreen"));
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            clearOnMethodCall = autoClear.isSelected();
-            Config.putPropBoolean(CLEARONMETHODCALLSPROPNAME, clearOnMethodCall);
-        }
-    }
-
-    private class RecordCallAction extends AbstractAction
-    {
-        public RecordCallAction()
-        {
-            super(Config.getString("terminal.recordCalls"));
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            recordMethodCalls = recordCalls.isSelected();
-            Config.putPropBoolean(RECORDMETHODCALLSPROPNAME, recordMethodCalls);
-        }
-    }
-
-    private class BufferAction extends AbstractAction
-    {
-        public BufferAction()
-        {
-            super(Config.getString("terminal.buffering"));
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            unlimitedBufferingCall = unlimitedBuffering.isSelected();
-            text.setUnlimitedBuffering(unlimitedBufferingCall);
-            Config.putPropBoolean(UNLIMITEDBUFFERINGCALLPROPNAME, unlimitedBufferingCall);
-        }
-    }
-            
     /**
      * A Reader which reads from the terminal.
      */
