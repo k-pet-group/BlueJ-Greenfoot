@@ -43,15 +43,12 @@ import javafx.scene.layout.HBox;
  *
  * A TableCell which either shows a label or a graphic.  They are wrapped
  * in a container to allow a border with padding to be applied.
- * 
- * 
+ *
  * @author Amjad Altadmri
  */
-public /*static*/ class StatusTableCell extends TableCell<TeamStatusInfo, Object> //StringOrInteger>
+public class StatusTableCell extends TableCell<TeamStatusInfo, Object>
     {
-        private HBox container = new HBox(); // HBox so that we can use baseline-alignment
         private Label label = new Label();
-        private ImageView objRefPic;
         private SimpleBooleanProperty showingLabel = new SimpleBooleanProperty(true);
         private SimpleBooleanProperty occupied = new SimpleBooleanProperty(true);
 
@@ -80,7 +77,8 @@ public /*static*/ class StatusTableCell extends TableCell<TeamStatusInfo, Object
             this.project = project;
             this.isDVCS = project.getTeamSettingsController().isDVCS();
 
-            objRefPic = new ImageView(objectrefIcon);
+            ImageView objRefPic = new ImageView(objectrefIcon);
+            HBox container = new HBox(); // HBox so that we can use baseline-alignment
             container.getChildren().addAll(label, objRefPic);
             JavaFXUtil.addStyleClass(container, "team-status-value-wrapper");
             JavaFXUtil.addStyleClass(label, "team-status-value-label");

@@ -36,6 +36,7 @@ import bluej.pkgmgr.Project;
  * 
  * 
  * @author Bruce Quig
+ * @author Amjad Altadmri
  */
 public abstract class StatusTableModel extends AbstractTableModel
 {

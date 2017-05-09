@@ -69,7 +69,7 @@ import java.util.stream.Stream;
 
 /**
  * A top level class to represent common features in Class and Interface frames
- * @author Amjad
+ * @author Amjad Altadmri
  */
 public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeElement & TopLevelCodeElement> extends DocumentedMultiCanvasFrame implements TopLevelFrame<ELEMENT>
 {
@@ -100,8 +100,6 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     protected final FrameContentRow methodsLabelRow;
 
     protected final FrameContentItem endSpacer;
-    // Local properties
-    private Properties localProperties = new Properties();
 
     public TopLevelDocumentMultiCanvasFrame(InteractionManager editor, EntityResolver projectResolver, String caption,
                                         String stylePrefix, String packageName, List<ImportElement> imports,
@@ -217,6 +215,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         //alterImports(editor.getImports());
 
         //Parameters
+        Properties localProperties = new Properties();
         localProperties.put("CAPTION", caption);
         paramName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), stylePrefix + "name-");
         paramName.addValueListener(SlotTraversalChars.IDENTIFIER);
