@@ -41,6 +41,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 
 import bluej.Config;
 import bluej.groupwork.actions.UpdateAction;
@@ -58,6 +59,7 @@ import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
 
 import threadchecker.OnThread;
@@ -83,8 +85,8 @@ public class UpdateFilesFrame extends FXCustomizedDialog
     private Repository repository;
     private ObservableList<UpdateStatus> updateListModel;
 
-    private Set<TeamStatusInfo> changedLayoutFiles; // set of TeamStatusInfo
-    private Set<File> forcedLayoutFiles; // set of File
+    private Set<TeamStatusInfo> changedLayoutFiles = new HashSet<>(); // set of TeamStatusInfo
+    private Set<File> forcedLayoutFiles = new HashSet<>(); // set of File
     private boolean includeLayout = true;
 
     private static UpdateStatus noFilesToUpdate = new UpdateStatus(Config.getString("team.noupdatefiles"));
@@ -94,11 +96,100 @@ public class UpdateFilesFrame extends FXCustomizedDialog
 
     public UpdateFilesFrame(Project proj)
     {
+//        super(owner);
         project = proj;
-        changedLayoutFiles = new HashSet<>();
-        forcedLayoutFiles = new HashSet<>();
+
+        initModality(Modality.WINDOW_MODAL);
+        setTitle(Config.getString("team.update.title"));
+        setResizable(true);
+
+        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-update-files");
+        Config.addDialogStylesheets(getDialogPane());
+
         createUI();
-        DialogManager.centreDialog(this);
+//        DialogManager.centreDialog(this);
+    }
+
+    /**
+     * Create the user-interface for the error display dialog.
+     */
+    private void createUI()
+    {
+        updateListModel = FXCollections.emptyObservableList();
+
+        //setIconImage(BlueJTheme.getIconImage());
+        rememberPosition("bluej.updatedisplay");
+
+        VBox topPanel = new VBox();
+
+        ScrollPane updateFileScrollPane = new ScrollPane();
+
+        Label updateFilesLabel = new Label(Config.getString("team.update.files"));
+        topPanel.getChildren().add(updateFilesLabel);
+
+        ListView<UpdateStatus> updateFiles = new ListView<>(updateListModel);
+        if (project.getTeamSettingsController().isDVCS()){
+            updateFiles.setCellFactory(param -> new FileRendererCell(project, true));//
+        } else {
+            updateFiles.setCellFactory(param -> new FileRendererCell(project));//
+        }
+        updateFiles.setDisable(true);
+        updateFileScrollPane.setContent(updateFiles);
+
+        topPanel.getChildren().add(updateFileScrollPane);
+
+        VBox bottomPanel = new VBox();
+
+        updateAction = new UpdateAction(this);
+        updateButton = new Button();// BlueJTheme.getOkButton();
+        updateButton.setOnAction(event -> {
+            updateAction.actionPerformed(null);
+            includeLayoutCheckbox.setDisable(true);
+        });
+        updateButton.requestFocus();
+
+        Button closeButton = new Button();// BlueJTheme.getCancelButton();
+        closeButton.setOnAction(event -> {
+            updateAction.cancel();
+            updateWorker.abort();
+            setVisible(false);
+        });
+
+        HBox buttonPanel = new HBox();
+
+        progressBar = new ActivityIndicatorFX();
+        progressBar.setRunning(false);
+
+        VBox checkBoxPanel = new VBox();
+        includeLayoutCheckbox = new CheckBox(Config.getString("team.update.includelayout"));
+        includeLayoutCheckbox.setDisable(true);
+        includeLayoutCheckbox.setOnAction(event -> {
+            CheckBox layoutCheck = (CheckBox)event.getSource();
+            includeLayout = layoutCheck.isSelected();
+            resetForcedFiles();
+            if (includeLayout) {
+                addModifiedLayouts();
+                if(updateButton.isDisabled()) {
+                    updateAction.setEnabled(true);
+                }
+            }
+            // unselected
+            else {
+                removeModifiedLayouts();
+                if(isUpdateListEmpty()) {
+                    updateAction.setEnabled(false);
+                }
+            }
+        });
+
+        checkBoxPanel.getChildren().addAll(includeLayoutCheckbox, buttonPanel);
+        buttonPanel.getChildren().addAll(progressBar, updateButton, closeButton);
+
+        bottomPanel.getChildren().add(checkBoxPanel);
+
+        VBox mainPanel = new VBox();
+        mainPanel.getChildren().addAll(topPanel, bottomPanel);
+        getDialogPane().getChildren().add(mainPanel);
     }
 
     public void setVisible(boolean visible)
@@ -140,90 +231,6 @@ public class UpdateFilesFrame extends FXCustomizedDialog
         else {
             hide();
         }
-    }
-
-    /**
-     * Create the user-interface for the error display dialog.
-     */
-    private void createUI()
-    {
-        setTitle(Config.getString("team.update.title"));
-        updateListModel = FXCollections.emptyObservableList();
-
-        //setIconImage(BlueJTheme.getIconImage());
-        rememberPosition("bluej.updatedisplay");
-
-        VBox topPanel = new VBox();
-
-        ScrollPane updateFileScrollPane = new ScrollPane();
-
-        Label updateFilesLabel = new Label(Config.getString("team.update.files"));
-        topPanel.getChildren().add(updateFilesLabel);
-
-        ListView<UpdateStatus> updateFiles = new ListView<>(updateListModel);
-        if (project.getTeamSettingsController().isDVCS()){
-            updateFiles.setCellFactory(param -> new FileRendererCell(project, true));//
-        } else {
-            updateFiles.setCellFactory(param -> new FileRendererCell(project));//
-        }
-        updateFiles.setDisable(true);
-        updateFileScrollPane.setContent(updateFiles);
-
-        topPanel.getChildren().add(updateFileScrollPane);
-
-        VBox bottomPanel = new VBox();
-
-        updateAction = new UpdateAction(this);
-        updateButton = new Button();// BlueJTheme.getOkButton();
-        updateButton.setOnAction(event -> {
-            updateAction.actionPerformed(null);
-            includeLayoutCheckbox.setDisable(true);
-        });
-        updateButton.requestFocus();
-
-        Button closeButton = new Button();// BlueJTheme.getCancelButton();
-        closeButton.setOnAction(event -> {
-            updateAction.cancel();
-            updateWorker.abort();
-            setVisible(false);
-        });
-
-
-        HBox buttonPanel = new HBox();
-
-        progressBar = new ActivityIndicatorFX();
-        progressBar.setRunning(false);
-
-        VBox checkBoxPanel = new VBox();
-        includeLayoutCheckbox = new CheckBox(Config.getString("team.update.includelayout"));
-        includeLayoutCheckbox.setDisable(true);
-        includeLayoutCheckbox.setOnAction(event -> {
-            CheckBox layoutCheck = (CheckBox)event.getSource();
-            includeLayout = layoutCheck.isSelected();
-            resetForcedFiles();
-            if (includeLayout) {
-                addModifiedLayouts();
-                if(updateButton.isDisabled()) {
-                    updateAction.setEnabled(true);
-                }
-            }
-            // unselected
-            else {
-                removeModifiedLayouts();
-                if(isUpdateListEmpty()) {
-                    updateAction.setEnabled(false);
-                }
-            }
-        });
-
-        checkBoxPanel.getChildren().addAll(includeLayoutCheckbox, buttonPanel);
-        buttonPanel.getChildren().addAll(progressBar, updateButton, closeButton);
-
-        bottomPanel.getChildren().add(checkBoxPanel);
-
-        VBox mainPanel = new VBox();
-        mainPanel.getChildren().addAll(topPanel, bottomPanel);
-        getDialogPane().getChildren().add(mainPanel);
     }
 
     public void reset()

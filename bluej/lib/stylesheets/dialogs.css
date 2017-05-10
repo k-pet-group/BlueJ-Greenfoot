@@ -398,3 +398,11 @@
     -fx-min-height:  16em;
     -fx-pref-height: 18em;
 }
+
+.team-update-files {
+    -fx-min-width:  10em;
+    -fx-pref-width: 25em;
+
+    -fx-min-height:  16em;
+    -fx-pref-height: 18em;
+}
