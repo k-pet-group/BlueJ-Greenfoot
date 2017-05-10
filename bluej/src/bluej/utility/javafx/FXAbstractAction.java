@@ -21,11 +21,13 @@
  */
 package bluej.utility.javafx;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCombination;
 
@@ -36,25 +38,21 @@ import threadchecker.Tag;
 /**
  * An FX Abstract Action to replace the Swing Action class
  *
- * @author NCCB
+ * @author Neil Brown
  */
 @OnThread(Tag.FXPlatform)
 public abstract class FXAbstractAction
 {
-    private final String name;
+    protected String name;
     private boolean hasMenuItem = false;
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
     private final BooleanProperty disabled = new SimpleBooleanProperty(false);
-    private /*final*/ ObjectBinding<KeyCombination> accelerator;
-    /*private final Category category;*/
+    private final ObjectBinding<KeyCombination> accelerator;
 
-    public FXAbstractAction(String name/*, Category category*/)
+    public FXAbstractAction(String name, KeyCombination accelerator)
     {
         this.name = name;
-//        this.category = category;
-//        this.accelerator = Bindings.createObjectBinding(() -> {
-//            return keymap.entrySet().stream().filter(e -> e.getValue().equals(this)).map(e -> e.getKey()).findFirst().orElse(null);
-//        }, keymap);
+        this.accelerator = Bindings.createObjectBinding(() -> accelerator);
     }
 
     public abstract void actionPerformed();
@@ -71,6 +69,11 @@ public abstract class FXAbstractAction
         if (disabled.isBound())
             disabled.unbind();
         disabled.set(!enabled);
+    }
+
+    public boolean isDisabled()
+    {
+        return disabled.get();
     }
 
     /**
@@ -90,12 +93,22 @@ public abstract class FXAbstractAction
         return name;
     }
 
+    public KeyCombination getAccelerator()
+    {
+        return accelerator.get();
+    }
+
     public Button makeButton()
     {
         Button button = new Button(name);
+        setButtonAction(button);
+        return button;
+    }
+
+    public void setButtonAction(ButtonBase button)
+    {
         button.disableProperty().bind(disabled.or(unavailable));
         button.setOnAction(e -> actionPerformed());
-        return button;
     }
 
     /**
@@ -106,10 +119,16 @@ public abstract class FXAbstractAction
      */
     public MenuItem makeMenuItem()
     {
-        MenuItem menuItem = makeContextMenuItem();
-        hasMenuItem = true;
-        menuItem.acceleratorProperty().bind(accelerator);
+        MenuItem menuItem = new MenuItem(name);
+        prepareMenuItem(menuItem);
         return menuItem;
+    }
+
+    public void prepareMenuItem(MenuItem menuItem)
+    {
+        prepareContextMenuItem(menuItem);
+        menuItem.acceleratorProperty().bind(accelerator);
+        hasMenuItem = true;
     }
 
     /**
@@ -118,9 +137,14 @@ public abstract class FXAbstractAction
     public MenuItem makeContextMenuItem()
     {
         MenuItem menuItem = new MenuItem(name);
+        prepareContextMenuItem(menuItem);
+        return menuItem;
+    }
+
+    private void prepareContextMenuItem(MenuItem menuItem)
+    {
         menuItem.disableProperty().bind(disabled.or(unavailable));
         menuItem.setOnAction(e -> actionPerformed());
-        return menuItem;
     }
 
     public String toString()

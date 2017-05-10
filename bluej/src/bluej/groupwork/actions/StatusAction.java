@@ -33,7 +33,6 @@ import bluej.pkgmgr.Project;
  * Action to show status.
  * 
  * @author bquig
- * @version $Id$
  */
 public class StatusAction extends TeamAction
 {
@@ -41,7 +40,7 @@ public class StatusAction extends TeamAction
     public StatusAction(PkgMgrFrame pmf)
     {
         super(pmf, "team.status", false);
-        putValue(SHORT_DESCRIPTION, Config.getString("tooltip.status"));
+        shortDescription = Config.getString("tooltip.status");
     }
 
     public void actionPerformed(PkgMgrFrame pmf)
