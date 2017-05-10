@@ -3365,7 +3365,7 @@ public class PkgMgrFrame
         action.setButtonAction(button);
         button.setOnAction(e -> {
             action.setFrame(this);
-            button.getOnAction().handle(e);
+            action.actionPerformed();
         });
         if (!noText && (button.getText() == null || button.getText().isEmpty()))
             button.setText(action.getName());
