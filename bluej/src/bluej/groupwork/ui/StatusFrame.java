@@ -149,7 +149,6 @@ public class StatusFrame extends FXCustomizedDialog
         // progress bar
         progressBar = new ActivityIndicatorFX();
         progressBar.setRunning(false);
-        buttonPanel.getChildren().add(progressBar);
 
         //close button
         Button closeButton = new Button();
@@ -166,8 +165,7 @@ public class StatusFrame extends FXCustomizedDialog
         refreshButton.setOnAction(event -> update());
         refreshButton.requestFocus();
 
-         buttonPanel.getChildren().addAll(progressBar, refreshButton, closeButton);
-
+        buttonPanel.getChildren().addAll(progressBar, refreshButton, closeButton);
         return buttonPanel;
     }
 
