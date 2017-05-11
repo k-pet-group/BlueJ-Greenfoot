@@ -596,6 +596,10 @@ public final class MoeActions
                 {
                     addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), "preferences");
                 }
+                if (version < 400)
+                {
+                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN), "reset-font");
+                }
                 return true;
             }
         }
@@ -982,6 +986,7 @@ public final class MoeActions
 
                 increaseFontAction(),
                 decreaseFontAction(),
+                resetFontAction(),
 
                 contentAssistAction()
         };
@@ -1106,6 +1111,7 @@ public final class MoeActions
         // cursor block
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), "increase-font");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), "decrease-font");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.DIGIT0, SHORTCUT_MASK), "reset-font");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), "autoindent");
     }
@@ -1621,6 +1627,13 @@ public final class MoeActions
     {
         return action("decrease-font", Category.MISC, () -> {
             Utility.decreaseFontSize(PrefMgr.getEditorFontSize());
+        });
+    }
+
+    private MoeAbstractAction resetFontAction()
+    {
+        return action("reset-font", Category.MISC, () -> {
+            PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE);
         });
     }
 

@@ -83,6 +83,7 @@ public class PrefMgr
     public static final int MIN_EDITOR_FONT_SIZE = 6;
     public static final int MAX_EDITOR_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
+    public static final int DEFAULT_JAVA_FONT_SIZE = 12;
     // font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorMacFontPropertyName = "bluej.editor.MacOS.font";
@@ -94,7 +95,7 @@ public class PrefMgr
     private static Font italicMenuFont;
     // initialised by a call to setEditorFontSize()
     @OnThread(Tag.FX)
-    private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(12);
+    private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(DEFAULT_JAVA_FONT_SIZE);
     private static final StringProperty editorStandardFont = new SimpleStringProperty("Source Code Pro");
     @OnThread(Tag.FX)
     private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
