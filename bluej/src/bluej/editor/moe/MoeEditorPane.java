@@ -104,6 +104,10 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
         JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
         syntaxView.setEditorPane(this);
+
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
+            JavaFXUtil.runPlatformLater(() -> requestLayout());
+        });
     }
 
     /*

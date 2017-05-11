@@ -385,6 +385,7 @@ public class MoeSyntaxDocument
     void recalculateAllScopes()
     {
         recalculateScopesForLinesInRange(0, document.getParagraphs().size() - 1);
+        applyPendingScopeBackgrounds();
     }
 
     void recalculateScopesForLinesInRange(int firstLineIncl, int lastLineIncl)
