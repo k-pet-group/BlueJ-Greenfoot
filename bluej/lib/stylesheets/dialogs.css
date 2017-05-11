@@ -377,8 +377,23 @@
     -fx-min-width:  30em;
     -fx-pref-width: 43em;
 
-    -fx-min-height:  35em;
-    -fx-pref-height: 38em;
+    -fx-min-height:  32em;
+    -fx-pref-height: 32em;
+
+    -fx-padding-left: 2em;
+    -fx-margin-left: 2em;
+
+     -bj-border-radius: 5;
+     -bj-background-radius: 10;
+     -bj-border-width: 2;
+
+     -fx-border-radius: 5;
+     -fx-background-radius: 10;
+     -fx-border-width: 2;
+}
+
+.team-settings .panel {
+    -fx-padding: 1em 1em 1.5em 2em;
 }
 
 .team-settings .grid {
@@ -399,7 +414,14 @@
     -fx-pref-height: 18em;
 }
 
-.team-update-files {
+.team-update-files,
+.team-commit-push,
+.team-commit-comments,
+.team-conflicts,
+.team-history,
+.team-module-select,
+.team-status
+{
     -fx-min-width:  10em;
     -fx-pref-width: 25em;
 

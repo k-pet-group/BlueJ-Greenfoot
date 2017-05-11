@@ -54,7 +54,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
-public class ModuleSelectDialog extends FXCustomizedDialog
+public class ModuleSelectDialog extends FXCustomizedDialog<Void>
 {
     private Repository repository;
 
@@ -67,46 +67,10 @@ public class ModuleSelectDialog extends FXCustomizedDialog
 
     public ModuleSelectDialog(FXPlatformSupplier<Window> owner, Repository repository)
     {
-        super(owner);
-        setTitle(Config.getString("team.moduleselect.title"));
-        setModal(true);
+        super(owner.get(), "team.moduleselect.title", "team-module-select");
         this.repository = repository;
+        setModal(true);
         buildUI();
-    }
-
-    /**
-     * Get the selected module name, or null if no module was selected
-     * (dialog was cancelled).
-     */
-    public String getModuleName()
-    {
-        if (wasOk) {
-            return moduleField.getText();
-        }
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * Start the progress bar. Safe to call from any thread.
-     */
-    private void startProgressBar()
-    {
-        progressBar.setRunning(true);
-    }
-
-    /**
-     * Stop the progress bar. Safe to call from any thread.
-     */
-    private void stopProgressBar()
-    {
-        progressBar.setRunning(false);
-    }
-
-    private void setModuleList(ObservableList<String> modules)
-    {
-        moduleList.setItems(modules);
     }
 
     private void buildUI()
@@ -206,7 +170,42 @@ public class ModuleSelectDialog extends FXCustomizedDialog
             }
             hide();
         });
-         buttonBox.getChildren().add(cancelButton);
+        buttonBox.getChildren().add(cancelButton);
+    }
+
+    /**
+     * Get the selected module name, or null if no module was selected
+     * (dialog was cancelled).
+     */
+    public String getModuleName()
+    {
+        if (wasOk) {
+            return moduleField.getText();
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Start the progress bar. Safe to call from any thread.
+     */
+    private void startProgressBar()
+    {
+        progressBar.setRunning(true);
+    }
+
+    /**
+     * Stop the progress bar. Safe to call from any thread.
+     */
+    private void stopProgressBar()
+    {
+        progressBar.setRunning(false);
+    }
+
+    private void setModuleList(ObservableList<String> modules)
+    {
+        moduleList.setItems(modules);
     }
 
     /**

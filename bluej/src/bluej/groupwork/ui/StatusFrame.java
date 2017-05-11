@@ -64,7 +64,7 @@ import threadchecker.Tag;
  * @author Amjad Altadmri
  *
  */
-public class StatusFrame extends FXCustomizedDialog
+public class StatusFrame extends FXCustomizedDialog<Void>
 {
     private Project project;
     private StatusTableModel statusModel;
@@ -81,9 +81,8 @@ public class StatusFrame extends FXCustomizedDialog
      */
     public StatusFrame(Project proj)
     {
+        super(null, "team.status", "team-status");
         project = proj;
-        setTitle(Config.getString("team.status"));
-
         // The layout should be Vertical, if not replace with a VBox.
         getDialogPane().getChildren().addAll(makeMainPane(), makeButtonPanel());
     }

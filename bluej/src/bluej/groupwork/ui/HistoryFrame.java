@@ -34,8 +34,13 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -54,6 +59,7 @@ import bluej.utility.javafx.FXCustomizedDialog;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
 /**
  * A frame to display the commit history, including dates, users, revisions
  * and commit comments.
@@ -61,7 +67,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
-public class HistoryFrame extends FXCustomizedDialog
+public class HistoryFrame extends FXCustomizedDialog<Void>
 {
     private Project project;
     private ActivityIndicatorFX activityBar;
@@ -82,7 +88,7 @@ public class HistoryFrame extends FXCustomizedDialog
      */
     public HistoryFrame(PkgMgrFrame pmf)
     {
-        setTitle(Config.getString("team.history.title"));
+        super(pmf.getFXWindow(), "team.history.title", "team-history");
         project = pmf.getProject();
         buildUI();
         prepareData();
@@ -141,10 +147,10 @@ public class HistoryFrame extends FXCustomizedDialog
 //        buttonBox.getChildren().add(Box.createHorizontalGlue());
         Button closeButton = new Button(Config.getString("close"));
         closeButton.setOnAction(event -> {
-                if (worker != null) {
-                    worker.cancel();
-                }
-                close();
+            if (worker != null) {
+                worker.cancel();
+            }
+            close();
         });
         buttonBox.getChildren().add(closeButton);
         contentPane.getChildren().add(buttonBox);

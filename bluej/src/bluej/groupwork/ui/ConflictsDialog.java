@@ -43,9 +43,9 @@ import javafx.scene.layout.VBox;
  * @author fisker
  * @author Amjad Altadmri
  */
-public class ConflictsDialog extends FXCustomizedDialog
+public class ConflictsDialog extends FXCustomizedDialog<Void>
 {
-    private Label heading;
+    //    private Label heading;
     private List<String> bluejConflicts;
     private List<String> nonBluejConflicts;
     private Project project;
@@ -58,15 +58,14 @@ public class ConflictsDialog extends FXCustomizedDialog
     public ConflictsDialog(Project project, List<String> bluejConflicts,
                            List<String> nonBlueJConflicts)
     {
-        super();
+        super(null, "team.conflicts.title", "team-conflicts");
         this.project = project;
         this.bluejConflicts = bluejConflicts;
         this.nonBluejConflicts = nonBlueJConflicts;
-        setTitle(Config.getString("team.conflicts.title"));
-        makeWindow();
+        buildUI();
     }
 
-    private void makeWindow()
+    private void buildUI()
     {
         VBox mainPanel = new VBox();
         Pane bluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
@@ -83,7 +82,6 @@ public class ConflictsDialog extends FXCustomizedDialog
         getDialogPane().getChildren().add(mainPanel);
 
         rememberPosition("bluej.teamwork.conflicts");
-        setResizable(true);
     }
 
     private Pane makeConflictsPanel(String headline, List<String> conflicts)
@@ -123,7 +121,6 @@ public class ConflictsDialog extends FXCustomizedDialog
 //        buttonPanel.setAlignment(??);
 //        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 //        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
 
         //close button
         Button closeButton = new Button(Config.getString("close"));

@@ -26,7 +26,6 @@ import bluej.Config;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Dialog;
-import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 import threadchecker.OnThread;
@@ -40,25 +39,18 @@ import threadchecker.Tag;
  */
 public class FXCustomizedDialog<R> extends Dialog<R>
 {
-    private boolean modal = false;
-
-    protected FXCustomizedDialog()
+    protected FXCustomizedDialog(Window owner, String title, String style)
     {
-        // Provide a content pane by default:
-        Pane content = new Pane();
-        getDialogPane().setContent(content);
-        initModality(Modality.NONE);
+        initOwner(owner);
+        initModality(Modality.WINDOW_MODAL);
+        setTitle(Config.getString(title));
+        setResizable(true);
+        JavaFXUtil.addStyleClass(this.getDialogPane(), style);
+        Config.addDialogStylesheets(getDialogPane());
     }
 
-    protected FXCustomizedDialog(FXPlatformSupplier<Window> owner)
-    {
-        this();
-        initOwner(owner.get());
-    }
-    
     protected void setModal(boolean makeModal)
     {
-        this.modal = makeModal;
         initModality(makeModal ? Modality.APPLICATION_MODAL : Modality.NONE);
     }
 
@@ -77,13 +69,12 @@ public class FXCustomizedDialog<R> extends Dialog<R>
         Scene scene = getDialogPane().getScene();
         if (scene == null)
             return null;
-        else
-            return scene.getWindow();
+        return scene.getWindow();
     }
-    
+
     public void setLocationRelativeTo(Node comp)
     {
-        
+
     }
 
     @OnThread(Tag.FXPlatform)
@@ -91,10 +82,10 @@ public class FXCustomizedDialog<R> extends Dialog<R>
     {
 
     }
-    
+
     protected void dialogThenHide(FXPlatformRunnable action)
     {
-            action.run();
-            hide();
+        action.run();
+        hide();
     }
 }

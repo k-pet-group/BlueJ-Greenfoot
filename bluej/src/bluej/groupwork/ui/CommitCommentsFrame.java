@@ -46,6 +46,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.groupwork.CommitFilter;
@@ -72,84 +73,39 @@ import threadchecker.Tag;
  * @author Bruce Quig
  * @author Amjad Altadmri
  */
-public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAndPushInterface
+public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements CommitAndPushInterface
 {
-    private TextArea commitText;
-    private Button commitButton;
-    private CheckBox includeLayout;
-    private ActivityIndicatorFX progressBar;
+    private Project project;
+    private Repository repository;
+
     private CommitAction commitAction;
     private CommitWorker commitWorker;
 
-    private Project project;
-
-    private Repository repository;
-    private ObservableList commitListModel;
-
-    private Set<TeamStatusInfo> changedLayoutFiles;
-
+    private ObservableList commitListModel = FXCollections.emptyObservableList();
+    private Set<TeamStatusInfo> changedLayoutFiles = new HashSet<>();
     /** The packages whose layout should be committed compulsorily */
     private Set<File> packagesToCommmit = new HashSet<>();
 
     private static String noFilesToCommit = Config.getString("team.nocommitfiles");
 
-    public CommitCommentsFrame(Project proj)
+    private TextArea commitText;
+    private Button commitButton;
+    private CheckBox includeLayout;
+    private ActivityIndicatorFX progressBar;
+
+    public CommitCommentsFrame(Project proj, Window owner)
     {
+        super(owner, "team.commit.title", "team-commit-comments");
         project = proj;
-        changedLayoutFiles = new HashSet<>();
-        createUI();
-        DialogManager.centreDialog(this);
-    }
-
-    public void setVisible(boolean visible)
-    {
-        if (visible) {
-            show();
-            // we want to set comments and commit action to disabled
-            // until we know there is something to commit
-            commitAction.setEnabled(false);
-            commitText.setDisable(true);
-            includeLayout.setSelected(false);
-            includeLayout.setDisable(true);
-            changedLayoutFiles.clear();
-            commitListModel.clear();
-
-            repository = project.getRepository();
-
-            if (repository != null) {
-                try {
-                    project.saveAllEditors();
-                    project.saveAll();
-                }
-                catch (IOException ioe) {
-                    String msg = DialogManager.getMessage("team-error-saving-project");
-                    if (msg != null) {
-                        msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
-                        String msgFinal = msg;
-                        Platform.runLater(() -> DialogManager.showErrorTextFX(asWindow(), msgFinal));
-                    }
-                }
-                startProgress();
-                commitWorker = new CommitWorker();
-                commitWorker.start();
-            }
-            else {
-                hide();
-            }
-        }
-        else {
-            hide();
-        }
+        buildUI();
+//        DialogManager.centreDialog(this);
     }
 
     /**
      * Create the user-interface for the error display dialog.
      */
-    protected void createUI()
+    protected void buildUI()
     {
-        setTitle(Config.getString("team.commit.title"));
-        commitListModel = FXCollections.emptyObservableList();
-
         //setIconImage(BlueJTheme.getIconImage());
         rememberPosition("bluej.commitdisplay");
 
@@ -227,6 +183,47 @@ public class CommitCommentsFrame extends FXCustomizedDialog implements CommitAnd
 
         splitPane.getItems().add(bottomPanel);
         getDialogPane().getChildren().add(splitPane);
+    }
+
+    public void setVisible(boolean visible)
+    {
+        if (visible) {
+            show();
+            // we want to set comments and commit action to disabled
+            // until we know there is something to commit
+            commitAction.setEnabled(false);
+            commitText.setDisable(true);
+            includeLayout.setSelected(false);
+            includeLayout.setDisable(true);
+            changedLayoutFiles.clear();
+            commitListModel.clear();
+
+            repository = project.getRepository();
+
+            if (repository != null) {
+                try {
+                    project.saveAllEditors();
+                    project.saveAll();
+                }
+                catch (IOException ioe) {
+                    String msg = DialogManager.getMessage("team-error-saving-project");
+                    if (msg != null) {
+                        msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
+                        String msgFinal = msg;
+                        Platform.runLater(() -> DialogManager.showErrorTextFX(asWindow(), msgFinal));
+                    }
+                }
+                startProgress();
+                commitWorker = new CommitWorker();
+                commitWorker.start();
+            }
+            else {
+                hide();
+            }
+        }
+        else {
+            hide();
+        }
     }
 
     public String getComment()

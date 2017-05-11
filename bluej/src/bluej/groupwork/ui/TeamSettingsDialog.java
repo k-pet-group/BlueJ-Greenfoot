@@ -21,15 +21,12 @@
  */
 package bluej.groupwork.ui;
 
-import bluej.Config;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 
-import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.FXCustomizedDialog;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.stage.Modality;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -42,9 +39,8 @@ import threadchecker.Tag;
  * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
-public class TeamSettingsDialog extends Dialog<TeamSettings>
+public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
 {
-    private String title = Config.getString("team.settings.title");
     private TeamSettingsController teamSettingsController;
     private TeamSettingsPanel teamSettingsPanel;
     private Button okButton;
@@ -55,24 +51,17 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
      */
     public TeamSettingsDialog(Window parent, TeamSettingsController controller)
     {
-        initOwner(parent);
+        super(parent, "team.settings.title", "team-settings");
         teamSettingsController = controller;
-        initModality(Modality.WINDOW_MODAL);
-        setResizable(true);
-
 
         if(teamSettingsController.hasProject()) {
-            title += " - " + teamSettingsController.getProject().getProjectName();
+            setTitle(getTitle() + " - " + teamSettingsController.getProject().getProjectName());
         }
-        setTitle(title);
-          setHeaderText(null);//
-//        setGraphic(new ImageView(this.getClass().getResource("team.png").toString()));
 
+        setHeaderText(null);//
+//        setGraphic(new ImageView(this.getClass().getResource("team.png").toString()));
 //        dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton());
 //        setDialogPane(dialogPane);
-
-        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-settings");
-        Config.addDialogStylesheets(getDialogPane());
 //        getDialogPane().setPrefSize(360, 600);
 
         makeButtonPane();
@@ -123,7 +112,7 @@ public class TeamSettingsDialog extends Dialog<TeamSettings>
     {
         okButton.setDisable(!enabled);
     }
-    
+
     /**
      * Get the settings specified by the user
      */

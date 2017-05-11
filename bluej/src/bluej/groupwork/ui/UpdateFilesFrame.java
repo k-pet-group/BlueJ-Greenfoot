@@ -41,7 +41,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 
 import bluej.Config;
 import bluej.groupwork.actions.UpdateAction;
@@ -59,7 +58,6 @@ import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
-import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
 
 import threadchecker.OnThread;
@@ -72,7 +70,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
-public class UpdateFilesFrame extends FXCustomizedDialog
+public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 {
     private Button updateButton;
     private CheckBox includeLayoutCheckbox;
@@ -96,24 +94,16 @@ public class UpdateFilesFrame extends FXCustomizedDialog
 
     public UpdateFilesFrame(Project proj)
     {
-//        super(owner);
+        super(null, "team.update.title", "team-update-files");
         project = proj;
-
-        initModality(Modality.WINDOW_MODAL);
-        setTitle(Config.getString("team.update.title"));
-        setResizable(true);
-
-        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-update-files");
-        Config.addDialogStylesheets(getDialogPane());
-
-        createUI();
+        buildUI();
 //        DialogManager.centreDialog(this);
     }
 
     /**
      * Create the user-interface for the error display dialog.
      */
-    private void createUI()
+    private void buildUI()
     {
         updateListModel = FXCollections.emptyObservableList();
 

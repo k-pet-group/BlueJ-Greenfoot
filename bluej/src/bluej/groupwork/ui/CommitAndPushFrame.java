@@ -36,6 +36,7 @@ import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
+import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
 
 import java.io.File;
@@ -61,37 +62,37 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A Swing based user interface to commit and push. Used by DCVS systems, like
- * Git.
+ * A user interface to commit and push. Used by DCVS systems, like Git.
  *
  * @author Fabio Heday
+ * @author Amjad Altadmri
  */
-public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
+public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements CommitAndPushInterface
 {
-
     private final Project project;
-
-    private Set<TeamStatusInfo> changedLayoutFiles;
     private Repository repository;
 
-   
+    private Set<TeamStatusInfo> changedLayoutFiles = new HashSet<>();
+    private ObservableList commitListModel = new ReadOnlyListWrapper();
+    private ObservableList pushListModel = new ReadOnlyListWrapper();
+
     private VBox topPanel, middlePanel, bottomPanel;
     private ActivityIndicatorFX progressBar;
     private CheckBox includeLayout;
     private TextArea commitText;
     private ListView commitFiles, pushFiles;
-    private ObservableList commitListModel, pushListModel;
     private Button commitButton, pushButton;
 
     private CommitAction commitAction;
     private PushAction pushAction;
     private CommitAndPushWorker commitAndPushWorker;
     private boolean emptyCommitText = true;
-    
+
     //sometimes, usually after a conflict resolution, we need to push in order
     //to update HEAD.
     private boolean pushWithNoChanges = false;
@@ -100,56 +101,49 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
     private static final String noFilesToPush = Config.getString("team.nopushfiles");
     private static final String pushNeeded = Config.getString("team.pushNeeded");
 
-    public CommitAndPushFrame(Project proj)
+    public CommitAndPushFrame(Project proj, Window owner)
     {
+        super(owner, "team.commit.dcvs.title", "team-commit-push");
         project = proj;
-        changedLayoutFiles = new HashSet<>();
         repository = project.getTeamSettingsController().getRepository(false);
-
-        createUI();
+        buildUI();
 //        DialogManager.centreDialog(this);
     }
 
     /**
      * Create the user-interface for the error display dialog.
      */
-    protected void createUI()
+    private void buildUI()
     {
-
-        setTitle(Config.getString("team.commit.dcvs.title"));
-        commitListModel = new ReadOnlyListWrapper();
-        pushListModel = new ReadOnlyListWrapper();
-
 //        rememberPosition("bluej.commitdisplay");
-        
         topPanel = new VBox();//
 //        topPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
         VBox windowPanel = new VBox();//
 //        windowPanel.setBorder(BlueJTheme.generalBorder);
 
         ScrollPane commitFileScrollPane = new ScrollPane();
-        
-        {
+
 //            topPanel.setLayout(new BorderLayout());
 //            windowPanel.setLayout(new BorderLayout());
 //            topPanel.setBorder(BorderFactory.createEmptyBorder());
 
-            Label commitFilesLabel = new Label(Config.getString("team.commitPush.commit.files"));
+        Label commitFilesLabel = new Label(Config.getString("team.commitPush.commit.files"));
 //            commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-            topPanel.getChildren().add(commitFilesLabel);
-            commitFiles = new ListView(commitListModel);
+        topPanel.getChildren().add(commitFilesLabel);
+        commitFiles = new ListView(commitListModel);
 //            commitFiles.setVisibleRowCount(4);
 //            commitFiles.setCellRenderer(new FileRenderer(project, false));
-            commitFiles.setDisable(true);
-            
-            commitFileScrollPane.setContent(commitFiles);
-            commitFiles.setMaxSize(commitFiles.getMaxWidth(), commitFiles.getMaxHeight());
-            commitFiles.setMinSize(commitFiles.getMaxWidth(), commitFiles.getMaxHeight());
-            commitFiles.setBackground(windowPanel.getBackground());//
+        commitFiles.setDisable(true);
 
-            topPanel.getChildren().add(commitFileScrollPane);
-        }
+        commitFileScrollPane.setContent(commitFiles);
+        commitFiles.setMaxSize(commitFiles.getMaxWidth(), commitFiles.getMaxHeight());
+        commitFiles.setMinSize(commitFiles.getMaxWidth(), commitFiles.getMaxHeight());
+        commitFiles.setBackground(windowPanel.getBackground());//
+
+        topPanel.getChildren().add(commitFileScrollPane);
+
         windowPanel.getChildren().add(topPanel);
+
         middlePanel = new VBox();//
 
         Button closeButton = new Button(Config.getString("close"));
@@ -159,18 +153,18 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
 //            middlePanel.setLayout(new BorderLayout());
 //            middlePanel.setBorder(BorderFactory.createEmptyBorder());
 
-            Label commentLabel = new Label(Config.getString("team.commit.comment"));
+        Label commentLabel = new Label(Config.getString("team.commit.comment"));
 //            commentLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
-            middlePanel.getChildren().add(commentLabel);
+        middlePanel.getChildren().add(commentLabel);
 
-            commitText = new TextArea("");
-            commitText.setPrefRowCount(5);
-            commitText.setPrefColumnCount(35);
-            commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
+        commitText = new TextArea("");
+        commitText.setPrefRowCount(5);
+        commitText.setPrefColumnCount(35);
+        commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
 
-            ScrollPane commitTextScrollPane = new ScrollPane(commitText);
-            commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
-            middlePanel.getChildren().add(commitTextScrollPane);
+        ScrollPane commitTextScrollPane = new ScrollPane(commitText);
+        commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
+        middlePanel.getChildren().add(commitTextScrollPane);
 
 
         commitAction = new CommitAction(this);
@@ -189,32 +183,32 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
         VBox checkBoxPanel = new VBox();
 //        DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
 //        checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(10,0,10,10));
-                        
-            includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
-            includeLayout.setDisable(true);
-            includeLayout.setOnAction(event -> {
-                CheckBox layoutCheck = (CheckBox) event.getSource();
-                if (layoutCheck.isSelected()) {
-                    addModifiedLayouts();
-                    if (commitButton.isDisable()) {
-                        commitAction.setEnabled(!emptyCommitText);/////
-                    }
-                } // unselected
-                else {
-                    removeModifiedLayouts();
-                    if (isCommitListEmpty()) {
-                        commitAction.setEnabled(false);
-                    }
-                }
-            });
 
-            checkBoxPanel.getChildren().add(includeLayout);
-            HBox commitArea = new HBox();
-            commitArea.setAlignment(Pos.CENTER_RIGHT);
+        includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
+        includeLayout.setDisable(true);
+        includeLayout.setOnAction(event -> {
+            CheckBox layoutCheck = (CheckBox) event.getSource();
+            if (layoutCheck.isSelected()) {
+                addModifiedLayouts();
+                if (commitButton.isDisable()) {
+                    commitAction.setEnabled(!emptyCommitText);/////
+                }
+            } // unselected
+            else {
+                removeModifiedLayouts();
+                if (isCommitListEmpty()) {
+                    commitAction.setEnabled(false);
+                }
+            }
+        });
+
+        checkBoxPanel.getChildren().add(includeLayout);
+        HBox commitArea = new HBox();
+        commitArea.setAlignment(Pos.CENTER_RIGHT);
 //            commitArea.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 6));
-            commitArea.getChildren().add(commitButton);
-            middleBox.getChildren().addAll(checkBoxPanel, commitArea);
-            middlePanel.getChildren().add(middleBox);
+        commitArea.getChildren().add(commitButton);
+        middleBox.getChildren().addAll(checkBoxPanel, commitArea);
+        middlePanel.getChildren().add(middleBox);
 
         topPanel.getChildren().add(middlePanel);
         bottomPanel = new VBox();
@@ -222,32 +216,30 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
 
         ScrollPane pushFileScrollPane = new ScrollPane();
 
-        {
-            Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
+        Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
 //            pushFilesLabel.setBorder(BorderFactory.createEmptyBorder(6, 0, 5, 0));
-            bottomPanel.getChildren().add(pushFilesLabel);
-            pushFiles = new ListView(pushListModel);
+        bottomPanel.getChildren().add(pushFilesLabel);
+        pushFiles = new ListView(pushListModel);
 //            pushFiles.setCellRenderer(new FileRenderer(project, true));
-            pushFiles.setDisable(true);
+        pushFiles.setDisable(true);
 //            pushFiles.setVisibleRowCount(4);
-            pushFileScrollPane.setContent(pushFiles);
-            pushFiles.setBackground(bottomPanel.getBackground());
+        pushFileScrollPane.setContent(pushFiles);
+        pushFiles.setBackground(bottomPanel.getBackground());
 
-            bottomPanel.getChildren().add(pushFileScrollPane);
-        }
+        bottomPanel.getChildren().add(pushFileScrollPane);
 
         HBox pushButtonPanel = new HBox();
 //        pushButtonPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
         progressBar = new ActivityIndicatorFX();
         progressBar.setRunning(false);
         pushButtonPanel.getChildren().addAll(progressBar, pushButton, closeButton);
-        
+
         bottomPanel.getChildren().add(pushButtonPanel);
-        
+
         Separator separator = new Separator(Orientation.HORIZONTAL);
 //        separator.setForeground(Color.black);
         windowPanel.getChildren().addAll(separator, bottomPanel);
-        
+
         getDialogPane().setContent(windowPanel);
     }
 
@@ -428,7 +420,7 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
     {
         includeLayout.setDisable(!hasChanged);
     }
-    
+
     public void displayMessage(String msg)
     {
         progressBar.setMessage(msg);
@@ -564,9 +556,9 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
 
                     this.isPushAvailable = pushWithNoChanges || !filesToCommitInPush.isEmpty() || !filesToAddInPush.isEmpty()
                             || !filesToDeleteInPush.isEmpty() || !modifiedLayoutFilesInPush.isEmpty();
-                    
+
                     pushAction.setEnabled(this.isPushAvailable);
-                    
+
                     //in the case we are commiting the resolution of a merge, we should check if the same file that is beingmarked as otherConflict 
                     //on the remote branch is being commitd to the local branch. if it is, then this is the user resolution to the conflict and we should 
                     //procceed with the commit. and then with the push as normal.
@@ -624,20 +616,20 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
                     commitText.requestFocus();
                     commitAction.setEnabled(!emptyCommitText);
                 }
-                
+
                 if (pushListModel.isEmpty()){
                     if (isPushAvailable){
                         pushListModel.add(pushNeeded);
                     } else {
                         pushListModel.add(noFilesToPush);
                     }
-                } 
+                }
 
             }
         }
 
         private void handleConflicts(Set<File> mergeConflicts, Set<File> deleteConflicts,
-                Set<File> otherConflicts, Set<File> needsMerge)
+                                     Set<File> otherConflicts, Set<File> needsMerge)
         {
             String dlgLabel;
             String filesList;
@@ -704,13 +696,13 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
          * conflicts (locally deleted, remotely modified).
          * @param needsMerge The set of files which are updated locally as well
          * as in the repository (required merging).
-//         * @param conflicts The set to store unresolved conflicts in
+        //         * @param conflicts The set to store unresolved conflicts in
          *
          * @param remote false if this is a non-distributed repository.
          */
         private void getCommitFileSets(List<TeamStatusInfo> info, Set<File> filesToCommit, Set<File> filesToAdd,
-                Set<File> filesToRemove, Set<File> mergeConflicts, Set<File> deleteConflicts,
-                Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles, boolean remote)
+                                       Set<File> filesToRemove, Set<File> mergeConflicts, Set<File> deleteConflicts,
+                                       Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles, boolean remote)
         {
 
             CommitFilter filter = new CommitFilter();
@@ -788,7 +780,7 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
         /**
          * Update the list model with a file list.
          * @param fileSet
-         * @param info 
+         * @param info
          */
         private void updateListModel(ObservableList listModel, Set<File> fileSet, List<TeamStatusInfo> info)
         {
@@ -799,7 +791,6 @@ public class CommitAndPushFrame extends Dialog implements CommitAndPushInterface
             });
         }
 
-        
         private TeamStatusInfo getTeamStatusInfoFromFile(File f, List<TeamStatusInfo> info)
         {
             if (f != null && !info.isEmpty()){
