@@ -2841,7 +2841,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             createMenu("class", "save reload - page-setup print - close"),
             createMenu("edit", "undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block autoindent - insert-method add-javadoc"),
             createMenu("tools", "find find-next find-next-backward replace go-to-line - compile toggle-breakpoint - toggle-interface-view"),
-            createMenu("option", "key-bindings preferences")
+            createMenu("option", "increase-font decrease-font reset-font - key-bindings preferences")
         );
     }
 

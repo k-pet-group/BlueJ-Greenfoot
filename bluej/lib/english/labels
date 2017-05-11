@@ -223,6 +223,9 @@ editor.state.readOnly = read-only
 editor.state.saved = saved
 editor.state.changed = changed
 
+editor.increase-fontLabel = Increase Font Size
+editor.decrease-fontLabel = Decrease Font Size
+editor.reset-fontLabel = Reset Font Size
 editor.key-bindingsLabel = Key Bindings...
 editor.preferencesLabel = Preferences...
 
