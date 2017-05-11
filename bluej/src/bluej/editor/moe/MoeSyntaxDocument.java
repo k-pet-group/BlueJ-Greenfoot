@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 import java.awt.Color;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
@@ -88,6 +89,15 @@ public class MoeSyntaxDocument
     private ParsedCUNode parsedNode;
     private EntityResolver parentResolver;
     private NodeTree<ReparseRecord> reparseRecordTree;
+
+    /**
+     * We want to avoid repaint flicker by letting the user see partly-updated
+     * backgrounds when processing the reparse queue.  So we store new backgrounds
+     * in this map until we're ready to show all new backgrounds, which typically
+     * happens when the reparse queue is empty (and is done by the applyPendingScopeBackgrounds()
+     * method)
+     */
+    private final Map<Integer, ScopeInfo> pendingScopeBackgrounds = new HashMap<>();
 
     protected boolean inNotification = false;
     private final BlueJSyntaxView syntaxView;
@@ -198,6 +208,9 @@ public class MoeSyntaxDocument
             {
                 fireInsertUpdate(c.getPosition(), c.getInsertionEnd() - c.getPosition());
             }
+            // Apply backgrounds from simple update, as it may not even
+            // trigger a reparse:
+            applyPendingScopeBackgrounds();
         });
     }
     
@@ -258,7 +271,13 @@ public class MoeSyntaxDocument
      */
     public boolean pollReparseQueue()
     {
-        return pollReparseQueue(MAX_PARSE_PIECE);
+        boolean wasParsed = pollReparseQueue(MAX_PARSE_PIECE);
+        // If queue is empty, apply backgrounds:
+        if (!wasParsed)
+        {
+            applyPendingScopeBackgrounds();
+        }
+        return wasParsed;
     }
     
     /**
@@ -266,7 +285,7 @@ public class MoeSyntaxDocument
      * parse the specified amount of document (approximately). Return true if
      * a queued re-parse was processed or false if the queue was empty.
      */
-    public boolean pollReparseQueue(int maxParse)
+    private boolean pollReparseQueue(int maxParse)
     {
         try {
             if (reparseRecordTree == null) {
@@ -356,6 +375,11 @@ public class MoeSyntaxDocument
     void fireChangedUpdate(MoeSyntaxEvent mse)
     {
         syntaxView.updateDamage(mse);
+        if (mse == null)
+        {
+            // Width change, so apply new backgrounds:
+            applyPendingScopeBackgrounds();
+        }
     }
 
     void recalculateAllScopes()
@@ -368,22 +392,36 @@ public class MoeSyntaxDocument
         List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(this, firstLineIncl, lastLineIncl);
         if (paragraphScopeInfo.isEmpty())
             return; // Not initialised yet
-        for (int i = firstLineIncl; i < lastLineIncl; i++)
+        for (int i = 0; i < paragraphScopeInfo.size(); i++)
         {
-            ScopeInfo old = document.getParagraphStyle(i);
-            ScopeInfo newStyle = paragraphScopeInfo.get(i - firstLineIncl);
+            pendingScopeBackgrounds.put(i + firstLineIncl, paragraphScopeInfo.get(i));
+        }
+    }
+
+    // Called if the reparse queue is empty:
+    private void applyPendingScopeBackgrounds()
+    {
+        for (Entry<Integer, ScopeInfo> pending : pendingScopeBackgrounds.entrySet())
+        {
+            if (pending.getKey() >= document.getParagraphs().size())
+                continue; // Line doesn't exist any more
+
+            ScopeInfo old = document.getParagraphStyle(pending.getKey());
+            ScopeInfo newStyle = pending.getValue();
             if (((old == null) != (newStyle == null)) || !old.equals(newStyle))
             {
-                setParagraphStyle(i, newStyle);
+                setParagraphStyle(pending.getKey(), newStyle);
 
             }
 
-            StyleSpans<ImmutableSet<String>> styleSpans = syntaxView.getTokenStylesFor(i, this);
+            StyleSpans<ImmutableSet<String>> styleSpans = syntaxView.getTokenStylesFor(pending.getKey(), this);
             if (styleSpans != null)
             {
-                document.setStyleSpans(i, 0, document.getStyleSpans(i).overlay(styleSpans, MoeSyntaxDocument::setTokenStyles));
+                document.setStyleSpans(pending.getKey(), 0, document.getStyleSpans(pending.getKey()).overlay(styleSpans, MoeSyntaxDocument::setTokenStyles));
             }
         }
+
+        pendingScopeBackgrounds.clear();
     }
 
     /**
@@ -405,6 +443,8 @@ public class MoeSyntaxDocument
     public void flushReparseQueue()
     {
         while (pollReparseQueue(getLength())) ;
+        // Queue now empty, so flush backgrounds:
+        applyPendingScopeBackgrounds();
     }
     
     /**
