@@ -294,12 +294,12 @@ public class MoeSyntaxDocument
                         }
                     }
 
-                    Debug.message("Reparsing: " + ppos + " " + pos);
+                    //Debug.message("Reparsing: " + ppos + " " + pos);
                     MoeSyntaxEvent mse = new MoeSyntaxEvent(this, -1, -1, false, false);
                     pn.reparse(this, ppos, pos, maxParse, mse);
-                    // Dump tree:
-                    Debug.message("Dumping tree:");
-                    dumpTree(parsedNode.getChildren(0), "");
+                    // Dump tree (for debugging):
+                    //Debug.message("Dumping tree:");
+                    //dumpTree(parsedNode.getChildren(0), "");
 
                     fireChangedUpdate(mse);
                     return true;
