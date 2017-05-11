@@ -30,7 +30,7 @@ import bluej.pkgmgr.Project;
 /**
  * Action to show the frame which allows commit comments to be entered.
  * The frame has a button to make the commit.
- * 
+ *
  * @author Kasper
  * @author Bruce Quig
  */
@@ -41,21 +41,13 @@ public class CommitCommentAction extends TeamAction
         super(pmf, label, true);
         shortDescription = Config.getString("tooltip.commit");
     }
-    
-   /* (non-Javadoc)
-    * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-    */
+
     public void actionPerformed(PkgMgrFrame pmf)
-    {
-        doCommitComment(pmf);
-    }
-    
-    private void doCommitComment(PkgMgrFrame pmf)
     {
         if(!pmf.isEmptyFrame()) {
             Project project = pmf.getProject();
-            CommitAndPushInterface dialog = project.getCommitCommentsDialog();
-            
+            CommitAndPushInterface dialog = project.getCommitCommentsDialog(pmf);
+
             dialog.reset();
             dialog.setVisible(true);
         }

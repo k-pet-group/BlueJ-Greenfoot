@@ -23,23 +23,24 @@ package bluej.groupwork.ui;
 
 import bluej.groupwork.TeamStatusInfo;
 
+
 /**
- * A JList element that can show either a file status or a message string.
- * 
+ * A ListView element that can show either a file status or a message string.
+ *
  * @author Davin McCall
  */
 public class UpdateStatus
 {
-	TeamStatusInfo infoStatus;
-	String stringStatus;
-	
-	UpdateStatus(TeamStatusInfo infoStatus)
-	{
-		this.infoStatus = infoStatus;
-	}
-	
-	UpdateStatus(String stringStatus)
-	{
-		this.stringStatus = stringStatus;
-	}
+    TeamStatusInfo infoStatus;
+    String stringStatus;
+
+    UpdateStatus(TeamStatusInfo infoStatus)
+    {
+        this.infoStatus = infoStatus;
+    }
+
+    UpdateStatus(String stringStatus)
+    {
+        this.stringStatus = stringStatus;
+    }
 }
