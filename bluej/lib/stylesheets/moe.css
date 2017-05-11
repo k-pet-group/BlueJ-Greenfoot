@@ -1,3 +1,18 @@
+.moe-top-bar {
+    -fx-padding: 0.75em 1em 0.75em 1em;
+    -fx-background-color: hsb(0, 0%, 50%), rgb(214, 217, 223);
+    -fx-background-insets: 0 0 0 0, 0 0 1 0;
+}
+.moe-top-bar-buttons {
+    /*This is the minimum gap; more may be added in code using the
+      tile pane margins to separate different groups of buttons */
+    -fx-hgap: 0.5em;
+}
+.moe-top-bar-buttons > .button {
+    -fx-label-padding: 0 0.3em 0 0.3em;
+}
+
+
 .moe-line-label {
     -fx-font-size: 10px;
     -fx-text-overrun: clip;

@@ -85,6 +85,7 @@ import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -93,6 +94,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -113,7 +115,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
-import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
@@ -2803,8 +2804,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
         menubar.getMenus().forEach(fxMenus::add);
 
         // create toolbar
-        Node toolbar = createToolbar();
-        setTop(new BorderPane(null, null, createInterfaceSelector(), null, toolbar));
+        ComboBox<String> interfaceSelector = createInterfaceSelector();
+        Region toolbar = createToolbar(interfaceSelector.heightProperty());
+        BorderPane topBar = new BorderPane(null, null, interfaceSelector, null, toolbar);
+        topBar.getStyleClass().add("moe-top-bar");
+        setTop(topBar);
         
         //add popup menu
         sourcePane.setContextMenu(createPopupMenu());
@@ -2917,27 +2921,30 @@ public final class MoeEditor extends ScopeColorsBorderPane
      *
      * @return The toolbar component, ready made.
      */
-    private Node createToolbar()
+    private Region createToolbar(DoubleExpression buttonHeight)
     {
-        return new HBox(
-            createToolbarButton("compile"),
-            createToolbarButton("undo"),
-            createToolbarButton("cut"),
-            createToolbarButton("copy"),
-            createToolbarButton("paste"),
-            createToolbarButton("find"),
-            createToolbarButton("close")
+        TilePane tilePane = new TilePane(Orientation.HORIZONTAL,
+                createToolbarButton("compile", buttonHeight),
+                createToolbarButton("undo", buttonHeight),
+                createToolbarButton("cut", buttonHeight),
+                createToolbarButton("copy", buttonHeight),
+                createToolbarButton("paste", buttonHeight),
+                createToolbarButton("find", buttonHeight),
+                createToolbarButton("close", buttonHeight)
         );
+        tilePane.setPrefColumns(tilePane.getChildren().size());
+        return JavaFXUtil.withStyleClass(tilePane, "moe-top-bar-buttons");
     }
 
     // --------------------------------------------------------------------
 
     /**
      * Create a button on the toolbar.
+     *  @param key  The internal key identifying the action and label
+     *  @param buttonHeight The height of the buttons
      *
-     * @param key  The internal key identifying the action and label
      */
-    private ButtonBase createToolbarButton(String key)
+    private ButtonBase createToolbarButton(String key, DoubleExpression buttonHeight)
     {
         final String label = Config.getString("editor." + key + LabelSuffix);
         ButtonBase button;
@@ -2965,8 +2972,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
             button.setDisable(true);
         }
 
+        // never get keyboard focus:
         button.setFocusTraversable(false);
-        // never get keyboard focus
+
+        // Let it resize to width of other buttons:
+        button.setMaxWidth(Double.MAX_VALUE);
+
+        button.prefHeightProperty().bind(buttonHeight);
+        button.setMaxHeight(Double.MAX_VALUE);
 
         return button;
     }
