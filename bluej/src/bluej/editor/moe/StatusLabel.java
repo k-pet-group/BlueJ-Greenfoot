@@ -85,8 +85,12 @@ public final class StatusLabel extends Label
     public void setState(Status newState)
     {
         state = newState;
-        setText(state.getDisplayText() + (state != Status.SAVED ? "" :
-                DateTimeFormatter.ofPattern("(HH:mm)").format(LocalDateTime.now()
-        )));
+        String newText = state.getDisplayText() + (state != Status.SAVED ? "" :
+                DateTimeFormatter.ofPattern("\n(HH:mm)").format(LocalDateTime.now()
+        ));
+        // Make it always be two lines tall:
+        if (!newText.contains("\n"))
+            newText += "\n ";
+        setText(newText);
     }
 }

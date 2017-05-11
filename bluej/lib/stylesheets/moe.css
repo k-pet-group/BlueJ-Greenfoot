@@ -11,6 +11,33 @@
 .moe-top-bar-buttons > .button {
     -fx-label-padding: 0 0.3em 0 0.3em;
 }
+.moe-bottom-bar {
+    -fx-background-color: hsb(0, 0%, 50%), rgb(214, 217, 223);
+    -fx-background-insets: 0 0 0 0, 1 0 0 0;
+}
+.moe-bottom-status-row {
+    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
+}
+
+.moe-status-label {
+    -fx-font-family: "Source Sans Pro";
+    -fx-font-style: italic;
+    -fx-text-fill: hsb(0, 0%, 70%);
+    -fx-label-padding: 0 8 0 8;
+    -fx-text-alignment: center;
+
+    -fx-min-width: 5em;
+    -fx-alignment: top-center;
+
+    -fx-border-style: solid inside;
+    -fx-border-color: hsb(0, 0%, 70%);
+    -fx-border-width: 0 0 0 1;
+}
+.moe-info {
+    -fx-font-family: "Source Sans Pro";
+    -fx-min-height: 3.0em;
+}
+
 
 
 .moe-line-label {
@@ -57,12 +84,12 @@
     -fx-content-display: left;
 }
 .moe-editor-pane {
-    -fx-background-color: transparent;
+    -fx-background-color: white;
     -fx-caret-blink-rate: 0s;
     -fx-highlight-fill: rgb(35, 140, 255); /*BlueJ 3: rgb(233,225,0);*/
 }
 .moe-background {
-    -fx-background-color: white;
+    -fx-background-color: -fx-base;
     /*-fx-background-image: url("../images/grey-diagonal.png");*/
 }
 
@@ -87,14 +114,4 @@
 
 .moe-editor-pane .caret {
    -fx-stroke: rgb(255, 0, 100);
-}
-
-.moe-status-label {
-    -fx-font-family: "Source Sans Pro";
-    -fx-font-style: italic;
-    -fx-text-fill: hsb(0, 0%, 70%);
-    -fx-label-padding: 0 8 0 8;
-}
-.moe-info {
-    -fx-font-family: "Source Sans Pro";
 }

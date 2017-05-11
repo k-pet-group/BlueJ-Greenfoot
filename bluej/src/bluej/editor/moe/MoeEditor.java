@@ -95,6 +95,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -2432,7 +2433,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void setSaved()
     {
-        info.message(Config.getString("editor.info.saved"));
+        // Don't need to say saved twice:
+        //info.message(Config.getString("editor.info.saved"));
         saveState.setState(StatusLabel.Status.SAVED);
         if (watcher != null) {
             watcher.saveEvent(this);
@@ -2717,6 +2719,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // create and add info and status areas
 
         BorderPane bottomArea = new BorderPane();
+        JavaFXUtil.addStyleClass(bottomArea, "moe-bottom-bar");
 
         // create panel for info/status
 
@@ -2730,6 +2733,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
         BorderPane commentsPanel = new BorderPane();
         commentsPanel.setCenter(info);
         commentsPanel.setRight(saveState);
+        BorderPane.setAlignment(info, Pos.TOP_LEFT);
+        BorderPane.setAlignment(saveState, Pos.CENTER_RIGHT);
+        JavaFXUtil.addStyleClass(commentsPanel, "moe-bottom-status-row");
 
         bottomArea.setBottom(commentsPanel);
         bottomArea.setTop(finder);
