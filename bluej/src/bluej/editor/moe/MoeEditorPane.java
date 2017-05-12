@@ -92,7 +92,8 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                 // In theory, this is settable using JavaFX CSS, but it seems there is a bug
                 // which prevents use of relative URLs in image patterns, so we set it from
                 // code instead:
-                t.setUnderlineColor(new ImagePattern(UNDERLINE_IMAGE, 0, 0, 4, 5, false));
+                t.setUnderlineColor(new ImagePattern(UNDERLINE_IMAGE, 0, 0, 2, 2, false));
+                t.setUnderlineWidth(1.5);
             }
             t.getStyleClass().addAll(s);
 
