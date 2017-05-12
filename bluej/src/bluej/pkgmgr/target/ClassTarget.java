@@ -2358,18 +2358,6 @@ public class ClassTarget extends DependentTarget
      */
     public void prepareFilesForRemoval()
     {
-        if (getSourceFile().exists()) {
-            // remove all inner class files starting with the same name as
-            // sourceFile$
-            File[] files = getPackage().getPath().listFiles(new InnerClassFileFilter());
-
-            if (files != null) {
-                for (int i = 0; i < files.length; i++) {
-                    files[i].delete();
-                }
-            }
-        }
-
         List<File> allFiles = getRole().getAllFiles(this);
         for(Iterator<File> i = allFiles.iterator(); i.hasNext(); ) {
             i.next().delete();
