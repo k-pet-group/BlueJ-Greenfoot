@@ -1867,6 +1867,12 @@ public final class Config
     }
 
     @OnThread(Tag.FX)
+    public static void addTerminalStylesheets(Scene scene)
+    {
+        addStylesheet(scene.getStylesheets(), "terminal");
+    }
+
+    @OnThread(Tag.FX)
     public static void addPMFStylesheets(Scene scene)
     {
         addStylesheet(scene.getStylesheets(), "pkgmgrframe");

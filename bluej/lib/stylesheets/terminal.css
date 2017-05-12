@@ -1,0 +1,18 @@
+/*
+.terminal .virtual-flow {
+    -fx-gravity: rear;
+}
+*/
+
+.terminal-output {
+    -fx-fill: black;
+}
+.terminal-input {
+    -fx-fill: blue;
+}
+.terminal-method-record {
+    -fx-fill: brown;
+}
+.terminal-error {
+    -fx-fill: red;
+}

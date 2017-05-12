@@ -21,21 +21,11 @@
  */
 package bluej.terminal;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.print.PrinterJob;
@@ -47,6 +37,7 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 
 import bluej.BlueJTheme;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.Scene;
@@ -73,6 +64,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyledTextArea;
+import org.fxmisc.richtext.TextExt;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 import org.fxmisc.richtext.model.StyledText;
@@ -94,16 +86,45 @@ public final class Terminal
 
     private VirtualizedScrollPane<?> errorScrollPane;
 
+    private static interface  TextAreaStyle
+    {
+        public String getCSSClass();
+    }
+
     // The style for text in the stdout pane: was it output by the program, or input by the user?
     // Or third option: details about method recording
-    private static enum StdoutStyle
+    private static enum StdoutStyle implements TextAreaStyle
     {
-        OUTPUT, INPUT, METHOD_RECORDING;
+        OUTPUT("terminal-output"), INPUT("terminal-input"), METHOD_RECORDING("terminal-method-record");
+
+        private final String cssClass;
+
+        private StdoutStyle(String cssClass)
+        {
+            this.cssClass = cssClass;
+        }
+
+        public String getCSSClass()
+        {
+            return cssClass;
+        }
     }
     // MOEFX TODO: add styles for formatting stack traces
-    private static enum StderrStyle
+    private static enum StderrStyle implements TextAreaStyle
     {
-        NORMAL;
+        NORMAL("terminal-error");
+
+        private final String cssClass;
+
+        private StderrStyle(String cssClass)
+        {
+            this.cssClass = cssClass;
+        }
+
+        public String getCSSClass()
+        {
+            return cssClass;
+        }
     }
 
     private static final String WINDOWTITLE = Config.getApplicationName() + ": " + Config.getString("terminal.title");
@@ -162,14 +183,14 @@ public final class Terminal
         buffer = new InputBuffer(256);
         int width = Config.isGreenfoot() ? 80 : Config.getPropInteger("bluej.terminal.width", 80);
         int height = Config.isGreenfoot() ? 10 : Config.getPropInteger("bluej.terminal.height", 22);
-        text = new StyledTextArea<Void, StdoutStyle>(null, (t, v) -> {}, StdoutStyle.OUTPUT, (t, s) -> {/*MOEFX TODO*/});
+        text = new StyledTextArea<Void, StdoutStyle>(null, (t, v) -> {}, StdoutStyle.OUTPUT, this::applyStyle);
         //MOEFX: set size
                 //height, width, buffer, this.project, this, false);
 
         VirtualizedScrollPane<?> scrollPane = new VirtualizedScrollPane<>(text);
-        //MOEFX
-        //text.setFont(getTerminalFont());
         text.setEditable(false);
+        text.getStyleClass().add("terminal");
+        text.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
         //MOEFX
         //text.setMargin(new Insets(6, 6, 6, 6));
         //MOEFX
@@ -180,13 +201,16 @@ public final class Terminal
 
         input = new TextField();
         input.setOnAction(e -> {
-            buffer.putString(input.getText() + "\n");
+            String inputString = this.input.getText() + "\n";
+            buffer.putString(inputString);
             buffer.notifyReaders();
-            input.clear();
+            this.input.clear();
+            writeToPane(text, inputString, StdoutStyle.INPUT);
             e.consume();
         });
+        input.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
 
-        splitPane = new SplitPane(new BorderPane(input, scrollPane, null, null, null));
+        splitPane = new SplitPane(new BorderPane(scrollPane, null, null, input, null));
 
         BorderPane mainPanel = new BorderPane();
         mainPanel.setCenter(splitPane);
@@ -197,7 +221,9 @@ public final class Terminal
         window.setHeight(500);
         BlueJTheme.setWindowIconFX(window);
         window.setTitle(title);
-        window.setScene(new Scene(mainPanel));
+        Scene scene = new Scene(mainPanel);
+        Config.addTerminalStylesheets(scene);
+        window.setScene(scene);
 
         // Close Action when close button is pressed
         window.setOnCloseRequest(e -> {
@@ -218,6 +244,11 @@ public final class Terminal
         //MOEFX
         //text.setUnlimitedBuffering(unlimitedBufferingCall);
         BlueJEvent.addListener(this);
+    }
+
+    private void applyStyle(TextExt t, TextAreaStyle s)
+    {
+        JavaFXUtil.addStyleClass(t, s.getCSSClass());
     }
 
     /**
@@ -371,11 +402,11 @@ public final class Terminal
     /**
      * Write some text to the terminal.
      */
-    private void writeToPane(boolean stdout, String s)
+    private <S extends TextAreaStyle> void writeToPane(StyledTextArea<Void, S> pane, String s, S style)
     {
         //MOEFX: What about styling?
         prepare();
-        if (!stdout)
+        if (pane == errorText)
             showErrorPane();
         
         // The form-feed character should clear the screen.
@@ -384,16 +415,15 @@ public final class Terminal
             clear();
             s = s.substring(n + 1);
         }
-        
-        StyledTextArea<?, ?> tta = stdout ? text : errorText;
-        
-        tta.appendText(s);
-        tta.end(SelectionPolicy.CLEAR);
+
+        pane.append(styled(s, style));
+        pane.end(SelectionPolicy.CLEAR);
     }
-    
+
+    //MOEFX remove this method
     public void writeToTerminal(String s)
     {
-        writeToPane(true, s);
+        //writeToPane(true, s);
     }
     
     /**
@@ -689,12 +719,11 @@ public final class Terminal
         boolean isFirstShow = false; 
         if(errorText == null) {
             isFirstShow = true;
-            errorText = new StyledTextArea<Void, StderrStyle>(null, (t, v) -> {}, StderrStyle.NORMAL, (t, s) -> {/*MOEFX TODO*/});
+            errorText = new StyledTextArea<Void, StderrStyle>(null, (t, v) -> {}, StderrStyle.NORMAL, this::applyStyle);
             //MOEFX: set size
             //TermTextArea(Config.isGreenfoot() ? 15 : 5, 80, null, project, this, true);
             errorScrollPane = new VirtualizedScrollPane<>(errorText);
-            //MOEFX
-            //errorText.setFont(getTerminalFont());
+            errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             errorText.setEditable(false);
             //MOEFX
             //errorText.setMargin(new Insets(6, 6, 6, 6));
@@ -827,7 +856,14 @@ public final class Terminal
                 EventQueue.invokeAndWait(new Runnable() {
                     public void run()
                     {
-                        writeToPane(!isErrorOut, new String(cbuf, off, len));
+                        String s = new String(cbuf, off, len);
+                        if (isErrorOut)
+                        {
+                            showErrorPane();
+                            writeToPane(errorText, s, StderrStyle.NORMAL);
+                        }
+                        else
+                            writeToPane(text, s, StdoutStyle.OUTPUT);
                     }
                 });
             }
