@@ -270,6 +270,7 @@ public class FindPanel extends GridPane
     {
         findField.clear();
         replaceField.clear();
+        setReplaceEnabled(false);
         setVisible(false);
     }
 
