@@ -2582,25 +2582,32 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     ErrorDisplay old = errorDisplay;
                     Platform.runLater(() -> old.popup.hide());
                 }
-                    Bounds pos = sourcePane.getCharacterBoundsOnScreen(displayPosition, displayPosition).orElse(null);
-                    if (pos == null)
-                        return;
-                    Bounds spLoc = sourcePane.localToScene(sourcePane.getBoundsInLocal());
-                    int xpos = (int)(pos.getMinX() + spLoc.getMinX());
-                    int ypos = (int)(pos.getMinY() + (3*pos.getHeight()/2) + spLoc.getMinY());
-                    errorDisplay = new ErrorDisplay(details);
-                    ErrorDisplay newDisplay = errorDisplay;
-                    Platform.runLater(() -> {
-                        newDisplay.createPopup();
-                        newDisplay.popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
-                        newDisplay.popup.setAnchorX(xpos);
-                        newDisplay.popup.setAnchorY(ypos);
-                        newDisplay.popup.show(getWindow());
-                    });
-                    
-                    if (watcher != null) {
-                        watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
-                    }
+
+                // First, try to get the character after the caret:
+                Bounds pos = sourcePane.getCharacterBoundsOnScreen(displayPosition, displayPosition + 1).orElse(null);
+                // That may be null if caret was at end of line, in which case try character before:
+                if (pos == null)
+                {
+                    pos = sourcePane.getCharacterBoundsOnScreen(displayPosition - 1, displayPosition).orElse(null);;
+                }
+                // If that still doesn't work, give up (may not be on screen)
+                if (pos == null)
+                    return;
+                int xpos = (int)(pos.getMinX());
+                int ypos = (int)(pos.getMinY() + (4*pos.getHeight()/3));
+                errorDisplay = new ErrorDisplay(details);
+                ErrorDisplay newDisplay = errorDisplay;
+                Platform.runLater(() -> {
+                    newDisplay.createPopup();
+                    newDisplay.popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
+                    newDisplay.popup.setAnchorX(xpos);
+                    newDisplay.popup.setAnchorY(ypos);
+                    newDisplay.popup.show(getWindow());
+                });
+
+                if (watcher != null) {
+                    watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
+                }
             }
         }
         else if (errorDisplay != null)
