@@ -60,9 +60,6 @@
 .moe-find-options {
     -fx-spacing: 3em;
 }
-.moe-find-close-wrapper {
-    -fx-padding: 0.3em 0 0 0;
-}
 .moe-find-grid {
     -fx-vgap: 0.5em;
 }

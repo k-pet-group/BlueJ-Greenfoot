@@ -58,7 +58,7 @@ import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
  * @author  Marion Zalk
  * @author  Michael Kölling
  */
-public class FindPanel extends BorderPane
+public class FindPanel extends GridPane
 {
     private final TextField replaceField;
     private final MoeEditor editor;
@@ -81,8 +81,7 @@ public class FindPanel extends BorderPane
         // Various MoeEditor calls make us invisible; take us out of the layout when that happens
         managedProperty().bind(visibleProperty());
 
-        GridPane findBody = new GridPane();
-        JavaFXUtil.addStyleClass(findBody, "moe-find-grid");
+        JavaFXUtil.addStyleClass(this, "moe-find-grid");
         //prev, next
 
         HBox mcBody = new HBox();
@@ -171,8 +170,11 @@ public class FindPanel extends BorderPane
         findButtons.getChildren().add(previousButton);
         findButtons.getChildren().add(nextButton);
 
-        BorderPane.setAlignment(closeIconLabel, Pos.TOP_CENTER);
+        GridPane.setHalignment(closeBody, HPos.RIGHT);
+        closeBody.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setHgrow(closeBody, Priority.ALWAYS);
         closeBody.setCenter(closeIconLabel);
+        BorderPane.setAlignment(closeIconLabel, Pos.CENTER_RIGHT);
 
         JavaFXUtil.addStyleClass(mcBody, "moe-find-options");
         mcBody.setAlignment(Pos.CENTER);
@@ -213,14 +215,15 @@ public class FindPanel extends BorderPane
         HBox replaceButtons = new HBox(replaceOne, replaceAll);
         JavaFXUtil.addStyleClass(replaceButtons, "moe-replace-buttons");
 
-        findBody.add(findLabelPane, 0, 0);
-        findBody.add(findField, 1, 0);
-        findBody.add(findButtons, 2, 0);
-        findBody.add(mcBody, 3, 0);
+        add(findLabelPane, 0, 0);
+        add(findField, 1, 0);
+        add(findButtons, 2, 0);
+        add(mcBody, 3, 0);
+        add(closeBody, 4, 0);
 
-        findBody.add(replaceLabel, 0, 1);
-        findBody.add(replaceField, 1, 1);
-        findBody.add(replaceButtons, 2, 1);
+        add(replaceLabel, 0, 1);
+        add(replaceField, 1, 1);
+        add(replaceButtons, 2, 1);
 
         for (Node n : new Node[] {replaceLabel, replaceField, replaceButtons})
         {
@@ -235,9 +238,6 @@ public class FindPanel extends BorderPane
         nextButton.setMaxHeight(Double.MAX_VALUE);
         replaceOne.setMaxHeight(Double.MAX_VALUE);
         replaceAll.setMaxHeight(Double.MAX_VALUE);
-
-        setLeft(findBody);
-        setRight(closeBody);
     }
 
     /**
