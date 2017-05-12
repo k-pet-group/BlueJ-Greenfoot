@@ -27,6 +27,9 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -36,10 +39,7 @@ import javafx.scene.effect.BlurType;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -76,20 +76,35 @@ public class FindPanel extends BorderPane
     public FindPanel(MoeEditor ed)
     {
         editor = ed;
+        JavaFXUtil.addStyleClass(this, "moe-find-panel");
 
         // Various MoeEditor calls make us invisible; take us out of the layout when that happens
         managedProperty().bind(visibleProperty());
 
         GridPane findBody = new GridPane();
+        JavaFXUtil.addStyleClass(findBody, "moe-find-grid");
         //prev, next
-        HBox optionsBody = new HBox();
+
         HBox mcBody = new HBox();
 
         BorderPane closeBody = new BorderPane();
+        JavaFXUtil.addStyleClass(closeBody, "moe-find-close-wrapper");
 
         Label findLabel = new Label(Config.getString("editor.findpanel.findLabel"));
+        JavaFXUtil.addStyleClass(findLabel, "moe-find-label");
+        // We don't want the Find label to move when the replace pane is toggled,
+        // so we want the find label to be the same size as the replace label
+        // although due to translations we don't know which one is bigger.  Easiest
+        // way I can think of is to have invisible copy of replace label underneath
+        // find label in a stack pane, thus forcing the larger of the two sizes:
+        Label replaceDummyLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
+        JavaFXUtil.addStyleClass(replaceDummyLabel, "moe-find-label");
+        replaceDummyLabel.setVisible(false);
+        StackPane findLabelPane = new StackPane(replaceDummyLabel, findLabel);
 
         Label replaceFoldOutLabel = new Label(Config.getString("editor.findpanel.replacePanel"));
+
+        StackPane.setAlignment(findLabel, Pos.CENTER_RIGHT);
 
         findField = new TextField();
         JavaFXUtil.addStyleClass(findField, "moe-find-field");
@@ -151,15 +166,23 @@ public class FindPanel extends BorderPane
             e.consume();
         });
 
-        optionsBody.getChildren().add(previousButton);
-        optionsBody.getChildren().add(nextButton);
+        HBox findButtons = new HBox();
+        JavaFXUtil.addStyleClass(findButtons, "moe-find-buttons");
+        findButtons.getChildren().add(previousButton);
+        findButtons.getChildren().add(nextButton);
 
-        closeBody.setRight(closeIconLabel);
+        BorderPane.setAlignment(closeIconLabel, Pos.TOP_CENTER);
+        closeBody.setCenter(closeIconLabel);
 
+        JavaFXUtil.addStyleClass(mcBody, "moe-find-options");
+        mcBody.setAlignment(Pos.CENTER);
+        matchCaseCheckBox.setAlignment(Pos.CENTER);
+        replaceFoldOutLabel.setAlignment(Pos.CENTER);
         mcBody.getChildren().add(matchCaseCheckBox);
         mcBody.getChildren().add(replaceFoldOutLabel);
 
         Label replaceLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
+        JavaFXUtil.addStyleClass(replaceLabel, "moe-find-label");
         replaceField = new TextField();
 
         Nodes.addInputMap(replaceField, InputMap.sequence(
@@ -188,10 +211,11 @@ public class FindPanel extends BorderPane
         replaceAll.disableProperty().bind(replaceOne.disableProperty());
 
         HBox replaceButtons = new HBox(replaceOne, replaceAll);
+        JavaFXUtil.addStyleClass(replaceButtons, "moe-replace-buttons");
 
-        findBody.add(findLabel, 0, 0);
+        findBody.add(findLabelPane, 0, 0);
         findBody.add(findField, 1, 0);
-        findBody.add(optionsBody, 2, 0);
+        findBody.add(findButtons, 2, 0);
         findBody.add(mcBody, 3, 0);
 
         findBody.add(replaceLabel, 0, 1);
@@ -204,6 +228,13 @@ public class FindPanel extends BorderPane
             n.managedProperty().bind(n.visibleProperty());
         }
 
+        findButtons.setFillHeight(true);
+        replaceButtons.setFillHeight(true);
+        mcBody.setFillHeight(true);
+        previousButton.setMaxHeight(Double.MAX_VALUE);
+        nextButton.setMaxHeight(Double.MAX_VALUE);
+        replaceOne.setMaxHeight(Double.MAX_VALUE);
+        replaceAll.setMaxHeight(Double.MAX_VALUE);
 
         setLeft(findBody);
         setRight(closeBody);

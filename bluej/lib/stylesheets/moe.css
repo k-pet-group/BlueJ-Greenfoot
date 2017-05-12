@@ -38,6 +38,34 @@
     -fx-min-height: 3.0em;
 }
 
+.moe-find-panel {
+    -fx-padding: 0.5em 1em 0.5em 1em;
+    -fx-border-style: solid inside;
+    -fx-border-color: hsb(0, 0%, 70%);
+    -fx-border-width: 0 0 1 0;
+    -fx-border-insets: 0 5 0 5;
+}
+.moe-find-label {
+    -fx-label-padding: 0 0.2em 0 0;
+    -fx-alignment: center-right;
+    -fx-text-alignment: right;
+}
+.moe-find-buttons, .moe-replace-buttons {
+    -fx-padding: 0 1em 0 1em;
+    -fx-spacing: 0.5em;
+}
+.moe-find-buttons .button, .moe-replace-buttons .button {
+    -fx-label-padding: 0 0.5em 0 0.5em;
+}
+.moe-find-options {
+    -fx-spacing: 3em;
+}
+.moe-find-close-wrapper {
+    -fx-padding: 0.3em 0 0 0;
+}
+.moe-find-grid {
+    -fx-vgap: 0.5em;
+}
 
 
 .moe-line-label {
