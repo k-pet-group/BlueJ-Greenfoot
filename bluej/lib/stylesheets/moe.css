@@ -46,15 +46,10 @@
     -fx-border-insets: 0 5 0 5;
 }
 .moe-find-label {
-    -fx-label-padding: 0 0.2em 0 0;
     -fx-alignment: center-right;
     -fx-text-alignment: right;
 }
-.moe-find-buttons, .moe-replace-buttons {
-    -fx-padding: 0 1em 0 1em;
-    -fx-spacing: 0.5em;
-}
-.moe-find-buttons .button, .moe-replace-buttons .button {
+.moe-find-panel .button {
     -fx-label-padding: 0 0.5em 0 0.5em;
 }
 .moe-find-options {
@@ -62,6 +57,7 @@
 }
 .moe-find-grid {
     -fx-vgap: 0.5em;
+    -fx-hgap: 0.5em;
 }
 
 

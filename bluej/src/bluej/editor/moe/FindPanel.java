@@ -165,11 +165,6 @@ public class FindPanel extends GridPane
             e.consume();
         });
 
-        HBox findButtons = new HBox();
-        JavaFXUtil.addStyleClass(findButtons, "moe-find-buttons");
-        findButtons.getChildren().add(previousButton);
-        findButtons.getChildren().add(nextButton);
-
         GridPane.setHalignment(closeBody, HPos.RIGHT);
         closeBody.setMaxWidth(Double.MAX_VALUE);
         GridPane.setHgrow(closeBody, Priority.ALWAYS);
@@ -212,32 +207,30 @@ public class FindPanel extends GridPane
         replaceOne.disableProperty().bind(findField.textProperty().isEmpty().or(findResultsFound.not()));
         replaceAll.disableProperty().bind(replaceOne.disableProperty());
 
-        HBox replaceButtons = new HBox(replaceOne, replaceAll);
-        JavaFXUtil.addStyleClass(replaceButtons, "moe-replace-buttons");
-
         add(findLabelPane, 0, 0);
         add(findField, 1, 0);
-        add(findButtons, 2, 0);
-        add(mcBody, 3, 0);
-        add(closeBody, 4, 0);
+        add(previousButton, 2, 0);
+        add(nextButton, 3, 0);
+        add(mcBody, 4, 0);
+        add(closeBody, 5, 0);
 
         add(replaceLabel, 0, 1);
         add(replaceField, 1, 1);
-        add(replaceButtons, 2, 1);
+        add(replaceOne, 2, 1);
+        add(replaceAll, 3, 1);
 
-        for (Node n : new Node[] {replaceLabel, replaceField, replaceButtons})
+        for (Node n : new Node[] {replaceLabel, replaceField, replaceOne, replaceAll})
         {
             n.visibleProperty().bind(showingReplace);
             n.managedProperty().bind(n.visibleProperty());
         }
 
-        findButtons.setFillHeight(true);
-        replaceButtons.setFillHeight(true);
         mcBody.setFillHeight(true);
-        previousButton.setMaxHeight(Double.MAX_VALUE);
-        nextButton.setMaxHeight(Double.MAX_VALUE);
-        replaceOne.setMaxHeight(Double.MAX_VALUE);
-        replaceAll.setMaxHeight(Double.MAX_VALUE);
+        for (Button b : new Button[]{previousButton, nextButton, replaceOne, replaceAll})
+        {
+            b.setMaxHeight(Double.MAX_VALUE);
+            b.setMaxWidth(Double.MAX_VALUE);
+        }
     }
 
     /**
