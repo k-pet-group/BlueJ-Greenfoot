@@ -98,10 +98,12 @@ public class MoeSyntaxDocument
      * method)
      */
     private final Map<Integer, ScopeInfo> pendingScopeBackgrounds = new HashMap<>();
+    private boolean applyingScopeBackgrounds = false;
 
     protected boolean inNotification = false;
     private final BlueJSyntaxView syntaxView;
     private boolean hasFindHighlights = false;
+
 
     public Position createPosition(int initialPos)
     {
@@ -402,7 +404,17 @@ public class MoeSyntaxDocument
     // Called if the reparse queue is empty:
     private void applyPendingScopeBackgrounds()
     {
-        for (Entry<Integer, ScopeInfo> pending : pendingScopeBackgrounds.entrySet())
+        // Prevent re-entry, which can it seems can occur when applying
+        // token highlight styles:
+        if (applyingScopeBackgrounds)
+            return;
+        applyingScopeBackgrounds = true;
+
+        // Take a copy:
+        Set<Entry<Integer, ScopeInfo>> pendingBackgrounds = new HashMap<>(pendingScopeBackgrounds).entrySet();
+        pendingScopeBackgrounds.clear();
+
+        for (Entry<Integer, ScopeInfo> pending : pendingBackgrounds)
         {
             if (pending.getKey() >= document.getParagraphs().size())
                 continue; // Line doesn't exist any more
@@ -422,7 +434,8 @@ public class MoeSyntaxDocument
             }
         }
 
-        pendingScopeBackgrounds.clear();
+
+        applyingScopeBackgrounds = false;
     }
 
     /**
