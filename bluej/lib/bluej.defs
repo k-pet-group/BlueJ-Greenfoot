@@ -511,7 +511,7 @@ bluej.compiler.unchecked=true
 ##            abcde\\\\fg => 1 argument: 'abcde\fg'
 #####################################################################
 
-bluej.vm.args=-ea -Djavafx.macosx.embedded=true
+bluej.vm.args=-ea
 
 # -ea : enable assertions
 
