@@ -892,11 +892,6 @@ public class CodePad extends VBox
         historyView.getItems().clear();
     }
 
-    public void resetFontSize()
-    {
-
-    }
-
     private void executeCommand(String command)
     {
         if (busy) {

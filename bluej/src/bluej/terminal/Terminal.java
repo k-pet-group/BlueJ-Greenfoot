@@ -90,13 +90,12 @@ import threadchecker.Tag;
 @SuppressWarnings("serial")
 @OnThread(Tag.FXPlatform)
 public final class Terminal
-    implements KeyListener, BlueJEventListener, DebuggerTerminal
+    implements BlueJEventListener, DebuggerTerminal
 {
-
     private static final int MAX_BUFFER_LINES = 200;
     private VirtualizedScrollPane<?> errorScrollPane;
 
-    private static interface  TextAreaStyle
+    private static interface TextAreaStyle
     {
         public String getCSSClass();
     }
@@ -170,17 +169,10 @@ public final class Terminal
     //private static final int ALT_SHORTCUT_MASK =
     //        SHORTCUT_MASK == Event.CTRL_MASK ? Event.CTRL_MASK : Event.META_MASK;
 
-    private static final String TERMINALFONTPROPNAME = "bluej.terminal.font";
-    private static final String TERMINALFONTSIZEPROPNAME = "bluej.editor.fontsize";
-    
     private static final String RECORDMETHODCALLSPROPNAME = "bluej.terminal.recordcalls";
     private static final String CLEARONMETHODCALLSPROPNAME = "bluej.terminal.clearscreen";
     private static final String UNLIMITEDBUFFERINGCALLPROPNAME = "bluej.terminal.buffering";
-        
-    // initialise to config value or zero.
-    private static int terminalFontSize = Config.getPropInteger(
-            TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize().get());
-    
+
     private final String title;
 
     // -- instance --
@@ -297,34 +289,6 @@ public final class Terminal
     }
 
     /**
-     * Get the terminal font
-     */
-    private static Font getTerminalFont() {
-        //reload terminal fontsize from configurations.
-
-        terminalFontSize = Config.getPropInteger(
-                TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize().get());
-        return Config.getFont(
-                TERMINALFONTPROPNAME, "Monospaced", terminalFontSize);
-    }
-
-    /*
-     * Set the terminal font size to equal either the passed parameter, or the
-     * editor font size if the passed parameter is too low. Place the updated
-     * value into the configuration.
-     */
-    public static void setTerminalFontSize(int size)
-    {
-        if (size <= 6) {
-            return;
-        } else {
-            terminalFontSize = size;
-        }
-        Config.putPropInteger(TERMINALFONTSIZEPROPNAME, terminalFontSize);
-    }
-
-
-    /**
      * Show or hide the Terminal window.
      */
     public void showHide(boolean show)
@@ -370,28 +334,6 @@ public final class Terminal
     }
 
     /**
-     * Check whether the terminal is active (accepting input).
-     */
-    public boolean checkActive()
-    {
-        return isActive;
-    }
-    
-    /**
-     * Reset the font according to preferences.
-     */
-    public void resetFont()
-    {
-        /*MOEFX
-        Font terminalFont = getTerminalFont();
-        text.setFont(terminalFont);
-        if (errorText != null) {
-            errorText.setFont(terminalFont);
-        }
-        */
-    }
-
-    /**
      * Clear the terminal.
      */
     public void clear()
@@ -402,7 +344,6 @@ public final class Terminal
         }
         hideErrorPane();
     }
-
 
     /**
      * Save the terminal text to file.
@@ -471,12 +412,6 @@ public final class Terminal
         pane.end(SelectionPolicy.CLEAR);
     }
 
-    //MOEFX remove this method
-    public void writeToTerminal(String s)
-    {
-        //writeToPane(true, s);
-    }
-    
     /**
      * Prepare the terminal for I/O.
      */
@@ -656,62 +591,8 @@ public final class Terminal
         return err;
     }
 
-    // ---- KeyListener interface ----
 
-    @Override
-    public void keyPressed(KeyEvent event)
-    {
-        handleFontsizeKeys(event, event.getKeyCode());
-        // On Mac OS, backspace only appears as key pressed, not as key-typed
-        if (Config.isMacOS())
-        {
-            if (event.getKeyCode() == KeyEvent.VK_BACK_SPACE)
-            {
-                backspace();
-            }
-        }
-    }
-    
-    @Override
-    public void keyReleased(KeyEvent event) { }
-    
-    /**
-     * Handle the keys which change the terminal font size.
-     * 
-     * @param event   The key event (key pressed/released/typed)
-     * @param ch      The key code (for pressed/release events) or character (for key typed events)
-     */
-    private boolean handleFontsizeKeys(KeyEvent event, int ch)
-    {
-        boolean handled = false;
-        
-        // Note the following works because VK_EQUALS, VK_PLUS and VK_MINUS
-        // are actually defined as their ASCII (and thus unicode) equivalent.
-        // Since they are final constants this cannot become untrue in the
-        // future.
-        
-        switch (ch) {
-        case KeyEvent.VK_EQUALS: // increase the font size
-        case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
-            if (event.getModifiers() == SHORTCUT_MASK) {
-                PrefMgr.setEditorFontSize(terminalFontSize + 1);
-                event.consume();
-                handled = true;
-                break;
-            }
-
-        case KeyEvent.VK_MINUS: // decrease the font size
-            if (event.getModifiers() == SHORTCUT_MASK) {
-                PrefMgr.setEditorFontSize(terminalFontSize - 1);
-                event.consume();
-                handled = true;
-                break;
-            }
-        }
-
-        return handled;
-    }
-
+    /*MOEFX
     @Override
     public void keyTyped(KeyEvent event)
     {
@@ -760,22 +641,7 @@ public final class Terminal
             }
         }
     }
-
-    private void backspace()
-    {
-        //MOEFX
-        /*
-        if (buffer.backSpace()) {
-            try {
-                int length = text.getDocument().getLength();
-                text.replaceRange("", length - 1, length);
-            } catch (Exception exc) {
-                Debug.reportError("bad location " + exc);
-            }
-        }
-        */
-    }
-
+    */
 
     // ---- BlueJEventListener interface ----
 

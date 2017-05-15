@@ -275,24 +275,6 @@ public class PrefMgr
         if (size > 0) {
             initEditorFontSize(size);
             EditorManager.getEditorManager().refreshAll();
-            Terminal.setTerminalFontSize(size);
-            PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
-            Collection<Project> projects = Project.getProjects();
-            Iterator<Project> i = projects.iterator();
-            while (i.hasNext()) {
-                Project project = i.next();
-                if (project.hasTerminal()) {
-                    //MOEFX
-                    //project.getTerminal().resetFont();
-                }
-            }
-            for (PkgMgrFrame frame : frames)
-            {
-                Platform.runLater(() -> {
-                    if (frame.getCodePad() != null)
-                        frame.getCodePad().resetFontSize();
-                });
-            }
         }
     }
     
