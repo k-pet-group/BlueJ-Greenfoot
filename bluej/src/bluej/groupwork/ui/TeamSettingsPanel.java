@@ -108,7 +108,7 @@ public class TeamSettingsPanel extends FlowPane
         this.teamSettingsController = teamSettingsController;
         this.teamSettingsDialog = dialog;
 
-        JavaFXUtil.addStyleClass(this, styleClass);
+        JavaFXUtil.addStyleClass(this, "panel");
 
         serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
