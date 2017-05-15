@@ -31,7 +31,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -85,7 +84,6 @@ public class TeamSettingsPanel extends VBox
     private final PasswordField passwordField = new PasswordField();
     private final TextField groupField = new TextField();
 
-    private Button validateButton;
     private CheckBox useAsDefault;
     private ServerType selectedServerType = null;
 
@@ -113,32 +111,34 @@ public class TeamSettingsPanel extends VBox
         serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
 
-        HBox langBox = new HBox();
-        langBox.getChildren().add(new Label(Config.getString("team.settings.server")));
-        langBox.getChildren().addAll(serverTypes.getButtons());
-        langBox.setAlignment(Pos.BASELINE_CENTER);
-        this.getChildren().add(langBox);
+        HBox serverTypeBox = new HBox();
+        JavaFXUtil.addStyleClass(serverTypeBox, "serverType-box");
+        serverTypeBox.getChildren().add(new Label(Config.getString("team.settings.serverType")));
+        serverTypeBox.getChildren().addAll(serverTypes.getButtons());
+        serverTypeBox.setAlignment(Pos.CENTER);
+        this.getChildren().add(serverTypeBox);
 
         useAsDefault = new CheckBox(Config.getString("team.settings.rememberSettings"));
 
-        createPanes();
+        locationPane = createGridPane();
+        personalPane = createGridPane();
         preparePanes(serverTypes.selectedProperty().get());
-
-        this.getChildren().addAll(new Label("Location"), locationPane,
-                                  new Label("Personal"), personalPane
-        );
 
         JavaFXUtil.addChangeListenerPlatform(serverTypes.selectedProperty(), type -> {
             preparePanes(type);
             updateOKButtonBinding();
         });
 
-        getChildren().add(useAsDefault);
         ValidateConnectionAction validateConnectionAction = new ValidateConnectionAction(
                 Config.getString("team.settings.checkConnection"), this, dialog::getOwner);
-        validateButton = new Button(validateConnectionAction.getName());
+        Button validateButton = new Button(validateConnectionAction.getName());
         validateButton.setOnAction(event -> validateConnectionAction.actionPerformed(null));
-        getChildren().add(validateButton);
+
+
+        getChildren().addAll(createPropertiesContainer(Config.getString("team.settings.location"), locationPane),
+                             createPropertiesContainer(Config.getString("team.settings.personal"), personalPane),
+                             useAsDefault,
+                             validateButton);
 
         setupContent();
         updateOKButtonBinding();
@@ -169,24 +169,13 @@ public class TeamSettingsPanel extends VBox
 //        return gridPane;
 //    }
 
-    private void createPanes()
-    {
-        locationPane = createGridPane(Config.getString("team.settings.location"));
-        personalPane = createGridPane(Config.getString("team.settings.personal"));
-    }
-
-    private GridPane createGridPane(String title)
+    private GridPane createGridPane()
     {
         GridPane pane = new GridPane();
         pane.getStyleClass().add("grid");
 
-        pane.setHgap(10);
-        pane.setVgap(10);
-        pane.setPadding(new Insets(20, 150, 10, 10));
-
-
         ColumnConstraints column1 = new ColumnConstraints();
-        column1.setPrefWidth(100);
+        column1.setPrefWidth(102);
         // Second column gets any extra width
         ColumnConstraints column2 = new ColumnConstraints();
         column2.setPrefWidth(260);
@@ -194,6 +183,14 @@ public class TeamSettingsPanel extends VBox
         pane.getColumnConstraints().addAll(column1, column2);
 
         return pane;
+    }
+
+    private Pane createPropertiesContainer(String title, Pane gridPane)
+    {
+        VBox container = new VBox();
+        container.setSpacing(-5);
+        container.getChildren().addAll(new Label(title), gridPane);
+        return container;
     }
 
     private void preparePanes(ServerType type)
