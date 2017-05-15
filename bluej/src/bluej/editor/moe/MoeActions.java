@@ -35,6 +35,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
@@ -1146,120 +1147,22 @@ public final class MoeActions
     // --------------------------------------------------------------------
 
     @OnThread(Tag.FXPlatform)
-    abstract class MoeAbstractAction
+    abstract class MoeAbstractAction extends FXAbstractAction
     {
-        private final String name;
-        private boolean hasMenuItem = false;
-        private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
-        private final BooleanProperty disabled = new SimpleBooleanProperty(false);
-        private final ObjectBinding<KeyCombination> accelerator;
         private final Category category;
 
         public MoeAbstractAction(String name, Category category)
         {
-            this.name = name;
-            this.category = category;
-            this.accelerator = Bindings.createObjectBinding(() -> {
+            super(name, null);
+            this.accelerator.bind(Bindings.createObjectBinding(() -> {
                 return keymap.entrySet().stream().filter(e -> e.getValue().equals(this)).map(e -> e.getKey()).findFirst().orElse(null);
-            }, keymap);
-        }
-
-        public abstract void actionPerformed();
-
-        public MoeAbstractAction bindEnabled(BooleanExpression enabled)
-        {
-            if (enabled != null)
-                disabled.bind(enabled.not());
-            return this;
-        }
-
-        public void setEnabled(boolean enabled)
-        {
-            if (disabled.isBound())
-                disabled.unbind();
-            disabled.set(!enabled);
-        }
-
-        /**
-         * There's two ways in which actions become disabled.  One is that their inherent
-         * state in the editor changes, e.g. no undo if you haven't made any changes.
-         * The other is that they become what we call unavailable, which happens when
-         * the documentation view is showing, for example.  So their GUI enabled status
-         * is actually the conjunction of being enabled and available.
-         */
-        public void setAvailable(boolean available)
-        {
-            unavailable.set(!available);
-        }
-
-        public String getName()
-        {
-            return name;
-        }
-
-        public Button makeButton()
-        {
-            Button button = new Button(name);
-            button.disableProperty().bind(disabled.or(unavailable));
-            button.setOnAction(e -> actionPerformed());
-            return button;
-        }
-
-        /**
-         * Note: calling this method indicates that the item will have
-         * a menu item with the accelerator available for use.  Actions with a menu item
-         * don't set a separate entry in the key map.  So don't call this
-         * unless you're actually going to have the menu item available on the menu.
-         */
-        public MenuItem makeMenuItem()
-        {
-            MenuItem menuItem = makeContextMenuItem();
-            hasMenuItem = true;
-            menuItem.acceleratorProperty().bind(accelerator);
-            return menuItem;
-        }
-
-        /**
-         * Makes a MenuItem which will run this action, but without an accelerator.
-         */
-        public MenuItem makeContextMenuItem()
-        {
-            MenuItem menuItem = new MenuItem(name);
-            menuItem.disableProperty().bind(disabled.or(unavailable));
-            menuItem.setOnAction(e -> actionPerformed());
-            return menuItem;
-        }
-
-        public String toString()
-        {
-            return name;
+            }, keymap));
+            this.category = category;
         }
 
         public Category getCategory()
         {
             return category;
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            MoeAbstractAction that = (MoeAbstractAction) o;
-
-            return name.equals(that.name);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return name.hashCode();
-        }
-
-        public boolean hasMenuItem()
-        {
-            return hasMenuItem;
         }
     }
 
@@ -1313,19 +1216,23 @@ public final class MoeActions
 
     private MoeAbstractAction undoAction()
     {
-        return action("undo", Category.MISC, () ->
+        MoeAbstractAction action = action("undo", Category.MISC, () ->
         {
             MoeEditor editor = getEditor();
             editor.undoManager.undo();
-        }).bindEnabled(editor == null ? null : editor.undoManager.canUndo());
+        });
+        action.bindEnabled(editor == null ? null : editor.undoManager.canUndo());
+        return action;
     }
 
     private MoeAbstractAction redoAction()
     {
-        return action("redo", Category.MISC, () -> {
+        MoeAbstractAction action =  action("redo", Category.MISC, () -> {
             MoeEditor editor = getEditor();
             editor.undoManager.redo();
-        }).bindEnabled(editor == null ? null : editor.undoManager.canRedo());
+        });
+        action.bindEnabled(editor == null ? null : editor.undoManager.canRedo());
+        return action;
     }
 
     private MoeAbstractAction commentBlockAction()

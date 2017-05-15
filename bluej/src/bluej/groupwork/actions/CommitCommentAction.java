@@ -54,7 +54,7 @@ public class CommitCommentAction extends TeamAction
     {
         if(!pmf.isEmptyFrame()) {
             Project project = pmf.getProject();
-            CommitAndPushInterface dialog = project.getCommitCommentsDialog();
+            CommitAndPushInterface dialog = project.getCommitCommentsDialog(pmf);
             
             dialog.reset();
             dialog.setVisible(true);

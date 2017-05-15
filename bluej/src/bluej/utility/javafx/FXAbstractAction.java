@@ -24,8 +24,11 @@ package bluej.utility.javafx;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
@@ -47,21 +50,20 @@ public abstract class FXAbstractAction
     private boolean hasMenuItem = false;
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
     private final BooleanProperty disabled = new SimpleBooleanProperty(false);
-    private final ObjectBinding<KeyCombination> accelerator;
+    protected final ObjectProperty<KeyCombination> accelerator;
 
     public FXAbstractAction(String name, KeyCombination accelerator)
     {
         this.name = name;
-        this.accelerator = Bindings.createObjectBinding(() -> accelerator);
+        this.accelerator = new SimpleObjectProperty<KeyCombination>(accelerator);
     }
 
     public abstract void actionPerformed();
 
-    public FXAbstractAction bindEnabled(BooleanExpression enabled)
+    public void bindEnabled(BooleanExpression enabled)
     {
         if (enabled != null)
             disabled.bind(enabled.not());
-        return this;
     }
 
     public void setEnabled(boolean enabled)
