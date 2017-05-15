@@ -25,6 +25,8 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.Label;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +36,7 @@ import java.time.format.DateTimeFormatter;
  * 
  * @author Michael Kolling
  */
+@OnThread(Tag.FXPlatform)
 public final class StatusLabel extends Label
 {
     public static enum Status

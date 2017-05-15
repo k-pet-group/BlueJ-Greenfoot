@@ -32,6 +32,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.swing.*;           // all the GUI components
 import javax.swing.border.EmptyBorder;
@@ -43,6 +45,7 @@ import java.awt.*;
  *
  * @author Michael Kolling
  */
+@OnThread(Tag.FXPlatform)
 public final class Info extends TextFlow
 {
     private final Text text;

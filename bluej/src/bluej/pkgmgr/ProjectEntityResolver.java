@@ -37,7 +37,7 @@ import bluej.pkgmgr.target.Target;
  * 
  * @author Davin McCall
  */
-@OnThread(value = Tag.Swing, ignoreParent = true)
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class ProjectEntityResolver implements EntityResolver
 {
     private Project project;

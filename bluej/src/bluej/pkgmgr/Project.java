@@ -302,7 +302,7 @@ public class Project implements DebuggerListener, InspectorManager
         packages.put("", unnamedPackage);
 
         shelfStorage = new FrameShelfStorage(this.projectDir);
-        Platform.runLater(() -> createNewFXTabbedEditor());
+        createNewFXTabbedEditor();
 
         // Must do this after the editors have been created:
         getPackage("").refreshPackage();
@@ -441,8 +441,8 @@ public class Project implements DebuggerListener, InspectorManager
             WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
             switch (capabilities) {
                 case VIRTUALIZED_WRITE:
-                    Utility.bringToFront(null);
-                    Platform.runLater(() -> DialogManager.showMessageFX(null, "project-is-virtualized"));
+                    Utility.bringToFrontFX(null);
+                    DialogManager.showMessageFX(null, "project-is-virtualized");
                     break;
                 case READ_ONLY:
                     readOnly = true;
@@ -461,7 +461,7 @@ public class Project implements DebuggerListener, InspectorManager
         // Suppress the read-only warning if we know they are opening the Greenfoot startup project
 
         if (readOnly && !isGreenfootStartupProject) {
-            Utility.bringToFront(null);
+            Utility.bringToFrontFX(null);
             // Prompt user to "Save elsewhere"
 
             SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
@@ -580,7 +580,7 @@ public class Project implements DebuggerListener, InspectorManager
             project.statusFrame.close();
         }
 
-        Platform.runLater(() -> project.removeAllInspectors());
+        project.removeAllInspectors();
         project.getDebugger().removeDebuggerListener(project);
         project.getDebugger().close(false);
 
@@ -859,22 +859,19 @@ public class Project implements DebuggerListener, InspectorManager
         // See if it is on the bench:
         // (Also check pkg != null since the data collection mechanism can't deal with null pkg).
         if (! Config.isGreenfoot() && pkg != null) {
-            ObjectInspector inspectorFinal = inspector;
-            SwingUtilities.invokeLater(() -> {
-                String benchName = null;
-                PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-                if (pmf != null)
+            String benchName = null;
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+            if (pmf != null)
+            {
+                for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
                 {
-                    for (ObjectWrapper ow : PkgMgrFrame.findFrame(pkg).getObjectBench().getObjects())
+                    if (ow.getObject().equals(obj))
                     {
-                        if (ow.getObject().equals(obj))
-                        {
-                            benchName = ow.getName();
-                        }
+                        benchName = ow.getName();
                     }
                 }
-                DataCollector.inspectorObjectShow(pkg, inspectorFinal, benchName, obj.getClassName(), name);
-            });
+            }
+            DataCollector.inspectorObjectShow(pkg, inspector, benchName, obj.getClassName(), name);
         }
 
         return inspector;
@@ -948,7 +945,7 @@ public class Project implements DebuggerListener, InspectorManager
     public void removeInspector(DebuggerObject obj)
     {
         Inspector inspector = inspectors.remove(obj);
-        SwingUtilities.invokeLater(() -> DataCollector.inspectorHide(this, inspector));
+        DataCollector.inspectorHide(this, inspector);
     }
 
     /**
@@ -959,7 +956,7 @@ public class Project implements DebuggerListener, InspectorManager
     public void removeInspector(DebuggerClass cls)
     {
         Inspector inspector = inspectors.remove(cls.getName());
-        SwingUtilities.invokeLater(() -> DataCollector.inspectorHide(this, inspector));
+        DataCollector.inspectorHide(this, inspector);
     }
 
     /**
@@ -988,7 +985,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         for (Inspector inspector : inspectors.values()) {
             inspector.hide();
-            SwingUtilities.invokeLater(() -> DataCollector.inspectorHide(this, inspector));
+            DataCollector.inspectorHide(this, inspector);
         }
 
         inspectors.clear();
@@ -1029,8 +1026,7 @@ public class Project implements DebuggerListener, InspectorManager
             updateInspector(inspector);
         }
 
-        ClassInspector inspectorFinal = inspector;
-        SwingUtilities.invokeLater(() -> DataCollector.inspectorClassShow(pkg, inspectorFinal, clss.getName()));
+        DataCollector.inspectorClassShow(pkg, inspector, clss.getName());
 
         return inspector;
     }
@@ -2416,7 +2412,7 @@ public class Project implements DebuggerListener, InspectorManager
 
     public void setAllEditorStatus(String status)
     {
-        Platform.runLater(() -> fXTabbedEditors.forEach(fte -> fte.setTitleStatus(status)));
+        fXTabbedEditors.forEach(fte -> fte.setTitleStatus(status));
     }
 
     @OnThread(Tag.Any)

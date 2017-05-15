@@ -208,7 +208,6 @@ public final class Terminal
     /**
      * Create a new terminal window with default specifications.
      */
-    @OnThread(Tag.Swing)
     public Terminal(Project project)
     {
         this.title = WINDOWTITLE + " - " + project.getProjectName();

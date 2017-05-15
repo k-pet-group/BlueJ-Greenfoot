@@ -47,6 +47,8 @@ import javafx.scene.shape.Polygon;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 
@@ -58,6 +60,7 @@ import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
  * @author  Marion Zalk
  * @author  Michael Kölling
  */
+@OnThread(Tag.FXPlatform)
 public class FindPanel extends GridPane
 {
     private final TextField replaceField;

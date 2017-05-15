@@ -1239,6 +1239,7 @@ public final class Config
      * will be the same property object!).  But be careful if you bind
      * the property as you may be unbinding an earlier binding.
      */
+    @OnThread(Tag.FXPlatform)
     public static BooleanProperty getPropBooleanProperty(String propname)
     {
         return booleanProperties.computeIfAbsent(propname, p -> {

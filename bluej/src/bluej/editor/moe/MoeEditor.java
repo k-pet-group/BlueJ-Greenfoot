@@ -650,6 +650,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @param caretBack  move the caret to the beginning of the inserted text
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void insertText(String text, boolean caretBack)
     {
         sourcePane.replaceSelection(text);
@@ -956,6 +957,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * nothing.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void removeStepMark()
     {
         if (currentStepPos != -1) {
@@ -1218,6 +1220,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      *             which does not exist in the text.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public String getText(SourceLocation begin, SourceLocation end)
     {
         int first = getOffsetFromLineColumn(begin);
@@ -1293,6 +1296,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      *             not exist in the text.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public int getOffsetFromLineColumn(SourceLocation location)
     {
         int col = location.getColumn() - 1;
@@ -2499,6 +2503,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // --------------------------------------------------------------------
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {
         if (madeChangeOnCurrentLine)
@@ -2511,6 +2516,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void focusMethod(String methodName, List<String> paramTypes)
     {
         focusMethod(methodName, paramTypes, new NodeAndPosition<ParsedNode>(getParsedNode(), 0, 0), 0);
@@ -3528,24 +3534,23 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FX)
     public void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
-        SwingUtilities.invokeLater(() -> {
-            if (watcher != null)
+        if (watcher != null)
+        {
+            if (!partOfMove && parent != null)
             {
-                if (!partOfMove && parent != null)
-                {
-                    watcher.recordOpen();
-                } else if (!partOfMove && parent == null)
-                {
-                    watcher.recordClose();
-                }
-
-                // If we are closing, force a compilation in case there are pending changes:
-                if (parent == null && madeChangeOnCurrentLine)
-                {
-                    watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-                }
+                watcher.recordOpen();
             }
-        });
+            else if (!partOfMove && parent == null)
+            {
+                watcher.recordClose();
+            }
+
+            // If we are closing, force a compilation in case there are pending changes:
+            if (parent == null && madeChangeOnCurrentLine)
+            {
+                watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+            }
+        }
         
         this.fxTabbedEditor = parent;
     }
