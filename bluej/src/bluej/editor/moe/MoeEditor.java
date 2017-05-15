@@ -798,6 +798,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         sourcePane.setCaretPosition(pos);
         sourcePane.moveCaretPosition(line.getEndOffset() - 1);  // w/o line break
+        sourcePane.requestFollowCaret();
 
         // display the message
         info.messageImportant(message);

@@ -35,18 +35,24 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import bluej.BlueJTheme;
+import bluej.pkgmgr.Package;
+import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -65,6 +71,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.CharacterHit;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.TextExt;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
@@ -86,7 +93,7 @@ public final class Terminal
     implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
 
-    private static final int MAX_BUFFER_LINES = 100;
+    private static final int MAX_BUFFER_LINES = 200;
     private VirtualizedScrollPane<?> errorScrollPane;
 
     private static interface  TextAreaStyle
@@ -113,13 +120,13 @@ public final class Terminal
         }
     }
     // MOEFX TODO: add styles for formatting stack traces
-    private static enum StderrStyle implements TextAreaStyle
+    private static enum StderrStyleType
     {
-        NORMAL("terminal-error");
+        NORMAL("terminal-error"), LINKED_STACK_TRACE("terminal-stack-link"), FOREIGN_STACK_TRACE("terminal-stack-foreign");
 
         private final String cssClass;
 
-        private StderrStyle(String cssClass)
+        private StderrStyleType(String cssClass)
         {
             this.cssClass = cssClass;
         }
@@ -127,6 +134,33 @@ public final class Terminal
         public String getCSSClass()
         {
             return cssClass;
+        }
+    }
+
+    private static class StderrStyle implements TextAreaStyle
+    {
+        private final StderrStyleType type;
+        private final ExceptionSourceLocation exceptionSourceLocation;
+
+        private StderrStyle(StderrStyleType type)
+        {
+            this.type = type;
+            this.exceptionSourceLocation = null;
+        }
+
+        public StderrStyle(ExceptionSourceLocation exceptionSourceLocation)
+        {
+            this.type = StderrStyleType.LINKED_STACK_TRACE;
+            this.exceptionSourceLocation = exceptionSourceLocation;
+        }
+
+        public static final StderrStyle NORMAL = new StderrStyle(StderrStyleType.NORMAL);
+        public static final StderrStyle FOREIGN_STACK_TRACE = new StderrStyle(StderrStyleType.FOREIGN_STACK_TRACE);
+
+        @Override
+        public String getCSSClass()
+        {
+            return type.getCSSClass();
         }
     }
 
@@ -243,7 +277,10 @@ public final class Terminal
             }
             showHide(false);
         });
-        window.setOnShown(e -> showingProperty.set(true));
+        window.setOnShown(e -> {
+            showingProperty.set(true);
+            //org.scenicview.ScenicView.show(window.getScene());
+        });
         window.setOnHidden(e -> showingProperty.set(false));
 
         JavaFXUtil.addChangeListenerPlatform(showingProperty, this::showHide);
@@ -531,6 +568,64 @@ public final class Terminal
         }
     }
 
+    /**
+     * Looks through the contents of the terminal for lines
+     * that look like they are part of a stack trace.
+     */
+    private void scanForStackTrace()
+    {
+        try {
+            String content = errorText.getText();
+
+            Pattern p = java.util.regex.Pattern.compile("at (\\S+)\\((\\S+)\\.java:(\\d+)\\)");
+            // Matches things like:
+            // at greenfoot.localdebugger.LocalDebugger$QueuedExecution.run(LocalDebugger.java:267)
+            //    ^--------------------group 1----------------------------^ ^--group 2--^      ^3^
+            Matcher m = p.matcher(content);
+            while (m.find())
+            {
+                String fullyQualifiedMethodName = m.group(1);
+                String javaFile = m.group(2);
+                int lineNumber = Integer.parseInt(m.group(3));
+
+                // The fully qualified method name will end in ".method", so we can
+                // definitely remove that:
+
+                String fullyQualifiedClassName = JavaNames.getPrefix(fullyQualifiedMethodName);
+                // The class name may be an inner class, so we want to take the package:
+                String packageName = JavaNames.getPrefix(fullyQualifiedClassName);
+
+                //Find out if that file is available, and only link if it is:
+                Package pkg = project.getPackage(packageName);
+
+                if (pkg != null && pkg.getAllClassnames().contains(javaFile))
+                {
+                    errorText.setStyle(m.start(1), m.end(), new StderrStyle(new ExceptionSourceLocation(m.start(1), m.end(), pkg, javaFile, lineNumber)));
+                }
+                else
+                {
+                    errorText.setStyle(m.start(), m.end(), StderrStyle.FOREIGN_STACK_TRACE);
+                }
+            }
+
+            //Also mark up native method lines in stack traces with a marker for font colour:
+
+            p = java.util.regex.Pattern.compile("at \\S+\\((Native Method|Unknown Source)\\)");
+            // Matches things like:
+            //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+            m = p.matcher(content);
+            while (m.find())
+            {
+                errorText.setStyle(m.start(), m.end(), StderrStyle.FOREIGN_STACK_TRACE);
+            }
+        }
+        catch (NumberFormatException e ) {
+            //In case it looks like an exception but has a large line number:
+            e.printStackTrace();
+        }
+    }
+
+
 
     /**
      * Return the input stream that can be used to read from this terminal.
@@ -727,18 +822,33 @@ public final class Terminal
         if(errorShown) {
             return;
         }
-        
-        //the first time the errortext is shown we need to pack() it
-        //to make it have the right size.
-        boolean isFirstShow = false; 
+
         if(errorText == null) {
-            isFirstShow = true;
             errorText = new StyledTextArea<Void, StderrStyle>(null, (t, v) -> {}, StderrStyle.NORMAL, this::applyStyle);
             //MOEFX: set size
             //TermTextArea(Config.isGreenfoot() ? 15 : 5, 80, null, project, this, true);
             errorScrollPane = new VirtualizedScrollPane<>(errorText);
             errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             errorText.setEditable(false);
+            errorText.plainTextChanges().subscribe(c -> scanForStackTrace());
+            Consumer<MouseEvent> onClick = e ->
+            {
+                CharacterHit hit = errorText.hit(e.getX(), e.getY());
+
+                StderrStyle style = errorText.getStyleAtPosition(hit.getInsertionIndex());
+
+                if (style.exceptionSourceLocation != null)
+                {
+                    style.exceptionSourceLocation.showInEditor();
+                }
+                else
+                {
+                    // Default behaviour:
+                    errorText.moveTo(hit.getInsertionIndex(), SelectionPolicy.CLEAR);
+                }
+            };
+            errorText.setOnOutsideSelectionMousePress(onClick);
+            errorText.setOnInsideSelectionMousePressRelease(onClick);
             //MOEFX
             //errorText.setMargin(new Insets(6, 6, 6, 6));
             //MOEFX

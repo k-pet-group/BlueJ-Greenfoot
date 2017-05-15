@@ -121,6 +121,7 @@ public class TerminalPrinter
 
     }
 
+    /*MOEFX
     public static boolean printTerminal(PrinterJob job, TermTextArea textArea, PageFormat pageFormat, Font font)
     {
         try {
@@ -141,6 +142,7 @@ public class TerminalPrinter
         }
 
     }
+
 
     private static Book paginateText(TermTextArea textArea, PageFormat pageFormat, Font font)
     {
@@ -177,6 +179,7 @@ public class TerminalPrinter
         }
         return book;  // return the completed book
     }
+    */
     
     /**
      * Wraps lines so that long lines of text outside of print page dimensions for a 
