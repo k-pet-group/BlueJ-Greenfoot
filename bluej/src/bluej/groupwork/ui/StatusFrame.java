@@ -31,13 +31,15 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -84,10 +86,11 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         super(null, "team.status", "team-status");
         project = proj;
         // The layout should be Vertical, if not replace with a VBox.
-        getDialogPane().getChildren().addAll(makeMainPane(), makeButtonPanel());
+        getDialogPane().setContent(makeMainPane());
+        prepareButtonPane();
     }
 
-    private ScrollPane makeMainPane()
+    private Pane makeMainPane()
     {
         // try and set up a reasonable default amount of entries that avoids resizing
         // and scrolling once we get info back from repository
@@ -125,38 +128,27 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         statusTable.getColumns().setAll(firstColumn, secondColumn, thirdColumn);
 
 
-
         ScrollPane statusScroller = new ScrollPane(statusTable);
 //        Dimension prefSize = statusTable.getMaximumSize();
 //        Dimension scrollPrefSize =  statusTable.getPreferredScrollableViewportSize();
 //        Dimension best = new Dimension(scrollPrefSize.width + 50, prefSize.height + 30);
 //        statusScroller.setPreferredSize(best);
 
-        return statusScroller;
+        VBox mainPane = new VBox();
+        mainPane.setSpacing(10);
+        mainPane.getChildren().addAll(statusScroller, makeRefreshPane());
+        return mainPane;
     }
 
     /**
-     * Create the button panel with a Resolve button and a close button
-     * @return Pane the buttonPanel
+     * Create the Refresh button and status progress bar
+     * @return Pane the progress HBox
      */
-    private Pane makeButtonPanel()
+    private Pane makeRefreshPane()
     {
-//        HBox buttonPanel = new Pane(new FlowLayout(FlowLayout.RIGHT));
-        FlowPane buttonPanel = new FlowPane(Orientation.HORIZONTAL);
-//        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         // progress bar
         progressBar = new ActivityIndicatorFX();
         progressBar.setRunning(false);
-
-        //close button
-        Button closeButton = new Button();
-        closeButton.setOnAction(event -> {
-            if (worker != null) {
-                worker.abort();
-            }
-            hide();
-        });
 
         //refresh button
         refreshButton = new Button(Config.getString("team.status.refresh"));
@@ -164,8 +156,25 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         refreshButton.setOnAction(event -> update());
         refreshButton.requestFocus();
 
-        buttonPanel.getChildren().addAll(progressBar, refreshButton, closeButton);
-        return buttonPanel;
+        HBox box = new HBox();
+        box.setAlignment(Pos.BASELINE_CENTER);
+        box.getChildren().addAll(progressBar, refreshButton);
+        return box;
+    }
+
+    /**
+     * Create the button panel with a Resolve button and a close button
+     * @return Pane the buttonPanel
+     */
+    private void prepareButtonPane()
+    {
+        //close button
+        getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
+        this.setOnCloseRequest(event -> {
+            if (worker != null) {
+                worker.abort();
+            }
+        });
     }
 
     /**
