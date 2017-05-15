@@ -89,6 +89,7 @@ import bluej.groupwork.actions.StatusAction;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.actions.UpdateDialogAction;
 import bluej.groupwork.ui.ActivityIndicatorFX;
+
 import bluej.pkgmgr.actions.AddClassAction;
 import bluej.pkgmgr.actions.CancelTestRecordAction;
 import bluej.pkgmgr.actions.CheckExtensionsAction;
@@ -98,6 +99,7 @@ import bluej.pkgmgr.actions.CompileAction;
 import bluej.pkgmgr.actions.CompileSelectedAction;
 import bluej.pkgmgr.actions.EndTestRecordAction;
 import bluej.pkgmgr.actions.ExportProjectAction;
+import bluej.pkgmgr.actions.FXPkgMgrAction;
 import bluej.pkgmgr.actions.GenerateDocsAction;
 import bluej.pkgmgr.actions.HelpAboutAction;
 import bluej.pkgmgr.actions.ImportProjectAction;
@@ -143,6 +145,7 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -152,6 +155,7 @@ import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+
 import javafx.animation.Animation;
 import javafx.animation.FillTransition;
 import javafx.animation.KeyFrame;
@@ -259,13 +263,13 @@ public class PkgMgrFrame
     private final SimpleObjectProperty<FXMenuManager> toolsMenuManager;
     @OnThread(Tag.FXPlatform)
     private final SimpleObjectProperty<FXMenuManager> viewMenuManager;
-    private JMenu teamMenu;
-    private JMenuItem shareProjectMenuItem;
-    private JMenuItem teamSettingsMenuItem;
-    private JMenuItem showLogMenuItem;
-    private JMenuItem updateMenuItem;
-    private JMenuItem commitMenuItem;
-    private JMenuItem statusMenuItem;
+    private Menu teamMenu;
+    private MenuItem shareProjectMenuItem;
+    private MenuItem teamSettingsMenuItem;
+    private MenuItem showLogMenuItem;
+    private MenuItem updateMenuItem;
+    private MenuItem commitMenuItem;
+    private MenuItem statusMenuItem;
     private @OnThread(Tag.FX) ButtonBase updateButton;
     private @OnThread(Tag.FX) ButtonBase commitButton;
     private @OnThread(Tag.FX) ButtonBase teamStatusButton;
@@ -1294,6 +1298,19 @@ public class PkgMgrFrame
         	}
         };
     }
+
+    private FXAbstractAction wrapPkgMgrAction(FXPkgMgrAction action)
+    {
+        return new FXAbstractAction(action.getName(), action.getAccelerator())
+        {
+            @Override
+            public void actionPerformed()
+            {
+                action.setFrame(PkgMgrFrame.this);
+                action.actionPerformed(PkgMgrFrame.this);
+            }
+        };
+    }
     
     /**
      * Set the team controls to use the team actions for the project.
@@ -1310,21 +1327,25 @@ public class PkgMgrFrame
         UpdateDialogAction updateAction = teamActions.getUpdateAction();
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction();
         ImportAction shareAction = teamActions.getImportAction();
+
         Platform.runLater(() -> {
-            setButtonAction(statusAction, teamStatusButton, false);
-            setButtonAction(updateAction, updateButton, false);
-            setButtonAction(commitCommentAction, commitButton, false);
-            setButtonAction(shareAction, teamShareButton, false);
+            setFXButtonAction(statusAction, teamStatusButton, false);
+            setFXButtonAction(updateAction, updateButton, false);
+            setFXButtonAction(commitCommentAction, commitButton, false);
+            setFXButtonAction(shareAction, teamShareButton, false);
         });
-        teamSettingsMenuItem.setAction(wrapPkgMgrAction(teamActions.getTeamSettingsAction()));
-        
-        shareProjectMenuItem.setAction(wrapPkgMgrAction(teamActions.getImportAction()));
-        statusMenuItem.setAction(wrapPkgMgrAction(teamActions.getStatusAction()));
-        commitMenuItem.setAction(wrapPkgMgrAction(teamActions.getCommitCommentAction()));
+
+        wrapPkgMgrAction(teamActions.getTeamSettingsAction()).prepareMenuItem(teamSettingsMenuItem);
+        wrapPkgMgrAction(teamActions.getImportAction()).prepareMenuItem(shareProjectMenuItem);
+        wrapPkgMgrAction(teamActions.getStatusAction()).prepareMenuItem(statusMenuItem);
+
+        wrapPkgMgrAction(teamActions.getCommitCommentAction()).prepareMenuItem(commitMenuItem);
         commitMenuItem.setText(Config.getString("team.menu.commit"));
-        updateMenuItem.setAction(wrapPkgMgrAction(teamActions.getUpdateAction()));
+
+        wrapPkgMgrAction(teamActions.getUpdateAction()).prepareMenuItem(updateMenuItem);
         updateMenuItem.setText(Config.getString("team.menu.update"));
-        showLogMenuItem.setAction(wrapPkgMgrAction(teamActions.getShowLogAction()));
+
+        wrapPkgMgrAction(teamActions.getShowLogAction()).prepareMenuItem(showLogMenuItem);
     }
 
     /**
@@ -3186,19 +3207,19 @@ public class PkgMgrFrame
             teamPanelItemsUnshared.setPickOnBounds(false);
             teamPanel.setContent(new StackPane(teamPanelItemsUnshared, teamPanelItemsOnceShared));
             
-            updateButton = createButton(updateAction, false, false);
+            updateButton = createFXButton(updateAction, false, false);
             updateButton.visibleProperty().bind(updateButton.disableProperty().not());
             teamPanelItemsOnceShared.getChildren().add(updateButton);
             
-            commitButton = createButton(commitCommentAction, false, false);
+            commitButton = createFXButton(commitCommentAction, false, false);
             commitButton.visibleProperty().bind(commitButton.disableProperty().not());
             teamPanelItemsOnceShared.getChildren().add(commitButton);
             
-            teamStatusButton = createButton(statusAction, false, false);
+            teamStatusButton = createFXButton(statusAction, false, false);
             teamStatusButton.visibleProperty().bind(teamStatusButton.disableProperty().not());
             teamPanelItemsOnceShared.getChildren().add(teamStatusButton);
 
-            teamShareButton = createButton(shareAction, false, false);
+            teamShareButton = createFXButton(shareAction, false, false);
             teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
             teamPanelItemsUnshared.getChildren().add(teamShareButton);
             teamShareButton.setText(Config.getString("team.import.short"));
@@ -3258,6 +3279,30 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     public ButtonBase createButton(PkgMgrAction action, boolean toggle, boolean noText)
     {
+        ButtonBase button = prepareButton(toggle);
+        setButtonAction(action, button, noText);
+        return button;
+    }
+
+    /**
+     * A FX temporary replacement: Creating a button for the interface.
+     *
+     * @param action
+     *            the Action abstraction dictating text, icon, tooltip, action.
+     * @param toggle
+     *            true if this is a toggle button, false otherwise
+     * @return the new button
+     */
+    @OnThread(Tag.FX)
+    public ButtonBase createFXButton(FXPkgMgrAction action, boolean toggle, boolean noText)
+    {
+        ButtonBase button = prepareButton(toggle);
+        setFXButtonAction(action, button, noText);
+        return button;
+    }
+
+    private ButtonBase prepareButton(boolean toggle)
+    {
         ButtonBase button;
         if (toggle) {
             button = new ToggleButton();
@@ -3265,11 +3310,7 @@ public class PkgMgrFrame
         else {
             button = new Button();
         }
-        setButtonAction(action, button, noText);
         button.setFocusTraversable(false); // buttons shouldn't get focus
-        //if (notext)
-        //    button.setText(null);
-
         return button;
     }
 
@@ -3295,11 +3336,26 @@ public class PkgMgrFrame
             });
         });
         button.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
             	action.setFrame(this);
                 action.actionPerformed(this);
             });
+    }
+
+    /**
+     * A FX replacement method for setButtonAction
+     * @param action
+     * @param noText
+     */
+    @OnThread(Tag.FXPlatform)
+    private void setFXButtonAction(FXPkgMgrAction action, ButtonBase button, boolean noText)
+    {
+        action.setButtonAction(button);
+        button.setOnAction(e -> {
+            action.setFrame(this);
+            action.actionPerformed();
         });
+        if (!noText && (button.getText() == null || button.getText().isEmpty()))
+            button.setText(action.getName());
     }
     
     /**
@@ -3389,32 +3445,39 @@ public class PkgMgrFrame
                 createMenuItem(cancelTestRecordAction, testingMenu);
             }
             swingItems.add(testingMenu);
-            
-            //team menu setup
-            teamMenu = new JMenu(Config.getString("menu.tools.teamwork"));
-            teamMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
-            {
-                Action checkoutAction = new CheckoutAction(this);
-                createMenuItem(checkoutAction , teamMenu);
-                shareProjectMenuItem = createMenuItem(teamActions.getImportAction(), teamMenu);               
-                
-                teamMenu.addSeparator();
-                
-                updateMenuItem = createMenuItem(teamActions.getUpdateAction(), teamMenu);
-                updateMenuItem.setText(Config.getString("team.menu.update"));
-                commitMenuItem = createMenuItem(teamActions.getCommitCommentAction(), teamMenu);
-                commitMenuItem.setText(Config.getString("team.menu.commit"));
-                statusMenuItem = createMenuItem(teamActions.getStatusAction(), teamMenu);
-                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
-                
-                teamMenu.addSeparator();
-                
-                teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(), teamMenu);
-            }
-            swingItems.add(teamMenu);
 
             mixedMenu.addSwing(swingItems);
             swingItems.clear();
+
+            //team menu setup
+            teamMenu = new Menu(Config.getString("menu.tools.teamwork"));
+//            teamMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
+            {
+                FXAbstractAction checkoutAction = new CheckoutAction(this);
+                shareProjectMenuItem = teamActions.getImportAction().makeMenuItem();
+
+                updateMenuItem = teamActions.getUpdateAction().makeMenuItem();
+                updateMenuItem.setText(Config.getString("team.menu.update"));
+                commitMenuItem = teamActions.getCommitCommentAction().makeMenuItem();
+                commitMenuItem.setText(Config.getString("team.menu.commit"));
+                statusMenuItem = teamActions.getStatusAction().makeMenuItem();
+                showLogMenuItem = teamActions.getShowLogAction().makeMenuItem();
+
+                teamSettingsMenuItem = teamActions.getTeamSettingsAction().makeMenuItem();
+
+                teamMenu.getItems().addAll(checkoutAction.makeMenuItem(),
+                        shareProjectMenuItem,
+                        new SeparatorMenuItem(),
+                        updateMenuItem,
+                        commitMenuItem,
+                        statusMenuItem,
+                        showLogMenuItem,
+                        new SeparatorMenuItem(),
+                        teamSettingsMenuItem
+
+                );
+            }
+            mixedMenu.addFX(() -> teamMenu);
 
             if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
                                                    // Mac

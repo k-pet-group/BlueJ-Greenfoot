@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,62 +27,58 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Modality;
 import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.TeamworkProvider;
+import bluej.utility.javafx.FXCustomizedDialog;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
  * A dialog which displays an activity indicator while connection settings are
  * being verified
- * 
+ *
  * @author Davin McCall
+ * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
-public class CheckConnectionDialog extends javafx.scene.control.Dialog<Void>
+public class CheckConnectionDialog extends FXCustomizedDialog<Void>
 {
     private ProgressBar activityIndicator;
     private Text connLabel;
-    
+
     private TeamSettings settings;
     private TeamworkProvider provider;
 
-    public CheckConnectionDialog(Window owner, TeamworkProvider provider,
-                                 TeamSettings settings)
+    public CheckConnectionDialog(Window owner, TeamworkProvider provider, TeamSettings settings)
     {
-        initOwner(owner);
-        initModality(Modality.WINDOW_MODAL);
-        setTitle(Config.getString("team.settings.checkConnection"));
-        setResizable(true);
-
+        super(owner, "team.settings.checkConnection", "team-test-connection");
         this.provider = provider;
         this.settings = settings;
-        
         buildUI();
     }
-    
+
     private void buildUI()
     {
         VBox contentPane = new VBox();
         contentPane.setMinHeight(120.0);
         getDialogPane().setContent(contentPane);
         getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
-        
+
         connLabel = new Text(Config.getString("team.checkconn.checking"));
-        
+
         contentPane.getChildren().add(new TextFlow(connLabel));
-        
+
         activityIndicator = new ProgressBar();
         contentPane.getChildren().add(activityIndicator);
         activityIndicator.setMaxWidth(9999.0);
         contentPane.setFillWidth(true);
     }
-    
+
     public void showAndCheck()
     {
         // Must start the thread before calling showAndWait, because
@@ -107,5 +103,4 @@ public class CheckConnectionDialog extends javafx.scene.control.Dialog<Void>
         }.start();
         showAndWait();
     }
-
 }

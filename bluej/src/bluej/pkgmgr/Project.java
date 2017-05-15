@@ -21,8 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
 import java.awt.SecondaryLoop;
@@ -56,6 +54,16 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Window;
+import javafx.util.Duration;
+
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import bluej.BlueJEvent;
 import bluej.Boot;
@@ -132,7 +140,7 @@ import threadchecker.Tag;
  * @author  Andrew Patterson
  * @author  Bruce Quig
  */
-public class Project implements DebuggerListener, InspectorManager 
+public class Project implements DebuggerListener, InspectorManager
 {
     public static final int NEW_PACKAGE_DONE = 0;
     public static final int NEW_PACKAGE_EXIST = 1;
@@ -154,7 +162,7 @@ public class Project implements DebuggerListener, InspectorManager
     /** the path of the project directory. */
     private final File projectDir;
     /** reference to the unnamed package */
-    @OnThread(Tag.Any) private final Package unnamedPackage; 
+    @OnThread(Tag.Any) private final Package unnamedPackage;
     /** Resolve javadoc for this project */
     private final JavadocResolver javadocResolver;
     /** collection of open packages in this project
@@ -204,14 +212,14 @@ public class Project implements DebuggerListener, InspectorManager
     private TeamActionGroup teamActions;
     /** Where to find JDK and other library sources (for extracting javadoc) */
     private List<DocPathEntry> sourcePath;
-    
+
     /** Project character set for source files etc */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private Charset characterSet;
 
     @OnThread(Tag.FX) private final List<FXTabbedEditor> fXTabbedEditors = new ArrayList<>();
     @OnThread(Tag.FX) private final List<Rectangle> fxCachedEditorSizes = new ArrayList<>();
-    
+
     /** 1 second timer before starting auto-compile */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private Timer compilerTimer;
@@ -233,7 +241,7 @@ public class Project implements DebuggerListener, InspectorManager
     /** The scanner for available imports.  May be null if not requested yet. */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private ImportScanner importScanner;
-    
+
     /** check if the project is a dvcs project**/
     private boolean isDVCS=false;
     private final FrameShelfStorage shelfStorage;
@@ -253,7 +261,7 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         Debug.log("Opening project: " + projectDir.toString());
-        
+
         // Make JDK's javadoc available, if we can find the source
         javadocResolver = new ProjectJavadocResolver(this);
         sourcePath = new ArrayList<DocPathEntry>();
@@ -276,12 +284,12 @@ public class Project implements DebuggerListener, InspectorManager
                 }
             }
         }
-        
+
         String jdkSourcePath = Config.getPropString(JDK_SOURCE_PATH_PROPERTY, null);
         if (jdkSourcePath != null) {
             sourcePath.add(new DocPathEntry(new File(jdkSourcePath), ""));
         }
-        
+
         this.projectDir = projectDir;
         libraryUrls = getLibrariesClasspath();
         inspectors = new HashMap<Object,Inspector>();
@@ -316,7 +324,7 @@ public class Project implements DebuggerListener, InspectorManager
                 isDVCS = tsc.isDVCS();
             }
         }
-        
+
         teamActions = new TeamActionGroup(isSharedProject.get(), isDVCS);
 
         JavaFXUtil.addChangeListenerPlatform(terminalShowing, showTerm -> {
@@ -330,13 +338,13 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Check if the path given is either a directory with a project file or if
      * it is the project file itself (project.greenfoot or package.bluej).
-     * 
+     *
      * @param projectPath a string representing the path to check. This can
      *            either be a directory name or the filename of a project
      *            file.
      */
     @OnThread(Tag.Any)
-    public static boolean isProject(String projectPath) 
+    public static boolean isProject(String projectPath)
     {
         File startingDir;
 
@@ -426,32 +434,32 @@ public class Project implements DebuggerListener, InspectorManager
             // Debug.message("no BlueJ package file found in directory " + startingDir);
             return null;
         }
-        
+
         boolean readOnly = false;
 
         if(Config.isModernWinOS()) {
             WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
             switch (capabilities) {
-            case VIRTUALIZED_WRITE:
-                Utility.bringToFront(null);
-                Platform.runLater(() -> DialogManager.showMessageFX(null, "project-is-virtualized"));
-                break;
-            case READ_ONLY:
-                readOnly = true;
-                break;
-            case NORMAL_WRITE:
-                break;
-            default:
-                break;
+                case VIRTUALIZED_WRITE:
+                    Utility.bringToFront(null);
+                    Platform.runLater(() -> DialogManager.showMessageFX(null, "project-is-virtualized"));
+                    break;
+                case READ_ONLY:
+                    readOnly = true;
+                    break;
+                case NORMAL_WRITE:
+                    break;
+                default:
+                    break;
             }
         }
         else if (!projectDir.canWrite()) {
             readOnly = true;
         }
 
-        boolean isGreenfootStartupProject = Config.isGreenfootStartupProject(projectDir); 
+        boolean isGreenfootStartupProject = Config.isGreenfootStartupProject(projectDir);
         // Suppress the read-only warning if we know they are opening the Greenfoot startup project
-        
+
         if (readOnly && !isGreenfootStartupProject) {
             Utility.bringToFront(null);
             // Prompt user to "Save elsewhere"
@@ -472,24 +480,24 @@ public class Project implements DebuggerListener, InspectorManager
                         int result = FileUtility.copyDirectory(projDir.get(), newName);
 
                         switch (result) {
-                        case FileUtility.NO_ERROR:
-                            // It worked, use this as the new project:
-                            projDir.set(newName);
-                            done = true;
-                            break;
+                            case FileUtility.NO_ERROR:
+                                // It worked, use this as the new project:
+                                projDir.set(newName);
+                                done = true;
+                                break;
 
-                        case FileUtility.DEST_EXISTS_NOT_DIR:
-                            DialogManager.showErrorFX(null, "directory-exists-file");
-                            break;
-                        case FileUtility.DEST_EXISTS_NON_EMPTY:
-                            DialogManager.showErrorFX(null, "directory-exists-non-empty");
-                            break;
+                            case FileUtility.DEST_EXISTS_NOT_DIR:
+                                DialogManager.showErrorFX(null, "directory-exists-file");
+                                break;
+                            case FileUtility.DEST_EXISTS_NON_EMPTY:
+                                DialogManager.showErrorFX(null, "directory-exists-non-empty");
+                                break;
 
-                        case FileUtility.SRC_NOT_DIRECTORY:
-                        case FileUtility.COPY_ERROR:
-                            DialogManager.showErrorFX(null, "cannot-save-project");
+                            case FileUtility.SRC_NOT_DIRECTORY:
+                            case FileUtility.COPY_ERROR:
+                                DialogManager.showErrorFX(null, "cannot-save-project");
 
-                            break;
+                                break;
                         }
                     }
                     else {
@@ -510,10 +518,10 @@ public class Project implements DebuggerListener, InspectorManager
             try {
                 proj = new Project(projectDir);
 
-            //if is shared project, check for svn working copy version.
-            if (proj.isTeamProject() && !proj.getTeamSettingsController().isDVCS() && proj.getTeamSettingsController().getWorkingCopyVersion() != 1.6) {
-                Platform.runLater(() -> DialogManager.showMessageFX(null, "SVNWorkingCopyNot16"));
-            }
+                //if is shared project, check for svn working copy version.
+                if (proj.isTeamProject() && !proj.getTeamSettingsController().isDVCS() && proj.getTeamSettingsController().getWorkingCopyVersion() != 1.6) {
+                    Platform.runLater(() -> DialogManager.showMessageFX(null, "SVNWorkingCopyNot16"));
+                }
 
                 projects.put(projectDir, proj);
             }
@@ -540,7 +548,7 @@ public class Project implements DebuggerListener, InspectorManager
         else {
             proj.initialPackageName = startingPackageName;
         }
-        
+
         ExtensionsManager.getInstance().projectOpening(proj);
         DataCollector.projectOpened(proj, ExtensionsManager.getInstance().getLoadedExtensions(proj));
 
@@ -555,10 +563,10 @@ public class Project implements DebuggerListener, InspectorManager
      * CleanUp the mess left by a project that has now been closed and
      * throw it away.
      */
-    public static void cleanUp(Project project) 
+    public static void cleanUp(Project project)
     {
         DataCollector.projectClosed(project);
-        
+
         if (project.hasExecControls()) {
             project.getExecControls().hide();
         }
@@ -567,9 +575,9 @@ public class Project implements DebuggerListener, InspectorManager
             project.terminal.cleanup();
             project.terminal.dispose();
         }
-        
+
         if (project.statusFrame != null) {
-            project.statusFrame.dispose();
+            project.statusFrame.close();
         }
 
         Platform.runLater(() -> project.removeAllInspectors());
@@ -640,28 +648,28 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Returns the number of open projects
      */
-    public static int getOpenProjectCount() 
+    public static int getOpenProjectCount()
     {
         return projects.size();
     }
-   
+
     /**
      * Gets the set of currently open projects. It is an accessor only.
      * @return a Set containing all open projects.
      */
-    public static Collection<Project> getProjects() 
+    public static Collection<Project> getProjects()
     {
         return projects.values();
     }
-    
+
     /**
      * Given a Projects key returns the Project objects describing this projects.
      */
-    public static Project getProject(File projectKey) 
+    public static Project getProject(File projectKey)
     {
         return projects.get(projectKey);
     }
-    
+
     /**
      * Helper function to take a path (either a directory or a file)
      * and return either the canonical path to the directory
@@ -671,7 +679,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     @OnThread(Tag.Any)
     private static File pathIntoStartingDirectory(String projectPath)
-        throws IOException 
+            throws IOException
     {
         File startingDir;
 
@@ -692,7 +700,7 @@ public class Project implements DebuggerListener, InspectorManager
 
         return null;
     }
-    
+
     /**
      * Attempts to add a library to the given list of libraries.
      * A valid library file is one that is a file, readable, ends either with zip or jar.
@@ -701,24 +709,24 @@ public class Project implements DebuggerListener, InspectorManager
      * @param aFile the file to be added.
      */
     @OnThread(Tag.Any)
-    private static final void attemptAddLibrary (List<URL> risul, File aFile) 
+    private static final void attemptAddLibrary (List<URL> risul, File aFile)
     {
         if ( aFile == null ) return;
-        
+
         // Is this a normal file and is it readable ?
         if ( ! (aFile.isFile() && aFile.canRead()) ) return;
-        
+
         String libname = aFile.getName().toLowerCase();
         if ( ! (libname.endsWith(".jar") || libname.endsWith(".zip")) ) return;
-        
+
         try {
             risul.add(aFile.toURI().toURL());
         }
-        catch(MalformedURLException mue) { 
+        catch(MalformedURLException mue) {
             Debug.reportError("Project.attemptAddLibrary() malformaed file="+aFile);
         }
     }
-    
+
     /**
      * Returns an array of URLs for all the JAR files located in the lib/userlib directory.
      * The result is calculated every time the method is called, in this way it is possible
@@ -727,11 +735,11 @@ public class Project implements DebuggerListener, InspectorManager
      * @return  URLs of the discovered JAR files
      */
     @OnThread(Tag.Any)
-    public static final List<URL> getUserlibContent() 
+    public static final List<URL> getUserlibContent()
     {
         List<URL> risul = new ArrayList<URL>();
         File userLibDir;
-        
+
         // The userlib location may be specified in bluej.defs
         String userLibSetting = Config.getPropString("bluej.userlibLocation", null);
         if (userLibSetting == null) {
@@ -745,11 +753,11 @@ public class Project implements DebuggerListener, InspectorManager
         if (files == null) {
             return risul;
         }
-        
+
         for (int index = 0; index < files.length; index++) {
             attemptAddLibrary(risul, files[index]);
         }
- 
+
         return risul;
     }
 
@@ -761,7 +769,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return characterSet;
     }
-    
+
     /**
      * Get the project properties to be written to storage when the project is saved.
      */
@@ -795,11 +803,11 @@ public class Project implements DebuggerListener, InspectorManager
             props.put(PROJECT_CHARSET_PROP, characterSet.name());
         }
     }
-    
+
     /**
      * Update an inspector, make sure it's visible, and bring it to
      * the front.
-     * 
+     *
      * @param inspector  The inspector to update and show
      */
     @OnThread(Tag.FXPlatform)
@@ -847,11 +855,11 @@ public class Project implements DebuggerListener, InspectorManager
         else {
             updateInspector(inspector);
         }
-        
+
         // See if it is on the bench:
         // (Also check pkg != null since the data collection mechanism can't deal with null pkg).
         if (! Config.isGreenfoot() && pkg != null) {
-            ObjectInspector inspectorFinal = inspector;            
+            ObjectInspector inspectorFinal = inspector;
             SwingUtilities.invokeLater(() -> {
                 String benchName = null;
                 PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
@@ -879,7 +887,7 @@ public class Project implements DebuggerListener, InspectorManager
         Parent root = inspector.getContent();
         root.applyCss();
         root.layout();
-        
+
         ScaleTransition t = null;
         // Odd JavaFX behaviour on Linux messes up animation, so don't animate on Linux:
         if (!Config.isLinux())
@@ -908,11 +916,11 @@ public class Project implements DebuggerListener, InspectorManager
         final Point2D windowCoord = new Point2D(afcScene.getWindow().getX(), afcScene.getWindow().getY());
         final Point2D sceneCoord = new Point2D(afcScene.getX(), afcScene.getY());
         final Point2D nodeCoord = animateFromCentre.localToScene(animateFromCentre.getBoundsInLocal().getWidth()/2.0, animateFromCentre.getBoundsInLocal().getHeight()/2.0);
-        
+
         // Set position:
         inspector.setX(windowCoord.getX() + sceneCoord.getX() + nodeCoord.getX());
         inspector.setY(windowCoord.getY() + sceneCoord.getY() + nodeCoord.getY() + (fromBottom ? -root.prefHeight(-1) : 0));
-        
+
         if (t != null)
         {
             t.play();
@@ -922,12 +930,12 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Get the inspector for the given object. Object can be a DebuggerObject, or a
      * fully-qualified class name.
-     * 
+     *
      * @param obj  The object whose inspector to retrieve
      * @return the inspector, or null if no inspector is open
      */
     @OnThread(Tag.FXPlatform)
-    public Inspector getInspector(Object obj) 
+    public Inspector getInspector(Object obj)
     {
         return inspectors.get(obj);
     }
@@ -937,7 +945,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param obj the inspector.
      */
     @OnThread(Tag.FXPlatform)
-    public void removeInspector(DebuggerObject obj) 
+    public void removeInspector(DebuggerObject obj)
     {
         Inspector inspector = inspectors.remove(obj);
         SwingUtilities.invokeLater(() -> DataCollector.inspectorHide(this, inspector));
@@ -948,7 +956,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param obj the inspector. 
      */
     @OnThread(Tag.FXPlatform)
-    public void removeInspector(DebuggerClass cls) 
+    public void removeInspector(DebuggerClass cls)
     {
         Inspector inspector = inspectors.remove(cls.getName());
         SwingUtilities.invokeLater(() -> DataCollector.inspectorHide(this, inspector));
@@ -961,7 +969,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param obj
      */
     @OnThread(Tag.FXPlatform)
-    public void removeInspectorInstance(Object obj) 
+    public void removeInspectorInstance(Object obj)
     {
         Inspector inspect = getInspector(obj);
 
@@ -976,7 +984,7 @@ public class Project implements DebuggerListener, InspectorManager
      *
      */
     @OnThread(Tag.FXPlatform)
-    public void removeAllInspectors() 
+    public void removeAllInspectors()
     {
         for (Inspector inspector : inspectors.values()) {
             inspector.hide();
@@ -1047,8 +1055,8 @@ public class Project implements DebuggerListener, InspectorManager
      */
     @OnThread(Tag.FXPlatform)
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
-        String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-        javafx.stage.Window parent)
+                                                      String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
+                                                      javafx.stage.Window parent)
     {
         final ResultInspector inspector = new ResultInspector(obj, this, name, pkg, ir, info);
         inspectors.put(obj, inspector);
@@ -1060,25 +1068,25 @@ public class Project implements DebuggerListener, InspectorManager
 
         return inspector;
     }
-    
+
     /**
      * Iterates through all inspectors and updates them
      *
      */
     @OnThread(Tag.FXPlatform)
-    public void updateInspectors() 
+    public void updateInspectors()
     {
         for (Iterator<Inspector> it = inspectors.values().iterator(); it.hasNext();) {
             Inspector inspector = it.next();
             inspector.update();
         }
     }
-        
+
     /**
      * Return the name of the project.
      */
     @OnThread(Tag.Any)
-    public String getProjectName() 
+    public String getProjectName()
     {
         return projectDir.getName();
     }
@@ -1087,7 +1095,7 @@ public class Project implements DebuggerListener, InspectorManager
      * Return the location of the project.
      */
     @OnThread(Tag.Any)
-    public File getProjectDir() 
+    public File getProjectDir()
     {
         return projectDir;
     }
@@ -1119,22 +1127,22 @@ public class Project implements DebuggerListener, InspectorManager
         else {
             return null;
         }
-    }      
+    }
 
     /**
      * A string which uniquely identifies this project
      */
     @OnThread(Tag.Any)
-    public String getUniqueId() 
+    public String getUniqueId()
     {
         return String.valueOf(new String("BJID" + getProjectDir().getPath()).hashCode());
     }
-    
+
     /**
      * Get the name of the package represented by the directory which was specified
      * as the directory to open when this project was opened.
      */
-    public String getInitialPackageName() 
+    public String getInitialPackageName()
     {
         return initialPackageName;
     }
@@ -1147,12 +1155,12 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return unnamedPackage;
     }
-    
+
     /**
      * Get an existing package from the project. The package is opened (i.e a new
      * Package object is constructed) if it's not already open. All parent packages on
      * the way to the root of the package tree will also be constructed.
-     * 
+     *
      * @param qualifiedName package name i.e. java.util or "" for unnamed package
      * @returns  the package, or null if the package doesn't exist (directory
      *           doesn't exist, or doesn't contain bluej.pkg file)
@@ -1187,7 +1195,7 @@ public class Project implements DebuggerListener, InspectorManager
                 // the package did not exist in this project
                 pkg = null;
             }
-            
+
             return pkg;
         }
 
@@ -1203,8 +1211,8 @@ public class Project implements DebuggerListener, InspectorManager
     public synchronized final BProject getBProject ()
     {
         if ( singleBProject == null )
-          singleBProject = ExtensionBridge.newBProject(this);
-          
+            singleBProject = ExtensionBridge.newBProject(this);
+
         return singleBProject;
     }
 
@@ -1225,7 +1233,7 @@ public class Project implements DebuggerListener, InspectorManager
      * intermediate package directories (which do not already exist)
      * will be created. A bluej.pkg file will be created for each
      * directory (if it does not already exist).
-     * 
+     *
      * @param fullName  the fully qualified name of the package to create
      *                  directories for
      */
@@ -1335,7 +1343,7 @@ public class Project implements DebuggerListener, InspectorManager
 
     /**
      * Get the names of all packages in this project.
-     * 
+     *
      * @return  a List of String containing the fully qualified names
      *          of the packages in this project.
      */
@@ -1359,14 +1367,14 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-    * Generate the documentation for the file in 'filename'
+     * Generate the documentation for the file in 'filename'
      * @param filename
      */
     public void generateDocumentation(String filename)
     {
         docuGenerator.generateClassDocu(filename);
     }
-    
+
     /**
      * Save all open packages of this project. This doesn't save files open
      * in editor windows - use saveAllEditors() for that.
@@ -1405,13 +1413,13 @@ public class Project implements DebuggerListener, InspectorManager
                 Debug.reportError("Error while trying to save editor file:", ioe);
             }
         }
-        
+
         if (exception != null) {
             // Propagate the exception - let the caller know that something went wrong.
             throw exception;
         }
     }
-    
+
     /**
      * Reload all constructed packages of this project.
      *
@@ -1422,7 +1430,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         packages.values().forEach(Package::reload);
     }
-    
+
     /**
      * Make all open package editors clear their selection
      */
@@ -1430,11 +1438,11 @@ public class Project implements DebuggerListener, InspectorManager
     {
         packages.values().stream().map(Package::getEditor).forEach(PackageEditor::clearSelection);
     }
-    
+
     /**
      * Make the grapheditors of this project clear their selection and select
      * the targets given in the parameter targets.
-     * 
+     *
      * @param targets a list of Targets
      */
     public void selectTargetsInGraphs(List<Target> targets)
@@ -1450,14 +1458,14 @@ public class Project implements DebuggerListener, InspectorManager
             }
         }
     }
-    
+
     /**
      * Given a fully-qualified target name, return the target or null if the target
      * doesn't exist.
-     * 
+     *
      * <p>Use ReadmeTarget.README_ID ("@README") as the target base name to get the
      * readme target for a package.
-     * 
+     *
      * Given the path and name of a target in the project, return the target or
      * null if the target doesn't exist
      * @param pathAndName
@@ -1478,7 +1486,7 @@ public class Project implements DebuggerListener, InspectorManager
         Target target = p.getTarget(targetId);
         return target;
     }
-    
+
     /**
      * Open the source editor for each target that is selected in its
      * package editor
@@ -1531,12 +1539,12 @@ public class Project implements DebuggerListener, InspectorManager
     private void vmReady()
     {
         BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
-        
+
         packages.values().forEach(Package::reInitBreakpoints);
         PkgMgrFrame frame = PkgMgrFrame.findFrame(getUnnamedPackage());
         if (frame != null) {
             frame.bringToFront();
-        }        
+        }
     }
 
     /**
@@ -1548,15 +1556,15 @@ public class Project implements DebuggerListener, InspectorManager
         // any calls to the debugger made by removeLocalClassLoader
         // will silently fail
         removeClassLoader();
-        
+
         // The configured extra libraries may have changed, so
         // rebuild the class loader (do this now so the new loader
         // will be installed as soon as the VM has restarted).
         newRemoteClassLoader();
-        
+
         libraryUrls = getLibrariesClasspath();
         debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
-        
+
         // Breakpoints will be re-initialized once the new VM has
         // actually started.
     }
@@ -1572,7 +1580,7 @@ public class Project implements DebuggerListener, InspectorManager
         if (currentClassLoader == null) {
             return;
         }
-        
+
         clearObjectBenches();
 
         // get rid of any inspectors that are open that were not cleaned up
@@ -1685,13 +1693,13 @@ public class Project implements DebuggerListener, InspectorManager
             return null;
         }
     }
-    
+
     @OnThread(value = Tag.Any, ignoreParent = true)
     public synchronized boolean inTestMode()
     {
         return inTestMode;
     }
-        
+
     public synchronized void setTestMode(boolean mode)
     {
         inTestMode = mode;
@@ -1703,23 +1711,23 @@ public class Project implements DebuggerListener, InspectorManager
      * @return a non null but possibly empty list of URL.
      */
     @OnThread(Tag.Any)
-    protected List<URL> getPlusLibsContent () 
+    protected List<URL> getPlusLibsContent ()
     {
         List<URL> risul = new ArrayList<URL>();
-        
+
         // the subdirectory of the project which can hold project specific jars and zips
         File libsDirectory = new File(projectDir, projectLibDirName);
 
         // If it is not a directory or we cannot read it then there is nothing to do.
-        if ( ! libsDirectory.isDirectory() || ! libsDirectory.canRead() ) 
-          return risul;
-          
+        if ( ! libsDirectory.isDirectory() || ! libsDirectory.canRead() )
+            return risul;
+
         // the list of jars and zips we find
         File []libs = libsDirectory.listFiles();
 
         // If there are no files there then again just return.
-        if ( libs==null || libs.length < 1 ) 
-          return risul;
+        if ( libs==null || libs.length < 1 )
+            return risul;
 
         // if we found any jar files in the libs directory then add their URLs
         for(int index=0; index<libs.length; index++) {
@@ -1739,14 +1747,14 @@ public class Project implements DebuggerListener, InspectorManager
     {
         if (currentClassLoader != null)
             return currentClassLoader;
-       
+
         List<URL> pathList = new ArrayList<URL>();
 
         try {
             Collections.addAll(pathList, Boot.getInstance().getRuntimeUserClassPath());
-    
+
             pathList.addAll(libraryUrls);
-            
+
             // The current project dir must be added to the project class path too.
             pathList.add(getProjectDir().toURI().toURL());
         }
@@ -1757,42 +1765,42 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         URL [] newUrls = pathList.toArray(new URL[pathList.size()]);
-        
+
         // The Project Class Loader should not see the BlueJ classes (the necessary
         // ones have been added to the URL list anyway). So we use the boot loader
         // as parent.
         currentClassLoader = new BPClassLoader( newUrls,
-                     Boot.getInstance().getBootClassLoader());
-        
+                Boot.getInstance().getBootClassLoader());
+
         return currentClassLoader;
     }
-    
+
     /**
      * Get the classpath for libraries - those specified in preferences, in the project's +libs,
      * in the BlueJ userlib folder, etc. This doesn't include the BlueJ runtime.
-     * 
+     *
      * <p>Most of the time, the list in {@code libraryUrls} should be used instead of calling this
      * method, as it represents the libraries known to the currently executing VM.
      */
     private List<URL> getLibrariesClasspath()
     {
         List<URL> pathList = new ArrayList<URL>();
-        
+
         // Next part is the libraries that are added trough the config panel.
         pathList.addAll(ClassMgrPrefPanel.getUserConfigContent());
-        
+
         // Then the libraries that are in the userlib directory
         pathList.addAll(getUserlibContent());
-        
+
         // The libraries that are in the project +libs directory
         pathList.addAll(getPlusLibsContent());
-        
+
         return pathList;
     }
 
     /**
      * Get an entity resolver which can be used to resolve symbols for this project.
-     * 
+     *
      * @return an entity resolver which resolves symbols from classes in this project,
      *         and from the classpath.
      */
@@ -1800,7 +1808,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return new ProjectEntityResolver(this);
     }
-    
+
     /**
      * Get a javadoc resolver, which can be used to retrieve comments for methods.
      */
@@ -1809,7 +1817,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return javadocResolver;
     }
-    
+
     /**
      * Convert a filename into a fully qualified Java name.
      * Returns null if the file is outside the project
@@ -1819,13 +1827,13 @@ public class Project implements DebuggerListener, InspectorManager
      * you pass in a directory name. It is meant for filenames
      * like /foo/bar/p1/s1/TestName.java
      */
-    public String convertPathToPackageName(String pathname) 
+    public String convertPathToPackageName(String pathname)
     {
         return JavaNames.convertFileToQualifiedName(getProjectDir(),
-            new File(pathname));
+                new File(pathname));
     }
 
-    public void removeStepMarks() 
+    public void removeStepMarks()
     {
         // remove step marks for all packages
         packages.values().forEach(Package::removeStepMarks);
@@ -1843,7 +1851,7 @@ public class Project implements DebuggerListener, InspectorManager
         if (skipUpdate) {
             return;
         }
-        
+
         Platform.runLater(new Runnable() {
             public void run() {
                 if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
@@ -1889,18 +1897,18 @@ public class Project implements DebuggerListener, InspectorManager
 
                 if (pkg != null) {
                     switch (event.getID()) {
-                    case DebuggerEvent.THREAD_BREAKPOINT:
-                        pkg.hitBreakpoint(thr);
-                        break;
+                        case DebuggerEvent.THREAD_BREAKPOINT:
+                            pkg.hitBreakpoint(thr);
+                            break;
 
-                    case DebuggerEvent.THREAD_HALT_UNKNOWN:
-                    case DebuggerEvent.THREAD_HALT_STEP_INTO:
-                    case DebuggerEvent.THREAD_HALT_STEP_OVER:
-                        pkg.hitHalt(thr);
-                        break;
+                        case DebuggerEvent.THREAD_HALT_UNKNOWN:
+                        case DebuggerEvent.THREAD_HALT_STEP_INTO:
+                        case DebuggerEvent.THREAD_HALT_STEP_OVER:
+                            pkg.hitHalt(thr);
+                            break;
                     }
                 }
-                
+
                 switch (event.getID())
                 {
                     case DebuggerEvent.THREAD_HALT_UNKNOWN:
@@ -1919,7 +1927,7 @@ public class Project implements DebuggerListener, InspectorManager
             }
         });
     }
-    
+
     /**
      * Show the source code at a particular position
      */
@@ -1945,7 +1953,7 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Removes a package (and any sub-packages) from the map of open
      * packages in the project.
-     * 
+     *
      * @param packageQualifiedName The qualified name of the package.
      */
     public void removePackage(String packageQualifiedName)
@@ -1956,9 +1964,9 @@ public class Project implements DebuggerListener, InspectorManager
             packages.remove(packageQualifiedName);
         }
     }
-    
+
     // ---- teamwork
-    
+
     /**
      * Return the teamwork action group.
      */
@@ -1966,7 +1974,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return teamActions;
     }
-    
+
     /**
      * Determine if project is a team project. 
      * The method will look for the existence of the team configuration file
@@ -2052,7 +2060,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param includePkgFiles if true, bluej.pkg files are included as well.
      */
     private void traverseDirsForFiles(Set<File> allFiles, File dir, boolean includePkgFiles,
-            boolean includeDirs)
+                                      boolean includeDirs)
     {
         TeamSettingsController teamSettingsController = getTeamSettingsController();
         File[] files = dir.listFiles(teamSettingsController == null ? null : teamSettingsController.getFileFilter(includePkgFiles));
@@ -2070,7 +2078,7 @@ public class Project implements DebuggerListener, InspectorManager
             }
         }
     }
-    
+
     /**
      * Get the team settings dialog for this project. Only call this if the
      * project is a shared project.
@@ -2079,24 +2087,24 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return getTeamSettingsController().getTeamSettingsDialog();
     }
-    
+
     /**
      * Get the commit dialog for this project
      */
-    public CommitAndPushInterface getCommitCommentsDialog()
+    public CommitAndPushInterface getCommitCommentsDialog(PkgMgrFrame pmf)
     {
         // lazy instantiation of commit comments frame
         if (commitCommentsFrame == null) {
             if (this.teamSettingsController.isDVCS()) {
                 //a dcvs repository uses a different window.
-                commitCommentsFrame = new CommitAndPushFrame(this);
+                commitCommentsFrame = new CommitAndPushFrame(this, pmf.getFXWindow());
             } else {
-                commitCommentsFrame = new CommitCommentsFrame(this);
+                commitCommentsFrame = new CommitCommentsFrame(this, pmf.getFXWindow());
             }
         }
         return commitCommentsFrame;
     }
-        
+
     /**
      * Get the update dialog for this project
      */
@@ -2107,7 +2115,7 @@ public class Project implements DebuggerListener, InspectorManager
         }
         return updateFilesFrame;
     }
-    
+
     /**
      * Set this project as either shared or non-shared.
      */
@@ -2123,7 +2131,7 @@ public class Project implements DebuggerListener, InspectorManager
             isDVCS = tsc.isDVCS();
         }
         teamActions.setTeamMode(shared, isDVCS);
-        
+
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
         if (frames != null) {
             for (int i = 0; i < frames.length; i++) {
@@ -2131,7 +2139,7 @@ public class Project implements DebuggerListener, InspectorManager
             }
         }
     }
-    
+
     /**
      * Find the package name of the package containing the given file.
      * Might return null if the file isn't in the package, or the directory the
@@ -2142,7 +2150,7 @@ public class Project implements DebuggerListener, InspectorManager
     public String getPackageForFile(File f)
     {
         File projdir = getProjectDir();
-        
+
         // First find out the package name...
         String packageName = "";
         File parentDir = f.getParentFile();
@@ -2151,7 +2159,7 @@ public class Project implements DebuggerListener, InspectorManager
             if (!JavaNames.isIdentifier(parentName)) {
                 return null;
             }
-            
+
             if (packageName.equals("")) {
                 packageName = parentName;
             }
@@ -2164,7 +2172,7 @@ public class Project implements DebuggerListener, InspectorManager
                 return null;
             }
         }
-        
+
         return packageName;
     }
 
@@ -2180,7 +2188,7 @@ public class Project implements DebuggerListener, InspectorManager
         }
         return statusFrame;
     }
-    
+
     /**
      * Prepare for the deletion of a directory inside the project. This is
      * a notification which allows the team management code to save the
@@ -2196,7 +2204,7 @@ public class Project implements DebuggerListener, InspectorManager
             return true;
         }
     }
-    
+
     /**
      * Prepare for the creation of a directory inside the project. This is a 
      * notification which allows the team management code to perform any
@@ -2234,7 +2242,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         scheduleCompilation(immediate, reason, type, pkg, null);
     }
-    
+
     @OnThread(Tag.Any)
     public synchronized void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, ClassTarget target)
     {
@@ -2249,7 +2257,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param type The type of compilation (used for deciding whether to keep class files, whether to open editors to show errors)
      * @param pkg The package in which to compile all targets (or null if don't want full-package compilation)
      * @param target The target to compile (or null if you don't want specific target compiled)
-     *               
+     *
      * Note: only one of pkg or target should be non-null.                  
      */
     @OnThread(Tag.Any)
@@ -2433,7 +2441,7 @@ public class Project implements DebuggerListener, InspectorManager
             return null;
         }
     }
-    
+
     @OnThread(Tag.FX)
     private Rectangle recallFxPosition(int index)
     {

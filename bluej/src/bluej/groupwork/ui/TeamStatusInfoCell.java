@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,36 +19,43 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.groupwork.actions;
+package bluej.groupwork.ui;
 
-import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
+import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Project;
-
+import javafx.scene.control.ListCell;
 
 /**
- * Action to show dialog for updating out-of-date files.
+ * Class to display files to be committed in a list for the CommitCommentsFrame
  * 
- * @author Davin McCall
+ * @author Amjad Altadmri
  */
-public class UpdateDialogAction extends TeamAction
+public class TeamStatusInfoCell extends ListCell<TeamStatusInfo>
 {
     private Project project;
-    
-    public UpdateDialogAction(PkgMgrFrame pmf)
+
+    public TeamStatusInfoCell(Project proj)
     {
-        super(pmf, "team.update", true);
-        shortDescription = Config.getString("tooltip.update");
+        super();
+        project = proj;
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(PkgMgrFrame pmf)
+    @Override
+    public void updateItem(TeamStatusInfo info, boolean empty)
     {
-        project = pmf.getProject();
-        if (project != null) {
-            project.getUpdateDialog().setVisible(true);
+        super.updateItem(info, empty);
+        if (empty || info == null) {
+            setText(null);
+        } else {
+
+            String topText;
+            if (project.getTeamSettingsController().isDVCS()){
+                topText = ResourceDescriptor.getDCVSResource(project, info, true, false);
+            } else {
+                topText = ResourceDescriptor.getResource(project, info, true);
+            }
+            setText(topText);
         }
+        setGraphic(null);
     }
 }

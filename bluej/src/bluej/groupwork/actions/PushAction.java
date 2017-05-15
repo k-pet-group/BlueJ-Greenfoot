@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,12 +28,10 @@ import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.CommitAndPushInterface;
-import bluej.groupwork.ui.TeamSettingsDialog;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.SwingWorker;
+
 import java.awt.EventQueue;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.HashSet;
@@ -139,7 +137,7 @@ public class PushAction extends AbstractAction
             //check if we have the password.
             if (!project.getTeamSettingsController().hasPasswordString()) {
                 //ask for the password.
-                if (project.getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
+                if ( ! project.getTeamSettingsDialog().showAndWait().isPresent() ) {
                     //user cancelled.
                     commitCommentsFrame.setVisible(true);
                     hasPassword = false;

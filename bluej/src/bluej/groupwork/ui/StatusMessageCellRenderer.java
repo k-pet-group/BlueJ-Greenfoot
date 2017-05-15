@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -90,7 +90,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         Object val;
         
         int localStatusColumn = project.getTeamSettingsController().isDVCS()?
-                table.getColumnModel().getColumnIndex(Config.getString("team.status.status"))
+                table.getColumnModel().getColumnIndex(Config.getString("team.status.local"))
                 :table.getColumnModel().getColumnIndex(Config.getString("team.status"));
         
         int remoteStatusColumn = getRemoteStatusColumnIndex(table);
@@ -110,7 +110,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
     /**
      * get the String value of the status ID
      */
-    private String getStatusString(JTable jtable, Object value, int statusValue, int row, int col) 
+    private String getStatusString(JTable jtable, Object value, int statusValue, int row, int col)
     {
         String colName = jtable.getColumnName(col);
 
@@ -119,7 +119,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         }
         
         if (project.getTeamSettingsController().isDVCS()) {
-            if (colName.equals(Config.getString("team.status.remoteStatus"))) {
+            if (colName.equals(Config.getString("team.status.remote"))) {
                 return TeamStatusInfo.getDCVSStatusString(statusValue,true);
             }
             //return local status.
@@ -178,7 +178,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         int result = -1;
 
         if (project.getTeamSettingsController().isDVCS()) {
-            result = jTable.getColumnModel().getColumnIndex(Config.getString("team.status.remoteStatus"));
+            result = jTable.getColumnModel().getColumnIndex(Config.getString("team.status.remote"));
         }
         return result;
     }
