@@ -23,17 +23,27 @@ package bluej.groupwork.ui;
 
 import java.util.Arrays;
 import java.util.List;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
@@ -87,7 +97,7 @@ public class TeamSettingsPanel extends VBox
     private CheckBox useAsDefault;
     private ServerType selectedServerType = null;
 
-    String[] personalLabels = {
+    /*String[] personalLabels = {
             "team.settings.yourName",
             "team.settings.yourEmail",
             "team.settings.user",
@@ -99,7 +109,7 @@ public class TeamSettingsPanel extends VBox
             "team.settings.prefix",
             "team.settings.uri",
             "team.settings.protocol"
-    };
+    };*/
 
     public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog, ObservableList<String> styleClass)
     {
@@ -134,7 +144,6 @@ public class TeamSettingsPanel extends VBox
         Button validateButton = new Button(validateConnectionAction.getName());
         validateButton.setOnAction(event -> validateConnectionAction.actionPerformed(null));
 
-
         getChildren().addAll(createPropertiesContainer(Config.getString("team.settings.location"), locationPane),
                              createPropertiesContainer(Config.getString("team.settings.personal"), personalPane),
                              useAsDefault,
@@ -148,26 +157,26 @@ public class TeamSettingsPanel extends VBox
         }
     }
 
-//    private GridPane addPane(String[] labels)
-//    {
-//        GridPane gridPane = new GridPane();
-//        JavaFXUtil.addStyleClass(gridPane, "grid");
-//
-//        List<TextField> fields = new ArrayList<>();
-//
-//        for (int i = 0; i < labels.length; i++) {
-//            Label label = new Label(Config.getString(labels[i]));
-//            label.setPrefWidth(100);
-//            gridPane.add(label, 0, i);
-//
-//            TextField field = new TextField();
-//            fields.add(field);
-//            JavaFXUtil.addChangeListener(field.textProperty(), text -> updateOKButton());
-//            gridPane.add(field, 1, i);
-//        }
-//
-//        return gridPane;
-//    }
+    /*private GridPane addPane(String[] labels)
+    {
+        GridPane gridPane = new GridPane();
+        JavaFXUtil.addStyleClass(gridPane, "grid");
+
+        List<TextField> fields = new ArrayList<>();
+
+        for (int i = 0; i < labels.length; i++) {
+            Label label = new Label(Config.getString(labels[i]));
+            label.setPrefWidth(100);
+            gridPane.add(label, 0, i);
+
+            TextField field = new TextField();
+            fields.add(field);
+            JavaFXUtil.addChangeListener(field.textProperty(), text -> updateOKButton());
+            gridPane.add(field, 1, i);
+        }
+
+        return gridPane;
+    }*/
 
     private GridPane createGridPane()
     {
@@ -553,8 +562,7 @@ public class TeamSettingsPanel extends VBox
         protocolLabel.setDisable(true);
     }
 
-
-    class specialTextField
+   /* class specialTextField
     {
         public TextField field;
         public Label label;
@@ -572,5 +580,5 @@ public class TeamSettingsPanel extends VBox
             this(name);
             this.special = special;
         }
-    }
+    }*/
 }
