@@ -52,7 +52,7 @@ import bluej.utility.javafx.JavaFXUtil;
  * @author fisker
  * @author Amjad Altadmri
  */
-public class TeamSettingsPanel extends FlowPane
+public class TeamSettingsPanel extends VBox
 {
     private TeamSettingsController teamSettingsController;
     private TeamSettingsDialog teamSettingsDialog;
