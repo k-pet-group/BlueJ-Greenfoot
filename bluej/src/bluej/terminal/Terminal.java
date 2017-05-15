@@ -77,6 +77,9 @@ import org.fxmisc.richtext.TextExt;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 import org.fxmisc.richtext.model.StyledText;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -231,14 +234,17 @@ public final class Terminal
 
         input = new TextField();
         input.setOnAction(e -> {
-            String inputString = this.input.getText() + "\n";
-            buffer.putString(inputString);
-            buffer.notifyReaders();
-            this.input.clear();
-            writeToPane(text, inputString, StdoutStyle.INPUT);
+            sendInput(false);
             e.consume();
         });
         input.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
+
+        Nodes.addInputMap(input, InputMap.sequence(
+                // CTRL-D (unix/Mac EOF)
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN)), e -> {sendInput(true); e.consume();}),
+                // CTRL-Z (DOS/Windows EOF)
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN)), e -> {sendInput(true); e.consume();})
+        ));
 
         splitPane = new SplitPane(new BorderPane(scrollPane, null, null, input, null));
 
@@ -281,6 +287,22 @@ public final class Terminal
         //MOEFX
         //text.setUnlimitedBuffering(unlimitedBufferingCall);
         BlueJEvent.addListener(this);
+    }
+
+    private void sendInput(boolean eof)
+    {
+        String inputString = this.input.getText() + "\n";
+        buffer.putString(inputString);
+        if (eof)
+        {
+            buffer.signalEOF();
+        }
+        else
+        {
+            buffer.notifyReaders();
+        }
+        this.input.clear();
+        writeToPane(text, inputString, StdoutStyle.INPUT);
     }
 
     private void applyStyle(TextExt t, TextAreaStyle s)
@@ -590,58 +612,6 @@ public final class Terminal
     {
         return err;
     }
-
-
-    /*MOEFX
-    @Override
-    public void keyTyped(KeyEvent event)
-    {
-        // We handle most things we are interested in here. The InputMap filters out
-        // most other unwanted actions (but allows copy/paste).
-
-        char ch = event.getKeyChar();
-
-        if ((event.getModifiers() & Event.META_MASK) != 0) {
-            return; // return without consuming the event
-        }
-        if (isActive) {
-            switch (ch) {
-
-            case 4:   // CTRL-D (unix/Mac EOF)
-            case 26:  // CTRL-Z (DOS/Windows EOF)
-                buffer.signalEOF();
-                writeToTerminal("\n");
-                event.consume();
-                break;
-
-            case '\b':  // backspace
-                backspace();
-                event.consume();
-                break;
-
-            case '\r':  // carriage return
-            case '\n':  // newline
-                if (buffer.putChar('\n')) {
-                    // SwingNode gives us '\r' as the character for pressing Enter,
-                    // but we want a newline in that case, so pass '\n' to the terminal:
-                    writeToTerminal(String.valueOf('\n'));
-                    buffer.notifyReaders();
-                }
-                event.consume();
-                break;
-
-            default:
-                if (ch >= 32) {
-                    if (buffer.putChar(ch)) {
-                        writeToTerminal(String.valueOf(ch));
-                    }
-                    event.consume();
-                }
-                break;
-            }
-        }
-    }
-    */
 
     // ---- BlueJEventListener interface ----
 
