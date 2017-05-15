@@ -86,6 +86,7 @@ public final class Terminal
     implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
 
+    private static final int MAX_BUFFER_LINES = 100;
     private VirtualizedScrollPane<?> errorScrollPane;
 
     private static interface  TextAreaStyle
@@ -411,7 +412,6 @@ public final class Terminal
      */
     private <S extends TextAreaStyle> void writeToPane(StyledTextArea<Void, S> pane, String s, S style)
     {
-        //MOEFX: What about styling?
         prepare();
         if (pane == errorText)
             showErrorPane();
@@ -424,6 +424,13 @@ public final class Terminal
         }
 
         pane.append(styled(s, style));
+
+        if (!unlimitedBufferingCall.get() && pane.getParagraphs().size() >= MAX_BUFFER_LINES)
+        {
+            int newStart = pane.position(pane.getParagraphs().size() - MAX_BUFFER_LINES, 0).toOffset();
+            pane.replaceText(0, newStart, "");
+        }
+
         pane.end(SelectionPolicy.CLEAR);
     }
 
