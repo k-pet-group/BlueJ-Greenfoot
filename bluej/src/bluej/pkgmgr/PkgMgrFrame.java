@@ -123,8 +123,6 @@ import bluej.pkgmgr.actions.SaveProjectAction;
 import bluej.pkgmgr.actions.SaveProjectAsAction;
 import bluej.pkgmgr.actions.ShowCopyrightAction;
 import bluej.pkgmgr.actions.ShowDebuggerAction;
-import bluej.pkgmgr.actions.ShowTerminalAction;
-import bluej.pkgmgr.actions.ShowTestResultsAction;
 import bluej.pkgmgr.actions.StandardAPIHelpAction;
 import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
@@ -194,6 +192,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -309,7 +309,6 @@ public class PkgMgrFrame
             super.setEnabled(newValue);
         }
     };
-    private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
     @OnThread(Tag.Any)
     private final PkgMgrAction runTestsAction = new RunTestsAction(this);
     /*
@@ -330,7 +329,11 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     private CodePad codePad;
     @OnThread(Tag.FXPlatform)
-    private SimpleBooleanProperty showingTextEval;
+    private final SimpleBooleanProperty showingTextEval;
+    @OnThread(Tag.FXPlatform)
+    private final SimpleBooleanProperty showingTerminal;
+    @OnThread(Tag.FXPlatform)
+    private final SimpleBooleanProperty showingTestResults;
 
     // static methods to create and remove frames
     // lazy initialised dialogs
@@ -390,6 +393,8 @@ public class PkgMgrFrame
         stageProperty = new SimpleObjectProperty<>(null);
         paneProperty = new SimpleObjectProperty<>(null);
         showingTextEval = new SimpleBooleanProperty(false);
+        showingTerminal = new SimpleBooleanProperty(false);
+        showingTestResults = new SimpleBooleanProperty(false);
         showUsesProperty = new SimpleBooleanProperty(true);
         showInheritsProperty = new SimpleBooleanProperty(true);
         toolsMenuManager = new SimpleObjectProperty<>(null);
@@ -623,6 +628,11 @@ public class PkgMgrFrame
                 }
                 // Listen for future updates:
                 JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
+
+                showingTerminal.bindBidirectional(getProject().terminalShowing());
+                showingTestResults.bindBidirectional(TestDisplayFrame.showingProperty());
+
+
                 updateWindow();
             });
 
@@ -3449,15 +3459,16 @@ public class PkgMgrFrame
             mixedMenu.addFX(SeparatorMenuItem::new);
             List<JMenuItem> swingItems = new ArrayList<>();
             createCheckboxMenuItem(showDebuggerAction, swingItems, false);
-            createCheckboxMenuItem(showTerminalAction, swingItems, false);
             mixedMenu.addSwing(swingItems);
+            mixedMenu.addFX(() -> {
+                CheckMenuItem terminalItem = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTerminal"), showingTerminal, new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN));
+                terminalItem.disableProperty().bind(pkg.isNull());
+                return terminalItem;
+            });
             mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, Config.hasAcceleratorKey("menu.view.showTextEval") ? Config.getAcceleratorKeyFX("menu.view.showTextEval") : null));
             mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTeamTest"), teamAndTestFoldout.expandedProperty(), Config.hasAcceleratorKey("menu.view.showTeamTest") ? Config.getAcceleratorKeyFX("menu.view.showTeamTest") : null));
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTestDisplay"), showingTestResults, null));
             mixedMenu.addFX(SeparatorMenuItem::new);
-
-            swingItems = new ArrayList<>();
-            createCheckboxMenuItem(new ShowTestResultsAction(this), swingItems, false);
-            mixedMenu.addSwing(swingItems);
 
             // (Otherwise, it will be created during project open.)
             if (frameCount() <= 1)
@@ -3606,7 +3617,6 @@ public class PkgMgrFrame
         actionsToDisable.add(useLibraryAction);
         actionsToDisable.add(generateDocsAction);
         actionsToDisable.add(showDebuggerAction);
-        actionsToDisable.add(showTerminalAction);
         actionsToDisable.add(runTestsAction);
     }
 

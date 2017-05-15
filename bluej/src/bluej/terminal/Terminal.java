@@ -40,6 +40,8 @@ import bluej.BlueJTheme;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -164,6 +166,7 @@ public final class Terminal
     private boolean newMethodCall = true;
     private boolean errorShown = false;
     private final InputBuffer buffer;
+    private final BooleanProperty showingProperty = new SimpleBooleanProperty(false);
 
     @OnThread(Tag.Any) private final Reader in = new TerminalReader();
     @OnThread(Tag.Any) private final Writer out = new TerminalWriter(false);
@@ -239,6 +242,10 @@ public final class Terminal
             }
             showHide(false);
         });
+        window.setOnShown(e -> showingProperty.set(true));
+        window.setOnHidden(e -> showingProperty.set(false));
+
+        JavaFXUtil.addChangeListenerPlatform(showingProperty, this::showHide);
 
         Config.rememberPositionAndSize(window, "bluej.terminal");
         //MOEFX
@@ -744,6 +751,12 @@ public final class Terminal
         }
         splitPane.getItems().remove(errorScrollPane);
         errorShown = false;
+    }
+
+
+    public BooleanProperty showingProperty()
+    {
+        return showingProperty;
     }
     
     /**

@@ -52,6 +52,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
@@ -110,6 +111,9 @@ import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.views.View;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -233,6 +237,7 @@ public class Project implements DebuggerListener, InspectorManager
     /** check if the project is a dvcs project**/
     private boolean isDVCS=false;
     private final FrameShelfStorage shelfStorage;
+    private final BooleanProperty terminalShowing = new SimpleBooleanProperty(false);
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -313,6 +318,13 @@ public class Project implements DebuggerListener, InspectorManager
         }
         
         teamActions = new TeamActionGroup(isSharedProject.get(), isDVCS);
+
+        JavaFXUtil.addChangeListenerPlatform(terminalShowing, showTerm -> {
+            if (showTerm && !hasTerminal())
+            {
+                getTerminal().showHide(true);
+            }
+        });
     }
 
     /**
@@ -1648,6 +1660,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         if (terminal == null) {
             terminal = new Terminal(this);
+            terminalShowing.bindBidirectional(terminal.showingProperty());
         }
         return terminal;
     }
@@ -2431,5 +2444,10 @@ public class Project implements DebuggerListener, InspectorManager
     public FrameShelfStorage getShelfStorage()
     {
         return shelfStorage;
+    }
+
+    public BooleanProperty terminalShowing()
+    {
+        return terminalShowing;
     }
 }
