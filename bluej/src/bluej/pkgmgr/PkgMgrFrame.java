@@ -316,8 +316,8 @@ public class PkgMgrFrame
      * The package that this frame is working on or null for the case where
      * there is no package currently being edited (check with isEmptyFrame())
      */
-    @OnThread(value = Tag.Any,requireSynchronized = true)
-    private Package pkg = null;
+    @OnThread(Tag.FXPlatform)
+    private final ObjectProperty<Package> pkg = new SimpleObjectProperty<>(null);
     /*
      * The graph editor which works on the package or null for the case where
      * there is no package current being edited (isEmptyFrame() == true)
@@ -394,7 +394,6 @@ public class PkgMgrFrame
         showInheritsProperty = new SimpleBooleanProperty(true);
         toolsMenuManager = new SimpleObjectProperty<>(null);
         viewMenuManager = new SimpleObjectProperty<>(null);
-        this.pkg = null;
         this.editor = null;
         if(!Config.isGreenfoot()) {
             teamActions = new TeamActionGroup(false);
@@ -1081,11 +1080,11 @@ public class PkgMgrFrame
 
         // if we are already editing a package, close it and
         // open the new one
-        if (this.pkg != null) {
+        if (this.pkg.get() != null) {
             closePackage();
         }
 
-        this.pkg = aPkg;
+        this.pkg.set(aPkg);
 
         if(! Config.isGreenfoot()) {
             this.editor = new PackageEditor(this, aPkg, this, showUsesProperty, showInheritsProperty, topOverlay);
@@ -1361,10 +1360,7 @@ public class PkgMgrFrame
         Project proj = getProject();
 
         editor = null;
-        synchronized (this)
-        {
-            this.pkg = null;
-        }
+        this.pkg.set(null);
 
         // if there are no other frames editing this project, we close
         // the project
@@ -1401,10 +1397,10 @@ public class PkgMgrFrame
      * This call should be bracketed by a call to isEmptyFrame() before use.
      * @return The package shown by this frame
      */
-    @OnThread(Tag.Any)
-    public synchronized Package getPackage()
+    @OnThread(Tag.FXPlatform)
+    public Package getPackage()
     {
-        return pkg;
+        return pkg.get();
     }
 
     /**
@@ -1414,7 +1410,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     public synchronized Project getProject()
     {
-        return pkg == null ? null : pkg.getProject();
+        return pkg.get() == null ? null : pkg.get().getProject();
     }
        
     /**
@@ -1424,7 +1420,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     public synchronized boolean isEmptyFrame()
     {
-        return pkg == null;
+        return pkg.get() == null;
     }
 
     /**
@@ -2011,7 +2007,7 @@ public class PkgMgrFrame
         
         // store the current editor size in the bluej.pkg file
         Properties p;
-        if (pkg.isUnnamedPackage()) {
+        if (pkg.get().isUnnamedPackage()) {
             // The unnamed package also contains project properties
             p = getProject().getProjectProperties();
             getProject().saveEditorLocations(p);
@@ -2052,7 +2048,7 @@ public class PkgMgrFrame
             p.put("package.showUses", Boolean.toString(showUsesProperty.get()));
             p.put("package.showExtends", Boolean.toString(showInheritsProperty.get()));
         }
-        pkg.save(p);
+        pkg.get().save(p);
     }
         
     /**
@@ -2230,7 +2226,7 @@ public class PkgMgrFrame
                 @Override
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                     executionEvent.setResultObject(result);
@@ -2249,7 +2245,7 @@ public class PkgMgrFrame
                                 result.getGenType(), name);
                         getObjectBench().addObject(wrapper);
 
-                        getPackage().getDebugger().addObject(pkg.getId(), wrapper.getName(), result);
+                        getPackage().getDebugger().addObject(pkg.get().getId(), wrapper.getName(), result);
 
                         getObjectBench().addInteraction(ir);
                     }
@@ -2268,7 +2264,7 @@ public class PkgMgrFrame
                 @Override
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                     executionEvent.setException(exception);
@@ -2283,7 +2279,7 @@ public class PkgMgrFrame
                 @Override
                 public void putVMTerminated(InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
@@ -2321,7 +2317,7 @@ public class PkgMgrFrame
                 @Override
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setMethodName(mv.getName());
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
@@ -2359,7 +2355,7 @@ public class PkgMgrFrame
                 @Override
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                     executionEvent.setException(exception);
@@ -2373,7 +2369,7 @@ public class PkgMgrFrame
                 @Override
                 public void putVMTerminated(InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
@@ -2481,7 +2477,7 @@ public class PkgMgrFrame
      */
     public void doCreateNewClass(double x, double y)
     {
-        SourceType sourceType = this.pkg.getDefaultSourceType();
+        SourceType sourceType = this.pkg.get().getDefaultSourceType();
         NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
         Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
@@ -2584,7 +2580,7 @@ public class PkgMgrFrame
 
         synchronized (this)
         {
-            for (Target t : pkg.getVertices())
+            for (Target t : pkg.get().getVertices())
             {
                 if (t instanceof PackageTarget)
                 {
@@ -3575,7 +3571,7 @@ public class PkgMgrFrame
         {
             synchronized (this)
             {
-                PackageEditor pkgEd = pkg.getEditor();
+                PackageEditor pkgEd = pkg.get().getEditor();
                 Platform.runLater(() ->
                 {
                     pkgEd.clearState();
@@ -3811,9 +3807,9 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     public synchronized void doNewInherits()
     {
-        if (pkg != null && pkg.getEditor() != null)
+        if (pkg.get() != null && pkg.get().getEditor() != null)
         {
-            PackageEditor pkgEg = pkg.getEditor();
+            PackageEditor pkgEg = pkg.get().getEditor();
             Platform.runLater(() -> pkgEg.doNewInherits());
         }
     }
@@ -3826,12 +3822,12 @@ public class PkgMgrFrame
         int numPackagesNested;
         synchronized (this)
         {
-            if (pkg != null)
+            if (pkg.get() != null)
             {
-                ArrayList<ClassTarget> classTargets = pkg.getClassTargets();
+                ArrayList<ClassTarget> classTargets = pkg.get().getClassTargets();
                 numClassTargets = classTargets.size();
                 numClassTargetsWithSource = (int) classTargets.stream().filter(ClassTarget::hasSourceCode).count();
-                numPackagesNested = pkg.getChildren(true).size();
+                numPackagesNested = pkg.get().getChildren(true).size();
             }
             else
                 return;
