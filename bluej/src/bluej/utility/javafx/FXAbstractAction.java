@@ -21,6 +21,7 @@
  */
 package bluej.utility.javafx;
 
+import bluej.Config;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
@@ -32,6 +33,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 
 import threadchecker.OnThread;
@@ -129,8 +132,17 @@ public abstract class FXAbstractAction
     public void prepareMenuItem(MenuItem menuItem)
     {
         prepareContextMenuItem(menuItem);
-        menuItem.acceleratorProperty().bind(accelerator);
-        hasMenuItem = true;
+        boolean cmdPlusMinusOnMac = Config.isMacOS() && accelerator.get() != null &&
+                (accelerator.get().equals(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN))
+                        || accelerator.get().equals(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)));
+        // We don't set Cmd-+ or Cmd-- as a menu accelerator on Mac because a JavaFX bug
+        // prevents them working as a menu item.  So we set them as a shortcut on the text pane
+        // involved.  (See the caller of hasMenuItem).
+        if (!cmdPlusMinusOnMac)
+        {
+            menuItem.acceleratorProperty().bind(accelerator);
+            hasMenuItem = true;
+        }
     }
 
     /**
