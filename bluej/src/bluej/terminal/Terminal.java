@@ -43,6 +43,7 @@ import bluej.BlueJTheme;
 import bluej.pkgmgr.Package;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -121,7 +122,7 @@ public final class Terminal
             return cssClass;
         }
     }
-    // MOEFX TODO: add styles for formatting stack traces
+
     private static enum StderrStyleType
     {
         NORMAL("terminal-error"), LINKED_STACK_TRACE("terminal-stack-link"), FOREIGN_STACK_TRACE("terminal-stack-foreign");
@@ -226,10 +227,8 @@ public final class Terminal
         text.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
         //MOEFX
         //text.setMargin(new Insets(6, 6, 6, 6));
-        //MOEFX
-        //text.addKeyListener(this);
         unlimitedBufferingCall.addListener(c -> {
-            //MOEFX toggle unlimited buffering
+            //MOEFX toggle unlimited buffering; need to chop if necessary
         });
 
         input = new TextField();
@@ -243,7 +242,10 @@ public final class Terminal
                 // CTRL-D (unix/Mac EOF)
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN)), e -> {sendInput(true); e.consume();}),
                 // CTRL-Z (DOS/Windows EOF)
-                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN)), e -> {sendInput(true); e.consume();})
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN)), e -> {sendInput(true); e.consume();}),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize())),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
         ));
 
         splitPane = new SplitPane(new BorderPane(scrollPane, null, null, input, null));
@@ -284,8 +286,6 @@ public final class Terminal
         JavaFXUtil.addChangeListenerPlatform(showingProperty, this::showHide);
 
         Config.rememberPositionAndSize(window, "bluej.terminal");
-        //MOEFX
-        //text.setUnlimitedBuffering(unlimitedBufferingCall);
         BlueJEvent.addListener(this);
     }
 
