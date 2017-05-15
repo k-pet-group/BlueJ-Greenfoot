@@ -27,16 +27,7 @@ import greenfoot.UserInfo;
 import greenfoot.core.ImageCache;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -71,11 +62,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.text.html.Option;
 
 import javafx.stage.Stage;
@@ -995,4 +983,39 @@ public class GreenfootUtil
         }
     }
 
+    /**
+     * This method creates a MacOS button. It will create a "textured" button on
+     * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
+     *
+     * @param button The button that should be changed.
+     */
+    public static void changeToMacButton(AbstractButton button)
+    {
+        // available button styles, as of MacOS 10.5:
+        // square, gradient, bevel, textured, roundRect, recessed, help
+        // segmented styles:
+        // segmented, segmentedRoundRect, segmentedCapsule, segmentedTextured
+        // see: http://developer.apple.com/technotes/tn2007/tn2196.html
+
+        if (!Config.isMacOS()) {
+            return;
+        }
+
+        Border oldBorder = button.getBorder();
+
+        // the following works since MacOS 10.5
+        button.putClientProperty("JButton.buttonType", "square");
+
+        if (oldBorder == button.getBorder()) {
+            // if the border didn't change the "square" type probably doesn't
+            // exist, which means we are running on MacOS < 10.5. This means we
+            // should use the old pre-10.5 "toolbar" style instead.
+            button.putClientProperty("JButton.buttonType", "toolbar");
+        }
+        else {
+            // if we get to this point, the square button type is available, and
+            // we can continue configuring for that one.
+            button.setMargin(new Insets(3, 1, 3, 1));
+        }
+    }
 }
