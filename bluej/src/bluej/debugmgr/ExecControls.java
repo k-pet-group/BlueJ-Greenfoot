@@ -78,6 +78,8 @@ import javax.swing.tree.TreeSelectionModel;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
@@ -190,6 +192,7 @@ public class ExecControls
     private final AtomicBoolean visible = new AtomicBoolean(false);
     @OnThread(Tag.FXPlatform)
     private SimpleBooleanProperty readyToShow;
+    private SimpleBooleanProperty showingProperty = new SimpleBooleanProperty(false);
 
 
     /**
@@ -911,6 +914,11 @@ public class ExecControls
             else
                 show();
         });
+    }
+
+    public BooleanProperty showingProperty()
+    {
+        return showingProperty;
     }
 
     /**

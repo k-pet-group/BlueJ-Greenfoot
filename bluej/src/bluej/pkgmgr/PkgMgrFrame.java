@@ -333,6 +333,8 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     private CodePad codePad;
     @OnThread(Tag.FXPlatform)
+    private final SimpleBooleanProperty showingDebugger;
+    @OnThread(Tag.FXPlatform)
     private final SimpleBooleanProperty showingTextEval;
     @OnThread(Tag.FXPlatform)
     private final SimpleBooleanProperty showingTerminal;
@@ -397,6 +399,7 @@ public class PkgMgrFrame
         stageProperty = new SimpleObjectProperty<>(null);
         paneProperty = new SimpleObjectProperty<>(null);
         showingTextEval = new SimpleBooleanProperty(false);
+        showingDebugger = new SimpleBooleanProperty(false);
         showingTerminal = new SimpleBooleanProperty(false);
         showingTestResults = new SimpleBooleanProperty(false);
         showUsesProperty = new SimpleBooleanProperty(true);
@@ -633,6 +636,7 @@ public class PkgMgrFrame
                 // Listen for future updates:
                 JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
 
+                showingDebugger.bindBidirectional(getProject().debuggerShowing());
                 showingTerminal.bindBidirectional(getProject().terminalShowing());
                 showingTestResults.bindBidirectional(TestDisplayFrame.showingProperty());
 
@@ -3520,9 +3524,7 @@ public class PkgMgrFrame
                 return item;
             });
             mixedMenu.addFX(SeparatorMenuItem::new);
-            List<JMenuItem> swingItems = new ArrayList<>();
-            createCheckboxMenuItem(showDebuggerAction, swingItems, false);
-            mixedMenu.addSwing(swingItems);
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showExecControls"), showingDebugger, Config.hasAcceleratorKey("menu.view.showExecControls") ? Config.getAcceleratorKeyFX("menu.view.showExecControls") : null));
             mixedMenu.addFX(() -> {
                 CheckMenuItem terminalItem = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTerminal"), showingTerminal, new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN));
                 terminalItem.disableProperty().bind(pkg.isNull());
@@ -3599,22 +3601,6 @@ public class PkgMgrFrame
         JMenuItem item = new JMenuItem(action);
         item.setIcon(null);
         menu.addSwing(Collections.singletonList(item));
-        return item;
-    }
-
-    /**
-     * Add a new menu item to a menu.
-     */
-    private JCheckBoxMenuItem createCheckboxMenuItem(PkgMgrToggleAction action, List<JMenuItem> menu, boolean selected)
-    {
-        ButtonModel bmodel = action.getToggleModel();
-
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
-        if (bmodel != null)
-            item.setModel(bmodel);
-        else
-            item.setState(selected);
-        menu.add(item);
         return item;
     }
 

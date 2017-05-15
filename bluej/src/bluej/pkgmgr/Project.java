@@ -246,6 +246,7 @@ public class Project implements DebuggerListener, InspectorManager
     private boolean isDVCS=false;
     private final FrameShelfStorage shelfStorage;
     private final BooleanProperty terminalShowing = new SimpleBooleanProperty(false);
+    private final BooleanProperty debuggerShowing = new SimpleBooleanProperty(false);
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -331,6 +332,16 @@ public class Project implements DebuggerListener, InspectorManager
             if (showTerm && !hasTerminal())
             {
                 getTerminal().showHide(true);
+            }
+        });
+        JavaFXUtil.addChangeListenerPlatform(debuggerShowing, showDebugger -> {
+            if (showDebugger && !hasExecControls())
+            {
+                ExecControls execControls = getExecControls();
+                if (showDebugger)
+                    execControls.show();
+                else
+                    execControls.hide();
             }
         });
     }
@@ -1651,6 +1662,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         if (execControls == null) {
             execControls = new ExecControls(this, getDebugger());
+            debuggerShowing.bindBidirectional(execControls.showingProperty());
         }
         return execControls;
     }
@@ -2453,5 +2465,10 @@ public class Project implements DebuggerListener, InspectorManager
     public BooleanProperty terminalShowing()
     {
         return terminalShowing;
+    }
+
+    public BooleanProperty debuggerShowing()
+    {
+        return debuggerShowing;
     }
 }
