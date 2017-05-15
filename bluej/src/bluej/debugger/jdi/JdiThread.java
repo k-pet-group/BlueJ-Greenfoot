@@ -276,6 +276,9 @@ class JdiThread extends DebuggerThread
                     name.equals("Screen Updater") ||
                     name.startsWith("SunToolkit.") ||
                     name.startsWith("Native Carbon") ||
+                    name.equals("JavaFX-Launcher") ||
+                    name.startsWith("QuantumRenderer") ||
+                    name.equals("JavaFX BlueJ Helper") ||
                     name.equals("Java2D Disposer")) {
                 return true;
             }
