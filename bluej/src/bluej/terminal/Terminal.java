@@ -732,24 +732,24 @@ public final class Terminal
         saveItem.setOnAction(e -> save());
         saveItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
 
-        MenuItem printItem = new MenuItem("terminal.print");
+        MenuItem printItem = new MenuItem(Config.getString("terminal.print"));
         printItem.setOnAction(e -> print());
         printItem.setAccelerator(new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN));
 
         menu.getItems().addAll(clearItem, copyItem, saveItem, printItem, new SeparatorMenuItem());
 
-        CheckMenuItem autoClear = new CheckMenuItem("terminal.clearScreen");
+        CheckMenuItem autoClear = new CheckMenuItem(Config.getString("terminal.clearScreen"));
         autoClear.selectedProperty().bindBidirectional(clearOnMethodCall);
 
-        CheckMenuItem recordCalls = new CheckMenuItem("terminal.recordCalls");
+        CheckMenuItem recordCalls = new CheckMenuItem(Config.getString("terminal.recordCalls"));
         recordCalls.selectedProperty().bindBidirectional(recordMethodCalls);
 
-        CheckMenuItem unlimitedBuffering = new CheckMenuItem("terminal.buffering");
+        CheckMenuItem unlimitedBuffering = new CheckMenuItem(Config.getString("terminal.buffering"));
         unlimitedBuffering.selectedProperty().bindBidirectional(unlimitedBufferingCall);
 
         menu.getItems().addAll(autoClear, recordCalls, unlimitedBuffering);
 
-        MenuItem closeItem = new MenuItem("terminal.close");
+        MenuItem closeItem = new MenuItem(Config.getString("terminal.close"));
         closeItem.setOnAction(e -> showHide(false));
         closeItem.setAccelerator(new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN));
 
