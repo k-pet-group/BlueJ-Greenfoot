@@ -53,9 +53,13 @@ public class SplashWindow extends Stage
         BorderPane borderPane = new BorderPane(imageView);
         borderPane.setBackground(null);
         ProgressBar progress = new ProgressBar();
+        progress.setMaxWidth(Double.MAX_VALUE);
         borderPane.setBottom(progress);
         progress.setVisible(false);
-        setScene(new Scene(borderPane));
+        Scene scene = new Scene(borderPane);
+        scene.setFill(null);
+        setScene(scene);
+
 
         // centre on screen
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
