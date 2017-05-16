@@ -183,28 +183,4 @@ public class StatusTableCell extends TableCell<TeamStatusInfo, Object>
     {
         return resources;
     }
-
-
-    /**
-     * Find the table entry at a particular column for a specific row.
-     *
-     * @param   info    the table row info
-     * @param   col     the table column number
-     * @return          the Object at that location in the table
-     */
-    public Object getValueAt(TeamStatusInfo info, int col)
-    {
-        switch (col) {
-            case 0:
-                return ResourceDescriptor.getResource(project, info, false);
-            case 1:
-                return isDVCS ? info.getStatus() : info.getLocalVersion();
-            case 2:
-                return isDVCS ? info.getRemoteStatus() : info.getStatus();
-            default:
-                break;
-        }
-
-        return null;
-    }
 }

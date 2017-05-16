@@ -23,9 +23,9 @@
 package bluej.groupwork.ui;
 
 import bluej.Config;
-import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.pkgmgr.Project;
-import java.awt.Color;
+
 import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -37,15 +37,6 @@ import javax.swing.table.DefaultTableCellRenderer;
  */
 public class StatusMessageCellRenderer extends DefaultTableCellRenderer 
 {
-    private final static Color UPTODATE = Color.BLACK;
-    private final static Color NEEDSUPDATE = new Color(11,57,120);  // blue
-    private final static Color NEEDSCHECKOUT = NEEDSUPDATE;
-    private final static Color REMOVED = new Color(135,150,170);     // grey-blue
-    private final static Color NEEDSMERGE = new Color(137,13,19);   // red
-    private final static Color NEEDSCOMMIT = new Color(10,85,15);   // green
-    private final static Color NEEDSADD = NEEDSCOMMIT;
-    private final static Color DELETED = new Color(122,143,123);      // grey-green
-    private final static Color CONFLICT = NEEDSMERGE;   // darker red
 
     private final static int LOCAL = 0; //local status
     private final static int REMOTE = 1; //remote status
@@ -70,23 +61,24 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         
         int remoteStatusColumn = getRemoteStatusColumnIndex(jTable);
         
-        int status = getStatus(jTable, row, LOCAL);
-        int remoteStatus = getStatus(jTable, row, REMOTE);
+        Status status = getStatus(jTable, row, LOCAL);
+
+        Status remoteStatus = getStatus(jTable, row, REMOTE);
         
-        setForeground(getStatusColour(status));
+        setForeground(status.getStatusColour());
         String statusLabel = getStatusString(jTable, object, status, row, column);
         if (column == remoteStatusColumn)
             statusLabel = getStatusString(jTable, object, remoteStatus, row, column);
         
         setText(statusLabel);
-        setForeground(getStatusColour(status));
+        setForeground(status.getStatusColour());
         
         return this;
     }
     
-    private int getStatus(JTable table, int row, int location) 
+    private Status getStatus(JTable table, int row, int location)
     {
-        int status = 0;
+        Status status = Status.UPTODATE;
         Object val;
         
         int localStatusColumn = project.getTeamSettingsController().isDVCS()?
@@ -101,8 +93,8 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
             val = table.getModel().getValueAt(row, remoteStatusColumn);
         }
         
-        if(val instanceof Integer) {
-            status = ((Integer)val);
+        if(val instanceof Status) {
+            status = ((Status)val);
         }
         return status;
     }
@@ -110,7 +102,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
     /**
      * get the String value of the status ID
      */
-    private String getStatusString(JTable jtable, Object value, int statusValue, int row, int col)
+    private String getStatusString(JTable jtable, Object value, Status statusValue, int row, int col)
     {
         String colName = jtable.getColumnName(col);
 
@@ -120,54 +112,16 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         
         if (project.getTeamSettingsController().isDVCS()) {
             if (colName.equals(Config.getString("team.status.remote"))) {
-                return TeamStatusInfo.getDCVSStatusString(statusValue,true);
+                return statusValue.getDCVSStatusString(true);
             }
             //return local status.
-            return TeamStatusInfo.getDCVSStatusString(statusValue, false);
+            return statusValue.getDCVSStatusString(false);
         } else {
-            return TeamStatusInfo.getStatusString(statusValue);
+            return statusValue.getStatusString();
         }
 
     }
-    
-    /**
-     * get the colour for the given status ID value
-     */
-    private Color getStatusColour(int statusValue) 
-    {
-        Color color = Color.BLACK;
-        
-        if (statusValue == TeamStatusInfo.STATUS_UPTODATE) {
-            color = UPTODATE;
-        }
-        else if (statusValue == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
-            color = NEEDSCHECKOUT;
-        }
-        else if (statusValue == TeamStatusInfo.STATUS_DELETED) {
-            color = DELETED;
-        }
-        else if (statusValue == TeamStatusInfo.STATUS_NEEDSUPDATE) {
-            color = NEEDSUPDATE;
-        }
-        else if (statusValue == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
-            color = NEEDSCOMMIT;
-        }
-        else if (statusValue == TeamStatusInfo.STATUS_NEEDSMERGE) {
-            color = NEEDSMERGE;
-        }
-        else if (statusValue == TeamStatusInfo.STATUS_NEEDSADD) {
-            color = NEEDSADD;
-        }
-        else if (statusValue == TeamStatusInfo.STATUS_REMOVED) {
-            color = REMOVED;
-        }
-        else {
-            color = CONFLICT;
-        }
-        
-        return color;
-    }
-    
+
     /**
      * return the column index of the remote status, if this is a distributed VCS
      * @param jTable
