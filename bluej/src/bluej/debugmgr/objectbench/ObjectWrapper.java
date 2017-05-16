@@ -121,7 +121,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     static final String inheritedFrom = Config.getString("debugger.objectwrapper.inherited");
 
     @OnThread(Tag.Any)
-    static final Color envOpColour = Config.ENV_COLOUR;
+    static final Color envOpColour = new Color(152,32,32);
     
     public static final int WIDTH = 100;    // width including gap
     public static final int HEIGHT = 70;   // height including gap

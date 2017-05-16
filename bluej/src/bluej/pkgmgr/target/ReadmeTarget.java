@@ -59,8 +59,7 @@ import threadchecker.Tag;
 public class ReadmeTarget extends NonCodeEditableTarget
 {
     private static final String openStr = Config.getString("pkgmgr.packagemenu.open");
-    private static final Color envOpColour = Config.ENV_COLOUR;
-    
+
     public static final String README_ID = "@README";
 
     // Images

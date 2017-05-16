@@ -175,7 +175,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // colours
     final static Color infoColor = new Color(240, 240, 240);
     final static Color lightGrey = new Color(224, 224, 224);
-    final static Color envOpColour = Config.ENV_COLOUR;
     // suffixes for resources
     final static String LabelSuffix = "Label";
     final static String ActionSuffix = "Action";

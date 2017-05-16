@@ -23,13 +23,14 @@ package bluej;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.awt.*;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +122,7 @@ public class Boot
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar",
         "org.eclipse.jgit-4.1.0.jar",
+        "richtextfx-fat-0.7-M5n.jar",
         "sequence-library-1.0.3.jar",
         "slf4j-api-1.7.2.jar",
         "slf4j-jdk14-1.7.2.jar",
@@ -158,22 +160,14 @@ public class Boot
      * 
      * @param props the properties (created from the args)
      */
-    private Boot(Properties props, final SwingSupplier<SplashLabel> image)
+    private Boot(Properties props, final FXPlatformSupplier<Image> image)
     {
         // Display the splash window, and wait until it's been painted before
         // proceeding. Otherwise, the event thread may be occupied by BlueJ
         // starting up and the window might *never* be painted.
-        
-        try {
-            EventQueue.invokeAndWait(() -> splashWindow = new SplashWindow(image.get()));
 
-            // I removed this for now [mik]. We are using invokeAndWait, so we already wait anyway.
-            // The following call adds 3 secs to startup time (for no reason, I think). Avoid.
-            //splashWindow.waitUntilPainted();
-        }
-        catch (InvocationTargetException | InterruptedException ite) {
-            ite.printStackTrace();
-        }
+        // MOEFX TODO are we still at risk of not seeing the splash screen?
+        Platform.runLater(() -> splashWindow = new SplashWindow(image.get()));
 
         this.commandLineProps = props;
     }
@@ -195,9 +189,9 @@ public class Boot
     }
 
     @FunctionalInterface
-    private static interface SwingSupplier<T>
+    private static interface FXPlatformSupplier<T>
     {
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public T get();
     }
 
@@ -207,13 +201,17 @@ public class Boot
         Properties commandLineProps = processCommandLineProperties(cmdLineArgs);
         isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
         
-        SwingSupplier<SplashLabel> image = new SwingSupplier<SplashLabel>()
+        FXPlatformSupplier<Image> image = new FXPlatformSupplier<Image>()
         {
             @Override
-            @OnThread(Tag.Swing)
-            public SplashLabel get()
+            @OnThread(Tag.FXPlatform)
+            public Image get()
             {
-                return new SplashLabel(isGreenfoot ? "gen-greenfoot-splash.png" : "gen-bluej-splash.png");
+                URL url = getClass().getResource(isGreenfoot ? "gen-greenfoot-splash.png" : "gen-bluej-splash.png");
+                if (url != null)
+                    return new Image(url.toString());
+                else
+                    return new WritableImage(500, 300); // Just use blank
             }
         };
         if(isGreenfoot) {
@@ -397,7 +395,7 @@ public class Boot
     public void disposeSplashWindow()
     {
         if (splashWindow != null) {
-            splashWindow.dispose();
+            splashWindow.hide();
             splashWindow = null;
         }
     }

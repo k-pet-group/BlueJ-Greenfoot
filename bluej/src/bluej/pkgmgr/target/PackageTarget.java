@@ -66,8 +66,6 @@ public class PackageTarget extends Target
     static final String openStr = Config.getString("pkgmgr.packagemenu.open");
     static final String removeStr = Config.getString("pkgmgr.packagemenu.remove");
 
-    static final Color envOpColour = Config.ENV_COLOUR;
-
     static final BasicStroke normalStroke = new BasicStroke(1);
     static final BasicStroke selectedStroke = new BasicStroke(3);
 

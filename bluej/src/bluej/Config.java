@@ -109,7 +109,6 @@ public final class Config
     public static final String BLUEJ_OPENPACKAGE = "bluej.openPackage";
     public static final String bluejDebugLogName = "bluej-debuglog.txt";
     public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
-    public static final Color ENV_COLOUR = new Color(152,32,32);
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     // Bit ugly having it here, but it's needed by MiscPrefPanel (which may just be in BlueJ)
@@ -158,10 +157,6 @@ public final class Config
     private static boolean usingMacOSScreenMenubar;
     private static boolean initialised = false;
     private static boolean isGreenfoot = false;
-    private static Color selectionColour;
-    private static Color selectionColour2;
-    private static Color highlightColour;
-    private static Color highlightColour2;
     private static List<String> debugVMArgs = new ArrayList<>();
     /** whether this is the debug vm or not. */
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM

@@ -147,7 +147,7 @@ public class Main
      * command line when starting BlueJ. Any parameters starting with '-' are
      * ignored for now.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private static void processArgs(String[] args)
     {
         launched = true;

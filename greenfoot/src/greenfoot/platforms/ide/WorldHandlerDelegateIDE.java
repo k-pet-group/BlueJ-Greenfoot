@@ -82,7 +82,7 @@ import javafx.application.Platform;
 public class WorldHandlerDelegateIDE
     implements WorldHandlerDelegate, ObjectBenchInterface, InteractionListener, SimulationUIListener
 {
-    protected final Color envOpColour = Config.ENV_COLOUR;
+    protected final Color envOpColour = new Color(152,32,32);
 
     private WorldHandler worldHandler;
 

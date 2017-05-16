@@ -74,7 +74,6 @@ public abstract class ClassRole
     public final static String CLASS_ROLE_NAME = null;
 
     private final Color defaultbg = Config.getOptionalItemColour("colour.class.bg.default");
-    protected final Color envOpColour = Config.ENV_COLOUR;
 
     @OnThread(Tag.Any)
     public String getRoleName()

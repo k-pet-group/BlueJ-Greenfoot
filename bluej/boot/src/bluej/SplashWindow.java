@@ -21,17 +21,18 @@
  */
 package bluej;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.BoxLayout;
-import javax.swing.JProgressBar;
-import javax.swing.Timer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 /**
  * This class implements a splash window that can be displayed while BlueJ is
@@ -39,66 +40,36 @@ import javax.swing.Timer;
  *
  * @author  Michael Kolling
  */
-public class SplashWindow extends Frame
+public class SplashWindow extends Stage
 {
-    private boolean painted = false;
-    private JProgressBar progress;
-    
     /**
      * Construct a splash window.
      * @param image
      */
-    public SplashWindow(SplashLabel image)
+    public SplashWindow(Image image)
     {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setUndecorated(true);
-        // Make window background transparent:
-        setBackground(new Color(0,0,0,0));
-        add(image);
-        pack();
+        super(StageStyle.TRANSPARENT);
+        ImageView imageView = new ImageView(image);
+        BorderPane borderPane = new BorderPane(imageView);
+        borderPane.setBackground(null);
+        ProgressBar progress = new ProgressBar();
+        borderPane.setBottom(progress);
+        progress.setVisible(false);
+        setScene(new Scene(borderPane));
 
         // centre on screen
-        Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation((screenDim.width - getSize().width) / 2, (screenDim.height - getSize().height) / 2);
-        setVisible(true);
-        
-        Timer progressTimer = new Timer(5000, (ActionEvent e) -> {
-            if (isVisible()) {
-                progress = new JProgressBar();
-                progress.setIndeterminate(true);
-                progress.setDoubleBuffered(true); //stop the flickering on raspberry pi.
-                add(progress);
-                pack();
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        setX((screenBounds.getWidth() - image.getWidth()) / 2);
+        setY((screenBounds.getHeight() - image.getHeight()) / 2);
+        show();
+
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(5000), e -> {
+            if (isShowing()) {
+                progress.setVisible(true);
             }
-        });
-        progressTimer.setRepeats(false);
-        progressTimer.start();
+        }));
+        timeline.setCycleCount(1);
+        timeline.play();
     }
-    
-    @Override
-    public synchronized void paint(Graphics g)
-    {
-        super.paint(g);
-        painted = true;
-        notify();
-    }
-    
-//    /**
-//     * Wait until the splash screen has actually been painted, with a timeout of
-//     * 3 seconds.
-//     */
-//    public synchronized void waitUntilPainted()
-//    {
-//        long startTime = System.currentTimeMillis();
-//        long timePast = System.currentTimeMillis() - startTime; 
-//        while (!painted && timePast < 3000) {
-//            try {
-//                wait(3000 - timePast);
-//            }
-//            catch (InterruptedException ie) { }
-//            timePast = System.currentTimeMillis() - startTime;
-//        }
-//        painted = true;
-//    }
 }
 
