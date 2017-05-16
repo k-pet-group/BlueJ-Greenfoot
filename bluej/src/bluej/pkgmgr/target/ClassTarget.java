@@ -479,7 +479,6 @@ public class ClassTarget extends DependentTarget
             ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), newState == State.COMPILED, newState == State.HAS_ERROR);
             ExtensionsManager.getInstance().delegateEvent(event);
 
-            redraw();
             super.setState(newState);
         }
     }

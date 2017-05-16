@@ -534,6 +534,7 @@ public abstract class DependentTarget extends EditableTarget
     {
         state.set(newState);
         repaint();
+        redraw();
     }
 
 }
