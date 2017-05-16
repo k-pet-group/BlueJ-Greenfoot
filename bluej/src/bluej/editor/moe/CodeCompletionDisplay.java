@@ -122,8 +122,6 @@ public class CodeCompletionDisplay implements ListSelectionListener, MouseListen
     @OnThread(Tag.FXPlatform)
     private boolean ready;
 
-    private static final int hiDpiScalingFactor = Config.getPropInteger("screen.hidpi.scaling", 1);
-
     /**
      * Construct a code completion display panel, for the given editor and with the given
      * suggestions. The location specifies the partial identifier entered by the user before
@@ -170,7 +168,7 @@ public class CodeCompletionDisplay implements ListSelectionListener, MouseListen
             glassPaneReplacement.setPrefRows(1);
             glassPaneReplacement.setAlignment(Pos.CENTER);
             glassPaneReplacement.setTileAlignment(Pos.CENTER);
-            glassPaneReplacement.setPrefTileWidth(size.getWidth()/hiDpiScalingFactor);
+            glassPaneReplacement.setPrefTileWidth(size.getWidth());
             for (Text t : Arrays.asList(glassPaneLHS, glassPaneRHS))
             {
                 t.setStyle("-fx-fill: rgb(200,170,100); -fx-font-size: 20px;");
@@ -613,8 +611,8 @@ public class CodeCompletionDisplay implements ListSelectionListener, MouseListen
     {
         Platform.runLater(() -> {
             setReady(false);
-            window.setX(xpos/hiDpiScalingFactor);
-            window.setY(ypos/hiDpiScalingFactor);
+            window.setX(xpos);
+            window.setY(ypos);
             window.show();
             window.toFront();
             window.requestFocus();
