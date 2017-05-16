@@ -92,9 +92,9 @@ public abstract class Debugger
      * 
      * @return  a Debugger instance
      */
-    public static Debugger getDebuggerImpl(File startingDirectory, DebuggerTerminal terminal)
+    public static Debugger getDebuggerImpl(File startingDirectory, DebuggerTerminal terminal, DebuggerThreadListener debuggerThreadListener)
     {
-        return new JdiDebugger(startingDirectory, terminal);
+        return new JdiDebugger(startingDirectory, terminal, debuggerThreadListener);
     }
 
     /**
@@ -303,18 +303,4 @@ public abstract class Debugger
      */
     public abstract String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
             Map<String, String> properties);
-    
-    /**
-     * A tree model representing the threads running in the debug VM.
-     *  
-     * @return  a TreeModel with DebuggerThread objects
-     *          as the leaves.
-     */
-    public abstract DebuggerThreadTreeModel getThreadTreeModel();
-
-    /**
-     * Set or clear the option to hide system threads.
-     * This method also updates the current display if necessary.
-     */
-    public abstract void hideSystemThreads(boolean hide);
 }

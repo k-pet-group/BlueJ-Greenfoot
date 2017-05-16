@@ -39,8 +39,7 @@ import javax.swing.tree.TreePath;
  * @author Andrew Patterson
  * @version $Id: DebuggerThreadTreeModel.java 6215 2009-03-30 13:28:25Z polle $
  */
-public interface DebuggerThreadTreeModel
-    extends TreeModel
+public interface DebuggerThreadModel
 {
     /**
      * Return the DebuggerThread object stored in a tree node.
@@ -51,7 +50,7 @@ public interface DebuggerThreadTreeModel
      * @return the DebuggerThread represented by this node or null if this node
      *         does not represent a DebuggerThread.
      */
-    public DebuggerThread getNodeAsDebuggerThread(Object node);
+    //public DebuggerThread getNodeAsDebuggerThread(Object node);
 
     /**
      * Find a node path in the tree that leads to a particular DebuggerThread.
@@ -61,7 +60,7 @@ public interface DebuggerThreadTreeModel
      * @return the TreePath to a node holding the thr or null if one does not
      *         exist
      */
-    public TreePath findNodeForThread(DebuggerThread thr);
+    //public TreePath findNodeForThread(DebuggerThread thr);
 
     /**
      * Define the interface for a synchronization method.
@@ -75,5 +74,5 @@ public interface DebuggerThreadTreeModel
      * Set the synchronisation method used to control access to the tree model.
      * This can be used to enforce Swing threading safety.
      */
-    public void setSyncMechanism(SyncMechanism s);
+    //public void setSyncMechanism(SyncMechanism s);
 }

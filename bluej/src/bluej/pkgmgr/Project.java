@@ -50,11 +50,13 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import bluej.debugger.DebuggerThreadListener;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -62,7 +64,6 @@ import javafx.scene.Scene;
 import javafx.stage.Window;
 import javafx.util.Duration;
 
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import bluej.BlueJEvent;
@@ -120,14 +121,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.views.View;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Window;
-import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -140,7 +134,7 @@ import threadchecker.Tag;
  * @author  Andrew Patterson
  * @author  Bruce Quig
  */
-public class Project implements DebuggerListener, InspectorManager
+public class Project implements DebuggerListener, DebuggerThreadListener, InspectorManager
 {
     public static final int NEW_PACKAGE_DONE = 0;
     public static final int NEW_PACKAGE_EXIST = 1;
@@ -236,6 +230,15 @@ public class Project implements DebuggerListener, InspectorManager
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private Set<ClassTarget> scheduledTargets = new HashSet<>();
 
+    /**
+     * The threads currently running in the debugger for this project.  We need
+     * to track this in Project because ExecControls may not be showing from the
+     * outset, but we need the state of the threads to be available when
+     * we do show ExecControls, so Project must keep track ready for ExecControls
+     * to potentially be shown later on
+     */
+    private final ObservableList<DebuggerThreadDetails> threadListContents = FXCollections.observableArrayList();
+
     private BProject singleBProject;  // Every Project has none or one BProject
     private boolean closing = false;
     /** The scanner for available imports.  May be null if not requested yet. */
@@ -308,7 +311,7 @@ public class Project implements DebuggerListener, InspectorManager
         // Must do this after the editors have been created:
         getPackage("").refreshPackage();
 
-        debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
+        debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal(), this);
         debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
         debugger.newClassLoader(getClassLoader());
         debugger.addDebuggerListener(this);
@@ -1661,7 +1664,7 @@ public class Project implements DebuggerListener, InspectorManager
     public ExecControls getExecControls()
     {
         if (execControls == null) {
-            execControls = new ExecControls(this, getDebugger());
+            execControls = new ExecControls(this, getDebugger(), threadListContents);
             debuggerShowing.bindBidirectional(execControls.showingProperty());
         }
         return execControls;
@@ -2470,5 +2473,105 @@ public class Project implements DebuggerListener, InspectorManager
     public BooleanProperty debuggerShowing()
     {
         return debuggerShowing;
+    }
+
+
+    @Override
+    @OnThread(Tag.Any)
+    public void threadStateChanged(DebuggerThread thread, boolean shouldDisplay)
+    {
+        DebuggerThreadDetails details = new DebuggerThreadDetails(thread);
+        Platform.runLater(() -> {
+            for (int i = 0; i < threadListContents.size(); i++)
+            {
+                if (threadListContents.get(i).isThread(thread))
+                {
+                    threadListContents.set(i, details);
+                }
+            }
+            if (shouldDisplay)
+            {
+                getExecControls().setSelectedThread(details);
+            }
+        });
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public void clearThreads()
+    {
+        Platform.runLater(() -> {
+            threadListContents.clear();
+        });
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public void addThread(DebuggerThread thread)
+    {
+        DebuggerThreadDetails details = new DebuggerThreadDetails(thread);
+        Platform.runLater(() -> {
+            threadListContents.add(details);
+        });
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public void removeThread(DebuggerThread thread)
+    {
+        DebuggerThreadDetails details = new DebuggerThreadDetails(thread);
+        Platform.runLater(() -> {
+            threadListContents.remove(details);
+        });
+    }
+
+    /**
+     * We fetch the display details on the debugger thread,
+     * not from the FX thread.  Although toString may
+     * be thread-safe, the GUI doesn't update the item's
+     * text anyway unless you swap the item out, so we
+     * may as well make the display text constant for
+     * the item so that the GUI updates coherently.
+     */
+    public static class DebuggerThreadDetails
+    {
+        private final DebuggerThread debuggerThread;
+        private final String debuggerThreadDisplay;
+
+        public DebuggerThreadDetails(DebuggerThread dt)
+        {
+            this.debuggerThread = dt;
+            this.debuggerThreadDisplay = dt.toString();
+        }
+
+        // Equality is solely dependent on the thread, not the display:
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            DebuggerThreadDetails that = (DebuggerThreadDetails) o;
+
+            return debuggerThread.equals(that.debuggerThread);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return debuggerThread.hashCode();
+        }
+
+        @Override
+        public String toString()
+        {
+            return debuggerThreadDisplay;
+        }
+
+        public boolean isThread(DebuggerThread dt)
+        {
+            return debuggerThread.equals(dt);
+        }
     }
 }
