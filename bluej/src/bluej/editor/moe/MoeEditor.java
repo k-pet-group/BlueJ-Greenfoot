@@ -1468,9 +1468,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private void listenToChanges(MoeSyntaxDocument msd)
     {
         msd.getDocument().plainChanges().subscribe(c -> {
-            boolean singleLineChange = !c.getInserted().contains("\n") && !c.getRemoved().contains("\n");
-            boolean inserted = !c.getInserted().isEmpty();
-            documentContentChanged(singleLineChange, inserted, c.getPosition(), c.getInsertionEnd() - c.getPosition());
+            if (!ignoreChanges)
+            {
+                boolean singleLineChange = !c.getInserted().contains("\n") && !c.getRemoved().contains("\n");
+                boolean inserted = !c.getInserted().isEmpty();
+                documentContentChanged(singleLineChange, inserted, c.getPosition(), c.getInsertionEnd() - c.getPosition());
+            }
         });
     }
 
