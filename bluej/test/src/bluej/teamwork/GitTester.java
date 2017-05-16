@@ -30,6 +30,7 @@ import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.TeamworkProvider;
@@ -42,12 +43,10 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.DialogManager;
-import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -256,7 +255,7 @@ public class GitTester
                 assertEquals(2, listener.getResources().size());
                 statusItem = getStatusItemFromListener(listener, tempFile);
                 
-                assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getStatus());
+                assertEquals(Status.NEEDSADD, statusItem.getStatus());
                 assertEquals(tempFile.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
                 response = addFileToRepo(repositoryA, "This commit was made by the GitTester. It should add a file to the repository.", tempFile);
             }
@@ -269,8 +268,8 @@ public class GitTester
             statusItem = getStatusItemFromListener(listener, tempFile);
             
             assertEquals(2, listener.getResources().size());
-            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getStatus());
-            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getRemoteStatus());
+            assertEquals(Status.UPTODATE, statusItem.getStatus());
+            assertEquals(Status.NEEDSADD, statusItem.getRemoteStatus());
         } catch (IOException ex) {
             Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
             Assert.fail("Something went wrong.");
@@ -299,11 +298,11 @@ public class GitTester
             assertEquals(3, listener.getResources().size());
             
             TeamStatusInfo statusItem = getStatusItemFromListener(listener, tempFile);
-            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getStatus());
+            assertEquals(Status.NEEDSADD, statusItem.getStatus());
             assertEquals(tempFile.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
             
             statusItem = getStatusItemFromListener(listener, tempFolder);
-            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getStatus());
+            assertEquals(Status.NEEDSADD, statusItem.getStatus());
             assertEquals(tempFolder.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
             response = addFileToRepo(repositoryA, "This commit was made by the GitTester. It should add a file and a directory to the repository.", new File[]{tempFolder, tempFile});
 
@@ -314,8 +313,8 @@ public class GitTester
             assertEquals(2, listener.getResources().size());
             
             statusItem = getStatusItemFromListener(listener, tempFile);
-            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getStatus());
-            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getRemoteStatus());
+            assertEquals(Status.UPTODATE, statusItem.getStatus());
+            assertEquals(Status.NEEDSADD, statusItem.getRemoteStatus());
 
         } catch (IOException ex) {
             Logger.getLogger(GitTester.class.getName()).log(Level.SEVERE, null, ex);
@@ -354,8 +353,8 @@ public class GitTester
             assertEquals(2, listener.getResources().size());
             
             TeamStatusInfo statusItem = getStatusItemFromListener(listener, tempFile);
-            assertEquals(TeamStatusInfo.STATUS_DELETED, statusItem.getStatus());
-            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getRemoteStatus());
+            assertEquals(Status.DELETED, statusItem.getStatus());
+            assertEquals(Status.UPTODATE, statusItem.getRemoteStatus());
             assertEquals(tempFile.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
 
             response = RemoveFileFromRepo(repositoryA, "This commit should remove a file and a directory from the repository", new File[]{tempFile});
@@ -392,7 +391,7 @@ public class GitTester
             assertEquals(2, listener.getResources().size());
             
             TeamStatusInfo statusItem = getStatusItemFromListener(listener, tempFileRepoA);
-            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getStatus());
+            assertEquals(Status.NEEDSADD, statusItem.getStatus());
             assertEquals(tempFileRepoA.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
 
             // add, commit and push tempFileRepoA.
@@ -405,8 +404,8 @@ public class GitTester
 
             statusItem = getStatusItemFromListener(listener, tempFileRepoA);
             assertEquals(2, listener.getResources().size());
-            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getStatus());
-            assertEquals(TeamStatusInfo.STATUS_NEEDSADD, statusItem.getRemoteStatus());
+            assertEquals(Status.UPTODATE, statusItem.getStatus());
+            assertEquals(Status.NEEDSADD, statusItem.getRemoteStatus());
 
             //push.
             response = repositoryA.pushChanges().getResult();
@@ -420,8 +419,8 @@ public class GitTester
             listener = getRepoStatus(repositoryB, true);
             assertEquals(2, listener.getResources().size());
             statusItem = getStatusItemFromListener(listener, tempFileRepoA);
-            assertEquals(TeamStatusInfo.STATUS_NEEDSCHECKOUT, statusItem.getRemoteStatus());
-            assertEquals(TeamStatusInfo.STATUS_UPTODATE, statusItem.getStatus());
+            assertEquals(Status.NEEDSCHECKOUT, statusItem.getRemoteStatus());
+            assertEquals(Status.UPTODATE, statusItem.getStatus());
             assertEquals(tempFileRepoA.getName(), statusItem.getFile().getName());
 
             GitStatusHandle statusHandler = listener.getStatusHandle();
@@ -455,7 +454,7 @@ public class GitTester
 
             assertEquals(2, listener.getResources().size());
             statusItem = getStatusItemFromListener(listener, tempFileRepoA);
-            assertEquals(TeamStatusInfo.STATUS_NEEDSCOMMIT, statusItem.getRemoteStatus());
+            assertEquals(Status.NEEDSCOMMIT, statusItem.getRemoteStatus());
             assertEquals(tempFileRepoA.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
 
             //push.
@@ -471,7 +470,7 @@ public class GitTester
             listener = getRepoStatus(repositoryB, true);
             assertEquals(2, listener.getResources().size());
             statusItem = getStatusItemFromListener(listener, tempFileRepoB);
-            assertEquals(TeamStatusInfo.STATUS_NEEDSMERGE, statusItem.getRemoteStatus());
+            assertEquals(Status.NEEDSMERGE, statusItem.getRemoteStatus());
             assertEquals(tempFileRepoB.getAbsolutePath(), statusItem.getFile().getAbsolutePath());
 
             //push. this sho

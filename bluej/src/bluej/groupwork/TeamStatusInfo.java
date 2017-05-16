@@ -167,13 +167,13 @@ public class TeamStatusInfo
      * @param status file status in the local repository.
      * @param remoteStatus file status in the remote server.
      */
-    protected TeamStatusInfo(File file, String localVersion, String remoteVersion, Status status, Status remoteStatus)
+    public TeamStatusInfo(File file, String localVersion, String remoteVersion, Status status, Status remoteStatus)
     {
         this(file, localVersion, remoteVersion, status);
         this.remoteStatus = remoteStatus;
     }
     
-    protected TeamStatusInfo(File file, String localVersion, String remoteVersion, Status status)
+    public TeamStatusInfo(File file, String localVersion, String remoteVersion, Status status)
     {
         this.file = file;
         this.localVersion = localVersion;
