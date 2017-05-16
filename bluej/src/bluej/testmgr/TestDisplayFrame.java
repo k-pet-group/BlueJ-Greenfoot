@@ -25,6 +25,8 @@ import javax.swing.SwingUtilities;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -59,11 +61,13 @@ import threadchecker.Tag;
 public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 {
     // -- static singleton factory method --
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private static TestDisplayFrame singleton = null;
+    @OnThread(Tag.FXPlatform)
+    private static BooleanProperty frameShowing = new SimpleBooleanProperty(false);
     
     @OnThread(Tag.FXPlatform)
-    public synchronized static TestDisplayFrame getTestDisplay()
+    public static TestDisplayFrame getTestDisplay()
     {
         if(singleton == null) {
             singleton = new TestDisplayFrame();
@@ -72,14 +76,34 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     }
 
     @OnThread(Tag.Any)
-    public synchronized static boolean isFrameShown()
+    public static BooleanProperty showingProperty()
     {
-        if(singleton == null) {
-            return false;
-        }
-        else {
-            return singleton.isShown();
-        }
+        return frameShowing;
+    }
+
+    static
+    {
+        JavaFXUtil.addChangeListenerPlatform(frameShowing, doShow -> {
+            TestDisplayFrame testDisplayFrame = getTestDisplay();
+
+            // Note that we can end up here due to the window state changing,
+            // so be careful not to end up in a loop by showing/hiding again:
+            if (doShow)
+            {
+                if (!testDisplayFrame.frame.isShowing())
+                {
+                    testDisplayFrame.frame.show();
+                }
+                testDisplayFrame.frame.toFront();
+            }
+            else
+            {
+                if (testDisplayFrame.frame.isShowing())
+                {
+                    testDisplayFrame.frame.hide();
+                }
+            }
+        });
     }
 
     private final Image failureIcon = Config.getFixedImageAsFXImage("failure.gif");
@@ -116,9 +140,6 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
     private Project project;
 
-    @OnThread(Tag.Any)
-    private final AtomicBoolean frameShowing = new AtomicBoolean(false);
-
     public TestDisplayFrame()
     {
         testTotal = new SimpleIntegerProperty(0);
@@ -135,27 +156,13 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
      */
     public void showTestDisplay(boolean doShow)
     {
+        frameShowing.set(doShow);
         if (doShow)
         {
-            if (!frame.isShowing())
-            {
-                frame.show();
-            }
             frame.toFront();
         }
-        else
-            frame.hide();
     }
 
-    /**
-     * Return true if the window is currently displayed.
-     */
-    @OnThread(Tag.Any)
-    public boolean isShown()
-    {
-        return frameShowing.get();
-    }
-    
     /**
      * Create the user-interface for the error display dialog.
      */
@@ -163,8 +170,17 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     {
         frame = new Stage();
         frame.setTitle(Config.getString("testdisplay.title"));
-        frame.setOnShown(e -> {frameShowing.set(true);/*org.scenicview.ScenicView.show(frame.getScene());*/});
-        frame.setOnHidden(e -> {frameShowing.set(false);});
+        frame.setOnShown(e -> {
+            // Note that we can get here because of a change in the property,
+            // so be sure not to end up in a loop by setting the property again:
+            if (!frameShowing.get())
+                frameShowing.set(true);
+            /*org.scenicview.ScenicView.show(frame.getScene());*/
+        });
+        frame.setOnHidden(e -> {
+            if (frameShowing.get())
+                frameShowing.set(false);
+        });
 
         BlueJTheme.setWindowIconFX(frame);
 

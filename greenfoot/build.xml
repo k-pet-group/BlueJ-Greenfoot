@@ -421,7 +421,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <javadoc destdir="common" sourcefiles="common/${common.class}.java"
                          Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
                          classpath="${build}:common/${common.class}/lib/${common.class}.jar"
-                         docletpath="${bluej_home}/lib/bjdoclet.jar" doclet="bluej.doclet.doclets.formats.html.HtmlDoclet"
                          encoding="UTF-8"
                          executable="${build_java_home}/${java_command_dir_name}/javadoc"
         /> 

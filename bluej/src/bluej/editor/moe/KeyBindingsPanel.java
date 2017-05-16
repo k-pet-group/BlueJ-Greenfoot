@@ -21,37 +21,38 @@
  */
 package bluej.editor.moe;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Event;
-import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.FocusManager;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
+import bluej.editor.moe.MoeActions.Category;
+import bluej.editor.moe.MoeActions.MoeAbstractAction;
+import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldListCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyCombination.ModifierValue;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
 
 import bluej.Config;
@@ -59,6 +60,7 @@ import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformSupplier;
+import javafx.util.StringConverter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -67,7 +69,7 @@ import threadchecker.Tag;
  * @author Marion Zalk
  *
  */
-public class KeyBindingsPanel extends JPanel implements ActionListener, ListSelectionListener, ItemListener, PrefPanelListener
+public class KeyBindingsPanel extends GridPane implements PrefPanelListener
 {
 
     // -------- CONSTANTS --------
@@ -82,141 +84,123 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
     // -------- INSTANCE VARIABLES --------
 
     private final FXPlatformSupplier<Window> parent;
-    private FocusManager focusMgr;
-    private JButton defaultsButton;
-    private JButton addKeyButton;
-    private JButton delKeyButton;
-    private JComboBox categoryMenu;
-    private JList functionList;
-    private JList keyList;
-    private JTextArea helpLabel;
+    private final Button defaultsButton;
+    private final Button addKeyButton;
+    private final Button delKeyButton;
+    private final ComboBox<Category> categoryMenu;
+    // The functions in the current category:
+    private final ListView<String> functionList;
+    // The keys for the current function:
+    private final ListView<KeyCodeCombination> keyList;
+    private final Text helpLabel;
 
     private MoeActions actions;     // The Moe action manager
-    private Action currentAction;       // the action currently selected
-    private KeyStroke[] currentKeys;    // key strokes currently displayed
 
-    private int firstDisplayedFunc; // index of first function in list
     private Properties help;
-    private Action[] functions;     // all user functions
-    private String[] categories;
-    private int[] categoryIndex;   // an array of indexes into "functions"
+    private List<ActionInfo> functions;     // all user functions
 
-    public void actionPerformed(ActionEvent event) {
-        Object src = event.getSource();
-        if(src == defaultsButton)
-            handleDefaults();
-        else if(src == addKeyButton)
-            handleAddKey();
-        else if(src == delKeyButton)
-            handleDelKey();
+    private static class ActionInfo
+    {
+        private final String name;
+        private final Category category;
 
-    }
-
-
-    public void valueChanged(ListSelectionEvent event) {
-        if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
-            return;
-
-        Object src = event.getSource();
-
-        if(src == functionList)
-            handleFuncListSelect();
-        else if(src == keyList)
-            handleKeyListSelect();
-
-    }
-
-    public void itemStateChanged(ItemEvent e) {
-        int selected = categoryMenu.getSelectedIndex();
-
-        firstDisplayedFunc = categoryIndex[selected];
-        int lastFunc = categoryIndex[selected + 1];
-
-        String[] names = new String[lastFunc - firstDisplayedFunc];
-
-        for(int i = firstDisplayedFunc; i < lastFunc; i++) {
-            names[i-firstDisplayedFunc] = 
-                (String)functions[i].getValue(Action.NAME);
+        public ActionInfo(MoeAbstractAction action)
+        {
+            name = action.getName();
+            category = action.getCategory();
         }
-        functionList.setListData(names);
+    }
+
+    public void categoryMenuChanged()
+    {
+        Category selected = categoryMenu.getSelectionModel().getSelectedItem();
+
+        functionList.getItems().setAll(functions.stream().filter(a -> a.category == selected).map(a -> a.name).collect(Collectors.toList()));
         clearKeyList();
         clearHelpText();
-        addKeyButton.setEnabled(false);
-        delKeyButton.setEnabled(false);
-        currentAction = null;
-        currentKeys = null;
-
+        addKeyButton.setDisable(true);
+        delKeyButton.setDisable(true);
     }
 
-    public JPanel makePanel(){
-        GridLayout gridL=new GridLayout(1, 2);
-        JPanel mainPanel = new JPanel(gridL);  // has BorderLayout
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+    public KeyBindingsPanel(FXPlatformSupplier<Window> parent)
+    {
+        this.parent = parent;
+        actions = MoeActions.getActions(null);
+        functions = Utility.mapList(actions.getAllActions(), ActionInfo::new);
+
+        ColumnConstraints c = new ColumnConstraints();
+        c.setPercentWidth(50.0);
+        getColumnConstraints().setAll(c, c);
+
+        JavaFXUtil.addStyleClass(this, "prefmgr-key-panel");
 
         // create function list area
-        JPanel funcPanel = new JPanel(new BorderLayout());
-        funcPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
-        functionList = new JList();
-        functionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        functionList.addListSelectionListener(this);
-        functionList.setVisibleRowCount(12);
-        JScrollPane scrollPane = new JScrollPane(functionList);
-        funcPanel.add(scrollPane);
+        BorderPane funcPanel = new BorderPane();
+        functionList = new ListView<>();
+        functionList.setEditable(false);
+        funcPanel.setCenter(functionList);
 
-        JPanel categoryPanel = new JPanel();
-        JLabel label = new JLabel(categoriesLabel);
-        categoryPanel.add(label);
-        categoryMenu = new JComboBox();
-        categoryPanel.add(categoryMenu);
-        funcPanel.add(categoryPanel, BorderLayout.NORTH);
+        Label label = new Label(categoriesLabel + " ");
+        categoryMenu = new ComboBox<>();
+        HBox categoryHBox = new HBox(label, categoryMenu);
+        categoryHBox.setAlignment(Pos.BASELINE_CENTER);
+        BorderPane.setAlignment(categoryHBox, Pos.BASELINE_CENTER);
+        funcPanel.setTop(categoryHBox);
 
         // create control area on right (key bindings and buttons)
-        JPanel controlPanel = new JPanel(new BorderLayout());
-        controlPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+        BorderPane controlPanel = new BorderPane();
         // create area for key bindings
-        JPanel keyPanel = new JPanel(new BorderLayout());
-        JLabel kLabel=new JLabel(keyLabel);
-        kLabel.setPreferredSize(categoryMenu.getPreferredSize());
-        keyPanel.add(kLabel , BorderLayout.NORTH);
-        keyList = new JList();
-        keyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        keyList.setPrototypeCellValue("shift-ctrl-delete"); 
-        keyList.setVisibleRowCount(4);
-        scrollPane = new JScrollPane(keyList);
-        keyPanel.add(scrollPane, BorderLayout.CENTER);
+        BorderPane keyPanel = new BorderPane();
+        Label kLabel = new Label(keyLabel);
+        JavaFXUtil.addStyleClass(kLabel, "key-header-label");
+        keyPanel.setTop(kLabel);
+        keyList = new ListView<>();
+        keyList.setCellFactory(lv -> new TextFieldListCell<>(new StringConverter<KeyCodeCombination>()
+        {
+            @Override
+            public String toString(KeyCodeCombination object)
+            {
+                return object.getDisplayText();
+            }
 
-        JPanel keyButtonPanel = new JPanel();
-        addKeyButton = new JButton(addKeyLabel);
-        addKeyButton.setMargin(new Insets(2,2,2,2));
-        keyButtonPanel.add(addKeyButton);
+            @Override
+            public KeyCodeCombination fromString(String string)
+            {
+                // Won't be used as no editing:
+                return null;
+            }
+        }));
+        keyList.setEditable(false);
+        keyPanel.setCenter(keyList);
 
-        delKeyButton = new JButton(delKeyLabel);
-        delKeyButton.setMargin(new Insets(2,2,2,2));
-        keyButtonPanel.add(delKeyButton);
+        HBox keyButtonPanel = new HBox();
+        keyButtonPanel.setAlignment(Pos.BASELINE_CENTER);
+        JavaFXUtil.addStyleClass(keyButtonPanel, "key-bindings-buttons");
+        addKeyButton = new Button(addKeyLabel);
+        keyButtonPanel.getChildren().add(addKeyButton);
 
-        defaultsButton = new JButton(defaultsLabel);
-        keyButtonPanel.add(defaultsButton);
-        keyPanel.add(keyButtonPanel, BorderLayout.SOUTH);
-        controlPanel.add(keyPanel);
+        delKeyButton = new Button(delKeyLabel);
+        keyButtonPanel.getChildren().add(delKeyButton);
+
+        defaultsButton = new Button(defaultsLabel);
+        controlPanel.setTop(defaultsButton);
+        BorderPane.setAlignment(defaultsButton, Pos.BASELINE_RIGHT);
+
+        keyPanel.setBottom(keyButtonPanel);
+        controlPanel.setCenter(keyPanel);
 
         // create help text area at bottom
-        JPanel helpPanel = new JPanel(new GridLayout());
-        helpPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(10,0,0,0),
-                BorderFactory.createLineBorder(Color.black)));
-        helpLabel=new JTextArea();
-        helpLabel.setRows(6);
-        helpLabel.setLineWrap(true);
-        helpLabel.setWrapStyleWord(true);
-        helpLabel.setBackground(MoeEditor.infoColor);
-        helpPanel.add(helpLabel);
-        controlPanel.add(helpPanel,BorderLayout.SOUTH);
+        helpLabel=new Text();
+        TextFlow textFlow = new TextFlow(helpLabel);
+        textFlow.setMinHeight(80);
+        controlPanel.setBottom(textFlow);
 
-        mainPanel.add(funcPanel);
-        mainPanel.add(controlPanel);
-        updateDispay();
+        JavaFXUtil.addStyleClass(funcPanel, "key-bindings-column");
+        JavaFXUtil.addStyleClass(controlPanel, "key-bindings-column");
 
-        return mainPanel;
+        add(funcPanel, 0, 0);
+        add(controlPanel, 1, 0);
+        updateDisplay();
     }
 
     @OnThread(Tag.FXPlatform)
@@ -236,96 +220,20 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
 
     /**
      * 
-     * @param actiontable
-     * @param categories
-     * @param categoryIndex
      */
-    public void setActionValues(Action[] actiontable, String[] categories, int[] categoryIndex)
+    public void updateDisplay()
     {
-        this.categories = categories;
-        functions = actiontable;
-        this.categoryIndex = categoryIndex;
-    }
+        JavaFXUtil.addChangeListenerPlatform(categoryMenu.getSelectionModel().selectedIndexProperty(), i -> categoryMenuChanged());
+        JavaFXUtil.addChangeListenerPlatform(functionList.getSelectionModel().selectedIndexProperty(), i -> handleFuncListSelect());
+        JavaFXUtil.addChangeListenerPlatform(keyList.getSelectionModel().selectedIndexProperty(), i -> handleKeyListSelect());
 
-    /**
-     * 
-     */
-    public void updateDispay()
-    {
-        categoryMenu.addItemListener(this);
-        delKeyButton.addActionListener(this);
-        addKeyButton.addActionListener(this);
-        keyList.addListSelectionListener(this);
-        defaultsButton.addActionListener(this);
-        focusMgr = FocusManager.getCurrentManager();
+        defaultsButton.setOnAction(e -> handleDefaults());
+        addKeyButton.setOnAction(e -> handleAddKey());
+        delKeyButton.setOnAction(e -> handleDelKey());
+
         openHelpFile();
-        for(int i=0; i<categories.length; i++)
-            categoryMenu.addItem(categories[i]);
-    }
-
-    class KeyCatcher extends FocusManager {
-
-        public void processKeyEvent(Component focusedComponent, KeyEvent e) 
-        { 
-            if(e.getID() != KeyEvent.KEY_PRESSED)
-                return;
-
-            int keyCode = e.getKeyCode();
-
-            if(keyCode == KeyEvent.VK_CAPS_LOCK ||    // the keys we want to ignore...
-                    keyCode == KeyEvent.VK_SHIFT ||
-                    keyCode == KeyEvent.VK_CONTROL ||
-                    keyCode == KeyEvent.VK_META ||
-                    keyCode == KeyEvent.VK_ALT ||
-                    keyCode == KeyEvent.VK_ALT_GRAPH ||
-                    keyCode == KeyEvent.VK_COMPOSE ||
-                    keyCode == KeyEvent.VK_NUM_LOCK ||
-                    keyCode == KeyEvent.VK_SCROLL_LOCK ||
-                    keyCode == KeyEvent.VK_UNDEFINED
-            )
-                return;
-
-            if(currentAction == null)
-                Debug.message("FunctionDialog: currentAction is null...");
-            else {
-                KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
-                if(isPrintable(key, e))
-                    helpLabel.setText(getHelpText("cannot-redefine"));
-                else {
-                    actions.addActionForKeyStroke(key, currentAction);
-                    handleFuncListSelect();
-                }
-            }
-            e.consume();
-            removeKeyListener();
-        }
-
-        private boolean isPrintable(KeyStroke key, KeyEvent e)
-        {
-            // all control and alt keys are non-printable
-            int modifiers = key.getModifiers();
-            if(modifiers != 0 && modifiers != Event.SHIFT_MASK)
-                return false;
-
-            // action keys are non-printable
-            if(e.isActionKey())
-                return false;
-
-            // some action keys that the above function not recognises
-            int keyCode = e.getKeyCode();
-            if(keyCode == KeyEvent.VK_BACK_SPACE ||
-                    keyCode == KeyEvent.VK_DELETE ||
-                    keyCode == KeyEvent.VK_ENTER ||
-                    keyCode == KeyEvent.VK_TAB ||
-                    keyCode == KeyEvent.VK_ESCAPE)
-                return false;
-
-            // otherwise it's printable
-            return true;
-        }
-
-        public void focusNextComponent(Component c) {}
-        public void focusPreviousComponent(Component c) {}
+        categoryMenu.getItems().setAll(Category.values());
+        categoryMenu.getSelectionModel().selectFirst();
     }
 
     /**
@@ -350,19 +258,18 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      */
     private void handleFuncListSelect()
     {
-        int index = functionList.getSelectedIndex();
+        int index = functionList.getSelectionModel().getSelectedIndex();
         if(index == -1)
             return; // deselection event - ignore
 
         // find selected action
 
-        currentAction = functions[firstDisplayedFunc + index];
+        String currentAction = functionList.getSelectionModel().getSelectedItem();
 
         // display keys and help text
 
         updateKeyList(currentAction);
-        String helpText = 
-            getHelpText((String)currentAction.getValue(Action.NAME));
+        String helpText = getHelpText(currentAction);
         helpLabel.setText(helpText);
     }
 
@@ -371,7 +278,7 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      */
     private void handleKeyListSelect()
     {
-        delKeyButton.setEnabled(true);
+        delKeyButton.setDisable(false);
     }
 
     /**
@@ -379,7 +286,6 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      */
     private void handleClose()
     {
-        removeKeyListener();
         if(!actions.save())
             Platform.runLater(() -> DialogManager.showErrorFX(parent.get(), "cannot-save-keys"));
         setVisible(false);
@@ -389,8 +295,16 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      */
     private void handleAddKey()
     {
-        helpLabel.setText(getHelpText("press-key"));
-        addKeyListener();
+        Optional<KeyCodeCombination> newKey = new KeyCaptureDialog().showAndWait();
+        if (newKey.isPresent())
+        {
+            String action = functionList.getSelectionModel().getSelectedItem();
+            if (action != null)
+            {
+                MoeActions.addKeyCombinationForActionToAllEditors(newKey.get(), action);
+                updateKeyList(action);
+            }
+        }
     }
 
     /**
@@ -398,52 +312,32 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      */
     private void handleDelKey()
     {
-        if(currentKeys == null)
-            return;             // something went wrong here...
-
-        int index = keyList.getSelectedIndex();
+        int index = keyList.getSelectionModel().getSelectedIndex();
         if(index == -1)
             return;             // deselection event - ignore
 
-        actions.removeKeyStrokeBinding(currentKeys[index]);
-        updateKeyList(currentAction);
+        actions.removeKeyStrokeBinding(keyList.getSelectionModel().getSelectedItem());
+        updateKeyList(functionList.getSelectionModel().getSelectedItem());
     }
 
     /**
      * Display key bindings in the key list
      */
-    private void updateKeyList(Action action)
+    private void updateKeyList(String action)
     {
-        currentKeys = actions.getKeyStrokesForAction(action);
+        List<KeyCodeCombination> currentKeys = actions.getKeyStrokesForAction(action);
         if(currentKeys == null)
             clearKeyList();
         else {
-            String[] keyStrings = getKeyStrings(currentKeys);
-            keyList.setListData(keyStrings);
-            delKeyButton.setEnabled(false);
+            keyList.getItems().setAll(currentKeys);
+            delKeyButton.setDisable(true);
         }
-        addKeyButton.setEnabled(true);
-    }
-
-    /**
-     * Translate KeyStrokes into String representation.
-     */
-    private String[] getKeyStrings(KeyStroke[] keys)
-    {
-        String[] keyStrings = new String[keys.length];
-        for(int i = 0; i < keys.length; i++) {
-            int modifiers = keys[i].getModifiers();
-            keyStrings[i] = KeyEvent.getKeyModifiersText(modifiers);
-            if(keyStrings[i].length() > 0)
-                keyStrings[i] += "+";
-            keyStrings[i] += KeyEvent.getKeyText(keys[i].getKeyCode());
-        }
-        return keyStrings;
+        addKeyButton.setDisable(false);
     }
 
     private void clearKeyList()
     {
-        keyList.setListData(new String[0]);
+        keyList.getItems().clear();
     }
 
     private void clearHelpText()
@@ -470,22 +364,34 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         return helpText;
     }
 
-    private void addKeyListener()
+    private static class KeyCaptureDialog extends Dialog<KeyCodeCombination>
     {
-        FocusManager.setCurrentManager(new KeyCatcher());
+        public KeyCaptureDialog()
+        {
+            TextField textField = new TextField();
+            textField.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent e) -> {
+                // Let escape trigger the cancel button
+                // Also, ignore presses of modifier kyes
+                if (e.getCode() != KeyCode.ESCAPE && e.getCode() != KeyCode.SHIFT && e.getCode() != KeyCode.CONTROL &&
+                        e.getCode() != KeyCode.ALT && e.getCode() != KeyCode.ALT_GRAPH && e.getCode() != KeyCode.META &&
+                        e.getCode() != KeyCode.COMMAND)
+                {
+                    setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()), mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
+                    e.consume();
+                    hide();
+                }
+
+            });
+            getDialogPane().setContent(new VBox(new Label("Press a key, or Escape to cancel"), textField));
+            setOnShown(e -> textField.requestFocus());
+            // Cancel button on the dialog, or otherwise can't close:
+            getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL);
+        }
+
+        private static ModifierValue mod(boolean down)
+        {
+            // We use up here, not any, because e.g. pressing Ctrl-Shift-S shouldn't trigger the Ctrl-S accelerator:
+            return down ? ModifierValue.DOWN : ModifierValue.UP;
+        }
     }
-
-    private void removeKeyListener()
-    {
-        FocusManager.setCurrentManager(focusMgr);
-    }
-
-
-    public KeyBindingsPanel(FXPlatformSupplier<Window> parent) {
-        super();
-        this.parent = parent;
-        actions = MoeActions.getActions(null, new JEditorPane());
-        setActionValues(actions.getActionTable(), actions.getCategories(), actions.getCategoryIndex());
-    }
-
 }

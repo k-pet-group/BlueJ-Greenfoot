@@ -56,7 +56,7 @@ public final class AssistContentThreadSafe
     private final List<String> superTypes;
     private final String packageName;
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public AssistContentThreadSafe(AssistContent copyFrom)
     {
         name = copyFrom.getName();
@@ -71,7 +71,7 @@ public final class AssistContentThreadSafe
         packageName = copyFrom.getPackage();
     }
     
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static AssistContentThreadSafe copy(AssistContent copyFrom)
     {
         return new AssistContentThreadSafe(copyFrom);

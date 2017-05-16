@@ -38,6 +38,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import bluej.debugger.gentype.ConstructorReflective;
+import bluej.editor.moe.ScopeColors;
+import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.entity.PackageResolver;
@@ -403,15 +405,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     @OnThread(Tag.Swing)
     private Optional<Integer> resolvePos(MoeSyntaxDocument doc, PosInSourceDoc pos)
     {
-        DocAndPositions docAndPositions = null;
-        try
-        {
-            docAndPositions = documentCache.get(doc.getText(0, doc.getLength()));
-        }
-        catch (BadLocationException e)
-        {
-            Debug.reportError(e);
-        }
+        DocAndPositions docAndPositions = documentCache.get(doc.getText(0, doc.getLength()));
         Optional<Integer> resolvedPos = Optional.ofNullable(docAndPositions.fragmentPositions.get(pos.getFragment()));
         return resolvedPos.map(p -> p + pos.offset);
     }
@@ -639,15 +633,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         {
             if (document == null)
             {
-                document = new MoeSyntaxDocument(projectResolver);
-                try
-                {
-                    document.insertString(0, src, null);
-                }
-                catch (BadLocationException e)
-                {
-                    Debug.reportError(e);
-                }
+                document = new MoeSyntaxDocument(projectResolver, ScopeColors.dummy());
+                document.insertString(0, src, null);
                 document.enableParser(true);
             }
             return document;

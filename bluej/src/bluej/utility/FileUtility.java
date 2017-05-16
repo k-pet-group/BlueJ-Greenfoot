@@ -632,6 +632,7 @@ public class FileUtility
      *         {@link WriteCapabilities#UNKNOWN} if the file is not an existing
      *         directory.
      */
+    @OnThread(Tag.Any)
     public static WriteCapabilities getVistaWriteCapabilities(File dir) 
     {
         if(!dir.isDirectory()) {

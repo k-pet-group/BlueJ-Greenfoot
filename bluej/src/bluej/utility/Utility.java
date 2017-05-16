@@ -22,7 +22,6 @@
 package bluej.utility;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -30,14 +29,11 @@ import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.Window;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -46,9 +42,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,9 +55,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -77,17 +68,20 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.AbstractButton;
-import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.text.TabExpander;
 
-import bluej.pkgmgr.target.Target;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXPlatformSupplier;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.stage.Stage;
 
 import nu.xom.Document;
@@ -316,7 +310,7 @@ public class Utility
      * @param url the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static boolean openWebBrowser(String url)
     {
         if (Config.isWinOS()) { // Windows
@@ -363,7 +357,7 @@ public class Utility
      * @param url the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static boolean openWebBrowser(URL url)
     {
         if (Config.isWinOS()) {
@@ -785,62 +779,6 @@ public class Utility
         return true;
     }
 
-    /**
-     * Check if this is the first time a particular event (identified by the
-     * context string) has occurred "ever" (in this BlueJ installation).
-     * 
-     * @param context Identifies the event (a property name)
-     * @return true the first time the method was called with the given context;
-     *         false every subsequent time.
-     */
-    public static boolean firstTimeEver(String context)
-    {
-        boolean occurred = Config.getPropBoolean(context);
-        if (occurred) {
-            return false;
-        }
-
-        Config.putPropBoolean(context, true);
-        return true;
-    }
-
-    /**
-     * This method creates a MacOS button. It will create a "textured" button on
-     * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
-     * 
-     * @param button The button that should be changed.
-     */
-    @OnThread(Tag.Swing)
-    public static void changeToMacButton(AbstractButton button)
-    {
-        // available button styles, as of MacOS 10.5:
-        // square, gradient, bevel, textured, roundRect, recessed, help
-        // segmented styles:
-        // segmented, segmentedRoundRect, segmentedCapsule, segmentedTextured
-        // see: http://developer.apple.com/technotes/tn2007/tn2196.html
-
-        if (!Config.isMacOS()) {
-            return;
-        }
-
-        Border oldBorder = button.getBorder();
-
-        // the following works since MacOS 10.5
-        button.putClientProperty("JButton.buttonType", "square");
-
-        if (oldBorder == button.getBorder()) {
-            // if the border didn't change the "square" type probably doesn't
-            // exist, which means we are running on MacOS < 10.5. This means we
-            // should use the old pre-10.5 "toolbar" style instead.
-            button.putClientProperty("JButton.buttonType", "toolbar");
-        }
-        else {
-            // if we get to this point, the square button type is available, and
-            // we can continue configuring for that one.
-            button.setMargin(new Insets(3, 1, 3, 1));
-        }
-    }
-    
     /**
      * Attempt to determine the prefix folder of a zip or jar archive.
      * That is, if all files in the archive are stored under a first-level
@@ -1270,13 +1208,6 @@ public class Utility
         return r.stream();
     }
 
-    public static <T> CompletableFuture<T> swingFuture(SwingSupplier<T> func)
-    {
-        CompletableFuture<T> f = new CompletableFuture<>();
-        SwingUtilities.invokeLater(() -> f.complete(func.get()));
-        return f;
-    }
-    
     public static <T> Optional<T> findLast(Stream<T> s)
     {
         return Optional.ofNullable(s.reduce(null, (p, c) -> c));
@@ -1391,6 +1322,65 @@ public class Utility
     {
         // Simplest implementation I could think of:
         return 0.5 + Math.round(x - 0.5);
+    }
+
+    /**
+     * Decreases the given font size by one "notch", where a notch changes
+     * in size depending on the current font size (bigger notches at bigger sizes)
+     */
+    public static void decreaseFontSize(IntegerProperty fontSize)
+    {
+        int prev = fontSize.get();
+        fontSize.set(Math.max(PrefMgr.MIN_EDITOR_FONT_SIZE, prev >= 36 ? prev - 4 : (prev >= 16 ? prev - 2 : prev - 1)));
+    }
+
+    /**
+     * Increases the given font size by one "notch", where a notch changes
+     * in size depending on the current font size (bigger notches at bigger sizes)
+     */
+    public static void increaseFontSize(IntegerProperty fontSize)
+    {
+        int prev = fontSize.get();
+        fontSize.set(Math.min(PrefMgr.MAX_EDITOR_FONT_SIZE, prev < 32 ? (prev < 14 ? prev + 1 : prev + 2) : prev + 4));
+    }
+
+    /**
+     * Make a new set containing the previous set, plus the new item (if not already in previous set)
+     */
+    public static <T> ImmutableSet<T> setAdd(ImmutableSet<T> set, T item)
+    {
+        return setUnion(set, ImmutableSet.of(item));
+    }
+
+    /**
+     * Returns the union of the two sets
+     */
+    public static <T> ImmutableSet<T> setUnion(ImmutableSet<T> a, ImmutableSet<T> b)
+    {
+        return Sets.union(a, b).immutableCopy();
+    }
+
+    /**
+     * Returns the set, without the given item (if it was present).
+     */
+    public static <T> ImmutableSet<T> setMinus(ImmutableSet<T> set, T item)
+    {
+        return Sets.difference(set, ImmutableSet.of(item)).immutableCopy();
+    }
+
+    /**
+     * Returns the first set, without any items from the second set.
+     */
+    public static <T> ImmutableSet<T> setMinus(ImmutableSet<T> a, ImmutableSet<T> b)
+    {
+        return Sets.difference(a, b).immutableCopy();
+    }
+
+    public static <T> Stream<T> streamReversed(List<T> srcList)
+    {
+        // From http://stackoverflow.com/questions/29403614/how-to-get-ordered-stream-from-a-list-in-reverse-order-in-java-8
+        int num = srcList.size() - 1;
+        return IntStream.rangeClosed(0, num).mapToObj(i -> srcList.get(num - i));
     }
 
     @FunctionalInterface

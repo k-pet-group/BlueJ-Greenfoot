@@ -84,7 +84,7 @@ public class Editor
      */
     public void setVisible(boolean visible)
     {
-        bjEditor.setVisible(visible);
+        bjEditor.setEditorVisible(visible);
     }
 
 

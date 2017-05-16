@@ -84,7 +84,7 @@ public class ParseUtils
      * Get the possible code completions, based on the provided suggestions context.
      * If there are can be no valid completions in the given context, returns null.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, 
             JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {
@@ -135,7 +135,7 @@ public class ParseUtils
         return null; // no completions
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, CodeSuggestions suggests,
             JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {
@@ -225,7 +225,7 @@ public class ParseUtils
      * a unique signature), and do so if necessary. Returns an AssistContent object representing the method if
      * it was added, or null otherwise. 
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions, 
             Map<String, GenTypeParameter> typeArgs, MethodReflective method, AssistContentConsumer consumer)
     {

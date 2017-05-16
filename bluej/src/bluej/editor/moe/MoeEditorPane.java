@@ -21,11 +21,35 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import bluej.Config;
+import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.io.CharStreams;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
+import javafx.geometry.Side;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import org.fxmisc.richtext.StyledTextArea;
+import org.fxmisc.richtext.model.StyledText;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
-import javax.swing.JEditorPane;
-import javax.swing.border.EmptyBorder;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
@@ -33,35 +57,127 @@ import javax.swing.border.EmptyBorder;
  *
  * @author Michael Kolling
  */
-public final class MoeEditorPane extends JEditorPane
+@OnThread(Tag.FXPlatform)
+public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<String>>
 {
+    public static final String ERROR_CLASS = "moe-code-error";
+    private static final Image UNDERLINE_IMAGE = Config.getFixedImageAsFXImage("error-underline.png");
+    private final MoeEditor editor;
+
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane()
+    public MoeEditorPane(MoeEditor editor, org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
     {
-        super();
-        setBorder(new EmptyBorder(6, 6, 6, 0));
-        setHighlighter(new MoeHighlighter());
-    }
-    
-    /*
-     * Adjust this pane's preferred size to add the tag area.
-     */
-    public Dimension getPreferredSize() 
-    {
-        Dimension d = super.getPreferredSize();
-        d.width += MoeSyntaxView.TAG_WIDTH + 8;  // bit of empty space looks nice
-        return d;
+        super(null, (p, s) -> {
+            //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
+            if (s == null)
+            {
+                p.backgroundProperty().unbind();
+                p.setBackground(null);
+            }
+            else
+            {
+                p.backgroundProperty().bind(Bindings.createObjectBinding(() ->
+                        new Background(new BackgroundImage(syntaxView.getImageFor(s, (int) p.getHeight()), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT))
+                    , p.heightProperty()));
+            }
+        }, ImmutableSet.of(), (t, s) -> {
+            if (s.contains(ERROR_CLASS))
+            {
+                // RichTextFX has built-in support for underlines, which is much easier than trying to construct
+                // our own overlay.  It turns out we can even draw a squiggly underline rather than straight underline
+                // by using an image-pattern for the stroke.
+
+                // In theory, this is settable using JavaFX CSS, but it seems there is a bug
+                // which prevents use of relative URLs in image patterns, so we set it from
+                // code instead:
+                t.setUnderlineColor(new ImagePattern(UNDERLINE_IMAGE, 0, 0, 2, 2, false));
+                t.setUnderlineWidth(1.5);
+            }
+            t.getStyleClass().addAll(s);
+
+        }, doc, false);
+        this.editor = editor;
+        styleProperty().bind(PrefMgr.getEditorFontCSS(true));
+        setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
+        JavaFXUtil.addStyleClass(this, "moe-editor-pane");
+        JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
+        JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
+        syntaxView.setEditorPane(this);
+
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
+            JavaFXUtil.runPlatformLater(() -> requestLayout());
+        });
     }
 
     /*
      * Make sure, when we are scrolling to follow the caret,
      * that we can see the tag area as well.
      */
+    /*
     public void scrollRectToVisible(Rectangle rect)
     {
         super.scrollRectToVisible(new Rectangle(rect.x - (MoeSyntaxView.TAG_WIDTH + 4), rect.y,
                                                 rect.width + MoeSyntaxView.TAG_WIDTH + 4, rect.height));
+    }
+    */
+
+    public void setText(String s)
+    {
+        replaceText(s);
+    }
+
+    public void setCaretPosition(int i)
+    {
+        moveTo(i);
+    }
+
+    public int getCaretDot()
+    {
+        return getCaretPosition();
+    }
+
+    public int getCaretMark()
+    {
+        return getAnchor();
+    }
+
+    public void read(Reader reader) throws IOException
+    {
+        setText(CharStreams.toString(reader));
+        editor.undoManager.forgetHistory();
+    }
+
+    /**
+     * Selects from the existing anchor position to the new position.
+     */
+    public void moveCaretPosition(int position)
+    {
+        int prev = getCaretMark();
+        selectRange(prev, position);
+    }
+
+    public void select(int start, int end)
+    {
+        selectRange(start, end);
+    }
+
+    public void write(Writer writer) throws IOException
+    {
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+        bufferedWriter.write(getText());
+        // Must flush or else changes don't get written:
+        bufferedWriter.flush();
+    }
+
+    public MoeEditor getEditor()
+    {
+        return editor;
+    }
+
+    public void setFakeCaret(boolean on)
+    {
+        setShowCaret(on ? CaretVisibility.ON : CaretVisibility.AUTO);
     }
 }

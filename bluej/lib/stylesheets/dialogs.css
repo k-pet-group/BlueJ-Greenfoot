@@ -320,13 +320,11 @@
     -fx-fill-width: false;
 }
 .prefmgr-scope-colour-container {
-    -fx-background: white;
     -fx-border-width: 1px;
     -fx-border-color: -fx-outer-border;
 }
 .prefmgr-scope-colour-rectangles {
     -fx-padding: 0.5em;
-    -fx-background: white;
 }
 .prefmgr-java-editor-top {
     -fx-hgap: 4em;
@@ -353,6 +351,16 @@
 .prefmgr-library-panel .prefmgr-titled-content {
     -fx-padding: 1em 0 1em 0;
 }
+.prefmgr-key-panel .key-bindings-column {
+    -fx-padding: 4em 2em 2em 2em;
+}
+.prefmgr-key-panel .key-bindings-buttons {
+    -fx-spacing: 4em;
+    -fx-padding: 1em;
+}
+.prefmgr-key-panel .key-header-label {
+    -fx-label-padding: 0 0 1em 0;
+}
 
 .not-a-project {
     -fx-spacing: 0.5em;
@@ -370,4 +378,61 @@
 }
 .non-empty-directory .subDirRow, .non-empty-directory .subDirRow > * {
     -fx-alignment: baseline-left;
+}
+
+/* Team */
+.team-settings {
+    -fx-min-width:  30em;
+    -fx-pref-width: 43em;
+
+    -fx-min-height:  32em;
+    -fx-pref-height: 32em;
+
+    -fx-padding-left: 2em;
+    -fx-margin-left: 2em;
+
+     -bj-border-radius: 5;
+     -bj-background-radius: 10;
+     -bj-border-width: 2;
+
+     -fx-border-radius: 5;
+     -fx-background-radius: 10;
+     -fx-border-width: 2;
+}
+
+.team-settings .panel {
+    -fx-padding: 1em 1em 1.5em 2em;
+}
+
+.team-settings .grid {
+    -fx-min-width:  40em;
+    -fx-pref-width: 40em;
+
+    -fx-hgap: 0.5em;
+    -fx-vgap: 0.5em;
+
+    -fx-padding: 1em 1em 1.5em 2em;
+}
+
+.team-test-connection {
+    -fx-min-width:  10em;
+    -fx-pref-width: 25em;
+
+    -fx-min-height:  16em;
+    -fx-pref-height: 18em;
+}
+
+.team-update-files,
+.team-commit-push,
+.team-commit-comments,
+.team-conflicts,
+.team-history,
+.team-module-select,
+.team-status
+{
+    -fx-min-width:  10em;
+    -fx-pref-width: 25em;
+
+    -fx-min-height:  16em;
+    -fx-pref-height: 18em;
 }

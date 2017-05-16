@@ -46,7 +46,7 @@ public class ActivityIndicator extends JComponent
         progressBar.setVisible(false);
         add(progressBar);
         messageLabel = new JLabel();
-        messageLabel.setFont(PrefMgr.getStandardFont());
+        //messageLabel.setFont(PrefMgr.getStandardFont());
         messageLabel.setVisible(false);
         add(messageLabel);
     }

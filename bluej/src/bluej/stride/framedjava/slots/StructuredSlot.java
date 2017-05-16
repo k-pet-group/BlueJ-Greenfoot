@@ -37,7 +37,6 @@ import bluej.stride.framedjava.ast.StructuredSlotFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.slots.InfixStructured.RangeType;
 import bluej.stride.generic.ExtensionDescription;
-import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.StringExpression;
@@ -846,7 +845,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             else
             {
                 suggestionDisplay.calculateEligible(prefix, true, initialState);
-                suggestionDisplay.updateVisual(prefix, false);
+                suggestionDisplay.updateVisual(prefix);
             }
             //lastBeforePrefix = getText().substring(0, getStartOfCurWord());
         }
@@ -1390,9 +1389,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         }
     }
 
-    @Override
     @OnThread(Tag.FXPlatform)
-    public Response suggestionListKeyTyped(KeyEvent event, int highlighted)
+    @Override
+    public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
     {
         return modificationReturnPlatform(token -> {
             CaretPos updatedLocation = null;

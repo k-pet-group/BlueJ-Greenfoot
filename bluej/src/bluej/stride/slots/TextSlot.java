@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 
 import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
-import bluej.editor.stride.FrameEditorTab;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -75,10 +74,8 @@ import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
-import bluej.utility.Debug;
 import bluej.utility.javafx.AnnotatableTextField;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -218,7 +215,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
 
                 @Override
                 @OnThread(Tag.FXPlatform)
-                public Response suggestionListKeyTyped(KeyEvent event, int highlighted)
+                public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
                 {
                     // Space completes single selections and moves to next slot:
                     if (event.getCharacter().equals(" ") && completeIfPossible(highlighted))
@@ -542,7 +539,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         {
             String prefix = getCurWord();
             suggestionDisplayProperty.get().calculateEligible(prefix, true, initialState);
-            suggestionDisplayProperty.get().updateVisual(prefix, false);
+            suggestionDisplayProperty.get().updateVisual(prefix);
             lastBeforePrefix = getText().substring(0, getStartOfCurWord());
         }
 

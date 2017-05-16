@@ -63,6 +63,18 @@ public final class InputBuffer
         }
     }
 
+    public synchronized boolean putString(String input)
+    {
+        boolean putAny = false;
+        for (char c : input.toCharArray())
+        {
+            // Ordering crucial here; we always want to try the method
+            // call regardless of the value of putAny:
+            putAny = putChar(c) || putAny;
+        }
+        return putAny;
+    }
+
     public synchronized boolean backSpace()
     {
         if(!isEmpty()) {

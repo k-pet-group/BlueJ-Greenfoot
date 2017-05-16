@@ -40,14 +40,13 @@ import javax.swing.text.ViewFactory;
 
 import bluej.Config;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
-import bluej.utility.Debug;
 
 /**
  * A view for the NaviView component.
  * 
  * @author Davin McCall
  */
-public class NaviviewView extends BlueJSyntaxView
+public class NaviviewView
 {
     private static final boolean SCOPE_HIGHLIGHTING = true;
     private static final boolean HIGHLIGHT_METHODS_ONLY = true;
@@ -61,21 +60,22 @@ public class NaviviewView extends BlueJSyntaxView
     
     private NaviView naviView;
     
-    public NaviviewView(Element elem, NaviView naviView, MoeErrorManager errors)
+    public NaviviewView(MoeSyntaxDocument.Element elem, NaviView naviView, MoeErrorManager errors)
     {
-        super(elem, 0, errors);
+        //NAVIFX
+        //super(elem, 0, errors);
         this.naviView = naviView;
     }
-    
-    @Override
+
+    /*NAVIFX
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g,
             int x, int y, MoeSyntaxDocument document, MoeErrorManager errorMgr, Color def,
-            Element lineElement, TabExpander tx)
+            MoeSyntaxDocument.Element lineElement, TabExpander tx)
     {
         // Painting at such a small font size means the font appears very light.
         // To get around this problem, we paint into a temporary image, then darken
         // the text, and finally copy the temporary image to the output Graphics.
-        
+
         try {
             int lineHeight = metrics.getHeight();
             int endPos = lineElement.getEndOffset() - 1;
@@ -145,8 +145,10 @@ public class NaviviewView extends BlueJSyntaxView
             }
         }
         catch (BadLocationException ble) {}
-    }
-    
+
+    }*/
+
+    /*NAVIFX
     @Override
     public void paint(Graphics g, Shape a)
     {
@@ -188,5 +190,6 @@ public class NaviviewView extends BlueJSyntaxView
         }
         super.updateDamage(changes, a, f);
     }
+    */
     
 }

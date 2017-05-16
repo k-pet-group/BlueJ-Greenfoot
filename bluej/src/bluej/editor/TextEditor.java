@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
 
@@ -98,7 +99,7 @@ public interface TextEditor extends Editor
      * 
      * @return  the document being edited.
      */
-    Document getSourceDocument(); 
+    MoeSyntaxDocument getSourceDocument();
 
     /**
      * Returns the current caret location within the edited text.

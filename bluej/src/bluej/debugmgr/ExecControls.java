@@ -26,7 +26,6 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -36,10 +35,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,28 +59,24 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
+import bluej.pkgmgr.Project.DebuggerThreadDetails;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -94,8 +89,6 @@ import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
-import bluej.debugger.DebuggerThreadTreeModel;
-import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
 import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.pkgmgr.Project;
@@ -110,7 +103,6 @@ import threadchecker.Tag;
  * @author  Michael Kolling
  */
 public class ExecControls
-    implements ListSelectionListener, TreeSelectionListener, TreeModelListener
 {
     private static final String stackTitle =
         Config.getString("debugger.execControls.stackTitle");
@@ -150,11 +142,10 @@ public class ExecControls
     private VBox fxContent;
 
     // the display for the list of active threads
-    private JTree threadTree; 
-    private DebuggerThreadTreeModel threadModel;
+    private ComboBox<DebuggerThreadDetails> threadList;
     
     private JComponent mainPanel;
-    private JList<SourceLocation> stackList;
+    private ListView<SourceLocation> stackList;
     private JList<String> staticList, localList;
     private JList<DebuggerField> instanceList;
     private JButton stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
@@ -167,9 +158,6 @@ public class ExecControls
 
     // the debug machine this control is looking at
     private Debugger debugger = null;
-    
-    // the thread currently selected
-    private DebuggerThread selectedThread;
 
     private DebuggerClass currentClass;     // the current class for the
                                             //  selected stack frame
@@ -190,6 +178,7 @@ public class ExecControls
     private final AtomicBoolean visible = new AtomicBoolean(false);
     @OnThread(Tag.FXPlatform)
     private SimpleBooleanProperty readyToShow;
+    private SimpleBooleanProperty showingProperty = new SimpleBooleanProperty(false);
 
 
     /**
@@ -199,7 +188,7 @@ public class ExecControls
      * @param debugger the debugger this window is debugging
      */
     @OnThread(Tag.Swing)
-    public ExecControls(Project project, Debugger debugger)
+    public ExecControls(Project project, Debugger debugger, ObservableList<DebuggerThreadDetails> debuggerThreads)
     {
         if (project == null || debugger == null) {
             throw new NullPointerException("project or debugger null in ExecControls");
@@ -208,27 +197,26 @@ public class ExecControls
         this.project = project;
         this.debugger = debugger;
 
-        Platform.runLater(() -> {
-            this.readyToShow = new SimpleBooleanProperty(false);
-            this.window = new Stage();
-            window.setTitle(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
-            BlueJTheme.setWindowIconFX(window);
-            this.swingNode = new SwingNodeFixed();
-            VBox.setVgrow(swingNode, Priority.ALWAYS);
-            this.fxContent = new VBox(swingNode);
-            // Menu bar will be added later:
-            window.setScene(new Scene(fxContent));
-            Config.rememberPositionAndSize(window, "bluej.debugger");
-            window.setOnShown(e -> {
-                SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, true));
-                visible.set(true);
-            });
-            window.setOnHidden(e -> {
-                SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, false));
-                visible.set(false);
-            });
-            SwingUtilities.invokeLater(() -> createWindowContent());
+        this.readyToShow = new SimpleBooleanProperty(false);
+        this.window = new Stage();
+        window.setTitle(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
+        BlueJTheme.setWindowIconFX(window);
+        this.swingNode = new SwingNodeFixed();
+        VBox.setVgrow(swingNode, Priority.ALWAYS);
+        createWindowContent(debuggerThreads);
+        this.fxContent = new VBox(threadList, stackList, swingNode);
+        // Menu bar will be added later:
+        window.setScene(new Scene(fxContent));
+        Config.rememberPositionAndSize(window, "bluej.debugger");
+        window.setOnShown(e -> {
+            SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, true));
+            visible.set(true);
         });
+        window.setOnHidden(e -> {
+            SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, false));
+            visible.set(false);
+        });
+
     }
 
     /**
@@ -251,32 +239,12 @@ public class ExecControls
         return copy;
     }
 
-
-    // ----- ListSelectionListener interface -----
-
-    /**
-     * A list item was selected. This can be either in the
-     * stack list, or one of the variable lists.
-     */
-    public void valueChanged(ListSelectionEvent event)
-    {
-        // ignore mouse down, dragging, etc.
-        if(event.getValueIsAdjusting()) {
-            return;
-        }
-
-        if(event.getSource() == stackList) {
-            selectStackFrame(stackList.getSelectedIndex());
-        }
-    }
-
-    // ----- end of ListSelectionListener interface -----
-
     // ----- TreeSelectionListener interface -----
 
     /**
      * A tree item was selected. This is in the thread list.
      */
+    /*MOEFX
     public void valueChanged(TreeSelectionEvent event)
     {
         Object src = event.getSource();
@@ -305,39 +273,9 @@ public class ExecControls
             setSelectedThread(dt);
         }
     }
+    */
 
     // ----- end of TreeSelectionListener interface -----
-
-    // ----- TreeModelListener interface -----
-
-    /**
-     * When a thread changes state in the tree, we may need to update
-     * the controls for the selected thread.
-     */
-    public void treeNodesChanged(TreeModelEvent e)
-    {
-        if (selectedThread == null) {
-            return;
-        }
-
-        Object nodes[] = e.getChildren();
-
-        for(int i=0; i<nodes.length; i++) {
-            if (nodes[i] == null) {
-                continue;
-            }
-
-            if (selectedThread.equals(threadModel.getNodeAsDebuggerThread(nodes[i]))) {
-                setSelectedThread(selectedThread);
-            }
-        }
-    }
-
-    public void treeNodesInserted(TreeModelEvent e) { }
-    public void treeNodesRemoved(TreeModelEvent e) { }
-    public void treeStructureChanged(TreeModelEvent e) { }
-
-    // ----- end of TreeModelListener interface -----
 
     /**
      * A list item was double clicked.
@@ -356,7 +294,7 @@ public class ExecControls
             viewInstanceField((DebuggerField) instanceList.getSelectedValue());
         }
         else if(src == localList && localList.getSelectedIndex() >= 0) {
-            viewLocalVar(localList.getSelectedIndex());
+            viewLocalVar(getSelectedThread(), localList.getSelectedIndex());
         }
     }
 
@@ -375,28 +313,9 @@ public class ExecControls
      */
     public void makeSureThreadIsSelected(final DebuggerThread dt)
     {
-        if (threadModel == null)
-        {
-            // Still initialising; come back later.
-            // This should not be necessary once debugger window becomes JavaFX
-            // Double thread hop to pacify thread checker
-            Platform.runLater(() -> EventQueue.invokeLater(() -> makeSureThreadIsSelected(dt)));
-            return;
-        }
-
-        TreePath tp = threadModel.findNodeForThread(dt);
-
-        if (tp != null) {
-            if (!tp.equals(threadTree.getSelectionPath())) {
-                threadTree.clearSelection();
-                threadTree.addSelectionPath(tp);
-            }
-            
-            // There seems to be a swing glitch causing the thread-tree scrollpane
-            // to be reduced to a very small size by the divider. Doing a paint
-            // here seems to fix it.
-            mainPanel.paintImmediately(0,0,mainPanel.getSize().width,mainPanel.getSize().height);
-        }
+        DebuggerThreadDetails details = threadList.getItems().stream().filter(d -> d.isThread(dt)).findFirst().orElse(null);
+        if (details != null)
+            threadList.getSelectionModel().select(details);
     }
 
     /**
@@ -411,20 +330,26 @@ public class ExecControls
      * @param dt  the thread to select or null if the thread
      *            selection has been cleared
      */
-    public void setSelectedThread(DebuggerThread dt)
+    public void setSelectedThread(DebuggerThreadDetails dt)
     {
-        selectedThread = dt;
+        threadList.getSelectionModel().select(dt);
 
+    }
+
+    private void selectedThreadChanged(DebuggerThreadDetails dt)
+    {
         if (dt == null) {
+            //MOEFX this should all be in bindings:
             stopButton.setEnabled(false);
             stepButton.setEnabled(false);
             stepIntoButton.setEnabled(false);
             continueButton.setEnabled(false);
 
             cardLayout.show(flipPanel, "blank");
+            stackList.getItems().clear();
         }
         else {
-            boolean isSuspended = selectedThread.isSuspended();
+            boolean isSuspended = dt.getThread().isSuspended();
 
             stopButton.setEnabled(!isSuspended);
             stepButton.setEnabled(isSuspended);
@@ -433,7 +358,7 @@ public class ExecControls
 
             cardLayout.show(flipPanel, isSuspended ? "split" : "blank");
 
-            setThreadDetails();
+            setThreadDetails(dt.getThread());
         }
     }
 
@@ -442,17 +367,18 @@ public class ExecControls
      * These details include showing the threads stack, and displaying 
      * the details for the top stack frame.
      */
-    private void setThreadDetails()
+    private void setThreadDetails(DebuggerThread selectedThread)
     {
-        stackList.setFixedCellWidth(-1);
         //Copy the list because we may alter it:
-        LinkedList<SourceLocation> stack = new LinkedList<SourceLocation>(selectedThread.getStack());
-        SourceLocation[] filtered = getFilteredStack(stack);
-        if(filtered.length > 0) {
-            stackList.setListData(filtered);
+        List<SourceLocation> stack = new ArrayList<>(selectedThread.getStack());
+        List<SourceLocation> filtered = Arrays.asList(getFilteredStack(stack));
+
+        stackList.getItems().setAll(filtered);
+        if (filtered.size() > 0)
+        {
             // show details of top frame
             autoSelectionEvent = true;
-            selectStackFrame(0);
+            stackList.getSelectionModel().select(0);
             autoSelectionEvent = false;
         }
     }
@@ -504,7 +430,7 @@ public class ExecControls
      */
     private void clearThreadDetails()
     {
-        stackList.setListData(new SourceLocation[0]);
+        stackList.getItems().clear();
         staticList.setListData(empty);
         instanceList.setListData(new DebuggerField[0]);
         localList.setListData(empty);
@@ -515,15 +441,10 @@ public class ExecControls
      * This will cause this frame's details (local variables, etc.) to be
      * displayed, as well as the current source position being marked.
      */
-    private void selectStackFrame(int index)
+    private void stackFrameSelectionChanged(DebuggerThread selectedThread, int index)
     {
-        // if the UI isn't up to date, make sure the correct frame is
-        // selected in the list
-        if (stackList.getSelectedIndex() != index) {
-            stackList.setSelectedIndex(index);
-        }
-        else if (index >= 0) {
-            setStackFrameDetails(index);
+        if (index >= 0) {
+            setStackFrameDetails(selectedThread, index);
             selectedThread.setSelectedFrame(index);
                 
             if (! autoSelectionEvent) {
@@ -541,7 +462,7 @@ public class ExecControls
      * Display the detail information (current object fields and local var's)
      * for a specific stack frame.
      */
-    private void setStackFrameDetails(int frameNo)
+    private void setStackFrameDetails(DebuggerThread selectedThread, int frameNo)
     {
         currentClass = selectedThread.getCurrentClass(frameNo);
         currentObject = selectedThread.getCurrentObject(frameNo);
@@ -606,7 +527,7 @@ public class ExecControls
     /**
      * Display an object inspector for an object in a local variable.
      */
-    private void viewLocalVar(int index)
+    private void viewLocalVar(DebuggerThread selectedThread, int index)
     {
         if(selectedThread.varIsObject(currentFrame, index)) {
             DebuggerObject obj = selectedThread.getStackObject(currentFrame, index);
@@ -624,9 +545,10 @@ public class ExecControls
 
     /**
      * Create and arrange the GUI components.
+     * @param debuggerThreads
      */
     @OnThread(Tag.Swing)
-    private void createWindowContent()
+    private void createWindowContent(ObservableList<DebuggerThreadDetails> debuggerThreads)
     {
         FXPlatformSupplier<MenuBar> fxMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), this);
         Platform.runLater(() -> {
@@ -672,7 +594,6 @@ public class ExecControls
             staticList = new JList<>(new DefaultListModel<>());
             {
                 staticList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                staticList.addListSelectionListener(this);
                 staticList.setVisibleRowCount(3);
                 staticList.setFixedCellWidth(150);
                 staticList.addMouseListener(mouseListener);
@@ -689,7 +610,6 @@ public class ExecControls
             instanceList = new JList<>(new DefaultListModel<>());
             {
                 instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                instanceList.addListSelectionListener(this);
                 instanceList.setVisibleRowCount(4);
                 instanceList.setFixedCellWidth(150);
                 instanceList.addMouseListener(mouseListener);
@@ -707,7 +627,6 @@ public class ExecControls
             localList = new JList<>(new DefaultListModel<>());
             {
                 localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                localList.addListSelectionListener(this);
                 localList.setVisibleRowCount(4);
                 localList.setFixedCellWidth(150);
                 localList.addMouseListener(mouseListener);
@@ -734,11 +653,10 @@ public class ExecControls
 
         // Create stack listing panel
 
-        stackList = new JList<>(new DefaultListModel<>());
-        stackList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        stackList.addListSelectionListener(this);
-        stackList.setFixedCellWidth(150);
-        JScrollPane stackScrollPane = new JScrollPane(stackList);
+        stackList = new ListView<>();
+        stackList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> stackFrameSelectionChanged(getSelectedThread(), index.intValue()));
+        JScrollPane stackScrollPane = new JScrollPane();
         JLabel lbl = new JLabel(stackTitle);
         if (!Config.isRaspberryPi()) lbl.setOpaque(true);
         stackScrollPane.setColumnHeaderView(lbl);
@@ -753,49 +671,10 @@ public class ExecControls
         JPanel threadPanel = new JPanel(new BorderLayout());
         if (!Config.isRaspberryPi()) threadPanel.setOpaque(false);
 
+        threadList = new ComboBox<>(debuggerThreads);
+        JavaFXUtil.addChangeListenerPlatform(threadList.getSelectionModel().selectedItemProperty(), this::selectedThreadChanged);
 
-        MouseListener treeMouseListener = new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                TreePath selPath = threadTree.getPathForLocation(e.getX(), e.getY());
-                if(selPath != null) {
-                    DefaultMutableTreeNode node =
-                        (DefaultMutableTreeNode) selPath.getLastPathComponent();
-
-                    if (node != null) {
-                        DebuggerThread dt = threadModel.getNodeAsDebuggerThread(node);        
-
-                        if (dt != null) {
-                            setSelectedThread(dt);
-                        }
-                    }
-                }
-            }
-        };
-
-        threadModel = debugger.getThreadTreeModel();
-        threadModel.setSyncMechanism(new SyncMechanism() {
-            public void invokeLater(Runnable r)
-            {
-                if(EventQueue.isDispatchThread())
-                    r.run();
-                else
-                    EventQueue.invokeLater(r);
-            }
-        });
-        threadModel.addTreeModelListener(this);
-
-        threadTree = new JTree(threadModel);
-        {
-            threadTree.getSelectionModel().
-            setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-            threadTree.setVisibleRowCount(5);
-            threadTree.setShowsRootHandles(false);
-            threadTree.setRootVisible(false);
-            threadTree.addTreeSelectionListener(this);             
-            threadTree.addMouseListener(treeMouseListener);
-        }
-
-        JScrollPane threadScrollPane = new JScrollPane(threadTree);
+        JScrollPane threadScrollPane = new JScrollPane();
         lbl = new JLabel(threadTitle);
         if (!Config.isRaspberryPi()) lbl.setOpaque(true);
         threadScrollPane.setColumnHeaderView(lbl);
@@ -850,7 +729,8 @@ public class ExecControls
             menu.add(systemThreadItem);
             menu.add(new JSeparator());
         }
-        debugger.hideSystemThreads(true);
+        //MOEFX
+        //debugger.hideSystemThreads(true);
 
         menu.add(new CloseAction());
 
@@ -913,6 +793,32 @@ public class ExecControls
         });
     }
 
+    private DebuggerThread getSelectedThread()
+    {
+        DebuggerThreadDetails debuggerThreadDetails = getSelectedThreadDetails();
+        if (debuggerThreadDetails == null)
+            return null;
+        return debuggerThreadDetails.getThread();
+    }
+
+    public DebuggerThreadDetails getSelectedThreadDetails()
+    {
+        return threadList.getSelectionModel().getSelectedItem();
+    }
+
+    public BooleanProperty showingProperty()
+    {
+        return showingProperty;
+    }
+
+    public void threadStateChanged(DebuggerThreadDetails thread)
+    {
+        if (getSelectedThreadDetails().equals(thread))
+        {
+            setThreadDetails(thread.getThread());
+        }
+    }
+
     /**
      * Action to halt the selected thread.
      */
@@ -925,6 +831,7 @@ public class ExecControls
         
         public void actionPerformed(ActionEvent e)
         {
+            DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
                 return;
             clearThreadDetails();
@@ -946,6 +853,7 @@ public class ExecControls
         
         public void actionPerformed(ActionEvent e)
         {
+            DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
                 return;
             clearThreadDetails();
@@ -969,6 +877,7 @@ public class ExecControls
         
         public void actionPerformed(ActionEvent e)
         {
+            DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
                 return;
             clearThreadDetails();
@@ -991,6 +900,8 @@ public class ExecControls
         
         public void actionPerformed(ActionEvent e)
         {
+            DebuggerThread selectedThread = getSelectedThread();
+            selectedThread = getSelectedThread();
             if (selectedThread == null)
                 return;
             clearThreadDetails();
@@ -1001,7 +912,7 @@ public class ExecControls
             }
         }
     }
-    
+
     /**
      * Action to terminate the program, restart the VM.
      */
@@ -1053,7 +964,8 @@ public class ExecControls
         }
 
         public void actionPerformed(ActionEvent e) {
-            debugger.hideSystemThreads(systemThreadItem.isSelected());
+            //MOEFX
+            //debugger.hideSystemThreads(systemThreadItem.isSelected());
         }
     }
     

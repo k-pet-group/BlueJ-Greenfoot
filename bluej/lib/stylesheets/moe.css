@@ -1,0 +1,137 @@
+.moe-top-bar {
+    -fx-padding: 0.75em 1em 0.75em 1em;
+    -fx-background-color: hsb(0, 0%, 50%), rgb(214, 217, 223);
+    -fx-background-insets: 0 0 0 0, 0 0 1 0;
+}
+.moe-top-bar-buttons {
+    /*This is the minimum gap; more may be added in code using the
+      tile pane margins to separate different groups of buttons */
+    -fx-hgap: 0.5em;
+}
+.moe-top-bar-buttons > .button {
+    -fx-label-padding: 0 0.3em 0 0.3em;
+}
+.moe-bottom-bar {
+    -fx-background-color: hsb(0, 0%, 50%), rgb(214, 217, 223);
+    -fx-background-insets: 0 0 0 0, 1 0 0 0;
+}
+.moe-bottom-status-row {
+    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
+}
+
+.moe-status-label {
+    -fx-font-family: "Source Sans Pro";
+    -fx-font-style: italic;
+    -fx-text-fill: hsb(0, 0%, 70%);
+    -fx-label-padding: 0 8 0 8;
+    -fx-text-alignment: center;
+
+    -fx-min-width: 5em;
+    -fx-alignment: top-center;
+
+    -fx-border-style: solid inside;
+    -fx-border-color: hsb(0, 0%, 70%);
+    -fx-border-width: 0 0 0 1;
+}
+.moe-info {
+    -fx-font-family: "Source Sans Pro";
+    -fx-min-height: 3.0em;
+}
+
+.moe-find-panel {
+    -fx-padding: 0.5em 1em 0.5em 1em;
+    -fx-border-style: solid inside;
+    -fx-border-color: hsb(0, 0%, 70%);
+    -fx-border-width: 0 0 1 0;
+    -fx-border-insets: 0 5 0 5;
+}
+.moe-find-label {
+    -fx-alignment: center-right;
+    -fx-text-alignment: right;
+}
+.moe-find-panel .button {
+    -fx-label-padding: 0 0.5em 0 0.5em;
+}
+.moe-find-options {
+    -fx-spacing: 3em;
+}
+.moe-find-grid {
+    -fx-vgap: 0.5em;
+    -fx-hgap: 0.5em;
+}
+
+
+.moe-line-label {
+    -fx-font-size: 10px;
+    -fx-text-overrun: clip;
+    -fx-alignment: bottom-right;
+    -fx-min-width: 24;
+    -fx-pref-width: 24;
+    -fx-max-width: 24;
+    -fx-border-width: 0 1 0 0;
+    -fx-label-padding: 0 2 0 0;
+    -fx-border-style: solid;
+    -fx-border-color: gray;
+    -fx-background-color: rgb(255, 255, 255);
+}
+.moe-line-label:bj-odd {
+    -fx-background-color: rgb(245, 245, 245);
+}
+.moe-editor-pane:bj-uncompiled .moe-line-label {
+    -fx-background-image: url("../images/grey-diagonal.png");
+    -fx-background-size: 100% 100%;
+}
+.moe-editor-pane .moe-line-label:bj-breakpoint {
+    -fx-content-display: graphic-only;
+    -fx-graphic: url("../images/break.gif");
+}
+.moe-editor-pane:bj-uncompiled .moe-line-label:bj-error-below {
+    -fx-background-image: url("../images/red-diagonal-down.png");
+    -fx-background-size: 100% 100%;
+}
+.moe-editor-pane:bj-uncompiled .moe-line-label:bj-error-above {
+    -fx-background-image: url("../images/red-diagonal-up.png");
+    -fx-background-size: 100% 100%;
+}
+.moe-editor-pane:bj-uncompiled .moe-line-label:bj-error {
+    -fx-background-color: red;
+    -fx-background-image: null;
+}
+
+.moe-editor-pane .moe-line-label {
+    -fx-content-display: graphic-only;
+}
+.moe-editor-pane:bj-line-numbers .moe-line-label {
+    -fx-content-display: left;
+}
+.moe-editor-pane {
+    -fx-background-color: white;
+    -fx-caret-blink-rate: 0s;
+    -fx-highlight-fill: rgb(35, 140, 255); /*BlueJ 3: rgb(233,225,0);*/
+}
+.moe-background {
+    -fx-background-color: -fx-base;
+    /*-fx-background-image: url("../images/grey-diagonal.png");*/
+}
+
+.moe-code-error {
+    /* In theory we could set the underline image from CSS as below.
+       However it seems there is a bug (JavaFX, not RichTextFX) which
+       prevents use of URLs relative to the style file in image patterns.
+       So we do it in code until the bug is fixed: */
+    /*-rtfx-underline-color: repeating-image-pattern("../images/error-underline.png");*/
+    /* -rtfx-underline-width: 2; */
+}
+.moe-find-result {
+    -rtfx-background-color: green;
+}
+.moe-find-field:bj-no-find-result {
+    -fx-text-fill: red;
+}
+.moe-bracket-highlight {
+    -rtfx-background-color: hsb(0, 0%, 70%);
+}
+
+.moe-editor-pane .caret {
+   -fx-stroke: rgb(255, 0, 100);
+}

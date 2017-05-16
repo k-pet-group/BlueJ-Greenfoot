@@ -22,41 +22,30 @@
 package bluej.compiler;
 
 import java.awt.EventQueue;
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
+import bluej.utility.javafx.FXPlatformRunnable;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * This class adapts CompileObserver messages to run on the GUI thread.
+ * This class adapts CompileObserver messages to run on the JavaFX GUI thread.
  * 
  * @author Davin McCall
  */
-final public class EventqueueCompileObserverAdapter
-    implements CompileObserver, Runnable
+final public class EventqueueCompileObserverAdapter implements CompileObserver
 {
-    private EDTCompileObserver link;
-    private int command;
-    
-    private static final int COMMAND_START = 0;
-    private static final int COMMAND_DIAG = 1;
-    private static final int COMMAND_END = 2;
-    
-    // parameters for COMMAND_START/COMMAND_END
-    private CompileInputFile [] sources;
-    private boolean successful;  // COMMAND_END only
-    private CompileReason reason; // COMMAND_START only
-    private CompileType type;
-    
-    // parameters for COMMAND_DIAG
-    private Diagnostic diagnostic;
+    private FXCompileObserver link;
 
     /**
      * Constructor for EventqueueCompileObserver. The link parameter is a compiler
      * observer; all messages will be passed on to it, but on the GUI thread.
      */
-    public EventqueueCompileObserverAdapter(EDTCompileObserver link)
+    public EventqueueCompileObserverAdapter(FXCompileObserver link)
     {
         this.link = link;
     }
@@ -64,13 +53,34 @@ final public class EventqueueCompileObserverAdapter
     /**
      * This method switches execution to the GUI thread.
      */
-    private void runOnEventQueue()
+    private void runOnEventQueue(FXPlatformRunnable action)
     {
-        try {
-            EventQueue.invokeAndWait(this);
+        CompletableFuture<Optional<Throwable>> f = new CompletableFuture<>();
+        Platform.runLater(() -> {
+            try
+            {
+                action.run();
+            }
+            catch (Throwable t)
+            {
+                f.complete(Optional.of(t));
+            }
+            finally
+            {
+                if (!f.isDone())
+                    f.complete(Optional.empty());
+            }
+        });
+        try
+        {
+            Optional<Throwable> optThrow = f.get();
+            if (optThrow.isPresent())
+                throw new RuntimeException(optThrow.get());
         }
-        catch (InterruptedException ie) {}
-        catch (InvocationTargetException ite) { throw new RuntimeException(ite); }
+        catch (InterruptedException | ExecutionException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
     
     // ---------------- CompileObserver interface ---------------------
@@ -78,51 +88,18 @@ final public class EventqueueCompileObserverAdapter
     @Override
     public synchronized void compilerMessage(Diagnostic diagnostic, CompileType type)
     {
-        command = COMMAND_DIAG;
-        this.diagnostic = diagnostic;
-        this.type = type;
-        runOnEventQueue();
+        runOnEventQueue(() -> link.compilerMessage(diagnostic, type));
     }
 
     @Override
     public synchronized void startCompile(CompileInputFile[] csources, CompileReason reason, CompileType type)
     {
-        command = COMMAND_START;
-        this.sources = csources;
-        this.reason = reason;
-        this.type = type;
-        runOnEventQueue();
+        runOnEventQueue(() -> link.startCompile(csources, reason, type));
     }
 
     @Override
     public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
     {
-        command = COMMAND_END;
-        this.sources = sources;
-        this.successful = successful;
-        this.type = type;
-        runOnEventQueue();
-
+        runOnEventQueue(() -> link.endCompile(sources, successful, type));
     }
-    
-    // ------------------ Runnable interface ---------------------
-    
-    @OnThread(value = Tag.Swing, ignoreParent = true)
-    public void run()
-    {
-        // We're now running on the GUI thread. Call the chained compile observer.
-        
-        switch (command) {
-            case COMMAND_START:
-                link.startCompile(sources, reason, type);
-                break;
-            case COMMAND_DIAG:
-                link.compilerMessage(diagnostic, type);
-                break;
-            case COMMAND_END:
-                link.endCompile(sources, successful, type);
-                break;
-        }
-    }
-
 }

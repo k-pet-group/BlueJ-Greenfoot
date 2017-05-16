@@ -23,10 +23,12 @@ package bluej.parser;
 
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.stride.generic.InteractionManager.Kind;
@@ -39,7 +41,7 @@ import java.util.function.Supplier;
  * 
  * @author Marion Zalk
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FX)
 public abstract class AssistContent
 {
     public static enum Access
@@ -270,5 +272,13 @@ public abstract class AssistContent
             return Access.PUBLIC;
         }
         return Access.PACKAGE;
+    }
+
+    public static Comparator<AssistContent> getComparator()
+    {
+        return Comparator.comparing(AssistContent::getName)
+            .thenComparing(AssistContent::getKind)
+            .thenComparing(AssistContent::getParams,
+                Utility.listComparator(Comparator.comparing(ParamInfo::getQualifiedType)));
     }
 }

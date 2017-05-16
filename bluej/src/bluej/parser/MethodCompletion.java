@@ -48,7 +48,7 @@ import bluej.utility.JavaUtils;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FX)
 public class MethodCompletion extends AssistContent
 {
     @OnThread(Tag.Any) private final MethodReflective method;

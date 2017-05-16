@@ -31,8 +31,8 @@ import java.util.ListIterator;
 import java.util.Stack;
 
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 
+import bluej.editor.moe.MoeSyntaxDocument.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.debugger.gentype.Reflective;
@@ -103,7 +103,7 @@ public class EditorParser extends JavaParser
     private List<JavaEntity> extendedTypes;
     private List<JavaEntity> implementedTypes;
     
-    private Document document;
+    private MoeSyntaxDocument document;
     
     private boolean gotExtends = false;
     private boolean gotImplements = false;
@@ -130,14 +130,14 @@ public class EditorParser extends JavaParser
      * Constructor for an EditorParser to parse a particular document.
      * After construction the normal course of action is to call parseCU(ParsedCUNode).
      */
-    public EditorParser(Document document)
+    public EditorParser(MoeSyntaxDocument document)
     {
         super(new DocumentReader(document));
         this.document = document;
         //pcuNode = new ParsedCUNode(document);
     }
     
-    public EditorParser(Document document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack)
+    public EditorParser(MoeSyntaxDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack)
     {
         super(r, line, col, pos);
         this.document = document;

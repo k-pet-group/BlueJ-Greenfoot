@@ -21,8 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import javax.swing.text.Document;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -46,7 +44,7 @@ public abstract class ParentParsedNode extends ParsedNode
     }
             
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
             int length, NodeStructureListener listener)
     {
@@ -90,8 +88,8 @@ public abstract class ParentParsedNode extends ParsedNode
     /**
      * Handle the case of text being inserted directly into this node (not a child).
      */
-    @OnThread(Tag.Swing)
-    protected int handleInsertion(Document document, int nodePos, int insPos, int length,
+    @OnThread(Tag.FX)
+    protected int handleInsertion(MoeSyntaxDocument document, int nodePos, int insPos, int length,
             NodeStructureListener listener)
     {
         ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
@@ -99,7 +97,7 @@ public abstract class ParentParsedNode extends ParsedNode
     }
     
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
@@ -193,8 +191,8 @@ public abstract class ParentParsedNode extends ParsedNode
      * Handle the case of text being removed directly from this node (rather than a
      * child node).
      */
-    @OnThread(Tag.Swing)
-    protected int handleDeletion(Document document, int nodePos, int dpos,
+    @OnThread(Tag.FX)
+    protected int handleDeletion(MoeSyntaxDocument document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
         if (nodePos + getSize() == dpos && marksOwnEnd()) {
@@ -209,15 +207,15 @@ public abstract class ParentParsedNode extends ParsedNode
      * Default implementation, just causes the parent to re-parse
      */
     @Override
-    @OnThread(Tag.Swing)
-    protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    @OnThread(Tag.FX)
+    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return REMOVE_NODE;
     }
     
     @Override
-    @OnThread(Tag.Swing)
-    protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
+    @OnThread(Tag.FX)
+    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         // Without any further knowledge, we're just going to have to do a full reparse.

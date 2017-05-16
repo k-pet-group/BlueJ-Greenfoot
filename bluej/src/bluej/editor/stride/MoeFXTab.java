@@ -53,8 +53,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     private final MoeEditor moeEditor;
     private final TabMenuManager menuManager;
     private final StringProperty windowTitleProperty = new SimpleStringProperty();
-    private SwingNode swingNode;
-    private FXTabbedEditor parent = null;
+    private FXTabbedEditor parent;
 
     @OnThread(Tag.FXPlatform)
     public MoeFXTab(MoeEditor moeEditor, String windowTitle)
@@ -98,7 +97,6 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     @Override
     void focusWhenShown()
     {
-        swingNode.requestFocus();
         moeEditor.requestEditorFocus();
     }
 
@@ -125,11 +123,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     {
         if (!initialised)
             initialised = true;
-        swingNode = new SwingNodeFixed();
-        //JPanel panel = new JPanel();
-        //panel.add(moeEditor);
-        swingNode.setContent(moeEditor);
-        setContent(swingNode);
+        setContent(moeEditor);
 
         setText("");
         Label titleLabel = new Label(windowTitleProperty.get());
@@ -141,7 +135,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
             if (e.getButton() == MouseButton.MIDDLE)
             {
                 SwingUtilities.invokeLater(() ->
-                    moeEditor.setVisible(false)
+                    moeEditor.setEditorVisible(false)
                 );
             }
         });

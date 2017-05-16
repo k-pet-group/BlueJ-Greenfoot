@@ -25,6 +25,9 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import java.awt.EventQueue;
 
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.prefmgr.PrefMgr;
@@ -38,8 +41,8 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Davin McCall
  */
-@OnThread(value = Tag.Swing, ignoreParent = true)
-public class ReparseRunner implements Runnable
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
+public class ReparseRunner implements FXPlatformRunnable
 {
     private MoeEditor editor;
     
@@ -59,14 +62,14 @@ public class ReparseRunner implements Runnable
     {
         MoeSyntaxDocument document = editor.getSourceDocument();
         long begin = System.currentTimeMillis();
-        if (PrefMgr.getScopeHighlightStrength() != 0 && document != null && document.pollReparseQueue()) {
+        if (PrefMgr.getScopeHighlightStrength().get() != 0 && document != null && document.pollReparseQueue()) {
             // Continue processing
             while (System.currentTimeMillis() - begin < this.procTime) {
                 if (! document.pollReparseQueue()) {
                     break;
                 }
             }
-            EventQueue.invokeLater(this);
+            JavaFXUtil.runPlatformLater(this);
         }
         else {
             // tell MoeEditor we are no longer scheduled.

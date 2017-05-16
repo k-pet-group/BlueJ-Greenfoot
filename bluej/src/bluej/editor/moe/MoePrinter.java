@@ -36,14 +36,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
-import javax.swing.text.PlainDocument;
 import javax.swing.text.Segment;
 import javax.swing.text.StyleContext;
 import javax.swing.text.TabExpander;
 import javax.swing.text.Utilities;
 
+import bluej.editor.moe.Token.TokenType;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -98,6 +97,7 @@ public class MoePrinter
         List<PrintLine> lines = new ArrayList<PrintLine>();
 
         this.className = className;
+        /*MOEFX
         // extract tabsize attribute from document and assign to tabSize attribute
         Integer tabSizeAsInteger =  (Integer)document.getProperty(PlainDocument.tabSizeAttribute);
         if(tabSizeAsInteger != null)
@@ -121,7 +121,7 @@ public class MoePrinter
         // make sure that read lock is removed
         finally {
             document.readUnlock();
-        }
+        }*/
 
         return printText(printJob, lines, font, document, lineNumbers, syntaxHighlighting, format);
     }
@@ -304,7 +304,7 @@ public class MoePrinter
             // Get some style information:
             StyleContext context = new StyleContext();
             final FontMetrics fontMetrics = context.getFontMetrics(font);
-            Color[] colors = MoeSyntaxDocument.getColors();
+            Color[] colors = new Color[0]; // MOEFX MoeSyntaxDocument.getColors();
             Color def = Color.black;
 
             // print a header
@@ -343,19 +343,20 @@ public class MoePrinter
                 
                 Token tokens = document.getParser().getMarkTokensFor(line.getStartOffset(), Math.min(line.getEndOffset(),document.getLength()) - line.getStartOffset(), 0, document);
                 int offset = 0;
-                while (tokens.id != Token.END) {
-                    byte id = tokens.id;
+                while (tokens.id != TokenType.END) {
+                    TokenType id = tokens.id;
                     
                     int length = tokens.length;
                     Color color;
-                    if(id == Token.NULL)
+                    if(id == TokenType.DEFAULT)
                         color = def;
                     else {
                         // check we are within the array bounds
                         // safeguard for updated syntax package
+                        /*MOEFX
                         if(id < colors.length)
                             color = colors[id];
-                        else color = def;
+                        else */ color = def;
                     }
                     if (syntaxHighlighting)
                     {
@@ -504,8 +505,6 @@ public class MoePrinter
         
         @Override
         public String toString() {
-            try
-            {
                 if (length() == 0)
                 {
                     return "";
@@ -514,12 +513,6 @@ public class MoePrinter
                 {
                     return document.getText(startOffset, length());
                 }
-            }
-            catch (BadLocationException e)
-            {
-                Debug.reportError("PrintLine.toString(), offsets: " + startOffset + " and " + endOffset, e);
-                throw new RuntimeException(e);
-            }
         }
 
         public char charAt(int n) {
@@ -543,17 +536,9 @@ public class MoePrinter
         
         public Segment getSegment()
         {
-            try
-            {
                 Segment seg = new Segment();
                 document.getText(getStartOffset(), getEndOffset() - getStartOffset(), seg);
                 return seg;
-            }
-            catch (BadLocationException e)
-            {
-                Debug.reportError("PrintLine.getSegment(), offsets: " + startOffset + " and " + endOffset, e);
-                return null;
-            }
         }
     }
 }

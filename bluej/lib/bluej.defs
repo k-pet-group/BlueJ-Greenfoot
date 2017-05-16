@@ -318,20 +318,6 @@ bluej.classTemplates.stride = stdclass abstract interface
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
 #######################################################################
-## BlueJ Look and Feel.
-## By default no option is specified, this means that BlueJ decides.
-## At present this means:
-## Windows: System look and feel
-## Linux: CrossPlatform look and feel (Metal)
-## Solaris: CrossPlatform look and feel (Metal)
-## Where a crossplatform look and feel has been specified, font 
-## customisation can be done through the use of the BlueJ theme option
-#######################################################################
-
-#bluej.lookAndFeel=system
-#bluej.lookAndFeel=crossplatform
-
-#######################################################################
 ## Fonts. You can choose a font size for most of the interface
 ## components, and a font face and size for the editor. The editor font
 ## size can be redefined by a user in their preference dialogue.
@@ -339,33 +325,11 @@ bluej.classTemplates.stride = stdclass abstract interface
 
 #######################################################################
 # Theme fonts for User Interface components
-# These specify font and font sizes for most of the interface components
-# if using a crossplatform setting for bluej.lookandfeel. When using a
-# system look-and-feel, UI fonts are derived from the OS settings.
-#
-# The font setting is specified as the name of a font face with an optional
-# "-bold" at the end.
-#
-# The theme fonts are only used if bluej.useTheme flag is true and the 
-# bluej.lookandfeel property has been uncommented and set to crossplatform.
-
-# Use theme, which means interface and menu fonts can be specified.
-bluej.useTheme=false
-
-bluej.fontsize=12
-bluej.font=SansSerif
-#bluej.font=Monospaced
-#bluej.font=SIMSUN
-
 # fonts for menus
 bluej.menu.font=SansSerif-bold
 bluej.menu.fontsize=12
 # END OF THEME FONTS
 #######################################################################
-
-# fonts for Targets (classes in display)
-bluej.target.font=SansSerif-bold
-bluej.target.fontsize=12
 
 # default fontsize for the editor (can be changed in Preferences dialog)
 bluej.editor.fontsize=12
@@ -375,25 +339,18 @@ bluej.editor.fontsize=12
 bluej.terminal.font=Monospaced
 #bluej.terminal.font=Monospaced-bold
 
-
-# fontsize for the codepad (defaults to editor font size if not specified here)
-#bluej.codepad.fontsize=12
-
 # The editor font. This is the name of a font face with an optional
 # "-bold" at the end. Most used are monospaced fonts, such as Courier.
 # Good large fonts for screen projections are SansSerif-bold, 14pt, or
 # Courier-bold, 18pt. Only the font face is specified here, the font
 # size is specified in the BlueJ preference dialogue. Some examples:
 
-bluej.editor.font=Monospaced
-bluej.editor.MacOS.font=Monaco
+bluej.editor.font=Source Code Pro
+bluej.editor.MacOS.font=Source Code Pro
 # bluej.editor.font=Monospaced-bold
 # bluej.editor.font=SansSerif
 # bluej.editor.font=SansSerif-bold
 # bluej.editor.font=Arial-bold
-
-# The font used in the code completion display (method list)
-bluej.codecompletion.font=Courier
 
 #######################################################################
 ## Printing settings.
@@ -451,17 +408,6 @@ bluej.editor.codecompletion=true
 bluej.testing.showtools=false
 bluej.teamwork.showtools=false
 
-#######################################################################
-### Colours. All are specified as RGB values.
-#######################################################################
-
-#colour for selections (in text and otherwise)
-colour.selection=233,225,0
-colour.selection2=255,250,0
-
-#colour for highlights (in text editor)
-colour.highlight=180,220,255
-colour.highlight2=110,190,255
 
 #####################################################################
 ## Compiler options. 
@@ -528,7 +474,7 @@ bluej.vm.args=-ea
 ## Java defaults need to be modified.  
 #####################################################################
 
-bluej.windows.vm.args=-Xmx512M
+bluej.windows.vm.args=-Xmx512M -Djavafx.embed.singleThread=true
 
 
 #####################################################################

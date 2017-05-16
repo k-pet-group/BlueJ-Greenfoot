@@ -21,19 +21,19 @@
  */
 package bluej.groupwork.actions;
 
+import bluej.Config;
+import bluej.pkgmgr.actions.FXPkgMgrAction;
+import bluej.pkgmgr.PkgMgrFrame;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.actions.PkgMgrAction;
-
 
 /**
  * An abstract class for team actions. 
  * 
  * @author fisker
  */
-public abstract class TeamAction extends PkgMgrAction
+public abstract class TeamAction extends FXPkgMgrAction
 {
     /**
      * Constructor for a team action.
@@ -61,9 +61,9 @@ public abstract class TeamAction extends PkgMgrAction
      * changes the name of the action.
      * @param name 
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     public void setName(String name)
     {
-    	putValue("Name", name);
+    	this.name = name;
     }
 }

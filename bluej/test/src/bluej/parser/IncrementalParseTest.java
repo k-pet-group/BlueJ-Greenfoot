@@ -25,6 +25,8 @@ import java.util.List;
 
 import javax.swing.text.BadLocationException;
 
+import bluej.editor.moe.ScopeColors;
+import bluej.editor.moe.ScopeColorsBorderPane;
 import junit.framework.TestCase;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -64,12 +66,9 @@ public class IncrementalParseTest extends TestCase
     private MoeSyntaxDocument docForSource(String sourceCode, String pkg)
     {
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
-        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
+        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver, ScopeColors.dummy());
         document.enableParser(true);
-        try {
-            document.insertString(0, sourceCode, null);
-        }
-        catch (BadLocationException ble) {}
+        document.insertString(0, sourceCode, null);
         return document;
     }
     

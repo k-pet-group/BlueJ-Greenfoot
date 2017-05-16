@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import javafx.application.Platform;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -52,7 +50,6 @@ import bluej.utility.Debug;
  *
  * @author fisker
  */
-@OnThread(Tag.Swing)
 public class TeamSettingsController
 {
     // Don't need synchronized because it's never modified again:
@@ -74,7 +71,16 @@ public class TeamSettingsController
                     + ": " + e.getLocalizedMessage());
         }
     }
-    
+
+    /**
+     * An enum with all current use server types.
+     */
+    public enum ServerType
+    {
+        Subversion,
+        Git
+    }
+
     private static TeamworkProvider loadProvider(String name) throws Throwable
     {
         Class<?> c = Class.forName(name);
@@ -133,13 +139,26 @@ public class TeamSettingsController
     }
     
     /**
-     * Get a list of the teamwork providers (CVS, Subversion).
+     * Get a list of the teamwork providers (Subversion, Git).
      */
     public List<TeamworkProvider> getTeamworkProviders()
     {
         return teamProviders;
     }
-    
+
+    /**
+     * Get the teamwork provider by name (Subversion, Git).
+     *
+     * @param type The server type that we need to get its provider
+     * @return The teamwork provider for the type passed
+     */
+    public TeamworkProvider getTeamworkProvider(ServerType type)
+    {
+        return teamProviders.stream()
+                .filter(teamworkProvider -> teamworkProvider.getProviderName().equals(type.name()))
+                .findAny().get();
+    }
+
     /**
      * Get the repository. Returns null if user credentials are required
      * but the user chooses to cancel.
@@ -148,7 +167,7 @@ public class TeamSettingsController
     {
         if (authRequired && password == null) {
             // If we don't yet know the password, prompt the user
-            getTeamSettingsDialog().doTeamSettings();
+            getTeamSettingsDialog().showAndWait();
 
             // If we still don't know it, user cancelled
             if (password == null) {
@@ -191,7 +210,7 @@ public class TeamSettingsController
         if (repository == null) {
             TeamworkProvider provider = settings.getProvider();
             if (password == null && auth) {
-                if (getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
+                if ( ! getTeamSettingsDialog().showAndWait().isPresent() ) {
                     return false;
                 }
             }
@@ -370,13 +389,10 @@ public class TeamSettingsController
     public TeamSettingsDialog getTeamSettingsDialog()
     {
         if (teamSettingsDialog == null) {
-            teamSettingsDialog = new TeamSettingsDialog(this);
-            TeamSettingsDialog dlgFinal = teamSettingsDialog;
-            PkgMgrFrame pmf = PkgMgrFrame.getMostRecent();
-            Platform.runLater(() -> dlgFinal.setLocationRelativeTo(pmf.getFXWindow()));
+            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getFXWindow(), this);
             checkTeamSettingsDialog();
         }
-        
+
         return teamSettingsDialog;
     }
     

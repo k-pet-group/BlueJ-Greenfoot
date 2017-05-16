@@ -32,7 +32,7 @@ import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
-import bluej.compiler.EDTCompileObserver;
+import bluej.compiler.FXCompileObserver;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 
@@ -43,15 +43,15 @@ import bluej.pkgmgr.Project;
  * @author Neil Brown
  *
  */
-public class DataCollectionCompileObserverWrapper implements EDTCompileObserver
+public class DataCollectionCompileObserverWrapper implements FXCompileObserver
 {
-    private EDTCompileObserver wrapped;
+    private FXCompileObserver wrapped;
     private List<DiagnosticWithShown> diagnostics = new ArrayList<DiagnosticWithShown>();
     private CompileInputFile[] sources;
     private CompileReason reason;
     private Project project;
     
-    public DataCollectionCompileObserverWrapper(Project project, EDTCompileObserver wrapped)
+    public DataCollectionCompileObserverWrapper(Project project, FXCompileObserver wrapped)
     {
         this.project = project;
         this.wrapped = wrapped;

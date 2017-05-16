@@ -55,7 +55,7 @@ public class ErrorUnderlineCanvas
      * when we are put in a StackPane in front of another node (our usual use-case),
      * we always resize to match the size of the underlying node.
      */
-    private final Canvas canvas = new ResizableCanvas();
+    private final Canvas canvas;
 
     /**
      * A class to hold information about a hyperlink.
@@ -88,7 +88,7 @@ public class ErrorUnderlineCanvas
     private static class ErrorInfo
     {
         /** The source slot, used to given more information about the error's position */
-        private final EditableSlot positionInfo;
+        private final UnderlineInfo positionInfo;
         /** The position of the start of the error underline, in characters */
         private final int start;
         /** The position of the end of the error underline, in characters */
@@ -106,7 +106,7 @@ public class ErrorUnderlineCanvas
          * hover over a link, and when the user moves the mouse out (pass false) again.
          */
         private final FXPlatformConsumer<Boolean> onHover;
-        private ErrorInfo(EditableSlot slot, int start, int end,
+        private ErrorInfo(UnderlineInfo slot, int start, int end,
                 boolean javaPos, FXPlatformConsumer<Boolean> onHover)
         {
             this.positionInfo = slot;
@@ -219,6 +219,7 @@ public class ErrorUnderlineCanvas
      */
     public ErrorUnderlineCanvas(Node mouseableContainer)
     {
+        canvas = new ResizableCanvas(this::redraw);
         canvas.setMouseTransparent(true);
         mouseableContainer.addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
             synchronized (ErrorUnderlineCanvas.this)
@@ -314,7 +315,7 @@ public class ErrorUnderlineCanvas
      * Redraws afterwards.
      */
     @OnThread(Tag.FXPlatform)
-    public void clearErrorMarkers(EditableSlot origin)
+    public void clearErrorMarkers(UnderlineInfo origin)
     {
         for (int i = 0; i < errors.size();)
         {
@@ -344,7 +345,7 @@ public class ErrorUnderlineCanvas
      *                will remain visible forever after, even if it changes back to false)
      */
     @OnThread(Tag.FXPlatform)
-    public void addErrorMarker(EditableSlot origin, int start, int end, boolean javaPos, FXPlatformConsumer<Boolean> onHover, ObservableBooleanValue visible)
+    public void addErrorMarker(UnderlineInfo origin, int start, int end, boolean javaPos, FXPlatformConsumer<Boolean> onHover, ObservableBooleanValue visible)
     {
         ErrorInfo err = new ErrorInfo(origin, start, end, javaPos, onHover);
         if (visible.get() == false)

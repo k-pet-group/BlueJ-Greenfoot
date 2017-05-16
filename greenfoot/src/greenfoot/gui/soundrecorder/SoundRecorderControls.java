@@ -61,6 +61,7 @@ import javax.swing.border.SoftBevelBorder;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.Utility;
+import greenfoot.util.GreenfootUtil;
 
 /**
  * The GUI class for the sound recorder.
@@ -126,7 +127,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
     private JPanel buildControlBox()
     {
         recordStop = new JButton(recordLabel);
-        Utility.changeToMacButton(recordStop);
+        GreenfootUtil.changeToMacButton(recordStop);
         recordStop.setFocusable(false);
         recordStop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -160,7 +161,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
         trim = new JButton(Config.getString("soundRecorder.trim"));
         trim.setEnabled(false);
         trim.setFocusable(false);
-        Utility.changeToMacButton(trim);
+        GreenfootUtil.changeToMacButton(trim);
         trim.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -173,7 +174,7 @@ public class SoundRecorderControls extends JFrame implements WindowListener
         });
         
         playStop = new JButton(playLabel);
-        Utility.changeToMacButton(playStop);
+        GreenfootUtil.changeToMacButton(playStop);
         playStop.setFocusable(false);
         playStop.setEnabled(false);
         playStop.addActionListener(new Player());

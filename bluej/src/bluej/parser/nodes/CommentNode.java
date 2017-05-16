@@ -23,11 +23,10 @@ package bluej.parser.nodes;
 
 import java.io.Reader;
 
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-
 import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.Token;
+import bluej.editor.moe.Token.TokenType;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.DocumentReader;
 import bluej.parser.lexer.JavaLexer;
@@ -41,20 +40,25 @@ import bluej.parser.lexer.LocatableToken;
  */
 public class CommentNode extends ParsedNode
 {
-    byte type;
-    private static byte SL_NORMAL = 0;
-    private static byte SL_SPECIAL = 1;
-    private static byte ML_NORMAL = 2;
-    private static byte ML_JAVADOC = 3;
-    private static byte ML_SPECIAL = 4;
-    
-    private static byte [] colours = {
-        Token.COMMENT1,
-        Token.COMMENT3,
-        Token.COMMENT1,
-        Token.COMMENT2,
-        Token.COMMENT3
+    private static enum Type
+    {
+        SL_NORMAL(true, TokenType.COMMENT_NORMAL),
+        SL_SPECIAL(true, TokenType.COMMENT_SPECIAL),
+        ML_NORMAL(false, TokenType.COMMENT_NORMAL),
+        ML_JAVADOC(false, TokenType.COMMENT_JAVADOC),
+        ML_SPECIAL(false, TokenType.COMMENT_SPECIAL);
+
+        private final boolean singleLine;
+        private final TokenType tokenType;
+
+        private Type(boolean singleLine, TokenType tokenType)
+        {
+            this.singleLine = singleLine;
+            this.tokenType = tokenType;
+        }
     };
+
+    private Type type;
     
     public CommentNode(ParsedNode parentNode, LocatableToken token)
     {
@@ -65,33 +69,33 @@ public class CommentNode extends ParsedNode
     /**
      * Determine the comment type from the token.
      */
-    private static byte getCommentType(LocatableToken token)
+    private static Type getCommentType(LocatableToken token)
     {
         String text = token.getText();
         if (token.getType() == JavaTokenTypes.ML_COMMENT) {
             if (text.startsWith("/*#")) {
-                return ML_SPECIAL;
+                return Type.ML_SPECIAL;
             }
             if (text.startsWith("/**#")) {
-                return ML_SPECIAL;
+                return Type.ML_SPECIAL;
             }
             if (text.startsWith("/**")) {
-                return ML_JAVADOC;
+                return Type.ML_JAVADOC;
             }
-            return ML_NORMAL;
+            return Type.ML_NORMAL;
         }
         
         // Single line
         if (text.startsWith("//#")) {
-            return SL_SPECIAL;
+            return Type.SL_SPECIAL;
         }
         
-        return SL_NORMAL;
+        return Type.SL_NORMAL;
     }
     
     public boolean isJavadocComment()
     {
-        return type == ML_JAVADOC;
+        return type == Type.ML_JAVADOC;
     }
     
     
@@ -105,10 +109,10 @@ public class CommentNode extends ParsedNode
      * @see bluej.parser.nodes.ParsedNode#getMarkTokensFor(int, int, int, javax.swing.text.Document)
      */
     public Token getMarkTokensFor(int pos, int length, int nodePos,
-            Document document)
+            MoeSyntaxDocument document)
     {
-        Token tok = new Token(length, colours[type]);
-        tok.next = new Token(0, Token.END);
+        Token tok = new Token(length, type.tokenType);
+        tok.next = new Token(0, TokenType.END);
         return tok;
     }
 
@@ -141,7 +145,7 @@ public class CommentNode extends ParsedNode
     }
 
     @Override
-    protected int reparseNode(Document document, int nodePos, int offset, int maxParse,
+    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse,
             NodeStructureListener listener)
     {
         // Make a reader and parser
@@ -156,12 +160,12 @@ public class CommentNode extends ParsedNode
             return REMOVE_NODE;
         }
         
-        byte newType = getCommentType(commentToken);
-        if (type <= SL_SPECIAL && newType > SL_SPECIAL) {
+        Type newType = getCommentType(commentToken);
+        if (type.singleLine && !newType.singleLine) {
             // changed from single to multi-line
             return REMOVE_NODE;
         }
-        else if (type > SL_SPECIAL && newType <= SL_SPECIAL) {
+        else if (!type.singleLine && newType.singleLine) {
             // changed from multi-line to single line
             if (getOffsetFromParent() == 0 && getParentNode().isCommentAttached()) {
                 return REMOVE_NODE;
@@ -183,7 +187,7 @@ public class CommentNode extends ParsedNode
     }
     
     
-    private static int lineColToPos(Document document, int line, int col)
+    private static int lineColToPos(MoeSyntaxDocument document, int line, int col)
     {
         Element map = document.getDefaultRootElement();
         Element lineEl = map.getElement(line - 1);
@@ -191,7 +195,7 @@ public class CommentNode extends ParsedNode
     }
     
     @Override
-    public CodeSuggestions getExpressionType(int pos, Document document)
+    public CodeSuggestions getExpressionType(int pos, MoeSyntaxDocument document)
     {
         return null;
     }

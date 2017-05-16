@@ -34,6 +34,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import bluej.debugger.gentype.ConstructorReflective;
+import bluej.editor.moe.ScopeColors;
+import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.entity.PackageResolver;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
@@ -400,15 +402,8 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         {
             if (document == null)
             {
-                document = new MoeSyntaxDocument(projectResolver);
-                try
-                {
-                    document.insertString(0, src, null);
-                }
-                catch (BadLocationException e)
-                {
-                    Debug.reportError(e);
-                }
+                document = new MoeSyntaxDocument(projectResolver, ScopeColors.dummy());
+                document.insertString(0, src, null);
                 document.enableParser(true);
             }
             return document;

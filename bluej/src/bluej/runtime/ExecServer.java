@@ -803,7 +803,7 @@ public class ExecServer
                                 // Use a preloader to be able to find out the Application reference:
                                 System.setProperty("javafx.preloader", FXPreloader.class.getName());
                                 Application.launch((Class<? extends Application>)loadAndInitClass(classToRun));
-                            }).start();
+                            }, "JavaFX BlueJ Helper").start();
                             // Return null if it takes too long to initialise.  This is most likely
                             // due to the Application class's constructor doing a lot of work,
                             // but it may also be related to a failure in loading.

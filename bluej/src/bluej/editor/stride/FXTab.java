@@ -74,6 +74,7 @@ abstract class FXTab extends Tab
      * @param parent The new window containing this tab, or null if the tab was closed.
      * @param partOfMove Whether this change is part of a move to another window
      */
+    @OnThread(Tag.FXPlatform)
     abstract void setParent(FXTabbedEditor parent, boolean partOfMove);
 
     /**
@@ -95,6 +96,7 @@ abstract class FXTab extends Tab
     /**
      * Called when the tab has been selected, and the window has been focused.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract void notifySelected();
 
     /**

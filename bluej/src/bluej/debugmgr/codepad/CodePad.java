@@ -103,7 +103,7 @@ import threadchecker.Tag;
  * This means the users see one text field at the bottom of the list, and rows
  * above that with the history (styled as we like).
  */
-@OnThread(Tag.FX)
+@OnThread(Tag.FXPlatform)
 public class CodePad extends VBox
     implements ValueCollection, PkgMgrFrame.PkgMgrPane
 {
@@ -356,27 +356,18 @@ public class CodePad extends VBox
     private String currentCommand = "";
     @OnThread(Tag.FX)
     private IndexHistory history;
-    @OnThread(Tag.Swing)
     private Invoker invoker = null;
-    @OnThread(Tag.Swing)
     private TextAnalyzer textParser = null;
     
     // Keeping track of invocation
-    @OnThread(Tag.Swing)
     private boolean firstTry;
-    @OnThread(Tag.Swing)
     private boolean wrappedResult;
-    @OnThread(Tag.Swing)
     private String errorMessage;
 
-    @OnThread(Tag.Swing)
     private boolean busy = false;
 
-    @OnThread(Tag.Swing)
     private List<CodepadVar> localVars = new ArrayList<CodepadVar>();
-    @OnThread(Tag.Swing)
     private List<CodepadVar> newlyDeclareds;
-    @OnThread(Tag.Swing)
     private List<String> autoInitializedVars;
     // The action which removes the hover state on the object icon
     private Runnable removeHover;
@@ -476,7 +467,7 @@ public class CodePad extends VBox
                 history.add(line);
                 String cmd = currentCommand;
                 currentCommand = "";
-                SwingUtilities.invokeLater(() -> executeCommand(cmd));
+                executeCommand(cmd);
             }
         });
 
@@ -520,7 +511,6 @@ public class CodePad extends VBox
     /**
      * Clear the local variables.
      */
-    @OnThread(Tag.Swing)
     public void clearVars()
     {
         localVars.clear();
@@ -534,7 +524,6 @@ public class CodePad extends VBox
     /*
      * @see bluej.debugmgr.ValueCollection#getValueIterator()
      */
-    @OnThread(Tag.Swing)
     public Iterator<CodepadVar> getValueIterator()
     {
         return localVars.iterator();
@@ -543,7 +532,6 @@ public class CodePad extends VBox
     /*
      * @see bluej.debugmgr.ValueCollection#getNamedValue(java.lang.String)
      */
-    @OnThread(Tag.Swing)
     public NamedValue getNamedValue(String name)
     {
         Class<Object> c = Object.class;
@@ -563,7 +551,6 @@ public class CodePad extends VBox
      * @param name  The name of the variable to search for
      * @return    The named variable, or null
      */
-    @OnThread(Tag.Swing)
     private NamedValue getLocalVar(String name)
     {
         Iterator<CodepadVar> i = localVars.iterator();
@@ -590,7 +577,7 @@ public class CodePad extends VBox
                  * @see bluej.debugmgr.ResultWatcher#beginExecution()
                  */
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void beginCompile()
         {
         }
@@ -599,7 +586,7 @@ public class CodePad extends VBox
          * @see bluej.debugmgr.ResultWatcher#beginExecution()
          */
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void beginExecution(InvokerRecord ir)
         {
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
@@ -609,7 +596,7 @@ public class CodePad extends VBox
          * @see bluej.debugmgr.ResultWatcher#putResult(bluej.debugger.DebuggerObject, java.lang.String, bluej.testmgr.record.InvokerRecord)
          */
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
         {
             frame.getObjectBench().addInteraction(ir);
@@ -644,7 +631,7 @@ public class CodePad extends VBox
                         nindex = warning.length();
 
                     String warnLine = warning.substring(findex, nindex);
-                    Platform.runLater(() -> error(warnLine));
+                    error(warnLine);
                     findex = nindex + 1; // skip the newline character
                 }
 
@@ -659,7 +646,7 @@ public class CodePad extends VBox
                 if (resultString.equals(nullLabel))
                 {
                     DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultString);
-                    Platform.runLater(() -> output(resultString));
+                    output(resultString);
                 }
                 else
                 {
@@ -671,14 +658,14 @@ public class CodePad extends VBox
                         String resultType = resultObject.getGenType().toString(true);
                         String resultOutputString = resultString + "   (" + resultType + ")";
                         DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
-                        Platform.runLater(() -> objectOutput(resultOutputString, new ObjectInfo(resultObject, ir)));
+                        objectOutput(resultOutputString, new ObjectInfo(resultObject, ir));
                     }
                     else
                     {
                         String resultType = resultField.getType().toString(true);
                         String resultOutputString = resultString + "   (" + resultType + ")";
                         DataCollector.codePadSuccess(frame.getPackage(), ir.getOriginalCommand(), resultOutputString);
-                        Platform.runLater(() -> output(resultOutputString));
+                        output(resultOutputString);
                     }
                 }
             }
@@ -694,22 +681,20 @@ public class CodePad extends VBox
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
             textParser.confirmCommand();
-            Platform.runLater(() -> inputField.setEditable(true));    // allow next input
+            inputField.setEditable(true);    // allow next input
             busy = false;
         }
 
-        @OnThread(Tag.Swing)
         private void updateInspectors()
         {
             Project proj = frame.getPackage().getProject();
-            Platform.runLater(() -> proj.updateInspectors());
+            proj.updateInspectors();
         }
 
         /**
          * An invocation has failed - here is the error message
          */
         @Override
-        @OnThread(Tag.Swing)
         public void putError(String message, InvokerRecord ir)
         {
             if (firstTry)
@@ -764,7 +749,6 @@ public class CodePad extends VBox
          * A runtime exception occurred.
          */
         @Override
-        @OnThread(Tag.Swing)
         public void putException(ExceptionDescription exception, InvokerRecord ir)
         {
             ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
@@ -790,7 +774,6 @@ public class CodePad extends VBox
          * execution).
          */
         @Override
-        @OnThread(Tag.Swing)
         public void putVMTerminated(InvokerRecord ir)
         {
             if (autoInitializedVars != null)
@@ -801,7 +784,7 @@ public class CodePad extends VBox
 
             String message = Config.getString("pkgmgr.codepad.vmTerminated");
             DataCollector.codePadError(frame.getPackage(), ir.getOriginalCommand(), message);
-            Platform.runLater(() -> error(message));
+            error(message);
 
             completeExecution();
         }
@@ -811,7 +794,6 @@ public class CodePad extends VBox
      * Remove the newly declared variables from the value collection.
      * (This is needed if compilation fails, or execution bombs with an exception).
      */
-    @OnThread(Tag.Swing)
     private void removeNewlyDeclareds()
     {
         if (newlyDeclareds != null) {
@@ -828,20 +810,18 @@ public class CodePad extends VBox
     /**
      * Show an error message, and allow further command input.
      */
-    @OnThread(Tag.Swing)
     private void showErrorMsg(final String message)
     {
-        Platform.runLater(() -> error("Error: " + message));
+        error("Error: " + message);
         completeExecution();
     }
     
     /**
      * Show an exception message, and allow further command input.
      */
-    @OnThread(Tag.Swing)
     private void showExceptionMsg(final String message)
     {
-        Platform.runLater(() -> error("Exception: " + message));
+        error("Exception: " + message);
         completeExecution();
     }
     
@@ -849,10 +829,9 @@ public class CodePad extends VBox
      * Execution of the current command has finished (one way or another).
      * Allow further command input.
      */
-    @OnThread(Tag.Swing)
     private void completeExecution()
     {
-        Platform.runLater(() -> inputField.setEditable(true));
+        inputField.setEditable(true);
         busy = false;
     }
 
@@ -913,12 +892,6 @@ public class CodePad extends VBox
         historyView.getItems().clear();
     }
 
-    public void resetFontSize()
-    {
-
-    }
-
-    @OnThread(Tag.Swing)
     private void executeCommand(String command)
     {
         if (busy) {

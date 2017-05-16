@@ -103,7 +103,7 @@ public final class FXMenuManager
      *
      * @param  onThisProject  a specific project to look for, or null for all projects.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.SwingIsFX)
     public synchronized void addExtensionMenu(Project onThisProject)
     {
         // Get all menus that can be possibly be generated now.

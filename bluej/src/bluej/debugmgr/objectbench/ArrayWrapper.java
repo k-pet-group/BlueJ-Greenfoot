@@ -53,8 +53,7 @@ public class ArrayWrapper extends ObjectWrapper
     public static int WORD_GAP = 8;
     public static int SHADOW_SIZE = 3;
     public static int ARRAY_GAP = 3;
-    
-    @OnThread(Tag.Swing)
+
     public ArrayWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
     {
         super(pmf, ob, obj, obj.getGenType(), instanceName);

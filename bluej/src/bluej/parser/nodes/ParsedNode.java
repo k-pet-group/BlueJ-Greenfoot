@@ -285,7 +285,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param length     The length of the insert
      * @param listener   The listener for node structural changes
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     public abstract int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
             int length, NodeStructureListener listener);
 
@@ -305,7 +305,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param length     The length of the removal
      * @param listener   The listener for node structural changes
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     public abstract int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener);
 
@@ -319,8 +319,8 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * 
      * This method should always mark which range it parsed in the document.
      */
-    @OnThread(Tag.Swing)
-    protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    @OnThread(Tag.FX)
+    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return ALL_OK;
     }
@@ -335,7 +335,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param maxParse  The (advisory) maximum amount of document to re-parse in one hit
      * @param listener  The structure listener to be notified of structural changes
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FX)
     public void reparse(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int size = getSize();
@@ -368,7 +368,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param document  The source document
      * @return  A linked list of Token objects
      */
-    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, Document document);
+    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, MoeSyntaxDocument document);
 
     protected ParsedNode getParentNode()
     {
@@ -399,8 +399,8 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * It is the responsibility of this method to notify the listener of the child's change
      * in size, if it occurs.
      */
-    @OnThread(Tag.Swing)
-    protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
+    @OnThread(Tag.FX)
+    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         return false;
@@ -423,7 +423,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     /**
      * Get code completion suggestions at a particular point. May return null.
      */
-    public CodeSuggestions getExpressionType(int pos, Document document)
+    public CodeSuggestions getExpressionType(int pos, MoeSyntaxDocument document)
     {
         return getExpressionType(pos, 0, null, document);
     }
@@ -436,7 +436,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param defaultType  The type to return if there is no explicit type at the given location 
      * @param document  The source document
      */
-    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
+    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {

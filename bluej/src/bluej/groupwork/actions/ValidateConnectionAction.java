@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,10 @@
  */
 package bluej.groupwork.actions;
 
-import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
@@ -62,5 +62,10 @@ public class ValidateConnectionAction extends AbstractAction
         TeamSettings settings = teamSettingsPanel.getSettings();
 
         Platform.runLater(() -> new CheckConnectionDialog(owner.get(), provider, settings).showAndCheck());
+    }
+
+    public String getName()
+    {
+        return (String) getValue(Action.NAME);
     }
 }

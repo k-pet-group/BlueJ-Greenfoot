@@ -76,6 +76,7 @@
         <pathelement location="${bluej_home}/lib/jsch-0.1.53.jar"/>
         <pathelement location="${bluej_home}/lib/org.eclipse.jgit-4.1.0.jar"/>
         <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
+        <pathelement location="${bluej_home}/lib/richtextfx-fat-0.7-M5n.jar"/>
         <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
 
@@ -513,7 +514,6 @@
                 <include name="*.jar"/>
                 <exclude name="bluej*.jar"/>
                 <exclude name="lang-stride.jar"/>
-                <exclude name="bjdoclet.jar"/>
                 <exclude name="greenfoot-native.jar"/>
 
                 <!-- Now we exclude all files for which the license is correctly noted in the

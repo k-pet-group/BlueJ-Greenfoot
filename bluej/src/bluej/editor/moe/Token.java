@@ -21,8 +21,12 @@
  */
 package bluej.editor.moe;
 
+import com.google.common.collect.ImmutableSet;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * This is a replacement for the Token class from jedit.
@@ -32,30 +36,32 @@ import threadchecker.Tag;
 @OnThread(Tag.Any)
 public class Token
 {
-    public byte id;     // Token type, one of the constants declared below
+    public TokenType id;     // Token type, one of the constants declared below
     public int length;  // Length of text represented by this token
     public Token next;  // Next token in the chain
+
+    public static enum TokenType
+    {
+        DEFAULT, COMMENT_NORMAL, COMMENT_JAVADOC, COMMENT_SPECIAL, KEYWORD1, KEYWORD2, KEYWORD3, PRIMITIVE, LITERAL1, LITERAL2, LABEL, OPERATOR, INVALID, END;
+
+        public String getCSSClass()
+        {
+            return "token-" + name().toLowerCase().replace("_", "-");
+        }
+
+        private static ImmutableSet<String> ALL_CLASSES;
+
+        public static ImmutableSet<String> allCSSClasses()
+        {
+            if (ALL_CLASSES == null)
+            {
+                ALL_CLASSES = ImmutableSet.copyOf(Arrays.stream(values()).map(TokenType::getCSSClass).collect(Collectors.toList()));
+            }
+            return ALL_CLASSES;
+        }
+    }
     
-    public static final byte NULL = 0;
-    public static final byte COMMENT1 = 1;  // normal comment
-    public static final byte COMMENT2 = 2;  // javadoc comment
-    public static final byte COMMENT3 = 3;  // standout comment
-    public static final byte KEYWORD1 = 4;
-    public static final byte KEYWORD2 = 5;
-    public static final byte KEYWORD3 = 6;
-    public static final byte PRIMITIVE = 7;
-    public static final byte LITERAL1 = 8;
-    public static final byte LITERAL2 = 9;
-    public static final byte LABEL = 10;
-    public static final byte OPERATOR = 11;
-    public static final byte INVALID = 12;
-    
-    /* The number of token ids (above) */
-    public static final byte ID_COUNT = 13;
-    
-    public static final byte END = 100;
-    
-    public Token(int length, byte id)
+    public Token(int length, TokenType id)
     {
         this.id = id;
         this.length = length;

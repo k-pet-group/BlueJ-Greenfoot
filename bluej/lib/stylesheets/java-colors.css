@@ -1,0 +1,54 @@
+.token-keyword1 {
+    -fx-fill: #660033;
+}
+.token-keyword2 {
+    -fx-fill: #cc0000;
+}
+.token-keyword3 {
+    -fx-fill: #006699;
+}
+
+.token-comment-normal {
+    -fx-fill: #999999;
+}
+.token-comment-javadoc {
+    -fx-fill: #000099;
+}
+.token-comment-standout {
+    -fx-fill: #ee00bb;
+}
+
+.token-primitive {
+    -fx-fill: #cc0000;
+}
+.token-string {
+    -fx-fill: #006600;
+}
+.token-label {
+    -fx-fill: #999999;
+}
+.token-invalid {
+    -fx-fill: #ff3300;
+}
+/* Default text colour */
+.token-default {
+    -fx-fill: #000000;
+}
+
+.scope-colors {
+    -bj-background-color: white;
+
+    -bj-class-color: rgb(225, 248, 225);
+    -bj-class-outer-color: rgb(188, 218, 188);
+    -bj-class-inner-color: rgb(210, 230, 210);
+
+    -bj-method-color: rgb(250, 250, 180);
+    -bj-method-outer-color: rgb(215, 215, 205);
+
+    -bj-selection-color: rgb(233, 233, 248);
+    -bj-selection-outer-color: rgb(188, 188, 210);
+
+    -bj-iteration-color: rgb(248, 233, 248);
+    -bj-iteration-outer-color: rgb(210, 177, 210);
+
+}

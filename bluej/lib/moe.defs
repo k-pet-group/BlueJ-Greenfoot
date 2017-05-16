@@ -1,11 +1,5 @@
 # Moe editor default properties
 
-##
-##  Define the toolbar
-##
-
-toolbar = compile undo cut copy paste find close
-
 # actions for toolbar commands (only needed when it differs from command name)
 
 openAction = open-file
@@ -13,67 +7,4 @@ cutAction = cut-to-clipboard
 copyAction = copy-to-clipboard
 pasteAction = paste-from-clipboard
 find-nextAction = find-next
-
-##
-##  Define the popup menu
-##
-
-popupmenu = cut copy paste
-
-##
-##  Define the menus. Each menu gets a key, which is used afterwards to
-##  define the menu's details.
-##
-
-menubar = class edit tools option
-
-# Actions for menus. Each value must be a defined moe action name. Each 
-#   action becomes an item in the menu. Use the minus sign (-) to create 
-#   a separator.
-
-class = save reload - page-setup print - close
-edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block autoindent - insert-method add-javadoc
-tools = find find-next find-next-backward replace go-to-line - compile toggle-breakpoint - toggle-interface-view
-option = key-bindings preferences
-
-# Syntax colour definitions
-# =========================
-
-# Key to values
-# -------------
-
-# comment	Single line comments (//) and standard multi-line comments (/*  */)
-# javadoc	Multi-line javadoc comments (/**   */)
-# keyword1	Standard Java keywords (e.g. abstract, final, do, if, else, new, catch etc.)
-# keyword2	Class creation keywords (package, import, class, interface, extends, implements)
-# keyword3	Remaining Java keywords (this, null, super, true, false)
-# primitive	Java primitives (int, float, double, char)
-# string    String literals (anything in "quotes")
-# label     Labels for loops or in switch/case statements
-# invalid   Unclosed string literals or other detected errors
-# other     Anything else
-# background Editor background colour
-
-# Any of the values above that are not defined are given the BlueJ default colours.
-
-# Key to colours
-# --------------
-
-# Each colour should be given a six digit hexadecimal value of the from rrggbb where
-# the pairs of digits refer to the red, green and blue values respectively.
-
-comment = 999999
-javadoc = 000099
-stand-out = ee00bb
-keyword1 = 660033
-keyword2 = cc0000
-keyword3 = 006699
-primitive = cc0000
-string = 006600
-label = 999999
-
-invalid = ff3300
-
-other = 000000
-background = ffffff
 

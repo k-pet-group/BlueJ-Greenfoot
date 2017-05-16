@@ -133,11 +133,12 @@ public class ErrorAndFixDisplay
         });
     }
 
+    @OnThread(Tag.FXPlatform)
     private void recordShow()
     {
         final EditorWatcher watcher = editor.getFrameEditor().getWatcher();
         List<String> fixDisplayText = Utility.mapList(fixes, FixDisplay::getDisplayText);
-        SwingUtilities.invokeLater(() -> watcher.recordShowErrorMessage(error.getIdentifier(), fixDisplayText));
+        watcher.recordShowErrorMessage(error.getIdentifier(), fixDisplayText);
     }
 
     @OnThread(Tag.FXPlatform)
@@ -267,10 +268,11 @@ public class ErrorAndFixDisplay
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private void recordExecute(int fixIndex)
     {
         final EditorWatcher watcher = editor.getFrameEditor().getWatcher();
-        SwingUtilities.invokeLater(() -> watcher.recordFix(error.getIdentifier(), fixIndex));
+        watcher.recordFix(error.getIdentifier(), fixIndex);
     }
 }
 

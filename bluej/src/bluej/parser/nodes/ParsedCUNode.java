@@ -26,6 +26,7 @@ import java.util.List;
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.ImportsCollection;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -60,7 +61,7 @@ public class ParsedCUNode extends IncrementalParsingNode
      * assume its size is 0; the text from the document (if any) should
      * be explicitly inserted.
      */
-    public ParsedCUNode(Document document)
+    public ParsedCUNode(MoeSyntaxDocument document)
     {
         super(null);
         size = 0;

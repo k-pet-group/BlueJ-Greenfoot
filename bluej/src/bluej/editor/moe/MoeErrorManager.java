@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -30,6 +31,9 @@ import javax.swing.JEditorPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 
+import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
+import bluej.utility.Utility;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.parser.SourceLocation;
@@ -39,16 +43,8 @@ import bluej.parser.SourceLocation;
  * 
  * @author Davin McCall
  */
-public class MoeErrorManager implements MoeDocumentListener
+public class MoeErrorManager
 {
-    /** Parse error delay in milliseconds */
-    //private static final int ERR_DISPLAY_DELAY = 1000;
-    
-    // Error highlight colors
-    private static final Color ERROR_HIGHLIGHT_GRADIENT1 = new Color(240,128,128);
-    private static final Color ERROR_HIGHLIGHT_GRADIENT2 = new Color(240,190,190);
-    private static final Color ERROR_HIGHLIGHT_SELECTED1 = ERROR_HIGHLIGHT_GRADIENT1;
-    private static final Color ERROR_HIGHLIGHT_SELECTED2 = ERROR_HIGHLIGHT_GRADIENT2;
     private final List<ErrorDetails> errorInfos = new ArrayList<>();
     private MoeEditor editor;
     private Consumer<Boolean> setNextErrorEnabled;
@@ -62,15 +58,7 @@ public class MoeErrorManager implements MoeDocumentListener
         this.editor = editor;
         this.setNextErrorEnabled = setNextErrorEnabled;
     }
-    
-    /** A timer used to delay the appearance of parse errors until the user is idle */
-    //private Timer timer;
-    
-    /** Parse errors that are currently being displayed */
-//    private NodeTree<ParseErrorNode> parseErrors = new NodeTree<ParseErrorNode>();
-    /** Parse errors that haven't yet been displayed */
-//    private NodeTree<ParseErrorNode> pendingErrors = new NodeTree<ParseErrorNode>();
-    
+
     /**
      * Add a compiler error highlight.
      * @param startPos  The document position where the error highlight should begin
@@ -81,18 +69,12 @@ public class MoeErrorManager implements MoeDocumentListener
         if (endPos < startPos)
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
         
-        JEditorPane sourcePane = editor.getSourcePane();
-        try {
-            MoeHighlighter highlighter = (MoeHighlighter) sourcePane.getHighlighter();
-            AdvancedHighlightPainter painter = new MoeSquigglyUnderlineHighlighterPainter(Color.RED, offs -> editor.getLineColumnFromOffset(offs).getLine());
-            Object errorHighlightTag = highlighter.addHighlight(startPos, endPos, painter);
-            errorInfos.add(new ErrorDetails(errorHighlightTag, startPos, endPos, message, identifier));
-            setNextErrorEnabled.accept(true);
-            editor.updateHeaderHasErrors(true);
-        }
-        catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
+        MoeEditorPane sourcePane = editor.getSourcePane();
+        sourcePane.setStyleSpans(startPos, sourcePane.getStyleSpans(startPos, endPos).mapStyles(s -> Utility.setAdd(s, MoeEditorPane.ERROR_CLASS)));
+        editor.getSourceDocument().setParagraphAttributes(startPos, Collections.singletonMap(ParagraphAttribute.ERROR, true));
+        errorInfos.add(new ErrorDetails(startPos, endPos, message, identifier));
+        setNextErrorEnabled.accept(true);
+        editor.updateHeaderHasErrors(true);
     }
     
     /**
@@ -100,11 +82,8 @@ public class MoeErrorManager implements MoeDocumentListener
      */
     public void removeAllErrorHighlights()
     {
-        JEditorPane sourcePane = editor.getSourcePane();
-        for (ErrorDetails err : errorInfos)
-        {
-            sourcePane.getHighlighter().removeHighlight(err.highlightTag);
-        }
+        editor.getSourceDocument().removeStyleThroughout(MoeEditorPane.ERROR_CLASS);
+        editor.getSourceDocument().setParagraphAttributes(Collections.singletonMap(ParagraphAttribute.ERROR, false));
         errorInfos.clear();
         setNextErrorEnabled.accept(false);
         editor.updateHeaderHasErrors(false);
@@ -140,53 +119,13 @@ public class MoeErrorManager implements MoeDocumentListener
     }
     
     /**
-     * Notify the error manager of an insert update to the document.
+     * Notify the error manager of a change to the document.
      */
-    public void insertUpdate(DocumentEvent e)
+    public void documentContentChanged()
     {
-//        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset());
-//        if (nap != null) {
-//            nap.slide(e.getLength());
-//        }
-//        
-//        nap = pendingErrors.findNodeAtOrAfter(e.getOffset());
-//        if (nap != null) {
-//            nap.slide(e.getLength());
-//        }
-//        
-//        if (timer != null) {
-//            timer.restart();
-//        }
-        
         setNextErrorEnabled.accept(false);
     }
-    
-    /**
-     * Notify the error manager of a remove update to the document.
-     */
-    public void removeUpdate(DocumentEvent e)
-    {
-//        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
-//        if (nap != null) {
-//            if (nap.getPosition() >= e.getOffset() + e.getLength()) {
-//                nap.slide(-e.getLength());
-//            }
-//        }
-//        
-//        nap = pendingErrors.findNodeAtOrAfter(e.getOffset() + e.getLength());
-//        if (nap != null) {
-//            if (nap.getPosition() >= e.getOffset() + e.getLength()) {
-//                nap.slide(-e.getLength());
-//            }
-//        }
-//
-//        if (timer != null) {
-//            timer.restart();
-//        }
 
-        setNextErrorEnabled.accept(false);
-    }
-    
     /**
      * Get the error code (or message) at a particular document position.
      */
@@ -198,62 +137,10 @@ public class MoeErrorManager implements MoeDocumentListener
                 .orElse(null);
     }
     
-    @Override
-    @OnThread(Tag.Any)
-    public void parseError(int position, int size, String message)
-    {
-        // Don't add this error if it overlaps an existing error:
-//        NodeAndPosition<ParseErrorNode> nap = parseErrors.findNodeAtOrAfter(position);
-//        while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
-//            nap = nap.nextSibling();
-//        }
-//        if (nap != null) {
-//            if (nap.getEnd() <= position + size) {
-//                return;
-//            }
-//        }
-//
-//        nap = pendingErrors.findNodeAtOrAfter(position);
-//        while (nap != null && nap.getEnd() == position && nap.getPosition() != position) {
-//            nap = nap.nextSibling();
-//        }
-//        if (nap != null) {
-//            if (nap.getEnd() <= position + size) {
-//                return;
-//            }
-//        }
-//
-//        pendingErrors.insertNode(new ParseErrorNode(null, message), position, size);
-//
-//        if (timer == null) {
-//            timer = new Timer(ERR_DISPLAY_DELAY, new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e)
-//                {
-//                    timerExpiry();
-//                }
-//            });
-//
-//            timer.setCoalesce(true);
-//            timer.setRepeats(false);
-//            timer.start();
-//        }
-    }    
-    
-    @Override
-    @OnThread(Tag.Any)
-    public void reparsingRange(int position, int size)
-    {
-//        // Remove any parse error highlights in the reparsed range
-//        int endPos = position + size;
-//        
-//        clearReparsedRange(parseErrors, position, endPos);
-//        clearReparsedRange(pendingErrors, position, endPos);
-    }
-    
     /**
      * Returns null if no error on that line
      */
+    @OnThread(Tag.FXPlatform)
     public ErrorDetails getErrorOnLine(int lineIndex)
     {
         final int lineStart = editor.getOffsetFromLineColumn(new SourceLocation(lineIndex + 1, 1));
@@ -279,10 +166,8 @@ public class MoeErrorManager implements MoeDocumentListener
         public final int endPos;
         public final String message;
         public final int identifier;
-        private final Object highlightTag;
-        private ErrorDetails(Object highlightTag, int startPos, int endPos, String message, int identifier)
+        private ErrorDetails(int startPos, int endPos, String message, int identifier)
         {
-            this.highlightTag = highlightTag;
             this.startPos = startPos;
             this.endPos = endPos;
             this.message = message;
@@ -294,66 +179,5 @@ public class MoeErrorManager implements MoeDocumentListener
             return startPos <= pos && pos <= endPos;
         }
     }
-    
-//    private void clearReparsedRange(NodeTree<ParseErrorNode> tree, int position, int endPos)
-//    {
-//        NodeAndPosition<ParseErrorNode> nap = tree.findNodeAtOrAfter(position);
-//        while (nap != null && nap.getPosition() <= endPos) {
-//            ParseErrorNode pen = nap.getNode();
-//            JEditorPane sourcePane = editor.getSourcePane();
-//            Object highlightTag = pen.getHighlightTag();
-//            if (highlightTag != null) {
-//                sourcePane.getHighlighter().removeHighlight(highlightTag);
-//            }
-//            
-//            NodeAndPosition<ParseErrorNode> nnap = nap.nextSibling();
-//            pen.remove();
-//            nap = nnap;
-//        }
-//    }
-    
-    /**
-     * The timer expired... make pending errors visible
-     */
-//    private void timerExpiry()
-//    {
-//        NodeAndPosition<ParseErrorNode> nap = pendingErrors.findNodeAtOrAfter(0);
-//        while (nap != null) {
-//            ParseErrorNode pen = nap.getNode();
-//            
-//            int position = nap.getPosition();
-//            int size = nap.getSize();
-//
-//            JEditorPane sourcePane = editor.getSourcePane();
-//            int caretPos = sourcePane.getCaretPosition();
-//            
-//            try {
-//                MoeHighlighter mhiliter = (MoeHighlighter) sourcePane.getHighlighter();
-//                Object highlightTag = mhiliter.addHighlight(
-//                        position, position + size,
-//                        new MoeBorderHighlighterPainter(Color.RED, Color.RED, Color.PINK,
-//                                Color.RED, Color.PINK)
-//                );
-//
-//                parseErrors.insertNode(new ParseErrorNode(highlightTag, pen.getErrCode()), position, size);
-//                
-//                // Check if the error overlaps the caret currently
-//                if (caretPos >= position && caretPos <= position + size) {
-//                    if (! editor.isShowingInterface()) {
-//                        editor.writeMessage(ParserMessageHandler.getMessageForCode(pen.getErrCode()));
-//                    }
-//                }
-//            }
-//            catch (BadLocationException ble) {
-//                throw new RuntimeException(ble);
-//            }
-//            
-//            nap = nap.nextSibling();
-//        }
-//        
-//        pendingErrors.clear();
-//        timer = null;
-//    }
-    
-    
+
 }

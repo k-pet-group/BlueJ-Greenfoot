@@ -21,36 +21,36 @@ LICENSE.txt file that accompanied this code.
  */
 package bluej.editor.moe;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.DBox;
-import bluej.utility.DBoxLayout;
+import bluej.editor.moe.MoeEditor.FindNavigator;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.InnerShadow;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 
 /**
  * The FindPanel class implements the find functionality of the MoeEditor.
@@ -60,320 +60,256 @@ import bluej.utility.DBoxLayout;
  * @author  Marion Zalk
  * @author  Michael Kölling
  */
-public class FindPanel extends JPanel implements ActionListener, DocumentListener, MouseListener
+@OnThread(Tag.FXPlatform)
+public class FindPanel extends GridPane
 {
-    private MoeEditor editor;
-    private JComponent findBody;
-    private DBox findTextBody;
-    private DBox optionsBody;
-    private JPanel mcBody;
-    private JPanel closeBody;
-    private DBox findLabelBox;
-    private JLabel replaceLabel;
-    private JTextField findTField;
-    private JButton previousButton;
-    private JButton nextButton;
-    private JCheckBox matchCaseCheckBox;
-    private JLabel replaceIconLabel;
-    private JLabel closeIconLabel;
-    private String searchString = "";
-    private static Font findFont;
-    private ImageIcon openIcon;
-    private ImageIcon closedIcon;
-    private int searchStart = -1;
+    private final TextField replaceField;
+    private final MoeEditor editor;
+    private final CheckBox matchCaseCheckBox;
+    private final Button previousButton;
+    private final Button nextButton;
+    private final TextField findField;
+    private FindNavigator currentNavigator;
+    private final BooleanProperty findResultsFound = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty showingReplace;
 
     /**
      * Constructor that creates and displays the different elements of the Find Panel
      */
     public FindPanel(MoeEditor ed)
     {
-        super(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
-        openIcon = Config.getFixedImageAsIcon("bluej_arrow_open.gif");
-        closedIcon = Config.getFixedImageAsIcon("bluej_arrow_close.gif");
-        findFont = PrefMgr.getStandardFont();
-
         editor = ed;
-        initDisplay();
+        JavaFXUtil.addStyleClass(this, "moe-find-panel");
 
-        setFindDisplay();
-        setCaseCheckDisplay();
-        setCloseDisplay();
-        setPrevNextDisplay();
-        setReplaceDisplay();
+        // Various MoeEditor calls make us invisible; take us out of the layout when that happens
+        managedProperty().bind(visibleProperty());
 
-        addDisplayElements();
-
-        findTField.addFocusListener(new FocusListener()
-        {
-
-            public void focusGained(FocusEvent e)
-            {
-                if (searchStart == -1) {
-                    searchStart = editor.getCurrentTextPane().getCaretPosition();
-                }
-            }
-
-            public void focusLost(FocusEvent e)
-            {
-                searchStart = -1;
-            }
-        });
-
-    }
-
-    @Override
-    public void setVisible(boolean aFlag)
-    {
-        if (aFlag && !isVisible()) {
-            // Remember the current caret location so we can revert to it if
-            // the search term cannot be found.
-            searchStart = editor.getCurrentTextPane().getSelectionStart();
-        }
-        super.setVisible(aFlag);
-        if (aFlag) {
-            findTField.requestFocus();
-        }
-    }
-
-    /**
-     * Get the maximum and preferred width of the "find:" label.
-     */
-    public int getLabelBoxWidth()
-    {
-        return findLabelBox.getPreferredSize().width;
-    }
-
-    /**
-     * Initialise the structure for the display panel
-     */
-    private void initDisplay()
-    {
-        findBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
-        findTextBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+        JavaFXUtil.addStyleClass(this, "moe-find-grid");
         //prev, next
-        optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-        mcBody = new DBox(DBoxLayout.X_AXIS, 0, 0, 0.5f);
 
-        if (!Config.isRaspberryPi()) findBody.setOpaque(false);
-        if (!Config.isRaspberryPi()) findTextBody.setOpaque(false);
-        if (!Config.isRaspberryPi()) optionsBody.setOpaque(false);
-        if (!Config.isRaspberryPi()) mcBody.setOpaque(false);
+        HBox mcBody = new HBox();
 
-        closeBody = new JPanel(new BorderLayout());
-        if (!Config.isRaspberryPi()) closeBody.setOpaque(false);
-    }
+        BorderPane closeBody = new BorderPane();
+        JavaFXUtil.addStyleClass(closeBody, "moe-find-close-wrapper");
 
-    /**
-     * Initialise find buttons and labels
-     */
-    private void setFindDisplay()
-    {
-        JLabel findLabel = new JLabel(Config.getString("editor.findpanel.findLabel"));
-        findLabel.setFont(findFont);
+        Label findLabel = new Label(Config.getString("editor.findpanel.findLabel"));
+        JavaFXUtil.addStyleClass(findLabel, "moe-find-label");
+        // We don't want the Find label to move when the replace pane is toggled,
+        // so we want the find label to be the same size as the replace label
+        // although due to translations we don't know which one is bigger.  Easiest
+        // way I can think of is to have invisible copy of replace label underneath
+        // find label in a stack pane, thus forcing the larger of the two sizes:
+        Label replaceDummyLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
+        JavaFXUtil.addStyleClass(replaceDummyLabel, "moe-find-label");
+        replaceDummyLabel.setVisible(false);
+        StackPane findLabelPane = new StackPane(replaceDummyLabel, findLabel);
 
-        replaceLabel = new JLabel(Config.getString("editor.replacePanel.replaceLabel"));
-        replaceLabel.setFont(findFont);
+        Label replaceFoldOutLabel = new Label(Config.getString("editor.findpanel.replacePanel"));
 
-        Dimension lblSize = findLabel.getPreferredSize();
-        lblSize.width = Math.max(lblSize.width, replaceLabel.getPreferredSize().width);
+        StackPane.setAlignment(findLabel, Pos.CENTER_RIGHT);
 
-        findLabelBox = new DBox(DBox.X_AXIS, 0.5f);
-        findLabelBox.setMaximumSize(lblSize);
-        findLabelBox.setPreferredSize(lblSize);
-        findLabelBox.add(Box.createHorizontalGlue());
-        findLabelBox.add(findLabel);
-        findLabelBox.setOpaque(false);
-
-        findTField = new JTextField(11);
-        findTField.setMaximumSize(findTField.getPreferredSize());
-        findTField.setFont(findFont);
-        setSearchString("");
-        setfindTextField("");
-        findTField.getDocument().addDocumentListener(this);
-        findTField.addActionListener(this);
-    }
-
-    /**
-     * Initialise the previous and next buttons
-     */
-    private void setPrevNextDisplay()
-    {
-        previousButton = new JButton();
-        previousButton.addActionListener(this);
-        previousButton.setText(Config.getString("editor.findpanel.findPrevious") + " ");
-        previousButton.setEnabled(false);
-        previousButton.setFont(findFont);
-
-        nextButton = new JButton();
-        nextButton.addActionListener(this);
-        nextButton.setText(Config.getString("editor.findpanel.findNext"));
-        nextButton.setEnabled(false);
-        nextButton.setFont(findFont);
-
-        if (Config.isMacOS()) {
-            previousButton.putClientProperty("JButton.buttonType", "segmentedTextured");
-            previousButton.putClientProperty("JButton.segmentPosition", "first");
-            nextButton.putClientProperty("JButton.buttonType", "segmentedTextured");
-            nextButton.putClientProperty("JButton.segmentPosition", "last");
-        }
-    }
-
-    /**
-     * Initialise the check case check box
-     */
-    private void setCaseCheckDisplay()
-    {
-        matchCaseCheckBox = new JCheckBox();
+        findField = new TextField();
+        JavaFXUtil.addStyleClass(findField, "moe-find-field");
+        JavaFXUtil.addChangeListenerPlatform(findField.textProperty(), search -> {
+            updateFindResult();
+        });
+        matchCaseCheckBox = new CheckBox();
         matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
         matchCaseCheckBox.setSelected(false);
-        matchCaseCheckBox.setFont(findFont);
-        matchCaseCheckBox.addActionListener(this);
-        if (!Config.isRaspberryPi()) matchCaseCheckBox.setOpaque(false);
-    }
+        JavaFXUtil.addChangeListenerPlatform(matchCaseCheckBox.selectedProperty(), cs -> {
+            updateFindResult();
+        });
+        Label closeIconLabel = new Label();
+        closeIconLabel.setGraphic(makeCloseIcon());
+        closeIconLabel.setOnMouseClicked(e -> cancelFind());
 
-    /**
-     * Returns true if the case should be matched
-     */
-    public boolean getMatchCase()
-    {
-        return matchCaseCheckBox.isSelected();
-    }
-
-    /**
-     * Initialise the close button
-     */
-    private void setCloseDisplay()
-    {
-        closeIconLabel = new JLabel();
-        closeIconLabel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 10));
-        closeIconLabel.setIcon(Config.getFixedImageAsIcon("cross.png"));
-        closeIconLabel.addMouseListener(this);
-    }
-
-    /**
-     * Initialise the buttons and labels for replace functionality
-     */
-    private void setReplaceDisplay()
-    {
-        replaceIconLabel = new JLabel(Config.getString("editor.findpanel.replacePanel"));
-        replaceIconLabel.setFont(findFont);
-        replaceIconLabel.setIcon(closedIcon);
-        replaceIconLabel.addMouseListener(this);
-    }
-
-    /**
-     * Adds the different elements into the display
-     */
-    private void addDisplayElements()
-    {
-        findTextBody.add(findLabelBox);
-        findTextBody.add(findTField);
-
-        if (Config.isMacOS()) {
-            DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
-            if (!Config.isRaspberryPi()) buttonBox.setOpaque(false);
-            buttonBox.add(previousButton);
-            buttonBox.add(nextButton);
-            optionsBody.add(buttonBox);
-        } else {
-            optionsBody.add(previousButton);
-            optionsBody.add(nextButton);
-        }
-
-        closeBody.add(closeIconLabel, BorderLayout.EAST);
-
-        mcBody.add(matchCaseCheckBox);
-        mcBody.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingLarge * 2));
-        mcBody.add(replaceIconLabel);
-
-        findBody.add(findTextBody);
-        findBody.add(optionsBody);
-        findBody.add(mcBody);
-
-        add(findBody, BorderLayout.WEST);
-        add(closeBody, BorderLayout.EAST);
-
-        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, "escapeAction");
-        this.getActionMap().put("escapeAction", new AbstractAction()
-        { //$NON-NLS-1$
-
-            public void actionPerformed(ActionEvent e)
+        previousButton = new Button();
+        previousButton.setOnAction(e -> {
+            if (currentNavigator != null && currentNavigator.validProperty().get())
             {
-                close();
+                currentNavigator.selectPrev();
+            }
+        });
+        Label prevShortcut = new Label("\u21e7\u23ce");
+        previousButton.setText(Config.getString("editor.findpanel.findPrevious"));
+        previousButton.setGraphic(prevShortcut);
+        previousButton.setDisable(true);
+
+        nextButton = new Button();
+        nextButton.setOnAction(e -> {
+            if (currentNavigator != null && currentNavigator.validProperty().get())
+            {
+                currentNavigator.selectNext(false);
+            }
+        });
+        nextButton.setText(Config.getString("editor.findpanel.findNext"));
+        Label nextShortcut = new Label("\u23ce");
+        nextButton.setGraphic(nextShortcut);
+        nextButton.setDisable(true);
+
+        nextShortcut.visibleProperty().bind(findField.focusedProperty());
+        prevShortcut.visibleProperty().bind(findField.focusedProperty());
+
+        Nodes.addInputMap(findField, InputMap.sequence(
+            InputMap.consume(EventPattern.keyPressed(KeyCode.ESCAPE), e -> cancelFind()),
+            InputMap.consume(EventPattern.keyPressed(KeyCode.ENTER), e -> nextButton.fire()),
+            InputMap.consume(EventPattern.keyPressed(KeyCode.ENTER, SHIFT_DOWN), e -> previousButton.fire())
+        ));
+
+        showingReplace = new SimpleBooleanProperty(false);
+        Polygon triangle = new Polygon(0, 0, 8, 5, 0, 10);
+        triangle.rotateProperty().bind(Bindings.when(showingReplace).then(90).otherwise(0));
+        replaceFoldOutLabel.setGraphic(triangle);
+        // We must use an event filter on pressed, rather than a handler
+        // on clicked, so that we intercept the click and stop it hitting the
+        // background, which moves focus to the editor.
+        replaceFoldOutLabel.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            showingReplace.set(!showingReplace.get());
+            e.consume();
+        });
+
+        GridPane.setHalignment(closeBody, HPos.RIGHT);
+        closeBody.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setHgrow(closeBody, Priority.ALWAYS);
+        closeBody.setCenter(closeIconLabel);
+        BorderPane.setAlignment(closeIconLabel, Pos.CENTER_RIGHT);
+
+        JavaFXUtil.addStyleClass(mcBody, "moe-find-options");
+        mcBody.setAlignment(Pos.CENTER);
+        matchCaseCheckBox.setAlignment(Pos.CENTER);
+        replaceFoldOutLabel.setAlignment(Pos.CENTER);
+        mcBody.getChildren().add(matchCaseCheckBox);
+        mcBody.getChildren().add(replaceFoldOutLabel);
+
+        Label replaceLabel = new Label(Config.getString("editor.replacePanel.replaceLabel"));
+        JavaFXUtil.addStyleClass(replaceLabel, "moe-find-label");
+        replaceField = new TextField();
+
+        Nodes.addInputMap(replaceField, InputMap.sequence(
+                InputMap.consume(EventPattern.keyPressed(KeyCode.ESCAPE), e -> cancelFind())
+        ));
+
+        Button replaceOne = new Button(Config.getString("editor.replacePanel.replaceOnce"));
+        Button replaceAll = new Button(Config.getString("editor.replacePanel.replaceAll"));
+
+        replaceOne.setOnAction(e -> {
+            if (currentNavigator.validProperty().get())
+            {
+                setCurrentNavigator(currentNavigator.replaceCurrent(replaceField.getText()));
+            }
+        });
+        replaceAll.setOnAction(e -> {
+            if (currentNavigator.validProperty().get())
+            {
+                currentNavigator.replaceAll(replaceField.getText());
             }
         });
 
-    }
+        // The find field needs to be filled to do a replace,
+        // but the replace field can be empty (to remove the find string)
+        replaceOne.disableProperty().bind(findField.textProperty().isEmpty().or(findResultsFound.not()));
+        replaceAll.disableProperty().bind(replaceOne.disableProperty());
 
-    /**
-     * Performs the required action dependent on source of action event 
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-        JComponent src = (JComponent) e.getSource();
+        add(findLabelPane, 0, 0);
+        add(findField, 1, 0);
+        add(previousButton, 2, 0);
+        add(nextButton, 3, 0);
+        add(mcBody, 4, 0);
+        add(closeBody, 5, 0);
 
-        if (src == nextButton || src == findTField) {
-            getNext();
-        } else if (src == previousButton) {
-            getPrev();
-        } else if (src == matchCaseCheckBox) {
-            editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
-            find(true);
+        add(replaceLabel, 0, 1);
+        add(replaceField, 1, 1);
+        add(replaceOne, 2, 1);
+        add(replaceAll, 3, 1);
+
+        for (Node n : new Node[] {replaceLabel, replaceField, replaceOne, replaceAll})
+        {
+            n.visibleProperty().bind(showingReplace);
+            n.managedProperty().bind(n.visibleProperty());
+        }
+
+        mcBody.setFillHeight(true);
+        for (Button b : new Button[]{previousButton, nextButton, replaceOne, replaceAll})
+        {
+            b.setMaxHeight(Double.MAX_VALUE);
+            b.setMaxWidth(Double.MAX_VALUE);
         }
     }
 
     /**
-     * Search forwards
+     * Makes a cross inside a circle for the close icon
      */
-    public void getNext()
+    private static Node makeCloseIcon()
     {
-        editor.getCurrentTextPane().setCaretPosition((editor.getCurrentTextPane().getSelectionStart() + 1));
-        find(true);
-        editor.enableReplaceButtons();
+        // Some of this could be moved to CSS, but the size of the circle and lines must be specified in code,
+        // and various display aspects like shadow size and stroke width are dependent on size, so it makes
+        // sense to have it all together in one place:
+        Circle circle = new Circle(10);
+        circle.setEffect(new InnerShadow(BlurType.GAUSSIAN, Color.rgb(128, 128, 128, 0.4), 2, 0.5, 1, 1));
+        circle.setFill(Color.rgb(190, 190, 190, 1.0));
+        Line lineA = new Line(0, 0, 7, 7);
+        lineA.setStrokeWidth(3);
+        lineA.setStroke(Color.rgb(240, 240, 240));
+        Line lineB = new Line(0, 7, 7, 0);
+        lineB.setStrokeWidth(3);
+        lineB.setStroke(Color.rgb(240, 240, 240));
+        StackPane stackPane = new StackPane(circle, lineA, lineB);
+        // Make it a bit easier to click on by using square bounds, not the inner circle:
+        stackPane.setPickOnBounds(true);
+        return stackPane;
     }
 
     /**
-     * Search backwards
+     * Hides the panel and clears the text fields.
      */
-    public void getPrev()
+    private void cancelFind()
     {
-        find(false);
-        editor.enableReplaceButtons();
+        findField.clear();
+        replaceField.clear();
+        setReplaceEnabled(false);
+        setVisible(false);
     }
 
     /**
-     * Finds a instance of the search string (forward, from the current selection beginning),
-     * writes a message and moves the caret as required.
+     * Finds a instance of the search string (forward, from the current selection beginning,
+     * including the possibility that the search result begins at current selection beginning).
      */
-    private void findEvent()
+    private void updateFindResult()
     {
-        int selBegin = editor.getCurrentTextPane().getSelectionStart();
+        setCurrentNavigator(editor.doFind(getSearchString(), !matchCaseCheckBox.isSelected()));
+    }
 
-        //check there has been a legitimate change in the search criteria            
-        if (getSearchString() != null) {
-            //previous search had a value and this search is empty
-            //need to remove highlighting and have no message
-            if (findTField.getText().length() == 0) {
-                //need to reset the search to the beginning of the last selected
-                editor.removeSearchHighlights();
-                setSearchString(null);
-                editor.getCurrentTextPane().setCaretPosition(selBegin);
-                writeMessage(false, 0);
-                return;
-            }
+    /**
+     * Updates the search state based on the given FindNavigator object.
+     *
+     * This occurs either when the search term changes, or a replacement has occurred
+     * (which basically triggers a new find).
+     *
+     * All results will be highlighted, and if there are any results, the first will be selected.
+     */
+    private void setCurrentNavigator(FindNavigator navigator)
+    {
+        currentNavigator = navigator;
+        previousButton.disableProperty().unbind();
+        nextButton.disableProperty().unbind();
+        if (currentNavigator == null)
+        {
+            // Don't turn us red if the search string is empty:
+            JavaFXUtil.setPseudoclass("bj-no-find-result", !getSearchString().isEmpty(), findField);
+            previousButton.setDisable(true);
+            nextButton.setDisable(true);
+            findResultsFound.set(false);
         }
+        else
+        {
 
-        editor.getCurrentTextPane().setCaretPosition(selBegin);
-        boolean found = find(true);
-        if (!found && searchStart != -1) {
-            // If nothing found, caret should be moved back to position it was in before
-            // the search started.
-            editor.getCurrentTextPane().setCaretPosition(searchStart);
+            JavaFXUtil.setPseudoclass("bj-no-find-result", false, findField);
+            currentNavigator.highlightAll();
+            currentNavigator.selectNext(true);
+            previousButton.disableProperty().bind(currentNavigator.validProperty().not());
+            nextButton.disableProperty().bind(currentNavigator.validProperty().not());
+            findResultsFound.set(true);
         }
-        updateDisplay(found);
     }
 
     /**
@@ -382,72 +318,17 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void displayFindPanel(String selection)
     {
-        if (selection == null) {
+        if (selection == null)
+        {
             selection = getSearchString();
         }
-        setSearchString(selection);
         this.setVisible(true);
         populateFindTextfield(selection);
     }
 
     public String getSearchString()
     {
-        return searchString;
-    }
-
-    /**
-     * Sets the text in the textfield and resets the searchString to the new text
-     * @param searchString
-     */
-    public void setSearchString(String searchString)
-    {
-        this.searchString = searchString;
-    }
-
-    /**
-     * Enable (previous and next) buttons if there is a valid search string.
-     * If not these buttons should be disabled
-     */
-    private void updateDisplay(boolean enable)
-    {
-        previousButton.setEnabled(enable);
-        nextButton.setEnabled(enable);
-        editor.enableReplaceButtons(enable);
-    }
-
-    /**
-     * When the editor finds a value it needs to reset the caret to before the search string
-     * This ensures that the find will continue to find including what has already 
-     * just been found. This is required as partial finds are done.
-     * @param src JTextField is the source and focus is reset there and searchQuery is reset
-     */
-    private void setFindValues()
-    {
-        setSearchString(findTField.getText());
-        findTField.requestFocus();
-    }
-
-    /**
-     *  HighlightAll instances of the search String with a replacement.
-     * -reset number of finds to 0
-     * -search forward or backward depending on choice
-     * -print out number of highlights 
-     */
-    public boolean highlightAll(boolean ignoreCase, boolean forwards)
-    {
-        int counter = search(ignoreCase, true, forwards);
-        //if there was nothing found, need to move the caret back to its original position
-        //also need to disable buttons accordingly
-        if (counter < 1) {
-            if (searchStart != -1) {
-                editor.getCurrentTextPane().setCaretPosition(searchStart);
-            }
-            previousButton.setEnabled(false);
-            nextButton.setEnabled(false);
-            editor.enableReplaceButtons(false);
-        }
-        writeMessage(true, counter);
-        return counter != 0;
+        return findField.getText();
     }
 
     /**
@@ -480,141 +361,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     }
 
     /**
-     * Search either forwards or backwards for the search string, highlighting all occurrences.
-     * If no occurrences are found, the caret position is lost.
-     */
-    private int search(boolean ignoreCase, boolean wrap, boolean next)
-    {
-        String searchStr = getSearchString();
-        if (searchStr.length() == 0) {
-            return 0;
-        }
-
-        int found;
-        if (!next) {
-            editor.doFindBackward(searchStr, ignoreCase, wrap);
-        } else {
-            editor.doFind(searchStr, ignoreCase, wrap);
-        }
-
-        // position the caret so that following doFindSelect finds the correct occurrence
-        int caretPos = editor.getCurrentTextPane().getCaretPosition();
-        if (caretPos > getSearchString().length()) {
-            caretPos = editor.getCurrentTextPane().getCaretPosition() - searchStr.length();
-        }
-        editor.getCurrentTextPane().setCaretPosition(caretPos);
-        found = editor.doFindSelect(searchStr, ignoreCase, wrap);
-        return found;
-    }
-
-    /**
-     * Find the current search string in either the forwards or backwards direction, 
-     * highlighting all occurrences, and selecting the first found occurrence.
-     */
-    protected boolean find(boolean forward)
-    {
-        setFindValues();
-        editor.removeSearchHighlights();
-        return highlightAll(!matchCaseCheckBox.isSelected(), forward);
-    }
-
-    public String getSearchTextfield()
-    {
-        return findTField.getText();
-    }
-
-    public void changedUpdate(DocumentEvent e)
-    {
-    }
-
-    /**
-     * Initiates a find
-     */
-    public void insertUpdate(DocumentEvent e)
-    {
-        findEvent();
-    }
-
-    /**
-     * Initiates a find
-     */
-    public void removeUpdate(DocumentEvent e)
-    {
-        if (findTField.getText().length() == 0) {
-            //need to reset the search to the beginning of the last selected
-            editor.removeSearchHighlights();
-            editor.removeSelections();
-            setSearchString(null);
-            if (searchStart != -1) {
-                editor.getCurrentTextPane().setCaretPosition(searchStart);
-            }
-            writeMessage(false, 0);
-            updateDisplay(false);
-        } else {
-            findEvent();
-        }
-    }
-
-    public void setfindTextField(String selection)
-    {
-        findTField.setText(selection);
-    }
-
-    public void mouseClicked(MouseEvent e)
-    {
-        JComponent src = (JComponent) e.getSource();
-        if (src == closeIconLabel) {
-            close();
-            return;
-        }
-        if (src == replaceIconLabel) {
-            if (editor.isShowingInterface()) {
-                return;
-            }
-            editor.toggleReplacePanelVisible();
-            if (replaceIconLabel.getIcon() == openIcon) {
-                replaceIconLabel.setIcon(closedIcon);
-            } else if (replaceIconLabel.getIcon() == closedIcon) {
-                replaceIconLabel.setIcon(openIcon);
-            }
-        }
-    }
-
-    public void mouseEntered(MouseEvent e)
-    {
-    }
-
-    public void mouseExited(MouseEvent e)
-    {
-    }
-
-    public void mousePressed(MouseEvent e)
-    {
-    }
-
-    public void mouseReleased(MouseEvent e)
-    {
-    }
-
-    public void setTextfieldSelected()
-    {
-        findTField.selectAll();
-    }
-
-    /**
-     * setFindReplaceIcon can set the icon for the replace as being open/closed
-     * @param open icon is open/closed
-     */
-    protected void setFindReplaceIcon(boolean open)
-    {
-        if (open) {
-            replaceIconLabel.setIcon(openIcon);
-        } else {
-            replaceIconLabel.setIcon(closedIcon);
-        }
-    }
-
-    /**
      * Removes the highlights and sets the find and replace panel to invisible
      * Also resets the replace icon to closed
      */
@@ -622,18 +368,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         editor.removeSearchHighlights();
         this.setVisible(false);
-        editor.setReplacePanelVisible(false);
-        editor.getCurrentTextPane().requestFocusInWindow();
-        replaceIconLabel.setIcon(closedIcon);
-    }
-
-    /**
-     * 
-     * @return text field for search text
-     */
-    protected JTextField getFindTField()
-    {
-        return findTField;
+        editor.getCurrentTextPane().requestFocus();
     }
 
     /**
@@ -641,7 +376,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     protected void requestFindfieldFocus()
     {
-        findTField.requestFocus();
+        findField.requestFocus();
     }
 
     /**
@@ -649,9 +384,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     protected void populateFindTextfield(String selection)
     {
-        setfindTextField(selection);
-        findTField.selectAll();
-        findTField.requestFocus();
+        findField.setText(selection);
+        findField.selectAll();
+        findField.requestFocus();
     }
 
     /**
@@ -660,28 +395,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     protected void setReplaceEnabled(boolean isEnabled)
     {
-        replaceIconLabel.setEnabled(isEnabled);
-        //if it is in documentation view (i.e disabled) the icon should be closed (even though it is disabled)
-        if (!isEnabled) {
-            setFindReplaceIcon(false);
-        }
-    }
-
-    /**
-     * Returns current search location
-     * @return current search location
-     */
-    protected int getSearchStart()
-    {
-        return searchStart;
-    }
-
-    /**
-     * Sets the search location to the specified value
-     * @param searchStart SourceLocation specifying the beginning of the search
-     */
-    protected void setSearchStart(int searchStart)
-    {
-        this.searchStart = searchStart;
+        showingReplace.set(isEnabled);
     }
 }

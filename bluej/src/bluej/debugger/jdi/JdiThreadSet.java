@@ -62,14 +62,16 @@ public class JdiThreadSet extends HashSet<JdiThread>
     /**
      * Remove the given thread from the set.
      */
-    public void removeThread(ThreadReference thread)
+    public JdiThread removeThread(ThreadReference thread)
     {
         for(Iterator<JdiThread> it=iterator(); it.hasNext(); ) {
-            if(((JdiThread)it.next()).getRemoteThread().equals(thread)) {
+            JdiThread jdiThread = it.next();
+            if(jdiThread.getRemoteThread().equals(thread)) {
                 it.remove();
-                return;
+                return jdiThread;
             }
         }
         Debug.reportError("Unknown thread died!");
+        return null;
     }
 }

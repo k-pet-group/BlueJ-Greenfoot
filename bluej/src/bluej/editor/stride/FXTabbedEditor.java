@@ -157,22 +157,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         this.startSize = startSize;
     }
 
-    @OnThread(Tag.Swing)
-    public static void disableCtrlTabTraversal(JComponent component)
-    {
-        KeyStroke ctrlTab = KeyStroke.getKeyStroke("ctrl TAB");
-        KeyStroke ctrlShiftTab = KeyStroke.getKeyStroke("ctrl shift TAB");
-        // Remove ctrl-tab from normal focus traversal
-        Set<AWTKeyStroke> forwardKeys = new HashSet<AWTKeyStroke>(component.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
-        forwardKeys.remove(ctrlTab);
-        component.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forwardKeys);
-
-        // Remove ctrl-shift-tab from normal focus traversal
-        Set<AWTKeyStroke> backwardKeys = new HashSet<AWTKeyStroke>(component.getFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS));
-        backwardKeys.remove(ctrlShiftTab);
-        component.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardKeys);
-    }
-
     static boolean isUselessDrag(FrameCursor dragTarget, List<Frame> dragging, boolean copying)
     {
         return !copying && (dragging.contains(dragTarget.getFrameAfter()) || dragging.contains(dragTarget.getFrameBefore()));
@@ -617,11 +601,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /**
      * Removes the given tab from this tabbed editor window
      */
+    @OnThread(Tag.FXPlatform)
     public void close(FXTab tab)
     {
         close(tab, false);
     }
 
+    @OnThread(Tag.FXPlatform)
     private void close(FXTab tab, boolean partOfMove)
     {
         tabPane.getTabs().remove(tab);

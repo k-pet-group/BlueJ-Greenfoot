@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2017  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,38 +21,43 @@
  */
 package bluej.editor.moe;
 
+import bluej.Config;
+import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
+import bluej.editor.moe.Token.TokenType;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.javafx.FXCache;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.collect.ImmutableSet;
+import javafx.application.Platform;
+import javafx.beans.binding.ObjectExpression;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.richtext.model.TwoDimensional.Bias;
+import org.fxmisc.richtext.model.TwoDimensional.Position;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.Toolkit;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Stack;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentEvent.ElementChange;
-import javax.swing.event.DocumentEvent.EventType;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.Map.Entry;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
-import javax.swing.text.Position;
 import javax.swing.text.Segment;
-import javax.swing.text.TabExpander;
-import javax.swing.text.Utilities;
-import javax.swing.text.ViewFactory;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -68,7 +73,7 @@ import javax.swing.text.ViewFactory;
  * @author Michael Kolling
  * @author Davin McCall
  */
-public abstract class BlueJSyntaxView extends MoePlainView
+public class BlueJSyntaxView
 {
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
@@ -76,170 +81,314 @@ public abstract class BlueJSyntaxView extends MoePlainView
     private static final int LEFT_INNER_SCOPE_MARGIN = 5;
     private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
     private static final int RIGHT_SCOPE_MARGIN = 4;
-    private static int strength = PrefMgr.getScopeHighlightStrength();
-    
-    {
-        MoeSyntaxDocument.getColors(); // initialize colors
-        resetColors();
-    }
+    private static final int CURVED_CORNER_SIZE = 4;
+    // See comments in getImageFor for more info.
+    // 1 means draw edge, 2 means draw filling
+    private static final int[][] CORNER_TEMPLATE = new int[][] {
+            {0, 0, 1, 1},
+            {0, 1, 2, 2},
+            {1, 2, 2, 2},
+            {1, 2, 2, 2}
+    };
+    private final MoeSyntaxDocument document;
+    private final FXCache<ScopeInfo, Image> imageCache;
+    private final ScopeColors scopeColors;
+    private int imageCacheLineHeight;
+    private ReadOnlyDoubleProperty widthProperty; // width of editor view
+    private MoeEditorPane editorPane;
 
     /* Scope painting colours */
-    public static final Color GREEN_BASE = new Color(225, 248, 225);
-    public static final Color BLUE_BASE = new Color(233, 233, 248);
-    public static final Color YELLOW_BASE = new Color(250, 250, 180);
-    public static final Color PINK_BASE = new Color(248, 233, 248);
-    public static final Color GREEN_OUTER_BASE = new Color(188, 218, 188);
-    public static final Color BLUE_OUTER_BASE = new Color(188, 188, 210);
-    public static final Color YELLOW_OUTER_BASE = new Color(215, 215, 205);
-    public static final Color PINK_OUTER_BASE = new Color(210, 177, 210);
-    public static final Color GREEN_INNER_BASE = new Color(210, 230, 210);
-    
     /* The following are initialized by resetColors() */
-    private static Color C1; // green border (container)
-    private static Color C2; // green wash
-    private static Color C3; // green border (inner).
+    private Color BK; // background
 
-    private static Color M1; // yellow border (methods)
-    private static Color M2; // yellow wash
+    private Color C1; // green border (container)
+    private Color C2; // green wash
+    private Color C3; // green border (inner).
 
-    private static Color S1; // blue border (selection)
-    private static Color S2; // blue wash
+    private Color M1; // yellow border (methods)
+    private Color M2; // yellow wash
 
-    private static Color I1; // pink border (iteration)
-    private static Color I2; // pink wash
+    private Color S1; // blue border (selection)
+    private Color S2; // blue wash
+
+    private Color I1; // pink border (iteration)
+    private Color I2; // pink wash
 
 
-    /** System settings for graphics rendering (inc. font antialiasing etc.) */
-    private static Map<?,?> desktopHints = null;
+    // Each item in the list maps the list index (as number of spaces) to indent amount
+    private final List<Integer> cachedSpaceSizes = new ArrayList<>();
 
-    // private members
-    private Segment line;
+    public static enum ParagraphAttribute
+    {
+        STEP_MARK("bj-step-mark"), BREAKPOINT("bj-breakpoint"), ERROR("bj-error"), ERROR_ABOVE("bj-error-above"), ERROR_BELOW("bj-error-below");
 
-    protected Font defaultFont;
-    private boolean initialised = false;
+        private final String pseudoClass;
 
-    private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
+        ParagraphAttribute(String pseudoClass)
+        {
+            this.pseudoClass = pseudoClass;
+        }
 
-    private final MoeErrorManager errors;
+        public String getPseudoclass()
+        {
+            return pseudoClass;
+        }
+    }
 
+    // The line numbers in both maps start at one:
+    private final Map<Integer, EnumSet<ParagraphAttribute>> paragraphAttributes = new HashMap<>();
+    private final Map<Integer, FXPlatformConsumer<EnumSet<ParagraphAttribute>>> paragraphAttributeListeners = new HashMap<>();
+
+    /**
+     * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
+     * When this is zero, it means it is not yet fully valid as the editor has not
+     * yet appeared on screen.
+     */
+    private final Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
 
     /**
      * Creates a new BlueJSyntaxView.
-     * @param elem The element
      */
-    public BlueJSyntaxView(Element elem, int leftMargin, MoeErrorManager errors)
+    public BlueJSyntaxView(MoeSyntaxDocument document, ScopeColors scopeColors)
     {
-        super(elem, leftMargin);
-        line = new Segment();
-        this.errors = errors;
+        this.document = document;
+        this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 200);
+        this.scopeColors = scopeColors;
+        resetColors();
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
+            resetColors();
+            imageCache.clear();
+            document.recalculateAllScopes();
+        });
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
+            imageCache.clear();
+            nodeIndents.clear();
+            cachedSpaceSizes.clear();
+            document.recalculateAllScopes();
+        });
+        // We use class color as a proxy for listening to all colors:
+        JavaFXUtil.addChangeListenerPlatform(scopeColors.scopeClassColorProperty(), str -> {
+            // runLater to make sure all colours have been set:
+            Platform.runLater(() ->
+            {
+                resetColors();
+                imageCache.clear();
+                document.recalculateAllScopes();
+            });
+        });
     }
 
-    @Override
-    public void paint(Graphics g, Shape a)
-    {
-        if (desktopHints != null && g instanceof Graphics2D) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.addRenderingHints(desktopHints); 
-        }
-
-        super.paint(g, a);
-    }
-
-    /*
-     * Paints the specified line. This is called by the paint() method from PlainView.
+    /**
+     * Gets the syntax token styles for a given line of code.
      *
-     * @param lineIndex The line number (0 based).
-     * @param g The graphics context
-     * @param x The x co-ordinate where the line should be painted
-     * @param y The y co-ordinate (baseline) where the line should be painted
+     * Returns null if there are no styles to apply (e.g. on a blank line or one with only whitespace).
      */
-    @Override
-    protected void drawLine(int lineIndex, Graphics g, int x, int y)
+    protected final StyleSpans<ImmutableSet<String>> getTokenStylesFor(int lineIndex, MoeSyntaxDocument document)
     {
-        if(!initialised) {
-            initialise(g);
-        }
-
-        MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
-
-        Color def = MoeSyntaxDocument.getDefaultColor();
-        TabExpander tx = new MoeTabExpander(tabSize, x);
-
-        try {
-            Element lineElement = getElement().getElement(lineIndex);
-            int start = lineElement.getStartOffset();
-            int end = lineElement.getEndOffset();
-
-            document.getText(start, end - (start + 1), line);
-            g.setColor(def);
-
-            paintTaggedLine(line, lineIndex, g, x, y, document, errors, def, lineElement, tx);
-        }
-        catch (BadLocationException bl) {
-            // shouldn't happen
-            throw new RuntimeException(bl);
-        }
-    }
-
-    /**
-     * Paint a line of text, without syntax colouring. This is provided as a convenience for subclasses.
-     */
-    protected void paintPlainLine(int lineIndex, Graphics g, int x, int y)
-    {
-        super.drawLine(lineIndex, g, x, y);
-    }
-
-    /**
-     * Draw a line for this view. Default implementation defers to paintSyntaxLine().
-     * @param x  The x co-ordinate of the line, where the text is to begin (i.e. the margin area is
-     *           to the left of this point)
-     */
-    protected void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
-            MoeSyntaxDocument document, MoeErrorManager errors, Color def, Element lineElement, TabExpander tx)
-    {
-        paintSyntaxLine(line, lineIndex, x, y, g, document, def, tx);
-    }
-
-    /**
-     * Paints a line with syntax highlighting,
-     * @param x  The x co-ordinate of the line, where the text is to begin (i.e. the margin area is
-     *           to the left of this point)
-     */
-    protected final void paintSyntaxLine(Segment line, int lineIndex, int x, int y,
-            Graphics g, MoeSyntaxDocument document, 
-            Color def, TabExpander tx)
-    {
-        Color[] colors = MoeSyntaxDocument.getColors();
+        StyleSpansBuilder<ImmutableSet<String>> lineStyle = new StyleSpansBuilder<>();
         Token tokens = document.getTokensForLine(lineIndex);
-        int offset = 0;
+        boolean addedAny = false;
         for(;;) {
-            byte id = tokens.id;
-            if(id == Token.END)
+            TokenType id = tokens.id;
+            if(id == TokenType.END)
                 break;
 
-            int length = tokens.length;
-            Color color;
-            if (id == Token.NULL || id >= colors.length) {
-                color = def;
-            }
-            else {
-                color = colors[id];
-            }
-            g.setColor(color);
-            line.count = length;
-            
-            x = Utilities.drawTabbedText(line,x,y,g,tx,offset);
-            line.offset += length;
-            offset += length;
+            lineStyle.add(ImmutableSet.of(id.getCSSClass()), tokens.length);
+            addedAny = true;
 
             tokens = tokens.next;
         }
+        if (addedAny)
+            return lineStyle.create();
+        else
+            return null;
     }
 
-    protected final void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
+    protected final void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods)
     {
-        paintScopeMarkers(g, document, a, firstLine, lastLine, onlyMethods, false);
+        paintScopeMarkers(scopes, document, fullWidth, firstLine, lastLine, onlyMethods, false);
+    }
+
+    public List<ScopeInfo> recalculateScopes(MoeSyntaxDocument moeSyntaxDocument, int firstLineIncl, int lastLineIncl)
+    {
+        List<ScopeInfo> scopes = new ArrayList<>();
+        paintScopeMarkers(scopes, moeSyntaxDocument, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), firstLineIncl, lastLineIncl, false);
+        return scopes;
+    }
+
+    public Image getImageFor(ScopeInfo s, int lineHeight)
+    {
+        if (lineHeight == 0)
+        {
+            return new WritableImage(1, 1);
+        }
+
+        // Many of the images we use will be duplicated, e.g. for multiple lines in the same body of a block
+        // So we keep them in a cache to save unnecessary effort drawing new line backgrounds:
+        if (lineHeight != imageCacheLineHeight)
+        {
+            imageCache.clear();
+            imageCacheLineHeight = lineHeight;
+        }
+        return imageCache.get(s);
+    }
+
+    private Image drawImageFor(ScopeInfo s, int lineHeight)
+    {
+        WritableImage image = new WritableImage(s.nestedScopes.stream().mapToInt(n -> n.leftRight.rhs + 1).max().orElse(1) + 1, lineHeight);
+
+        for (ScopeInfo.SingleNestedScope singleNestedScope : s.nestedScopes)
+        {
+            LeftRight leftRight = singleNestedScope.leftRight;
+            int sideTopMargin = leftRight.starts ? CURVED_CORNER_SIZE : 0;
+            int sideBottomMargin = leftRight.ends ? CURVED_CORNER_SIZE : 0;
+            fillRect(image.getPixelWriter(), leftRight.lhs, 0 + sideTopMargin, leftRight.padding, lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
+            for (int y = sideTopMargin; y < lineHeight - sideBottomMargin; y++)
+            {
+                image.getPixelWriter().setColor(leftRight.lhs, y, leftRight.edgeColor);
+            }
+
+            // I realise it seems crazy to be drawing the curved corners manually here.  But
+            // the JavaFX PixelWriter class for writing directly to an image has no support for anything
+            // better than setting individual pixels.  It would be possible to create a Canvas
+            // and fill an arc and then pull a snapshot of the Canvas into an image, but getting right
+            // things like HiDPI would be difficult.  So it is the simplest solution to just
+            // draw a simple curved corner ourselves:
+
+            if (leftRight.starts)
+            {
+                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                {
+                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    {
+                        if (CORNER_TEMPLATE[y][x] == 1)
+                            image.getPixelWriter().setColor(leftRight.lhs + x, y, leftRight.edgeColor);
+                        else if (CORNER_TEMPLATE[y][x] == 2)
+                            image.getPixelWriter().setColor(leftRight.lhs + x, y, leftRight.fillColor);
+                    }
+                }
+            }
+            if (leftRight.ends)
+            {
+                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                {
+                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    {
+                        if (CORNER_TEMPLATE[y][x] == 1)
+                            image.getPixelWriter().setColor(leftRight.lhs + x, lineHeight - 1 - y, leftRight.edgeColor);
+                        else if (CORNER_TEMPLATE[y][x] == 2)
+                            image.getPixelWriter().setColor(leftRight.lhs + x, lineHeight - 1 - y, leftRight.fillColor);
+                    }
+                }
+            }
+
+
+            Middle middle = singleNestedScope.middle;
+
+            fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, lineHeight, middle.bodyColor);
+
+            if (middle.topColor != null)
+            {
+                for (int x = middle.lhs; x < middle.rhs; x++)
+                {
+                    image.getPixelWriter().setColor(x, 0, middle.topColor);
+                }
+            }
+
+            if (middle.bottomColor != null)
+            {
+                for (int x = middle.lhs; x < middle.rhs; x++)
+                {
+                    image.getPixelWriter().setColor(x, lineHeight - 1, middle.bottomColor);
+                }
+            }
+
+
+            // Right edge:
+            fillRect(image.getPixelWriter(), leftRight.rhs - leftRight.padding, 0 + sideTopMargin, leftRight.padding, lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
+            for (int y = sideTopMargin; y < lineHeight - sideBottomMargin; y++)
+            {
+                image.getPixelWriter().setColor(leftRight.rhs, y, leftRight.edgeColor);
+            }
+
+            if (leftRight.starts && leftRight.rhs > CURVED_CORNER_SIZE)
+            {
+                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                {
+                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    {
+                        if (CORNER_TEMPLATE[y][x] == 1)
+                            image.getPixelWriter().setColor(leftRight.rhs - x, y, leftRight.edgeColor);
+                        else if (CORNER_TEMPLATE[y][x] == 2)
+                            image.getPixelWriter().setColor(leftRight.rhs - x, y, leftRight.fillColor);
+                    }
+                }
+            }
+            if (leftRight.ends && leftRight.rhs > CURVED_CORNER_SIZE)
+            {
+                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                {
+                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    {
+                        if (CORNER_TEMPLATE[y][x] == 1)
+                            image.getPixelWriter().setColor(leftRight.rhs - x, lineHeight - 1 - y, leftRight.edgeColor);
+                        else if (CORNER_TEMPLATE[y][x] == 2)
+                            image.getPixelWriter().setColor(leftRight.rhs - x, lineHeight - 1 - y, leftRight.fillColor);
+                    }
+                }
+            }
+        }
+
+        if (s.isStepLine())
+        {
+            ScopeInfo.SingleNestedScope innermostScope = s.nestedScopes.get(s.nestedScopes.size() - 1);
+            double leftSide = innermostScope.leftRight.lhs;
+            double rightSide = innermostScope.leftRight.rhs;
+            for (int x = 0; x < leftSide; x++)
+            {
+                image.getPixelWriter().setArgb(x, (int)(image.getHeight() / 2), 0xFF000000);
+            }
+            for (int x = (int)rightSide; x < image.getWidth(); x++)
+            {
+                image.getPixelWriter().setArgb(x, (int)(image.getHeight() / 2), 0xFF000000);
+            }
+        }
+
+        return image;
+    }
+
+    private static void fillRect(PixelWriter pixelWriter, int x, int y, int w, int h, Color c)
+    {
+        // If we're trying to draw off the left-hand/top edge, just truncate the rectangles
+        if (x < 0)
+        {
+            // If x is -4, we want to take +4 off the width:
+            w -= -x;
+            x = 0;
+        }
+        if (y < 0)
+        {
+            h -= -y;
+            y = 0;
+        }
+
+        for (int i = 0; i < w; i++)
+        {
+            for (int j = 0; j < h; j++)
+            {
+                pixelWriter.setColor(x + i, y + j, c);
+            }
+        }
+    }
+
+    public void setEditorPane(MoeEditorPane editorPane)
+    {
+        this.editorPane = editorPane;
+        this.widthProperty = editorPane.widthProperty();
+        JavaFXUtil.addChangeListener(widthProperty, w -> {
+            document.fireChangedUpdate(null);
+        });
     }
 
     /**
@@ -257,16 +406,22 @@ public abstract class BlueJSyntaxView extends MoePlainView
         Element belowLineEl;
     }
 
-    protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
+    protected void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
         //optimization for the raspberry pi.
-        if (strength == 0) {
-            return;
-        }
+        //if (strength == 0) {
+            //return;
+        //}
         
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParsedNode();
+
+        if (rootNode == null)
+        {
+            // Not initialised yet
+            return;
+        }
 
         int aboveLine = firstLine - 1;
         List<NodeAndPosition<ParsedNode>> prevScopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
@@ -306,7 +461,9 @@ public abstract class BlueJSyntaxView extends MoePlainView
                     break;
                 }
 
-                drawScopes(a, g, document, lines, prevScopeStack, small, onlyMethods, 0);
+                ScopeInfo scope = new ScopeInfo(false);
+                scopes.add(scope);
+                drawScopes(fullWidth, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
 
                 // Next line
                 curLine++;
@@ -337,49 +494,43 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
     private class DrawInfo
     {
-        Graphics g;
+        final ScopeInfo scopes;
         ThreeLines lines;
         boolean small;
 
         ParsedNode node;
-        int ypos;
-        int ypos2;
         boolean starts;  // the node starts on the current line
         boolean ends;    // the node ends on the current line
         Color color1;    // Edge colour
         Color color2;    // Fill colour
+
+        private DrawInfo(ScopeInfo scopes)
+        {
+            this.scopes = scopes;
+        }
     }
 
     /**
      * Draw the scope highlighting for one line of the document.
      * 
-     * @param a              the shape to render into
+     * @param fullWidth      the width of the editor view
      * @param g              the graphics context to render to
      * @param document       the document
      * @param lines          the previous, current and next lines (segments and elements)
      * @param prevScopeStack the stack of nodes (from outermost to innermost) at the beginning of the current line
      */
-    private void drawScopes(Shape a, Graphics g, MoeSyntaxDocument document, ThreeLines lines,
+    private void drawScopes(int fullWidth, ScopeInfo scopes, MoeSyntaxDocument document, ThreeLines lines,
             List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
             boolean onlyMethods, int nodeDepth)
     throws BadLocationException
     {
-        Rectangle lbounds = modelToView(lines.thisLineEl.getStartOffset(), a,
-                Position.Bias.Forward).getBounds();
-        int ypos = lbounds.y;
-        int ypos2 = ypos + lbounds.height;
-
         int rightMargin = small ? 0 : 20;
-        int fullWidth = a.getBounds().width + a.getBounds().x;
 
         ListIterator<NodeAndPosition<ParsedNode>> li = prevScopeStack.listIterator();
 
-        DrawInfo drawInfo = new DrawInfo();
-        drawInfo.g = g;
+        DrawInfo drawInfo = new DrawInfo(scopes);
         drawInfo.lines = lines;
         drawInfo.small = small;
-        drawInfo.ypos = ypos;
-        drawInfo.ypos2 = ypos2;
 
         // Process the current scope stack. This contains all nodes that span the beginning of this line,
         // the foremost child and its foremost child and so on.
@@ -403,12 +554,12 @@ public abstract class BlueJSyntaxView extends MoePlainView
             }
 
             // Draw the start node
-            int xpos = getNodeIndent(a, document, nap, lines.thisLineEl,
+            int xpos = getNodeIndent(document, nap, lines.thisLineEl,
                     lines.thisLineSeg);
-            if (xpos != - 1 && xpos <= a.getBounds().x + a.getBounds().width) {
+            if (xpos != - 1 && xpos <= fullWidth) {
                 boolean starts = nodeSkipsStart(nap, lines.aboveLineEl, lines.aboveLineSeg);
                 boolean ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl, lines.belowLineSeg);
-                int rbound = getNodeRBound(a, nap, fullWidth - rightMargin, nodeDepth,
+                int rbound = getNodeRBound(nap, fullWidth - rightMargin, nodeDepth,
                         lines.thisLineEl, lines.thisLineSeg);
 
                 drawInfo.node = nap.getNode();
@@ -418,8 +569,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 drawInfo.color1 = colors[0];
                 drawInfo.color2 = colors[1];
 
-                drawScopeLeft(drawInfo, xpos, rbound);
-                drawScopeRight(drawInfo, rbound);
+                drawInfo.scopes.nestedScopes.add(calculatedNestedScope(drawInfo, xpos, rbound));
             }
             nodeDepth++;
         }
@@ -460,9 +610,9 @@ public abstract class BlueJSyntaxView extends MoePlainView
                     if (drawNode(drawInfo, nextNap, onlyMethods)) {
                         // Draw it
                         nodeDepth++;
-                        int xpos = getNodeIndent(a, document, nextNap, lines.thisLineEl,
+                        int xpos = getNodeIndent(document, nextNap, lines.thisLineEl,
                                 lines.thisLineSeg);
-                        int rbound = getNodeRBound(a, nextNap, fullWidth - rightMargin, nodeDepth,
+                        int rbound = getNodeRBound(nextNap, fullWidth - rightMargin, nodeDepth,
                                 lines.thisLineEl, lines.thisLineSeg);
                         drawInfo.node = nextNap.getNode();
                         Color [] colors = colorsForNode(drawInfo.node);
@@ -473,15 +623,89 @@ public abstract class BlueJSyntaxView extends MoePlainView
                         drawInfo.ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl,
                                 lines.belowLineSeg);
 
-                        if (xpos != -1 && xpos <= a.getBounds().x + a.getBounds().width) {
-                            drawScopeLeft(drawInfo, xpos, rbound);
-                            drawScopeRight(drawInfo, rbound);
+                        if (xpos != -1 && xpos <= fullWidth) {
+                            drawInfo.scopes.nestedScopes.add(calculatedNestedScope(drawInfo, xpos, rbound));
                         }
                     }
                 }
                 
                 nap = nextNap;
                 nextNap = nextNap.getNode().findNodeAtOrAfter(napPos, napPos);
+            }
+        }
+    }
+
+    /**
+     * Gets the left edge of the character at the given offset into the document, if we can calculate it.
+     */
+    private OptionalInt getLeftEdge(int startOffset)
+    {
+        if (editorPane == null)
+            return OptionalInt.empty();
+
+        /*
+         * So, if a character is on screen, it's trivial to calculate the indent in pixels, we just ask the
+         * editor pane.  If the character is not on screen, the editor pane won't tell us the indent.  Which
+         * would prevent us drawing the scope boxes correctly.  Consider this case:
+         *                                <----- This is the top of the viewport
+         * class A
+         * {
+         *     public void method foo()
+         *     {
+         *
+         *                                <----- This is the bottom of the viewport
+         *  } //line X
+         * }
+         *
+         * Because we can't calculate the indent for line X, we would draw the scope box for the method with
+         * its left-hand edge 4 spaces in, rather than 1 as it should be, and when we scrolled down, it would
+         * either be wrong or we would need a redraw, which would look ugly.
+         *
+         * However, here's the trick.  If the line off-screen is *more* indented than any line on screen, it
+         * won't affect our scope drawing (because we are looking for the left edge).  If the line off-screen
+         * is indented *less* than any of the lines on screen then we can use the line on-screen with the highest
+         * indent to calculate the scope that we need.  This is because if you've got a line with say 20 spaces,
+         * and you need to know the indent for an 8-space line, then you can just calculate it by asking for
+         * the 8th character position on the 20-space line.  So as long as we want an indent with less spaces
+         * than the largest line on screen, we can calculate it.
+         *
+         * We store cached indent sizes (to cut down on continual recalculation) in the cachedSpaceSizes
+         * array, where item at index 0 is the pixel indent for 0 spaces, item 1 is the pixel indent for 1 spaces, etc.
+         * We are making the assumption that spaces are always the same sizes on each line, but I can't
+         * think of any situation where that is not the case.  We clear the array when the font size changes.
+         */
+
+        Position position = document.getDocument().offsetToPosition(startOffset, Bias.Forward);
+        if (document.getDocument().getParagraph(position.getMajor()).getText().substring(0, position.getMinor()).chars().allMatch(c -> c == ' '))
+        {
+            // All spaces, we can use/update cached space indents
+            int numberOfSpaces = position.getMinor();
+            while (numberOfSpaces >= cachedSpaceSizes.size())
+            {
+                // We have more spaces than the cache; we must update it if we can
+                Optional<Bounds> screenBounds = editorPane.getCharacterBoundsOnScreen(startOffset - numberOfSpaces + cachedSpaceSizes.size(), startOffset - numberOfSpaces + cachedSpaceSizes.size() + 1);
+                // If the character isn't on screen, we're not going to be able to calculate indent,
+                // and we know we haven't got a cached indent, so give up:
+                if (!screenBounds.isPresent())
+                    return OptionalInt.empty();
+                double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
+                cachedSpaceSizes.add((int)indent);
+            }
+            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces));
+        }
+        else
+        {
+            Optional<Bounds> screenBounds = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1);
+            if (screenBounds.isPresent())
+            {
+                // Minus 24 to allow for the left-hand margin:
+                double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
+                return OptionalInt.of((int)indent);
+            }
+            else
+            {
+                // Not on screen, wider than any indent we have cached, nothing we can do:
+                return OptionalInt.empty();
             }
         }
     }
@@ -522,13 +746,18 @@ public abstract class BlueJSyntaxView extends MoePlainView
         return !nodeSkipsEnd(napPos, napEnd, info.lines.thisLineEl, info.lines.thisLineSeg);
     }
 
+    private Color getBackgroundColor()
+    {
+        return BK;
+    }
+
     /**
      * Get the scope highlighting colours for a given node.
      */
     private Color[] colorsForNode(ParsedNode node)
     {
         if (node.isInner()) {
-            return new Color[] { C3, MoeSyntaxDocument.getBackgroundColor() };
+            return new Color[] { C3, getBackgroundColor() };
         }
         else {
             if (node.getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
@@ -548,83 +777,18 @@ public abstract class BlueJSyntaxView extends MoePlainView
     /**
      * Draw the left edge of the scope, and the middle part up the given bound.
      */
-    private void drawScopeLeft(DrawInfo info, int xpos, int rbound)
+    private ScopeInfo.SingleNestedScope calculatedNestedScope(DrawInfo info, int xpos, int rbound)
     {
-        Graphics g = info.g;
         if (! info.small) {
             xpos -= info.node.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
         }
 
         // draw node start
-        int hoffs = info.small ? 0 : 4; // determines size of corner arcs
-        //g.setColor(info.color2);
-        // g.fillRect(xpos + hoffs, info.ypos, endX - xpos - hoffs, ypos2 - ypos);
+        int hoffs = info.small ? 0 : CURVED_CORNER_SIZE; // determines size of corner arcs
 
-        int edgeTop = info.ypos + (info.starts ? hoffs : 0);
-        int edgeBtm = info.ypos2 - (info.ends ? hoffs : 0);
-
-        g.setColor(info.color2);
-        g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
-        g.setColor(info.color1);
-        g.drawLine(xpos, edgeTop, xpos, edgeBtm);
-
-
-        if(info.starts) {
-            // Top left corner
-            g.setColor(info.color2);
-            g.fillArc(xpos, info.ypos, hoffs * 2, hoffs * 2, 180, -90);
-
-            // Top edge
-            g.setColor(info.color1);
-            g.drawArc(xpos, info.ypos, hoffs * 2, hoffs * 2, 180, -90);
-        }
-        if(info.ends) {
-            // Bottom left corner
-            g.setColor(info.color2);
-            g.fillArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
-
-            // Bottom edge
-            g.setColor(info.color1);
-            g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
-            //g.drawLine(xpos + hoffs, ypos2 - 1, rbounds, ypos2 - 1);
-        }
-
-        drawScope(info, xpos + hoffs, rbound);
-    }
-
-    /**
-     * Draw the right edge of a scope.
-     */
-    private void drawScopeRight(DrawInfo info, int xpos)
-    {
-        Graphics g = info.g;
-
-        int hoffs = info.small ? 0 : 4; // determines size of corner arcs        
-        int edgeTop = info.ypos + (info.starts ? hoffs : 0);
-        int edgeBtm = info.ypos2 - (info.ends ? hoffs + 1 : 0);
-
-        g.setColor(info.color2);
-        g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
-
-        g.setColor(info.color1);
-        g.drawLine(xpos + hoffs, edgeTop, xpos + hoffs, edgeBtm);
-
-        if(info.starts) {
-            // Top right corner
-            g.setColor(info.color2);
-            g.fillArc(xpos - hoffs, info.ypos, hoffs * 2, hoffs * 2, 0, 90);
-
-            g.setColor(info.color1);
-            g.drawArc(xpos - hoffs, info.ypos, hoffs * 2, hoffs * 2, 0, 90);
-        }
-        if(info.ends) {
-            // Bottom right corner
-            g.setColor(info.color2);
-            g.fillArc(xpos - hoffs, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 0, -90);
-
-            g.setColor(info.color1);
-            g.drawArc(xpos - hoffs, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 0, -90);
-        }
+        return new ScopeInfo.SingleNestedScope(
+                new LeftRight(xpos, rbound, hoffs, info.starts, info.ends, info.color2, info.color1),
+                getScopeMiddle(info, xpos + hoffs, rbound));
     }
 
     /**
@@ -633,43 +797,35 @@ public abstract class BlueJSyntaxView extends MoePlainView
      * @param xpos  the leftmost x-coordinate to draw from
      * @param rbounds the rightmost x-coordinate to draw to
      */
-    private void drawScope(DrawInfo info, int xpos, int rbounds)
+    private Middle getScopeMiddle(DrawInfo info, int xpos, int rbounds)
     {
-        Graphics g = info.g;
         Color color1 = info.color1;
         Color color2 = info.color2;
         boolean startsThisLine = info.starts;
         boolean endsThisLine = info.ends;
-        int ypos = info.ypos;
-        int ypos2 = info.ypos2;
-        
-        // draw node start
-        g.setColor(color2);
-        g.fillRect(xpos, ypos, rbounds - xpos, ypos2 - ypos);
 
-        if(startsThisLine) {
-            // Top edge
-            g.setColor(color1);
-            g.drawLine(xpos, ypos, rbounds, ypos);
+        Middle middle = new Middle(color2, xpos, rbounds - 1);
+        if (startsThisLine)
+        {
+            middle.drawTop(color1);
         }
-        if(endsThisLine) {
-            // Bottom edge
-            g.setColor(color1);
-            g.drawLine(xpos, ypos2 - 1, rbounds, ypos2 - 1);
+        if (endsThisLine)
+        {
+            middle.drawBottom(color1);
         }
+        return middle;
     }
 
     /**
      * Find the rightmost bound of a node on a particular line.
-     * 
-     * @param a       The view allocation
+     *
      * @param napEnd  The end of the node (position in the document just beyond the node)
      * @param fullWidth  The full width to draw to (for the outermost mode)
      * @param nodeDepth  The node depth
      * @param lineEl   line element of the line to find the bound for
      * @param lineSeg  Segment containing text of the current line
      */
-    private int getNodeRBound(Shape a, NodeAndPosition<ParsedNode> nap, int fullWidth, int nodeDepth,
+    private int getNodeRBound(NodeAndPosition<ParsedNode> nap, int fullWidth, int nodeDepth,
             Element lineEl, Segment lineSeg) throws BadLocationException
     {
         int napEnd = nap.getEnd();
@@ -685,8 +841,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
         // node short so that the text does not appear to be part of the node.
         int nwsb = findNonWhitespaceComment(nap, lineEl, lineSeg, napEnd - lineEl.getStartOffset());
         if (nwsb != -1) {
-            Rectangle ebounds = modelToView(napEnd, a, Position.Bias.Backward).getBounds();
-            return Math.min(rbound, ebounds.x);
+            OptionalInt eboundsX = getLeftEdge(napEnd);
+            if (eboundsX.isPresent())
+                return Math.min(rbound, eboundsX.getAsInt());
+            else
+                return rbound;
         }
         return rbound;
     }
@@ -750,7 +909,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
      * If the node isn't present on the line, returns Integer.MAX_VALUE. A cached value
      * is used if available.
      */
-    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap, Element lineEl,
+    private int getNodeIndent(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap, Element lineEl,
             Segment segment)
         throws BadLocationException
     {
@@ -777,8 +936,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
         // int indent = nap.getNode().getLeftmostIndent(doc, 0, 0);
         Integer indent = nodeIndents.get(nap.getNode());
-        if (indent == null) {
-            indent = getNodeIndent(a, doc, nap);
+        // An indent value of zero is only given by getCharacterBoundsOnScreen when the editor
+        // hasn't been shown yet, so we recalculate whenever we find that indent value in the
+        // hope that the editor is now visible:
+        if (indent == null || indent == 0) {
+            indent = getNodeIndent(doc, nap);
             nodeIndents.put(nap.getNode(), indent);
         }
 
@@ -790,9 +952,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
             // we can do it without hitting non-whitespace (which must belong to another node).
             int nws = findNonWhitespaceBwards(segment, napPos - lineEl.getStartOffset() - 1, 0);
             if (nws != -1) {
-                Rectangle lbounds = modelToView(lineEl.getStartOffset() + nws + 1, a,
-                        Position.Bias.Forward).getBounds();
-                xpos = Math.max(xpos, lbounds.x);
+                OptionalInt lboundsX = getLeftEdge(lineEl.getStartOffset() + nws + 1);
+                if (lboundsX.isPresent())
+                {
+                    xpos = Math.max(xpos, lboundsX.getAsInt());
+                }
             }
         }
 
@@ -802,7 +966,7 @@ public abstract class BlueJSyntaxView extends MoePlainView
     /**
      * Calculate the indent for a node.
      */
-    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
+    private int getNodeIndent(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
         
         try {
@@ -857,8 +1021,11 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
                 if (nws == lineOffset) {
                     // Ok, at this position we have non-white space and are not in an inner
-                    Rectangle cbounds = modelToView(curpos, a, Position.Bias.Forward).getBounds();
-                    indent = Math.min(indent, cbounds.x);
+                    OptionalInt cboundsX = getLeftEdge(curpos);
+                    if (cboundsX.isPresent())
+                    {
+                        indent = Math.min(indent, cboundsX.getAsInt());
+                    }
                     curpos = lineEl.getEndOffset();
                 }
                 else if (nws == -1) {
@@ -872,14 +1039,15 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
             return indent == Integer.MAX_VALUE ? -1 : indent;
         }
-        catch (BadLocationException ble) {
+        catch (IndexOutOfBoundsException e)
+        {
             return -1;
         }
     }
     
-    private int[] reassessIndentsAdd(Shape a, int dmgStart, int dmgEnd)
+    private int[] reassessIndentsAdd(int dmgStart, int dmgEnd)
     {
-        MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
+        MoeSyntaxDocument doc = document;
         ParsedCUNode pcuNode = doc.getParsedNode();
         if (pcuNode == null) {
             return new int[] {dmgStart, dmgEnd};
@@ -978,8 +1146,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 //   which start on or before the current line.
 
                 // Calculate/store indent
-                Rectangle cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
-                int indent = cbounds.x;
+                OptionalInt cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
+                int indent = cboundsX.orElse(0); //MOEFX: is this right?
                 for (j = scopeStack.listIterator(scopeStack.size()); j.hasPrevious(); ) {
                     NodeAndPosition<ParsedNode> next = j.previous();
                     if (next.getPosition() <= curpos) {
@@ -991,8 +1159,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
                         nws = findNonWhitespace(segment, next.getPosition() - lineEl.getStartOffset());
                         Integer oindent = nodeIndents.get(next.getNode());
                         if (oindent != null && nws != -1) {
-                            cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
-                            indent = cbounds.x;
+                            cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
+                            indent = cboundsX.orElse(0); //MOEFX: is this right?
                             updateNodeIndent(next, indent, oindent, dmgRange);
                         }
                     }
@@ -1025,8 +1193,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
                                 nws = findNonWhitespace(segment, spos);
                                 Integer oindent = nodeIndents.get(nap.getNode());
                                 if (oindent != null && nws != -1) {
-                                    cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
-                                    indent = cbounds.x;
+                                    cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
+                                    indent = cboundsX.orElse(0); //MOEFX: is this right?
                                     updateNodeIndent(nap, indent, oindent, dmgRange);
                                 }
                             }
@@ -1045,15 +1213,15 @@ public abstract class BlueJSyntaxView extends MoePlainView
             }
             
             return dmgRange;
-        }
-        catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
+        } finally {}
+        //catch (BadLocationException ble) {
+        //    throw new RuntimeException(ble);
+        //}
     }
 
-    private int[] reassessIndentsRemove(Shape a, int dmgPoint, boolean multiLine)
+    private int[] reassessIndentsRemove(int dmgPoint, boolean multiLine)
     {
-        MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
+        MoeSyntaxDocument doc = document;
         ParsedCUNode pcuNode = doc.getParsedNode();
         
         int [] dmgRange = new int[2];
@@ -1104,8 +1272,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
 
             boolean doContinue = true;
 
-            Rectangle cbounds = modelToView(dmgPoint, a, Position.Bias.Forward).getBounds();
-            int dpI = cbounds.x; // damage point indent
+            OptionalInt cboundsX = getLeftEdge(dmgPoint);
+            int dpI = cboundsX.orElse(0); //MOEFX: is this right?; // damage point indent
 
             while (doContinue && ! rscopeStack.isEmpty()) {
                 NodeAndPosition<ParsedNode> rtop = rscopeStack.remove(rscopeStack.size() - 1);
@@ -1153,8 +1321,8 @@ public abstract class BlueJSyntaxView extends MoePlainView
                         continue;
                     }
 
-                    cbounds = modelToView(nws + lineEl.getStartOffset(), a, Position.Bias.Forward).getBounds();
-                    int newIndent = cbounds.x;
+                    cboundsX = getLeftEdge(nws + lineEl.getStartOffset());
+                    int newIndent = cboundsX.orElse(0); //MOEFX: is this right?
 
                     if (newIndent < cachedIndent) {
                         nodeIndents.put(rtop.getNode(), newIndent);
@@ -1174,10 +1342,10 @@ public abstract class BlueJSyntaxView extends MoePlainView
             }
             
             return dmgRange;
-        }
-        catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
+        } finally {}
+        //catch (BadLocationException ble) {
+        //    throw new RuntimeException(ble);
+        //}
     }
     
     /**
@@ -1296,101 +1464,59 @@ public abstract class BlueJSyntaxView extends MoePlainView
         return endPos - 1;
     }
 
-    /**
-     * Check whether a given line is tagged with a given tag.
-     * @param line The line to check
-     * @param tag  The name of the tag
-     * @return     True, if the tag is set
-     */
-    protected final boolean hasTag(Element line, String tag)
-    {
-        return Boolean.TRUE.equals(line.getAttributes().getAttribute(tag)); 
-    }
-
-
-    /**
-     * Initialise some fields after we get a graphics context for the first time
-     */
-    protected void initialise(Graphics g)
-    {
-        defaultFont = g.getFont();
-
-        // Use system settings for text rendering (Java 6 only)
-        if (desktopHints == null) {
-            Toolkit tk = Toolkit.getDefaultToolkit(); 
-            desktopHints = (Map<?,?>) (tk.getDesktopProperty("awt.font.desktophints"));
-        }
-        if (desktopHints != null && g instanceof Graphics2D) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.addRenderingHints(desktopHints); 
-        }
-
-        initialised = true;
-    }
-
     /*
      * Need to override this method to handle node updates. If a node indentation changes,
      * the whole node needs to be repainted.
      */
-    @Override
-    protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
+    protected void updateDamage(MoeSyntaxEvent changes)
     {
-        if (a == null) {
-            // We have no shape. One cause might be that the editor is not visible.
+        if (changes == null) {
+            // Width has changed, so do it all:
             nodeIndents.clear();
+            document.recalculateAllScopes();
             return;
         }
-        
-        MoeSyntaxDocument document = (MoeSyntaxDocument) getDocument();
-        
+
         int damageStart = document.getLength();
         int damageEnd = 0;
 
-        if (changes instanceof MoeSyntaxEvent) {
-            MoeSyntaxEvent mse = (MoeSyntaxEvent) changes;
-            for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
-                nodeRemoved(node.getNode());
-                damageStart = Math.min(damageStart, node.getPosition());
-                damageEnd = Math.max(damageEnd, node.getEnd());
-                NodeAndPosition<ParsedNode> nap = node;
-                
-                int [] r = clearNap(nap, document, damageStart, damageEnd);
-                damageStart = r[0];
-                damageEnd = r[1];
-            }
-            
-            for (NodeChangeRecord record : mse.getChangedNodes()) {
-                NodeAndPosition<ParsedNode> nap = record.nap;
-                nodeIndents.remove(nap.getNode());
-                damageStart = Math.min(damageStart, nap.getPosition());
-                damageStart = Math.min(damageStart, record.originalPos);
-                damageEnd = Math.max(damageEnd, nap.getEnd());
-                damageEnd = Math.max(damageEnd,record.originalPos + record.originalSize);
-                
-                int [] r = clearNap(nap, document, damageStart, damageEnd);
-                damageStart = r[0];
-                damageEnd = r[1];
-            }
-        }
+        MoeSyntaxEvent mse = changes;
+        for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
+            nodeRemoved(node.getNode());
+            damageStart = Math.min(damageStart, node.getPosition());
+            damageEnd = Math.max(damageEnd, node.getEnd());
+            NodeAndPosition<ParsedNode> nap = node;
 
-        Component host = getContainer();
-        if (host == null) {
-            return;
-        }
-        Element map = getElement();
-
-        if (changes.getType() == EventType.INSERT) {
-            damageStart = Math.min(damageStart, changes.getOffset());
-            damageEnd = Math.max(damageEnd, changes.getOffset() + changes.getLength());
-            int [] r = reassessIndentsAdd(a, damageStart, damageEnd);
+            int [] r = clearNap(nap, document, damageStart, damageEnd);
             damageStart = r[0];
             damageEnd = r[1];
         }
-        else if (changes.getType() == EventType.REMOVE) {
+
+        for (NodeChangeRecord record : mse.getChangedNodes()) {
+            NodeAndPosition<ParsedNode> nap = record.nap;
+            nodeIndents.remove(nap.getNode());
+            damageStart = Math.min(damageStart, nap.getPosition());
+            damageStart = Math.min(damageStart, record.originalPos);
+            damageEnd = Math.max(damageEnd, nap.getEnd());
+            damageEnd = Math.max(damageEnd,record.originalPos + record.originalSize);
+
+            int [] r = clearNap(nap, document, damageStart, damageEnd);
+            damageStart = r[0];
+            damageEnd = r[1];
+        }
+
+
+        Element map = document.getDefaultRootElement();
+        if (changes.isInsert()) {
             damageStart = Math.min(damageStart, changes.getOffset());
-            ElementChange ec = changes.getChange(document.getDefaultRootElement());
-            boolean multiLine = ec != null;
-            int [] r = reassessIndentsRemove(a, damageStart, multiLine);
+            damageEnd = Math.max(damageEnd, changes.getOffset() + changes.getLength());
+            int [] r = reassessIndentsAdd(damageStart, damageEnd);
+            damageStart = r[0];
+            damageEnd = r[1];
+        }
+        else if (changes.isRemove()) {
+            damageStart = Math.min(damageStart, changes.getOffset());
+            int [] r = reassessIndentsRemove(damageStart, true); //TODO MOEFX changes.isMultilineChange()
             damageStart = r[0];
             damageEnd = r[1];
         }
@@ -1398,9 +1524,10 @@ public abstract class BlueJSyntaxView extends MoePlainView
         if (damageStart < damageEnd) {
             int line = map.getElementIndex(damageStart);
             int lastline = map.getElementIndex(damageEnd - 1);
-            damageLineRange(line, lastline, a, host);
+            document.recalculateScopesForLinesInRange(line, lastline);
         }
 
+        /*MOEFX is this all handled ok by the code above?
         DocumentEvent.ElementChange ec = changes.getChange(map);
         Element[] added = (ec != null) ? ec.getChildrenAdded() : null;
         Element[] removed = (ec != null) ? ec.getChildrenRemoved() : null;
@@ -1408,15 +1535,17 @@ public abstract class BlueJSyntaxView extends MoePlainView
                 ((removed != null) && (removed.length > 0))) {
             // This case is handled Ok by the superclass.
             super.updateDamage(changes, a, f);
-        } else {
+        } else*/ {
             // This is the case we have to fix. The PlainView implementation only
             // repaints a single line; we need to repaint the whole range.
-            super.updateDamage(changes, a, f);
+            //super.updateDamage(changes);
+            /*
             int choffset = changes.getOffset();
             int chlength = Math.max(changes.getLength(), 1);
             int line = map.getElementIndex(choffset);
             int lastline = map.getElementIndex(choffset + chlength - 1);
-            damageLineRange(line, lastline, a, host);
+            damageLineRange(line, lastline);
+            */
         }
     }
 
@@ -1456,129 +1585,342 @@ public abstract class BlueJSyntaxView extends MoePlainView
         nodeIndents.remove(node);
     }
 
-    public static void setHighlightStrength(int strength)
+    @OnThread(Tag.FXPlatform)
+    public Node getParagraphicGraphic(int lineNumber)
     {
-        BlueJSyntaxView.strength = strength;
-        resetColors();
+        // RichTextFX numbers from 0, but javac numbers from 1:
+        lineNumber += 1;
+        Label label = new Label("" + lineNumber);
+        JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
+        JavaFXUtil.addStyleClass(label, "moe-line-label");
+        label.setOnContextMenuRequested(e -> {
+            CheckMenuItem checkMenuItem = new CheckMenuItem(Config.getString("prefmgr.edit.displaylinenumbers"));
+            checkMenuItem.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
+            checkMenuItem.setOnAction(ev -> {
+                PrefMgr.setFlag(PrefMgr.LINENUMBERS, checkMenuItem.isSelected());
+            });
+            ContextMenu menu = new ContextMenu(checkMenuItem);
+            menu.show(label, e.getScreenX(), e.getScreenY());
+        });
+        int lineNumberFinal = lineNumber;
+        label.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY)
+            {
+                editorPane.getEditor().toggleBreakpoint(editorPane.getDocument().getAbsolutePosition(lineNumberFinal - 1, 0));
+            }
+            e.consume();
+        });
+        WeakReference<Label> weakLabel = new WeakReference<>(label);
+        FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = attr -> {
+            Label l = weakLabel.get();
+            if (l != null)
+            {
+                for (ParagraphAttribute possibleAttribute : ParagraphAttribute.values())
+                {
+                    JavaFXUtil.setPseudoclass(possibleAttribute.getPseudoclass(), attr.contains(possibleAttribute), l);
+                }
+            }
+            else
+                paragraphAttributeListeners.remove(lineNumberFinal);
+        };
+        listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
+        paragraphAttributeListeners.put(lineNumber, listener);
+        return label;
+    }
+
+    /**
+     * Sets attributes throughout the document.
+     *
+     * @param alterAttr Anything mapped to true will be added to all lines, anything mapped to false will be removed from all lines
+     */
+    public void setParagraphAttributes(Map<ParagraphAttribute, Boolean> alterAttr)
+    {
+        for (int line = 1; line <= document.getDocument().getParagraphs().size(); line++)
+        {
+            setParagraphAttributes(line, alterAttr);
+        }
+    }
+
+
+    /**
+     * Sets attributes for a particular line number.
+     *
+     * @param offset the line number for which to change the attributes (first line is 1)
+     * @param alterAttr the attributes to set the value for (other attributes will be unaffected)
+     */
+    public void setParagraphAttributes(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
+    {
+        EnumSet<ParagraphAttribute> attr = getParaAttr(lineNumber);
+        for (Entry<ParagraphAttribute, Boolean> alter : alterAttr.entrySet())
+        {
+            if (alter.getValue())
+            {
+                attr.add(alter.getKey());
+            }
+            else
+            {
+                attr.remove(alter.getKey());
+            }
+        }
+        if (alterAttr.containsKey(ParagraphAttribute.ERROR))
+        {
+            // Update above/below states by finding nearest error then pointing up
+            // and down accordingly
+            int totalLines = editorPane.getParagraphs().size();
+            int[] errorLines = paragraphAttributes.entrySet().stream().filter(e -> e.getValue().contains(ParagraphAttribute.ERROR)).mapToInt(e -> e.getKey()).sorted().toArray();
+            for (int i = 1; i <= totalLines;i++)
+            {
+                int nearest = Arrays.binarySearch(errorLines, i);
+                if (nearest >= 0)
+                {
+                    // Actually an error; remove above/below designation:
+                    getParaAttr(i).removeAll(Arrays.asList(ParagraphAttribute.ERROR_ABOVE, ParagraphAttribute.ERROR_BELOW));
+                }
+                else
+                {
+                    // Returns insertion point - 1 if not found:
+                    nearest = -nearest - 1;
+                    // Is nearest one above or below?
+                    boolean nearestIsBelow = nearest <= 0 || (nearest < errorLines.length && (errorLines[nearest] - i) < (i - errorLines[nearest - 1]));
+                    getParaAttr(i).remove(nearestIsBelow ? ParagraphAttribute.ERROR_ABOVE : ParagraphAttribute.ERROR_BELOW);
+                    getParaAttr(i).add(nearestIsBelow ? ParagraphAttribute.ERROR_BELOW : ParagraphAttribute.ERROR_ABOVE);
+                }
+            }
+        }
+
+
+        FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = paragraphAttributeListeners.get(lineNumber);
+        if (listener != null)
+        {
+            listener.accept(attr);
+        }
+    }
+
+    /**
+     * Gets the paragraph attributes for a particular line.  If none found, returns the empty set.
+     * The set is the live set in the map, so updating it will affect the stored attributes for the line.
+     */
+    private EnumSet<ParagraphAttribute> getParaAttr(int lineNumber)
+    {
+        return paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));
+    }
+
+    /**
+     * First line is one
+     */
+    public EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNo)
+    {
+        return paragraphAttributes.getOrDefault(lineNo, EnumSet.noneOf(ParagraphAttribute.class));
     }
 
     /**
      * Sets up the colors based on the strength value 
      * (from strongest (20) to white (0)
      */
-    private static void resetColors()
-    {       
-        C1 = getGreenContainerBorder();
-        C2 = getGreenWash(); 
-        C3 = getGreenBorder();
-        M1 = getYellowBorder();
-        M2 = getYellowWash();
-        S1 = getBlueBorder();
-        S2 = getBlueWash();
-        I1 = getPinkBorder();
-        I2 = getPinkWash();             
+    private void resetColors()
+    {
+        BK = scopeColors.scopeBackgroundColorProperty().get();
+        C1 = getReducedColor(scopeColors.scopeClassOuterColorProperty());
+        C2 = getReducedColor(scopeColors.scopeClassColorProperty());
+        C3 = getReducedColor(scopeColors.scopeClassInnerColorProperty());
+        M1 = getReducedColor(scopeColors.scopeMethodOuterColorProperty());
+        M2 = getReducedColor(scopeColors.scopeMethodColorProperty());
+        S1 = getReducedColor(scopeColors.scopeSelectionOuterColorProperty());
+        S2 = getReducedColor(scopeColors.scopeSelectionColorProperty());
+        I1 = getReducedColor(scopeColors.scopeIterationOuterColorProperty());
+        I2 = getReducedColor(scopeColors.scopeIterationColorProperty());
     }
 
-    private static Color getReducedColor(Color c)
+    private Color getReducedColor(ObjectExpression<Color> c)
     {
-        return getReducedColor(c.getRed(), c.getGreen(), c.getBlue(), strength);
-    }
-    
-    /**
-     * Get a colour which has been faded toward the background according to the
-     * given strength value. The higher the strength value, the less the colour
-     * is faded.
-     */
-    @OnThread(Tag.Any)
-    public static Color getReducedColor(int r, int g, int b, int colorStrength)
-    {
-        Color bg = MoeSyntaxDocument.getBackgroundColor();
-        double factor = colorStrength / (float) ScopeHighlightingPrefDisplay.MAX;
-        double other = 1 - factor;
-        int nr = Math.min((int)(r * factor + bg.getRed() * other), 255);
-        int ng = Math.min((int)(g * factor + bg.getGreen() * other), 255);
-        int nb = Math.min((int)(b * factor + bg.getBlue() * other), 255);
-        return new Color(nr, ng, nb);
-    }
-    
-    /** 
-     * Return the green wash color
-     * modified to become less strong based on the 'strength' value
-     */
-    private static Color getGreenWash()
-    {
-        return getReducedColor(GREEN_BASE);
+        return scopeColors.getReducedColor(c, PrefMgr.getScopeHighlightStrength()).getValue();
     }
 
-    /** 
-     * Return the green container border color
-     * modified to become less strong based on the 'strength' value
-     */
-    private static Color getGreenContainerBorder()
+    private static class Middle
     {
-        return getReducedColor(GREEN_OUTER_BASE);
-    }
+        private final Color bodyColor;
+        private final int lhs;
+        private final int rhs;
+        private Color topColor; // null if no top
+        private Color bottomColor; // null if no bottom
 
-    /** 
-     * Return the green border color
-     * modified to become less strong based on the 'strength' value
-     */
-    private static Color getGreenBorder()
-    {
-        return getReducedColor(GREEN_INNER_BASE);
-    }
+        public Middle(Color bodyColor, int lhs, int rhs)
+        {
+            this.bodyColor = bodyColor;
+            this.lhs = Math.max(0, lhs);
+            this.rhs = rhs;
+        }
 
-    /**
-     * Return the yellow border color
-     * modified to become less strong (until white) based on the 'strength' value
-     */
-    private static Color getYellowBorder()
-    {
-        return getReducedColor(YELLOW_OUTER_BASE);
-    }
-    
-    /**
-     * Return the yellow wash color
-     * modified to become less strong (until white) based on the 'strength' value
-     */
-    private static Color getYellowWash()
-    {
-        return getReducedColor(YELLOW_BASE);
+        public void drawTop(Color topColor)
+        {
+            this.topColor = topColor;
+        }
+
+        public void drawBottom(Color bottomColor)
+        {
+            this.bottomColor = bottomColor;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Middle middle = (Middle) o;
+
+            if (lhs != middle.lhs) return false;
+            if (rhs != middle.rhs) return false;
+            if (!bodyColor.equals(middle.bodyColor)) return false;
+            if (topColor != null ? !topColor.equals(middle.topColor) : middle.topColor != null) return false;
+            return bottomColor != null ? bottomColor.equals(middle.bottomColor) : middle.bottomColor == null;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = bodyColor.hashCode();
+            result = 31 * result + lhs;
+            result = 31 * result + rhs;
+            result = 31 * result + (topColor != null ? topColor.hashCode() : 0);
+            result = 31 * result + (bottomColor != null ? bottomColor.hashCode() : 0);
+            return result;
+        }
     }
 
     /**
-     * Return the blue border (selection) color
-     * modified to become less strong (until white) based on the 'strength' value
+     * This is one set of scopes for a single line in the document.  A set of scopes
+     * is a list of nested scope boxes applicable to that line.  The first scope
+     * is the outermost and last is innermost, so we render them in list order.
      */
-    private static Color getBlueBorder()
+    public static class ScopeInfo
     {
-        return getReducedColor(BLUE_OUTER_BASE);
+        private final List<SingleNestedScope> nestedScopes = new ArrayList<>();
+        private final boolean isStepLine;
+
+        public ScopeInfo(boolean isStepLine)
+        {
+            this.isStepLine = isStepLine;
+        }
+
+        public boolean isStepLine()
+        {
+            return isStepLine;
+        }
+
+        public ScopeInfo withStepLine(boolean newStepLine)
+        {
+            ScopeInfo scopeInfo = new ScopeInfo(newStepLine);
+            scopeInfo.nestedScopes.addAll(nestedScopes);
+            return scopeInfo;
+        }
+
+        private static class SingleNestedScope
+        {
+            private final LeftRight leftRight;
+            private final Middle middle;
+            // Both are immutable once passed, so we can cache the hashCode:
+            private final int hashCode;
+
+            public SingleNestedScope(LeftRight leftRight, Middle middle)
+            {
+                this.leftRight = leftRight;
+                this.middle = middle;
+
+                hashCode = leftRight.hashCode() * 31 + middle.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object o)
+            {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                SingleNestedScope that = (SingleNestedScope) o;
+                // We can use the cached hashCode as a quick shortcut:
+                if (hashCode != that.hashCode) return false;
+
+                if (!leftRight.equals(that.leftRight)) return false;
+                return middle.equals(that.middle);
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return hashCode;
+            }
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ScopeInfo scopeInfo = (ScopeInfo) o;
+
+            if (isStepLine != scopeInfo.isStepLine) return false;
+            return nestedScopes.equals(scopeInfo.nestedScopes);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = nestedScopes.hashCode();
+            result = 31 * result + (isStepLine ? 1 : 0);
+            return result;
+        }
     }
 
-    /**
-     * Return the blue wash color
-     * modified to become less strong (until white) based on the 'strength' value
-     */
-    private static Color getBlueWash()
+    private class LeftRight
     {
-        return getReducedColor(BLUE_BASE);
-    }
+        private final int lhs;
+        private final int rhs;
+        private final int padding;
+        private final boolean starts;
+        private final boolean ends;
+        private final Color fillColor;
+        private final Color edgeColor;
 
-    /**
-     *  Return the pink border (iteration) color
-     *  modified to become less strong (until white) based on the 'strength' value
-     */
-    private static Color getPinkBorder()
-    {
-        return getReducedColor(PINK_OUTER_BASE);
-    }
+        public LeftRight(int lhs, int rhs, int padding, boolean starts, boolean ends, Color fillColor, Color edgeColor)
+        {
+            this.lhs = Math.max(0, lhs);
+            this.rhs = rhs;
+            this.padding = padding;
+            this.starts = starts;
+            this.ends = ends;
+            this.fillColor = fillColor;
+            this.edgeColor = edgeColor;
+        }
 
-    /**
-     *  Return the pink wash colour
-     *  modified to become less strong (until white) based on the 'strength' value
-     */
-    private static Color getPinkWash()
-    {
-        return getReducedColor(PINK_BASE);
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            LeftRight leftRight = (LeftRight) o;
+
+            if (lhs != leftRight.lhs) return false;
+            if (rhs != leftRight.rhs) return false;
+            if (padding != leftRight.padding) return false;
+            if (starts != leftRight.starts) return false;
+            if (ends != leftRight.ends) return false;
+            if (!fillColor.equals(leftRight.fillColor)) return false;
+            return edgeColor.equals(leftRight.edgeColor);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = lhs;
+            result = 31 * result + rhs;
+            result = 31 * result + padding;
+            result = 31 * result + (starts ? 1 : 0);
+            result = 31 * result + (ends ? 1 : 0);
+            result = 31 * result + fillColor.hashCode();
+            result = 31 * result + edgeColor.hashCode();
+            return result;
+        }
     }
 }

@@ -39,7 +39,6 @@ import bluej.debugger.DebuggerListener;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.DebuggerTestResult;
-import bluej.debugger.DebuggerThreadTreeModel;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
 import bluej.runtime.ExecServer;
@@ -110,12 +109,6 @@ public class LocalDebugger extends Debugger
     }
 
     @Override
-    public DebuggerThreadTreeModel getThreadTreeModel()
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String guessNewName(String className)
     {
         throw new UnsupportedOperationException();
@@ -123,12 +116,6 @@ public class LocalDebugger extends Debugger
 
     @Override
     public String guessNewName(DebuggerObject obj)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void hideSystemThreads(boolean hide)
     {
         throw new UnsupportedOperationException();
     }

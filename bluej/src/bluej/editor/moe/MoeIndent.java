@@ -28,11 +28,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
-import javax.swing.text.Position;
-
 import bluej.Config;
+import bluej.editor.moe.MoeSyntaxDocument.Element;
+import bluej.editor.moe.MoeSyntaxDocument.Position;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.utility.Debug;
@@ -99,13 +97,8 @@ public class MoeIndent
 
         // Track the start and end positions, as they may change due to updates
         Position startp, endp;
-        try {
-            startp = doc.createPosition(startPos);
-            endp = doc.createPosition(endPos);
-        }
-        catch (BadLocationException ble) {
-            throw new RuntimeException(ble);
-        }
+        startp = doc.createPosition(startPos);
+        endp = doc.createPosition(endPos);
         
         // examine if there are missing spaces between methods and add them.
         // NB. proper indentation of these changes later in this method.
@@ -122,27 +115,22 @@ public class MoeIndent
             if (el.getEndOffset() > startp.getOffset() && el.getStartOffset() < endp.getOffset()) {
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
                 if (thisLineBlank) {
-                    try {
-                        if (caretPos >= el.getStartOffset() && caretPos < el.getEndOffset()) {
-                            caretPos = el.getStartOffset();
-                        }
-                        if (lastLineWasBlank) {
-                            // Consecutive blank lines; remove this one:
-                            if (el.getEndOffset() <= doc.getLength()) {
-                                doc.remove(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
-                                perfect = false;
-                            }
-                        } else {
-                            // Single blank line (thus far), remove all spaces from
-                            // it (and don't interrupt perfect status):
-                            int rmlen = el.getEndOffset() - el.getStartOffset() - 1;
-                            if (rmlen > 0) {
-                                doc.remove(el.getStartOffset(), rmlen);
-                            }
-                        }
+                    if (caretPos >= el.getStartOffset() && caretPos < el.getEndOffset()) {
+                        caretPos = el.getStartOffset();
                     }
-                    catch (BadLocationException ble) {
-                        throw new RuntimeException(ble);
+                    if (lastLineWasBlank) {
+                        // Consecutive blank lines; remove this one:
+                        if (el.getEndOffset() <= doc.getLength()) {
+                            doc.remove(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
+                            perfect = false;
+                        }
+                    } else {
+                        // Single blank line (thus far), remove all spaces from
+                        // it (and don't interrupt perfect status):
+                        int rmlen = el.getEndOffset() - el.getStartOffset() - 1;
+                        if (rmlen > 0) {
+                            doc.remove(el.getStartOffset(), rmlen);
+                        }
                     }
                 }
                 lastLineWasBlank = thisLineBlank;
@@ -164,7 +152,7 @@ public class MoeIndent
     
                 if (!thisLineBlank) {
                     String indent = calculateIndent(el, root, ii, doc);
-                    update = new DocumentIndentAction(el, indent);
+                    update = new DocumentIndentAction(i, indent);
                     perfect = perfect && getElementContents(doc, el).startsWith(indent)
                                       && !isWhiteSpaceOnly(getElementContents(doc, el).substring(indent.length(),indent.length() + 1));
                 }
@@ -180,6 +168,9 @@ public class MoeIndent
         for (DocumentAction update : updates) {
             caretPos = update.apply(doc, caretPos);
         }
+
+        startp.dispose();
+        endp.dispose();
 
         return new AutoIndentInformation(perfect, caretPos);
     }
@@ -209,12 +200,7 @@ public class MoeIndent
                     return inner;
                 }
             }
-            try {
-                return startIC.getCurIndent(doc.getText(pos, 1).charAt(0));
-            }
-            catch (BadLocationException e) {
-                return "";
-            }
+            return startIC.getCurIndent(doc.getText(pos, 1).charAt(0));
         }
         else {
             return null;
@@ -383,12 +369,12 @@ public class MoeIndent
      */
     private static class DocumentIndentAction implements DocumentAction
     {
-        private Element el;
-        private String indent;
+        private final int lineIndex;
+        private final String indent;
 
-        public DocumentIndentAction(Element el, String indent)
+        public DocumentIndentAction(int lineIndex, String indent)
         {
-            this.el = el;
+            this.lineIndex = lineIndex;
             this.indent = indent;
         }
 
@@ -397,11 +383,7 @@ public class MoeIndent
         // everything works nicely.
         public int apply(MoeSyntaxDocument doc, int caretPos)
         {
-            int spos = el.getStartOffset();
-            int ll = doc.getDefaultRootElement().getElementIndex(spos);
-            if (doc.getDefaultRootElement().getElement(ll) != el) {
-                System.out.println("Element mismatch!!!!");
-            }
+            Element el = doc.getDefaultRootElement().getElement(lineIndex);
             
             String line = getElementContents(doc, el);
             int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
@@ -410,10 +392,9 @@ public class MoeIndent
             // without the anyTabs check, we would leave the whitespace alone;
             // hence why we need the check:
             if (indent != null && (anyTabs || (indent.length() != lengthPrevWhitespace))) {
-                try {
-                    int origStartOffset = el.getStartOffset(); 
+                    int origStartOffset = el.getStartOffset();
                     doc.replace(el.getStartOffset(), lengthPrevWhitespace,
-                            indent, null);
+                            indent);
                     
                     if (caretPos < origStartOffset) {
                         return caretPos; // before us, not moved
@@ -423,11 +404,6 @@ public class MoeIndent
                     } else {
                         return origStartOffset + indent.length(); // in us, move to end of indent
                     }
-                }
-                catch (BadLocationException e) {
-                    Debug.reportError("Error doing indent in DocumentUpdate", e);
-                    return caretPos;
-                }
             } else {
                 return caretPos;
             }
@@ -439,12 +415,7 @@ public class MoeIndent
      */
     private static String getElementContents(MoeSyntaxDocument doc, Element el)
     {
-        try {
-            return doc.getText(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
-        } catch (BadLocationException e) {
-            Debug.reportError("Error getting element contents in document", e);
-            return "";
-        }
+        return doc.getText(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
     }
 
     /**
@@ -495,15 +466,11 @@ public class MoeIndent
         public int apply(MoeSyntaxDocument doc, int prevCaretPos)
         {
             String lineSeparator = System.getProperty("line.separator");
-            try {
                 if (twoSeparators) {
                     doc.insertString(position, lineSeparator + lineSeparator, null);
                 } else {
                     doc.insertString(position, lineSeparator, null);
                 }
-            } catch (BadLocationException ex) {
-                Debug.reportError("Error in adding new line to document", ex);
-            }
             if (position > prevCaretPos) {
                 return prevCaretPos;
             } else if (twoSeparators)  {

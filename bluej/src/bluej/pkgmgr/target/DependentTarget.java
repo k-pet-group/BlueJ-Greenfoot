@@ -263,7 +263,7 @@ public abstract class DependentTarget extends EditableTarget
      *  Remove all outgoing dependencies. Also updates the package. (Don't
      *  call from package remove method - this will cause infinite recursion.)
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     protected synchronized void removeAllOutDependencies()
     {
         // While removing the dependencies the dependency list must be
@@ -285,7 +285,7 @@ public abstract class DependentTarget extends EditableTarget
     /**
      *  Remove inheritance dependencies.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     protected synchronized void removeInheritDependencies()
     {
         // While removing the dependencies the dependency list must be
@@ -304,7 +304,7 @@ public abstract class DependentTarget extends EditableTarget
      *  Remove all incoming dependencies. Also updates the package. (Don't
      *  call from package remove method - this will cause infinite recursion.)
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     protected synchronized void removeAllInDependencies()
     {
         // While removing the dependencies the dependency list must be
@@ -533,7 +533,8 @@ public abstract class DependentTarget extends EditableTarget
     public void setState(State newState)
     {
         state.set(newState);
-        Platform.runLater(() -> {repaint();});
+        repaint();
+        redraw();
     }
 
 }

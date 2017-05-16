@@ -29,8 +29,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -69,7 +69,6 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
-import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -94,17 +93,17 @@ public class SuggestionList
 {
     private final SuggestionListListener listener;
 
-    private static class SuggestionVBox extends ListView<SuggestionListItem>
+    private static class SuggestionListView extends ListView<SuggestionListItem>
     {
         private final SimpleStyleableDoubleProperty cssTypeWidthProperty = new SimpleStyleableDoubleProperty(TYPE_WIDTH_META_DATA);
         public final SimpleStyleableDoubleProperty cssTypeWidthProperty() { return cssTypeWidthProperty; }
         private final SimpleStyleableDoubleProperty cssMaxWidthProperty = new SimpleStyleableDoubleProperty(MAX_WIDTH_META_DATA);
         public final SimpleStyleableDoubleProperty cssMaxWidthProperty() { return cssMaxWidthProperty; }
 
-        private static final CssMetaData<SuggestionVBox, Number> TYPE_WIDTH_META_DATA =
-                JavaFXUtil.cssSize("-bj-type-width", SuggestionVBox::cssTypeWidthProperty);
-        private static final CssMetaData<SuggestionVBox, Number> MAX_WIDTH_META_DATA =
-                JavaFXUtil.cssSize("-bj-max-width", SuggestionVBox::cssMaxWidthProperty);
+        private static final CssMetaData<SuggestionListView, Number> TYPE_WIDTH_META_DATA =
+                JavaFXUtil.cssSize("-bj-type-width", SuggestionListView::cssTypeWidthProperty);
+        private static final CssMetaData<SuggestionListView, Number> MAX_WIDTH_META_DATA =
+                JavaFXUtil.cssSize("-bj-max-width", SuggestionListView::cssMaxWidthProperty);
 
         private static final List <CssMetaData <? extends Styleable, ? > > cssMetaDataList =
                 JavaFXUtil.extendCss(ListView.getClassCssMetaData())
@@ -115,7 +114,7 @@ public class SuggestionList
         public static List <CssMetaData <? extends Styleable, ? > > getClassCssMetaData() { return cssMetaDataList; }
         @Override public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() { return getClassCssMetaData(); }
 
-        public SuggestionVBox(DoubleExpression typeWidth, FXPlatformConsumer<SuggestionListItem> clickListener)
+        public SuggestionListView(DoubleExpression typeWidth, FXPlatformConsumer<SuggestionListItem> clickListener)
         {
             setEditable(false);
             setCellFactory(lv -> new SuggestionCell(typeWidth, clickListener));
@@ -131,7 +130,7 @@ public class SuggestionList
     /**
      * Element containing all the suggestion items:
      */
-    private final SuggestionVBox listBox;
+    private final SuggestionListView listBox;
 
     /**
      * The window containing the pane
@@ -343,6 +342,7 @@ public class SuggestionList
             return false;
         }
 
+        @OnThread(Tag.FXPlatform)
         public Pane makeDocPane()
         {
             return null;
@@ -370,6 +370,8 @@ public class SuggestionList
             return true;
         }
 
+        @Override
+        @OnThread(Tag.FXPlatform)
         public Pane makeDocPane()
         {
             WebView webView = new WebView();
@@ -411,7 +413,7 @@ public class SuggestionList
     /**
      * Create a SuggestionList.
      * 
-     * @param editor Editor (used to get overlay panes)
+     * @param listParent Editor (used to get overlay panes)
      * @param choices The strings of the choices to match the user's input against
      * @param suffixes Non-matchable bits on the end of a suggestion, e.g. param types.
      *                 Should either be null or same length as choices, one suffix per choice. 
@@ -419,7 +421,7 @@ public class SuggestionList
      * @param highlightListener A listener for the highlighted item changing.  Can be null.
      * @param clickListener A listener for a choice being clicked (and thus selected).  Cannot be null.
      */
-    public SuggestionList(InteractionManager editor, List<? extends SuggestionDetails> choices, String targetType,
+    public SuggestionList(SuggestionListParent listParent, List<? extends SuggestionDetails> choices, String targetType,
                           SuggestionShown startShown, Consumer<Integer> highlightListener, final SuggestionListListener listener)
     {
         if (listener == null)
@@ -436,7 +438,7 @@ public class SuggestionList
         JavaFXUtil.addStyleClass(noneLabel, "suggestion-none");
         this.typeWidth = new SimpleDoubleProperty();
         this.window = new Stage(StageStyle.TRANSPARENT);
-        this.listBox = new SuggestionVBox(this.typeWidth, item -> {
+        this.listBox = new SuggestionListView(this.typeWidth, item -> {
             highlighted = doubleSuggestions.indexOf(item);
             listener.suggestionListChoiceClicked(getHighlighted());
             expectingToLoseFocus = true;
@@ -451,7 +453,7 @@ public class SuggestionList
         listBox.setBackground(null);
         listBox.setItems(this.showingItems);
 
-        listBox.setStyle("-fx-font-size: " + editor.getFontSizeCSS().get() + ";");
+        listBox.setStyle("-fx-font-size: " + listParent.getFontSizeCSS().get() + ";");
 
         this.docPane = new Pane();
         docPane.setMinWidth(400.0);
@@ -530,7 +532,7 @@ public class SuggestionList
         Config.addEditorStylesheets(scene);
         window.setScene(scene);
 
-        editor.setupSuggestionWindow(window);
+        listParent.setupSuggestionWindow(window);
         
         for (int j = 0; j <= 1; j++)
         {
@@ -572,7 +574,7 @@ public class SuggestionList
                 {
                     shownState.set(SuggestionShown.RARE);
                     calculateEligible(lastPrefix, lastAllowSimilar, false);
-                    updateVisual(lastPrefix, false);
+                    updateVisual(lastPrefix);
                 }
             }
         });
@@ -584,11 +586,11 @@ public class SuggestionList
                 {
                     shownState.set(SuggestionShown.RARE);
                     calculateEligible(lastPrefix, lastAllowSimilar, false);
-                    updateVisual(lastPrefix, false);
+                    updateVisual(lastPrefix);
                 }
             }
             // On Mac, some keypresses can produce null character, so guard against that:
-            else if (!e.getCharacter().contains("\u0000") && listener.suggestionListKeyTyped(e, getHighlighted()) == SuggestionListListener.Response.DISMISS)
+            else if (!e.getCharacter().contains("\u0000") && listener.suggestionListKeyTyped(this, e, getHighlighted()) == SuggestionListListener.Response.DISMISS)
             {
                 expectingToLoseFocus = true;
                 hiding = true;
@@ -884,11 +886,9 @@ public class SuggestionList
      * Updates the available options in the dropdown, restricting it to those
      * that are currently marked as eligible.  Thus this function only has a useful effect
      * if you call calculateEligible first.
-     * 
-     * @param immediate Whether to make the change immediately (true) or animate it (false)
+     *
      */
-    @OnThread(Tag.FXPlatform)
-    public void updateVisual(String prefix, boolean immediate)
+    public void updateVisual(String prefix)
     {
         boolean showingAnySimilar = false;
 
@@ -975,11 +975,17 @@ public class SuggestionList
     
     public static interface SuggestionListListener
     {
+        /**
+         * An item has been selected by clicking on it.
+         * @param highlighted The index of the item in the original list passed
+         *                    to the SuggestionList constructor (regardless of what is
+         *                    currently eligible/ineligible)
+         */
         @OnThread(Tag.FXPlatform)
         void suggestionListChoiceClicked(int highlighted);
 
         @OnThread(Tag.FXPlatform)
-        Response suggestionListKeyTyped(KeyEvent event, int highlighted);
+        Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted);
 
         // Note: UP, DOWN are automatically handled, but not ESCAPE, ENTER, etc
         @OnThread(Tag.FXPlatform)
@@ -1070,5 +1076,18 @@ public class SuggestionList
     private void hideDocDisplay()
     {
         docPane.getChildren().clear();
+    }
+
+    public static interface SuggestionListParent
+    {
+        /**
+         * Gets font size, ready to put after "-fx-font-size" in inline style.
+         */
+        public StringExpression getFontSizeCSS();
+
+        /**
+         * Add any necessary listeners to a code completion window
+         */
+        public void setupSuggestionWindow(Stage window);
     }
 }

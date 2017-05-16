@@ -206,7 +206,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     /**
      * Notify listener of an event.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     protected void fireTargetEvent(PackageEditorEvent e)
     {
         if (listener != null) {
@@ -214,49 +214,49 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void raiseMethodCallEvent(Object src, CallableView cv)
     {
         fireTargetEvent(
             new PackageEditorEvent(src, PackageEditorEvent.TARGET_CALLABLE, cv));
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void raiseRemoveTargetEvent(Target t)
     {
         fireTargetEvent(
             new PackageEditorEvent(t, PackageEditorEvent.TARGET_REMOVE));
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void raiseBenchToFixtureEvent(Target t)
     {
         fireTargetEvent(
             new PackageEditorEvent(t, PackageEditorEvent.TARGET_BENCHTOFIXTURE));
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void raiseFixtureToBenchEvent(Target t)
     {
         fireTargetEvent(
             new PackageEditorEvent(t, PackageEditorEvent.TARGET_FIXTURETOBENCH));
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void raiseMakeTestCaseEvent(Target t)
     {
         fireTargetEvent(
             new PackageEditorEvent(t, PackageEditorEvent.TARGET_MAKETESTCASE));
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void raiseRunTargetEvent(Target t, String name)
     {
         fireTargetEvent(
             new PackageEditorEvent(t, PackageEditorEvent.TARGET_RUN, name));
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void raiseOpenPackageEvent(Target t, String packageName)
     {
         fireTargetEvent(
@@ -317,38 +317,29 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
         MenuItem newClass = new MenuItem(Config.getString("menu.edit.newClass"));
         newClass.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
-                pmf.menuCall();
-                pmf.doCreateNewClass(graphLoc.getX(), graphLoc.getY());
-            });
+            pmf.menuCall();
+            pmf.doCreateNewClass(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newClass, "class-action-inbuilt");
 
         MenuItem newPackage = new MenuItem(Config.getString("menu.edit.newPackage"));
         newPackage.setOnAction(e -> {
-            SwingUtilities.invokeLater(() ->
-            {
-                pmf.menuCall();
-                pmf.doCreateNewPackage(graphLoc.getX(), graphLoc.getY());
-            });
+            pmf.menuCall();
+            pmf.doCreateNewPackage(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newPackage, "class-action-inbuilt");
         
         MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newCSS"));
         newCSS.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
-                pmf.menuCall();
-                pmf.doCreateNewCSS(graphLoc.getX(), graphLoc.getY());
-            });
+            pmf.menuCall();
+            pmf.doCreateNewCSS(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newCSS, "class-action-inbuilt");
 
         MenuItem addClassFromFile = new MenuItem(Config.getString("menu.edit.addClass"));
         addClassFromFile.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
-                pmf.menuCall();
-                pmf.doAddFromFile();
-            });
+            pmf.menuCall();
+            pmf.doAddFromFile();
         });
         JavaFXUtil.addStyleClass(addClassFromFile, "class-action-inbuilt");
 
@@ -878,7 +869,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      * Add a dependency in this package. The dependency is also added to the
      * individual targets involved.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     // package-visible; see Package.addDependency proxy
     void addDependency(Dependency d, boolean recalc)
     {
@@ -913,7 +904,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         addDependencyHeadless(d, recalc, pkg);
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static void addDependencyHeadless(Dependency d, boolean recalc, Package thePkg)
     {
         DependentTarget from = d.getFrom();
@@ -932,7 +923,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      * Remove a dependency from this package. The dependency is also removed
      * from the individual targets involved.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void removeDependency(Dependency d, boolean recalc)
     {
         synchronized (this)
@@ -945,7 +936,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         removeDependencyHeadless(d, recalc, pkg);
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static void removeDependencyHeadless(Dependency d, boolean recalc, Package thePkg)
     {
         DependentTarget from = d.getFrom();

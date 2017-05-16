@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,7 +31,6 @@ import bluej.pkgmgr.PkgMgrFrame;
  * An action to show the repository history.
  * 
  * @author Davin McCall
- * @version $Id: ShowLogAction.java 16722 2016-10-10 16:33:55Z nccb $
  */
 public class ShowLogAction extends TeamAction
 {
@@ -44,7 +43,6 @@ public class ShowLogAction extends TeamAction
     {
         HistoryFrame hd = new HistoryFrame(pmf);
         Platform.runLater(() -> hd.setLocationRelativeTo(pmf.getFXWindow()));
-        hd.setVisible(true);
+        hd.show(); // showAndWait() ?
     }
-
 }

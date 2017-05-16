@@ -31,6 +31,8 @@ import java.util.concurrent.Executor;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import bluej.editor.moe.ScopeColors;
+import bluej.editor.moe.ScopeColorsBorderPane;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
@@ -82,12 +84,9 @@ public class CompletionTest extends TestCase
     private MoeSyntaxDocument documentForSource(String sourceCode, String pkg)
     {
         EntityResolver presolver = new PackageResolver(resolver, pkg);
-        MoeSyntaxDocument document = new MoeSyntaxDocument(presolver);
+        MoeSyntaxDocument document = new MoeSyntaxDocument(presolver, ScopeColors.dummy());
         document.enableParser(true);
-        try {
-            document.insertString(0, sourceCode, null);
-        }
-        catch (BadLocationException ble) {}
+        document.insertString(0, sourceCode, null);
         return document;
     }
     
@@ -1073,5 +1072,14 @@ public class CompletionTest extends TestCase
             
         // In BlueJ 3.1.6 this throws a NullPointerException:
         aNode.getExpressionType(13, doc);
+    }
+
+    //MOEFX
+    class PlainDocument extends MoeSyntaxDocument
+    {
+        public PlainDocument()
+        {
+            super(ScopeColors.dummy());
+        }
     }
 }

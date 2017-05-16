@@ -89,6 +89,7 @@ import bluej.groupwork.actions.StatusAction;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.actions.UpdateDialogAction;
 import bluej.groupwork.ui.ActivityIndicatorFX;
+
 import bluej.pkgmgr.actions.AddClassAction;
 import bluej.pkgmgr.actions.CancelTestRecordAction;
 import bluej.pkgmgr.actions.CheckExtensionsAction;
@@ -98,6 +99,7 @@ import bluej.pkgmgr.actions.CompileAction;
 import bluej.pkgmgr.actions.CompileSelectedAction;
 import bluej.pkgmgr.actions.EndTestRecordAction;
 import bluej.pkgmgr.actions.ExportProjectAction;
+import bluej.pkgmgr.actions.FXPkgMgrAction;
 import bluej.pkgmgr.actions.GenerateDocsAction;
 import bluej.pkgmgr.actions.HelpAboutAction;
 import bluej.pkgmgr.actions.ImportProjectAction;
@@ -123,8 +125,6 @@ import bluej.pkgmgr.actions.SaveProjectAction;
 import bluej.pkgmgr.actions.SaveProjectAsAction;
 import bluej.pkgmgr.actions.ShowCopyrightAction;
 import bluej.pkgmgr.actions.ShowDebuggerAction;
-import bluej.pkgmgr.actions.ShowTerminalAction;
-import bluej.pkgmgr.actions.ShowTestResultsAction;
 import bluej.pkgmgr.actions.StandardAPIHelpAction;
 import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
@@ -145,6 +145,7 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -154,6 +155,7 @@ import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+
 import javafx.animation.Animation;
 import javafx.animation.FillTransition;
 import javafx.animation.KeyFrame;
@@ -169,7 +171,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -195,6 +196,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -260,13 +263,13 @@ public class PkgMgrFrame
     private final SimpleObjectProperty<FXMenuManager> toolsMenuManager;
     @OnThread(Tag.FXPlatform)
     private final SimpleObjectProperty<FXMenuManager> viewMenuManager;
-    private JMenu teamMenu;
-    private JMenuItem shareProjectMenuItem;
-    private JMenuItem teamSettingsMenuItem;
-    private JMenuItem showLogMenuItem;
-    private JMenuItem updateMenuItem;
-    private JMenuItem commitMenuItem;
-    private JMenuItem statusMenuItem;
+    private Menu teamMenu;
+    private MenuItem shareProjectMenuItem;
+    private MenuItem teamSettingsMenuItem;
+    private MenuItem showLogMenuItem;
+    private MenuItem updateMenuItem;
+    private MenuItem commitMenuItem;
+    private MenuItem statusMenuItem;
     private @OnThread(Tag.FX) ButtonBase updateButton;
     private @OnThread(Tag.FX) ButtonBase commitButton;
     private @OnThread(Tag.FX) ButtonBase teamStatusButton;
@@ -310,15 +313,14 @@ public class PkgMgrFrame
             super.setEnabled(newValue);
         }
     };
-    private final PkgMgrToggleAction showTerminalAction = new ShowTerminalAction(this);
     @OnThread(Tag.Any)
     private final PkgMgrAction runTestsAction = new RunTestsAction(this);
     /*
      * The package that this frame is working on or null for the case where
      * there is no package currently being edited (check with isEmptyFrame())
      */
-    @OnThread(value = Tag.Any,requireSynchronized = true)
-    private Package pkg = null;
+    @OnThread(Tag.FXPlatform)
+    private final ObjectProperty<Package> pkg = new SimpleObjectProperty<>(null);
     /*
      * The graph editor which works on the package or null for the case where
      * there is no package current being edited (isEmptyFrame() == true)
@@ -331,7 +333,13 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     private CodePad codePad;
     @OnThread(Tag.FXPlatform)
-    private SimpleBooleanProperty showingTextEval;
+    private final SimpleBooleanProperty showingDebugger;
+    @OnThread(Tag.FXPlatform)
+    private final SimpleBooleanProperty showingTextEval;
+    @OnThread(Tag.FXPlatform)
+    private final SimpleBooleanProperty showingTerminal;
+    @OnThread(Tag.FXPlatform)
+    private final SimpleBooleanProperty showingTestResults;
 
     // static methods to create and remove frames
     // lazy initialised dialogs
@@ -391,11 +399,13 @@ public class PkgMgrFrame
         stageProperty = new SimpleObjectProperty<>(null);
         paneProperty = new SimpleObjectProperty<>(null);
         showingTextEval = new SimpleBooleanProperty(false);
+        showingDebugger = new SimpleBooleanProperty(false);
+        showingTerminal = new SimpleBooleanProperty(false);
+        showingTestResults = new SimpleBooleanProperty(false);
         showUsesProperty = new SimpleBooleanProperty(true);
         showInheritsProperty = new SimpleBooleanProperty(true);
         toolsMenuManager = new SimpleObjectProperty<>(null);
         viewMenuManager = new SimpleObjectProperty<>(null);
-        this.pkg = null;
         this.editor = null;
         if(!Config.isGreenfoot()) {
             teamActions = new TeamActionGroup(false);
@@ -405,7 +415,6 @@ public class PkgMgrFrame
             makeFrame();
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
-            new JFXPanel();
             Platform.runLater(() -> {
                 Stage stage = new Stage();
                 BlueJTheme.setWindowIconFX(stage);
@@ -626,6 +635,12 @@ public class PkgMgrFrame
                 }
                 // Listen for future updates:
                 JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
+
+                showingDebugger.bindBidirectional(getProject().debuggerShowing());
+                showingTerminal.bindBidirectional(getProject().terminalShowing());
+                showingTestResults.bindBidirectional(TestDisplayFrame.showingProperty());
+
+
                 updateWindow();
             });
 
@@ -676,7 +691,7 @@ public class PkgMgrFrame
      * @param aPkg The package to show in the frame
      * @return The new frame
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static PkgMgrFrame createFrame(Package aPkg, PkgMgrFrame parentWindow)
     {
         PkgMgrFrame pmf = findFrame(aPkg);
@@ -1074,7 +1089,7 @@ public class PkgMgrFrame
      * Displays the package in the frame for editing
      * @param aPkg The package to edit
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void openPackage(Package aPkg, PkgMgrFrame parentWindow)
     {
         if (aPkg == null) {
@@ -1083,11 +1098,11 @@ public class PkgMgrFrame
 
         // if we are already editing a package, close it and
         // open the new one
-        if (this.pkg != null) {
+        if (this.pkg.get() != null) {
             closePackage();
         }
 
-        this.pkg = aPkg;
+        this.pkg.set(aPkg);
 
         if(! Config.isGreenfoot()) {
             this.editor = new PackageEditor(this, aPkg, this, showUsesProperty, showInheritsProperty, topOverlay);
@@ -1287,6 +1302,19 @@ public class PkgMgrFrame
         	}
         };
     }
+
+    private FXAbstractAction wrapPkgMgrAction(FXPkgMgrAction action)
+    {
+        return new FXAbstractAction(action.getName(), action.getAccelerator())
+        {
+            @Override
+            public void actionPerformed()
+            {
+                action.setFrame(PkgMgrFrame.this);
+                action.actionPerformed(PkgMgrFrame.this);
+            }
+        };
+    }
     
     /**
      * Set the team controls to use the team actions for the project.
@@ -1303,27 +1331,31 @@ public class PkgMgrFrame
         UpdateDialogAction updateAction = teamActions.getUpdateAction();
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction();
         ImportAction shareAction = teamActions.getImportAction();
+
         Platform.runLater(() -> {
-            setButtonAction(statusAction, teamStatusButton, false);
-            setButtonAction(updateAction, updateButton, false);
-            setButtonAction(commitCommentAction, commitButton, false);
-            setButtonAction(shareAction, teamShareButton, false);
+            setFXButtonAction(statusAction, teamStatusButton, false);
+            setFXButtonAction(updateAction, updateButton, false);
+            setFXButtonAction(commitCommentAction, commitButton, false);
+            setFXButtonAction(shareAction, teamShareButton, false);
         });
-        teamSettingsMenuItem.setAction(wrapPkgMgrAction(teamActions.getTeamSettingsAction()));
-        
-        shareProjectMenuItem.setAction(wrapPkgMgrAction(teamActions.getImportAction()));
-        statusMenuItem.setAction(wrapPkgMgrAction(teamActions.getStatusAction()));
-        commitMenuItem.setAction(wrapPkgMgrAction(teamActions.getCommitCommentAction()));
+
+        wrapPkgMgrAction(teamActions.getTeamSettingsAction()).prepareMenuItem(teamSettingsMenuItem);
+        wrapPkgMgrAction(teamActions.getImportAction()).prepareMenuItem(shareProjectMenuItem);
+        wrapPkgMgrAction(teamActions.getStatusAction()).prepareMenuItem(statusMenuItem);
+
+        wrapPkgMgrAction(teamActions.getCommitCommentAction()).prepareMenuItem(commitMenuItem);
         commitMenuItem.setText(Config.getString("team.menu.commit"));
-        updateMenuItem.setAction(wrapPkgMgrAction(teamActions.getUpdateAction()));
+
+        wrapPkgMgrAction(teamActions.getUpdateAction()).prepareMenuItem(updateMenuItem);
         updateMenuItem.setText(Config.getString("team.menu.update"));
-        showLogMenuItem.setAction(wrapPkgMgrAction(teamActions.getShowLogAction()));
+
+        wrapPkgMgrAction(teamActions.getShowLogAction()).prepareMenuItem(showLogMenuItem);
     }
 
     /**
      * Closes the current package.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void closePackage()
     {
         if (isEmptyFrame()) {
@@ -1363,10 +1395,7 @@ public class PkgMgrFrame
         Project proj = getProject();
 
         editor = null;
-        synchronized (this)
-        {
-            this.pkg = null;
-        }
+        this.pkg.set(null);
 
         // if there are no other frames editing this project, we close
         // the project
@@ -1403,10 +1432,10 @@ public class PkgMgrFrame
      * This call should be bracketed by a call to isEmptyFrame() before use.
      * @return The package shown by this frame
      */
-    @OnThread(Tag.Any)
-    public synchronized Package getPackage()
+    @OnThread(Tag.FXPlatform)
+    public Package getPackage()
     {
-        return pkg;
+        return pkg.get();
     }
 
     /**
@@ -1416,7 +1445,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     public synchronized Project getProject()
     {
-        return pkg == null ? null : pkg.getProject();
+        return pkg.get() == null ? null : pkg.get().getProject();
     }
        
     /**
@@ -1426,7 +1455,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     public synchronized boolean isEmptyFrame()
     {
-        return pkg == null;
+        return pkg.get() == null;
     }
 
     /**
@@ -1619,10 +1648,8 @@ public class PkgMgrFrame
                         }
                         else if (JavaNames.isIdentifier(newObjectName))
                         {
-                            SwingUtilities.invokeLater(() -> {
-                                DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
-                                putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord(), e.getAnimateFromScenePoint());
-                            });
+                            DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
+                            putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord(), e.getAnimateFromScenePoint());
                             tryAgain = false;
                         }
                         else
@@ -1660,7 +1687,7 @@ public class PkgMgrFrame
      * @param dirName           The directory to create the project in
      * @return     true if successful, false otherwise
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public boolean newProject(String dirName)
     {
         if (Project.createNewProject(dirName)) {
@@ -1706,14 +1733,8 @@ public class PkgMgrFrame
 
         // if we have any files which failed the copy, we show them now
         if (fails != null && showFailureDialog) {
-            SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
-            File[] failsFinal = fails;
-            Platform.runLater(() -> {
-                ImportFailedDialog importFailedDlg = new ImportFailedDialog(getFXWindow(), Arrays.asList(failsFinal));
-                importFailedDlg.showAndWait();
-                loop.exit();
-            });
-            loop.enter();
+            ImportFailedDialog importFailedDlg = new ImportFailedDialog(getFXWindow(), Arrays.asList(fails));
+            importFailedDlg.showAndWait();
         }
 
         // add bluej.pkg files through the imported directory structure
@@ -1806,17 +1827,13 @@ public class PkgMgrFrame
     {
         String title = Config.getString( "pkgmgr.newPkg.title" );
 
-        Platform.runLater(() -> {
-            File newnameFile = FileUtility.getSaveProjectFX(getFXWindow(), title);
-            if (newnameFile == null)
-                return;
-            SwingUtilities.invokeLater(() -> {
-                if (! newProject(newnameFile.getAbsolutePath()))
-                {
-                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(null, "cannot-create-directory", newnameFile.getPath()));
-                }
-            });
-        });
+        File newnameFile = FileUtility.getSaveProjectFX(getFXWindow(), title);
+        if (newnameFile == null)
+            return;
+        if (! newProject(newnameFile.getAbsolutePath()))
+        {
+            DialogManager.showErrorWithTextFX(null, "cannot-create-directory", newnameFile.getPath());
+        }
     }
 
     /**
@@ -2022,7 +2039,7 @@ public class PkgMgrFrame
         
         // store the current editor size in the bluej.pkg file
         Properties p;
-        if (pkg.isUnnamedPackage()) {
+        if (pkg.get().isUnnamedPackage()) {
             // The unnamed package also contains project properties
             p = getProject().getProjectProperties();
             getProject().saveEditorLocations(p);
@@ -2063,7 +2080,7 @@ public class PkgMgrFrame
             p.put("package.showUses", Boolean.toString(showUsesProperty.get()));
             p.put("package.showExtends", Boolean.toString(showInheritsProperty.get()));
         }
-        pkg.save(p);
+        pkg.get().save(p);
     }
         
     /**
@@ -2241,7 +2258,7 @@ public class PkgMgrFrame
                 @Override
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                     executionEvent.setResultObject(result);
@@ -2260,7 +2277,7 @@ public class PkgMgrFrame
                                 result.getGenType(), name);
                         getObjectBench().addObject(wrapper);
 
-                        getPackage().getDebugger().addObject(pkg.getId(), wrapper.getName(), result);
+                        getPackage().getDebugger().addObject(pkg.get().getId(), wrapper.getName(), result);
 
                         getObjectBench().addInteraction(ir);
                     }
@@ -2279,7 +2296,7 @@ public class PkgMgrFrame
                 @Override
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                     executionEvent.setException(exception);
@@ -2294,7 +2311,7 @@ public class PkgMgrFrame
                 @Override
                 public void putVMTerminated(InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
@@ -2332,7 +2349,7 @@ public class PkgMgrFrame
                 @Override
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setMethodName(mv.getName());
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
@@ -2370,7 +2387,7 @@ public class PkgMgrFrame
                 @Override
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                     executionEvent.setException(exception);
@@ -2384,7 +2401,7 @@ public class PkgMgrFrame
                 @Override
                 public void putVMTerminated(InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg, cv.getClassName(), null);
+                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
                     executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
                     executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
@@ -2492,18 +2509,13 @@ public class PkgMgrFrame
      */
     public void doCreateNewClass(double x, double y)
     {
-        // Must take reference on Swing thread:
-        SourceType sourceType = this.pkg.getDefaultSourceType();
-        Platform.runLater(() -> {
-            NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
-            Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
+        SourceType sourceType = this.pkg.get().getDefaultSourceType();
+        NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
+        Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
-            result.ifPresent(info -> 
-                SwingUtilities.invokeLater(() ->
-                    createNewClass(info.className, info.templateName, info.sourceType, true, x, y)
-                )
-            );
-        });
+        result.ifPresent(info ->
+            createNewClass(info.className, info.templateName, info.sourceType, true, x, y)
+        );
     }
 
     /**
@@ -2600,7 +2612,7 @@ public class PkgMgrFrame
 
         synchronized (this)
         {
-            for (Target t : pkg.getVertices())
+            for (Target t : pkg.get().getVertices())
             {
                 if (t instanceof PackageTarget)
                 {
@@ -3197,19 +3209,19 @@ public class PkgMgrFrame
             teamPanelItemsUnshared.setPickOnBounds(false);
             teamPanel.setContent(new StackPane(teamPanelItemsUnshared, teamPanelItemsOnceShared));
             
-            updateButton = createButton(updateAction, false, false);
+            updateButton = createFXButton(updateAction, false, false);
             updateButton.visibleProperty().bind(updateButton.disableProperty().not());
             teamPanelItemsOnceShared.getChildren().add(updateButton);
             
-            commitButton = createButton(commitCommentAction, false, false);
+            commitButton = createFXButton(commitCommentAction, false, false);
             commitButton.visibleProperty().bind(commitButton.disableProperty().not());
             teamPanelItemsOnceShared.getChildren().add(commitButton);
             
-            teamStatusButton = createButton(statusAction, false, false);
+            teamStatusButton = createFXButton(statusAction, false, false);
             teamStatusButton.visibleProperty().bind(teamStatusButton.disableProperty().not());
             teamPanelItemsOnceShared.getChildren().add(teamStatusButton);
 
-            teamShareButton = createButton(shareAction, false, false);
+            teamShareButton = createFXButton(shareAction, false, false);
             teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
             teamPanelItemsUnshared.getChildren().add(teamShareButton);
             teamShareButton.setText(Config.getString("team.import.short"));
@@ -3269,6 +3281,30 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     public ButtonBase createButton(PkgMgrAction action, boolean toggle, boolean noText)
     {
+        ButtonBase button = prepareButton(toggle);
+        setButtonAction(action, button, noText);
+        return button;
+    }
+
+    /**
+     * A FX temporary replacement: Creating a button for the interface.
+     *
+     * @param action
+     *            the Action abstraction dictating text, icon, tooltip, action.
+     * @param toggle
+     *            true if this is a toggle button, false otherwise
+     * @return the new button
+     */
+    @OnThread(Tag.FX)
+    public ButtonBase createFXButton(FXPkgMgrAction action, boolean toggle, boolean noText)
+    {
+        ButtonBase button = prepareButton(toggle);
+        setFXButtonAction(action, button, noText);
+        return button;
+    }
+
+    private ButtonBase prepareButton(boolean toggle)
+    {
         ButtonBase button;
         if (toggle) {
             button = new ToggleButton();
@@ -3276,11 +3312,7 @@ public class PkgMgrFrame
         else {
             button = new Button();
         }
-        setButtonAction(action, button, noText);
         button.setFocusTraversable(false); // buttons shouldn't get focus
-        //if (notext)
-        //    button.setText(null);
-
         return button;
     }
 
@@ -3306,11 +3338,26 @@ public class PkgMgrFrame
             });
         });
         button.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> {
             	action.setFrame(this);
                 action.actionPerformed(this);
             });
+    }
+
+    /**
+     * A FX replacement method for setButtonAction
+     * @param action
+     * @param noText
+     */
+    @OnThread(Tag.FXPlatform)
+    private void setFXButtonAction(FXPkgMgrAction action, ButtonBase button, boolean noText)
+    {
+        action.setButtonAction(button);
+        button.setOnAction(e -> {
+            action.setFrame(this);
+            action.actionPerformed();
         });
+        if (!noText && (button.getText() == null || button.getText().isEmpty()))
+            button.setText(action.getName());
     }
     
     /**
@@ -3400,32 +3447,39 @@ public class PkgMgrFrame
                 createMenuItem(cancelTestRecordAction, testingMenu);
             }
             swingItems.add(testingMenu);
-            
-            //team menu setup
-            teamMenu = new JMenu(Config.getString("menu.tools.teamwork"));
-            teamMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
-            {
-                Action checkoutAction = new CheckoutAction(this);
-                createMenuItem(checkoutAction , teamMenu);
-                shareProjectMenuItem = createMenuItem(teamActions.getImportAction(), teamMenu);               
-                
-                teamMenu.addSeparator();
-                
-                updateMenuItem = createMenuItem(teamActions.getUpdateAction(), teamMenu);
-                updateMenuItem.setText(Config.getString("team.menu.update"));
-                commitMenuItem = createMenuItem(teamActions.getCommitCommentAction(), teamMenu);
-                commitMenuItem.setText(Config.getString("team.menu.commit"));
-                statusMenuItem = createMenuItem(teamActions.getStatusAction(), teamMenu);
-                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
-                
-                teamMenu.addSeparator();
-                
-                teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(), teamMenu);
-            }
-            swingItems.add(teamMenu);
 
             mixedMenu.addSwing(swingItems);
             swingItems.clear();
+
+            //team menu setup
+            teamMenu = new Menu(Config.getString("menu.tools.teamwork"));
+//            teamMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
+            {
+                FXAbstractAction checkoutAction = new CheckoutAction(this);
+                shareProjectMenuItem = teamActions.getImportAction().makeMenuItem();
+
+                updateMenuItem = teamActions.getUpdateAction().makeMenuItem();
+                updateMenuItem.setText(Config.getString("team.menu.update"));
+                commitMenuItem = teamActions.getCommitCommentAction().makeMenuItem();
+                commitMenuItem.setText(Config.getString("team.menu.commit"));
+                statusMenuItem = teamActions.getStatusAction().makeMenuItem();
+                showLogMenuItem = teamActions.getShowLogAction().makeMenuItem();
+
+                teamSettingsMenuItem = teamActions.getTeamSettingsAction().makeMenuItem();
+
+                teamMenu.getItems().addAll(checkoutAction.makeMenuItem(),
+                        shareProjectMenuItem,
+                        new SeparatorMenuItem(),
+                        updateMenuItem,
+                        commitMenuItem,
+                        statusMenuItem,
+                        showLogMenuItem,
+                        new SeparatorMenuItem(),
+                        teamSettingsMenuItem
+
+                );
+            }
+            mixedMenu.addFX(() -> teamMenu);
 
             if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
                                                    // Mac
@@ -3468,17 +3522,16 @@ public class PkgMgrFrame
                 return item;
             });
             mixedMenu.addFX(SeparatorMenuItem::new);
-            List<JMenuItem> swingItems = new ArrayList<>();
-            createCheckboxMenuItem(showDebuggerAction, swingItems, false);
-            createCheckboxMenuItem(showTerminalAction, swingItems, false);
-            mixedMenu.addSwing(swingItems);
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showExecControls"), showingDebugger, Config.hasAcceleratorKey("menu.view.showExecControls") ? Config.getAcceleratorKeyFX("menu.view.showExecControls") : null));
+            mixedMenu.addFX(() -> {
+                CheckMenuItem terminalItem = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTerminal"), showingTerminal, new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN));
+                terminalItem.disableProperty().bind(pkg.isNull());
+                return terminalItem;
+            });
             mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, Config.hasAcceleratorKey("menu.view.showTextEval") ? Config.getAcceleratorKeyFX("menu.view.showTextEval") : null));
             mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTeamTest"), teamAndTestFoldout.expandedProperty(), Config.hasAcceleratorKey("menu.view.showTeamTest") ? Config.getAcceleratorKeyFX("menu.view.showTeamTest") : null));
+            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTestDisplay"), showingTestResults, null));
             mixedMenu.addFX(SeparatorMenuItem::new);
-
-            swingItems = new ArrayList<>();
-            createCheckboxMenuItem(new ShowTestResultsAction(this), swingItems, false);
-            mixedMenu.addSwing(swingItems);
 
             // (Otherwise, it will be created during project open.)
             if (frameCount() <= 1)
@@ -3550,22 +3603,6 @@ public class PkgMgrFrame
     }
 
     /**
-     * Add a new menu item to a menu.
-     */
-    private JCheckBoxMenuItem createCheckboxMenuItem(PkgMgrToggleAction action, List<JMenuItem> menu, boolean selected)
-    {
-        ButtonModel bmodel = action.getToggleModel();
-
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
-        if (bmodel != null)
-            item.setModel(bmodel);
-        else
-            item.setState(selected);
-        menu.add(item);
-        return item;
-    }
-
-    /**
      * Return the menu tool bar.
      * 
      * public JMenu getToolsMenu() { return toolsMenu; }
@@ -3592,7 +3629,7 @@ public class PkgMgrFrame
         {
             synchronized (this)
             {
-                PackageEditor pkgEd = pkg.getEditor();
+                PackageEditor pkgEd = pkg.get().getEditor();
                 Platform.runLater(() ->
                 {
                     pkgEd.clearState();
@@ -3627,7 +3664,6 @@ public class PkgMgrFrame
         actionsToDisable.add(useLibraryAction);
         actionsToDisable.add(generateDocsAction);
         actionsToDisable.add(showDebuggerAction);
-        actionsToDisable.add(showTerminalAction);
         actionsToDisable.add(runTestsAction);
     }
 
@@ -3825,17 +3861,17 @@ public class PkgMgrFrame
         });
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public synchronized void doNewInherits()
     {
-        if (pkg != null && pkg.getEditor() != null)
+        if (pkg.get() != null && pkg.get().getEditor() != null)
         {
-            PackageEditor pkgEg = pkg.getEditor();
+            PackageEditor pkgEg = pkg.get().getEditor();
             Platform.runLater(() -> pkgEg.doNewInherits());
         }
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void graphChanged()
     {
         int numClassTargets;
@@ -3843,12 +3879,12 @@ public class PkgMgrFrame
         int numPackagesNested;
         synchronized (this)
         {
-            if (pkg != null)
+            if (pkg.get() != null)
             {
-                ArrayList<ClassTarget> classTargets = pkg.getClassTargets();
+                ArrayList<ClassTarget> classTargets = pkg.get().getClassTargets();
                 numClassTargets = classTargets.size();
                 numClassTargetsWithSource = (int) classTargets.stream().filter(ClassTarget::hasSourceCode).count();
-                numPackagesNested = pkg.getChildren(true).size();
+                numPackagesNested = pkg.get().getChildren(true).size();
             }
             else
                 return;

@@ -178,12 +178,10 @@ public class PrefMgrDialog
         add(3, userConfigLibPanel, Config.getString("classmgr.prefpaneltitle"), userConfigLibPanel);
 
         SwingUtilities.invokeLater(() -> {
-            SwingNode kbSwing = new SwingNodeFixed();
-            KeyBindingsPanel kbPanel = new KeyBindingsPanel(() -> null);
-            kbSwing.setContent(kbPanel.makePanel());
+            KeyBindingsPanel kbPanel = new KeyBindingsPanel(() -> window == null || window.getDialogPane().getScene() == null ? null : window.getDialogPane().getScene().getWindow());
             Platform.runLater(() -> {
                 // Now we can insert the keybindings panel as second:
-                add(1, kbSwing, Config.getString("prefmgr.edit.keybindingstitle"), kbPanel);
+                add(1, kbPanel, Config.getString("prefmgr.edit.keybindingstitle"), kbPanel);
             });
             if (!Config.isGreenfoot())
             {

@@ -34,21 +34,12 @@ import java.util.concurrent.CompletableFuture;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
+import bluej.debugger.*;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerClass;
-import bluej.debugger.DebuggerEvent;
-import bluej.debugger.DebuggerListener;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.DebuggerResult;
-import bluej.debugger.DebuggerTerminal;
-import bluej.debugger.DebuggerTestResult;
-import bluej.debugger.DebuggerThreadTreeModel;
-import bluej.debugger.ExceptionDescription;
-import bluej.debugger.SourceLocation;
+import bluej.debugger.DebuggerThreadModel;
 import bluej.debugmgr.Invoker;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
@@ -109,8 +100,8 @@ public class JdiDebugger extends Debugger
     // a set holding all the JdiThreads in the VM
     private JdiThreadSet allThreads;
 
-    // a TreeModel exposing selected JdiThreads in the VM
-    private JdiThreadTreeModel treeModel;
+    // A listener for changes to debugger threads.
+    private final DebuggerThreadListener threadListener;
 
     // listeners for events that occur in the debugger
     private List<DebuggerListener> listenerList = new ArrayList<DebuggerListener>();
@@ -124,9 +115,6 @@ public class JdiDebugger extends Debugger
     // a Set of strings which have been used as names on the
     // object bench. We endeavour to not reuse them.
     private Set<String> usedNames;
-
-    // indicate whether we want to see system threads
-    private boolean hideSystemThreads;
     
     /**
      * Current machine state. This is changed only by the VM event queue (see VMEventHandler),
@@ -157,15 +145,14 @@ public class JdiDebugger extends Debugger
      * @param terminal
      *            a Terminal where we can do input/output.
      */
-    public JdiDebugger(File startingDirectory, DebuggerTerminal terminal)
+    public JdiDebugger(File startingDirectory, DebuggerTerminal terminal, DebuggerThreadListener debuggerThreadListener)
     {
         this.startingDirectory = startingDirectory;
         this.terminal = terminal;
+        this.threadListener = debuggerThreadListener;
 
         allThreads = new JdiThreadSet();
-        treeModel = new JdiThreadTreeModel(new JdiThreadNode());
         usedNames = new TreeSet<String>();
-        hideSystemThreads = true;
     }
 
     @Override
@@ -467,16 +454,6 @@ public class JdiDebugger extends Debugger
     public ExceptionDescription getException()
     {
         return lastException;
-    }
-
-    /**
-     * List all threads being debugged as a TreeModel.
-     * 
-     * @return A tree model of all the threads.
-     */
-    public DebuggerThreadTreeModel getThreadTreeModel()
-    {
-        return treeModel;
     }
 
     // ------ Following methods run code on server thread in debug VM ------
@@ -913,21 +890,7 @@ public class JdiDebugger extends Debugger
     {
         final JdiThread breakThread = allThreads.find(tr);
         if (false == skipUpdate) {
-            treeModel.syncExec(new Runnable() {
-                public void run()
-                {
-                    JdiThreadNode jtn = treeModel.findThreadNode(tr);
-                    // if the thread at the breakpoint is not currently displayed,
-                    // display it now.
-                    if (jtn == null) {
-                        JdiThreadNode root = treeModel.getThreadRoot();
-                        treeModel.insertNodeInto(new JdiThreadNode(breakThread), root, 0);
-                    }
-                    else {
-                        treeModel.nodeChanged(jtn);
-                    }
-                }
-            });
+            threadListener.threadStateChanged(breakThread, true);
         }
 
         fireTargetEvent(new DebuggerEvent(this, debuggerEventType, breakThread, props), skipUpdate);
@@ -996,13 +959,7 @@ public class JdiDebugger extends Debugger
                 launch();
                 
                 usedNames.clear();
-                treeModel.syncExec(new Runnable() {
-                    public void run()
-                    {
-                        treeModel.setRoot(new JdiThreadNode());
-                        treeModel.reload();
-                    }
-                });
+                threadListener.clearThreads();
             }
         }
     }
@@ -1017,12 +974,7 @@ public class JdiDebugger extends Debugger
     {
         final JdiThread newThread = new JdiThread(this, tr);
         allThreads.add(newThread);
-        treeModel.syncExec(new Runnable() {
-            public void run()
-            {
-                displayThread(newThread);
-            }
-        });
+        threadListener.addThread(newThread);
     }
 
     /**
@@ -1032,57 +984,9 @@ public class JdiDebugger extends Debugger
      */
     void threadDeath(final ThreadReference tr)
     {
-        allThreads.removeThread(tr);
-        treeModel.syncExec(new Runnable() {
-            public void run()
-            {
-                JdiThreadNode jtn = treeModel.findThreadNode(tr);
-                if (jtn != null) {
-                    treeModel.removeNodeFromParent(jtn);
-                }
-            }
-        });
-    }
-
-    /**
-     * Set or clear the option to hide system threads. This method also updates
-     * the current display if necessary.
-     */
-    public void hideSystemThreads(boolean hide)
-    {
-        if (hideSystemThreads == hide)
-            return;
-
-        hideSystemThreads = hide;
-        updateThreadDisplay();
-    }
-
-    /**
-     * Re-build the treeModel for the currently displayed threads using the
-     * allThreads set and the 'hideSystemThreads' flag.
-     */
-    private void updateThreadDisplay()
-    {
-        treeModel.setRoot(new JdiThreadNode());
-
-        for (Iterator<JdiThread> it = allThreads.iterator(); it.hasNext();) {
-            JdiThread currentThread = (JdiThread) it.next();
-            displayThread(currentThread);
-        }
-
-        treeModel.reload();
-    }
-
-    /**
-     * Add the given thread to the displayed threads if appropriate. System
-     * threads are displayed conditional on the 'hideSystemThreads' flag.
-     */
-    private void displayThread(JdiThread newThread)
-    {
-        if (!hideSystemThreads || !newThread.isKnownSystemThread()) {
-            JdiThreadNode root = treeModel.getThreadRoot();
-            treeModel.insertNodeInto(new JdiThreadNode(newThread), root, 0);
-        }
+        JdiThread jdiThread = allThreads.removeThread(tr);
+        if (jdiThread != null)
+            threadListener.removeThread(jdiThread);
     }
 
     // -- support methods --
@@ -1226,15 +1130,7 @@ public class JdiDebugger extends Debugger
         }
         
         if (! skipUpdate) {
-            treeModel.syncExec(new Runnable() {
-                public void run()
-                {
-                    JdiThreadNode threadNode = treeModel.findThreadNode(thread.getRemoteThread());
-                    if (threadNode != null) {
-                        treeModel.nodeChanged(threadNode);
-                    }
-                }
-            });
+            threadListener.threadStateChanged(thread, false);
         }
         
         fireTargetEvent(event, skipUpdate);
@@ -1257,15 +1153,7 @@ public class JdiDebugger extends Debugger
         }
 
         if (! skipUpdate) {
-            treeModel.syncExec(new Runnable() {
-                public void run()
-                {
-                    JdiThreadNode threadNode = treeModel.findThreadNode(thread.getRemoteThread());
-                    if (threadNode != null) {
-                        treeModel.nodeChanged(threadNode);
-                    }
-                }
-            });
+            threadListener.threadStateChanged(thread, false);
         }
         
         fireTargetEvent(event, skipUpdate);
