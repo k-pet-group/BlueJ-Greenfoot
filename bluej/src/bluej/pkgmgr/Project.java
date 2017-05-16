@@ -2573,5 +2573,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         {
             return debuggerThread.equals(dt);
         }
+
+        public DebuggerThread getThread()
+        {
+            return debuggerThread;
+        }
     }
 }

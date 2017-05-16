@@ -162,9 +162,6 @@ public class ExecControls
     // the debug machine this control is looking at
     private Debugger debugger = null;
 
-    // the thread currently selected
-    private DebuggerThread selectedThread;
-
     private DebuggerClass currentClass;     // the current class for the
                                             //  selected stack frame
     private DebuggerObject currentObject;   // the "this" object for the
@@ -260,7 +257,7 @@ public class ExecControls
         }
 
         if(event.getSource() == stackList) {
-            selectStackFrame(stackList.getSelectedIndex());
+            selectStackFrame(getSelectedThread(), stackList.getSelectedIndex());
         }
     }
 
@@ -321,7 +318,7 @@ public class ExecControls
             viewInstanceField((DebuggerField) instanceList.getSelectedValue());
         }
         else if(src == localList && localList.getSelectedIndex() >= 0) {
-            viewLocalVar(localList.getSelectedIndex());
+            viewLocalVar(getSelectedThread(), localList.getSelectedIndex());
         }
     }
 
@@ -361,9 +358,12 @@ public class ExecControls
     {
         threadList.getSelectionModel().select(dt);
 
-        //MOEFX this should all be in a private listener hanging
-        // off the combo box:
+    }
+
+    private void selectedThreadChanged(DebuggerThreadDetails dt)
+    {
         if (dt == null) {
+            //MOEFX this should all be in bindings:
             stopButton.setEnabled(false);
             stepButton.setEnabled(false);
             stepIntoButton.setEnabled(false);
@@ -372,8 +372,7 @@ public class ExecControls
             cardLayout.show(flipPanel, "blank");
         }
         else {
-            //MOEFX
-            boolean isSuspended = false; //selectedThread.isSuspended();
+            boolean isSuspended = dt.getThread().isSuspended();
 
             stopButton.setEnabled(!isSuspended);
             stepButton.setEnabled(isSuspended);
@@ -382,7 +381,7 @@ public class ExecControls
 
             cardLayout.show(flipPanel, isSuspended ? "split" : "blank");
 
-            setThreadDetails();
+            setThreadDetails(dt.getThread());
         }
     }
 
@@ -391,7 +390,7 @@ public class ExecControls
      * These details include showing the threads stack, and displaying 
      * the details for the top stack frame.
      */
-    private void setThreadDetails()
+    private void setThreadDetails(DebuggerThread selectedThread)
     {
         stackList.setFixedCellWidth(-1);
         //Copy the list because we may alter it:
@@ -401,7 +400,7 @@ public class ExecControls
             stackList.setListData(filtered);
             // show details of top frame
             autoSelectionEvent = true;
-            selectStackFrame(0);
+            selectStackFrame(selectedThread, 0);
             autoSelectionEvent = false;
         }
     }
@@ -464,7 +463,7 @@ public class ExecControls
      * This will cause this frame's details (local variables, etc.) to be
      * displayed, as well as the current source position being marked.
      */
-    private void selectStackFrame(int index)
+    private void selectStackFrame(DebuggerThread selectedThread, int index)
     {
         // if the UI isn't up to date, make sure the correct frame is
         // selected in the list
@@ -472,7 +471,7 @@ public class ExecControls
             stackList.setSelectedIndex(index);
         }
         else if (index >= 0) {
-            setStackFrameDetails(index);
+            setStackFrameDetails(selectedThread, index);
             selectedThread.setSelectedFrame(index);
                 
             if (! autoSelectionEvent) {
@@ -490,7 +489,7 @@ public class ExecControls
      * Display the detail information (current object fields and local var's)
      * for a specific stack frame.
      */
-    private void setStackFrameDetails(int frameNo)
+    private void setStackFrameDetails(DebuggerThread selectedThread, int frameNo)
     {
         currentClass = selectedThread.getCurrentClass(frameNo);
         currentObject = selectedThread.getCurrentObject(frameNo);
@@ -555,7 +554,7 @@ public class ExecControls
     /**
      * Display an object inspector for an object in a local variable.
      */
-    private void viewLocalVar(int index)
+    private void viewLocalVar(DebuggerThread selectedThread, int index)
     {
         if(selectedThread.varIsObject(currentFrame, index)) {
             DebuggerObject obj = selectedThread.getStackObject(currentFrame, index);
@@ -704,6 +703,7 @@ public class ExecControls
         if (!Config.isRaspberryPi()) threadPanel.setOpaque(false);
 
         threadList = new ComboBox<>(debuggerThreads);
+        JavaFXUtil.addChangeListenerPlatform(threadList.getSelectionModel().selectedItemProperty(), this::selectedThreadChanged);
 
         JScrollPane threadScrollPane = new JScrollPane();
         lbl = new JLabel(threadTitle);
@@ -824,6 +824,14 @@ public class ExecControls
         });
     }
 
+    private DebuggerThread getSelectedThread()
+    {
+        DebuggerThreadDetails debuggerThreadDetails = threadList.getSelectionModel().getSelectedItem();
+        if (debuggerThreadDetails == null)
+            return null;
+        return debuggerThreadDetails.getThread();
+    }
+
     public BooleanProperty showingProperty()
     {
         return showingProperty;
@@ -841,6 +849,7 @@ public class ExecControls
         
         public void actionPerformed(ActionEvent e)
         {
+            DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
                 return;
             clearThreadDetails();
@@ -862,6 +871,7 @@ public class ExecControls
         
         public void actionPerformed(ActionEvent e)
         {
+            DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
                 return;
             clearThreadDetails();
@@ -885,6 +895,7 @@ public class ExecControls
         
         public void actionPerformed(ActionEvent e)
         {
+            DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
                 return;
             clearThreadDetails();
@@ -907,6 +918,8 @@ public class ExecControls
         
         public void actionPerformed(ActionEvent e)
         {
+            DebuggerThread selectedThread = getSelectedThread();
+            selectedThread = getSelectedThread();
             if (selectedThread == null)
                 return;
             clearThreadDetails();
@@ -917,7 +930,7 @@ public class ExecControls
             }
         }
     }
-    
+
     /**
      * Action to terminate the program, restart the VM.
      */
