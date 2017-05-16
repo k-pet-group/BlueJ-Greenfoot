@@ -2482,6 +2482,12 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         DebuggerThreadDetails details = new DebuggerThreadDetails(thread);
         Platform.runLater(() -> {
+            DebuggerThreadDetails prevSelection = null;
+            if (hasExecControls())
+            {
+                prevSelection = getExecControls().getSelectedThreadDetails();
+            }
+
             for (int i = 0; i < threadListContents.size(); i++)
             {
                 if (threadListContents.get(i).isThread(thread))
@@ -2489,10 +2495,16 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                     threadListContents.set(i, details);
                 }
             }
+
             if (shouldDisplay)
             {
                 getExecControls().setSelectedThread(details);
             }
+            else if (prevSelection != null)
+            {
+                getExecControls().setSelectedThread(prevSelection);
+            }
+            getExecControls().threadStateChanged(details);
         });
     }
 

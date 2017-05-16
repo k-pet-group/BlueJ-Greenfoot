@@ -35,10 +35,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,22 +63,20 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
-import bluej.debugger.DebuggerThreadListener;
 import bluej.pkgmgr.Project.DebuggerThreadDetails;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -105,7 +103,6 @@ import threadchecker.Tag;
  * @author  Michael Kolling
  */
 public class ExecControls
-    implements ListSelectionListener
 {
     private static final String stackTitle =
         Config.getString("debugger.execControls.stackTitle");
@@ -148,7 +145,7 @@ public class ExecControls
     private ComboBox<DebuggerThreadDetails> threadList;
     
     private JComponent mainPanel;
-    private JList<SourceLocation> stackList;
+    private ListView<SourceLocation> stackList;
     private JList<String> staticList, localList;
     private JList<DebuggerField> instanceList;
     private JButton stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
@@ -207,7 +204,7 @@ public class ExecControls
         this.swingNode = new SwingNodeFixed();
         VBox.setVgrow(swingNode, Priority.ALWAYS);
         createWindowContent(debuggerThreads);
-        this.fxContent = new VBox(threadList, swingNode);
+        this.fxContent = new VBox(threadList, stackList, swingNode);
         // Menu bar will be added later:
         window.setScene(new Scene(fxContent));
         Config.rememberPositionAndSize(window, "bluej.debugger");
@@ -241,27 +238,6 @@ public class ExecControls
         }
         return copy;
     }
-
-
-    // ----- ListSelectionListener interface -----
-
-    /**
-     * A list item was selected. This can be either in the
-     * stack list, or one of the variable lists.
-     */
-    public void valueChanged(ListSelectionEvent event)
-    {
-        // ignore mouse down, dragging, etc.
-        if(event.getValueIsAdjusting()) {
-            return;
-        }
-
-        if(event.getSource() == stackList) {
-            selectStackFrame(getSelectedThread(), stackList.getSelectedIndex());
-        }
-    }
-
-    // ----- end of ListSelectionListener interface -----
 
     // ----- TreeSelectionListener interface -----
 
@@ -370,6 +346,7 @@ public class ExecControls
             continueButton.setEnabled(false);
 
             cardLayout.show(flipPanel, "blank");
+            stackList.getItems().clear();
         }
         else {
             boolean isSuspended = dt.getThread().isSuspended();
@@ -392,15 +369,16 @@ public class ExecControls
      */
     private void setThreadDetails(DebuggerThread selectedThread)
     {
-        stackList.setFixedCellWidth(-1);
         //Copy the list because we may alter it:
-        LinkedList<SourceLocation> stack = new LinkedList<SourceLocation>(selectedThread.getStack());
-        SourceLocation[] filtered = getFilteredStack(stack);
-        if(filtered.length > 0) {
-            stackList.setListData(filtered);
+        List<SourceLocation> stack = new ArrayList<>(selectedThread.getStack());
+        List<SourceLocation> filtered = Arrays.asList(getFilteredStack(stack));
+
+        stackList.getItems().setAll(filtered);
+        if (filtered.size() > 0)
+        {
             // show details of top frame
             autoSelectionEvent = true;
-            selectStackFrame(selectedThread, 0);
+            stackList.getSelectionModel().select(0);
             autoSelectionEvent = false;
         }
     }
@@ -452,7 +430,7 @@ public class ExecControls
      */
     private void clearThreadDetails()
     {
-        stackList.setListData(new SourceLocation[0]);
+        stackList.getItems().clear();
         staticList.setListData(empty);
         instanceList.setListData(new DebuggerField[0]);
         localList.setListData(empty);
@@ -463,14 +441,9 @@ public class ExecControls
      * This will cause this frame's details (local variables, etc.) to be
      * displayed, as well as the current source position being marked.
      */
-    private void selectStackFrame(DebuggerThread selectedThread, int index)
+    private void stackFrameSelectionChanged(DebuggerThread selectedThread, int index)
     {
-        // if the UI isn't up to date, make sure the correct frame is
-        // selected in the list
-        if (stackList.getSelectedIndex() != index) {
-            stackList.setSelectedIndex(index);
-        }
-        else if (index >= 0) {
+        if (index >= 0) {
             setStackFrameDetails(selectedThread, index);
             selectedThread.setSelectedFrame(index);
                 
@@ -621,7 +594,6 @@ public class ExecControls
             staticList = new JList<>(new DefaultListModel<>());
             {
                 staticList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                staticList.addListSelectionListener(this);
                 staticList.setVisibleRowCount(3);
                 staticList.setFixedCellWidth(150);
                 staticList.addMouseListener(mouseListener);
@@ -638,7 +610,6 @@ public class ExecControls
             instanceList = new JList<>(new DefaultListModel<>());
             {
                 instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                instanceList.addListSelectionListener(this);
                 instanceList.setVisibleRowCount(4);
                 instanceList.setFixedCellWidth(150);
                 instanceList.addMouseListener(mouseListener);
@@ -656,7 +627,6 @@ public class ExecControls
             localList = new JList<>(new DefaultListModel<>());
             {
                 localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                localList.addListSelectionListener(this);
                 localList.setVisibleRowCount(4);
                 localList.setFixedCellWidth(150);
                 localList.addMouseListener(mouseListener);
@@ -683,11 +653,10 @@ public class ExecControls
 
         // Create stack listing panel
 
-        stackList = new JList<>(new DefaultListModel<>());
-        stackList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        stackList.addListSelectionListener(this);
-        stackList.setFixedCellWidth(150);
-        JScrollPane stackScrollPane = new JScrollPane(stackList);
+        stackList = new ListView<>();
+        stackList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> stackFrameSelectionChanged(getSelectedThread(), index.intValue()));
+        JScrollPane stackScrollPane = new JScrollPane();
         JLabel lbl = new JLabel(stackTitle);
         if (!Config.isRaspberryPi()) lbl.setOpaque(true);
         stackScrollPane.setColumnHeaderView(lbl);
@@ -826,15 +795,28 @@ public class ExecControls
 
     private DebuggerThread getSelectedThread()
     {
-        DebuggerThreadDetails debuggerThreadDetails = threadList.getSelectionModel().getSelectedItem();
+        DebuggerThreadDetails debuggerThreadDetails = getSelectedThreadDetails();
         if (debuggerThreadDetails == null)
             return null;
         return debuggerThreadDetails.getThread();
     }
 
+    public DebuggerThreadDetails getSelectedThreadDetails()
+    {
+        return threadList.getSelectionModel().getSelectedItem();
+    }
+
     public BooleanProperty showingProperty()
     {
         return showingProperty;
+    }
+
+    public void threadStateChanged(DebuggerThreadDetails thread)
+    {
+        if (getSelectedThreadDetails().equals(thread))
+        {
+            setThreadDetails(thread.getThread());
+        }
     }
 
     /**
