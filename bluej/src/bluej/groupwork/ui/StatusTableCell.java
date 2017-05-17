@@ -21,166 +21,83 @@
  */
 package bluej.groupwork.ui;
 
-import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
-import bluej.pkgmgr.Project;
+import bluej.groupwork.TeamStatusInfo.Status;
+import bluej.utility.Debug;
 
-import java.util.List;
-
-import bluej.utility.javafx.JavaFXUtil;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
- * Given a list of StatusEntry(s) returns a table model which allows them to
- * be edited in a JTable.
+ * A TableCell which shows one cell in the second column's of Status table.
+ * It is wrapped in a container to allow a border with padding to be applied.
  *
- * A TableCell which either shows a label or a graphic.  They are wrapped
- * in a container to allow a border with padding to be applied.
+ * It also replaces StatusMessageCellRenderer class
  *
  * @author Amjad Altadmri
  */
 public class StatusTableCell extends TableCell<TeamStatusInfo, Object>
+{
+    private final boolean isDVCS;
+    private final int column;
+    protected ObservableList<TeamStatusInfo> resources;
+
+    /**
+     *
+     */
+    public StatusTableCell(boolean isDVCS, int column)
     {
-        private Label label = new Label();
-        private SimpleBooleanProperty showingLabel = new SimpleBooleanProperty(true);
-        private SimpleBooleanProperty occupied = new SimpleBooleanProperty(true);
+        this.isDVCS = isDVCS;
+        this.column = column;
+        setText("");
+        setGraphic(null);
+    }
 
-        final static private Image objectrefIcon = Config.getImageAsFXImage("image.inspector.objectref");/////
-
-
-        protected final String resourceLabel = Config.getString("team.status.resource");
-        protected final String remoteStatusLabel = Config.getString("team.status.remote");
-        protected final String versionLabel = Config.getString("team.status.version");
-
-        private final boolean isDVCS;
-
-        protected Project project;
-        protected String statusLabel;
-        protected List<String> labelsList;
-        protected ObservableList<TeamStatusInfo> resources;
-
-        private final int COLUMN_COUNT = 3;
-
-
-        /**
-         *
-         */
-        public StatusTableCell(Project project)
+    @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    protected void updateItem(Object v, boolean empty)
+    {
+        super.updateItem(v, empty);
+        if (v != null)
         {
-            this.project = project;
-            this.isDVCS = project.getTeamSettingsController().isDVCS();
-
-            ImageView objRefPic = new ImageView(objectrefIcon);
-            HBox container = new HBox(); // HBox so that we can use baseline-alignment
-            container.getChildren().addAll(label, objRefPic);
-            JavaFXUtil.addStyleClass(container, "team-status-value-wrapper");
-            JavaFXUtil.addStyleClass(label, "team-status-value-label");
-            objRefPic.managedProperty().bind(showingLabel.not());
-            objRefPic.visibleProperty().bind(showingLabel.not());
-            label.managedProperty().bind(showingLabel);
-            label.visibleProperty().bind(showingLabel);
-            container.visibleProperty().bind(occupied);
-            setText("");
-            setGraphic(container);
-        }
-
-        @Override
-        protected void updateItem(Object v, boolean empty)
-        {
-            super.updateItem(v, empty);
-            occupied.set(!empty);
-            if (v != null && String.valueOf(v) == null)
+            if (v instanceof String)
             {
-                showingLabel.set(false);
+                setText(String.valueOf(v));
+            }
+            else if (v instanceof Status)
+            {
+                Status status = (Status) v;
+                setText(getMessage(status));
+                setTextFill(status.getStatusColour());
             }
             else
-            {
-                label.setText(v == null || empty ? "" : String.valueOf(v));
-                showingLabel.set(true);
+                {
+                Debug.reportError("Status Table Cell should be either String or TeamStatusInfo.Status :" + v.toString());
             }
         }
-
-
-
-    /**
-     * Return the number of rows in the table
-     *
-     * @return      the number of rows in the table
-     */
-    public int getRowCount()
-    {
-        return resources.size();
-    }
-    
-    /**
-     * Return the number of columns in the table
-     *
-     * @return      the number of columns in the table
-     */
-    public int getColumnCount()
-    {
-        return COLUMN_COUNT;
     }
 
-    /**
-     * Return the name of a particular column
-     *
-     * @param col   the column we are naming
-     * @return      a string of the columns name
-     */
-    public String getColumnName(int col)
+    // TODO NOT the best way but should work fine for now
+    // Divide into three different Cell Factories: column1 and DVCS/nonDVCS for column 2
+    private String getMessage(Status status)
     {
-        try {
-            return labelsList.get(col);
+        switch (column) {
+            case 1:
+                if (isDVCS) {
+                    return status.getDCVSStatusString(false);
+                }
+                else {
+                    Debug.reportError("DVCS can't be false here for column = 1");
+                    break;
+                }
+            case 2:
+                return isDVCS ? status.getDCVSStatusString(true) : status.getStatusString();
+            default:
+                break;
         }
-        catch (Exception e) {
-            throw new IllegalArgumentException("bad column number in StatusTableModel::getColumnName()");
-        }
-    }
-
-
-    /**
-     * Indicate that nothing is editable
-     */
-    public boolean isCellEditable(int row, int col)
-    {
-        return false;
-    }
-
-    /**
-     * Set the table entry at a particular row and column (only
-     * valid for the location column)
-     *
-     * @param   value   the Object at that location in the table
-     * @param   row     the table row
-     * @param   col     the table column
-     */
-    public void setValueAt(Object value, int row, int col)
-    {
-       // do nothing here
-    }
-    
-    public void clear()
-    {
-        resources.clear();
-//        fireTableDataChanged();
-    }
-    
-    public void setStatusData(ObservableList<TeamStatusInfo> statusResources)
-    {
-        resources = statusResources;
-//        fireTableDataChanged();
-    }
-
-    public ObservableList<TeamStatusInfo> getResources()
-    {
-        return resources;
+        return null;
     }
 }

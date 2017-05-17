@@ -22,8 +22,8 @@
 package bluej.groupwork;
 
 import bluej.Config;
+import javafx.scene.paint.Color;
 
-import java.awt.*;
 import java.io.File;
 
 /**
@@ -41,11 +41,11 @@ public class TeamStatusInfo
     private final static String prefix = "team.statusinfo.";
 
     private final static Color UPTODATE_COLOR = Color.BLACK;
-    private final static Color CONFLICT_COLOR = new Color(137,13,19);   // darker red
-    private final static Color NEEDSUPDATE_COLOR = new Color(11,57,120);  // blue
-    private final static Color REMOVED_COLOR = new Color(135,150,170);     // grey-blue
-    private final static Color NEEDSCOMMIT_COLOR = new Color(10,85,15);   // green
-    private final static Color DELETED_COLOR = new Color(122,143,123);      // grey-green
+    private final static Color CONFLICT_COLOR = Color.rgb(137,13,19);   // darker red
+    private final static Color NEEDSUPDATE_COLOR = Color.rgb(11,57,120);  // blue
+    private final static Color REMOVED_COLOR = Color.rgb(135,150,170);     // grey-blue
+    private final static Color NEEDSCOMMIT_COLOR = Color.rgb(10,85,15);   // green
+    private final static Color DELETED_COLOR = Color.rgb(122,143,123);      // grey-green
 
     public enum Status
     {

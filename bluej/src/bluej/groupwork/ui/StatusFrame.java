@@ -28,7 +28,6 @@ import java.util.Map;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -79,6 +78,8 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     private static final int MAX_ENTRIES = 20;
     private final boolean isDVCS;
 
+    private TableView<TeamStatusInfo> statusTable;
+
     /**
      * Creates a new instance of StatusFrame. Called via factory method
      * getStatusWindow.
@@ -101,46 +102,33 @@ public class StatusFrame extends FXCustomizedDialog<Void>
                 new StatusTableModelDVCS(project, estimateInitialEntries()) :
                 new StatusTableModelNonDVCS(project, estimateInitialEntries());
 
-        //TODO check the next line
-        TableView<TeamStatusInfo> statusTable = new TableView<>(statusModel.getResources());
-        //TODO implements the next line
+        statusTable = new TableView<>(statusModel.getResources());
+        //TODO implements the next line?
         // statusTable.getTableHeader().setReorderingAllowed(false);
 
-
-        //set up custom renderer to colour code status message field
-//        StatusMessageCellRenderer statusRenderer = new StatusMessageCellRenderer(project);
-//        statusTable.setDefaultRenderer(java.lang.Object.class, statusRenderer);
-
         TableColumn<TeamStatusInfo, String> firstColumn = new TableColumn<>(statusModel.getColumnName(0));
-        firstColumn.setPrefWidth(70);
+        firstColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.3));
         JavaFXUtil.addStyleClass(firstColumn, "team-status-firstColumn");
-        firstColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper((String) getValueAt(v.getValue(), 0)));
+        firstColumn.setCellValueFactory(v ->
+                new ReadOnlyStringWrapper(ResourceDescriptor.getResource(project, v.getValue(), false)));
 
         TableColumn<TeamStatusInfo, Object> secondColumn = new TableColumn<>(statusModel.getColumnName(1));
-        secondColumn.setPrefWidth(40);
+        secondColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.3));
         JavaFXUtil.addStyleClass(secondColumn, "team-status-secondColumn");
         secondColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 1)));
-//      secondColumn.setCellFactory(col -> new StatusTableCell(project));
+        secondColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 1));
 
-        TableColumn<TeamStatusInfo, Integer> thirdColumn = new TableColumn<>(statusModel.getColumnName(2));
-        thirdColumn.setPrefWidth(60);
+        TableColumn<TeamStatusInfo, Object> thirdColumn = new TableColumn<>(statusModel.getColumnName(2));
+        thirdColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.4));
         JavaFXUtil.addStyleClass(thirdColumn, "team-status-thirdColumn");
-        thirdColumn.setCellValueFactory(v -> new SimpleObjectProperty<>((Integer) getValueAt(v.getValue(), 2)));
-//      thirdColumn.setCellFactory(col -> new StatusTableCell(project));
+        thirdColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 2)));
+        thirdColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 2));
 
         statusTable.getColumns().setAll(firstColumn, secondColumn, thirdColumn);
 
-
-        /*
-        value.setCellValueFactory(v -> new ReadOnlyObjectWrapper(new StringOrRef(v.getValue().getValue())));
-        value.setCellFactory(col -> new ValueCell());
-        */
-
         ScrollPane statusScroller = new ScrollPane(statusTable);
-//        Dimension prefSize = statusTable.getMaximumSize();
-//        Dimension scrollPrefSize =  statusTable.getPreferredScrollableViewportSize();
-//        Dimension best = new Dimension(scrollPrefSize.width + 50, prefSize.height + 30);
-//        statusScroller.setPreferredSize(best);
+        statusScroller.fitToWidthProperty().set(true);
+        statusScroller.fitToHeightProperty().set(true);
 
         VBox mainPane = new VBox();
         mainPane.setSpacing(10);
@@ -230,8 +218,6 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     public Object getValueAt(TeamStatusInfo info, int col)
     {
         switch (col) {
-            case 0:
-                return ResourceDescriptor.getResource(project, info, false);
             case 1:
                 return isDVCS ? info.getStatus() : info.getLocalVersion();
             case 2:
@@ -313,6 +299,11 @@ public class StatusFrame extends FXCustomizedDialog<Void>
                     DataCollector.teamStatusProject(project, repository, statusMap);
                 }
                 refreshButton.setDisable(false);
+                if (statusTable.getItems() != null ) {
+                    statusTable.getItems().clear();
+                }
+                statusTable.refresh();
+                statusTable.setItems(resources);
             }
         }
     }
