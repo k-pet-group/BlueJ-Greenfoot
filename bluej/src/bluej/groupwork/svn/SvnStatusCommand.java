@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,11 +28,11 @@ import java.util.*;
 import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.Depth;
 import org.tigris.subversion.javahl.SVNClientInterface;
-import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.javahl.StatusCallback;
 import org.tigris.subversion.javahl.StatusKind;
 
 import bluej.groupwork.*;
+import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.utility.Debug;
 
 /**
@@ -60,16 +60,17 @@ public class SvnStatusCommand extends SvnCommand
         File projectPath = getRepository().getProjectPath().getAbsoluteFile();
         
         try {
-            final List<Status> statusList = new LinkedList<Status>();
+            final List<org.tigris.subversion.javahl.Status> statusList = new LinkedList<>();
             client.status(projectPath.getAbsolutePath(), Depth.infinity, true,
                     true, false, false, new String[0], new StatusCallback() {
-                        public void doStatus(Status arg0)
+                        public void doStatus(org.tigris.subversion.javahl.Status arg0)
                         {
                             statusList.add(arg0);
                         }
                     });
-            
-            Status [] status = statusList.toArray(new Status[statusList.size()]);
+
+            org.tigris.subversion.javahl.Status [] status = statusList.toArray(
+                    new org.tigris.subversion.javahl.Status[statusList.size()]);
             
             /*
              * Subversion is a bit stupid. If a directory has been removed from
@@ -106,10 +107,10 @@ public class SvnStatusCommand extends SvnCommand
                         || textStat == StatusKind.deleted) {
                     String rev = "" + status[i].getLastChangedRevisionNumber();
                     if (reposStat == StatusKind.modified) {
-                        rinfo = new TeamStatusInfo(file, rev, "" + reposRev, TeamStatusInfo.STATUS_CONFLICT_LDRM);
+                        rinfo = new TeamStatusInfo(file, rev, "" + reposRev, Status.CONFLICT_LDRM);
                     }
                     else {
-                        rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_DELETED);
+                        rinfo = new TeamStatusInfo(file, rev, "", Status.DELETED);
                     }
                 }
                 else if ((textStat == StatusKind.unversioned)
@@ -119,41 +120,41 @@ public class SvnStatusCommand extends SvnCommand
                     // https://issues.tmatesoft.com/issue/SVNKIT-643
                     if (filter.accept(file)) {
                         if (reposStat != StatusKind.added) {
-                            rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSADD);
+                            rinfo = new TeamStatusInfo(file, "", "", Status.NEEDSADD);
                             if (file.isDirectory()) {
                                 statLocalDir(file);
                             }
                         }
                         else {
                             // conflict: added locally and in repository
-                            rinfo = new TeamStatusInfo(file, "", "" + status[i].getReposLastCmtRevisionNumber(), TeamStatusInfo.STATUS_CONFLICT_ADD);
+                            rinfo = new TeamStatusInfo(file, "", "" + status[i].getReposLastCmtRevisionNumber(), Status.CONFLICT_ADD);
                         }
                     }
                 }
                 else if (textStat == StatusKind.normal) {
                     if (reposStat == StatusKind.none && status[i].getRevisionNumber() == -1) {
                         // Bug in SVNKit
-                        rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSCOMMIT);
+                        rinfo = new TeamStatusInfo(file, "", "", Status.NEEDSCOMMIT);
                     }
                     else if (filter.accept(file)) {
                         String rev = "" + status[i].getLastChangedRevisionNumber();
                         if (reposStat == StatusKind.deleted) {
-                            rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_REMOVED);
+                            rinfo = new TeamStatusInfo(file, rev, "", Status.REMOVED);
                         }
                         else if (reposStat == StatusKind.none && !file.exists()) {
                             //Bug in SVNKit
-                            //File status in the repository is normal, 
+                            //File status in the repository is normal,
                             //but the file status is none and the file
                             //doesn't exists locally anymore.
-                            rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_DELETED);
+                            rinfo = new TeamStatusInfo(file, rev, "", Status.DELETED);
                         }
                         else if (reposStat == StatusKind.modified) {
                             rinfo = new TeamStatusInfo(file, rev,
                                     "" + status[i].getReposLastCmtRevisionNumber(),
-                                    TeamStatusInfo.STATUS_NEEDSUPDATE);
+                                    Status.NEEDSUPDATE);
                         }
                         else {
-                            rinfo = new TeamStatusInfo(file, rev, rev, TeamStatusInfo.STATUS_UPTODATE);
+                            rinfo = new TeamStatusInfo(file, rev, rev, Status.UPTODATE);
                         }
                     }
                 }
@@ -161,42 +162,42 @@ public class SvnStatusCommand extends SvnCommand
                     if (filter.accept(file)) {
                         String rev = "" + status[i].getLastChangedRevisionNumber();
                         if (reposStat == StatusKind.deleted) {
-                            rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_CONFLICT_LMRD);
+                            rinfo = new TeamStatusInfo(file, rev, "", Status.CONFLICT_LMRD);
                         }
                         else if (reposStat == StatusKind.modified) {
-                            rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_NEEDSMERGE);
+                            rinfo = new TeamStatusInfo(file, rev, "", Status.NEEDSMERGE);
                         }
                         else {
-                            rinfo = new TeamStatusInfo(file, rev, rev, TeamStatusInfo.STATUS_NEEDSCOMMIT);
+                            rinfo = new TeamStatusInfo(file, rev, rev, Status.NEEDSCOMMIT);
                         }
                     }
                 }
                 else if (textStat == StatusKind.none) {
                     if (reposStat == StatusKind.added) {
-                        rinfo = new TeamStatusInfo(file, "", "" + reposRev, TeamStatusInfo.STATUS_NEEDSCHECKOUT);
+                        rinfo = new TeamStatusInfo(file, "", "" + reposRev, Status.NEEDSCHECKOUT);
                     }
                 }
                 else if (textStat == StatusKind.added) {
                     // shouldn't normally happen unless something went wrong
                     // or someone has done "svn add" from command line etc.
-                    rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSCOMMIT);
+                    rinfo = new TeamStatusInfo(file, "", "", Status.NEEDSCOMMIT);
                 }
-                
+
 //                if (filter.accept(file) || ! file.exists()) {
 //                    System.out.println("Status for: " + status[i].getPath());
 //                    System.out.println("   Revision: " + status[i].getRevisionNumber());
 //                    System.out.println("   lcRev: " + status[i].getLastChangedRevisionNumber());
 //                    System.out.println("   statusDesc: " + status[i].getTextStatusDescription());
-//                    
+//
 //                    System.out.println("   repostStat: " + Status.Kind.getDescription(reposStat));
 //                    System.out.println("   reposRev: " + status[i].getReposLastCmtRevisionNumber());
 //                    System.out.println("   hasRemote: " + status[i].hasRemote());
-//                    
+//
 //                    System.out.println("   conflictNew: " + status[i].getConflictNew());
 //                    System.out.println("   conflictOld: " + status[i].getConflictOld());
 //                    System.out.println("   conflictWorking: " + status[i].getConflictWorking());
 //                }
-                
+
                 if (rinfo != null) {
                     if (! file.exists()) {
                         listener.gotStatus(rinfo);
@@ -219,7 +220,7 @@ public class SvnStatusCommand extends SvnCommand
                     }
                 }
             }
-            
+
             listener.statusComplete(new SvnStatusHandle(getRepository(), currentRevision));
             return new TeamworkCommandResult();
         }
@@ -232,7 +233,7 @@ public class SvnStatusCommand extends SvnCommand
 
         return new TeamworkCommandAborted();
     }
-    
+
     /**
      * Provide status information for files in a directory which is
      * unversioned (and therefore ignored) according to subversion
@@ -242,19 +243,19 @@ public class SvnStatusCommand extends SvnCommand
         File [] subFiles = dir.listFiles(filter);
         for (int i = 0; i < subFiles.length; i++) {
             listener.gotStatus(new TeamStatusInfo(subFiles[i], "", "",
-                    TeamStatusInfo.STATUS_NEEDSADD));
+                    Status.NEEDSADD));
             if (subFiles[i].isDirectory()) {
                 statLocalDir(subFiles[i]);
             }
         }
     }
-    
+
     private void complete(Set<File> completed, Map<File,Set<TeamStatusInfo>> unreported,
             TeamStatusInfo rinfo)
     {
         listener.gotStatus(rinfo);
 
-        int rinfoStat = rinfo.getStatus();
+        Status rinfoStat = rinfo.getStatus();
 
         File file = rinfo.getFile();
         if (file.isDirectory()) {
@@ -266,33 +267,33 @@ public class SvnStatusCommand extends SvnCommand
             }
             for (Iterator<TeamStatusInfo> i = entries.iterator(); i.hasNext(); ) {
                 TeamStatusInfo status = i.next();
-                int einfoStat = status.getStatus();
-                if (rinfoStat == TeamStatusInfo.STATUS_CONFLICT_LMRD
-                        || rinfoStat == TeamStatusInfo.STATUS_REMOVED) {
+                Status einfoStat = status.getStatus();
+                if (rinfoStat == Status.CONFLICT_LMRD
+                        || rinfoStat == Status.REMOVED) {
 
                     // Parent was removed. We must change the child status to
                     // be removed also. One case we don't have to worry about
                     // is if the child has been locally deleted.
-                    if (einfoStat != TeamStatusInfo.STATUS_DELETED
-                            && einfoStat != TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
+                    if (einfoStat != Status.DELETED
+                            && einfoStat != Status.NEEDSCHECKOUT) {
                         // can these happen?
-                        //if (einfoStat == TeamStatusInfo.STATUS_CONFLICT_LDRM)
-                        //if (einfoStat == TeamStatusInfo.STATUS_CONFLICT_LMRD)
-                        if (einfoStat == TeamStatusInfo.STATUS_NEEDSADD) {
+                        //if (einfoStat == Status.CONFLICT_LDRM)
+                        //if (einfoStat == Status.CONFLICT_LMRD)
+                        if (einfoStat == Status.NEEDSADD) {
                             // what status to give here?
-                            einfoStat = TeamStatusInfo.STATUS_CONFLICT_LMRD;
+                            einfoStat = Status.CONFLICT_LMRD;
                         }
-                        else if (einfoStat == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
-                            einfoStat = TeamStatusInfo.STATUS_CONFLICT_LMRD;
+                        else if (einfoStat == Status.NEEDSCOMMIT) {
+                            einfoStat = Status.CONFLICT_LMRD;
                         }
-                        else if (einfoStat == TeamStatusInfo.STATUS_NEEDSMERGE) {
-                            einfoStat = TeamStatusInfo.STATUS_CONFLICT_LMRD;
+                        else if (einfoStat == Status.NEEDSMERGE) {
+                            einfoStat = Status.CONFLICT_LMRD;
                         }
-                        else if (einfoStat == TeamStatusInfo.STATUS_NEEDSUPDATE) {
-                            einfoStat = TeamStatusInfo.STATUS_REMOVED;
+                        else if (einfoStat == Status.NEEDSUPDATE) {
+                            einfoStat = Status.REMOVED;
                         }
-                        else if (einfoStat == TeamStatusInfo.STATUS_UPTODATE) {
-                            einfoStat = TeamStatusInfo.STATUS_REMOVED;
+                        else if (einfoStat == Status.UPTODATE) {
+                            einfoStat = Status.REMOVED;
                         }
 
                         complete(completed, unreported, new TeamStatusInfo(

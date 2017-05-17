@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.groupwork;
 
+import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.pkgmgr.BlueJPackageFile;
 
 /**
@@ -42,35 +43,35 @@ public class CommitFilter
      */
     public boolean accept(TeamStatusInfo statusInfo, boolean local)
     {
-        int stat;
+        Status stat;
         if (local){
             stat = statusInfo.getStatus();
         } else {
             stat = statusInfo.getRemoteStatus();
         }
         
-        if (stat == TeamStatusInfo.STATUS_DELETED) {
+        if (stat == Status.DELETED) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSADD) {
+        if (stat == Status.NEEDSADD) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
+        if (stat == Status.NEEDSCOMMIT) {
             return true;
         }
-        if (!local && stat == TeamStatusInfo.STATUS_NEEDSCHECKOUT){
+        if (!local && stat == Status.NEEDSCHECKOUT){
             return true;
         }
-        if (!local && stat == TeamStatusInfo.STATUS_NEEDS_PUSH) {
+        if (!local && stat == Status.NEEDS_PUSH) {
             return true;
         }
         
         
         if (BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
-            boolean conflict = (stat == TeamStatusInfo.STATUS_CONFLICT_ADD);
-            conflict |= (stat == TeamStatusInfo.STATUS_NEEDSMERGE);
-            conflict |= (stat == TeamStatusInfo.STATUS_CONFLICT_LDRM);
-            conflict |= (stat == TeamStatusInfo.STATUS_UNRESOLVED);
+            boolean conflict = (stat == Status.CONFLICT_ADD);
+            conflict |= (stat == Status.NEEDSMERGE);
+            conflict |= (stat == Status.CONFLICT_LDRM);
+            conflict |= (stat == Status.UNRESOLVED);
             if (conflict) {
                 return true;
             } 

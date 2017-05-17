@@ -28,16 +28,17 @@ import java.util.Map;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -67,13 +68,17 @@ import threadchecker.Tag;
 public class StatusFrame extends FXCustomizedDialog<Void>
 {
     private Project project;
+    private Repository repository;
     private StatusTableModel statusModel;
+
     private Button refreshButton;
     private ActivityIndicatorFX progressBar;
-
     private StatusWorker worker;
-    private Repository repository;
+
     private static final int MAX_ENTRIES = 20;
+    private final boolean isDVCS;
+
+    private TableView<TeamStatusInfo> statusTable;
 
     /**
      * Creates a new instance of StatusFrame. Called via factory method
@@ -83,80 +88,63 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     {
         super(null, "team.status", "team-status");
         project = proj;
+        isDVCS = project.getTeamSettingsController().isDVCS();
         // The layout should be Vertical, if not replace with a VBox.
-        getDialogPane().getChildren().addAll(makeMainPane(), makeButtonPanel());
+        getDialogPane().setContent(makeMainPane());
+        prepareButtonPane();
     }
 
-    private ScrollPane makeMainPane()
+    private Pane makeMainPane()
     {
         // try and set up a reasonable default amount of entries that avoids resizing
         // and scrolling once we get info back from repository
-        statusModel = project.getTeamSettingsController().isDVCS() ?
+        statusModel = isDVCS ?
                 new StatusTableModelDVCS(project, estimateInitialEntries()) :
                 new StatusTableModelNonDVCS(project, estimateInitialEntries());
 
-        //TODO check the next line
-        TableView<TeamStatusInfo> statusTable = new TableView<>(statusModel.getResources());
-        //TODO implements the next line
+        statusTable = new TableView<>(statusModel.getResources());
+        //TODO implements the next line?
         // statusTable.getTableHeader().setReorderingAllowed(false);
 
-
-        //set up custom renderer to colour code status message field
-//        StatusMessageCellRenderer statusRenderer = new StatusMessageCellRenderer(project);
-//        statusTable.setDefaultRenderer(java.lang.Object.class, statusRenderer);
-        StatusTableCell cell = new StatusTableCell(project);
-
         TableColumn<TeamStatusInfo, String> firstColumn = new TableColumn<>(statusModel.getColumnName(0));
-        firstColumn.setPrefWidth(70);
+        firstColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.3));
         JavaFXUtil.addStyleClass(firstColumn, "team-status-firstColumn");
-        firstColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper((String) cell.getValueAt(v.getValue(), 0)));
+        firstColumn.setCellValueFactory(v ->
+                new ReadOnlyStringWrapper(ResourceDescriptor.getResource(project, v.getValue(), false)));
 
         TableColumn<TeamStatusInfo, Object> secondColumn = new TableColumn<>(statusModel.getColumnName(1));
-        secondColumn.setPrefWidth(40);
+        secondColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.3));
         JavaFXUtil.addStyleClass(secondColumn, "team-status-secondColumn");
-        secondColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(cell.getValueAt(v.getValue(), 1)));
+        secondColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 1)));
+        secondColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 1));
 
-        TableColumn<TeamStatusInfo, Integer> thirdColumn = new TableColumn<>(statusModel.getColumnName(2));
-        thirdColumn.setPrefWidth(60);
+        TableColumn<TeamStatusInfo, Object> thirdColumn = new TableColumn<>(statusModel.getColumnName(2));
+        thirdColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.4));
         JavaFXUtil.addStyleClass(thirdColumn, "team-status-thirdColumn");
-        thirdColumn.setCellValueFactory(v -> new SimpleObjectProperty<>((Integer) cell.getValueAt(v.getValue(), 2)));
-//      thirdColumn.setCellFactory(col -> new StatusTableCell(project));
+        thirdColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 2)));
+        thirdColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 2));
 
         statusTable.getColumns().setAll(firstColumn, secondColumn, thirdColumn);
 
-
-
         ScrollPane statusScroller = new ScrollPane(statusTable);
-//        Dimension prefSize = statusTable.getMaximumSize();
-//        Dimension scrollPrefSize =  statusTable.getPreferredScrollableViewportSize();
-//        Dimension best = new Dimension(scrollPrefSize.width + 50, prefSize.height + 30);
-//        statusScroller.setPreferredSize(best);
+        statusScroller.fitToWidthProperty().set(true);
+        statusScroller.fitToHeightProperty().set(true);
 
-        return statusScroller;
+        VBox mainPane = new VBox();
+        mainPane.setSpacing(10);
+        mainPane.getChildren().addAll(statusScroller, makeRefreshPane());
+        return mainPane;
     }
 
     /**
-     * Create the button panel with a Resolve button and a close button
-     * @return Pane the buttonPanel
+     * Create the Refresh button and status progress bar
+     * @return Pane the progress HBox
      */
-    private Pane makeButtonPanel()
+    private Pane makeRefreshPane()
     {
-//        HBox buttonPanel = new Pane(new FlowLayout(FlowLayout.RIGHT));
-        FlowPane buttonPanel = new FlowPane(Orientation.HORIZONTAL);
-//        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         // progress bar
         progressBar = new ActivityIndicatorFX();
         progressBar.setRunning(false);
-
-        //close button
-        Button closeButton = new Button();
-        closeButton.setOnAction(event -> {
-            if (worker != null) {
-                worker.abort();
-            }
-            hide();
-        });
 
         //refresh button
         refreshButton = new Button(Config.getString("team.status.refresh"));
@@ -164,8 +152,25 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         refreshButton.setOnAction(event -> update());
         refreshButton.requestFocus();
 
-        buttonPanel.getChildren().addAll(progressBar, refreshButton, closeButton);
-        return buttonPanel;
+        HBox box = new HBox();
+        box.setAlignment(Pos.BASELINE_CENTER);
+        box.getChildren().addAll(progressBar, refreshButton);
+        return box;
+    }
+
+    /**
+     * Create the button panel with a Resolve button and a close button
+     * @return Pane the buttonPanel
+     */
+    private void prepareButtonPane()
+    {
+        //close button
+        getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
+        this.setOnCloseRequest(event -> {
+            if (worker != null) {
+                worker.abort();
+            }
+        });
     }
 
     /**
@@ -201,6 +206,27 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         else {
             hide();
         }
+    }
+
+    /**
+     * Find the table entry at a particular column for a specific info object (row).
+     *
+     * @param   info    the info object which occupies a row
+     * @param   col     the table column number
+     * @return          the Object at that location in the table
+     */
+    public Object getValueAt(TeamStatusInfo info, int col)
+    {
+        switch (col) {
+            case 1:
+                return isDVCS ? info.getStatus() : info.getLocalVersion();
+            case 2:
+                return isDVCS ? info.getRemoteStatus() : info.getStatus();
+            default:
+                break;
+        }
+
+        return null;
     }
 
     /**
@@ -256,7 +282,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
                     StatusFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, StatusFrame.this.asWindow()));
                 }
                 else {
-                    resources.sort((info0, info1) -> info1.getStatus() - info0.getStatus());
+                    resources.sort((info0, info1) -> info1.getStatus().ordinal() - info0.getStatus().ordinal());
 
                     TeamViewFilter filter = new TeamViewFilter();
                     // Remove old package files from display
@@ -267,12 +293,17 @@ public class StatusFrame extends FXCustomizedDialog<Void>
 
                     for (TeamStatusInfo s : resources)
                     {
-                        statusMap.put(s.getFile(), TeamStatusInfo.getStatusString(s.getStatus()));
+                        statusMap.put(s.getFile(), s.getStatus().getStatusString());
                     }
 
                     DataCollector.teamStatusProject(project, repository, statusMap);
                 }
                 refreshButton.setDisable(false);
+                if (statusTable.getItems() != null ) {
+                    statusTable.getItems().clear();
+                }
+                statusTable.refresh();
+                statusTable.setItems(resources);
             }
         }
     }

@@ -23,6 +23,7 @@ package bluej.groupwork.ui;
 
 import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
 
@@ -47,23 +48,23 @@ public class ResourceDescriptor
                     status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
                 }
                 if (annotate) {
-                    int infoStatus = info.getStatus();
+                    Status infoStatus = info.getStatus();
                     // file has been deleted
                     switch (infoStatus) {
-                        case TeamStatusInfo.STATUS_DELETED:
+                        case DELETED:
                             status += " (" + Config.getString("team.status.delete") + ")";
                             break;
-                        case TeamStatusInfo.STATUS_NEEDSADD:
+                        case NEEDSADD:
                             status += " (" + Config.getString("team.status.add") + ")";
                             break;
-                        case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
+                        case NEEDSCHECKOUT:
                             status += " (" + Config.getString("team.status.new") + ")";
                             break;
-                        case TeamStatusInfo.STATUS_REMOVED:
-                        case TeamStatusInfo.STATUS_CONFLICT_LMRD:
+                        case REMOVED:
+                        case CONFLICT_LMRD:
                             status += " (" + Config.getString("team.status.removed") + ")";
                             break;
-                        case TeamStatusInfo.STATUS_NEEDSMERGE:
+                        case NEEDSMERGE:
                             if (! isPkgFile) {
                                 status += " (" + Config.getString("team.status.needsmerge") + ")";
                             }
@@ -71,8 +72,8 @@ public class ResourceDescriptor
                         default:
                             break;
                     }
-                    if (info.getRemoteStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT
-                            || info.getRemoteStatus() == TeamStatusInfo.STATUS_DELETED) {
+                    if (info.getRemoteStatus() == Status.NEEDSCHECKOUT
+                            || info.getRemoteStatus() == Status.DELETED) {
                         if (!isPkgFile) {
                             //file is ok in local repo, but needs to be pushed to remote repo.
                             status += "(" + Config.getString("team.status.needsupdate") + ")";
@@ -106,22 +107,22 @@ public class ResourceDescriptor
         			status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
         		}
         		if (annotate) {
-        			int infoStatus = remote ? info.getRemoteStatus() : info.getStatus();
+        			Status infoStatus = remote ? info.getRemoteStatus() : info.getStatus();
         			// file has been deleted
         			switch (infoStatus) {
-        			case TeamStatusInfo.STATUS_DELETED:
-        			case TeamStatusInfo.STATUS_NEEDSADD:
-        			case TeamStatusInfo.STATUS_NEEDSCHECKOUT:
-        			case TeamStatusInfo.STATUS_REMOVED:
-        			case TeamStatusInfo.STATUS_CONFLICT_LMRD:
-        			case TeamStatusInfo.STATUS_NEEDSUPDATE:
-        			case TeamStatusInfo.STATUS_NEEDSCOMMIT:
+        			case DELETED:
+        			case NEEDSADD:
+        			case NEEDSCHECKOUT:
+        			case REMOVED:
+        			case CONFLICT_LMRD:
+        			case NEEDSUPDATE:
+        			case NEEDSCOMMIT:
         				//substitute for the new labels from teamstatusinfo
-        				status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
+        				status += " (" + infoStatus.getDCVSStatusString(remote) + ")";
         				break;
-        			case TeamStatusInfo.STATUS_NEEDSMERGE:
+        			case NEEDSMERGE:
         				if (!isPkgFile) {
-        					status += " (" + TeamStatusInfo.getDCVSStatusString(infoStatus, remote) + ")";
+        					status += " (" + infoStatus.getDCVSStatusString(remote) + ")";
         				}
         				break;
         			default:

@@ -385,8 +385,8 @@
     -fx-min-width:  30em;
     -fx-pref-width: 43em;
 
-    -fx-min-height:  32em;
-    -fx-pref-height: 32em;
+    -fx-min-height:  35em;
+    -fx-pref-height: 35em;
 
     -fx-padding-left: 2em;
     -fx-margin-left: 2em;
@@ -402,6 +402,11 @@
 
 .team-settings .panel {
     -fx-padding: 1em 1em 1.5em 2em;
+    -fx-spacing: 0.8em;
+}
+
+.team-settings .panel .serverType-box {
+     -fx-spacing: 0.8em;
 }
 
 .team-settings .grid {

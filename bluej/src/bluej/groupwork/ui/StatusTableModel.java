@@ -22,9 +22,7 @@
 package bluej.groupwork.ui;
 
 import java.util.List;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javax.swing.table.AbstractTableModel;
 
 import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
@@ -38,7 +36,7 @@ import bluej.pkgmgr.Project;
  * @author Bruce Quig
  * @author Amjad Altadmri
  */
-public abstract class StatusTableModel extends AbstractTableModel
+public abstract class StatusTableModel
 {
     protected final String resourceLabel = Config.getString("team.status.resource");
     protected final String remoteStatusLabel = Config.getString("team.status.remote");
@@ -49,38 +47,16 @@ public abstract class StatusTableModel extends AbstractTableModel
     protected List<String> labelsList;
     protected ObservableList<TeamStatusInfo> resources;
 
-    private final int COLUMN_COUNT = 3;
-
     /**
      *
      */
     public StatusTableModel(Project project, int initialRows)
     {
         this.project = project;
-        resources = FXCollections.observableArrayList();
-        for(int i = 0; i < initialRows; i++) {
-            resources.add(new TeamStatusInfo());
-        }
-    }
-
-    /**
-     * Return the number of rows in the table
-     *
-     * @return      the number of rows in the table
-     */
-    public int getRowCount()
-    {
-        return resources.size();
-    }
-    
-    /**
-     * Return the number of columns in the table
-     *
-     * @return      the number of columns in the table
-     */
-    public int getColumnCount()
-    {
-        return COLUMN_COUNT;
+//        resources = FXCollections.observableArrayList();
+//        for(int i = 0; i < initialRows; i++) {
+//            resources.add(new TeamStatusInfo());
+//        }
     }
 
     /**
@@ -98,39 +74,10 @@ public abstract class StatusTableModel extends AbstractTableModel
             throw new IllegalArgumentException("bad column number in StatusTableModel::getColumnName()");
         }
     }
-
-
-    /**
-     * Indicate that nothing is editable
-     */
-    public boolean isCellEditable(int row, int col)
-    {
-        return false;
-    }
-
-    /**
-     * Set the table entry at a particular row and column (only
-     * valid for the location column)
-     *
-     * @param   value   the Object at that location in the table
-     * @param   row     the table row
-     * @param   col     the table column
-     */
-    public void setValueAt(Object value, int row, int col)
-    {
-       // do nothing here
-    }
-    
-    public void clear()
-    {
-        resources.clear();
-        fireTableDataChanged();
-    }
     
     public void setStatusData(ObservableList<TeamStatusInfo> statusResources)
     {
         resources = statusResources;
-        fireTableDataChanged();
     }
 
     public ObservableList<TeamStatusInfo> getResources()

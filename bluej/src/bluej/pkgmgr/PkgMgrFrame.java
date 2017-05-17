@@ -391,7 +391,7 @@ public class PkgMgrFrame
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
-     * 
+     *
      * This constructor can only be called via createFrame().
      */
     private PkgMgrFrame()
@@ -422,7 +422,7 @@ public class PkgMgrFrame
                 objbench = new ObjectBench(this);
                 addCtrlTabShortcut(objbench);
                 itemsToDisable.add(objbench);
-                
+
                 BorderPane topPane = new BorderPane();
                 pkgEditorScrollPane = new ScrollPane(null) {
                     @Override
@@ -587,7 +587,7 @@ public class PkgMgrFrame
 
                 statusbar = new Label();
                 BorderPane.setAlignment(statusbar, Pos.CENTER_LEFT);
-                
+
                 // create the bottom status area
 
                 BorderPane statusArea = new BorderPane();
@@ -605,7 +605,7 @@ public class PkgMgrFrame
                 progressbar = new ActivityIndicatorFX();
                 progressbar.setRunning(false);
                 statusArea.setRight(new HBox(progressbar, machineIcon));
-                
+
                 contentRoot.setBottom(statusArea);
                 BorderPane rootPlusMenu = new BorderPane(contentRoot);
                 Scene scene = new Scene(rootPlusMenu);
@@ -672,15 +672,15 @@ public class PkgMgrFrame
 
         Platform.runLater(() -> {
             JavaFXUtil.onceNotNull(frame.stageProperty, stage ->
-                JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
-                    if (focused.booleanValue())
-                    {
-                        recentFrame = frame;
-                    }
-                })
+                    JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
+                        if (focused.booleanValue())
+                        {
+                            recentFrame = frame;
+                        }
+                    })
             );
         });
-        
+
         return frame;
     }
 
@@ -781,10 +781,10 @@ public class PkgMgrFrame
 
     /**
      * Find all PkgMgrFrames which are currently editing a particular project
-     * 
+     *
      * @param proj
      *            the project whose packages to look for
-     * 
+     *
      * @return an array of open PkgMgrFrame objects which are currently editing
      *         a package from this project, or null if none exist
      */
@@ -1109,23 +1109,23 @@ public class PkgMgrFrame
             Platform.runLater(() -> {
                 pkgEditorScrollPane.setContent(editor);
                 editor.setOnDragOver(event -> {
-                        Dragboard db = event.getDragboard();
-                        if (db.hasFiles()) {
-                            event.acceptTransferModes(TransferMode.COPY);
-                        } else {
-                            event.consume();
-                        }
-                });
-    
-                editor.setOnDragDropped(event -> {
-                        Dragboard db = event.getDragboard();
-                        boolean success = false;
-                        if (db.hasFiles()) {
-                            success = true;
-                            SwingUtilities.invokeLater(() -> {addFiles(db.getFiles());});
-                        }
-                        event.setDropCompleted(success);
+                    Dragboard db = event.getDragboard();
+                    if (db.hasFiles()) {
+                        event.acceptTransferModes(TransferMode.COPY);
+                    } else {
                         event.consume();
+                    }
+                });
+
+                editor.setOnDragDropped(event -> {
+                    Dragboard db = event.getDragboard();
+                    boolean success = false;
+                    if (db.hasFiles()) {
+                        success = true;
+                        SwingUtilities.invokeLater(() -> {addFiles(db.getFiles());});
+                    }
+                    event.setDropCompleted(success);
+                    event.consume();
                 });
                 editorMousePressed = e -> clearStatus();
                 editor.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);  // This mouse listener MUST be before
@@ -1639,8 +1639,8 @@ public class PkgMgrFrame
                     boolean tryAgain = true;
                     do
                     {
-                        String newObjectName = e.askForName() ? DialogManager.askStringFX((javafx.stage.Window)e.getSource(), "getobject-new-name",
-                            name) : name;
+                        String newObjectName = e.askForName() ? DialogManager.askStringFX((javafx.stage.Window)e.getSource(),
+                                "getobject-new-name", name) : name;
 
                         if (newObjectName == null)
                         {
@@ -2005,7 +2005,11 @@ public class PkgMgrFrame
                     // Must do it after package has been closed:
                     Platform.runLater(() -> updateWindow());
                 }); // changes menu items
-                this.codePad.clearHistoryView();// clear the codePad
+
+                // clear the codePad
+                if (codePad != null) {
+                    codePad.clearHistoryView();
+                }
 
                 FXMenuManager vm = viewMenuManager.get();
                 FXMenuManager tm = toolsMenuManager.get();
@@ -3338,9 +3342,9 @@ public class PkgMgrFrame
             });
         });
         button.setOnAction(e -> {
-            	action.setFrame(this);
-                action.actionPerformed(this);
-            });
+            action.setFrame(this);
+            action.actionPerformed(this);
+        });
     }
 
     /**

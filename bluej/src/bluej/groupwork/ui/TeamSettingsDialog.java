@@ -52,6 +52,7 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
     public TeamSettingsDialog(Window parent, TeamSettingsController controller)
     {
         super(parent, "team.settings.title", "team-settings");
+        setResizable(false);
         teamSettingsController = controller;
 
         if(teamSettingsController.hasProject()) {
@@ -60,13 +61,10 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
 
         setHeaderText(null);//
 //        setGraphic(new ImageView(this.getClass().getResource("team.png").toString()));
-//        dialogPane = new DialogPaneAnimateError(errorLabel, () -> updateOKButton());
-//        setDialogPane(dialogPane);
-//        getDialogPane().setPrefSize(360, 600);
 
         makeButtonPane();
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, getDialogPane().getStyleClass());
-        getDialogPane().getChildren().add(teamSettingsPanel);
+        getDialogPane().setContent(teamSettingsPanel);
     }
 
     /**
@@ -76,15 +74,12 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
     private void makeButtonPane()
     {
         // Set the button types.
-//        ButtonType testConnection = new ButtonType("Test connection", ButtonData.APPLY  OTHER);
-//        getDialogPane().getButtonTypes().addAll(testConnection, ButtonType.OK, ButtonType.CANCEL);
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 
         /*
          * Write the data from the teamSettingsPanel to the project's team.defs file.
          * If checkbox in teamSettingsPanel is checked, the data is also stored in bluej.properties
          */
-        // TODO Move this to the dialog result?
         okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.setOnAction(event -> {
             TeamSettings settings = teamSettingsPanel.getSettings();

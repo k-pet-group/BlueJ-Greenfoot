@@ -54,6 +54,7 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.StatusHandle;
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
@@ -515,14 +516,14 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
             for (TeamStatusInfo statusInfo : info) {
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
-                int status = statusInfo.getStatus();
+                Status status = statusInfo.getStatus();
                 if (filter.accept(statusInfo, true)) {
                     if (!isPkgFile) {
                         commitListModel.add(statusInfo);
                         filesToCommit.add(file);
-                    } else if (status == TeamStatusInfo.STATUS_NEEDSADD
-                            || status == TeamStatusInfo.STATUS_DELETED
-                            || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+                    } else if (status == Status.NEEDSADD
+                            || status == Status.DELETED
+                            || status == Status.CONFLICT_LDRM) {
                         // Package file which must be committed.
                         if (packagesToCommmit.add(statusInfo.getFile().getParentFile())) {
                             commitListModel.add(statusInfo);
@@ -547,25 +548,25 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                         }
                     }
 
-                    if (status == TeamStatusInfo.STATUS_NEEDSADD) {
+                    if (status == Status.NEEDSADD) {
                         filesToAdd.add(statusInfo.getFile());
-                    } else if (status == TeamStatusInfo.STATUS_DELETED
-                            || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+                    } else if (status == Status.DELETED
+                            || status == Status.CONFLICT_LDRM) {
                         filesToRemove.add(statusInfo.getFile());
                     }
                 } else if (!isPkgFile) {
-                    if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
+                    if (status == Status.HASCONFLICTS) {
                         mergeConflicts.add(statusInfo.getFile());
                     }
-                    if (status == TeamStatusInfo.STATUS_UNRESOLVED
-                            || status == TeamStatusInfo.STATUS_CONFLICT_ADD
-                            || status == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
+                    if (status == Status.UNRESOLVED
+                            || status == Status.CONFLICT_ADD
+                            || status == Status.CONFLICT_LMRD) {
                         deleteConflicts.add(statusInfo.getFile());
                     }
-                    if (status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+                    if (status == Status.CONFLICT_LDRM) {
                         otherConflicts.add(statusInfo.getFile());
                     }
-                    if (status == TeamStatusInfo.STATUS_NEEDSMERGE) {
+                    if (status == Status.NEEDSMERGE) {
                         needsMerge.add(statusInfo.getFile());
                     }
                 }

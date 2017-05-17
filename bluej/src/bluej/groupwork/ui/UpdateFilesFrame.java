@@ -48,6 +48,7 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.StatusHandle;
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamViewFilter;
 import bluej.groupwork.TeamworkCommand;
@@ -442,7 +443,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             TeamViewFilter viewFilter = new TeamViewFilter();
             for (TeamStatusInfo statusInfo : info) {
                 //update must look in the remoteStatus in a DVCS. if not DVCS, look into the local status.
-                int status = project.getTeamSettingsController().isDVCS() ? statusInfo.getRemoteStatus() : statusInfo.getStatus();
+                Status status = project.getTeamSettingsController().isDVCS() ? statusInfo.getRemoteStatus() : statusInfo.getStatus();
                 if (filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                         updateListModel.add(new UpdateStatus(statusInfo));
@@ -468,9 +469,9 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                 }
                 else {
                     boolean conflict;
-                    conflict = status == TeamStatusInfo.STATUS_UNRESOLVED;
-                    conflict |= status == TeamStatusInfo.STATUS_CONFLICT_ADD;
-                    conflict |= status == TeamStatusInfo.STATUS_CONFLICT_LMRD;
+                    conflict = status == Status.UNRESOLVED;
+                    conflict |= status == Status.CONFLICT_ADD;
+                    conflict |= status == Status.CONFLICT_LMRD;
                     if (conflict) {
                         if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                             conflicts.add(statusInfo.getFile());

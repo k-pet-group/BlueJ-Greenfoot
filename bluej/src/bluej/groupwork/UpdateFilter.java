@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.groupwork;
 
+import bluej.groupwork.TeamStatusInfo.Status;
 /**
  * Class to filter TeamStatusInfo objects to calculate those classes that will 
  * be changed when we next update. 
@@ -36,31 +37,31 @@ public class UpdateFilter
     public boolean accept(TeamStatusInfo statusInfo)
     {
         boolean isDir = statusInfo.getFile().isDirectory();
-        int stat = statusInfo.getStatus();
-        int remoteStat = statusInfo.getRemoteStatus();
+        Status stat = statusInfo.getStatus();
+        Status remoteStat = statusInfo.getRemoteStatus();
         
-        if (stat == TeamStatusInfo.STATUS_NEEDSCHECKOUT || remoteStat == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
+        if (stat == Status.NEEDSCHECKOUT || remoteStat == Status.NEEDSCHECKOUT) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSMERGE || remoteStat == TeamStatusInfo.STATUS_NEEDSMERGE) {
+        if (stat == Status.NEEDSMERGE || remoteStat == Status.NEEDSMERGE) {
             return ! isDir;
         }
-        if (stat == TeamStatusInfo.STATUS_NEEDSUPDATE || remoteStat == TeamStatusInfo.STATUS_NEEDSUPDATE) {
+        if (stat == Status.NEEDSUPDATE || remoteStat == Status.NEEDSUPDATE) {
             return ! isDir;
         }
-        if (stat == TeamStatusInfo.STATUS_REMOVED || remoteStat == TeamStatusInfo.STATUS_REMOVED) {
+        if (stat == Status.REMOVED || remoteStat == Status.REMOVED) {
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_CONFLICT_LDRM || remoteStat == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+        if (stat == Status.CONFLICT_LDRM || remoteStat == Status.CONFLICT_LDRM) {
             // Locally deleted, remotely modified. Update pulls the repository version
             return true;
         }
-        if (stat == TeamStatusInfo.STATUS_CONFLICT_LMRD || remoteStat == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
+        if (stat == Status.CONFLICT_LMRD || remoteStat == Status.CONFLICT_LMRD) {
             // Update will succeed if forced (for bluej.pkg files)
             return true;
         }
         
-        if (remoteStat == TeamStatusInfo.REMOTE_STATUS_MODIFIED){
+        if (remoteStat == Status.NEEDSUPDATE) { //REMOTE_STATUS_MODIFIED
             return true;
         }
     
@@ -72,14 +73,14 @@ public class UpdateFilter
      */
     public boolean updateAlways(TeamStatusInfo statusInfo)
     {
-        int remoteStatus = statusInfo.getRemoteStatus();
-        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT || remoteStatus == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
+        Status remoteStatus = statusInfo.getRemoteStatus();
+        if (statusInfo.getStatus() == Status.NEEDSCHECKOUT || remoteStatus == Status.NEEDSCHECKOUT) {
             return true;
         }
-        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_REMOVED || remoteStatus == TeamStatusInfo.STATUS_REMOVED) {
+        if (statusInfo.getStatus() == Status.REMOVED || remoteStatus == Status.REMOVED) {
             return true;
         }
-        if (statusInfo.getStatus() == TeamStatusInfo.STATUS_CONFLICT_LMRD || remoteStatus == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
+        if (statusInfo.getStatus() == Status.CONFLICT_LMRD || remoteStatus == Status.CONFLICT_LMRD) {
             return true;
         }
         return false;
