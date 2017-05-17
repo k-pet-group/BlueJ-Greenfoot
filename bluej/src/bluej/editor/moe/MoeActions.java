@@ -1153,7 +1153,7 @@ public final class MoeActions
 
         public MoeAbstractAction(String name, Category category)
         {
-            super(name, null);
+            super(name);
             this.accelerator.bind(Bindings.createObjectBinding(() -> {
                 return keymap.entrySet().stream().filter(e -> e.getValue().equals(this)).map(e -> e.getKey()).findFirst().orElse(null);
             }, keymap));

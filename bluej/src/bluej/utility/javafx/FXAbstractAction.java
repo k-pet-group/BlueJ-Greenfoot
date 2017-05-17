@@ -33,6 +33,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -54,11 +56,25 @@ public abstract class FXAbstractAction
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
     private final BooleanProperty disabled = new SimpleBooleanProperty(false);
     protected final ObjectProperty<KeyCombination> accelerator;
+    private final Image buttonImage;
 
-    public FXAbstractAction(String name, KeyCombination accelerator)
+    protected FXAbstractAction(String name)
+    {
+        this(name, (KeyCombination)null);
+    }
+
+    protected FXAbstractAction(String name, KeyCombination accelerator)
     {
         this.name = name;
         this.accelerator = new SimpleObjectProperty<KeyCombination>(accelerator);
+        this.buttonImage = null;
+    }
+
+    protected FXAbstractAction(String name, Image buttonImage)
+    {
+        this.name = name;
+        this.accelerator = new SimpleObjectProperty<KeyCombination>(null);
+        this.buttonImage = buttonImage;
     }
 
     public abstract void actionPerformed();
@@ -107,6 +123,8 @@ public abstract class FXAbstractAction
     {
         Button button = new Button(name);
         setButtonAction(button);
+        if (buttonImage != null)
+            button.setGraphic(new ImageView(buttonImage));
         return button;
     }
 

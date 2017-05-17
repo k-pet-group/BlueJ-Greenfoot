@@ -65,6 +65,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import bluej.pkgmgr.Project.DebuggerThreadDetails;
+import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
@@ -73,10 +74,12 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -148,7 +151,7 @@ public class ExecControls
     private ListView<SourceLocation> stackList;
     private JList<String> staticList, localList;
     private JList<DebuggerField> instanceList;
-    private JButton stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
+    private Button stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
     private CardLayout cardLayout;
     private JPanel flipPanel;
     private JCheckBoxMenuItem systemThreadItem;
@@ -204,7 +207,8 @@ public class ExecControls
         this.swingNode = new SwingNodeFixed();
         VBox.setVgrow(swingNode, Priority.ALWAYS);
         createWindowContent(debuggerThreads);
-        this.fxContent = new VBox(threadList, stackList, swingNode);
+        HBox buttons = new HBox(stopButton, stepButton, stepIntoButton, continueButton, terminateButton);
+        this.fxContent = new VBox(threadList, stackList, buttons); //, swingNode);
         // Menu bar will be added later:
         window.setScene(new Scene(fxContent));
         Config.rememberPositionAndSize(window, "bluej.debugger");
@@ -340,10 +344,10 @@ public class ExecControls
     {
         if (dt == null) {
             //MOEFX this should all be in bindings:
-            stopButton.setEnabled(false);
-            stepButton.setEnabled(false);
-            stepIntoButton.setEnabled(false);
-            continueButton.setEnabled(false);
+            //stopButton.setEnabled(false);
+            //stepButton.setEnabled(false);
+            //stepIntoButton.setEnabled(false);
+            //continueButton.setEnabled(false);
 
             cardLayout.show(flipPanel, "blank");
             stackList.getItems().clear();
@@ -351,10 +355,11 @@ public class ExecControls
         else {
             boolean isSuspended = dt.getThread().isSuspended();
 
-            stopButton.setEnabled(!isSuspended);
-            stepButton.setEnabled(isSuspended);
-            stepIntoButton.setEnabled(isSuspended);
-            continueButton .setEnabled(isSuspended);
+            //MOEFX this should all be in bindings:
+            //stopButton.setEnabled(!isSuspended);
+            //stepButton.setEnabled(isSuspended);
+            //stepIntoButton.setEnabled(isSuspended);
+            //continueButton .setEnabled(isSuspended);
 
             cardLayout.show(flipPanel, isSuspended ? "split" : "blank");
 
@@ -567,14 +572,13 @@ public class ExecControls
         {
             buttonBox.setLayout(new GridLayout(1,0));
 
-            stopButton = addButton(new StopAction(), buttonBox);
-            stepButton = addButton(new StepAction(), buttonBox);
-            stepIntoButton = addButton(new StepIntoAction(), buttonBox);
-            continueButton = addButton(new ContinueAction(), buttonBox);
+            stopButton = makeButton(new StopAction());
+            stepButton = makeButton(new StepAction());
+            stepIntoButton = makeButton(new StepIntoAction());
+            continueButton = makeButton(new ContinueAction());
 
             // terminate is always on
-            terminateButton = addButton(new TerminateAction(), buttonBox);
-            terminateButton.setEnabled(true);
+            terminateButton = makeButton(new TerminateAction());
         }
 
         contentPane.add(buttonBox, BorderLayout.SOUTH);
@@ -766,13 +770,13 @@ public class ExecControls
      * @param panel
      *            The panel to add the button to.
      */
-    private JButton addButton(Action action, JPanel panel)
+    private Button makeButton(FXAbstractAction action)
     {
-        JButton button = new JButton(action);
-        button.setVerticalTextPosition(SwingConstants.BOTTOM);
-        button.setHorizontalTextPosition(SwingConstants.CENTER);
-        button.setEnabled(false);
-        panel.add(button);
+        Button button = action.makeButton();
+        //MOEFX
+        //button.setVerticalTextPosition(SwingConstants.BOTTOM);
+        //button.setHorizontalTextPosition(SwingConstants.CENTER);
+        //button.setEnabled(false);
         return button;
     }
 
@@ -822,14 +826,14 @@ public class ExecControls
     /**
      * Action to halt the selected thread.
      */
-    private class StopAction extends AbstractAction
+    private class StopAction extends FXAbstractAction
     {
         public StopAction()
         {
-            super(haltButtonText, Config.getFixedImageAsIcon("stop.gif"));
+            super(haltButtonText, Config.getFixedImageAsFXImage("stop.gif"));
         }
         
-        public void actionPerformed(ActionEvent e)
+        public void actionPerformed()
         {
             DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
@@ -844,14 +848,14 @@ public class ExecControls
     /**
      * Action to step through the code.
      */
-    private class StepAction extends AbstractAction
+    private class StepAction extends FXAbstractAction
     {
         public StepAction()
         {
-            super(stepButtonText, Config.getFixedImageAsIcon("step.gif"));
+            super(stepButtonText, Config.getFixedImageAsFXImage("step.gif"));
         }
         
-        public void actionPerformed(ActionEvent e)
+        public void actionPerformed()
         {
             DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
@@ -868,14 +872,14 @@ public class ExecControls
     /**
      * Action to "step into" the code.
      */
-    private class StepIntoAction extends AbstractAction
+    private class StepIntoAction extends FXAbstractAction
     {
         public StepIntoAction()
         {
-            super(stepIntoButtonText, Config.getFixedImageAsIcon("step_into.gif"));
+            super(stepIntoButtonText, Config.getFixedImageAsFXImage("step_into.gif"));
         }
         
-        public void actionPerformed(ActionEvent e)
+        public void actionPerformed()
         {
             DebuggerThread selectedThread = getSelectedThread();
             if (selectedThread == null)
@@ -891,14 +895,14 @@ public class ExecControls
     /**
      * Action to continue a halted thread. 
      */
-    private class ContinueAction extends AbstractAction
+    private class ContinueAction extends FXAbstractAction
     {
         public ContinueAction()
         {
-            super(continueButtonText, Config.getFixedImageAsIcon("continue.gif"));
+            super(continueButtonText, Config.getFixedImageAsFXImage("continue.gif"));
         }
         
-        public void actionPerformed(ActionEvent e)
+        public void actionPerformed()
         {
             DebuggerThread selectedThread = getSelectedThread();
             selectedThread = getSelectedThread();
@@ -916,14 +920,14 @@ public class ExecControls
     /**
      * Action to terminate the program, restart the VM.
      */
-    private class TerminateAction extends AbstractAction
+    private class TerminateAction extends FXAbstractAction
     {
         public TerminateAction()
         {
-            super(terminateButtonText, Config.getFixedImageAsIcon("terminate.gif"));
+            super(terminateButtonText, Config.getFixedImageAsFXImage("terminate.gif"));
         }
         
-        public void actionPerformed(ActionEvent e)
+        public void actionPerformed()
         {
             try {
                 // throws an illegal state exception
