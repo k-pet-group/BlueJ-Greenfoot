@@ -40,6 +40,12 @@ public class ScopeColorsBorderPane extends BorderPane implements ScopeColors
     private final CssMetaData<ScopeColorsBorderPane, Color> ITERATION_OUTER_COLOR_META_DATA =
             JavaFXUtil.cssColor("-bj-iteration-outer-color", ScopeColorsBorderPane::scopeIterationOuterColorProperty);
 
+    private final CssMetaData<ScopeColorsBorderPane, Color> BREAKPOINT_OVERLAY_META_DATA =
+        JavaFXUtil.cssColor("-bj-breakpoint-overlay-color", ScopeColorsBorderPane::breakpointOverlayColorProperty);
+    private final CssMetaData<ScopeColorsBorderPane, Color> STEP_OVERLAY_META_DATA =
+        JavaFXUtil.cssColor("-bj-step-overlay-color", ScopeColorsBorderPane::stepMarkOverlayColorProperty);
+
+
     private final SimpleStyleableObjectProperty<Color> scopeBackgroundColorProperty = new SimpleStyleableObjectProperty<Color>(BACKGROUND_COLOR_META_DATA, Color.WHITE);
     private final SimpleStyleableObjectProperty<Color> scopeClassColorProperty = new SimpleStyleableObjectProperty<Color>(CLASS_COLOR_META_DATA, Color.WHITE);
     private final SimpleStyleableObjectProperty<Color> scopeClassOuterColorProperty = new SimpleStyleableObjectProperty<Color>(CLASS_OUTER_COLOR_META_DATA, Color.WHITE);
@@ -50,6 +56,8 @@ public class ScopeColorsBorderPane extends BorderPane implements ScopeColors
     private final SimpleStyleableObjectProperty<Color> scopeSelectionOuterColorProperty = new SimpleStyleableObjectProperty<Color>(SELECTION_OUTER_COLOR_META_DATA, Color.WHITE);
     private final SimpleStyleableObjectProperty<Color> scopeIterationColorProperty = new SimpleStyleableObjectProperty<Color>(ITERATION_COLOR_META_DATA, Color.WHITE);
     private final SimpleStyleableObjectProperty<Color> scopeIterationOuterColorProperty = new SimpleStyleableObjectProperty<Color>(ITERATION_OUTER_COLOR_META_DATA, Color.WHITE);
+    private final SimpleStyleableObjectProperty<Color> breakpointOverlayColorProperty = new SimpleStyleableObjectProperty<Color>(BREAKPOINT_OVERLAY_META_DATA, Color.RED);
+    private final SimpleStyleableObjectProperty<Color> stepMarkOverlayColorProperty = new SimpleStyleableObjectProperty<Color>(STEP_OVERLAY_META_DATA, Color.GREEN);
 
     private final List<CssMetaData<? extends Styleable, ?>> cssMetaDataList =
         JavaFXUtil.extendCss(BorderPane.getClassCssMetaData())
@@ -63,6 +71,8 @@ public class ScopeColorsBorderPane extends BorderPane implements ScopeColors
             .add(SELECTION_OUTER_COLOR_META_DATA)
             .add(ITERATION_COLOR_META_DATA)
             .add(ITERATION_OUTER_COLOR_META_DATA)
+            .add(BREAKPOINT_OVERLAY_META_DATA)
+            .add(STEP_OVERLAY_META_DATA)
             .build();
 
     public final SimpleStyleableObjectProperty<Color> scopeBackgroundColorProperty() { return scopeBackgroundColorProperty; }
@@ -75,6 +85,8 @@ public class ScopeColorsBorderPane extends BorderPane implements ScopeColors
     public final SimpleStyleableObjectProperty<Color> scopeSelectionOuterColorProperty() { return scopeSelectionOuterColorProperty; }
     public final SimpleStyleableObjectProperty<Color> scopeIterationColorProperty() { return scopeIterationColorProperty; }
     public final SimpleStyleableObjectProperty<Color> scopeIterationOuterColorProperty() { return scopeIterationOuterColorProperty; }
+    public final SimpleStyleableObjectProperty<Color> breakpointOverlayColorProperty() { return breakpointOverlayColorProperty; }
+    public final SimpleStyleableObjectProperty<Color> stepMarkOverlayColorProperty() { return stepMarkOverlayColorProperty; }
 
     @Override
     public List<CssMetaData<? extends Styleable, ?>> getCssMetaData()

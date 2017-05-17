@@ -246,7 +246,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private Charset characterSet;           // character set of the file
     private final boolean sourceIsCode;           // true if current buffer is code
     private final BooleanProperty viewingHTML; // changing this alters the interface accordingly
-    private int currentStepPos;             // position of step mark (or -1)
+    private int currentStepLineNumber;             // position of step mark (or -1)
     private boolean mayHaveBreakpoints;     // true if there were BP here
     private boolean ignoreChanges = false;
     private boolean tabsAreExpanded = false;
@@ -303,7 +303,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         windowTitle = parameters.getTitle();
         sourceIsCode = parameters.isCode();
         viewingHTML = new SimpleBooleanProperty(false);
-        currentStepPos = -1;
+        currentStepLineNumber = -1;
         mayHaveBreakpoints = false;
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
         undoManager = new MoeUndoManager(this);
@@ -855,10 +855,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
         switchToSourceView();
 
         Element line = getSourceLine(lineNumber);
-        int pos = line.getStartOffset();
 
         if (isBreak) {
-            setStepMark(pos);
+            setStepMark(lineNumber);
         }
 
         // highlight the line
@@ -959,9 +958,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FXPlatform)
     public void removeStepMark()
     {
-        if (currentStepPos != -1) {
-            sourceDocument.setParagraphAttributes(currentStepPos, Collections.singletonMap(ParagraphAttribute.STEP_MARK, false));
-            currentStepPos = -1;
+        if (currentStepLineNumber != -1) {
+            sourceDocument.setParagraphAttributesForLineNumber(currentStepLineNumber, Collections.singletonMap(ParagraphAttribute.STEP_MARK, false));
+            currentStepLineNumber = -1;
             // remove highlight as well
             sourcePane.setCaretPosition(sourcePane.getCaretPosition());
             // force an update of UI
@@ -2205,7 +2204,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
             for (int i = 1; i <= numberOfLines(); i++) {
                 if (lineHasBreakpoint(i)) {
-                    doRemoveBreakpoint(getPositionInLine(i));
+                    doRemoveBreakpoint(i);
                 }
             }
             mayHaveBreakpoints = false;
@@ -2251,7 +2250,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     mayHaveBreakpoints = true;
                 }
 
-                sourceDocument.setParagraphAttributes(pos, Collections.singletonMap(ParagraphAttribute.BREAKPOINT, set));
+                sourceDocument.setParagraphAttributesForLineNumber(line, Collections.singletonMap(ParagraphAttribute.BREAKPOINT, set));
             }
             else {
                 info.message (result);
@@ -2270,9 +2269,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /**
      * Remove a breakpoint without question.
      */
-    private void doRemoveBreakpoint(int pos)
+    private void doRemoveBreakpoint(int lineNumber)
     {
-        sourceDocument.setParagraphAttributes(pos, Collections.singletonMap(ParagraphAttribute.BREAKPOINT, false));
+        sourceDocument.setParagraphAttributesForLineNumber(lineNumber, Collections.singletonMap(ParagraphAttribute.BREAKPOINT, false));
         repaint();
     }
 
@@ -2284,11 +2283,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * 
      * @param pos  A position in the line where we'd like the step mark.
      */
-    private void setStepMark(int pos)
+    private void setStepMark(int lineNumber)
     {
         removeStepMark();
-        sourceDocument.setParagraphAttributes(pos, Collections.singletonMap(ParagraphAttribute.STEP_MARK, true));
-        currentStepPos = pos;
+        sourceDocument.setParagraphAttributesForLineNumber(lineNumber, Collections.singletonMap(ParagraphAttribute.STEP_MARK, true));
+        currentStepLineNumber = lineNumber;
         // force an update of UI
         repaint();
     }

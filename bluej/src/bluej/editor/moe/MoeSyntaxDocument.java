@@ -364,14 +364,9 @@ public class MoeSyntaxDocument
     {
         for (int i = 0; i < document.getParagraphs().size(); i++)
         {
-            ScopeInfo style = document.getParagraphStyle(i);
-            boolean newStepLine = i == (lineNumber - 1);
-            if (style != null && style.isStepLine() != newStepLine)
-            {
-                setParagraphStyle(i, style.withStepLine(newStepLine));
-            }
+            // Line numbers start at 1:
+            setParagraphAttributesForLineNumber(i + 1, Collections.singletonMap(ParagraphAttribute.STEP_MARK, i + 1 == lineNumber));
         }
-
     }
 
     void fireChangedUpdate(MoeSyntaxEvent mse)
@@ -552,16 +547,29 @@ public class MoeSyntaxDocument
     public void parseError(int position, int size, String message)
     {
     }
-    
+
     /**
-     * Sets attributes for a particular paragraph.
      *
-     * @param offset the offset into the document which is contained by the paragraph to change.
-     * @param alterAttr the attributes to set the value for (other attributes will be unaffected)
+     * @param lineNumber Line number (starts at 1)
+     * @param alterAttr The attributes to alter (mapped to true means add, mapped to false means remove, not present means don't alter)
      */
-    public void setParagraphAttributes(int offset, Map<ParagraphAttribute, Boolean> alterAttr)
+    public void setParagraphAttributesForLineNumber(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
     {
-        syntaxView.setParagraphAttributes(document.offsetToPosition(offset, Bias.Forward).getMajor() + 1, alterAttr);
+        Map<Integer, EnumSet<ParagraphAttribute>> changedLines = syntaxView.setParagraphAttributes(lineNumber, alterAttr);
+        updateScopesAfterParaAttrChange(changedLines);
+    }
+
+    private void updateScopesAfterParaAttrChange(Map<Integer, EnumSet<ParagraphAttribute>> changedLines)
+    {
+        for (Entry<Integer, EnumSet<ParagraphAttribute>> changedLine : changedLines.entrySet())
+        {
+            // Paragraph numbering starts at zero, but line numbers start at 1 so adjust:
+            ScopeInfo prevStyle = document.getParagraphStyle(changedLine.getKey() - 1);
+            if (prevStyle != null)
+            {
+                document.setParagraphStyle(changedLine.getKey() - 1, prevStyle.withAttributes(changedLine.getValue()));
+            }
+        }
     }
 
     /**
@@ -571,7 +579,8 @@ public class MoeSyntaxDocument
      */
     public void setParagraphAttributes(Map<ParagraphAttribute, Boolean> alterAttr)
     {
-        syntaxView.setParagraphAttributes(alterAttr);
+        Map<Integer, EnumSet<ParagraphAttribute>> changedLines = syntaxView.setParagraphAttributes(alterAttr);
+        updateScopesAfterParaAttrChange(changedLines);
     }
     
     /**

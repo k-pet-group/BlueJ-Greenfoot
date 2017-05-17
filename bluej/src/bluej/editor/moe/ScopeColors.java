@@ -24,6 +24,9 @@ public interface ScopeColors
     public ObjectExpression<Color> scopeIterationOuterColorProperty();
     public ObjectExpression<Color> scopeBackgroundColorProperty();
 
+    public ObjectExpression<Color> breakpointOverlayColorProperty();
+    public ObjectExpression<Color> stepMarkOverlayColorProperty();
+
     /**
      * Get a colour which has been faded toward the background according to the
      * given strength value. The higher the strength value, the less the colour

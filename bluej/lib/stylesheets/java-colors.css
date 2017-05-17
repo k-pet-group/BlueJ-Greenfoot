@@ -51,4 +51,6 @@
     -bj-iteration-color: rgb(248, 233, 248);
     -bj-iteration-outer-color: rgb(210, 177, 210);
 
+    -bj-breakpoint-overlay-color: rgba(200, 20, 20, 0.6);
+    -bj-step-overlay-color: rgba(20, 160, 20, 0.6);
 }

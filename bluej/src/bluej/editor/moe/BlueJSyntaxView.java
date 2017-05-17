@@ -340,22 +340,29 @@ public class BlueJSyntaxView
             }
         }
 
-        if (s.isStepLine())
+        if (s.getAttributes().contains(ParagraphAttribute.STEP_MARK))
         {
-            ScopeInfo.SingleNestedScope innermostScope = s.nestedScopes.get(s.nestedScopes.size() - 1);
-            double leftSide = innermostScope.leftRight.lhs;
-            double rightSide = innermostScope.leftRight.rhs;
-            for (int x = 0; x < leftSide; x++)
-            {
-                image.getPixelWriter().setArgb(x, (int)(image.getHeight() / 2), 0xFF000000);
-            }
-            for (int x = (int)rightSide; x < image.getWidth(); x++)
-            {
-                image.getPixelWriter().setArgb(x, (int)(image.getHeight() / 2), 0xFF000000);
-            }
+            blend(image, scopeColors.stepMarkOverlayColorProperty().get());
+        }
+        else if (s.getAttributes().contains(ParagraphAttribute.BREAKPOINT))
+        {
+            blend(image, scopeColors.breakpointOverlayColorProperty().get());
         }
 
         return image;
+    }
+
+    private static void blend(WritableImage image, Color rgba)
+    {
+        Color c = new Color(rgba.getRed(), rgba.getGreen(), rgba.getBlue(), 1.0);
+        for (int x = 0; x < image.getWidth(); x++)
+        {
+            for (int y = 0; y < image.getHeight(); y++)
+            {
+                Color prev = image.getPixelReader().getColor(x, y);
+                image.getPixelWriter().setColor(x, y, prev.interpolate(c, rgba.getOpacity()));
+            }
+        }
     }
 
     private static void fillRect(PixelWriter pixelWriter, int x, int y, int w, int h, Color c)
@@ -461,7 +468,7 @@ public class BlueJSyntaxView
                     break;
                 }
 
-                ScopeInfo scope = new ScopeInfo(false);
+                ScopeInfo scope = new ScopeInfo(EnumSet.noneOf(ParagraphAttribute.class));
                 scopes.add(scope);
                 drawScopes(fullWidth, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
 
@@ -1632,36 +1639,44 @@ public class BlueJSyntaxView
      * Sets attributes throughout the document.
      *
      * @param alterAttr Anything mapped to true will be added to all lines, anything mapped to false will be removed from all lines
+     * @return The list of all line numbers where the attributes were changed
      */
-    public void setParagraphAttributes(Map<ParagraphAttribute, Boolean> alterAttr)
+    public Map<Integer, EnumSet<ParagraphAttribute>> setParagraphAttributes(Map<ParagraphAttribute, Boolean> alterAttr)
     {
+        Map<Integer, EnumSet<ParagraphAttribute>> changed = new HashMap<>();
         for (int line = 1; line <= document.getDocument().getParagraphs().size(); line++)
         {
-            setParagraphAttributes(line, alterAttr);
+            changed.putAll(setParagraphAttributes(line, alterAttr));
         }
+        return changed;
     }
 
 
     /**
      * Sets attributes for a particular line number.
      *
-     * @param offset the line number for which to change the attributes (first line is 1)
+     * @param lineNumber the line number for which to change the attributes (first line is 1)
      * @param alterAttr the attributes to set the value for (other attributes will be unaffected)
+     * @return The list of all line numbers where the attributes were changed
      */
-    public void setParagraphAttributes(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
+    public Map<Integer, EnumSet<ParagraphAttribute>> setParagraphAttributes(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
     {
         EnumSet<ParagraphAttribute> attr = getParaAttr(lineNumber);
+        boolean changed = false;
         for (Entry<ParagraphAttribute, Boolean> alter : alterAttr.entrySet())
         {
             if (alter.getValue())
             {
-                attr.add(alter.getKey());
+                // Order matters; want to add/remove regardless of changed value:
+                changed = attr.add(alter.getKey()) || changed;
             }
             else
             {
-                attr.remove(alter.getKey());
+                // Order matters; want to add/remove regardless of changed value:
+                changed = attr.remove(alter.getKey()) || changed;
             }
         }
+        /*
         if (alterAttr.containsKey(ParagraphAttribute.ERROR))
         {
             // Update above/below states by finding nearest error then pointing up
@@ -1687,13 +1702,18 @@ public class BlueJSyntaxView
                 }
             }
         }
-
+        */
 
         FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = paragraphAttributeListeners.get(lineNumber);
         if (listener != null)
         {
             listener.accept(attr);
         }
+
+        if (changed)
+            return Collections.singletonMap(lineNumber, EnumSet.copyOf(attr.clone()));
+        else
+            return Collections.emptyMap();
     }
 
     /**
@@ -1795,22 +1815,28 @@ public class BlueJSyntaxView
      */
     public static class ScopeInfo
     {
+        // For display purposes.  Step overrides breakpoint.
+        public static enum Special
+        {
+            NONE, BREAKPOINT, STEP;
+        }
+
         private final List<SingleNestedScope> nestedScopes = new ArrayList<>();
-        private final boolean isStepLine;
+        private final EnumSet<ParagraphAttribute> attributes;
 
-        public ScopeInfo(boolean isStepLine)
+        public ScopeInfo(EnumSet<ParagraphAttribute> attributes)
         {
-            this.isStepLine = isStepLine;
+            this.attributes = EnumSet.copyOf(attributes);
         }
 
-        public boolean isStepLine()
+        public EnumSet<ParagraphAttribute> getAttributes()
         {
-            return isStepLine;
+            return attributes;
         }
 
-        public ScopeInfo withStepLine(boolean newStepLine)
+        public ScopeInfo withAttributes(EnumSet<ParagraphAttribute> attributes)
         {
-            ScopeInfo scopeInfo = new ScopeInfo(newStepLine);
+            ScopeInfo scopeInfo = new ScopeInfo(attributes);
             scopeInfo.nestedScopes.addAll(nestedScopes);
             return scopeInfo;
         }
@@ -1859,7 +1885,7 @@ public class BlueJSyntaxView
 
             ScopeInfo scopeInfo = (ScopeInfo) o;
 
-            if (isStepLine != scopeInfo.isStepLine) return false;
+            if (!attributes.equals(scopeInfo.attributes)) return false;
             return nestedScopes.equals(scopeInfo.nestedScopes);
         }
 
@@ -1867,7 +1893,7 @@ public class BlueJSyntaxView
         public int hashCode()
         {
             int result = nestedScopes.hashCode();
-            result = 31 * result + (isStepLine ? 1 : 0);
+            result = 31 * result + attributes.hashCode();
             return result;
         }
     }

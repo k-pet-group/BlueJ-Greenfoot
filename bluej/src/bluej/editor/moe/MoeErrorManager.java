@@ -71,7 +71,7 @@ public class MoeErrorManager
         
         MoeEditorPane sourcePane = editor.getSourcePane();
         sourcePane.setStyleSpans(startPos, sourcePane.getStyleSpans(startPos, endPos).mapStyles(s -> Utility.setAdd(s, MoeEditorPane.ERROR_CLASS)));
-        editor.getSourceDocument().setParagraphAttributes(startPos, Collections.singletonMap(ParagraphAttribute.ERROR, true));
+        editor.getSourceDocument().setParagraphAttributesForLineNumber(startPos, Collections.singletonMap(ParagraphAttribute.ERROR, true));
         errorInfos.add(new ErrorDetails(startPos, endPos, message, identifier));
         setNextErrorEnabled.accept(true);
         editor.updateHeaderHasErrors(true);
