@@ -1548,13 +1548,16 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      */
     private void vmReady()
     {
-        BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
-
+        // Must re-init breakpoints before sending BlueJ event, so that
+        // if there is a breakpoint in a JavaFX class and we are restarting VM
+        // before FX launch, then we set the breakpoints before launching the FX app:
         packages.values().forEach(Package::reInitBreakpoints);
         PkgMgrFrame frame = PkgMgrFrame.findFrame(getUnnamedPackage());
         if (frame != null) {
             frame.bringToFront();
         }
+
+        BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
     }
 
     /**
