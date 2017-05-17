@@ -45,7 +45,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Shape;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
@@ -1600,6 +1604,7 @@ public class BlueJSyntaxView
         Label label = new Label("" + lineNumber);
         JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
         JavaFXUtil.addStyleClass(label, "moe-line-label");
+        label.setGraphic(new StackPane(makeBreakpointIcon(), makeStepMarkIcon()));
         label.setOnContextMenuRequested(e -> {
             CheckMenuItem checkMenuItem = new CheckMenuItem(Config.getString("prefmgr.edit.displaylinenumbers"));
             checkMenuItem.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
@@ -1633,6 +1638,33 @@ public class BlueJSyntaxView
         listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
         paragraphAttributeListeners.put(lineNumber, listener);
         return label;
+    }
+
+    // Red octagon with white STOP on it.  By doing it as a shape rather than
+    // image file, we get it looking good on all HiDPI displays.
+    private Node makeBreakpointIcon()
+    {
+        Polygon octagon = new Polygon(14,1, 6,1, 1,6, 1,14, 6,19, 14,19, 19,14, 19,6);
+        JavaFXUtil.addStyleClass(octagon, "octagon");
+        Label stop = new Label("STOP");
+        StackPane stackPane = new StackPane(octagon, stop);
+        JavaFXUtil.addStyleClass(stackPane, "moe-breakpoint-icon");
+        return stackPane;
+    }
+
+    private Node makeStepMarkIcon()
+    {
+        Shape arrow = new Polygon(
+            13, 1,
+            20, 9,
+            13, 17,
+            13, 12,
+            1, 12,
+            1, 6,
+            13, 6
+        );
+        JavaFXUtil.addStyleClass(arrow, "moe-step-mark-icon");
+        return arrow;
     }
 
     /**

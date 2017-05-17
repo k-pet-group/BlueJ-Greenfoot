@@ -65,6 +65,7 @@
     -fx-font-size: 10px;
     -fx-text-overrun: clip;
     -fx-alignment: bottom-right;
+    -fx-graphic-text-gap: 0;
     -fx-min-width: 24;
     -fx-pref-width: 24;
     -fx-max-width: 24;
@@ -81,9 +82,19 @@
     -fx-background-image: url("../images/grey-diagonal.png");
     -fx-background-size: 100% 100%;
 }
-.moe-editor-pane .moe-line-label:bj-breakpoint {
+/* Line numbers or not, breakpoint or step overrides them: */
+.moe-editor-pane .moe-line-label:bj-breakpoint,
+ .moe-editor-pane:bj-line-numbers .moe-line-label:bj-breakpoint,
+ .moe-editor-pane .moe-line-label:bj-step-mark,
+ .moe-editor-pane:bj-line-numbers .moe-line-label:bj-step-mark {
     -fx-content-display: graphic-only;
-    -fx-graphic: url("../images/break.gif");
+    -fx-label-padding: 0;
+}
+.moe-editor-pane .moe-line-label:bj-breakpoint .moe-breakpoint-icon {
+    visibility: visible;
+}
+.moe-editor-pane .moe-line-label:bj-step-mark .moe-step-mark-icon {
+    visibility: visible;
 }
 .moe-editor-pane:bj-uncompiled .moe-line-label:bj-error-below {
     -fx-background-image: url("../images/red-diagonal-down.png");
@@ -98,11 +109,12 @@
     -fx-background-image: null;
 }
 
+/* By default show no line number, unless bj-line-numbers pseudo-class present */
 .moe-editor-pane .moe-line-label {
     -fx-content-display: graphic-only;
 }
 .moe-editor-pane:bj-line-numbers .moe-line-label {
-    -fx-content-display: left;
+    -fx-content-display: text-only;
 }
 .moe-editor-pane {
     -fx-background-color: white;
@@ -134,4 +146,22 @@
 
 .moe-editor-pane .caret {
    -fx-stroke: rgb(255, 0, 100);
+}
+
+/* By default icons are hidden, until pseudo-class applied to parent: */
+.moe-breakpoint-icon, .moe-step-mark-icon {
+    visibility: hidden;
+}
+
+.moe-breakpoint-icon .octagon {
+    -fx-fill: darkred;
+}
+.moe-breakpoint-icon .label {
+    -fx-text-fill: white;
+    -fx-font-size: 6px;
+}
+/* colors are in java-colors.css */
+.moe-step-mark-icon {
+    -fx-stroke-width: 1;
+    -fx-stroke-type: outside;
 }
