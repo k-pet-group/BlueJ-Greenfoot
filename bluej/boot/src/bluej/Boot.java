@@ -144,6 +144,7 @@ public class Boot
     private static File bluejLibDir;
     private static final ArrayList<File> macInitialProjects = new ArrayList<>();
 
+    @OnThread(Tag.FXPlatform)
     private SplashWindow splashWindow;
     
     public static String[] cmdLineArgs;      // Command line arguments
@@ -394,10 +395,14 @@ public class Boot
      */
     public void disposeSplashWindow()
     {
-        if (splashWindow != null) {
-            splashWindow.hide();
-            splashWindow = null;
-        }
+        Platform.runLater(() ->
+        {
+            if (splashWindow != null)
+            {
+                splashWindow.hide();
+                splashWindow = null;
+            }
+        });
     }
 
     /**

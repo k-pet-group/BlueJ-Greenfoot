@@ -2109,6 +2109,7 @@ public final class Config
         }
     }
 
+    @OnThread(Tag.FX)
     public static Node makeStopIcon(boolean large)
     {
         Polygon octagon = new Polygon(14,1, 6,1, 1,6, 1,14, 6,19, 14,19, 19,14, 19,6);
@@ -2124,6 +2125,7 @@ public final class Config
         return stackPane;
     }
 
+    @OnThread(Tag.FX)
     public static Polygon makeArrowShape(boolean shortTail)
     {
         return new Polygon(
