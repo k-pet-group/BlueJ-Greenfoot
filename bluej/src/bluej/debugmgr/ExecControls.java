@@ -24,15 +24,11 @@ package bluej.debugmgr;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,14 +41,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
@@ -60,12 +52,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import bluej.pkgmgr.Project.DebuggerThreadDetails;
 import bluej.utility.javafx.FXAbstractAction;
+import bluej.utility.javafx.FXPlatformBiConsumer;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
@@ -73,12 +64,16 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SplitPane;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -142,15 +137,15 @@ public class ExecControls
     @OnThread(Tag.Any)
     private SwingNode swingNode;
     @OnThread(Tag.FXPlatform)
-    private VBox fxContent;
+    private BorderPane fxContent;
 
     // the display for the list of active threads
     private ComboBox<DebuggerThreadDetails> threadList;
     
     private JComponent mainPanel;
     private ListView<SourceLocation> stackList;
-    private JList<String> staticList, localList;
-    private JList<DebuggerField> instanceList;
+    private ListView<String> staticList, localList;
+    private ListView<DebuggerField> instanceList;
     private Button stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
     private CardLayout cardLayout;
     private JPanel flipPanel;
@@ -208,7 +203,14 @@ public class ExecControls
         VBox.setVgrow(swingNode, Priority.ALWAYS);
         createWindowContent(debuggerThreads);
         HBox buttons = new HBox(stopButton, stepButton, stepIntoButton, continueButton, terminateButton);
-        this.fxContent = new VBox(threadList, stackList, buttons); //, swingNode);
+        this.fxContent = new BorderPane();
+        BorderPane vars = new BorderPane();
+        vars.setTop(staticList);
+        SplitPane varSplit = new SplitPane(instanceList, localList);
+        varSplit.setOrientation(Orientation.VERTICAL);
+        vars.setCenter(varSplit);
+        fxContent.setCenter(new SplitPane(new VBox(threadList, stackList), vars));
+        fxContent.setBottom(buttons);
         // Menu bar will be added later:
         window.setScene(new Scene(fxContent));
         Config.rememberPositionAndSize(window, "bluej.debugger");
@@ -243,63 +245,25 @@ public class ExecControls
         return copy;
     }
 
-    // ----- TreeSelectionListener interface -----
-
-    /**
-     * A tree item was selected. This is in the thread list.
-     */
-    /*MOEFX
-    public void valueChanged(TreeSelectionEvent event)
-    {
-        Object src = event.getSource();
-
-        if(src == threadTree) {
-            clearThreadDetails();
-
-            // check for "unselecting" a node
-            // (happens when the VM is restarted)
-            if (!event.isAddedPath()) {
-                setSelectedThread(null);
-                return;
-            }
-
-            DefaultMutableTreeNode node =
-                (DefaultMutableTreeNode) threadTree.getLastSelectedPathComponent();
-
-            if (node == null) {
-                return;
-            }
-
-            DebuggerThread dt = threadModel.getNodeAsDebuggerThread(node);        
-
-            // the thread can not be found, dt will end up as null and
-            // the selected thread will be cleared
-            setSelectedThread(dt);
-        }
-    }
-    */
-
-    // ----- end of TreeSelectionListener interface -----
-
     /**
      * A list item was double clicked.
      * 
      * This will be in one of the variable lists. We try to
      * view the relevant object that was double clicked on.
      */
-    private void listDoubleClick(MouseEvent event)
+    private static <T> void listenForDoubleClick(ListView<T> listView, FXPlatformBiConsumer<Integer, T> onDoubleClick)
     {
-        Component src = event.getComponent();
-
-        if(src == staticList && staticList.getSelectedIndex() >= 0) {
-            viewStaticField(staticList.getSelectedIndex());
-        }
-        else if(src == instanceList && instanceList.getSelectedIndex() >= 0) {
-            viewInstanceField((DebuggerField) instanceList.getSelectedValue());
-        }
-        else if(src == localList && localList.getSelectedIndex() >= 0) {
-            viewLocalVar(getSelectedThread(), localList.getSelectedIndex());
-        }
+        listView.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+            {
+                int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+                T selected = listView.getSelectionModel().getSelectedItem();
+                if (selectedIndex >= 0)
+                {
+                    onDoubleClick.accept(selectedIndex, selected);
+                }
+            }
+        });
     }
 
     /**
@@ -436,9 +400,9 @@ public class ExecControls
     private void clearThreadDetails()
     {
         stackList.getItems().clear();
-        staticList.setListData(empty);
-        instanceList.setListData(new DebuggerField[0]);
-        localList.setListData(empty);
+        staticList.getItems().clear();
+        instanceList.getItems().clear();
+        localList.getItems().clear();
     }
 
     /**
@@ -472,7 +436,6 @@ public class ExecControls
         currentClass = selectedThread.getCurrentClass(frameNo);
         currentObject = selectedThread.getCurrentObject(frameNo);
         if(currentClass != null) {
-            staticList.setFixedCellWidth(-1);
             List<DebuggerField> fields = currentClass.getStaticFields();
             List<String> listData = new ArrayList<String>(fields.size());
             for (DebuggerField field : fields) {
@@ -482,10 +445,9 @@ public class ExecControls
                     listData.add(Inspector.fieldToString(field) + " = " + field.getValueString());
                 }
             }
-            staticList.setListData(listData.toArray(new String[listData.size()]));
+            staticList.getItems().setAll(listData);
         }
-        
-        instanceList.setFixedCellWidth(-1);
+
         if(currentObject != null && !currentObject.isNullObject()) {
             List<DebuggerField> fields = currentObject.getFields();
             List<DebuggerField> listData = new ArrayList<DebuggerField>(fields.size());
@@ -498,54 +460,47 @@ public class ExecControls
                     }
                 }
             }
-            instanceList.setListData(listData.toArray(new DebuggerField[listData.size()]));
+            instanceList.getItems().setAll(listData);
         }
         else {
-            instanceList.setListData(new DebuggerField[0]);
+            instanceList.getItems().clear();
         }
         
-        localList.setFixedCellWidth(-1);
-        localList.setListData(selectedThread.getLocalVariables(frameNo).toArray(empty));
+        localList.getItems().setAll(selectedThread.getLocalVariables(frameNo));
     }
 
     /**
      * Display an object inspector for an object in a static field.
      */
-    private void viewStaticField(int index)
+    private void viewStaticField(int index, String content)
     {
         DebuggerField field = currentClass.getStaticField(index);
         if(field.isReferenceType() && ! field.isNull()) {
-            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, getFXWindow(), null));
+            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, window, null));
         }
     }
 
     /**
      * Display an object inspector for an object in an instance field.
      */
-    private void viewInstanceField(DebuggerField field)
+    private void viewInstanceField(int index, DebuggerField field)
     {
         if(field.isReferenceType() && ! field.isNull()) {
-            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, getFXWindow(), null));
+            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, window, null));
         }
     }
 
     /**
      * Display an object inspector for an object in a local variable.
      */
-    private void viewLocalVar(DebuggerThread selectedThread, int index)
+    private void viewLocalVar(int index, String content)
     {
-        if(selectedThread.varIsObject(currentFrame, index)) {
+        DebuggerThread selectedThread = getSelectedThread();
+        if (selectedThread != null && selectedThread.varIsObject(currentFrame, index)) {
             DebuggerObject obj = selectedThread.getStackObject(currentFrame, index);
             Platform.runLater(() -> project.getInspectorInstance(obj,
-                           null, null, null, getFXWindow(), null));
+                           null, null, null, window, null));
         }
-    }
-    
-    @OnThread(Tag.FXPlatform)
-    private javafx.stage.Window getFXWindow()
-    {
-        //TODO implement (and inline?) this once we change execcontrols over to FX:
-        return null;
     }
 
     /**
@@ -583,77 +538,34 @@ public class ExecControls
 
         contentPane.add(buttonBox, BorderLayout.SOUTH);
 
-        // create a mouse listener to monitor for double clicks
-        MouseListener mouseListener = new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    listDoubleClick(e);
-                }
-            }
-        };
-
         // create static variable panel
-        JScrollPane staticScrollPane = new JScrollPane();
+        staticList = new ListView<>();
         {
-            staticList = new JList<>(new DefaultListModel<>());
-            {
-                staticList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                staticList.setVisibleRowCount(3);
-                staticList.setFixedCellWidth(150);
-                staticList.addMouseListener(mouseListener);
-            }
-            staticScrollPane.setViewportView(staticList);
-            JLabel lbl = new JLabel(staticTitle);
-            lbl.setOpaque(true);
-            staticScrollPane.setColumnHeaderView(lbl);
+            staticList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            listenForDoubleClick(staticList, this::viewStaticField);
         }
+        //MOEFX
+        //JLabel lbl = new JLabel(staticTitle);
 
         // create instance variable panel
-        JScrollPane instanceScrollPane = new JScrollPane();
+        instanceList = new ListView<>();
         {
-            instanceList = new JList<>(new DefaultListModel<>());
-            {
-                instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                instanceList.setVisibleRowCount(4);
-                instanceList.setFixedCellWidth(150);
-                instanceList.addMouseListener(mouseListener);
-                instanceList.setCellRenderer(new FieldCellRenderer());
-            }
-            instanceScrollPane.setViewportView(instanceList);
-            JLabel lbl = new JLabel(instanceTitle);
-            lbl.setOpaque(true);
-            instanceScrollPane.setColumnHeaderView(lbl);
+            instanceList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            listenForDoubleClick(instanceList, this::viewInstanceField);
+            //MOEFX
+            //instanceList.setCellRenderer(new FieldCellRenderer());
         }
+        //MOEFX
+        //JLabel lbl = new JLabel(instanceTitle);
 
         // create local variable panel
-        JScrollPane localScrollPane = new JScrollPane();
+        localList = new ListView<>();
         {
-            localList = new JList<>(new DefaultListModel<>());
-            {
-                localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                localList.setVisibleRowCount(4);
-                localList.setFixedCellWidth(150);
-                localList.addMouseListener(mouseListener);
-            }
-            localScrollPane.setViewportView(localList);
-            JLabel lbl = new JLabel(localTitle);
-            lbl.setOpaque(true);
-            localScrollPane.setColumnHeaderView(lbl);
+            localList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            listenForDoubleClick(localList, this::viewLocalVar);
         }
-
-        // Create variable display area
-
-        JSplitPane innerVarPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                                 staticScrollPane, instanceScrollPane);
-        innerVarPane.setDividerSize(6);
-        innerVarPane.setBorder(null);
-        if (!Config.isRaspberryPi()) innerVarPane.setOpaque(false);
-
-        JSplitPane varPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                            innerVarPane, localScrollPane);
-        varPane.setDividerSize(6);
-        varPane.setBorder(null);
-        if (!Config.isRaspberryPi()) varPane.setOpaque(false);
+        //MOEFX
+        //JLabel lbl = new JLabel(localTitle);
 
         // Create stack listing panel
 
@@ -665,11 +577,6 @@ public class ExecControls
         if (!Config.isRaspberryPi()) lbl.setOpaque(true);
         stackScrollPane.setColumnHeaderView(lbl);
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                                              stackScrollPane, varPane);
-        splitPane.setDividerSize(6);
-        splitPane.setBorder(null);
-        if (!Config.isRaspberryPi()) splitPane.setOpaque(false);
 
         // Create thread panel
         JPanel threadPanel = new JPanel(new BorderLayout());
@@ -690,7 +597,6 @@ public class ExecControls
         {
             flipPanel.setLayout(cardLayout = new CardLayout());
 
-            flipPanel.add(splitPane, "split");
             JPanel tempPanel = new JPanel();
             JLabel infoLabel = new JLabel(Config.getString("debugger.threadRunning"));
             infoLabel.setForeground(Color.gray);
