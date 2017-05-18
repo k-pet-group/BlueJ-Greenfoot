@@ -1,9 +1,13 @@
 .debugger-var-cell {
     -fx-spacing: 0.4em;
+    -fx-alignment: center-left;
 }
 .debugger-var-cell > .debugger-var-name {
     -fx-font-weight: bold;
 }
 .debugger-stack, .debugger-var-cell {
     -fx-font-family: "Source Sans Pro";
+}
+.debugger-var-object-ref {
+    -fx-cursor: hand;
 }

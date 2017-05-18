@@ -61,9 +61,11 @@ import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -73,6 +75,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -806,6 +809,9 @@ public class ExecControls
     }
 
 
+    /**
+     * A cell in a list view which has a variable's type, name and value.  (And optionally, access modifier)
+     */
     private static class VarDisplayCell extends javafx.scene.control.ListCell<VarDisplayInfo>
     {
         private final Label access = new Label();
@@ -815,11 +821,23 @@ public class ExecControls
         private final BooleanProperty nonEmpty = new SimpleBooleanProperty();
         private static final Image objectImage =
                 Config.getImageAsFXImage("image.eval.object");
-        private FXPlatformSupplier<DebuggerObject> fetchObject;
+        // A property so that we can listen for it changing from null to/from non-null:
+        private final SimpleObjectProperty<FXPlatformSupplier<DebuggerObject>> fetchObject = new SimpleObjectProperty<>(null);
 
         public VarDisplayCell(Project project, Window window)
         {
-            HBox hBox = new HBox(access, type, name, new Label("="), this.value);
+            // Only visible when there is a relevant object reference which can be inspected:
+            ImageView objectImageView = new ImageView(objectImage);
+            JavaFXUtil.addStyleClass(objectImageView, "debugger-var-object-ref");
+            objectImageView.visibleProperty().bind(fetchObject.isNotNull());
+            objectImageView.managedProperty().bind(objectImageView.visibleProperty());
+            objectImageView.setOnMouseClicked(e -> {
+                if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1)
+                    inspect(project, window, objectImageView);
+            });
+
+            // The spacing is added via CSS, not by space characters:
+            HBox hBox = new HBox(access, type, name, new Label("="), objectImageView, this.value);
             hBox.visibleProperty().bind(nonEmpty);
             hBox.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
             JavaFXUtil.addStyleClass(hBox, "debugger-var-cell");
@@ -829,15 +847,21 @@ public class ExecControls
             JavaFXUtil.addStyleClass(value, "debugger-var-value");
             setGraphic(hBox);
 
+            // Double click anywhere on the row does an object inspection, as it used to:
             hBox.setOnMouseClicked(e -> {
                 if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
                 {
-                    if (fetchObject != null)
-                    {
-                        project.getInspectorInstance(fetchObject.get(), null, null, null, window, hBox);
-                    }
+                    inspect(project, window, objectImageView);
                 }
             });
+        }
+
+        private void inspect(Project project, Window window, Node sourceNode)
+        {
+            if (fetchObject.get() != null)
+            {
+                project.getInspectorInstance(fetchObject.get().get(), null, null, null, window, sourceNode);
+            }
         }
 
         @Override
@@ -851,7 +875,7 @@ public class ExecControls
                 type.setText("");
                 name.setText("");
                 value.setText("");
-                fetchObject = null;
+                fetchObject.set(null);
             }
             else
             {
@@ -859,7 +883,7 @@ public class ExecControls
                 type.setText(item.getType());
                 name.setText(item.getName());
                 value.setText(item.getValue());
-                fetchObject = item.getFetchObject();
+                fetchObject.set(item.getFetchObject());
             }
         }
     }
