@@ -153,13 +153,6 @@
     visibility: hidden;
 }
 
-.moe-breakpoint-icon .octagon {
-    -fx-fill: darkred;
-}
-.moe-breakpoint-icon .label {
-    -fx-text-fill: white;
-    -fx-font-size: 6px;
-}
 /* colors are in java-colors.css */
 .moe-step-mark-icon {
     -fx-stroke-width: 1;

@@ -24,3 +24,32 @@
     /* Remove outer border */
     -fx-background-color: -fx-background, -fx-background;
 }
+
+.debugger .terminate-icon {
+    -fx-stroke: black;
+    -fx-stroke-type: inside;
+    -fx-stroke-width: 1;
+    -fx-fill: darkred;
+}
+.debugger .step-icon {
+    -fx-alignment: center;
+}
+.debugger .step-icon-arrow, .debugger .step-icon-bar, .debugger .continue-icon-arrow, .debugger .step-into-icon {
+    -fx-stroke: black;
+    -fx-stroke-type: inside;
+    -fx-stroke-width: 1;
+    -fx-fill: rgb(20, 140, 20);
+}
+.debugger .debugger-buttons {
+    -fx-hgap: 1em;
+    -fx-vgap: 1em;
+    -fx-padding: 1em;
+    -fx-alignment: center;
+    -fx-border-color: lightgrey;
+    -fx-border-width: 1 0 0 0;
+}
+.debugger .debugger-buttons .button {
+    -fx-max-width: 9999;
+    -fx-max-height: 9999;
+    -fx-graphic-text-gap: 0.5em;
+}

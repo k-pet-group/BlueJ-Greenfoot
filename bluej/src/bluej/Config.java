@@ -45,28 +45,28 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Polygon;
 import javafx.stage.Screen;
 import javafx.stage.Window;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.JavaFXUtil;
@@ -1843,7 +1843,8 @@ public final class Config
                 "editor-slot-choice",
                 "editor-suggestions",
                 "editor-tabs",
-                "moe"};
+                "moe",
+                "shared"};
         
         for (String stem : stylesheetStems)
         {
@@ -1880,6 +1881,7 @@ public final class Config
     public static void addDebuggerStylesheets(Scene scene)
     {
         addStylesheet(scene.getStylesheets(), "debugger");
+        addStylesheet(scene.getStylesheets(), "shared");
     }
 
 
@@ -2105,6 +2107,34 @@ public final class Config
             // Put it on the top-left of the primary screen:
             return new Point2D(Screen.getPrimary().getBounds().getMinX() + 100, Screen.getPrimary().getBounds().getMinY() + 100);
         }
+    }
+
+    public static Node makeStopIcon(boolean large)
+    {
+        Polygon octagon = new Polygon(14,1, 6,1, 1,6, 1,14, 6,19, 14,19, 19,14, 19,6);
+        if (large)
+        {
+            JavaFXUtil.scalePolygonPoints(octagon, 1.6);
+        }
+        JavaFXUtil.addStyleClass(octagon, "octagon");
+        Label stop = new Label("STOP");
+        StackPane stackPane = new StackPane(octagon, stop);
+        JavaFXUtil.setPseudoclass("bj-large", large, stackPane);
+        JavaFXUtil.addStyleClass(stackPane, "stop-icon");
+        return stackPane;
+    }
+
+    public static Polygon makeArrowShape(boolean shortTail)
+    {
+        return new Polygon(
+                10, 1,
+                17, 9,
+                10, 17,
+                10, 12,
+                shortTail ? 5 : 1, 12,
+                shortTail ? 5 : 1, 6,
+                10, 6
+            );
     }
 
     /**

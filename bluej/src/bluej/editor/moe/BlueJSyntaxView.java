@@ -47,8 +47,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -1642,27 +1640,16 @@ public class BlueJSyntaxView
 
     // Red octagon with white STOP on it.  By doing it as a shape rather than
     // image file, we get it looking good on all HiDPI displays.
-    private Node makeBreakpointIcon()
+    private static Node makeBreakpointIcon()
     {
-        Polygon octagon = new Polygon(14,1, 6,1, 1,6, 1,14, 6,19, 14,19, 19,14, 19,6);
-        JavaFXUtil.addStyleClass(octagon, "octagon");
-        Label stop = new Label("STOP");
-        StackPane stackPane = new StackPane(octagon, stop);
-        JavaFXUtil.addStyleClass(stackPane, "moe-breakpoint-icon");
-        return stackPane;
+        Node icon = Config.makeStopIcon(false);
+        JavaFXUtil.addStyleClass(icon, "moe-breakpoint-icon");
+        return icon;
     }
 
     private Node makeStepMarkIcon()
     {
-        Shape arrow = new Polygon(
-            13, 1,
-            20, 9,
-            13, 17,
-            13, 12,
-            1, 12,
-            1, 6,
-            13, 6
-        );
+        Shape arrow = Config.makeArrowShape(false);
         JavaFXUtil.addStyleClass(arrow, "moe-step-mark-icon");
         return arrow;
     }

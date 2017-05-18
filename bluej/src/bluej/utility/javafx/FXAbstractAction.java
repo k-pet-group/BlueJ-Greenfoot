@@ -22,14 +22,12 @@
 package bluej.utility.javafx;
 
 import bluej.Config;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
@@ -56,7 +54,7 @@ public abstract class FXAbstractAction
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
     private final BooleanProperty disabled = new SimpleBooleanProperty(false);
     protected final ObjectProperty<KeyCombination> accelerator;
-    private final Image buttonImage;
+    private final Node buttonGraphic;
 
     protected FXAbstractAction(String name)
     {
@@ -67,14 +65,19 @@ public abstract class FXAbstractAction
     {
         this.name = name;
         this.accelerator = new SimpleObjectProperty<KeyCombination>(accelerator);
-        this.buttonImage = null;
+        this.buttonGraphic = null;
+    }
+
+    protected FXAbstractAction(String name, Node buttonGraphic)
+    {
+        this.name = name;
+        this.accelerator = new SimpleObjectProperty<KeyCombination>(null);
+        this.buttonGraphic = buttonGraphic;
     }
 
     protected FXAbstractAction(String name, Image buttonImage)
     {
-        this.name = name;
-        this.accelerator = new SimpleObjectProperty<KeyCombination>(null);
-        this.buttonImage = buttonImage;
+        this(name, new ImageView(buttonImage));
     }
 
     public abstract void actionPerformed();
@@ -123,8 +126,8 @@ public abstract class FXAbstractAction
     {
         Button button = new Button(name);
         setButtonAction(button);
-        if (buttonImage != null)
-            button.setGraphic(new ImageView(buttonImage));
+        if (buttonGraphic != null)
+            button.setGraphic(buttonGraphic);
         return button;
     }
 

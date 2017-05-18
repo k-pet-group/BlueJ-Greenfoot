@@ -1,0 +1,15 @@
+.stop-icon .octagon {
+    -fx-fill: darkred;
+}
+.stop-icon .label {
+    -fx-text-fill: white;
+    -fx-font-size: 6px;
+}
+.stop-icon:bj-large .octagon {
+    -fx-stroke: black;
+    -fx-stroke-type: inside;
+    -fx-stroke-width: 1;
+}
+.stop-icon:bj-large .label {
+    -fx-font-size: 10px;
+}

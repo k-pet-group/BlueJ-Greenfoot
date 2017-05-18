@@ -52,10 +52,10 @@
     -bj-iteration-outer-color: rgb(210, 177, 210);
 
     -bj-breakpoint-overlay-color: rgba(200, 20, 20, 0.6);
-    -bj-step-overlay-color: rgba(20, 160, 20, 0.6);
+    -bj-step-overlay-color: rgba(20, 140, 20, 0.6);
 }
 
 .moe-step-mark-icon {
-    -fx-fill: rgb(20, 160, 20);
+    -fx-fill: rgb(20, 140, 20);
     -fx-stroke: white;
 }

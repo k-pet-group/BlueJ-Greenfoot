@@ -55,7 +55,6 @@ import bluej.debugger.VarDisplayInfo;
 import bluej.pkgmgr.Project.DebuggerThreadDetails;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXAbstractAction;
-import bluej.utility.javafx.FXPlatformBiConsumer;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
@@ -65,6 +64,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -77,10 +78,23 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.ArcTo;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.QuadCurveTo;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 
 import bluej.BlueJTheme;
@@ -199,7 +213,9 @@ public class ExecControls
         this.swingNode = new SwingNodeFixed();
         VBox.setVgrow(swingNode, Priority.ALWAYS);
         createWindowContent(debuggerThreads);
-        HBox buttons = new HBox(stopButton, stepButton, stepIntoButton, continueButton, terminateButton);
+        TilePane buttons = new TilePane(Orientation.HORIZONTAL, stopButton, stepButton, stepIntoButton, continueButton, terminateButton);
+        buttons.setPrefColumns(buttons.getChildren().size());
+        JavaFXUtil.addStyleClass(buttons, "debugger-buttons");
         this.fxContent = new BorderPane();
         BorderPane vars = new BorderPane();
         vars.setTop(labelled(staticList, staticTitle));
@@ -688,7 +704,7 @@ public class ExecControls
     {
         public StopAction()
         {
-            super(haltButtonText, Config.getFixedImageAsFXImage("stop.gif"));
+            super(haltButtonText, Config.makeStopIcon(true));
         }
         
         public void actionPerformed()
@@ -710,7 +726,7 @@ public class ExecControls
     {
         public StepAction()
         {
-            super(stepButtonText, Config.getFixedImageAsFXImage("step.gif"));
+            super(stepButtonText, makeStepIcon());
         }
         
         public void actionPerformed()
@@ -726,7 +742,44 @@ public class ExecControls
             Platform.runLater(() -> project.updateInspectors());
         }
     }
-    
+
+    private static Node makeStepIcon()
+    {
+        Polygon arrowShape = makeScaledUpArrow(false);
+        JavaFXUtil.addStyleClass(arrowShape, "step-icon-arrow");
+        Rectangle bar = new Rectangle(26, 4);
+        JavaFXUtil.addStyleClass(bar, "step-icon-bar");
+        VBox vBox = new VBox(arrowShape, bar);
+        JavaFXUtil.addStyleClass(vBox, "step-icon");
+        return vBox;
+    }
+
+    private static Polygon makeScaledUpArrow(boolean shortTail)
+    {
+        Polygon arrowShape = Config.makeArrowShape(shortTail);
+        JavaFXUtil.scalePolygonPoints(arrowShape, 1.4);
+        arrowShape.setRotate(90);
+        return arrowShape;
+    }
+
+    private static Node makeContinueIcon()
+    {
+        Polygon arrowShape1 = makeScaledUpArrow(true);
+        Polygon arrowShape2 = makeScaledUpArrow(true);
+        Polygon arrowShape3 = makeScaledUpArrow(true);
+        JavaFXUtil.addStyleClass(arrowShape1, "continue-icon-arrow");
+        JavaFXUtil.addStyleClass(arrowShape2, "continue-icon-arrow");
+        JavaFXUtil.addStyleClass(arrowShape3, "continue-icon-arrow");
+        arrowShape1.setOpacity(0.2);
+        arrowShape2.setOpacity(0.5);
+        Pane pane = new Pane(arrowShape1, arrowShape2, arrowShape3);
+        arrowShape2.setLayoutX(2.0);
+        arrowShape2.setLayoutY(6.0);
+        arrowShape3.setLayoutX(4.0);
+        arrowShape3.setLayoutY(12.0);
+        return pane;
+    }
+
     /**
      * Action to "step into" the code.
      */
@@ -734,7 +787,7 @@ public class ExecControls
     {
         public StepIntoAction()
         {
-            super(stepIntoButtonText, Config.getFixedImageAsFXImage("step_into.gif"));
+            super(stepIntoButtonText, makeStepIntoIcon());
         }
         
         public void actionPerformed()
@@ -749,7 +802,18 @@ public class ExecControls
             }
         }
     }
-    
+
+    private static Node makeStepIntoIcon()
+    {
+        SVGPath path = new SVGPath();
+        // See http://jxnblk.com/paths/?d=M2%2016%20Q24%208%2038%2016%20L40%2010%20L48%2026%20L32%2034%20L34%2028%20Q22%2022%206%2028%20Z
+        path.setContent("M2 16 Q24 8 38 16 L40 10 L48 26 L32 34 L34 28 Q22 22 6 28 Z");
+        path.setScaleX(0.6);
+        path.setScaleY(0.7);
+        JavaFXUtil.addStyleClass(path, "step-into-icon");
+        return new Group(path);
+    }
+
     /**
      * Action to continue a halted thread. 
      */
@@ -757,7 +821,7 @@ public class ExecControls
     {
         public ContinueAction()
         {
-            super(continueButtonText, Config.getFixedImageAsFXImage("continue.gif"));
+            super(continueButtonText, makeContinueIcon());
         }
         
         public void actionPerformed()
@@ -782,7 +846,7 @@ public class ExecControls
     {
         public TerminateAction()
         {
-            super(terminateButtonText, Config.getFixedImageAsFXImage("terminate.gif"));
+            super(terminateButtonText, makeTerminateIcon());
         }
         
         public void actionPerformed()
@@ -797,7 +861,28 @@ public class ExecControls
             catch (IllegalStateException ise) { }
         }
     }
-    
+
+    private static Node makeTerminateIcon()
+    {
+        Polygon s = new Polygon(
+            4, 1,
+            10, 7,
+            16, 1,
+            19, 4,
+            13, 10,
+            19, 16,
+            16, 19,
+            10, 13,
+            4, 19,
+            1, 16,
+            7, 10,
+            1, 4
+        );
+        JavaFXUtil.scalePolygonPoints(s, 1.6);
+        JavaFXUtil.addStyleClass(s, "terminate-icon");
+        return s;
+    }
+
     /**
      * Action to enable/disable hiding of system threads. All this action
      * actually does is toggle an internal flag.

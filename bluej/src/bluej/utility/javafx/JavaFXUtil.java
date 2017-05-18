@@ -107,6 +107,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -674,6 +675,14 @@ public class JavaFXUtil
     {
         // Defeat thread checker:
         return ((Supplier<T>)initCode::get).get();
+    }
+
+    public static void scalePolygonPoints(javafx.scene.shape.Polygon polygon, double scale)
+    {
+        for (int i = 0; i < polygon.getPoints().size(); i++)
+        {
+            polygon.getPoints().set(i, polygon.getPoints().get(i) * scale);
+        }
     }
 
     /**

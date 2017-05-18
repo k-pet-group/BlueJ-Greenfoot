@@ -1013,7 +1013,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         continueIcon.setRotate(90);
         Button continueButton = new Button("Continue", continueIcon);
         continueButton.setOnAction(e -> {thread.cont(); hideDebuggerControls(); });
-        Button haltButton = new Button("Halt", new ImageView(Config.getFixedImageAsFXImage("stop.gif")));
+        Button haltButton = new Button("Halt", Config.makeStopIcon(true));
         // Halt does nothing at the moment
         Label showVarLabel = new Label("Show variables: ");
         ComboBox<ShowVars> showVars = new ComboBox<>(FXCollections.observableArrayList(ShowVars.values()));
