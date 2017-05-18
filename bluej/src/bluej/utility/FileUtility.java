@@ -664,6 +664,7 @@ public class FileUtility
      * Check whether the given file is virtualized by Windows (Vista).
      * 
      */
+    @OnThread(Tag.Any)
     private static boolean isVirtualized(File file)
     {
         boolean isVirtualized = false;

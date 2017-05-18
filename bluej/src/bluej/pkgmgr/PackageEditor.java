@@ -167,7 +167,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         this.showExtends = showInherits;
         this.overlay = overlay;
         Platform.runLater(() -> {
-            this.selectionController.addSelectionListener(sel -> SwingUtilities.invokeLater(() -> pmf.notifySelectionChanged(sel)));
+            this.selectionController.addSelectionListener(sel -> pmf.notifySelectionChanged(sel));
             JavaFXUtil.addStyleClass(this, "class-diagram");
             // Both class layers have transparent background to see through to lower layers:
             frontClassLayer.setBackground(null);
@@ -273,7 +273,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      * @param ir   The invoker record for the invocation used to create this object
      * @param animateFromScenePoint
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void raisePutOnBenchEvent(Window src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir, boolean askForName, Optional<Point2D> animateFromScenePoint)
     {
         fireTargetEvent(
@@ -283,7 +283,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     /**
      * Notify of some interaction.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void recordInteraction(InvokerRecord ir)
     {
         listener.recordInteraction(ir);
@@ -471,7 +471,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
             }
         }
 
-        SwingUtilities.invokeLater(() -> pmf.graphChanged());
+        pmf.graphChanged();
         
         //TODO make sure removed items aren't still in the selection
 
@@ -909,10 +909,8 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     {
         DependentTarget from = d.getFrom();
         DependentTarget to = d.getTo();
-        Platform.runLater(() -> {
-            from.addDependencyOut(d, recalc);
-            to.addDependencyIn(d, recalc);
-        });
+        from.addDependencyOut(d, recalc);
+        to.addDependencyIn(d, recalc);
 
         // Inform all listeners about the added dependency
         DependencyEvent event = new DependencyEvent(d, thePkg, DependencyEvent.Type.DEPENDENCY_ADDED);
@@ -941,11 +939,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     {
         DependentTarget from = d.getFrom();
         DependentTarget to = d.getTo();
-        
-        Platform.runLater(() -> {
-            from.removeDependencyOut(d, recalc);
-            to.removeDependencyIn(d, recalc);
-        });
+
+        from.removeDependencyOut(d, recalc);
+        to.removeDependencyIn(d, recalc);
 
         // Inform all listeners about the removed dependency
         DependencyEvent event = new DependencyEvent(d, thePkg, DependencyEvent.Type.DEPENDENCY_REMOVED);
@@ -1155,22 +1151,20 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
                 // Take a copy because we're going to null it:
                 ClassTarget subClassFinal = this.extendsSubClass;
                 ClassTarget superClass = (ClassTarget)target;
-                SwingUtilities.invokeLater(() -> {
-                    if (subClassFinal.isInterface())
-                    {
-                        if (superClass.isInterface())
-                            pkg.userAddExtendsInterfaceDependency(subClassFinal, superClass);
-                        // TODO else give an error about why this won't work?
-                    }
+                if (subClassFinal.isInterface())
+                {
+                    if (superClass.isInterface())
+                        pkg.userAddExtendsInterfaceDependency(subClassFinal, superClass);
+                    // TODO else give an error about why this won't work?
+                }
+                else
+                {
+                    if (superClass.isInterface())
+                        pkg.userAddImplementsClassDependency(subClassFinal, superClass);
                     else
-                    {
-                        if (superClass.isInterface())
-                            pkg.userAddImplementsClassDependency(subClassFinal, superClass);
-                        else
-                            pkg.userAddExtendsClassDependency(subClassFinal, superClass);
-                    }
-                    pkg.compile(subClassFinal, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
-                });
+                        pkg.userAddExtendsClassDependency(subClassFinal, superClass);
+                }
+                pkg.compile(subClassFinal, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
                 
                 stopNewInherits();
             }

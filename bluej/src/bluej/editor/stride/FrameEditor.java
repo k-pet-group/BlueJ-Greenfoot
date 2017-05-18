@@ -126,7 +126,7 @@ public class FrameEditor implements Editor
     
     // If the code has been changed since last save (only modify on FX thread):
     // Start true, because we haven't actually saved before, so technically we have changed:
-    @OnThread(Tag.FX) private boolean changedSinceLastSave = true;
+    @OnThread(Tag.FXPlatform) private boolean changedSinceLastSave = true;
     // The code at point of last save (only modify on FX thread)
     @OnThread(Tag.FX) private String lastSavedSource = null;
     // Only touch on FX thread:
@@ -1055,10 +1055,13 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FX)
     public void codeModified()
     {
-        changedSinceLastSave = true;
-        isCompiled = false;
-        watcher.modificationEvent(this);
-        watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+        JavaFXUtil.runNowOrLater(() ->
+        {
+            changedSinceLastSave = true;
+            isCompiled = false;
+            watcher.modificationEvent(this);
+            watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+        });
     }
     
     @Override

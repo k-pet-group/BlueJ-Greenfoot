@@ -254,13 +254,13 @@ public abstract class CodeError
             JavaFXUtil.addSelfRemovingListener(visibleProperty(), vis -> {
                 if (vis) // Should always be true, but check anyway
                 {
-                    editor.recordErrorIndicatorShown(getIdentifier());
+                    JavaFXUtil.runNowOrLater(() -> editor.recordErrorIndicatorShown(getIdentifier()));
                 }
             });
         }
         else
         {
-            editor.recordErrorIndicatorShown(getIdentifier());
+            JavaFXUtil.runNowOrLater(() -> editor.recordErrorIndicatorShown(getIdentifier()));
         }
     }
 

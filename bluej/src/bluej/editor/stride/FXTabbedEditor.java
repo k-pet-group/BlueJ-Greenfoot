@@ -45,6 +45,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -244,32 +246,38 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
         tabPane.getStyleClass().add("tabbed-editor");
 
-        tabPane.getSelectionModel().selectedItemProperty().addListener((a, prevSel, selTab) -> {
-            if (selTab != null)
-                updateMenusForTab((FXTab)selTab);
-
-            if (prevSel != null && prevSel != selTab)
-                ((FXTab)prevSel).notifyUnselected();
-
-            if (selTab != null && stage.isFocused())
-                ((FXTab)selTab).notifySelected();
-
-            if (selTab != null && ((FXTab)selTab).shouldShowCatalogue())
+        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>()
+        {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void changed(ObservableValue<? extends Tab> a, Tab prevSel, Tab selTab)
             {
-                collapsibleCatalogueScrollPane.setVisible(true);
-                collapsibleCatalogueScrollPane.setManaged(true);
-            }
-            else
-            {
-                collapsibleCatalogueScrollPane.setVisible(false);
-                collapsibleCatalogueScrollPane.setManaged(false);
-            }
-            
-            if (isWindowVisible())
-            {
-                if (!(selTab instanceof FrameEditorTab))
+                if (selTab != null)
+                    FXTabbedEditor.this.updateMenusForTab((FXTab) selTab);
+
+                if (prevSel != null && prevSel != selTab)
+                    ((FXTab) prevSel).notifyUnselected();
+
+                if (selTab != null && stage.isFocused())
+                    ((FXTab) selTab).notifySelected();
+
+                if (selTab != null && ((FXTab) selTab).shouldShowCatalogue())
                 {
-                    JavaFXUtil.runPlatformLater(() -> scheduleUpdateCatalogue(null, null, CodeCompletionState.NOT_POSSIBLE, false, Frame.View.NORMAL, Collections.emptyList(), Collections.emptyList()));
+                    collapsibleCatalogueScrollPane.setVisible(true);
+                    collapsibleCatalogueScrollPane.setManaged(true);
+                }
+                else
+                {
+                    collapsibleCatalogueScrollPane.setVisible(false);
+                    collapsibleCatalogueScrollPane.setManaged(false);
+                }
+
+                if (FXTabbedEditor.this.isWindowVisible())
+                {
+                    if (!(selTab instanceof FrameEditorTab))
+                    {
+                        JavaFXUtil.runPlatformLater(() -> FXTabbedEditor.this.scheduleUpdateCatalogue(null, null, CodeCompletionState.NOT_POSSIBLE, false, Frame.View.NORMAL, Collections.emptyList(), Collections.emptyList()));
+                    }
                 }
             }
         });
@@ -290,7 +298,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             tabs.forEach(t -> close((FXTab)t));
         });
 
-        JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
+        JavaFXUtil.addChangeListenerPlatform(stage.focusedProperty(), focused -> {
             if (focused) {
                 ((FXTab) tabPane.getSelectionModel().getSelectedItem()).notifySelected();
             }
