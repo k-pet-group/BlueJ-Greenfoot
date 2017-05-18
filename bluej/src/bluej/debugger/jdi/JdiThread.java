@@ -404,7 +404,12 @@ class JdiThread extends DebuggerThread
                     // Add "type name = value" to the list
                     JavaType vartype = JdiReflective.fromLocalVar(localTypes.get(i), genericSigs.get(i),
                             typeNames.get(i), declaringType);
-                    localVars.add(new VarDisplayInfo(vartype, var, localVals.get(i)));
+                    int iFinal = i;
+                    localVars.add(new VarDisplayInfo(vartype, var, localVals.get(i),
+                        varIsObject(frameNo, i) ?
+                            (() -> getStackObject(frameNo, iFinal))
+                            : null
+                    ));
                 }
                 return localVars;
             }

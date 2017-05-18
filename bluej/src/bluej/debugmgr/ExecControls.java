@@ -72,6 +72,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SplitPane;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -91,6 +92,7 @@ import bluej.debugger.SourceLocation;
 import bluej.pkgmgr.Project;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -238,27 +240,6 @@ public class ExecControls
             copy.put(e.getKey(), new HashSet<String>(e.getValue()));
         }
         return copy;
-    }
-
-    /**
-     * A list item was double clicked.
-     * 
-     * This will be in one of the variable lists. We try to
-     * view the relevant object that was double clicked on.
-     */
-    private static <T> void listenForDoubleClick(ListView<T> listView, FXPlatformBiConsumer<Integer, T> onDoubleClick)
-    {
-        listView.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
-            {
-                int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-                T selected = listView.getSelectionModel().getSelectedItem();
-                if (selectedIndex >= 0)
-                {
-                    onDoubleClick.accept(selectedIndex, selected);
-                }
-            }
-        });
     }
 
     /**
@@ -465,41 +446,6 @@ public class ExecControls
     }
 
     /**
-     * Display an object inspector for an object in a static field.
-     */
-    private void viewStaticField(int index, VarDisplayInfo content)
-    {
-        DebuggerField field = currentClass.getStaticField(index);
-        if(field.isReferenceType() && ! field.isNull()) {
-            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, window, null));
-        }
-    }
-
-    /**
-     * Display an object inspector for an object in an instance field.
-     */
-    private void viewInstanceField(int index, VarDisplayInfo fieldInfo)
-    {
-        DebuggerField field = currentObject.getInstanceField(index);
-        if(field.isReferenceType() && ! field.isNull()) {
-            Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, window, null));
-        }
-    }
-
-    /**
-     * Display an object inspector for an object in a local variable.
-     */
-    private void viewLocalVar(int index, VarDisplayInfo content)
-    {
-        DebuggerThread selectedThread = getSelectedThread();
-        if (selectedThread != null && selectedThread.varIsObject(currentFrame, index)) {
-            DebuggerObject obj = selectedThread.getStackObject(currentFrame, index);
-            Platform.runLater(() -> project.getInspectorInstance(obj,
-                           null, null, null, window, null));
-        }
-    }
-
-    /**
      * Create and arrange the GUI components.
      * @param debuggerThreads
      */
@@ -536,20 +482,17 @@ public class ExecControls
 
         // create static variable panel
         staticList = makeVarListView();
-        listenForDoubleClick(staticList, this::viewStaticField);
         //MOEFX
         //JLabel lbl = new JLabel(staticTitle);
 
         // create instance variable panel
         instanceList = makeVarListView();
-        listenForDoubleClick(instanceList, this::viewInstanceField);
 
         //MOEFX
         //JLabel lbl = new JLabel(instanceTitle);
 
         // create local variable panel
         localList = makeVarListView();
-        listenForDoubleClick(localList, this::viewLocalVar);
         //MOEFX
         //JLabel lbl = new JLabel(localTitle);
 
@@ -617,7 +560,7 @@ public class ExecControls
         ListView<VarDisplayInfo> listView = new ListView<>();
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         listView.setCellFactory(lv -> {
-            return new VarDisplayCell();
+            return new VarDisplayCell(project, window);
         });
         return listView;
     }
@@ -863,15 +806,18 @@ public class ExecControls
     }
 
 
-    private class VarDisplayCell extends javafx.scene.control.ListCell<VarDisplayInfo>
+    private static class VarDisplayCell extends javafx.scene.control.ListCell<VarDisplayInfo>
     {
         private final Label access = new Label();
         private final Label type = new Label();
         private final Label name = new Label();
         private final Label value = new Label();
         private final BooleanProperty nonEmpty = new SimpleBooleanProperty();
+        private static final Image objectImage =
+                Config.getImageAsFXImage("image.eval.object");
+        private FXPlatformSupplier<DebuggerObject> fetchObject;
 
-        public VarDisplayCell()
+        public VarDisplayCell(Project project, Window window)
         {
             HBox hBox = new HBox(access, type, name, new Label("="), this.value);
             hBox.visibleProperty().bind(nonEmpty);
@@ -882,6 +828,16 @@ public class ExecControls
             JavaFXUtil.addStyleClass(name, "debugger-var-name");
             JavaFXUtil.addStyleClass(value, "debugger-var-value");
             setGraphic(hBox);
+
+            hBox.setOnMouseClicked(e -> {
+                if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+                {
+                    if (fetchObject != null)
+                    {
+                        project.getInspectorInstance(fetchObject.get(), null, null, null, window, hBox);
+                    }
+                }
+            });
         }
 
         @Override
@@ -895,6 +851,7 @@ public class ExecControls
                 type.setText("");
                 name.setText("");
                 value.setText("");
+                fetchObject = null;
             }
             else
             {
@@ -902,6 +859,7 @@ public class ExecControls
                 type.setText(item.getType());
                 name.setText(item.getName());
                 value.setText(item.getValue());
+                fetchObject = item.getFetchObject();
             }
         }
     }

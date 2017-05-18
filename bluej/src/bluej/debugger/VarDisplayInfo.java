@@ -1,6 +1,7 @@
 package bluej.debugger;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.utility.javafx.FXPlatformSupplier;
 import com.sun.jdi.LocalVariable;
 
 import java.lang.reflect.Modifier;
@@ -14,6 +15,8 @@ public class VarDisplayInfo
     private final String type;
     private final String name;
     private final String value;
+    // If null, means item was not an inspectable object (probably null or primitive):
+    private final FXPlatformSupplier<DebuggerObject> getObjectToInspect;
 
     public VarDisplayInfo(DebuggerField field)
     {
@@ -38,14 +41,23 @@ public class VarDisplayInfo
         type = field.getType().toString(true);
         name = field.getName();
         value = field.getValueString();
+        if (field.isReferenceType() && ! field.isNull())
+        {
+            getObjectToInspect = () -> field.getValueObject(null);
+        }
+        else
+        {
+            getObjectToInspect = null;
+        }
     }
 
-    public VarDisplayInfo(JavaType vartype, LocalVariable var, String value)
+    public VarDisplayInfo(JavaType vartype, LocalVariable var, String value, FXPlatformSupplier<DebuggerObject> getObjectToInspect)
     {
         access = null;
         type = vartype.toString(true);
         name = var.name();
         this.value = value;
+        this.getObjectToInspect = getObjectToInspect;
     }
 
     public String getAccess()
@@ -66,5 +78,10 @@ public class VarDisplayInfo
     public String getValue()
     {
         return value;
+    }
+
+    public FXPlatformSupplier<DebuggerObject> getFetchObject()
+    {
+        return getObjectToInspect;
     }
 }
