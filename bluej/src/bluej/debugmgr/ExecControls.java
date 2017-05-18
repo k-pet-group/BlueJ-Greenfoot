@@ -26,9 +26,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,9 +49,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import bluej.debugger.VarDisplayInfo;
 import bluej.pkgmgr.Project.DebuggerThreadDetails;
 import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformBiConsumer;
@@ -88,7 +86,6 @@ import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.SourceLocation;
-import bluej.debugmgr.inspector.Inspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
@@ -124,12 +121,6 @@ public class ExecControls
     private static final String terminateButtonText =
         Config.getString("debugger.execControls.terminateButtonText");
 
-    private static final int SHORTCUT_MASK =
-        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
-
-    private static String[] empty = new String[0];
-    
     // === instance ===
 
     @OnThread(Tag.FX)
@@ -144,8 +135,7 @@ public class ExecControls
     
     private JComponent mainPanel;
     private ListView<SourceLocation> stackList;
-    private ListView<String> staticList, localList;
-    private ListView<DebuggerField> instanceList;
+    private ListView<VarDisplayInfo> staticList, localList, instanceList;
     private Button stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
     private CardLayout cardLayout;
     private JPanel flipPanel;
@@ -437,12 +427,12 @@ public class ExecControls
         currentObject = selectedThread.getCurrentObject(frameNo);
         if(currentClass != null) {
             List<DebuggerField> fields = currentClass.getStaticFields();
-            List<String> listData = new ArrayList<String>(fields.size());
+            List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
             for (DebuggerField field : fields) {
                 String declaringClass = field.getDeclaringClassName();
                 Set<String> whiteList = restrictedClasses.get(declaringClass);
                 if (whiteList == null || whiteList.contains(field.getName())) {
-                    listData.add(Inspector.fieldToString(field) + " = " + field.getValueString());
+                    listData.add(new VarDisplayInfo(field));
                 }
             }
             staticList.getItems().setAll(listData);
@@ -450,13 +440,13 @@ public class ExecControls
 
         if(currentObject != null && !currentObject.isNullObject()) {
             List<DebuggerField> fields = currentObject.getFields();
-            List<DebuggerField> listData = new ArrayList<DebuggerField>(fields.size());
+            List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
             for (DebuggerField field : fields) {
                 if (! Modifier.isStatic(field.getModifiers())) {
                     String declaringClass = field.getDeclaringClassName();
                     Set<String> whiteList = restrictedClasses.get(declaringClass);
                     if (whiteList == null || whiteList.contains(field.getName())) {
-                        listData.add(field);
+                        listData.add(new VarDisplayInfo(field));
                     }
                 }
             }
@@ -472,7 +462,7 @@ public class ExecControls
     /**
      * Display an object inspector for an object in a static field.
      */
-    private void viewStaticField(int index, String content)
+    private void viewStaticField(int index, VarDisplayInfo content)
     {
         DebuggerField field = currentClass.getStaticField(index);
         if(field.isReferenceType() && ! field.isNull()) {
@@ -483,8 +473,9 @@ public class ExecControls
     /**
      * Display an object inspector for an object in an instance field.
      */
-    private void viewInstanceField(int index, DebuggerField field)
+    private void viewInstanceField(int index, VarDisplayInfo fieldInfo)
     {
+        DebuggerField field = currentObject.getInstanceField(index);
         if(field.isReferenceType() && ! field.isNull()) {
             Platform.runLater(() -> project.getInspectorInstance(field.getValueObject(null), null, null, null, window, null));
         }
@@ -493,7 +484,7 @@ public class ExecControls
     /**
      * Display an object inspector for an object in a local variable.
      */
-    private void viewLocalVar(int index, String content)
+    private void viewLocalVar(int index, VarDisplayInfo content)
     {
         DebuggerThread selectedThread = getSelectedThread();
         if (selectedThread != null && selectedThread.varIsObject(currentFrame, index)) {
@@ -642,7 +633,8 @@ public class ExecControls
         //MOEFX
         //debugger.hideSystemThreads(true);
 
-        menu.add(new CloseAction());
+        //MOEFX
+        //menu.add(new CloseAction());
 
         menubar.add(menu);
         return menubar;
@@ -843,22 +835,6 @@ public class ExecControls
                 DataCollector.debuggerTerminate(project);
             }
             catch (IllegalStateException ise) { }
-        }
-    }
-    
-    /**
-     * Action to close the debugger window.
-     */
-    private class CloseAction extends AbstractAction
-    {
-        public CloseAction()
-        {
-            super(Config.getString("close"));
-            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK));
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            hide();
         }
     }
     

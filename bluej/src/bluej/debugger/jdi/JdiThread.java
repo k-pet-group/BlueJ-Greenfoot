@@ -363,13 +363,13 @@ class JdiThread extends DebuggerThread
      * The thread must be suspended to do this. Otherwise an empty List
      * is returned.
      */
-    public List<String> getLocalVariables(int frameNo)
+    public List<VarDisplayInfo> getLocalVariables(int frameNo)
     {
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
                 List<LocalVariable> vars = frame.visibleVariables();
-                List<String> localVars = new ArrayList<String>();
+                List<VarDisplayInfo> localVars = new ArrayList<>();
                 
                 // To work around a JDI bug (probably related to the other one described
                 // below) we collect information we need about the variables on the
@@ -404,8 +404,7 @@ class JdiThread extends DebuggerThread
                     // Add "type name = value" to the list
                     JavaType vartype = JdiReflective.fromLocalVar(localTypes.get(i), genericSigs.get(i),
                             typeNames.get(i), declaringType);
-                    localVars.add(vartype.toString(true) + " " + var.name()
-                            + " = " + localVals.get(i));
+                    localVars.add(new VarDisplayInfo(vartype, var, localVals.get(i)));
                 }
                 return localVars;
             }
@@ -424,7 +423,7 @@ class JdiThread extends DebuggerThread
             }
             catch (InterruptedException ie) {}
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     /**

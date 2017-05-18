@@ -50,7 +50,7 @@ public abstract class DebuggerThread
      */
     public abstract List<SourceLocation> getStack();
     
-    public abstract List<String> getLocalVariables(int frameNo);
+    public abstract List<VarDisplayInfo> getLocalVariables(int frameNo);
     public abstract boolean varIsObject(int frameNo, int index);
     public abstract DebuggerObject getStackObject(int frameNo, int index);
     
