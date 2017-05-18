@@ -22,6 +22,8 @@
 package bluej.groupwork.ui;
 
 import bluej.Config;
+import bluej.groupwork.actions.CommitAction;
+import bluej.groupwork.actions.PushAction;
 import bluej.groupwork.CommitFilter;
 import bluej.groupwork.Repository;
 import bluej.groupwork.StatusHandle;
@@ -31,13 +33,12 @@ import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
-import bluej.groupwork.actions.CommitAction;
-import bluej.groupwork.actions.PushAction;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
 
 import java.io.File;
@@ -50,16 +51,26 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyListWrapper;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
@@ -79,14 +90,12 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     private Repository repository;
 
     private Set<TeamStatusInfo> changedLayoutFiles = new HashSet<>();
-    private ObservableList commitListModel = new ReadOnlyListWrapper();
-    private ObservableList pushListModel = new ReadOnlyListWrapper();
+    private ObservableList commitListModel = FXCollections.observableArrayList();
+    private ObservableList pushListModel = FXCollections.observableArrayList();
 
-    private VBox topPanel, middlePanel, bottomPanel;
-    private ActivityIndicatorFX progressBar;
     private CheckBox includeLayout;
     private TextArea commitText;
-    private ListView commitFiles, pushFiles;
+    private ActivityIndicatorFX progressBar;
     private Button commitButton, pushButton;
 
     private CommitAction commitAction;
@@ -109,6 +118,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         repository = project.getTeamSettingsController().getRepository(false);
         buildUI();
 //        DialogManager.centreDialog(this);
+//        rememberPosition("bluej.commitdisplay");
+        prepareButtonPane();
     }
 
     /**
@@ -116,56 +127,30 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
      */
     private void buildUI()
     {
-//        rememberPosition("bluej.commitdisplay");
-        topPanel = new VBox();//
-//        topPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-        VBox windowPanel = new VBox();//
-//        windowPanel.setBorder(BlueJTheme.generalBorder);
-
-        ScrollPane commitFileScrollPane = new ScrollPane();
-
-//            topPanel.setLayout(new BorderLayout());
-//            windowPanel.setLayout(new BorderLayout());
-//            topPanel.setBorder(BorderFactory.createEmptyBorder());
-
+        VBox mainPane = new VBox();//
+        JavaFXUtil.addStyleClass(mainPane, "main-pane");
         Label commitFilesLabel = new Label(Config.getString("team.commitPush.commit.files"));
-//            commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-        topPanel.getChildren().add(commitFilesLabel);
-        commitFiles = new ListView(commitListModel);
-//            commitFiles.setVisibleRowCount(4);
+        ListView commitFiles = new ListView(commitListModel);
 //            commitFiles.setCellRenderer(new FileRenderer(project, false));
         commitFiles.setDisable(true);
 
-        commitFileScrollPane.setContent(commitFiles);
-        commitFiles.setMaxSize(commitFiles.getMaxWidth(), commitFiles.getMaxHeight());
-        commitFiles.setMinSize(commitFiles.getMaxWidth(), commitFiles.getMaxHeight());
-        commitFiles.setBackground(windowPanel.getBackground());//
-
-        topPanel.getChildren().add(commitFileScrollPane);
-
-        windowPanel.getChildren().add(topPanel);
-
-        middlePanel = new VBox();//
-
-        Button closeButton = new Button(Config.getString("close"));
-        closeButton.setOnAction(event -> abort());
-        setOnCloseRequest(event -> abort());
-
-//            middlePanel.setLayout(new BorderLayout());
-//            middlePanel.setBorder(BorderFactory.createEmptyBorder());
+        ScrollPane commitFileScrollPane = new ScrollPane(commitFiles);
+        commitFileScrollPane.setFitToWidth(true);
+        commitFileScrollPane.setFitToHeight(true);
+        commitFiles.setBackground(mainPane.getBackground());//
+        VBox.setMargin(commitFileScrollPane, new Insets(0, 0, 20, 0));
 
         Label commentLabel = new Label(Config.getString("team.commit.comment"));
-//            commentLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
-        middlePanel.getChildren().add(commentLabel);
-
-        commitText = new TextArea("");
+        commitText = new TextArea();
         commitText.setPrefRowCount(5);
         commitText.setPrefColumnCount(35);
-        commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
+//        commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
 
         ScrollPane commitTextScrollPane = new ScrollPane(commitText);
-        commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
-        middlePanel.getChildren().add(commitTextScrollPane);
+        commitTextScrollPane.setFitToWidth(true);
+        commitTextScrollPane.setFitToHeight(true);
+//        commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
+        VBox.setMargin(commitFileScrollPane, new Insets(0, 0, 10, 0));
 
 
         commitAction = new CommitAction(this);
@@ -173,17 +158,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitButton.setOnAction(event -> commitAction.actionPerformed(null));
         //Bind commitText properties to enable the commit button if there is a comment.
         commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
-
-        pushAction = new PushAction(this);
-        pushButton = new Button(Config.getString("team.push"));
-        pushButton.setOnAction(event -> pushAction.actionPerformed(null));
-
-        HBox middleBox = new HBox();
-//        DBox middleBox = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-//        middleBox.setBorder(BlueJTheme.generalBorder);
-        VBox checkBoxPanel = new VBox();
-//        DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-//        checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(10,0,10,10));
 
         includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
         includeLayout.setDisable(true);
@@ -203,52 +177,56 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             }
         });
 
-        checkBoxPanel.getChildren().add(includeLayout);
-        HBox commitArea = new HBox();
-        commitArea.setAlignment(Pos.CENTER_RIGHT);
-//            commitArea.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 6));
-        commitArea.getChildren().add(commitButton);
-        middleBox.getChildren().addAll(checkBoxPanel, commitArea);
-        middlePanel.getChildren().add(middleBox);
+        HBox commitButtonPane = new HBox();
+        JavaFXUtil.addStyleClass(commitButtonPane, "button-hbox");
+        commitButtonPane.setAlignment(Pos.CENTER_RIGHT);
+        commitButtonPane.getChildren().addAll(includeLayout, commitButton);
 
-        topPanel.getChildren().add(middlePanel);
-        bottomPanel = new VBox();
-//        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
-        ScrollPane pushFileScrollPane = new ScrollPane();
+        pushAction = new PushAction(this);
+        pushButton = new Button(Config.getString("team.push"));
+        pushButton.setOnAction(event -> pushAction.actionPerformed(null));
 
         Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
-//            pushFilesLabel.setBorder(BorderFactory.createEmptyBorder(6, 0, 5, 0));
-        bottomPanel.getChildren().add(pushFilesLabel);
-        pushFiles = new ListView(pushListModel);
+        ListView pushFiles = new ListView(pushListModel);
 //            pushFiles.setCellRenderer(new FileRenderer(project, true));
         pushFiles.setDisable(true);
-//            pushFiles.setVisibleRowCount(4);
-        pushFileScrollPane.setContent(pushFiles);
-        pushFiles.setBackground(bottomPanel.getBackground());
+        ScrollPane pushFileScrollPane = new ScrollPane(pushFiles);
+        pushFileScrollPane.setFitToWidth(true);
+        pushFileScrollPane.setFitToHeight(true);
 
-        bottomPanel.getChildren().add(pushFileScrollPane);
-
-        HBox pushButtonPanel = new HBox();
-//        pushButtonPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
+        HBox pushButtonPane = new HBox();
         progressBar = new ActivityIndicatorFX();
         progressBar.setRunning(false);
-        pushButtonPanel.getChildren().addAll(progressBar, pushButton, closeButton);
+        JavaFXUtil.addStyleClass(pushButtonPane, "button-hbox");
+        pushButtonPane.setAlignment(Pos.CENTER_RIGHT);
+        pushButtonPane.getChildren().addAll(progressBar, pushButton);
 
-        bottomPanel.getChildren().add(pushButtonPanel);
-
-        Separator separator = new Separator(Orientation.HORIZONTAL);
-//        separator.setForeground(Color.black);
-        windowPanel.getChildren().addAll(separator, bottomPanel);
-
-        getDialogPane().setContent(windowPanel);
+        mainPane.getChildren().addAll(commitFilesLabel, commitFileScrollPane,
+                commentLabel, commitTextScrollPane,
+                commitButtonPane,
+                new Separator(Orientation.HORIZONTAL),
+                pushFilesLabel, pushFileScrollPane,
+                pushButtonPane);
+        getDialogPane().setContent(mainPane);
     }
 
-    private void abort()
+    /**
+     * Create the button panel with a close button
+     * @return Pane the buttonPanel
+     */
+    private void prepareButtonPane()
     {
-        commitAndPushWorker.abort();
-        commitAction.cancel();
-        close();
+        getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
+        this.setOnCloseRequest(event -> {
+            if (commitAndPushWorker != null) {
+                commitAndPushWorker.abort();
+            }
+            if (commitAction != null) {
+                commitAction.cancel();
+            }
+                close();
+        });
     }
 
     @Override
@@ -284,12 +262,13 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                 startProgress();
                 commitAndPushWorker = new CommitAndPushWorker();
                 commitAndPushWorker.start();
-
-            } else {
+                show(); // looking at the else before, this line is maybe wrong
+            }
+            else {
                 hide();
             }
-            show(); // looking at the else before, this line is maybe wrong
-        } else {
+        }
+        else {
             hide();
         }
     }
@@ -310,9 +289,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
-        for (TeamStatusInfo info : changedLayoutFiles) {
-            commitListModel.remove(info);
-        }
+        commitListModel.removeAll(changedLayoutFiles);
         if (commitListModel.isEmpty()) {
             commitListModel.add(noFilesToCommit);
             commitText.setDisable(true);
@@ -338,11 +315,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     @Override
     public Set<File> getChangedLayoutFiles()
     {
-        Set<File> files = new HashSet<>();
-        changedLayoutFiles.stream().forEach((info) -> {
-            files.add(info.getFile());
-        });
-        return files;
+        return changedLayoutFiles.stream().map(info -> info.getFile()).collect(Collectors.toSet());
     }
 
     /**
@@ -350,13 +323,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
      */
     private void removeChangedLayoutFile(File file)
     {
-        for (Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext();) {
-            TeamStatusInfo info = it.next();
-            if (info.getFile().equals(file)) {
-                it.remove();
-                return;
-            }
-        }
+        changedLayoutFiles.removeIf(info -> info.getFile().equals(file));
     }
 
     /**
@@ -783,26 +750,20 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
          * @param fileSet
          * @param info
          */
-        private void updateListModel(ObservableList listModel, Set<File> fileSet, List<TeamStatusInfo> info)
+        private void updateListModel(ObservableList<TeamStatusInfo> listModel, Set<File> fileSet, List<TeamStatusInfo> info)
         {
-            fileSet.stream().map((f) -> getTeamStatusInfoFromFile(f,info)).filter((tsi) -> (!listModel.contains(tsi))).forEach((tsi) -> {
-                if (tsi!= null){
-                    listModel.add(tsi);
-                }
-            });
+            listModel.addAll(fileSet.stream().map(file -> getTeamStatusInfoFromFile(file, info))
+                    .filter(Objects::nonNull)
+                    .filter(statusInfo -> !listModel.contains(statusInfo))
+                    .collect(Collectors.toList()));
         }
 
-        private TeamStatusInfo getTeamStatusInfoFromFile(File f, List<TeamStatusInfo> info)
+        private TeamStatusInfo getTeamStatusInfoFromFile(File file, List<TeamStatusInfo> infoList)
         {
-            if (f != null && !info.isEmpty()){
-                for (TeamStatusInfo item : info) {
-                    if (item.getFile().equals(f)){
-                        return item;
-                    }
-                }
+            if (file != null && !infoList.isEmpty()){
+               return infoList.stream().filter(info -> info.getFile().equals(file)).findFirst().get();
             }
             return null;
         }
-
     }
 }

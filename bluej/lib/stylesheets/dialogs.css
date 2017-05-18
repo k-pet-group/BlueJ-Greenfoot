@@ -427,8 +427,33 @@
     -fx-pref-height: 18em;
 }
 
+.team-commit-push {
+    -fx-min-width:  20em;
+    -fx-pref-width: 30em;
+
+    -fx-min-height:  35em;
+    -fx-pref-height: 50em;
+
+    -fx-padding: 1em;
+
+     -bj-border-radius: 5;
+     -bj-background-radius: 10;
+     -bj-border-width: 2;
+
+     -fx-border-radius: 5;
+     -fx-background-radius: 10;
+     -fx-border-width: 2;
+}
+
+.team-commit-push .main-pane {
+    -fx-spacing: 0.5em;
+}
+
+.team-commit-push .main-pane .button-hbox {
+     -fx-spacing: 0.8em;
+}
+
 .team-update-files,
-.team-commit-push,
 .team-commit-comments,
 .team-conflicts,
 .team-history,
