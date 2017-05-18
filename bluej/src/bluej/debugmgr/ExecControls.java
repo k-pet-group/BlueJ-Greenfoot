@@ -202,12 +202,16 @@ public class ExecControls
         HBox buttons = new HBox(stopButton, stepButton, stepIntoButton, continueButton, terminateButton);
         this.fxContent = new BorderPane();
         BorderPane vars = new BorderPane();
-        vars.setTop(staticList);
-        SplitPane varSplit = new SplitPane(instanceList, localList);
+        vars.setTop(labelled(staticList, staticTitle));
+        SplitPane varSplit = new SplitPane(labelled(instanceList, instanceTitle), labelled(localList, localTitle));
         varSplit.setOrientation(Orientation.VERTICAL);
         vars.setCenter(varSplit);
-        fxContent.setCenter(new SplitPane(new VBox(threadList, stackList), vars));
+        BorderPane lhsPane = new BorderPane(labelled(stackList, stackTitle), labelled(threadList, threadTitle), null, null, null);
+        JavaFXUtil.addStyleClass(threadList, "debugger-thread-combo");
+        JavaFXUtil.addStyleClass(lhsPane, "debugger-thread-and-stack");
+        fxContent.setCenter(new SplitPane(lhsPane, vars));
         fxContent.setBottom(buttons);
+        JavaFXUtil.addStyleClass(fxContent, "debugger");
         // Menu bar will be added later:
         Scene scene = new Scene(fxContent);
         Config.addDebuggerStylesheets(scene);
@@ -223,6 +227,15 @@ public class ExecControls
             visible.set(false);
         });
 
+    }
+
+    private static Node labelled(Node content, String title)
+    {
+        Label titleLabel = new Label(title);
+        JavaFXUtil.addStyleClass(titleLabel, "debugger-section-title");
+        BorderPane borderPane = new BorderPane(content, titleLabel, null, null, null);
+        JavaFXUtil.addStyleClass(borderPane, "debugger-section");
+        return borderPane;
     }
 
     /**
@@ -485,19 +498,13 @@ public class ExecControls
 
         // create static variable panel
         staticList = makeVarListView();
-        //MOEFX
-        //JLabel lbl = new JLabel(staticTitle);
+        JavaFXUtil.addStyleClass(staticList, "debugger-static-var-list");
 
         // create instance variable panel
         instanceList = makeVarListView();
 
-        //MOEFX
-        //JLabel lbl = new JLabel(instanceTitle);
-
         // create local variable panel
         localList = makeVarListView();
-        //MOEFX
-        //JLabel lbl = new JLabel(localTitle);
 
         // Create stack listing panel
 

@@ -11,3 +11,16 @@
 .debugger-var-object-ref {
     -fx-cursor: hand;
 }
+.debugger-section {
+    -fx-padding: 0.5em;
+}
+.debugger-static-var-list {
+    -fx-max-height: 9em;
+}
+.debugger-thread-combo {
+    -fx-max-width: 800px; /* Let it expand to fill space, up to a point */
+}
+.debugger .split-pane {
+    /* Remove outer border */
+    -fx-background-color: -fx-background, -fx-background;
+}
