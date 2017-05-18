@@ -128,8 +128,8 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         statusTable.getColumns().setAll(firstColumn, secondColumn, thirdColumn);
 
         ScrollPane statusScroller = new ScrollPane(statusTable);
-        statusScroller.fitToWidthProperty().set(true);
-        statusScroller.fitToHeightProperty().set(true);
+        statusScroller.setFitToWidth(true);
+        statusScroller.setFitToHeight(true);
 
         VBox mainPane = new VBox();
         mainPane.setSpacing(10);
