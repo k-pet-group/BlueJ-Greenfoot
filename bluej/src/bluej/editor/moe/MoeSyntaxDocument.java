@@ -563,11 +563,14 @@ public class MoeSyntaxDocument
     {
         for (Entry<Integer, EnumSet<ParagraphAttribute>> changedLine : changedLines.entrySet())
         {
-            // Paragraph numbering starts at zero, but line numbers start at 1 so adjust:
-            ScopeInfo prevStyle = document.getParagraphStyle(changedLine.getKey() - 1);
-            if (prevStyle != null)
+            if (changedLine.getKey() - 1 < document.getParagraphs().size())
             {
-                document.setParagraphStyle(changedLine.getKey() - 1, prevStyle.withAttributes(changedLine.getValue()));
+                // Paragraph numbering starts at zero, but line numbers start at 1 so adjust:
+                ScopeInfo prevStyle = document.getParagraphStyle(changedLine.getKey() - 1);
+                if (prevStyle != null)
+                {
+                    document.setParagraphStyle(changedLine.getKey() - 1, prevStyle.withAttributes(changedLine.getValue()));
+                }
             }
         }
     }
