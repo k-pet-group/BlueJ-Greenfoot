@@ -235,9 +235,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     
     // find functionality
     private FindPanel finder;
-    private NaviView naviView;              // Navigation view (mini-source view)
-    private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the
-                                            // editor and navigation view
     private MenuBar menubar;
     private String filename;                // name of file or null
     private long lastModified;              // time of last modification of file
