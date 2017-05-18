@@ -33,7 +33,7 @@ import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-@OnThread(Tag.FX)
+@OnThread(Tag.FXPlatform)
 public class ActivityIndicatorFX extends StackPane
 {
     private ProgressBar progressBar;

@@ -23,12 +23,15 @@ package bluej.groupwork.ui;
 
 import bluej.pkgmgr.Project;
 import javafx.scene.control.ListCell;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Class to display files to be committed in a list for the UpdateFilesFrame
  * 
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class FileRendererCell extends ListCell<UpdateStatus>
 {
     private Project project;

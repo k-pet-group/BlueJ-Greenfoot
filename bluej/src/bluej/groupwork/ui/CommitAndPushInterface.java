@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import javafx.stage.Window;
  * A Swing based user interface to commit and push.
  * @author Fabio Heday
  */
+@OnThread(Tag.FXPlatform)
 public interface CommitAndPushInterface
 {
     public void setVisible(boolean show);

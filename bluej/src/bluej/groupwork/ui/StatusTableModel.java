@@ -27,6 +27,8 @@ import javafx.collections.ObservableList;
 import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Project;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Given a list of StatusEntry(s) returns a table model which allows them to
@@ -36,6 +38,7 @@ import bluej.pkgmgr.Project;
  * @author Bruce Quig
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public abstract class StatusTableModel
 {
     protected final String resourceLabel = Config.getString("team.status.resource");

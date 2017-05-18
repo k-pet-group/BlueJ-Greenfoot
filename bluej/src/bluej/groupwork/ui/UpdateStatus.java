@@ -22,6 +22,8 @@
 package bluej.groupwork.ui;
 
 import bluej.groupwork.TeamStatusInfo;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -29,6 +31,7 @@ import bluej.groupwork.TeamStatusInfo;
  *
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class UpdateStatus
 {
     TeamStatusInfo infoStatus;

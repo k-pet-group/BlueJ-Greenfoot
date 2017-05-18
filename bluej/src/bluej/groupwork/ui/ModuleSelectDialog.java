@@ -54,6 +54,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class ModuleSelectDialog extends FXCustomizedDialog<Void>
 {
     private Repository repository;

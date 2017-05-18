@@ -36,6 +36,8 @@ import javafx.scene.control.Separator;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A dialog which presents conflicts after an update.
@@ -43,6 +45,7 @@ import javafx.scene.layout.VBox;
  * @author fisker
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class ConflictsDialog extends FXCustomizedDialog<Void>
 {
     //    private Label heading;

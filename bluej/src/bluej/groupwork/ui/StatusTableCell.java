@@ -39,6 +39,7 @@ import threadchecker.Tag;
  *
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class StatusTableCell extends TableCell<TeamStatusInfo, Object>
 {
     private final boolean isDVCS;
@@ -57,7 +58,6 @@ public class StatusTableCell extends TableCell<TeamStatusInfo, Object>
     }
 
     @Override
-    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void updateItem(Object v, boolean empty)
     {
         super.updateItem(v, empty);

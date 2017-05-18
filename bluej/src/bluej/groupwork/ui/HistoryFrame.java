@@ -67,6 +67,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class HistoryFrame extends FXCustomizedDialog<Void>
 {
     private Project project;

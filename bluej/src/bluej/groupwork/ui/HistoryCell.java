@@ -28,13 +28,15 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Renderer for cells in the log/history list.
  * 
  * @author Amjad Altadmri
  */
-
+@OnThread(Tag.FXPlatform)
 public class HistoryCell extends ListCell<HistoryInfo>
 {
     @Override

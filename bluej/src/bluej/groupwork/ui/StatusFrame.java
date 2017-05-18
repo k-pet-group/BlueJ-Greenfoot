@@ -65,6 +65,7 @@ import threadchecker.Tag;
  * @author Amjad Altadmri
  *
  */
+@OnThread(Tag.FXPlatform)
 public class StatusFrame extends FXCustomizedDialog<Void>
 {
     private Project project;

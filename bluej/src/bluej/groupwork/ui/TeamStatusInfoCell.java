@@ -24,12 +24,15 @@ package bluej.groupwork.ui;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Project;
 import javafx.scene.control.ListCell;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Class to display files to be committed in a list for the CommitCommentsFrame
  * 
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class TeamStatusInfoCell extends ListCell<TeamStatusInfo>
 {
     private Project project;

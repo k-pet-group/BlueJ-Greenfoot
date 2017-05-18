@@ -26,12 +26,15 @@ import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Class to determine team resource descriptions for use in dialogs
  * 
  * @author Bruce Quig
  */
+@OnThread(Tag.FXPlatform)
 public class ResourceDescriptor
 {
     public static String getResource(Project project, Object value, boolean annotate)

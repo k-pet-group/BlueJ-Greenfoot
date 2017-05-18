@@ -54,6 +54,8 @@ import bluej.groupwork.actions.ValidateConnectionAction;
 import bluej.utility.Debug;
 import bluej.utility.javafx.HorizontalRadio;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A panel for team settings.
@@ -61,6 +63,7 @@ import bluej.utility.javafx.JavaFXUtil;
  * @author fisker
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class TeamSettingsPanel extends VBox
 {
     private TeamSettingsController teamSettingsController;

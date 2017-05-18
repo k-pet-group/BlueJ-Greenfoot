@@ -71,6 +71,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 {
     private Button updateButton;

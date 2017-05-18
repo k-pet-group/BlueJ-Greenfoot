@@ -74,6 +74,7 @@ import threadchecker.Tag;
  * @author Bruce Quig
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements CommitAndPushInterface
 {
     private Project project;
