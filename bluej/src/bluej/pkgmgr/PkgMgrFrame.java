@@ -124,7 +124,6 @@ import bluej.pkgmgr.actions.RunTestsAction;
 import bluej.pkgmgr.actions.SaveProjectAction;
 import bluej.pkgmgr.actions.SaveProjectAsAction;
 import bluej.pkgmgr.actions.ShowCopyrightAction;
-import bluej.pkgmgr.actions.ShowDebuggerAction;
 import bluej.pkgmgr.actions.StandardAPIHelpAction;
 import bluej.pkgmgr.actions.TutorialAction;
 import bluej.pkgmgr.actions.UseLibraryAction;
@@ -306,13 +305,6 @@ public class PkgMgrFrame
     private final RestartVMAction restartVMAction = new RestartVMAction(this);
     private final Action useLibraryAction = new UseLibraryAction(this);
     private final Action generateDocsAction = new GenerateDocsAction(this);
-    private final PkgMgrToggleAction showDebuggerAction = new ShowDebuggerAction(this) {
-        @Override
-        public void setEnabled(boolean newValue)
-        {
-            super.setEnabled(newValue);
-        }
-    };
     @OnThread(Tag.Any)
     private final PkgMgrAction runTestsAction = new RunTestsAction(this);
     /*
@@ -3667,7 +3659,8 @@ public class PkgMgrFrame
         actionsToDisable.add(restartVMAction);
         actionsToDisable.add(useLibraryAction);
         actionsToDisable.add(generateDocsAction);
-        actionsToDisable.add(showDebuggerAction);
+        //MOEFX:
+        //actionsToDisable.add(showDebuggerAction);
         actionsToDisable.add(runTestsAction);
     }
 
