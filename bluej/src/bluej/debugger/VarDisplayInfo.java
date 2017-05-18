@@ -20,17 +20,17 @@ public class VarDisplayInfo
         int mods = field.getModifiers();
         String access = "";
         if (Modifier.isPrivate(mods)) {
-            access = "private ";
+            access = "private";
         }
         else if (Modifier.isPublic(mods)) {
-            access = "public ";
+            access = "public";
         }
         else if (Modifier.isProtected(mods)) {
-            access = "protected ";
+            access = "protected";
         }
 
         if (field.isHidden()) {
-            access += "(hidden) ";
+            access += "(hidden)";
         }
 
         this.access = access;
@@ -48,10 +48,23 @@ public class VarDisplayInfo
         this.value = value;
     }
 
-    //TEMPorary until we do properly formatted display:
-    @Override
-    public String toString()
+    public String getAccess()
     {
-        return (access == null ? "" : access + " ") + type + " " + name + " = " + value;
+        return access;
+    }
+
+    public String getType()
+    {
+        return type;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public String getValue()
+    {
+        return value;
     }
 }

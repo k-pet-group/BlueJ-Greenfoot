@@ -24,16 +24,12 @@ package bluej.prefmgr;
 import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.IntegerExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -47,9 +43,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
 import bluej.editor.EditorManager;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.terminal.Terminal;
 
 /**
  * A class to manage the user editable preferences
@@ -130,7 +123,7 @@ public class PrefMgr
     // The CSS style needed to apply the editor font size styling, but
     // slightly shrunken and doesn't set family
     @OnThread(Tag.FX)
-    private static StringExpression editorFontSizeSmallCSS;
+    private static StringExpression editorFontSizeOnlyCSS;
 
     /**
      * Private constructor to prevent instantiation
@@ -320,14 +313,14 @@ public class PrefMgr
     {
         if (editorFontCSS == null)
         {
-            editorFontSizeSmallCSS = Bindings.concat(
-                    "-fx-font-size: ", Bindings.max(8, editorFontSize.subtract(3)), "pt;");
+            editorFontSizeOnlyCSS = Bindings.concat(
+                    "-fx-font-size: ", editorFontSize, "pt;");
             editorFontCSS = Bindings.concat(
-                "-fx-font-size: ", editorFontSize, "pt;",
-                "-fx-font-family: \"", editorStandardFont, "\";"
+                    "-fx-font-size: ", editorFontSize, "pt;",
+                    "-fx-font-family: \"", editorStandardFont, "\";"
             );
         }
-        return includeFamily ? editorFontCSS : editorFontSizeSmallCSS;
+        return includeFamily ? editorFontCSS : editorFontSizeOnlyCSS;
     }
 
     @OnThread(Tag.Any)

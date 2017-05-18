@@ -53,6 +53,7 @@ import javax.swing.SwingUtilities;
 
 import bluej.debugger.VarDisplayInfo;
 import bluej.pkgmgr.Project.DebuggerThreadDetails;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformBiConsumer;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -66,6 +67,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SelectionMode;
@@ -202,11 +204,14 @@ public class ExecControls
         fxContent.setCenter(new SplitPane(new VBox(threadList, stackList), vars));
         fxContent.setBottom(buttons);
         // Menu bar will be added later:
-        window.setScene(new Scene(fxContent));
+        Scene scene = new Scene(fxContent);
+        Config.addDebuggerStylesheets(scene);
+        window.setScene(scene);
         Config.rememberPositionAndSize(window, "bluej.debugger");
         window.setOnShown(e -> {
             SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, true));
             visible.set(true);
+            //org.scenicview.ScenicView.show(scene);
         });
         window.setOnHidden(e -> {
             SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, false));
@@ -530,31 +535,21 @@ public class ExecControls
         contentPane.add(buttonBox, BorderLayout.SOUTH);
 
         // create static variable panel
-        staticList = new ListView<>();
-        {
-            staticList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            listenForDoubleClick(staticList, this::viewStaticField);
-        }
+        staticList = makeVarListView();
+        listenForDoubleClick(staticList, this::viewStaticField);
         //MOEFX
         //JLabel lbl = new JLabel(staticTitle);
 
         // create instance variable panel
-        instanceList = new ListView<>();
-        {
-            instanceList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            listenForDoubleClick(instanceList, this::viewInstanceField);
-            //MOEFX
-            //instanceList.setCellRenderer(new FieldCellRenderer());
-        }
+        instanceList = makeVarListView();
+        listenForDoubleClick(instanceList, this::viewInstanceField);
+
         //MOEFX
         //JLabel lbl = new JLabel(instanceTitle);
 
         // create local variable panel
-        localList = new ListView<>();
-        {
-            localList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            listenForDoubleClick(localList, this::viewLocalVar);
-        }
+        localList = makeVarListView();
+        listenForDoubleClick(localList, this::viewLocalVar);
         //MOEFX
         //JLabel lbl = new JLabel(localTitle);
 
@@ -562,6 +557,8 @@ public class ExecControls
 
         stackList = new ListView<>();
         stackList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        JavaFXUtil.addStyleClass(stackList, "debugger-stack");
+        stackList.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
         JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> stackFrameSelectionChanged(getSelectedThread(), index.intValue()));
         JScrollPane stackScrollPane = new JScrollPane();
         JLabel lbl = new JLabel(stackTitle);
@@ -613,6 +610,16 @@ public class ExecControls
             fxContent.setPrefHeight(preferredSize.getHeight());
             readyToShow.set(true);
         });
+    }
+
+    private ListView<VarDisplayInfo> makeVarListView()
+    {
+        ListView<VarDisplayInfo> listView = new ListView<>();
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        listView.setCellFactory(lv -> {
+            return new VarDisplayCell();
+        });
+        return listView;
     }
 
     /**
@@ -854,6 +861,48 @@ public class ExecControls
             //debugger.hideSystemThreads(systemThreadItem.isSelected());
         }
     }
-    
-    
+
+
+    private class VarDisplayCell extends javafx.scene.control.ListCell<VarDisplayInfo>
+    {
+        private final Label access = new Label();
+        private final Label type = new Label();
+        private final Label name = new Label();
+        private final Label value = new Label();
+        private final BooleanProperty nonEmpty = new SimpleBooleanProperty();
+
+        public VarDisplayCell()
+        {
+            HBox hBox = new HBox(access, type, name, new Label("="), this.value);
+            hBox.visibleProperty().bind(nonEmpty);
+            hBox.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+            JavaFXUtil.addStyleClass(hBox, "debugger-var-cell");
+            JavaFXUtil.addStyleClass(access, "debugger-var-access");
+            JavaFXUtil.addStyleClass(type, "debugger-var-type");
+            JavaFXUtil.addStyleClass(name, "debugger-var-name");
+            JavaFXUtil.addStyleClass(value, "debugger-var-value");
+            setGraphic(hBox);
+        }
+
+        @Override
+        protected void updateItem(VarDisplayInfo item, boolean empty)
+        {
+            super.updateItem(item, empty);
+            nonEmpty.set(!empty);
+            if (empty)
+            {
+                access.setText("");
+                type.setText("");
+                name.setText("");
+                value.setText("");
+            }
+            else
+            {
+                access.setText(item.getAccess());
+                type.setText(item.getType());
+                name.setText(item.getName());
+                value.setText(item.getValue());
+            }
+        }
+    }
 }
