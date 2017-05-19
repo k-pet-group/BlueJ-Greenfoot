@@ -31,10 +31,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.application.Platform;
-import threadchecker.OnThread;
-import threadchecker.Tag;
+
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.groupwork.Repository;
@@ -60,9 +58,7 @@ public class ImportAction extends TeamAction
         super("team.import", true);
     }
     
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
+    @Override
     public void actionPerformed(PkgMgrFrame pmf)
     {
         Project project = pmf.getProject();
@@ -71,7 +67,7 @@ public class ImportAction extends TeamAction
             return;
         }
 
-        Platform.runLater(() -> doImport(pmf, project));
+        doImport(pmf, project);
     }
 
     private void doImport(final PkgMgrFrame pmf, final Project project)
@@ -120,7 +116,7 @@ public class ImportAction extends TeamAction
                             project.setTeamSettingsController(tsc);
                             Set<File> projFiles = tsc.getProjectFiles(true);
                             // Make copy, to ensure thread safety:
-                            files.set(new HashSet<File>(projFiles));
+                            files.set(new HashSet<>(projFiles));
                             isDVCS.set(tsc.isDVCS());
                         });
                     }
@@ -128,9 +124,9 @@ public class ImportAction extends TeamAction
                     {
                         Debug.reportError(e);
                     }
-                    Set<File> newFiles = new LinkedHashSet<File>(files.get());
+                    Set<File> newFiles = new LinkedHashSet<>(files.get());
                     Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
-                    command = repository.commitAll(newFiles, binFiles, Collections.<File>emptySet(),
+                    command = repository.commitAll(newFiles, binFiles, Collections.emptySet(),
                             files.get(), Config.getString("team.import.initialMessage"));
                     result = command.getResult();
                     //In DVCS, we need an aditional command: pushChanges.
@@ -142,17 +138,16 @@ public class ImportAction extends TeamAction
 
                 Platform.runLater(() -> {
                     TeamUtils.handleServerResponseFX(result, pmf.getFXWindow());
-                    EventQueue.invokeLater(() -> {
-                        pmf.stopProgress();
-                        if (!result.isError())
-                        {
-                            pmf.setStatus(Config.getString("team.shared"));
-                            DataCollector.teamShareProject(project, repository);
-                        } else
-                        {
-                            pmf.clearStatus();
-                        }
-                    });
+                    pmf.stopProgress();
+                    if (!result.isError())
+                    {
+                        pmf.setStatus(Config.getString("team.shared"));
+                        DataCollector.teamShareProject(project, repository);
+                    }
+                    else
+                    {
+                        pmf.clearStatus();
+                    }
                 });
             }
         };

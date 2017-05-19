@@ -21,8 +21,6 @@
  */
 package bluej.groupwork.actions;
 
-import javafx.application.Platform;
-
 import bluej.Config;
 import bluej.groupwork.ui.HistoryFrame;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -38,11 +36,12 @@ public class ShowLogAction extends TeamAction
     {
         super(Config.getString("team.history"), false);
     }
-    
+
+    @Override
     public void actionPerformed(PkgMgrFrame pmf)
     {
         HistoryFrame hd = new HistoryFrame(pmf);
-        Platform.runLater(() -> hd.setLocationRelativeTo(pmf.getFXWindow()));
+        hd.setLocationRelativeTo(pmf.getFXWindow());
         hd.show(); // showAndWait() ?
     }
 }

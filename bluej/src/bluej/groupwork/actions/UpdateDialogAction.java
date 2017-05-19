@@ -41,9 +41,7 @@ public class UpdateDialogAction extends TeamAction
         shortDescription = Config.getString("tooltip.update");
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
+    @Override
     public void actionPerformed(PkgMgrFrame pmf)
     {
         project = pmf.getProject();

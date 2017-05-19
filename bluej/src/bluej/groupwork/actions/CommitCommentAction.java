@@ -42,6 +42,7 @@ public class CommitCommentAction extends TeamAction
         shortDescription = Config.getString("tooltip.commit");
     }
 
+    @Override
     public void actionPerformed(PkgMgrFrame pmf)
     {
         if(!pmf.isEmptyFrame()) {

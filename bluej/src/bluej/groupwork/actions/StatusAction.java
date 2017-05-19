@@ -34,6 +34,7 @@ import bluej.pkgmgr.Project;
  * 
  * @author bquig
  */
+@OnThread(Tag.FXPlatform)
 public class StatusAction extends TeamAction
 {
     /** Creates a new instance of StatusAction */
@@ -51,7 +52,6 @@ public class StatusAction extends TeamAction
         doStatus(pmf);
     }
 
-    @OnThread(Tag.Swing)
     private void doStatus(PkgMgrFrame pmf)
     {
         if (pmf.getProject().getTeamSettingsController().initRepository()) {
