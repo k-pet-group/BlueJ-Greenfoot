@@ -320,11 +320,9 @@ public abstract class Inspector extends Stage
         if (selectedField != null) {
             GetInvokerRecord getIr = new GetInvokerRecord(selectedFieldType, selectedFieldName, ir);
             DebuggerObject selField = this.selectedField;
-            SwingUtilities.invokeLater(() -> {
-                PackageEditor pkgEd = pkg.getEditor();
-                pkgEd.recordInteraction(getIr);
-                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, true, Optional.empty());
-            });
+            PackageEditor pkgEd = pkg.getEditor();
+            pkgEd.recordInteraction(getIr);
+            pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, true, Optional.empty());
         }
     }
 

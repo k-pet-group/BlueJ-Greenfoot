@@ -371,7 +371,7 @@ public class ResultInspector extends Inspector
     {
         if (selectedField != null) {
             GenTypeClass resultClass = resultType.asClass();
-            SwingUtilities.invokeLater(() -> pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultClass, ir, true, Optional.empty()));
+            pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultClass, ir, true, Optional.empty());
         }
     }
 }

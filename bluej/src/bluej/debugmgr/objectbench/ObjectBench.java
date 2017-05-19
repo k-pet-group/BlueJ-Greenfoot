@@ -79,7 +79,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     private final PkgMgrFrame pkgMgrFrame;
     
     // All invocations done since our last reset.
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private List<InvokerRecord> invokerRecords;
    
     /**
@@ -237,7 +237,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         }
         objects.clear();
         JavaFXUtil.runNowOrLater(() -> obp.getChildren().clear());
-        SwingUtilities.invokeLater(() -> resetRecordingInteractions());
+        resetRecordingInteractions();
         updateAccessibleName();
     }
 
@@ -253,7 +253,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             setSelectedObject(null);
         }
      
-        SwingUtilities.invokeLater(() -> {DataCollector.removeObject(wrapper.getPackage(), wrapper.getName());});
+        DataCollector.removeObject(wrapper.getPackage(), wrapper.getName());
         
         wrapper.prepareRemove();
         wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
@@ -355,7 +355,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
      * notify all listeners that have registered interest for
      * notification on this event type.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void fireObjectEvent(ObjectWrapper wrapper)
     {
         synchronized (listenerList)
@@ -450,7 +450,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     /**
      * Reset the recording of invocations.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void resetRecordingInteractions()
     {
         invokerRecords = new LinkedList<InvokerRecord>();
@@ -468,7 +468,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     /**
      * Get the recorded interaction fixture declarations as Java code.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public String getFixtureDeclaration(String firstIndent)
     {
         StringBuffer sb = new StringBuffer();
@@ -488,7 +488,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     /**
      * Get the recorded interaction fixture setup as Java code.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public String getFixtureSetup(String secondIndent)
     {
         StringBuffer sb = new StringBuffer();
@@ -508,7 +508,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     /**
      * Get the recorded interactions as Java code.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public String getTestMethod(String secondIndent)
     {
         StringBuffer sb = new StringBuffer();
@@ -540,7 +540,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         this.setMinWidth(ObjectWrapper.WIDTH + 35 /* space for scroll bar, foldout control */);
         this.setMinHeight(ObjectWrapper.HEIGHT);
         // start with a clean slate recording invocations
-        SwingUtilities.invokeLater(() -> {resetRecordingInteractions();});
+        resetRecordingInteractions();
 
         setOnKeyPressed(this::keyPressed);
     }

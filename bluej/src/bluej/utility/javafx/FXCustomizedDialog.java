@@ -37,6 +37,7 @@ import threadchecker.Tag;
  *
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class FXCustomizedDialog<R> extends Dialog<R>
 {
     protected FXCustomizedDialog(Window owner, String title, String style)

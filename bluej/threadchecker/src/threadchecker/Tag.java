@@ -29,6 +29,8 @@ public enum Tag
             return true; // FX can override FXPlatform, but not vice versa
         else if (this == Any)
             return true; // Any can override a more-specific parent tag
+        else if (this == SwingIsFX && (parent == FXPlatform || parent == Swing))
+            return true;
         else
             return this == parent;
     }

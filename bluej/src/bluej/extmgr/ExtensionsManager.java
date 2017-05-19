@@ -40,6 +40,8 @@ import bluej.utility.javafx.FXPlatformSupplier;
 import javax.swing.*;
 import javafx.application.Platform;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Manages extensions and provides the main interface to them. A
@@ -389,6 +391,7 @@ public class ExtensionsManager
      *            
      * @see BlueJEvent
      */
+    @OnThread(Tag.SwingIsFX)
     public void blueJEvent(int eventId, Object arg)
     {
         if (eventId == BlueJEvent.EXECUTION_RESULT) {

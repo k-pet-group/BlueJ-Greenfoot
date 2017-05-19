@@ -109,7 +109,7 @@ public class MachineIcon extends HBox
             if (contextMenu != null)
                 contextMenu.hide();
             MenuItem item = new MenuItem(Config.getString("workIndicator.resetMachine"));
-            item.setOnAction(e -> SwingUtilities.invokeLater(() -> this.resetAction.actionPerformed(pmf)));
+            item.setOnAction(e -> this.resetAction.actionPerformed(pmf));
             contextMenu = new ContextMenu(item);
             contextMenu.show(barContainer, x, y);
             return true;

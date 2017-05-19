@@ -371,12 +371,10 @@ public class ObjectInspector extends Inspector
             }
 
             DebuggerObject selField = this.selectedField;
-            SwingUtilities.invokeLater(() -> {
-                PackageEditor pkgEd = pkg.getEditor();
-                pkgEd.recordInteraction(getIr);
+            PackageEditor pkgEd = pkg.getEditor();
+            pkgEd.recordInteraction(getIr);
 
-                pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, true, Optional.empty());
-            });
+            pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, true, Optional.empty());
         }
     }
     

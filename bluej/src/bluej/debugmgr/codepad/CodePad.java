@@ -271,9 +271,7 @@ public class CodePad extends VBox
                     {
                         Stage fxWindow = frame.getFXWindow();
                         Point2D from = graphic.localToScene(new Point2D(0.0, 0.0));
-                        SwingUtilities.invokeLater(() -> {
-                            frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir, true, Optional.of(from));
-                        });
+                        frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir, true, Optional.of(from));
                         e.consume();
                     }
                 });

@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
+import javafx.application.Platform;
 import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -131,14 +132,13 @@ public class ImportScanner
         {
             return types.computeIfAbsent(name, s -> {
                 Class<?> c = reflections.typeNameToClass(prefix + s);
-                // To safely get an AssistContentThreadSafe, we must create one from the Swing thread.
-                // So we need to hop across to the Swing thread.  Because we are an arbitrary background
-                // worker thread, it is safe to use invokeAndWait; we'll wait for the Swing thread to
-                // become available if we have to, without risk of deadlock, and we won't block the Swing thread:
+                // To safely get an AssistContentThreadSafe, we must create one from the FXPlatform thread.
+                // So we need to hop across to the FXPlatform thread.  Because we are an arbitrary background
+                // worker thread, it is safe to use wait afterwards; without risk of deadlock:
                 try
                 {
                     CompletableFuture<AssistContentThreadSafe> f = new CompletableFuture<>();
-                    SwingUtilities.invokeAndWait(() -> f.complete(new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver))));
+                    Platform.runLater(() -> f.complete(new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver))));
                     return f.get();
                 }
                 catch (Exception e)
@@ -282,12 +282,14 @@ public class ImportScanner
         classLoadersList.add(ClasspathHelper.staticClassLoader());
         try
         {
-            // Safe to use invokeAndWait because we are a worker thread:
-            SwingUtilities.invokeAndWait(() -> {
-                classLoadersList.add(project.getClassLoader());
+            CompletableFuture<ClassLoader> projectClassLoader = new CompletableFuture<>();
+            // Safe to wait for platform thread because we are a worker thread:
+            Platform.runLater(() -> {
+                projectClassLoader.complete(project.getClassLoader());
             });
+            classLoadersList.add(projectClassLoader.get());
         }
-        catch (InterruptedException | InvocationTargetException e)
+        catch (InterruptedException | ExecutionException e)
         {
             Debug.reportError(e);
         }

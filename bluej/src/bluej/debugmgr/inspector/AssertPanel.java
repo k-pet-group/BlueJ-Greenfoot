@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import bluej.utility.javafx.FXPlatformSupplier;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -275,7 +276,7 @@ public class AssertPanel extends VBox
         }
     }
     
-    public void recordAssertion(Package pkg, Utility.SwingSupplier<Optional<Integer>> testIdentifier, int invocationIdentifier)
+    public void recordAssertion(Package pkg, FXPlatformSupplier<Optional<Integer>> testIdentifier, int invocationIdentifier)
     {
         AssertInfo info = assertCombo.getSelectionModel().getSelectedItem();
 
