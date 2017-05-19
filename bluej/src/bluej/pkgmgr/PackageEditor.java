@@ -156,7 +156,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     /**
      * Construct a package editor for the given package.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public PackageEditor(PkgMgrFrame pmf, Package pkg, PackageEditorListener listener, BooleanProperty showUses, BooleanProperty showInherits, MouseTrackingOverlayPane overlay)
     {
         this.pmf = pmf;
@@ -166,40 +166,39 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         this.showUses = showUses;
         this.showExtends = showInherits;
         this.overlay = overlay;
-        Platform.runLater(() -> {
-            this.selectionController.addSelectionListener(sel -> pmf.notifySelectionChanged(sel));
-            JavaFXUtil.addStyleClass(this, "class-diagram");
-            // Both class layers have transparent background to see through to lower layers:
-            frontClassLayer.setBackground(null);
-            backClassLayer.setBackground(null);
-            // We need to be able to click through the holes in the front class layer
-            // in order to click on the back layer:
-            frontClassLayer.setPickOnBounds(false);
-            
-            JavaFXUtil.addChangeListenerPlatform(arrowLayer.widthProperty(), s -> repaint());
-            JavaFXUtil.addChangeListenerPlatform(arrowLayer.heightProperty(), s -> repaint());
-            selectionLayer = new Pane();
-            // The mouse events occur on us not on the selection layer.
-            // We don't want the display getting in the way of mouse events:
-            selectionLayer.setMouseTransparent(true);
-            javafx.scene.shape.Rectangle rect = selectionController.getMarquee().getRectangle();
-            JavaFXUtil.addStyleClass(rect, "marquee");
-            selectionLayer.getChildren().add(rect);
 
-            noClassesExistedMessage = new Label(Config.getString("pkgmgr.noClassesExisted.message"));
-            noClassesExistedMessage.setVisible(false);
-            JavaFXUtil.addStyleClass(noClassesExistedMessage, "pmf-no-classes-msg");
+        this.selectionController.addSelectionListener(sel -> pmf.notifySelectionChanged(sel));
+        JavaFXUtil.addStyleClass(this, "class-diagram");
+        // Both class layers have transparent background to see through to lower layers:
+        frontClassLayer.setBackground(null);
+        backClassLayer.setBackground(null);
+        // We need to be able to click through the holes in the front class layer
+        // in order to click on the back layer:
+        frontClassLayer.setPickOnBounds(false);
 
-            getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer, selectionLayer, noClassesExistedMessage);
+        JavaFXUtil.addChangeListenerPlatform(arrowLayer.widthProperty(), s -> repaint());
+        JavaFXUtil.addChangeListenerPlatform(arrowLayer.heightProperty(), s -> repaint());
+        selectionLayer = new Pane();
+        // The mouse events occur on us not on the selection layer.
+        // We don't want the display getting in the way of mouse events:
+        selectionLayer.setMouseTransparent(true);
+        javafx.scene.shape.Rectangle rect = selectionController.getMarquee().getRectangle();
+        JavaFXUtil.addStyleClass(rect, "marquee");
+        selectionLayer.getChildren().add(rect);
 
-            JavaFXUtil.addChangeListener(showUses, e -> JavaFXUtil.runNowOrLater(this::repaint));
-            JavaFXUtil.addChangeListener(showExtends, e -> JavaFXUtil.runNowOrLater(this::repaint));
-            
-            addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-                if (e.getCode() == KeyCode.ESCAPE && creatingExtends)
-                    stopNewInherits();
-                // Don't consume either way
-            });
+        noClassesExistedMessage = new Label(Config.getString("pkgmgr.noClassesExisted.message"));
+        noClassesExistedMessage.setVisible(false);
+        JavaFXUtil.addStyleClass(noClassesExistedMessage, "pmf-no-classes-msg");
+
+        getChildren().addAll(arrowLayer, backClassLayer, frontClassLayer, selectionLayer, noClassesExistedMessage);
+
+        JavaFXUtil.addChangeListener(showUses, e -> JavaFXUtil.runNowOrLater(this::repaint));
+        JavaFXUtil.addChangeListener(showExtends, e -> JavaFXUtil.runNowOrLater(this::repaint));
+
+        addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE && creatingExtends)
+                stopNewInherits();
+            // Don't consume either way
         });
     }
 

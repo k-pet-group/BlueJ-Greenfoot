@@ -846,7 +846,7 @@ public class Utility
      *          or null if the archive couldn't be extracted (in which case
      *          an error dialog is displayed).
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     public static File maybeExtractArchive(File archive, FXPlatformSupplier<javafx.stage.Window> parent)
     {
         JarInputStream jarInStream = null;

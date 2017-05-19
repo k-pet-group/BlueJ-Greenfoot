@@ -72,7 +72,6 @@ public class SelectionController
      * @param graphEditor
      * @param graph
      */
-    @OnThread(Tag.Any)
     public SelectionController(PackageEditor graphEditor)
     {
         this.graphEditor = graphEditor;

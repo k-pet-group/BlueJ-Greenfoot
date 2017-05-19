@@ -63,7 +63,7 @@ public class PackagePrintManager extends Thread
      * @param dialog the project print dialog used by user to select which
      *        assets to print.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public PackagePrintManager(Package pkg, PageFormat pageFormat, 
                                ProjectPrintDialog dialog)
     {

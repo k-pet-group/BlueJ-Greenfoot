@@ -50,15 +50,12 @@ public final class Marquee
     /**
      * Create a marquee for a given graph.
      */
-    @OnThread(Tag.Any)
     public Marquee(Package graph, SelectionSet selection)
     {
         this.graph = graph;
         this.selected = selection;
-        Platform.runLater(() -> {
-            currentRect = new Rectangle();
-            currentRect.setVisible(false);
-        });
+        currentRect = new Rectangle();
+        currentRect.setVisible(false);
     }
 
     /**

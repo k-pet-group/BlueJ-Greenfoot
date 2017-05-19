@@ -1949,7 +1949,7 @@ public class ClassTarget extends DependentTarget
                 switch (r.getExitStatus())
                 {
                     case Debugger.NORMAL_EXIT:
-                        SwingUtilities.invokeLater(() ->
+                        Platform.runLater(() ->
                         {
                             DebuggerObject obj = r.getResultObject();
                             ed.raisePutOnBenchEvent(fxWindow, obj, obj.getGenType(), null, false, Optional.empty());

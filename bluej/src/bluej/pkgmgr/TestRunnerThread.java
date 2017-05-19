@@ -69,7 +69,7 @@ public class TestRunnerThread extends Thread
     /**
      * Construct a test runner thread for running multiple tests.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public TestRunnerThread(PkgMgrFrame pmf, Iterator<ClassTarget> i)
     {
         this.pmf = pmf;

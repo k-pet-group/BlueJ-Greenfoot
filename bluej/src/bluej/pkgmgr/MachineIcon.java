@@ -148,42 +148,37 @@ public class MachineIcon extends HBox
     /**
      * Indicate that the machine is idle.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void setIdle()
     {
-        Platform.runLater(() ->
-        {
-            cancelAnimation();
-            running.set(false);
-            indicatorPosition.set(0.0);
-        });
+        cancelAnimation();
+        running.set(false);
+        indicatorPosition.set(0.0);
     }
 
     /**
      * Indicate that the machine is running.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void setRunning()
     {
-        Platform.runLater(() -> {
-            cancelAnimation();
-            running.set(true);
-            animation = new Timeline(30.0,
-                new KeyFrame(Duration.ZERO, new KeyValue(indicatorPosition, 0, Interpolator.LINEAR)),
-                new KeyFrame(Duration.millis(1000), new KeyValue(indicatorPosition, 1.0, Interpolator.LINEAR)));
-            animation.setAutoReverse(true);
-            animation.setCycleCount(Animation.INDEFINITE);
-            animation.playFromStart();
-        });
+        cancelAnimation();
+        running.set(true);
+        animation = new Timeline(30.0,
+            new KeyFrame(Duration.ZERO, new KeyValue(indicatorPosition, 0, Interpolator.LINEAR)),
+            new KeyFrame(Duration.millis(1000), new KeyValue(indicatorPosition, 1.0, Interpolator.LINEAR)));
+        animation.setAutoReverse(true);
+        animation.setCycleCount(Animation.INDEFINITE);
+        animation.playFromStart();
     }
 
     /**
      * Indicate that the machine is stopped.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void setStopped()
     {
-        Platform.runLater(this::cancelAnimation);
+        cancelAnimation();
     }
 }
 

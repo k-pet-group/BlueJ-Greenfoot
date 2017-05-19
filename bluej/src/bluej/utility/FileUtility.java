@@ -430,6 +430,7 @@ public class FileUtility
      * @return An array contained each source file which was
      *         not successfully copied or null if everything went well
      */
+    @OnThread(Tag.Any)
     public static File[] recursiveCopyFile(File srcDir, File destDir)
     {
         if (srcDir == null || destDir == null)
@@ -449,6 +450,7 @@ public class FileUtility
         return actualRecursiveCopyFile(srcDir, destDir);
     }
 
+    @OnThread(Tag.Any)
     private static File[] actualRecursiveCopyFile(File srcDir, File destDir)
     {
         // remember every file which we don't successfully copy

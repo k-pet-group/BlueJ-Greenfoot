@@ -341,234 +341,247 @@ public class PkgMgrFrame
             makeFrame();
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
-            Platform.runLater(() -> {
-                Stage stage = new Stage();
-                BlueJTheme.setWindowIconFX(stage);
 
-                objbench = new ObjectBench(this);
-                addCtrlTabShortcut(objbench);
-                itemsToDisable.add(objbench);
+            Stage stage = new Stage();
+            BlueJTheme.setWindowIconFX(stage);
 
-                BorderPane topPane = new BorderPane();
-                pkgEditorScrollPane = new ScrollPane(null) {
-                    @Override
-                    @OnThread(Tag.FX)
-                    public void requestFocus()
-                    {
-                        // Override default behaviour (in which clicking on scroll pane
-                        // gives it focus).
-                        // Don't let the pane request focus.
-                    }
-                };
-                pkgEditorScrollPane.setVisible(false);
-                pkgEditorScrollPane.visibleProperty().bind(pkgEditorScrollPane.contentProperty().isNotNull());
-                pkgEditorScrollPane.setFitToWidth(true);
-                pkgEditorScrollPane.setFitToHeight(true);
-                Label emptyProjectMessage = new Label(Config.getString("pkgmgr.noProjectOpened.message"));
-                JavaFXUtil.addStyleClass(emptyProjectMessage, "pmf-empty-project-msg");
-                StackPane centralPane = new StackPane(emptyProjectMessage, pkgEditorScrollPane);
-                JavaFXUtil.addStyleClass(centralPane, "pmf-central-pane");
-                topPane.setCenter(centralPane);
-                //topPane.setMinHeight(minSize.getHeight());
-                topPane.setLeft(toolPanel);
-                TriangleArrow triangleLabel = new TriangleArrow(Orientation.HORIZONTAL);
-                StackPane.setAlignment(triangleLabel, Pos.CENTER_RIGHT);
-                StackPane.setMargin(triangleLabel, new Insets(0, 5, 0, 0));
-                triangleLabel.setOnMouseClicked(e -> {
-                    // Toggle it:
-                    showingTextEval.set(!showingTextEval.get());
-                });
-                triangleLabel.scaleProperty().bind(Bindings.when(showingTextEval).then(-1.0).otherwise(1.0));
-                FXPlatformRunnable addScrollBarListener = new FXPlatformRunnable()
+            objbench = new ObjectBench(this);
+            addCtrlTabShortcut(objbench);
+            itemsToDisable.add(objbench);
+
+            BorderPane topPane = new BorderPane();
+            pkgEditorScrollPane = new ScrollPane(null) {
+                @Override
+                @OnThread(Tag.FX)
+                public void requestFocus()
                 {
-                    @Override
-                    public @OnThread(Tag.FXPlatform) void run()
-                    {
-                        Region scrollBar = (Region)objbench.lookup(".scroll-bar:horizontal");
-                        if (scrollBar == null)
-                        {
-                            // Keep going until the scroll bar is ready:
-                            JavaFXUtil.runAfterCurrent(this);
-                            return;
-                        }
-                        // The visibility of the scrollbar is set mid-layout pass so we run
-                        // afterwards to make sure everything is up-to-date:
-                        FXConsumer<Object> update = showing -> JavaFXUtil.runPlatformLater(() ->
-                        {
-                            if (scrollBar.isVisible())
-                                StackPane.setMargin(triangleLabel, new Insets(0, 5 + scrollBar.getWidth(), 0, 0));
-                            else
-                                StackPane.setMargin(triangleLabel, new Insets(0, 5, 0, 0));
-                        });
-                        JavaFXUtil.addChangeListener(scrollBar.visibleProperty(), update);
-                        // Not sure if scroll bar can change width, but guard against it:
-                        JavaFXUtil.addChangeListener(scrollBar.widthProperty(), update);
-                    }
-                };
-                JavaFXUtil.runAfterCurrent(addScrollBarListener);
-
-
-                bottomOverlay = new Pane();
-                bottomOverlay.setMouseTransparent(true);
-                bottomPane = new SplitPane(new StackPane(objbench, triangleLabel));
-                bottomPane.setOrientation(Orientation.HORIZONTAL);
-                // Wait until the codepad appears, then set it:
-                bottomPane.getDividers().addListener((ListChangeListener<? super SplitPane.Divider>)c -> {
-                    c.next();
-                    if (c.wasAdded())
-                    {
-                        // Use last saved divider positions:
-                        c.getAddedSubList().get(0).setPosition(1.0);
-                        // If we let code pad have a non-zero min width then you get
-                        // a bump as it appears at min width, then animates to the desired width.
-                        // To make the animation go smoother, we thus make sure it starts at zero width:
-                        double eventualMinWidth = codePad.getMinWidth();
-                        codePad.setMinWidth(0.0);
-                        Timeline t = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(c.getAddedSubList().get(0).positionProperty(), bottomPaneLastDividerPos)));
-                        t.setOnFinished(e -> codePad.setMinWidth(eventualMinWidth));
-                        t.play();
-                    }
-                });
-
-                StackPane bottomPaneAndOverlay = new StackPane(bottomPane, bottomOverlay);
-                SplitPane.setResizableWithParent(bottomPaneAndOverlay, false);
-                StackPane topPaneAndOverlay = new StackPane(topPane, topOverlay);
-                // SplitPane has a really odd behaviour.  If you set the divider position
-                // and it starts a layout pass where the top and bottom both have enough
-                // room to be their min sizes, but not enough for preferred, SplitPane
-                // will resize, even if the bottom pane has setResizableWithParent set to false.
-                // Which just seems wrong -- and it causes the divider to not resume
-                // in the position which we faithfully saved and restored.  Over time the divider
-                // creeps upward.  Here's the work-around: we set the top pane to also
-                // not be resizable, which prevents SplitPane messing with the divider position.
-                // But we only want to disable resizing of the top during loading; if the user
-                // later resizes the pane, we do want to resize the top.  There's not an obvious
-                // event to listen for to decide when to allow resizing (showing isn't the right time
-                // because a layout pulse happens later), so here we use a timer.  Ugly but can't
-                // see a better option.  5 seconds seems to be enough even on my slow machine
-                // that it's loaded up, but hopefully short enough it doesn't interfere with actual
-                // user resizes:
-                SplitPane.setResizableWithParent(topPaneAndOverlay, false);
-                JavaFXUtil.runAfter(Duration.seconds(5.0), () -> SplitPane.setResizableWithParent(topPaneAndOverlay, true));
-                topBottomSplit = new SplitPane(topPaneAndOverlay, bottomPaneAndOverlay);
-                JavaFXUtil.addStyleClass(topBottomSplit, "top-bottom-split");
-                topBottomSplit.setOrientation(Orientation.VERTICAL);
-                // Default position:
-                topBottomSplit.setDividerPositions(0.8);
-                // We add a mouse handler so that if you drag at the intersection of the split
-                // panes' dividers, you move both dividers at once.
-                EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>()
-                {
-                    // We only want to do the CSS lookup once; then we stash the cursor property:
-                    public ObjectProperty<Cursor> cursorProperty;
-                    // Are we resizing both when dragging?
-                    private boolean isResizingBoth;
-
-                    @Override
-                    @OnThread(Tag.FXPlatform)
-                    public void handle(MouseEvent e)
-                    {
-                        if (cursorProperty == null)
-                        {
-                            cursorProperty = topBottomSplit.lookup(".top-bottom-split > .split-pane-divider").cursorProperty();
-                        }
-
-                        if (codePad == null)
-                        {
-                            cursorProperty.set(Cursor.V_RESIZE);
-                            isResizingBoth = false;
-                            return; // No special consideration needed.
-                        }
-                        if (e.getEventType() == MouseEvent.MOUSE_MOVED)
-                        {
-                            // Are we on top of the divider of the bottom pane?
-                            double sceneX = bottomPane.getItems().get(0).localToScene(bottomPane.getItems().get(0).getBoundsInLocal()).getMaxX();
-                            if (e.getSceneX() >= sceneX - 1 && e.getSceneX() <= sceneX + 8)
-                            {
-                                isResizingBoth = true;
-                                // Show four pointed arrow:
-                                cursorProperty.set(Cursor.MOVE);
-                            }
-                            else
-                            {
-                                isResizingBoth = false;
-                                cursorProperty.set(Cursor.V_RESIZE);
-                            }
-                        }
-                        else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
-                        {
-                            if (isResizingBoth)
-                            {
-                                Bounds bottomBounds = bottomPane.localToScene(bottomPane.getBoundsInLocal());
-                                bottomPane.setDividerPositions((e.getSceneX() - bottomBounds.getMinX()) / bottomBounds.getWidth());
-                            }
-                        }
-                    }
-                };
-                topBottomSplit.addEventFilter(MouseEvent.MOUSE_MOVED, handler);
-                topBottomSplit.addEventFilter(MouseEvent.MOUSE_DRAGGED, handler);
-
-                BorderPane contentRoot = new BorderPane(topBottomSplit);
-                JavaFXUtil.addStyleClass(contentRoot, "pmf-root");
-
-                statusbar = new Label();
-                BorderPane.setAlignment(statusbar, Pos.CENTER_LEFT);
-
-                // create the bottom status area
-
-                BorderPane statusArea = new BorderPane();
-                BorderPane.setMargin(statusArea, new Insets(2, 0, 0, 0));
-                statusArea.setCenter(statusbar);
-
-                testStatusMessage = new Label();
-                JavaFXUtil.addStyleClass(testStatusMessage, "test-status-message");
-                // Hide when empty so padding doesn't show:
-                testStatusMessage.managedProperty().bind(testStatusMessage.textProperty().isNotEmpty());
-                testStatusMessage.visibleProperty().bind(testStatusMessage.textProperty().isNotEmpty());
-                BorderPane.setAlignment(testStatusMessage, Pos.CENTER_LEFT);
-                statusArea.setLeft(testStatusMessage);
-
-                progressbar = new ActivityIndicatorFX();
-                progressbar.setRunning(false);
-                statusArea.setRight(new HBox(progressbar, machineIcon));
-
-                contentRoot.setBottom(statusArea);
-                BorderPane rootPlusMenu = new BorderPane(contentRoot);
-                Scene scene = new Scene(rootPlusMenu);
-                Config.addPMFStylesheets(scene);
-                stage.setScene(scene);
-                stage.setWidth(800.0);
-                stage.setHeight(600.0);
-                // This sets the window position so call it before showing:
-                stageProperty.setValue(stage);
-                paneProperty.setValue(rootPlusMenu);
-                // Delay to let window positioner be ready:
-                JavaFXUtil.runAfterCurrent(() -> {
-                    if (stage.getX() < 0)
-                        stage.setX(10);
-                    if (stage.getY() < 0)
-                        stage.setY(10);
-                    stage.show();
-                    Utility.bringToFrontFX(stage);
-                });
-                //org.scenicview.ScenicView.show(stage.getScene());
-
-                // If it should already be showing, do that now:
-                if (showingTextEval.get())
-                {
-                    // This will enable it if it ends up showing:
-                    showHideTextEval(true);
+                    // Override default behaviour (in which clicking on scroll pane
+                    // gives it focus).
+                    // Don't let the pane request focus.
                 }
-                // Listen for future updates:
-                JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
-
-                showingDebugger.bindBidirectional(getProject().debuggerShowing());
-                showingTerminal.bindBidirectional(getProject().terminalShowing());
-                showingTestResults.bindBidirectional(TestDisplayFrame.showingProperty());
-
-
-                updateWindow();
+            };
+            pkgEditorScrollPane.setVisible(false);
+            pkgEditorScrollPane.visibleProperty().bind(pkgEditorScrollPane.contentProperty().isNotNull());
+            pkgEditorScrollPane.setFitToWidth(true);
+            pkgEditorScrollPane.setFitToHeight(true);
+            Label emptyProjectMessage = new Label(Config.getString("pkgmgr.noProjectOpened.message"));
+            JavaFXUtil.addStyleClass(emptyProjectMessage, "pmf-empty-project-msg");
+            StackPane centralPane = new StackPane(emptyProjectMessage, pkgEditorScrollPane);
+            JavaFXUtil.addStyleClass(centralPane, "pmf-central-pane");
+            topPane.setCenter(centralPane);
+            //topPane.setMinHeight(minSize.getHeight());
+            topPane.setLeft(toolPanel);
+            TriangleArrow triangleLabel = new TriangleArrow(Orientation.HORIZONTAL);
+            StackPane.setAlignment(triangleLabel, Pos.CENTER_RIGHT);
+            StackPane.setMargin(triangleLabel, new Insets(0, 5, 0, 0));
+            triangleLabel.setOnMouseClicked(e -> {
+                // Toggle it:
+                showingTextEval.set(!showingTextEval.get());
             });
+            triangleLabel.scaleProperty().bind(Bindings.when(showingTextEval).then(-1.0).otherwise(1.0));
+            FXPlatformRunnable addScrollBarListener = new FXPlatformRunnable()
+            {
+                @Override
+                public @OnThread(Tag.FXPlatform) void run()
+                {
+                    Region scrollBar = (Region)objbench.lookup(".scroll-bar:horizontal");
+                    if (scrollBar == null)
+                    {
+                        // Keep going until the scroll bar is ready:
+                        JavaFXUtil.runAfterCurrent(this);
+                        return;
+                    }
+                    // The visibility of the scrollbar is set mid-layout pass so we run
+                    // afterwards to make sure everything is up-to-date:
+                    FXConsumer<Object> update = showing -> JavaFXUtil.runPlatformLater(() ->
+                    {
+                        if (scrollBar.isVisible())
+                            StackPane.setMargin(triangleLabel, new Insets(0, 5 + scrollBar.getWidth(), 0, 0));
+                        else
+                            StackPane.setMargin(triangleLabel, new Insets(0, 5, 0, 0));
+                    });
+                    JavaFXUtil.addChangeListener(scrollBar.visibleProperty(), update);
+                    // Not sure if scroll bar can change width, but guard against it:
+                    JavaFXUtil.addChangeListener(scrollBar.widthProperty(), update);
+                }
+            };
+            JavaFXUtil.runAfterCurrent(addScrollBarListener);
+
+
+            bottomOverlay = new Pane();
+            bottomOverlay.setMouseTransparent(true);
+            bottomPane = new SplitPane(new StackPane(objbench, triangleLabel));
+            bottomPane.setOrientation(Orientation.HORIZONTAL);
+            // Wait until the codepad appears, then set it:
+            bottomPane.getDividers().addListener((ListChangeListener<? super SplitPane.Divider>)c -> {
+                c.next();
+                if (c.wasAdded())
+                {
+                    // Use last saved divider positions:
+                    c.getAddedSubList().get(0).setPosition(1.0);
+                    // If we let code pad have a non-zero min width then you get
+                    // a bump as it appears at min width, then animates to the desired width.
+                    // To make the animation go smoother, we thus make sure it starts at zero width:
+                    double eventualMinWidth = codePad.getMinWidth();
+                    codePad.setMinWidth(0.0);
+                    Timeline t = new Timeline(new KeyFrame(Duration.millis(200), new KeyValue(c.getAddedSubList().get(0).positionProperty(), bottomPaneLastDividerPos)));
+                    t.setOnFinished(e -> codePad.setMinWidth(eventualMinWidth));
+                    t.play();
+                }
+            });
+
+            StackPane bottomPaneAndOverlay = new StackPane(bottomPane, bottomOverlay);
+            SplitPane.setResizableWithParent(bottomPaneAndOverlay, false);
+            StackPane topPaneAndOverlay = new StackPane(topPane, topOverlay);
+            // SplitPane has a really odd behaviour.  If you set the divider position
+            // and it starts a layout pass where the top and bottom both have enough
+            // room to be their min sizes, but not enough for preferred, SplitPane
+            // will resize, even if the bottom pane has setResizableWithParent set to false.
+            // Which just seems wrong -- and it causes the divider to not resume
+            // in the position which we faithfully saved and restored.  Over time the divider
+            // creeps upward.  Here's the work-around: we set the top pane to also
+            // not be resizable, which prevents SplitPane messing with the divider position.
+            // But we only want to disable resizing of the top during loading; if the user
+            // later resizes the pane, we do want to resize the top.  There's not an obvious
+            // event to listen for to decide when to allow resizing (showing isn't the right time
+            // because a layout pulse happens later), so here we use a timer.  Ugly but can't
+            // see a better option.  5 seconds seems to be enough even on my slow machine
+            // that it's loaded up, but hopefully short enough it doesn't interfere with actual
+            // user resizes:
+            SplitPane.setResizableWithParent(topPaneAndOverlay, false);
+            JavaFXUtil.runAfter(Duration.seconds(5.0), () -> SplitPane.setResizableWithParent(topPaneAndOverlay, true));
+            topBottomSplit = new SplitPane(topPaneAndOverlay, bottomPaneAndOverlay);
+            JavaFXUtil.addStyleClass(topBottomSplit, "top-bottom-split");
+            topBottomSplit.setOrientation(Orientation.VERTICAL);
+            // Default position:
+            topBottomSplit.setDividerPositions(0.8);
+            // We add a mouse handler so that if you drag at the intersection of the split
+            // panes' dividers, you move both dividers at once.
+            EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>()
+            {
+                // We only want to do the CSS lookup once; then we stash the cursor property:
+                public ObjectProperty<Cursor> cursorProperty;
+                // Are we resizing both when dragging?
+                private boolean isResizingBoth;
+
+                @Override
+                @OnThread(Tag.FXPlatform)
+                public void handle(MouseEvent e)
+                {
+                    if (cursorProperty == null)
+                    {
+                        cursorProperty = topBottomSplit.lookup(".top-bottom-split > .split-pane-divider").cursorProperty();
+                    }
+
+                    if (codePad == null)
+                    {
+                        cursorProperty.set(Cursor.V_RESIZE);
+                        isResizingBoth = false;
+                        return; // No special consideration needed.
+                    }
+                    if (e.getEventType() == MouseEvent.MOUSE_MOVED)
+                    {
+                        // Are we on top of the divider of the bottom pane?
+                        double sceneX = bottomPane.getItems().get(0).localToScene(bottomPane.getItems().get(0).getBoundsInLocal()).getMaxX();
+                        if (e.getSceneX() >= sceneX - 1 && e.getSceneX() <= sceneX + 8)
+                        {
+                            isResizingBoth = true;
+                            // Show four pointed arrow:
+                            cursorProperty.set(Cursor.MOVE);
+                        }
+                        else
+                        {
+                            isResizingBoth = false;
+                            cursorProperty.set(Cursor.V_RESIZE);
+                        }
+                    }
+                    else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
+                    {
+                        if (isResizingBoth)
+                        {
+                            Bounds bottomBounds = bottomPane.localToScene(bottomPane.getBoundsInLocal());
+                            bottomPane.setDividerPositions((e.getSceneX() - bottomBounds.getMinX()) / bottomBounds.getWidth());
+                        }
+                    }
+                }
+            };
+            topBottomSplit.addEventFilter(MouseEvent.MOUSE_MOVED, handler);
+            topBottomSplit.addEventFilter(MouseEvent.MOUSE_DRAGGED, handler);
+
+            BorderPane contentRoot = new BorderPane(topBottomSplit);
+            JavaFXUtil.addStyleClass(contentRoot, "pmf-root");
+
+            statusbar = new Label();
+            BorderPane.setAlignment(statusbar, Pos.CENTER_LEFT);
+
+            // create the bottom status area
+
+            BorderPane statusArea = new BorderPane();
+            BorderPane.setMargin(statusArea, new Insets(2, 0, 0, 0));
+            statusArea.setCenter(statusbar);
+
+            testStatusMessage = new Label();
+            JavaFXUtil.addStyleClass(testStatusMessage, "test-status-message");
+            // Hide when empty so padding doesn't show:
+            testStatusMessage.managedProperty().bind(testStatusMessage.textProperty().isNotEmpty());
+            testStatusMessage.visibleProperty().bind(testStatusMessage.textProperty().isNotEmpty());
+            BorderPane.setAlignment(testStatusMessage, Pos.CENTER_LEFT);
+            statusArea.setLeft(testStatusMessage);
+
+            progressbar = new ActivityIndicatorFX();
+            progressbar.setRunning(false);
+            statusArea.setRight(new HBox(progressbar, machineIcon));
+
+            contentRoot.setBottom(statusArea);
+            BorderPane rootPlusMenu = new BorderPane(contentRoot);
+            Scene scene = new Scene(rootPlusMenu);
+            Config.addPMFStylesheets(scene);
+            stage.setScene(scene);
+            stage.setWidth(800.0);
+            stage.setHeight(600.0);
+            // This sets the window position so call it before showing:
+            stageProperty.setValue(stage);
+            paneProperty.setValue(rootPlusMenu);
+            // Delay to let window positioner be ready:
+            JavaFXUtil.runAfterCurrent(() -> {
+                if (stage.getX() < 0)
+                    stage.setX(10);
+                if (stage.getY() < 0)
+                    stage.setY(10);
+                stage.show();
+                Utility.bringToFrontFX(stage);
+            });
+            //org.scenicview.ScenicView.show(stage.getScene());
+
+            // If it should already be showing, do that now:
+            if (showingTextEval.get())
+            {
+                // This will enable it if it ends up showing:
+                showHideTextEval(true);
+            }
+            // Listen for future updates:
+            JavaFXUtil.addChangeListener(showingTextEval, this::showHideTextEval);
+
+            pkg.addListener((prop, oldPkg, newPkg) ->
+            {
+                JavaFXUtil.runNowOrLater(() ->
+                {
+                    if (oldPkg != null)
+                    {
+                        showingDebugger.bindBidirectional(oldPkg.getProject().debuggerShowing());
+                        showingTerminal.bindBidirectional(oldPkg.getProject().terminalShowing());
+                    }
+                    if (newPkg != null)
+                    {
+                        showingDebugger.bindBidirectional(newPkg.getProject().debuggerShowing());
+                        showingTerminal.bindBidirectional(newPkg.getProject().terminalShowing());
+                    }
+                });
+            });
+            showingTestResults.bindBidirectional(TestDisplayFrame.showingProperty());
+
+
+            updateWindow();
 
             // grey out certain functions if package not open.
             if (isEmptyFrame()) {
@@ -577,7 +590,7 @@ public class PkgMgrFrame
         }
         else
         {
-            Platform.runLater(() -> {objbench = new ObjectBench(this);});
+            objbench = new ObjectBench(this);
         }
     }
 
@@ -596,16 +609,14 @@ public class PkgMgrFrame
             frames.add(frame);
         }
 
-        Platform.runLater(() -> {
-            JavaFXUtil.onceNotNull(frame.stageProperty, stage ->
-                    JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
-                        if (focused.booleanValue())
-                        {
-                            recentFrame = frame;
-                        }
-                    })
-            );
-        });
+        JavaFXUtil.onceNotNull(frame.stageProperty, stage ->
+                JavaFXUtil.addChangeListener(stage.focusedProperty(), focused -> {
+                    if (focused.booleanValue())
+                    {
+                        recentFrame = frame;
+                    }
+                })
+        );
 
         return frame;
     }
@@ -672,7 +683,7 @@ public class PkgMgrFrame
      * @param aPkg The package to search for
      * @return The frame editing this package, or null
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public synchronized static PkgMgrFrame findFrame(Package aPkg)
     {
         for (PkgMgrFrame pmf : frames) {
@@ -864,7 +875,7 @@ public class PkgMgrFrame
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            Platform.runLater(() -> DialogManager.showErrorFX(pmf.getFXWindow(), msgId));
+            DialogManager.showErrorFX(pmf.getFXWindow(), msgId);
     }
 
     /**
@@ -878,7 +889,7 @@ public class PkgMgrFrame
 
         if (pmf != null)
         {
-            Platform.runLater(() -> DialogManager.showMessageFX(pmf.getFXWindow(), msgId));
+            DialogManager.showMessageFX(pmf.getFXWindow(), msgId);
         }
     }
 
@@ -894,7 +905,7 @@ public class PkgMgrFrame
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            Platform.runLater(() -> DialogManager.showMessageWithTextFX(pmf.getFXWindow(), msgId, text));
+            DialogManager.showMessageWithTextFX(pmf.getFXWindow(), msgId, text);
     }
 
     /**
@@ -931,8 +942,7 @@ public class PkgMgrFrame
         }
         if(createdNewFrame && !openedProject) {
             // Close newly created frame if it was never used.
-            PkgMgrFrame pmfFinal = pmf;
-            Platform.runLater(() -> PkgMgrFrame.closeFrame(pmfFinal));
+            PkgMgrFrame.closeFrame(pmf);
         }
         return openedProject;
     }
@@ -948,7 +958,7 @@ public class PkgMgrFrame
 
         if (allFrames != null) {
             for (PkgMgrFrame allFrame : allFrames) {
-                Platform.runLater(() -> allFrame.doClose(true, true));
+                allFrame.doClose(true, true);
             }
         }
     }
@@ -1032,32 +1042,31 @@ public class PkgMgrFrame
 
         if(! Config.isGreenfoot()) {
             this.editor = new PackageEditor(this, aPkg, this, showUsesProperty, showInheritsProperty, topOverlay);
-            Platform.runLater(() -> {
-                pkgEditorScrollPane.setContent(editor);
-                editor.setOnDragOver(event -> {
-                    Dragboard db = event.getDragboard();
-                    if (db.hasFiles()) {
-                        event.acceptTransferModes(TransferMode.COPY);
-                    } else {
-                        event.consume();
-                    }
-                });
 
-                editor.setOnDragDropped(event -> {
-                    Dragboard db = event.getDragboard();
-                    boolean success = false;
-                    if (db.hasFiles()) {
-                        success = true;
-                        SwingUtilities.invokeLater(() -> {addFiles(db.getFiles());});
-                    }
-                    event.setDropCompleted(success);
+            pkgEditorScrollPane.setContent(editor);
+            editor.setOnDragOver(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasFiles()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                } else {
                     event.consume();
-                });
-                editorMousePressed = e -> clearStatus();
-                editor.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);  // This mouse listener MUST be before
-                editor.startMouseListening();   //  the editor's listener itself!
-                addCtrlTabShortcut(editor);
+                }
             });
+
+            editor.setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+                if (db.hasFiles()) {
+                    success = true;
+                    addFiles(db.getFiles());
+                }
+                event.setDropCompleted(success);
+                event.consume();
+            });
+            editorMousePressed = e -> clearStatus();
+            editor.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);  // This mouse listener MUST be before
+            editor.startMouseListening();   //  the editor's listener itself!
+            addCtrlTabShortcut(editor);
             aPkg.setEditor(this.editor);
             
             // fetch some properties from the package that interest us
@@ -1076,58 +1085,56 @@ public class PkgMgrFrame
                 
                 String mainDivPos = p.getProperty("package.divider.vertical");
                 String bottomDivPos = p.getProperty("package.divider.horizontal");
-                
-                Platform.runLater(() -> {
-                    JavaFXUtil.onceNotNull(stageProperty, s -> {
-                        Point2D location = Config.ensureOnScreen(x, y);
 
-                        if (location == null || x == -1 || y == -1)
+                JavaFXUtil.onceNotNull(stageProperty, s -> {
+                    Point2D location = Config.ensureOnScreen(x, y);
+
+                    if (location == null || x == -1 || y == -1)
+                    {
+                        if (parentWindow != null)
                         {
-                            if (parentWindow != null)
-                            {
-                                s.setX(parentWindow.stageProperty.getValue().getX() + 20.0);
-                                s.setY(parentWindow.stageProperty.getValue().getY() + 20.0);
-                            }
+                            s.setX(parentWindow.stageProperty.getValue().getX() + 20.0);
+                            s.setY(parentWindow.stageProperty.getValue().getY() + 20.0);
+                        }
+                    }
+                    else
+                    {
+                        s.setX(location.getX());
+                        s.setY(location.getY());
+                    }
+                    if (width != null && height != null)
+                    {
+                        s.setWidth(Integer.parseInt(width));
+                        s.setHeight(Integer.parseInt(height));
+                    }
+                    else
+                    {
+                        // Reasonable default size:
+                        s.setWidth(800.0);
+                        s.setHeight(600.0);
+                    }
+                    if (mainDivPos != null)
+                    {
+                        topBottomSplit.setDividerPositions(Double.parseDouble(mainDivPos));
+                    }
+                    else
+                    {
+                        topBottomSplit.setDividerPositions(0.8);
+                    }
+                    if (bottomDivPos != null)
+                    {
+                        // If code pad is already showing, just set the divider position:
+                        if (bottomPane.getDividers().size() == 1)
+                        {
+                            bottomPane.setDividerPositions(Double.parseDouble(bottomDivPos));
                         }
                         else
                         {
-                            s.setX(location.getX());
-                            s.setY(location.getY());
+                            // Set the last pos; our listener added to bottomPane's dividers
+                            // will pick it up once a divider shows.
+                            bottomPaneLastDividerPos = Double.parseDouble(bottomDivPos);
                         }
-                        if (width != null && height != null)
-                        {
-                            s.setWidth(Integer.parseInt(width));
-                            s.setHeight(Integer.parseInt(height));
-                        }
-                        else
-                        {
-                            // Reasonable default size:
-                            s.setWidth(800.0);
-                            s.setHeight(600.0);
-                        }
-                        if (mainDivPos != null)
-                        {
-                            topBottomSplit.setDividerPositions(Double.parseDouble(mainDivPos));
-                        }
-                        else
-                        {
-                            topBottomSplit.setDividerPositions(0.8);
-                        }
-                        if (bottomDivPos != null)
-                        {
-                            // If code pad is already showing, just set the divider position:
-                            if (bottomPane.getDividers().size() == 1)
-                            {
-                                bottomPane.setDividerPositions(Double.parseDouble(bottomDivPos));
-                            }
-                            else
-                            {
-                                // Set the last pos; our listener added to bottomPane's dividers
-                                // will pick it up once a divider shows.
-                                bottomPaneLastDividerPos = Double.parseDouble(bottomDivPos);
-                            }
-                        }
-                    });
+                    }
                 });
             } catch (NumberFormatException e) {
                 Debug.reportError("Could not read preferred project screen position");
@@ -1136,33 +1143,28 @@ public class PkgMgrFrame
             String uses_str = p.getProperty("package.showUses", "true");
             String extends_str = p.getProperty("package.showExtends", "true");
             
-            Platform.runLater(() -> {
-                editor.setShowUses(uses_str.equals("true"));
-                editor.setShowExtends(extends_str.equals("true"));
-                editor.requestFocus();
-                updateWindow();
-            });
+
+            editor.setShowUses(uses_str.equals("true"));
+            editor.setShowExtends(extends_str.equals("true"));
+            editor.requestFocus();
+            updateWindow();
             
             enableFunctions(true); // changes menu items
             setVisible(true);
             
             Package pkgFinal = aPkg;
-            // I hate FX/Swing GUI threading...
-            Platform.runLater(() ->
-                {
-                    // runAfterCurrent so that FX finishes initialising the menu,
-                    // then hop to Swing thread to actually change things:
-                    JavaFXUtil.onceNotNull(this.viewMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
-                    {
-                        vm.setMenuGenerator(new ViewExtensionMenu(pkgFinal));
-                        vm.addExtensionMenu(pkgFinal.getProject());
-                    })));
-                    JavaFXUtil.onceNotNull(this.toolsMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
-                    {
-                        vm.setMenuGenerator(new ToolsExtensionMenu(pkgFinal));
-                        vm.addExtensionMenu(pkgFinal.getProject());
-                    })));
-                });
+            // runAfterCurrent so that FX finishes initialising the menu,
+            // then hop to Swing thread to actually change things:
+            JavaFXUtil.onceNotNull(this.viewMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
+            {
+                vm.setMenuGenerator(new ViewExtensionMenu(pkgFinal));
+                vm.addExtensionMenu(pkgFinal.getProject());
+            })));
+            JavaFXUtil.onceNotNull(this.toolsMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
+            {
+                vm.setMenuGenerator(new ToolsExtensionMenu(pkgFinal));
+                vm.addExtensionMenu(pkgFinal.getProject());
+            })));
         
             teamActions = aPkg.getProject().getTeamActions();
             resetTeamActions();
@@ -1233,20 +1235,16 @@ public class PkgMgrFrame
             
             ObjectBench bench = getObjectBench();
             String uniqueId = getProject().getUniqueId();
-            Platform.runLater(() -> {
-                bench.removeAllObjects(uniqueId);
-                clearTextEval();
-                if (codePad != null)
-                    codePad.setDisable(true);
-            });
+            bench.removeAllObjects(uniqueId);
+            clearTextEval();
+            if (codePad != null)
+                codePad.setDisable(true);
 
             // Take a copy because we're about to null it:
             PackageEditor oldEd = editor;
-            Platform.runLater(() -> {
-                oldEd.removeEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);
-                oldEd.graphClosed();
-                pkgEditorScrollPane.setContent(null);
-            });
+            oldEd.removeEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);
+            oldEd.graphClosed();
+            pkgEditorScrollPane.setContent(null);
             enableFunctions(false);
         }
 
@@ -1273,17 +1271,14 @@ public class PkgMgrFrame
     public void setVisible(boolean visible)
     {
         if(!visible) {
-            Platform.runLater(() -> {
-                JavaFXUtil.onceNotNull(stageProperty, Stage::hide);
-            });
+            JavaFXUtil.onceNotNull(stageProperty, Stage::hide);
         }
         else if (!Config.isGreenfoot()) {
             //setState(Frame.NORMAL);
-            Platform.runLater(() -> {
-                JavaFXUtil.onceNotNull(stageProperty, s -> {
-                    s.show();
-                    Utility.bringToFrontFX(s);
-                });
+
+            JavaFXUtil.onceNotNull(stageProperty, s -> {
+                s.show();
+                Utility.bringToFrontFX(s);
             });
         }
     }
@@ -1304,7 +1299,7 @@ public class PkgMgrFrame
      * Return the project of the package shown by this frame.
      * @return The project of the package shown by this frame
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public synchronized Project getProject()
     {
         return pkg.get() == null ? null : pkg.get().getProject();
@@ -1314,7 +1309,7 @@ public class PkgMgrFrame
      * A call to this should bracket all uses of getPackage() and editor.
      * @return True is this frame is currently empty
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public synchronized boolean isEmptyFrame()
     {
         return pkg.get() == null;
@@ -1412,9 +1407,7 @@ public class PkgMgrFrame
      */
     public void setWaitCursor(boolean wait)
     {
-        Platform.runLater(() -> {
-            stageProperty.getValue().getScene().setCursor(wait ? Cursor.WAIT : null);
-        });
+        stageProperty.getValue().getScene().setCursor(wait ? Cursor.WAIT : null);
     }
 
     /**
@@ -1497,29 +1490,28 @@ public class PkgMgrFrame
                 DebuggerObject gotObj = e.getDebuggerObject();
 
                 String name = getProject().getDebugger().guessNewName(gotObj);
-                Platform.runLater(() -> {
-                    boolean tryAgain = true;
-                    do
-                    {
-                        String newObjectName = e.askForName() ? DialogManager.askStringFX((javafx.stage.Window)e.getSource(),
-                                "getobject-new-name", name) : name;
 
-                        if (newObjectName == null)
-                        {
-                            tryAgain = false; // cancelled
-                        }
-                        else if (JavaNames.isIdentifier(newObjectName))
-                        {
-                            DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
-                            putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord(), e.getAnimateFromScenePoint());
-                            tryAgain = false;
-                        }
-                        else
-                        {
-                            DialogManager.showErrorFX((javafx.stage.Window)e.getSource(), "must-be-identifier");
-                        }
-                    } while (tryAgain);
-                });
+                boolean tryAgain = true;
+                do
+                {
+                    String newObjectName = e.askForName() ? DialogManager.askStringFX((javafx.stage.Window)e.getSource(),
+                            "getobject-new-name", name) : name;
+
+                    if (newObjectName == null)
+                    {
+                        tryAgain = false; // cancelled
+                    }
+                    else if (JavaNames.isIdentifier(newObjectName))
+                    {
+                        DataCollector.benchGet(getPackage(), newObjectName, e.getDebuggerObject().getClassName(), getTestIdentifier());
+                        putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord(), e.getAnimateFromScenePoint());
+                        tryAgain = false;
+                    }
+                    else
+                    {
+                        DialogManager.showErrorFX((javafx.stage.Window)e.getSource(), "must-be-identifier");
+                    }
+                } while (tryAgain);
                 break;
         }
     }
@@ -1629,7 +1621,7 @@ public class PkgMgrFrame
         Package thePkg = getPackage();
         // check whether name is already used
         if (thePkg.getTarget(name) != null) {
-            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "duplicate-name"));
+            DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
             return false;
         }
 
@@ -1639,16 +1631,9 @@ public class PkgMgrFrame
         if (c != null){
             if (! Package.checkClassMatchesFile(c, new File(getPackage().getPath(), name + ".class"))) {
                 conflict[0]=Package.getResourcePath(c);
-                AtomicBoolean shouldContinue = new AtomicBoolean();
-                SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
-                Platform.runLater(() -> {
-                    boolean cont = DialogManager.askQuestionFX(getFXWindow(), "class-library-conflict", conflict) != 0;
-                    shouldContinue.set(cont);
-                    loop.exit();
-                });
-                loop.enter();
+                boolean shouldContinue  = DialogManager.askQuestionFX(getFXWindow(), "class-library-conflict", conflict) != 0;
 
-                if (!shouldContinue.get())
+                if (!shouldContinue)
                     return false;
             }
         }
@@ -1662,16 +1647,14 @@ public class PkgMgrFrame
         }
 
         thePkg.addTarget(target);
-        
-        Platform.runLater(() -> {
-            if (editor != null) {
-                if (x == -1)
-                    editor.findSpaceForVertex(target);
-                else
-                    target.setPos((int)x, (int)y);
-                JavaFXUtil.scrollTo(pkgEditorScrollPane, target.getNode());
-            }
-        });
+
+        if (editor != null) {
+            if (x == -1)
+                editor.findSpaceForVertex(target);
+            else
+                target.setPos((int)x, (int)y);
+            JavaFXUtil.scrollTo(pkgEditorScrollPane, target.getNode());
+        }
 
         if (target.getRole() instanceof UnitTestClassRole) {
             thePkg.compileQuiet(target, CompileReason.NEW_CLASS, CompileType.INDIRECT_USER_COMPILE);
@@ -1704,36 +1687,26 @@ public class PkgMgrFrame
      */
     public void doOpen()
     {
-        Platform.runLater(() -> {
-            File choice = FileUtility.getOpenProjectFX(getFXWindow());
-            if (choice != null)
-            {
-                SwingUtilities.invokeLater(() -> {
-                    PkgMgrFrame.doOpen(choice, this);
-                });
-            }
-        });
+        File choice = FileUtility.getOpenProjectFX(getFXWindow());
+        if (choice != null)
+        {
+            PkgMgrFrame.doOpen(choice, this);
+        }
     }
 
     public void doOpenNonBlueJ()
     {
-        Platform.runLater(() -> {
-            File choice = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.openNonBlueJPkg.title"), true);
-            if (choice != null)
-            {
-                SwingUtilities.invokeLater(() -> {
-                    PkgMgrFrame.doOpenNonBlueJ(choice, this);
-                });
-            }
-        });
+        File choice = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.openNonBlueJPkg.title"), true);
+        if (choice != null)
+        {
+            PkgMgrFrame.doOpenNonBlueJ(choice, this);
+        }
     }
 
     public void doOpenArchive()
     {
-        Platform.runLater(() -> {
-            File archiveFile = FileUtility.getOpenArchiveFX(getFXWindow(), null, true);
-            SwingUtilities.invokeLater(() -> PkgMgrFrame.doOpen(archiveFile, this));
-        });
+        File archiveFile = FileUtility.getOpenArchiveFX(getFXWindow(), null, true);
+        PkgMgrFrame.doOpen(archiveFile, this);
     }
 
     /**
@@ -1769,7 +1742,7 @@ public class PkgMgrFrame
                 {
                     if (Config.isGreenfootStartupProject(pkgMgrFrame.getProject().getProjectDir()))
                     {
-                        Platform.runLater(() -> pkgMgrFrame.doClose(false, false));
+                        pkgMgrFrame.doClose(false, false);
                         break; // Will only be one, and don't want concurrent modification exception
                     }
                 }
@@ -1792,14 +1765,14 @@ public class PkgMgrFrame
         // First confirm the chosen file exists
         if (! absDirName.exists()) {
             // file doesn't exist
-            Platform.runLater(() -> DialogManager.showErrorFX(pmf.getFXWindow(), "file-does-not-exist"));
+            DialogManager.showErrorFX(pmf.getFXWindow(), "file-does-not-exist");
             return;
         }
         
         if (absDirName.isDirectory()) {
             // Check to make sure it's not already a project
             if (Project.isProject(absDirName.getPath())) {
-                Platform.runLater(() -> DialogManager.showErrorFX(pmf.getFXWindow(), "open-non-bluej-already-bluej"));
+                DialogManager.showErrorFX(pmf.getFXWindow(), "open-non-bluej-already-bluej");
                 return;
             }
 
@@ -1861,12 +1834,10 @@ public class PkgMgrFrame
 
         if (frameCount() == 1) {
             if (keepLastFrame && !Config.isGreenfoot()) { // close package, leave frame, but not for greenfoot
-                SwingUtilities.invokeLater(() -> {
-                    closePackage();
-                    testRecordingEnded(); // disable test controls
-                    // Must do it after package has been closed:
-                    Platform.runLater(() -> updateWindow());
-                }); // changes menu items
+                closePackage();
+                testRecordingEnded(); // disable test controls
+                // Must do it after package has been closed:
+                updateWindow();
 
                 // clear the codePad
                 if (codePad != null) {
@@ -1885,11 +1856,8 @@ public class PkgMgrFrame
             }
         }
         else {
-            SwingUtilities.invokeLater(() -> {
-                closePackage();
-                Platform.runLater(() -> PkgMgrFrame.closeFrame(this));
-            }); // remove package and frame
-
+            closePackage();
+            PkgMgrFrame.closeFrame(this);
         }
     }
     
@@ -1954,26 +1922,22 @@ public class PkgMgrFrame
      */
     public void doImport()
     {
-        Platform.runLater(() -> {
-            // prompt for the directory to import from
-            File importDir = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.importPkg.title"), false);
+        // prompt for the directory to import from
+        File importDir = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.importPkg.title"), false);
 
-            if (importDir == null)
-                return;
+        if (importDir == null)
+            return;
 
-            if (!importDir.isDirectory())
-                return;
+        if (!importDir.isDirectory())
+            return;
 
-            SwingUtilities.invokeLater(() -> {
-                // if we are an empty then we shouldn't go on (we shouldn't get
-                // here)
-                if (isEmptyFrame())
-                    return;
+        // if we are an empty then we shouldn't go on (we shouldn't get
+        // here)
+        if (isEmptyFrame())
+            return;
 
-                // recursively copy files from import directory to package directory
-                importProjectDir(importDir, true);
-            });
-        });
+        // recursively copy files from import directory to package directory
+        importProjectDir(importDir, true);
     }
     
     /**
@@ -1981,15 +1945,13 @@ public class PkgMgrFrame
      */
     public void doAddFromFile()
     {
-        Platform.runLater(() -> {
-            // multi selection file dialog that shows .java and .class files
-            List<File> classes = FileUtility.getMultipleFilesFX(getFXWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
+        // multi selection file dialog that shows .java and .class files
+        List<File> classes = FileUtility.getMultipleFilesFX(getFXWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
 
-            if (classes == null || classes.isEmpty())
-                return;
+        if (classes == null || classes.isEmpty())
+            return;
 
-            SwingUtilities.invokeLater(() -> importFromFile(classes));
-        });
+        importFromFile(classes);
     }
 
     /**
@@ -2020,7 +1982,7 @@ public class PkgMgrFrame
             int result = getPackage().importFile(cls);
             if (errorNames.containsKey(result))
             {
-                Platform.runLater(() -> DialogManager.showErrorWithTextFX(getFXWindow(), errorNames.get(result), cls.getName()));
+                DialogManager.showErrorWithTextFX(getFXWindow(), errorNames.get(result), cls.getName());
             }
         }
     }
@@ -2065,9 +2027,9 @@ public class PkgMgrFrame
     /**
      * Preferences menu was chosen.
      */
-    public void showPreferences( )
+    public void showPreferences()
     {
-        Platform.runLater(() -> PrefMgrDialog.showDialog());
+        PrefMgrDialog.showDialog();
     }
 
     /**
@@ -2075,10 +2037,8 @@ public class PkgMgrFrame
      */
     public void aboutBlueJ()
     {
-        Platform.runLater(() -> {
-            AboutBlueJ about = new AboutBlueJ(stageProperty.getValue(), bluej.Boot.BLUEJ_VERSION);
-            about.showAndWait();
-        });
+        AboutBlueJ about = new AboutBlueJ(stageProperty.getValue(), bluej.Boot.BLUEJ_VERSION);
+        about.showAndWait();
     }
 
     /**
@@ -2086,13 +2046,11 @@ public class PkgMgrFrame
      */
     public void showCopyright()
     {
-        Platform.runLater(() -> 
-            DialogManager.showTextFX(getFXWindow(), Arrays.asList(
-                Config.getString("menu.help.copyright.line0"), " ",
-                Config.getString("menu.help.copyright.line1"), Config.getString("menu.help.copyright.line2"),
-                Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4")
-                ).stream().collect(Collectors.joining("\n")))
-        );
+        DialogManager.showTextFX(getFXWindow(), Arrays.asList(
+            Config.getString("menu.help.copyright.line0"), " ",
+            Config.getString("menu.help.copyright.line1"), Config.getString("menu.help.copyright.line2"),
+            Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4")
+            ).stream().collect(Collectors.joining("\n")));
     }
 
     /**
@@ -2131,7 +2089,7 @@ public class PkgMgrFrame
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
                     Project proj = getPackage().getProject();
-                    Platform.runLater(() -> proj.updateInspectors());
+                    proj.updateInspectors();
                     setStatus(Config.getString("pkgmgr.createDone"));
                     
                     // this shouldn't ever happen!! (ajp 5/12/02)
@@ -2171,7 +2129,7 @@ public class PkgMgrFrame
                     setStatus("");
                     getPackage().exceptionMessage(exception);
                     Project proj = getPackage().getProject();
-                    Platform.runLater(() -> proj.updateInspectors());
+                    proj.updateInspectors();
                 }
                 
                 @Override
@@ -2223,7 +2181,7 @@ public class PkgMgrFrame
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
                     Project proj = getPackage().getProject();
-                    Platform.runLater(() -> proj.updateInspectors());
+                    proj.updateInspectors();
                     expressionInformation.setArgumentValues(ir.getArgumentValues());
                     getObjectBench().addInteraction(ir);
 
@@ -2238,10 +2196,9 @@ public class PkgMgrFrame
 
                     Project project = getProject();
                     Package pkg = getPackage();
-                    Platform.runLater(() -> {
-                        project.getResultInspectorInstance(result, name, pkg, ir,
-                            expressionInformation, PkgMgrFrame.this.getFXWindow());
-                    });
+
+                    project.getResultInspectorInstance(result, name, pkg, ir,
+                        expressionInformation, PkgMgrFrame.this.getFXWindow());
                 }
 
                 @Override
@@ -2260,7 +2217,7 @@ public class PkgMgrFrame
                     BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
                     Project proj = getPackage().getProject();
-                    Platform.runLater(() -> proj.updateInspectors());
+                    proj.updateInspectors();
                     getPackage().exceptionMessage(exception);
                 }
                 
@@ -2327,10 +2284,8 @@ public class PkgMgrFrame
     {
         if (target.getRole() instanceof UnitTestClassRole) {
             UnitTestClassRole utcr = (UnitTestClassRole) target.getRole();
-            Platform.runLater(() -> {
-                teamAndTestFoldout.expandedProperty().set(true);
-                utcr.doMakeTestCase(this, target);
-            });
+            teamAndTestFoldout.expandedProperty().set(true);
+            utcr.doMakeTestCase(this, target);
         }
     }
 
@@ -2393,12 +2348,10 @@ public class PkgMgrFrame
      */
     public void doCreateNewCSS(double x, double y)
     {
-        Platform.runLater(() -> {
-            NewCSSDialog dlg = new NewCSSDialog(stageProperty.getValue());
-            Optional<String> fileName = dlg.showAndWait();
+        NewCSSDialog dlg = new NewCSSDialog(stageProperty.getValue());
+        Optional<String> fileName = dlg.showAndWait();
 
-            fileName.ifPresent(name -> SwingUtilities.invokeLater(() -> createNewCSS(name, x, y)));
-        });
+        fileName.ifPresent(name -> createNewCSS(name, x, y));
     }
 
     /**
@@ -2411,12 +2364,10 @@ public class PkgMgrFrame
      */
     public void doCreateNewPackage(double x, double y)
     {
-        Platform.runLater(() -> {
-            NewPackageDialog dlg = new NewPackageDialog(stageProperty.getValue());
-            Optional<String> pkgName = dlg.showAndWait();
+        NewPackageDialog dlg = new NewPackageDialog(stageProperty.getValue());
+        Optional<String> pkgName = dlg.showAndWait();
 
-            pkgName.ifPresent(name -> SwingUtilities.invokeLater(() -> createNewPackage(name, true, x, y)));
-        });
+        pkgName.ifPresent(name -> createNewPackage(name, true, x, y));
     }
     
     /**
@@ -2453,7 +2404,7 @@ public class PkgMgrFrame
         if (basePkg != null) {
             if (basePkg.getTarget(base) != null) {
                 if (showErrDialog)
-                    Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "duplicate-name"));
+                    DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
                 return false;
             }
         }
@@ -2484,7 +2435,7 @@ public class PkgMgrFrame
                 {
                     PackageTarget pt = (PackageTarget) t;
                     if (pt.getQualifiedName().equals(fullName) && x != -1)
-                        Platform.runLater(() -> pt.setPos((int) x, (int) y));
+                        pt.setPos((int) x, (int) y);
                 }
             }
         }
@@ -2496,7 +2447,7 @@ public class PkgMgrFrame
     {
         if (getProject().getTarget(fileName) != null)
         {
-            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "duplicate-name"));
+            DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
             return;
         }
         File cssFile = new File(getPackage().getPath(), fileName);
@@ -2509,7 +2460,7 @@ public class PkgMgrFrame
             Debug.reportError(e);
         }
         Target target = new CSSTarget(getPackage(), cssFile);
-        Platform.runLater(() -> target.setPos((int)x, (int)y));
+        target.setPos((int)x, (int)y);
         
         getPackage().addTarget(target);
     }
@@ -2522,17 +2473,15 @@ public class PkgMgrFrame
     {
         Package pkgFinal = getPackage();
         String pkgId = pkgFinal.getId();
-        Platform.runLater(() -> {
-            if (editor.targetHasFocus())
-            {
-                if (!(doRemoveTargets(pkgFinal) || editor.doRemoveDependency())) {
-                    DialogManager.showErrorFX(getFXWindow(), "no-class-selected");
-                }
+        if (editor.targetHasFocus())
+        {
+            if (!(doRemoveTargets(pkgFinal) || editor.doRemoveDependency())) {
+                DialogManager.showErrorFX(getFXWindow(), "no-class-selected");
             }
-            else if (objbench.objectHasFocus()) { // focus in object bench
-                objbench.removeSelectedObject(pkgId);
-            }
-        });
+        }
+        else if (objbench.objectHasFocus()) { // focus in object bench
+            objbench.removeSelectedObject(pkgId);
+        }
         // Otherwise ignore the command - focus is probably in text eval area
     }
 
@@ -2545,13 +2494,10 @@ public class PkgMgrFrame
         }
         if (askRemoveClass())
         {
-            SwingUtilities.invokeLater(() ->
+            for (Target target : targets)
             {
-                for (Target target : targets)
-                {
-                    target.remove();
-                }
-            });
+                target.remove();
+            }
         }
         return true;
     }
@@ -2568,7 +2514,7 @@ public class PkgMgrFrame
      */
     public void doTest()
     {
-        Platform.runLater(() -> runButton.setDisable(true));
+        runButton.setDisable(true);
 
         List<ClassTarget> l = getPackage().getTestTargets();
 
@@ -2589,7 +2535,7 @@ public class PkgMgrFrame
         Iterator<ClassTarget> it = l.iterator();
         int numTestsFinal = numTests;
         Project projFinal = getProject();
-        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startMultipleTests(projFinal, numTestsFinal));
+        TestDisplayFrame.getTestDisplay().startMultipleTests(projFinal, numTestsFinal);
 
         TestRunnerThread trt = new TestRunnerThread(this, it);
         trt.start();
@@ -2601,10 +2547,8 @@ public class PkgMgrFrame
      */
     public void endTestRun()
     {
-        Platform.runLater(() -> {
-            TestDisplayFrame.getTestDisplay().endMultipleTests();
-            runButton.setDisable(false);
-        });
+        TestDisplayFrame.getTestDisplay().endMultipleTests();
+        runButton.setDisable(false);
     }
 
     /**
@@ -2659,10 +2603,8 @@ public class PkgMgrFrame
      */
     public void testRecordingStarted(String message)
     {
-        Platform.runLater(() -> {
-            testStatusMessage.setText(message);
-            recordingLabel.setDisable(false);
-        });
+        testStatusMessage.setText(message);
+        recordingLabel.setDisable(false);
         endTestRecordAction.setEnabled(true);
         cancelTestRecordAction.setEnabled(true);
 
@@ -2674,10 +2616,8 @@ public class PkgMgrFrame
      */
     private void testRecordingEnded()
     {
-        Platform.runLater(() -> {
-            testStatusMessage.setText("");
-            recordingLabel.setDisable(true);
-        });
+        testStatusMessage.setText("");
+        recordingLabel.setDisable(true);
         endTestRecordAction.setEnabled(false);
         cancelTestRecordAction.setEnabled(false);
 
@@ -2729,7 +2669,7 @@ public class PkgMgrFrame
             }
         }
         else {
-            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "no-class-selected-compile"));
+            DialogManager.showErrorFX(getFXWindow(), "no-class-selected-compile");
         }
     }
 
@@ -2741,17 +2681,15 @@ public class PkgMgrFrame
     {
         Package pkgRef = getPackage();
         BPClassLoader classLoader = getProject().getClassLoader();
-        Platform.runLater(() -> {
-            if (libraryCallDialog == null)
-            {
-                libraryCallDialog = new LibraryCallDialog(getFXWindow(), pkgRef, classLoader);
-            }
-            libraryCallDialog.setResult(null);
-            libraryCallDialog.requestfocus();
-            Optional<CallableView> result = libraryCallDialog.showAndWait();
-            result.ifPresent(viewToCall -> SwingUtilities.invokeLater(() -> {
-                pkgRef.getEditor().raiseMethodCallEvent(pkgRef, viewToCall);
-            }));
+        if (libraryCallDialog == null)
+        {
+            libraryCallDialog = new LibraryCallDialog(getFXWindow(), pkgRef, classLoader);
+        }
+        libraryCallDialog.setResult(null);
+        libraryCallDialog.requestfocus();
+        Optional<CallableView> result = libraryCallDialog.showAndWait();
+        result.ifPresent(viewToCall -> {
+            pkgRef.getEditor().raiseMethodCallEvent(pkgRef, viewToCall);
         });
     }
 
@@ -2762,7 +2700,7 @@ public class PkgMgrFrame
     {
         String message = getPackage().generateDocumentation();
         if (message.length() != 0) {
-            Platform.runLater(() -> DialogManager.showTextFX(getFXWindow(), message));
+            DialogManager.showTextFX(getFXWindow(), message);
         }
     }
 
@@ -2780,12 +2718,12 @@ public class PkgMgrFrame
         Debugger debugger = getProject().getDebugger();
         if (debugger.getStatus() == Debugger.SUSPENDED) {
             setVisible(true);
-            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "stuck-at-breakpoint"));
+            DialogManager.showErrorFX(getFXWindow(), "stuck-at-breakpoint");
             return false;
         }
         else if (debugger.getStatus() == Debugger.RUNNING) {
             setVisible(true);
-            Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "already-executing"));
+            DialogManager.showErrorFX(getFXWindow(), "already-executing");
             return false;
         }
         
@@ -2812,7 +2750,7 @@ public class PkgMgrFrame
      */
     public void updateSharedStatus(boolean shared)
     {
-        Platform.runLater(() -> updateWindow());
+        updateWindow();
     }
 
     /**
@@ -2887,7 +2825,7 @@ public class PkgMgrFrame
                 setStatus(Config.getString("pkgmgr.docuAborted"));
                 break;
             case BlueJEvent.CREATE_VM_FAILED :
-                Platform.runLater(() -> DialogManager.showErrorFX(getFXWindow(), "error-create-vm"));
+                DialogManager.showErrorFX(getFXWindow(), "error-create-vm");
                 break;
         }
     }
@@ -2976,7 +2914,6 @@ public class PkgMgrFrame
         endTestRecordAction.setEnabled(false);
         cancelTestRecordAction.setEnabled(false);
 
-        JLabel dummyContent = new JLabel("");
         // create the left hand side toolbar
         toolPanel = new VBox();
         JavaFXUtil.addStyleClass(toolPanel, "pmf-tools");
@@ -2992,7 +2929,10 @@ public class PkgMgrFrame
         toolPanel.getChildren().add(topButtons);
 
         dummySwingNode = new SwingNode();
-        dummySwingNode.setContent(dummyContent);
+        SwingUtilities.invokeLater(() ->
+        {
+            dummySwingNode.setContent(new JLabel(""));
+        });
         dummySwingNode.setFocusTraversable(false);
         toolPanel.getChildren().add(dummySwingNode);
 
@@ -3128,12 +3068,12 @@ public class PkgMgrFrame
 
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
-            Platform.runLater(() -> showingTextEval.set(true));
+            showingTextEval.set(true);
         }
 
-        Platform.runLater(() -> JavaFXUtil.onceNotNull(stageProperty, stage -> {
+        JavaFXUtil.onceNotNull(stageProperty, stage -> {
             stage.setOnCloseRequest(e -> PkgMgrFrame.this.doClose(false, true));
-        }));
+        });
     }
 
     /**
@@ -3268,10 +3208,10 @@ public class PkgMgrFrame
             // (Otherwise, it will be created during project open.)
             if (frameCount() <= 1)
             {
-                mixedMenu.runAtEnd(() -> Platform.runLater(() -> {
+                mixedMenu.runAtEnd(() -> {
                     FXMenuManager tm = toolsMenuManager.get();
                     SwingUtilities.invokeLater(() -> {tm.addExtensionMenu(null);});
-                }));
+                });
             }
 
             menubar.add(mixedMenu);
@@ -3311,10 +3251,10 @@ public class PkgMgrFrame
             // (Otherwise, it will be created during project open.)
             if (frameCount() <= 1)
             {
-                mixedMenu.runAtEnd(() -> Platform.runLater(() -> {
+                mixedMenu.runAtEnd(() -> {
                     FXMenuManager vm = viewMenuManager.get();
                     SwingUtilities.invokeLater(() -> {vm.addExtensionMenu(null);});
-                }));
+                });
             }
 
             menubar.add(mixedMenu);
@@ -3337,15 +3277,21 @@ public class PkgMgrFrame
             menubar.add(new FXOnlyMenu(menu));
         }
 
-        FXPlatformSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);
-        Platform.runLater(() -> JavaFXUtil.onceNotNull(paneProperty, pane -> {
-            JavaFXUtil.runNowOrLater(() ->
+        // Must go to Swing thread to get any Swing menu items' details
+        SwingUtilities.invokeLater(() ->
+        {
+            FXPlatformSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);
+
+            Platform.runLater(() -> JavaFXUtil.onceNotNull(paneProperty, pane ->
             {
-                MenuBar fxMenuBar = fxMenuBarSupplier.get();
-                fxMenuBar.setUseSystemMenuBar(true);
-                pane.setTop(fxMenuBar);
-            });
-        }));
+                JavaFXUtil.runNowOrLater(() ->
+                {
+                    MenuBar fxMenuBar = fxMenuBarSupplier.get();
+                    fxMenuBar.setUseSystemMenuBar(true);
+                    pane.setTop(fxMenuBar);
+                });
+            }));
+        });
     }
 
     /**
@@ -3358,10 +3304,7 @@ public class PkgMgrFrame
             synchronized (this)
             {
                 PackageEditor pkgEd = pkg.get().getEditor();
-                Platform.runLater(() ->
-                {
-                    pkgEd.clearState();
-                });
+                pkgEd.clearState();
             }
         }
         clearStatus();
@@ -3435,10 +3378,8 @@ public class PkgMgrFrame
             MenuItem item = new MenuItem(projectToOpen);
             recentProjectsMenu.getItems().add(item);
             item.setOnAction(e -> {
-                SwingUtilities.invokeLater(() -> {
-                    if (!openProject(projectToOpen))
-                        setStatus(Config.getString("pkgmgr.error.open"));
-                });
+                if (!openProject(projectToOpen))
+                    setStatus(Config.getString("pkgmgr.error.open"));
             });
         }
     }
@@ -3454,12 +3395,10 @@ public class PkgMgrFrame
             teamActions.setAllDisabled();
         }
 
-        Platform.runLater(() -> {
-            for (Node component : itemsToDisable)
-                component.setDisable(!enable);
-            for (MenuItem component : menuItemsToDisable)
-                component.setDisable(!enable);
-        });
+        for (Node component : itemsToDisable)
+            component.setDisable(!enable);
+        for (MenuItem component : menuItemsToDisable)
+            component.setDisable(!enable);
     
         actionsToDisable.stream().forEach((action) -> {
             action.setEnabled(enable);
@@ -3566,7 +3505,7 @@ public class PkgMgrFrame
 
     void bringToFront()
     {
-        Platform.runLater(() -> Utility.bringToFrontFX(getFXWindow()));
+        Utility.bringToFrontFX(getFXWindow());
     }
 
     // Copied from FXTabbedEditor, only needed until we swap to FX for the whole window:
@@ -3595,7 +3534,7 @@ public class PkgMgrFrame
         if (pkg.get() != null && pkg.get().getEditor() != null)
         {
             PackageEditor pkgEg = pkg.get().getEditor();
-            Platform.runLater(() -> pkgEg.doNewInherits());
+            pkgEg.doNewInherits();
         }
     }
 
@@ -3623,9 +3562,10 @@ public class PkgMgrFrame
         // You must have two targets, one of which must have source code:
         newInheritsAction.setEnabled(numClassTargets >= 2 && numClassTargetsWithSource >= 1);
 
-        Platform.runLater(() -> {
-            getPackage().getEditor().noClassesExistedMessage.setVisible(numClassTargets + numPackagesNested == 0);
-        });
+        if (editor != null)
+        {
+            editor.noClassesExistedMessage.setVisible(numClassTargets + numPackagesNested == 0);
+        }
     }
 
     public void notifySelectionChanged(Collection<Target> curSelection)

@@ -1499,13 +1499,16 @@ public class JavaFXUtil
     {
         private final FXPlatformSupplier<Menu> createFXMenu;
         private final List<JMenuItem> swingItems = new ArrayList<>();
+        @OnThread(value = Tag.Any, requireSynchronized = true)
         private final List<FXPlatformSupplier<MenuItem>> fxItems = new ArrayList<>();
+        @OnThread(value = Tag.Any, requireSynchronized = true)
         private final List<Integer> fxItemIndexes = new ArrayList<>();
         @OnThread(Tag.Swing)
         private int nextIndex = 0;
-        private Runnable atEnd;
+        @OnThread(value = Tag.Any, requireSynchronized = true)
+        private FXPlatformRunnable atEnd;
 
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.Any)
         public FXPlusSwingMenu(FXPlatformSupplier<Menu> createMenu)
         {
             this.createFXMenu = createMenu;
@@ -1529,14 +1532,14 @@ public class JavaFXUtil
                 }
                 if (atEnd != null)
                 {
-                    SwingUtilities.invokeLater(atEnd);
+                    atEnd.run();
                 }
                 return fxMenu;
             };
         }
 
-        @OnThread(Tag.Swing)
-        public void addFX(FXPlatformSupplier<MenuItem> fxItem)
+        @OnThread(Tag.Any)
+        public synchronized void addFX(FXPlatformSupplier<MenuItem> fxItem)
         {
             fxItems.add(fxItem);
             fxItemIndexes.add(nextIndex++);
@@ -1549,8 +1552,8 @@ public class JavaFXUtil
             nextIndex += swingItems.size();
         }
 
-        @OnThread(Tag.Swing)
-        public void runAtEnd(Runnable runnable)
+        @OnThread(Tag.Any)
+        public synchronized void runAtEnd(FXPlatformRunnable runnable)
         {
             atEnd = runnable;
         }
