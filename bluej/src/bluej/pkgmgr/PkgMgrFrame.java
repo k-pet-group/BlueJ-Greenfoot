@@ -113,7 +113,6 @@ import bluej.pkgmgr.actions.OpenNonBlueJAction;
 import bluej.pkgmgr.actions.OpenProjectAction;
 import bluej.pkgmgr.actions.PageSetupAction;
 import bluej.pkgmgr.actions.PkgMgrAction;
-import bluej.pkgmgr.actions.PkgMgrToggleAction;
 import bluej.pkgmgr.actions.PreferencesAction;
 import bluej.pkgmgr.actions.PrintAction;
 import bluej.pkgmgr.actions.QuitAction;
