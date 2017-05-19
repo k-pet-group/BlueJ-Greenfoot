@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javafx.application.Platform;
 import rmiextension.wrappers.event.RProjectListener;
 import bluej.debugger.DebuggerThread;
 import bluej.debugmgr.ExecControls;
@@ -374,7 +375,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
                     Project thisProject = Project.getProject(getBProject().getDir());
                     ExecControls execControls = thisProject.getExecControls();
                     execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
-                    visible = execControls.isVisible();
+                    visible = execControls.showingProperty().get();
                 }
                 catch (ProjectNotOpenException pnoe) {
                     // This is ignorable.
@@ -400,7 +401,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     @Override
     public void toggleExecControls() throws RemoteException 
     {
-        EventQueue.invokeLater(new Runnable() {
+        Platform.runLater(new Runnable() {
             @Override
             public void run()
             {
@@ -408,7 +409,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
                     Project thisProject = Project.getProject(getBProject().getDir());
                     ExecControls execControls = thisProject.getExecControls();
                     execControls.makeSureThreadIsSelected(simulationThread.get());
-                    execControls.toggleVisible();
+                    execControls.showingProperty().set(!execControls.showingProperty().get());
                     execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
                 }
                 catch (ProjectNotOpenException pnoe) {

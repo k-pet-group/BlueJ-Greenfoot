@@ -21,82 +21,6 @@
  */
 package bluej.debugmgr;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
-
-import bluej.debugger.VarDisplayInfo;
-import bluej.pkgmgr.Project.DebuggerThreadDetails;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.javafx.FXAbstractAction;
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.SwingNodeFixed;
-import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingNode;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.SplitPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.ArcTo;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.QuadCurveTo;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.SVGPath;
-import javafx.stage.Stage;
-
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -106,12 +30,56 @@ import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.SourceLocation;
+import bluej.debugger.VarDisplayInfo;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.Project.DebuggerThreadDetails;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
+import bluej.utility.javafx.FXAbstractAction;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SwingNodeFixed;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.embed.swing.SwingNode;
+import javafx.geometry.Orientation;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.SVGPath;
+import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Window for controlling the debugger
@@ -153,27 +121,14 @@ public class ExecControls
 
     // the display for the list of active threads
     private ComboBox<DebuggerThreadDetails> threadList;
-    
-    private JComponent mainPanel;
+
     private ListView<SourceLocation> stackList;
     private ListView<VarDisplayInfo> staticList, localList, instanceList;
     private Button stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
-    private CardLayout cardLayout;
-    private JPanel flipPanel;
-    private JCheckBoxMenuItem systemThreadItem;
 
     // the Project that owns this debugger
     private final Project project;
 
-    // the debug machine this control is looking at
-    private Debugger debugger = null;
-
-    private DebuggerClass currentClass;     // the current class for the
-                                            //  selected stack frame
-    private DebuggerObject currentObject;   // the "this" object for the
-                                            //  selected stack frame
-    private int currentFrame = 0;           // currently selected frame
-    
     // A flag to keep track of whether a stack frame selection was performed
     // explicitly via the gui or as a result of a debugger event
     private boolean autoSelectionEvent = false; 
@@ -183,11 +138,11 @@ public class ExecControls
      * of fields (corresponding value from map)
      */
     private Map<String, Set<String>> restrictedClasses = Collections.emptyMap();
-    @OnThread(Tag.Any)
-    private final AtomicBoolean visible = new AtomicBoolean(false);
-    @OnThread(Tag.FXPlatform)
-    private SimpleBooleanProperty readyToShow;
-    private SimpleBooleanProperty showingProperty = new SimpleBooleanProperty(false);
+
+    private final SimpleBooleanProperty showingProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty hideSystemThreads = new SimpleBooleanProperty(true);
+    private final SimpleBooleanProperty cannotStepOrContinue = new SimpleBooleanProperty(true);
+    private final SimpleBooleanProperty cannotHalt = new SimpleBooleanProperty(true);
 
 
     /**
@@ -203,9 +158,6 @@ public class ExecControls
         }
 
         this.project = project;
-        this.debugger = debugger;
-
-        this.readyToShow = new SimpleBooleanProperty(false);
         this.window = new Stage();
         window.setTitle(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
         BlueJTheme.setWindowIconFX(window);
@@ -224,6 +176,7 @@ public class ExecControls
         BorderPane lhsPane = new BorderPane(labelled(stackList, stackTitle), labelled(threadList, threadTitle), null, null, null);
         JavaFXUtil.addStyleClass(threadList, "debugger-thread-combo");
         JavaFXUtil.addStyleClass(lhsPane, "debugger-thread-and-stack");
+        fxContent.setTop(makeMenuBar());
         fxContent.setCenter(new SplitPane(lhsPane, vars));
         fxContent.setBottom(buttons);
         JavaFXUtil.addStyleClass(fxContent, "debugger");
@@ -234,12 +187,22 @@ public class ExecControls
         Config.rememberPositionAndSize(window, "bluej.debugger");
         window.setOnShown(e -> {
             DataCollector.debuggerChangeVisible(project, true);
-            visible.set(true);
+            showingProperty.set(true);
             //org.scenicview.ScenicView.show(scene);
         });
         window.setOnHidden(e -> {
             DataCollector.debuggerChangeVisible(project, false);
-            visible.set(false);
+            showingProperty.set(false);
+        });
+        // showingProperty should mirror the window state.  Note that it
+        // can be set either externally as a request to show the window,
+        // or internally as an update of the state, so we must be careful
+        // not to end up in an infinite loop:
+        JavaFXUtil.addChangeListenerPlatform(showingProperty, show -> {
+            if (show && !window.isShowing())
+                window.show();
+            else if (!show && window.isShowing())
+                window.hide();
         });
 
     }
@@ -313,27 +276,17 @@ public class ExecControls
 
     private void selectedThreadChanged(DebuggerThreadDetails dt)
     {
-        if (dt == null) {
-            //MOEFX this should all be in bindings:
-            //stopButton.setEnabled(false);
-            //stepButton.setEnabled(false);
-            //stepIntoButton.setEnabled(false);
-            //continueButton.setEnabled(false);
-
-            cardLayout.show(flipPanel, "blank");
+        if (dt == null)
+        {
+            cannotHalt.set(true);
+            cannotStepOrContinue.set(true);
             stackList.getItems().clear();
         }
-        else {
+        else
+        {
             boolean isSuspended = dt.getThread().isSuspended();
-
-            //MOEFX this should all be in bindings:
-            //stopButton.setEnabled(!isSuspended);
-            //stepButton.setEnabled(isSuspended);
-            //stepIntoButton.setEnabled(isSuspended);
-            //continueButton .setEnabled(isSuspended);
-
-            cardLayout.show(flipPanel, isSuspended ? "split" : "blank");
-
+            cannotHalt.set(isSuspended);
+            cannotStepOrContinue.set(!isSuspended);
             setThreadDetails(dt.getThread());
         }
     }
@@ -429,8 +382,6 @@ public class ExecControls
                         selectedThread.getClassSourceName(index),
                         selectedThread.getLineNumber(index));
             }
-            
-            currentFrame = index;
         }
     }
 
@@ -440,8 +391,8 @@ public class ExecControls
      */
     private void setStackFrameDetails(DebuggerThread selectedThread, int frameNo)
     {
-        currentClass = selectedThread.getCurrentClass(frameNo);
-        currentObject = selectedThread.getCurrentObject(frameNo);
+        DebuggerClass currentClass = selectedThread.getCurrentClass(frameNo);
+        DebuggerObject currentObject = selectedThread.getCurrentObject(frameNo);
         if(currentClass != null) {
             List<DebuggerField> fields = currentClass.getStaticFields();
             List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
@@ -482,33 +433,19 @@ public class ExecControls
      */
     private void createWindowContent(ObservableList<DebuggerThreadDetails> debuggerThreads)
     {
-        FXPlatformSupplier<MenuBar> fxMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), this);
-        Platform.runLater(() -> {
-            MenuBar bar = fxMenuBar.get();
-            bar.setUseSystemMenuBar(true);
-            fxContent.getChildren().add(0, bar);
-        });
+        stopButton = new StopAction().makeButton();
+        stepButton = new StepAction().makeButton();
+        stepIntoButton = new StepIntoAction().makeButton();
+        continueButton = new ContinueAction().makeButton();
 
-        JPanel contentPane = new JPanel(new BorderLayout(6,6));
-        contentPane.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
+        // terminate is always on
+        terminateButton = new TerminateAction().makeButton();
 
-        // Create the control button panel
+        stepButton.disableProperty().bind(cannotStepOrContinue);
+        stepIntoButton.disableProperty().bind(cannotStepOrContinue);
+        continueButton.disableProperty().bind(cannotStepOrContinue);
+        stopButton.disableProperty().bind(cannotHalt);
 
-        JPanel buttonBox = new JPanel();
-        if (!Config.isRaspberryPi()) buttonBox.setOpaque(false);
-        {
-            buttonBox.setLayout(new GridLayout(1,0));
-
-            stopButton = makeButton(new StopAction());
-            stepButton = makeButton(new StepAction());
-            stepIntoButton = makeButton(new StepIntoAction());
-            continueButton = makeButton(new ContinueAction());
-
-            // terminate is always on
-            terminateButton = makeButton(new TerminateAction());
-        }
-
-        contentPane.add(buttonBox, BorderLayout.SOUTH);
 
         // create static variable panel
         staticList = makeVarListView();
@@ -527,56 +464,36 @@ public class ExecControls
         JavaFXUtil.addStyleClass(stackList, "debugger-stack");
         stackList.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
         JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> stackFrameSelectionChanged(getSelectedThread(), index.intValue()));
-        JScrollPane stackScrollPane = new JScrollPane();
-        JLabel lbl = new JLabel(stackTitle);
-        if (!Config.isRaspberryPi()) lbl.setOpaque(true);
-        stackScrollPane.setColumnHeaderView(lbl);
+        Label placeholder = new Label(removeHTML(Config.getString("debugger.threadRunning")));
+        placeholder.setTextAlignment(TextAlignment.CENTER);
+        stackList.setPlaceholder(placeholder);
 
 
-        // Create thread panel
-        JPanel threadPanel = new JPanel(new BorderLayout());
-        if (!Config.isRaspberryPi()) threadPanel.setOpaque(false);
-
-        threadList = new ComboBox<>(debuggerThreads);
-        JavaFXUtil.addChangeListenerPlatform(threadList.getSelectionModel().selectedItemProperty(), this::selectedThreadChanged);
-
-        JScrollPane threadScrollPane = new JScrollPane();
-        lbl = new JLabel(threadTitle);
-        if (!Config.isRaspberryPi()) lbl.setOpaque(true);
-        threadScrollPane.setColumnHeaderView(lbl);
-        threadPanel.add(threadScrollPane, BorderLayout.CENTER);
-        //threadPanel.setMinimumSize(new Dimension(100,100));
-
-        flipPanel = new JPanel();
-        if (!Config.isRaspberryPi()) flipPanel.setOpaque(false);
-        {
-            flipPanel.setLayout(cardLayout = new CardLayout());
-
-            JPanel tempPanel = new JPanel();
-            JLabel infoLabel = new JLabel(Config.getString("debugger.threadRunning"));
-            infoLabel.setForeground(Color.gray);
-            tempPanel.add(infoLabel);
-            flipPanel.add(tempPanel, "blank");
-        }
-
-        if (Config.isGreenfoot()) {
-            mainPanel = flipPanel;
-        } else {
-        /* JSplitPane */ mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                              threadPanel, flipPanel);
-            ((JSplitPane)mainPanel).setDividerSize(6);
-            if (!Config.isRaspberryPi()) mainPanel.setOpaque(false);
-        }
-        
-        contentPane.add(mainPanel, BorderLayout.CENTER);
-        swingNode.setContent(contentPane);
-        contentPane.validate();
-        Dimension preferredSize = contentPane.getPreferredSize();
-        Platform.runLater(() -> {
-            fxContent.setPrefWidth(preferredSize.getWidth());
-            fxContent.setPrefHeight(preferredSize.getHeight());
-            readyToShow.set(true);
+        FilteredList<DebuggerThreadDetails> filteredThreads = new FilteredList<>(debuggerThreads, this::showThread);
+        threadList = new ComboBox<>(filteredThreads);
+        // FilteredList doesn't know to recalculate after property changes, so
+        // we have to manually trigger it:
+        JavaFXUtil.addChangeListenerPlatform(hideSystemThreads, sys -> {
+            // Need to make an actual change, so blank then set again:
+            filteredThreads.setPredicate(null);
+            filteredThreads.setPredicate(this::showThread);
         });
+        JavaFXUtil.addChangeListenerPlatform(threadList.getSelectionModel().selectedItemProperty(), this::selectedThreadChanged);
+    }
+
+    // The label is <html><center>...<br>...</html> (silly, really)
+    // so we remove the tags here:
+    private static String removeHTML(String label)
+    {
+        return label.replace("<html>", "").replace("<center>", "").replace("<br>", "\n").replace("</html>", "");
+    }
+
+    private boolean showThread(DebuggerThreadDetails thread)
+    {
+        if (hideSystemThreads.get())
+            return !thread.getThread().isKnownSystemThread();
+        else
+            return true;
     }
 
     private ListView<VarDisplayInfo> makeVarListView()
@@ -592,81 +509,33 @@ public class ExecControls
     /**
      * Create the debugger's menubar, all menus and items.
      */
-    private JMenuBar makeMenuBar()
+    private MenuBar makeMenuBar()
     {
-        JMenuBar menubar = new JMenuBar();
-        JMenu menu = new JMenu(Config.getString("terminal.options"));
+        MenuBar menubar = new MenuBar();
+        menubar.setUseSystemMenuBar(true);
+        Menu menu = new Menu(Config.getString("terminal.options"));
 
         
         if (!Config.isGreenfoot()) {
-            systemThreadItem = new JCheckBoxMenuItem(new HideSystemThreadAction());
-            systemThreadItem.setSelected(true);
-            menu.add(systemThreadItem);
-            menu.add(new JSeparator());
+            MenuItem systemThreadItem = JavaFXUtil.makeCheckMenuItem(Config.getString("debugger.hideSystemThreads"), hideSystemThreads, null);
+            menu.getItems().add(systemThreadItem);
+            menu.getItems().add(new SeparatorMenuItem());
         }
-        //MOEFX
-        //debugger.hideSystemThreads(true);
+        menu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("close"), this::hide, new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN)));
 
-        //MOEFX
-        //menu.add(new CloseAction());
-
-        menubar.add(menu);
+        menubar.getMenus().add(menu);
         return menubar;
     }
-    
-    @OnThread(Tag.Any)
+
     public void show()
     {
-        JavaFXUtil.runNowOrLater(() -> {
-            if (readyToShow.get())
-            {
-                window.show();
-                window.toFront();
-            }
-            else
-                JavaFXUtil.addSelfRemovingListener(readyToShow, t -> show());
-        });
+        window.show();
+        window.toFront();
     }
 
-    @OnThread(Tag.Any)
     public void hide()
     {
-        JavaFXUtil.runNowOrLater(() -> window.hide());
-    }
-    
-    /**
-     * Create a text & image button and add it to a panel.
-     * 
-     * @param action
-     *            The assosciated Action (with text, icon, action, etc).
-     * @param panel
-     *            The panel to add the button to.
-     */
-    private Button makeButton(FXAbstractAction action)
-    {
-        Button button = action.makeButton();
-        //MOEFX
-        //button.setVerticalTextPosition(SwingConstants.BOTTOM);
-        //button.setHorizontalTextPosition(SwingConstants.CENTER);
-        //button.setEnabled(false);
-        return button;
-    }
-
-    @OnThread(Tag.Any)
-    public boolean isVisible()
-    {
-        return visible.get();
-    }
-
-    @OnThread(Tag.Any)
-    public void toggleVisible()
-    {
-        Platform.runLater(() -> {
-            if (window.isShowing())
-                window.hide();
-            else
-                show();
-        });
+        window.hide();
     }
 
     private DebuggerThread getSelectedThread()
@@ -737,7 +606,7 @@ public class ExecControls
             if (selectedThread.isSuspended()) {
                 selectedThread.step();
             }
-            Platform.runLater(() -> project.updateInspectors());
+            project.updateInspectors();
         }
     }
 
@@ -881,23 +750,6 @@ public class ExecControls
         return s;
     }
 
-    /**
-     * Action to enable/disable hiding of system threads. All this action
-     * actually does is toggle an internal flag.
-     */
-    private class HideSystemThreadAction extends AbstractAction
-    {
-        public HideSystemThreadAction()
-        {
-            super(Config.getString("debugger.hideSystemThreads"));
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            //MOEFX
-            //debugger.hideSystemThreads(systemThreadItem.isSelected());
-        }
-    }
-
 
     /**
      * A cell in a list view which has a variable's type, name and value.  (And optionally, access modifier)
@@ -946,6 +798,7 @@ public class ExecControls
             });
         }
 
+        @OnThread(Tag.FXPlatform)
         private void inspect(Project project, Window window, Node sourceNode)
         {
             if (fetchObject.get() != null)
@@ -955,6 +808,7 @@ public class ExecControls
         }
 
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         protected void updateItem(VarDisplayInfo item, boolean empty)
         {
             super.updateItem(item, empty);
