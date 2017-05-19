@@ -37,9 +37,9 @@ import bluej.pkgmgr.Project;
 public class StatusAction extends TeamAction
 {
     /** Creates a new instance of StatusAction */
-    public StatusAction(PkgMgrFrame pmf)
+    public StatusAction()
     {
-        super(pmf, "team.status", false);
+        super("team.status", false);
         shortDescription = Config.getString("tooltip.status");
     }
 

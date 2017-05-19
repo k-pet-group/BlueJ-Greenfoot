@@ -21,13 +21,14 @@
  */
 package bluej.pkgmgr.actions;
 
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-
-import javax.swing.*;
-
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.utility.javafx.FXAbstractAction;
+import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyCombination.Modifier;
 
 /**
  * This class is intended to act as a base class for actions which require
@@ -37,36 +38,29 @@ import bluej.pkgmgr.PkgMgrFrame;
  * It can also set-up an accelerator key.
  * 
  * @author Davin McCall
+ * @author Amjad Altadmri
  */
-public abstract class PkgMgrAction extends AbstractAction
+public abstract class PkgMgrAction extends FXAbstractAction
 {
-        
     // --------- CLASS VARIABLES ----------
 
-    protected static final int SHORTCUT_MASK =
-        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    protected PkgMgrFrame pmf;    
-    
+    protected PkgMgrFrame pmf;
+    //MOEFX what should we do with short description? (Tooltip?)
+    protected String shortDescription;
+
     // --------- INSTANCE METHODS ----------
-    
+
     public PkgMgrAction(PkgMgrFrame pmf, String s)
     {
     	this(pmf, s, false);
     }
-    
+
     public PkgMgrAction(PkgMgrFrame pmf, String s, boolean showsDialog)
-    { 
-        super(Config.getString(s) + (showsDialog ? "..." : "")); 
+    {
+        super(Config.getString(s) + (showsDialog ? "..." : ""), Config.getAcceleratorKeyFX(s));
         this.pmf = pmf;
-        if (!Config.isMacOS()){
-            // Mnemonic keys are against the apple gui guidelines.
-            putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(s)));
-        }
-        if (Config.hasAcceleratorKey(s)){
-            putValue(ACCELERATOR_KEY, Config.getAcceleratorKey(s));
-        }
     }
-    
+
     /**
      * Constructor for an action with an accelerator key. The default shift
      * modifiers are used.
@@ -74,26 +68,22 @@ public abstract class PkgMgrAction extends AbstractAction
      * @param keycode       the keycode of the accelerator key (one of
      *                          KeyEvent.*)
      */
-    public PkgMgrAction(PkgMgrFrame pmf, String s, int keycode)
+    public PkgMgrAction(PkgMgrFrame pmf, String s, KeyCode keycode)
     {
-        super(Config.getString(s));
+        super(Config.getString(s), new KeyCodeCombination(keycode, KeyCombination.SHORTCUT_DOWN));
         this.pmf = pmf;
-        KeyStroke ks = KeyStroke.getKeyStroke(keycode, SHORTCUT_MASK);
-        putValue(ACCELERATOR_KEY, ks);
     }
-    
+
     /**
      * Constructor for an action with an accelerator key, not using the default modifiers.
      * @param s         the untranslated action "name" (menu label)
      * @param keycode       the keycode of the accelerator key (one of KeyEvent.*)
      * @param modifiers     the shift modifiers for the accelerator key (Event.*)
      */
-    public PkgMgrAction(PkgMgrFrame pmf, String s, int keycode, int modifiers)
+    public PkgMgrAction(PkgMgrFrame pmf, String s, KeyCode keycode, Modifier modifiers)
     {
-        super(Config.getString(s));
+        super(Config.getString(s), new KeyCodeCombination(keycode, modifiers));
         this.pmf = pmf;
-        KeyStroke ks = KeyStroke.getKeyStroke(keycode, modifiers);
-        putValue(ACCELERATOR_KEY, ks);
     }
     
     /**
@@ -105,11 +95,20 @@ public abstract class PkgMgrAction extends AbstractAction
 		this.pmf = pmf;
 	}
         
-    final public void actionPerformed(ActionEvent event)
+    @Override
+	public final void actionPerformed()
     {
         actionPerformed(pmf);
     }
         
     public abstract void actionPerformed(PkgMgrFrame pmf);
+
+    @Override
+    public Button makeButton()
+    {
+        // PkgMgrFrame buttons don't take focus:
+        Button b = super.makeButton();
+        b.setFocusTraversable(false);
+        return b;
+    }
 }
-    

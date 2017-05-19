@@ -22,39 +22,45 @@
 package bluej.groupwork.actions;
 
 import bluej.Config;
-import bluej.pkgmgr.actions.FXPkgMgrAction;
+import bluej.pkgmgr.actions.PkgMgrAction;
 import bluej.pkgmgr.PkgMgrFrame;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.MenuItem;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * An abstract class for team actions. 
+ * An abstract class for team actions.
+ *
+ * This is similar to FXAbstractAction but is different in that each
+ * button or menu item is not constructed here, but is instead
+ * adapted with an explicit reference to the PkgMgrFrame
+ * (see useButton, useMenuItem)
  * 
  * @author fisker
  */
-public abstract class TeamAction extends FXPkgMgrAction
+public abstract class TeamAction
 {
-    /**
-     * Constructor for a team action.
-     * 
-     * @param name  The key for the action name (team.xxx.yyy)
-     */
-    public TeamAction(PkgMgrFrame pmf, String name)
-    {
-        this(pmf, Config.getString(name), false);
-    }
-    
+    private final StringProperty name = new SimpleStringProperty();
+    private final BooleanProperty disabled = new SimpleBooleanProperty(false);
+    //MOEFX: What does this do?  Tooltip?
+    protected String shortDescription;
+
     /**
      * Constructor for a team action which shows a dialog. An ellipsis
      * is added to the action text.
      * 
-     * @param name   The key for action text
+     * @param label   The key for action text
      * @param showsDialog  True if an ellipsis should be appended
      */
-    public TeamAction(PkgMgrFrame pmf, String name, boolean showsDialog)
+    public TeamAction(String label, boolean showsDialog)
     {
-        super(pmf, name, showsDialog);
+        setName(Config.getString(label), showsDialog);
     }
 
     /**
@@ -62,8 +68,45 @@ public abstract class TeamAction extends FXPkgMgrAction
      * @param name 
      */
     @OnThread(Tag.FX)
-    public void setName(String name)
+    public void setName(String name, boolean showsDialog)
     {
-    	this.name = name;
+    	this.name.set(showsDialog ? name : (name + "..."));
     }
+
+    public void setEnabled(boolean enabled)
+    {
+        disabled.set(!enabled);
+    }
+
+    /**
+     * Sets the given button to activate this action on click,
+     * and use this action's title and disabled state
+     */
+    public void useButton(PkgMgrFrame pmf, ButtonBase button)
+    {
+        button.textProperty().unbind();
+        button.textProperty().bind(name);
+        button.disableProperty().unbind();
+        button.disableProperty().bind(disabled);
+        button.setOnAction(e -> {
+            actionPerformed(pmf);
+        });
+    }
+
+    /**
+     * Sets the given menu item to activate this action,
+     * and use this action's title and disabled state
+     */
+    public void useMenuItem(PkgMgrFrame pmf, MenuItem menuItem)
+    {
+        menuItem.textProperty().unbind();
+        menuItem.textProperty().bind(name);
+        menuItem.disableProperty().unbind();
+        menuItem.disableProperty().bind(disabled);
+        menuItem.setOnAction(e -> {
+            actionPerformed(pmf);
+        });
+    }
+
+    protected abstract void actionPerformed(PkgMgrFrame pmf);
 }

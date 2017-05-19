@@ -35,9 +35,9 @@ public class UpdateDialogAction extends TeamAction
 {
     private Project project;
     
-    public UpdateDialogAction(PkgMgrFrame pmf)
+    public UpdateDialogAction()
     {
-        super(pmf, "team.update", true);
+        super("team.update", true);
         shortDescription = Config.getString("tooltip.update");
     }
 

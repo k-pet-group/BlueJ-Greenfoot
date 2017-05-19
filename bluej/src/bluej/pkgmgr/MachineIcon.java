@@ -94,7 +94,8 @@ public class MachineIcon extends HBox
         bar.heightProperty().bind(barContainer.heightProperty().subtract(4.0));
         JavaFXUtil.bindPseudoclass(bar, "bj-active", running);
         this.resetAction = resetAction;
-        resetButton = pmf.createButton(this.resetAction, false, true);
+        resetButton = this.resetAction.makeButton();
+        resetButton.setText(null);
         resetButton.setGraphic(drawResetArrow());
         resetButton.setFocusTraversable(false);
         JavaFXUtil.addStyleClass(resetButton, "reset-vm-button");

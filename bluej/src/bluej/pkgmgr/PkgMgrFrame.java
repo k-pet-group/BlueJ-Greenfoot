@@ -21,42 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.Frame;
-import java.awt.SecondaryLoop;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.print.PageFormat;
-import java.awt.print.Paper;
-import java.awt.print.PrinterJob;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import javax.swing.Action;
-import javax.swing.ButtonModel;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
-
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
@@ -86,47 +50,11 @@ import bluej.groupwork.actions.CheckoutAction;
 import bluej.groupwork.actions.CommitCommentAction;
 import bluej.groupwork.actions.ImportAction;
 import bluej.groupwork.actions.StatusAction;
+import bluej.groupwork.actions.TeamAction;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.actions.UpdateDialogAction;
 import bluej.groupwork.ui.ActivityIndicatorFX;
-
-import bluej.pkgmgr.actions.AddClassAction;
-import bluej.pkgmgr.actions.CancelTestRecordAction;
-import bluej.pkgmgr.actions.CheckExtensionsAction;
-import bluej.pkgmgr.actions.CheckVersionAction;
-import bluej.pkgmgr.actions.CloseProjectAction;
-import bluej.pkgmgr.actions.CompileAction;
-import bluej.pkgmgr.actions.CompileSelectedAction;
-import bluej.pkgmgr.actions.EndTestRecordAction;
-import bluej.pkgmgr.actions.ExportProjectAction;
-import bluej.pkgmgr.actions.FXPkgMgrAction;
-import bluej.pkgmgr.actions.GenerateDocsAction;
-import bluej.pkgmgr.actions.HelpAboutAction;
-import bluej.pkgmgr.actions.ImportProjectAction;
-import bluej.pkgmgr.actions.NewCSSAction;
-import bluej.pkgmgr.actions.NewClassAction;
-import bluej.pkgmgr.actions.NewInheritsAction;
-import bluej.pkgmgr.actions.NewPackageAction;
-import bluej.pkgmgr.actions.NewProjectAction;
-import bluej.pkgmgr.actions.OpenArchiveAction;
-import bluej.pkgmgr.actions.OpenNonBlueJAction;
-import bluej.pkgmgr.actions.OpenProjectAction;
-import bluej.pkgmgr.actions.PageSetupAction;
-import bluej.pkgmgr.actions.PkgMgrAction;
-import bluej.pkgmgr.actions.PreferencesAction;
-import bluej.pkgmgr.actions.PrintAction;
-import bluej.pkgmgr.actions.QuitAction;
-import bluej.pkgmgr.actions.RebuildAction;
-import bluej.pkgmgr.actions.RemoveAction;
-import bluej.pkgmgr.actions.RestartVMAction;
-import bluej.pkgmgr.actions.RunTestsAction;
-import bluej.pkgmgr.actions.SaveProjectAction;
-import bluej.pkgmgr.actions.SaveProjectAsAction;
-import bluej.pkgmgr.actions.ShowCopyrightAction;
-import bluej.pkgmgr.actions.StandardAPIHelpAction;
-import bluej.pkgmgr.actions.TutorialAction;
-import bluej.pkgmgr.actions.UseLibraryAction;
-import bluej.pkgmgr.actions.WebsiteAction;
+import bluej.pkgmgr.actions.*;
 import bluej.pkgmgr.print.PackagePrintManager;
 import bluej.pkgmgr.target.CSSTarget;
 import bluej.pkgmgr.target.ClassTarget;
@@ -142,18 +70,18 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXAbstractAction;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.JavaFXUtil.FXOnlyMenu;
 import bluej.utility.javafx.TriangleArrow;
 import bluej.utility.javafx.UntitledCollapsiblePane;
 import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
-
 import javafx.animation.Animation;
 import javafx.animation.FillTransition;
 import javafx.animation.KeyFrame;
@@ -180,17 +108,12 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBase;
-import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -213,6 +136,19 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.print.PageFormat;
+import java.awt.print.Paper;
+import java.awt.print.PrinterJob;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * The main user interface frame which allows editing of packages
@@ -256,7 +192,6 @@ public class PkgMgrFrame
     private int testIdentifier = 0;
     @OnThread(Tag.FX)
     private Menu recentProjectsMenu;
-    private JMenu testingMenu;
     @OnThread(Tag.FXPlatform)
     private final SimpleObjectProperty<FXMenuManager> toolsMenuManager;
     @OnThread(Tag.FXPlatform)
@@ -277,33 +212,33 @@ public class PkgMgrFrame
     private final List<Node> itemsToDisable = new ArrayList<>();
     @OnThread(Tag.FX)
     private final List<MenuItem> menuItemsToDisable = new ArrayList<>();
-    private final List<Action> actionsToDisable = new ArrayList<>();
+    private final List<PkgMgrAction> actionsToDisable = new ArrayList<>();
     @OnThread(Tag.Any)
     private MachineIcon machineIcon;
     /* UI actions */
-    private final Action closeProjectAction = new CloseProjectAction(this);
-    private final Action saveProjectAction = new SaveProjectAction(this);
-    private final Action saveProjectAsAction = new SaveProjectAsAction(this);
-    private final Action importProjectAction = new ImportProjectAction(this);
-    private final Action exportProjectAction = new ExportProjectAction(this);
-    private final Action pageSetupAction = new PageSetupAction(this);
-    private final Action printAction = new PrintAction(this);
+    private final PkgMgrAction closeProjectAction = new CloseProjectAction(this);
+    private final PkgMgrAction saveProjectAction = new SaveProjectAction(this);
+    private final PkgMgrAction saveProjectAsAction = new SaveProjectAsAction(this);
+    private final PkgMgrAction importProjectAction = new ImportProjectAction(this);
+    private final PkgMgrAction exportProjectAction = new ExportProjectAction(this);
+    private final PkgMgrAction pageSetupAction = new PageSetupAction(this);
+    private final PkgMgrAction printAction = new PrintAction(this);
     @OnThread(Tag.Any)
     private final PkgMgrAction newClassAction = new NewClassAction(this);
-    private final Action newPackageAction = new NewPackageAction(this);
-    private final Action newCSSAction = new NewCSSAction(this);
-    private final Action addClassAction = new AddClassAction(this);
-    private final Action removeAction = new RemoveAction(this);
+    private final PkgMgrAction newPackageAction = new NewPackageAction(this);
+    private final PkgMgrAction newCSSAction = new NewCSSAction(this);
+    private final PkgMgrAction addClassAction = new AddClassAction(this);
+    private final PkgMgrAction removeAction = new RemoveAction(this);
     @OnThread(Tag.Any)
     private final PkgMgrAction newInheritsAction = new NewInheritsAction(this);
     @OnThread(Tag.Any)
     private final PkgMgrAction compileAction = new CompileAction(this);
-    private final Action compileSelectedAction = new CompileSelectedAction(this);
-    private final Action rebuildAction = new RebuildAction(this);
+    private final PkgMgrAction compileSelectedAction = new CompileSelectedAction(this);
+    private final PkgMgrAction rebuildAction = new RebuildAction(this);
     @OnThread(Tag.Any)
     private final RestartVMAction restartVMAction = new RestartVMAction(this);
-    private final Action useLibraryAction = new UseLibraryAction(this);
-    private final Action generateDocsAction = new GenerateDocsAction(this);
+    private final PkgMgrAction useLibraryAction = new UseLibraryAction(this);
+    private final PkgMgrAction generateDocsAction = new GenerateDocsAction(this);
     @OnThread(Tag.Any)
     private final PkgMgrAction runTestsAction = new RunTestsAction(this);
     /*
@@ -1233,6 +1168,7 @@ public class PkgMgrFrame
             resetTeamActions();
             
             //update TeamSettings menu items.
+            commitMenuItem.textProperty().unbind();
             if (aPkg.getProject().getTeamSettingsController() != null && aPkg.getProject().getTeamSettingsController().isDVCS()) {
                 commitMenuItem.setText(Config.getString("team.menu.commitPush"));
             } else {
@@ -1247,66 +1183,6 @@ public class PkgMgrFrame
         extMgr.packageOpened(aPkg);
     }
 
-    private Action wrapPkgMgrAction(PkgMgrAction action)
-    {
-    	return new Action() {
-        	@Override
-        	public void actionPerformed(ActionEvent e)
-        	{
-        		action.setFrame(PkgMgrFrame.this);
-        		action.actionPerformed(PkgMgrFrame.this);
-        	}
-        	
-        	@Override
-        	public void addPropertyChangeListener(PropertyChangeListener listener)
-        	{
-        		action.addPropertyChangeListener(listener);
-        	}
-        	
-        	@Override
-        	public void removePropertyChangeListener(PropertyChangeListener listener) {
-        		action.removePropertyChangeListener(listener);
-        	}
-        	
-        	@Override
-        	public Object getValue(String key)
-        	{
-        		return action.getValue(key);
-        	}
-        	
-        	@Override
-        	public void setEnabled(boolean b)
-        	{
-        		action.setEnabled(b);
-        	}
-        	
-        	@Override
-        	public boolean isEnabled()
-        	{
-        		return action.isEnabled();
-        	}
-        	
-        	@Override
-        	public void putValue(String key, Object value)
-        	{
-        		action.putValue(key, value);
-        	}
-        };
-    }
-
-    private FXAbstractAction wrapPkgMgrAction(FXPkgMgrAction action)
-    {
-        return new FXAbstractAction(action.getName(), action.getAccelerator())
-        {
-            @Override
-            public void actionPerformed()
-            {
-                action.setFrame(PkgMgrFrame.this);
-                action.actionPerformed(PkgMgrFrame.this);
-            }
-        };
-    }
-    
     /**
      * Set the team controls to use the team actions for the project.
      */
@@ -1318,29 +1194,24 @@ public class PkgMgrFrame
         // own TeamActionGroup. When a project is opened, the actions from
         // the project then need to be associated with the appropriate controls.
 
-        StatusAction statusAction = teamActions.getStatusAction();
-        UpdateDialogAction updateAction = teamActions.getUpdateAction();
-        CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction();
-        ImportAction shareAction = teamActions.getImportAction();
+        teamActions.getStatusAction().useButton(this, teamStatusButton);
+        teamActions.getUpdateAction().useButton(this, updateButton);
+        teamActions.getCommitCommentAction().useButton(this, commitButton);
+        teamActions.getImportAction().useButton(this, teamShareButton);
 
-        Platform.runLater(() -> {
-            setFXButtonAction(statusAction, teamStatusButton, false);
-            setFXButtonAction(updateAction, updateButton, false);
-            setFXButtonAction(commitCommentAction, commitButton, false);
-            setFXButtonAction(shareAction, teamShareButton, false);
-        });
+        teamActions.getTeamSettingsAction().useMenuItem(this, teamSettingsMenuItem);
+        teamActions.getImportAction().useMenuItem(this, shareProjectMenuItem);
+        teamActions.getStatusAction().useMenuItem(this, statusMenuItem);
 
-        wrapPkgMgrAction(teamActions.getTeamSettingsAction()).prepareMenuItem(teamSettingsMenuItem);
-        wrapPkgMgrAction(teamActions.getImportAction()).prepareMenuItem(shareProjectMenuItem);
-        wrapPkgMgrAction(teamActions.getStatusAction()).prepareMenuItem(statusMenuItem);
+        teamActions.getCommitCommentAction().useMenuItem(this, commitMenuItem);
+        //MOEFX is this needed any more?  Will clash with bind
+        //commitMenuItem.setText(Config.getString("team.menu.commit"));
 
-        wrapPkgMgrAction(teamActions.getCommitCommentAction()).prepareMenuItem(commitMenuItem);
-        commitMenuItem.setText(Config.getString("team.menu.commit"));
+        teamActions.getUpdateAction().useMenuItem(this, updateMenuItem);
+        //MOEFX is this needed any more?  Will clash with bind
+        //updateMenuItem.setText(Config.getString("team.menu.update"));
 
-        wrapPkgMgrAction(teamActions.getUpdateAction()).prepareMenuItem(updateMenuItem);
-        updateMenuItem.setText(Config.getString("team.menu.update"));
-
-        wrapPkgMgrAction(teamActions.getShowLogAction()).prepareMenuItem(showLogMenuItem);
+        teamActions.getShowLogAction().useMenuItem(this, showLogMenuItem);
     }
 
     /**
@@ -3106,153 +2977,154 @@ public class PkgMgrFrame
         cancelTestRecordAction.setEnabled(false);
 
         JLabel dummyContent = new JLabel("");
-        Platform.runLater(() -> {
-            // create the left hand side toolbar
-            toolPanel = new VBox();
-            JavaFXUtil.addStyleClass(toolPanel, "pmf-tools");
-            
-            VBox topButtons = new VBox();
-            JavaFXUtil.addStyleClass(topButtons, "pmf-tools-top");
-            ButtonBase button = createButton(newClassAction, false, false);
-            topButtons.getChildren().add(button);
-            imgExtendsButton = createButton(newInheritsAction, false, true);
-            imgExtendsButton.setText(null);
-            imgExtendsButton.setGraphic(new ImageView(Config.getImageAsFXImage("image.build.extends")));
-            topButtons.getChildren().add(imgExtendsButton);
-            button = createButton(compileAction, false, false);
-            topButtons.getChildren().add(button);
-            toolPanel.getChildren().add(topButtons);
+        // create the left hand side toolbar
+        toolPanel = new VBox();
+        JavaFXUtil.addStyleClass(toolPanel, "pmf-tools");
 
-            dummySwingNode = new SwingNode();
-            dummySwingNode.setContent(dummyContent);
-            dummySwingNode.setFocusTraversable(false);
-            toolPanel.getChildren().add(dummySwingNode);
-            
-            Pane space = new Pane();
-            VBox.setVgrow(space, Priority.ALWAYS);
-            toolPanel.getChildren().add(space);
-            
-            testPanel = new TitledPane();
-            testPanel.setFocusTraversable(false);
-            JavaFXUtil.addStyleClass(testPanel, "pmf-tools-test");
-            testPanel.setText(Config.getString("pkgmgr.test.title"));
-            VBox testPanelItems = new VBox();
-            JavaFXUtil.addStyleClass(testPanelItems, "pmf-tools-test-items");
-            testPanel.setContent(testPanelItems);
-            runButton = createButton(runTestsAction, false, false);
-            runButton.setText(Config.getString("pkgmgr.test.run"));
-            testPanelItems.getChildren().add(runButton);
+        VBox topButtons = new VBox();
+        JavaFXUtil.addStyleClass(topButtons, "pmf-tools-top");
+        topButtons.getChildren().add(newClassAction.makeButton());
+        imgExtendsButton = newInheritsAction.makeButton();
+        imgExtendsButton.setText(null);
+        imgExtendsButton.setGraphic(new ImageView(Config.getImageAsFXImage("image.build.extends")));
+        topButtons.getChildren().add(imgExtendsButton);
+        topButtons.getChildren().add(compileAction.makeButton());
+        toolPanel.getChildren().add(topButtons);
 
-            Shape recordingIcon = new Ellipse(7.0, 7.0);
-            recordingIcon.setFill(Color.RED);
-            recordingLabel = new Label(Config.getString("pkgmgr.test.record"), recordingIcon);
-            recordingLabel.disabledProperty().addListener(new ChangeListener<Boolean>()
+        dummySwingNode = new SwingNode();
+        dummySwingNode.setContent(dummyContent);
+        dummySwingNode.setFocusTraversable(false);
+        toolPanel.getChildren().add(dummySwingNode);
+
+        Pane space = new Pane();
+        VBox.setVgrow(space, Priority.ALWAYS);
+        toolPanel.getChildren().add(space);
+
+        testPanel = new TitledPane();
+        testPanel.setFocusTraversable(false);
+        JavaFXUtil.addStyleClass(testPanel, "pmf-tools-test");
+        testPanel.setText(Config.getString("pkgmgr.test.title"));
+        VBox testPanelItems = new VBox();
+        JavaFXUtil.addStyleClass(testPanelItems, "pmf-tools-test-items");
+        testPanel.setContent(testPanelItems);
+        runButton = runTestsAction.makeButton();
+        runButton.setText(Config.getString("pkgmgr.test.run"));
+        testPanelItems.getChildren().add(runButton);
+
+        Shape recordingIcon = new Ellipse(7.0, 7.0);
+        recordingIcon.setFill(Color.RED);
+        recordingLabel = new Label(Config.getString("pkgmgr.test.record"), recordingIcon);
+        recordingLabel.disabledProperty().addListener(new ChangeListener<Boolean>()
+        {
+            private Animation pulseAnimation;
+
+            @Override
+            @OnThread(Tag.FX)
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
             {
-                private Animation pulseAnimation;
-
-                @Override
-                @OnThread(Tag.FX)
-                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+                if (pulseAnimation != null)
                 {
-                    if (pulseAnimation != null)
-                    {
-                        pulseAnimation.stop();
-                        pulseAnimation = null;
-                    }
-
-                    if (newValue == false) // enabled
-                    {
-                        pulseAnimation = new FillTransition(Duration.millis(2000), recordingIcon, new Color(1.0, 0.2, 0.2, 1.0), Color.DARKRED);
-                        pulseAnimation.setAutoReverse(true);
-                        pulseAnimation.setCycleCount(Animation.INDEFINITE);
-                        pulseAnimation.playFromStart();
-                    }
-                    else
-                    {
-                        recordingIcon.setFill(Color.DARKGRAY);
-                    }
+                    pulseAnimation.stop();
+                    pulseAnimation = null;
                 }
-            });
-            recordingLabel.setDisable(true);
-            testPanelItems.getChildren().add(recordingLabel);
 
-            ButtonBase endTestButton = createButton(endTestRecordAction, false, false);
-            //make the button use a different label than the one from
-            // action:
-            endTestButton.setText(Config.getString("pkgmgr.test.end"));
-
-            testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(endTestButton), "pmf-tools-test-recording-button"));
-
-            ButtonBase cancelTestButton = createButton(cancelTestRecordAction, false, false);
-            //make the button use a different label than the one from
-            // action
-            cancelTestButton.setText(Config.getString("cancel"));
-
-            testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(cancelTestButton), "pmf-tools-test-recording-button"));
-
-            //testItems.add(testPanel);
-
-            teamPanel = new TitledPane();
-            teamPanel.setFocusTraversable(false);
-            teamPanel.setText(Config.getString("pkgmgr.team.title"));
-            JavaFXUtil.addStyleClass(teamPanel, "pmf-tools-team");
-            VBox teamPanelItemsOnceShared = new VBox();
-            JavaFXUtil.addStyleClass(teamPanelItemsOnceShared, "pmf-tools-team-items");
-            teamPanelItemsOnceShared.setPickOnBounds(false);
-            VBox teamPanelItemsUnshared = new VBox();
-            JavaFXUtil.addStyleClass(teamPanelItemsUnshared, "pmf-tools-team-items");
-            teamPanelItemsUnshared.setPickOnBounds(false);
-            teamPanel.setContent(new StackPane(teamPanelItemsUnshared, teamPanelItemsOnceShared));
-            
-            updateButton = createFXButton(updateAction, false, false);
-            updateButton.visibleProperty().bind(updateButton.disableProperty().not());
-            teamPanelItemsOnceShared.getChildren().add(updateButton);
-            
-            commitButton = createFXButton(commitCommentAction, false, false);
-            commitButton.visibleProperty().bind(commitButton.disableProperty().not());
-            teamPanelItemsOnceShared.getChildren().add(commitButton);
-            
-            teamStatusButton = createFXButton(statusAction, false, false);
-            teamStatusButton.visibleProperty().bind(teamStatusButton.disableProperty().not());
-            teamPanelItemsOnceShared.getChildren().add(teamStatusButton);
-
-            teamShareButton = createFXButton(shareAction, false, false);
-            teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
-            teamPanelItemsUnshared.getChildren().add(teamShareButton);
-            teamShareButton.setText(Config.getString("team.import.short"));
-
-            // Don't reserve space for all three once-shared buttons if we are not yet shared:
-            teamShowSharedButtons = teamShareButton.disableProperty().and(teamStatusButton.disableProperty().not());
-            teamPanelItemsOnceShared.managedProperty().bind(teamShowSharedButtons);
-
-
-            VBox foldout = new VBox(teamPanel, testPanel);
-            teamPanel.setCollapsible(false);
-            teamPanel.setExpanded(true);
-            testPanel.setCollapsible(false);
-            testPanel.setExpanded(true);
-            teamAndTestFoldout = new UntitledCollapsiblePane(foldout, ArrowLocation.TOP, !PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS) && !PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS)) {
-                @Override
-                @OnThread(Tag.FX)
-                protected double computeMinHeight(double width)
+                if (newValue == false) // enabled
                 {
-                    return TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding;
+                    pulseAnimation = new FillTransition(Duration.millis(2000), recordingIcon, new Color(1.0, 0.2, 0.2, 1.0), Color.DARKRED);
+                    pulseAnimation.setAutoReverse(true);
+                    pulseAnimation.setCycleCount(Animation.INDEFINITE);
+                    pulseAnimation.playFromStart();
                 }
-            };
-            JavaFXUtil.addStyleClass(foldout, "team-test-foldout-content");
-            teamAndTestFoldout.addArrowWrapperStyleClass("pmf-triangle-foldout-wrapper");
-            // When the user toggles the pane, we record that as the new preference.
-            // But we deliberately don't toggle the pane when the preference changes;
-            // each PkgMgrFrame is independent while showing, but we store the last user-triggered
-            // state as the future default.
-            JavaFXUtil.addChangeListener(teamAndTestFoldout.expandedProperty(), expanded -> {
-                PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, expanded);
-                PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, expanded);
-            });
-            toolPanel.getChildren().add(teamAndTestFoldout);
-            machineIcon = new MachineIcon(this, restartVMAction);
-            itemsToDisable.add(machineIcon);
+                else
+                {
+                    recordingIcon.setFill(Color.DARKGRAY);
+                }
+            }
         });
+        recordingLabel.setDisable(true);
+        testPanelItems.getChildren().add(recordingLabel);
+
+        ButtonBase endTestButton = endTestRecordAction.makeButton();
+        //make the button use a different label than the one from
+        // action:
+        endTestButton.setText(Config.getString("pkgmgr.test.end"));
+
+        testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(endTestButton), "pmf-tools-test-recording-button"));
+
+        ButtonBase cancelTestButton = cancelTestRecordAction.makeButton();
+        //make the button use a different label than the one from
+        // action
+        cancelTestButton.setText(Config.getString("cancel"));
+
+        testPanelItems.getChildren().add(JavaFXUtil.withStyleClass(new VBox(cancelTestButton), "pmf-tools-test-recording-button"));
+
+        //testItems.add(testPanel);
+
+        teamPanel = new TitledPane();
+        teamPanel.setFocusTraversable(false);
+        teamPanel.setText(Config.getString("pkgmgr.team.title"));
+        JavaFXUtil.addStyleClass(teamPanel, "pmf-tools-team");
+        VBox teamPanelItemsOnceShared = new VBox();
+        JavaFXUtil.addStyleClass(teamPanelItemsOnceShared, "pmf-tools-team-items");
+        teamPanelItemsOnceShared.setPickOnBounds(false);
+        VBox teamPanelItemsUnshared = new VBox();
+        JavaFXUtil.addStyleClass(teamPanelItemsUnshared, "pmf-tools-team-items");
+        teamPanelItemsUnshared.setPickOnBounds(false);
+        teamPanel.setContent(new StackPane(teamPanelItemsUnshared, teamPanelItemsOnceShared));
+
+        updateButton = new Button();
+        updateAction.useButton(this, updateButton);
+        updateButton.visibleProperty().bind(updateButton.disableProperty().not());
+        teamPanelItemsOnceShared.getChildren().add(updateButton);
+
+        commitButton = new Button();
+        commitCommentAction.useButton(this, commitButton);
+        commitButton.visibleProperty().bind(commitButton.disableProperty().not());
+        teamPanelItemsOnceShared.getChildren().add(commitButton);
+
+        teamStatusButton = new Button();
+        statusAction.useButton(this, teamStatusButton);
+        teamStatusButton.visibleProperty().bind(teamStatusButton.disableProperty().not());
+        teamPanelItemsOnceShared.getChildren().add(teamStatusButton);
+
+        teamShareButton = new Button();
+        shareAction.useButton(this, teamShareButton);
+        teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
+        teamPanelItemsUnshared.getChildren().add(teamShareButton);
+        teamShareButton.textProperty().unbind();
+        teamShareButton.setText(Config.getString("team.import.short"));
+
+        // Don't reserve space for all three once-shared buttons if we are not yet shared:
+        teamShowSharedButtons = teamShareButton.disableProperty().and(teamStatusButton.disableProperty().not());
+        teamPanelItemsOnceShared.managedProperty().bind(teamShowSharedButtons);
+
+
+        VBox foldout = new VBox(teamPanel, testPanel);
+        teamPanel.setCollapsible(false);
+        teamPanel.setExpanded(true);
+        testPanel.setCollapsible(false);
+        testPanel.setExpanded(true);
+        teamAndTestFoldout = new UntitledCollapsiblePane(foldout, ArrowLocation.TOP, !PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS) && !PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS)) {
+            @Override
+            @OnThread(Tag.FX)
+            protected double computeMinHeight(double width)
+            {
+                return TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding;
+            }
+        };
+        JavaFXUtil.addStyleClass(foldout, "team-test-foldout-content");
+        teamAndTestFoldout.addArrowWrapperStyleClass("pmf-triangle-foldout-wrapper");
+        // When the user toggles the pane, we record that as the new preference.
+        // But we deliberately don't toggle the pane when the preference changes;
+        // each PkgMgrFrame is independent while showing, but we store the last user-triggered
+        // state as the future default.
+        JavaFXUtil.addChangeListener(teamAndTestFoldout.expandedProperty(), expanded -> {
+            PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, expanded);
+            PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, expanded);
+        });
+        toolPanel.getChildren().add(teamAndTestFoldout);
+        machineIcon = new MachineIcon(this, restartVMAction);
+        itemsToDisable.add(machineIcon);
 
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
@@ -3265,97 +3137,6 @@ public class PkgMgrFrame
     }
 
     /**
-     * Create a button for the interface.
-     * 
-     * @param action
-     *            the Action abstraction dictating text, icon, tooltip, action.
-     * @param toggle
-     *            true if this is a toggle button, false otherwise
-     * @return the new button
-     */
-    @OnThread(Tag.FXPlatform)
-    public ButtonBase createButton(PkgMgrAction action, boolean toggle, boolean noText)
-    {
-        ButtonBase button = prepareButton(toggle);
-        setButtonAction(action, button, noText);
-        return button;
-    }
-
-    /**
-     * A FX temporary replacement: Creating a button for the interface.
-     *
-     * @param action
-     *            the Action abstraction dictating text, icon, tooltip, action.
-     * @param toggle
-     *            true if this is a toggle button, false otherwise
-     * @return the new button
-     */
-    @OnThread(Tag.FX)
-    public ButtonBase createFXButton(FXPkgMgrAction action, boolean toggle, boolean noText)
-    {
-        ButtonBase button = prepareButton(toggle);
-        setFXButtonAction(action, button, noText);
-        return button;
-    }
-
-    private ButtonBase prepareButton(boolean toggle)
-    {
-        ButtonBase button;
-        if (toggle) {
-            button = new ToggleButton();
-        }
-        else {
-            button = new Button();
-        }
-        button.setFocusTraversable(false); // buttons shouldn't get focus
-        return button;
-    }
-
-    @OnThread(Tag.FXPlatform)
-    private void setButtonAction(PkgMgrAction action, ButtonBase button, boolean noText)
-    {
-        SwingUtilities.invokeLater(() ->
-        {
-            String name = (String) action.getValue(Action.NAME);
-            boolean startEnabled = action.isEnabled();
-            action.addPropertyChangeListener(c -> {
-                if (c.getPropertyName().equals("enabled"))
-                {
-                    boolean enabled = action.isEnabled();
-                    Platform.runLater(() -> button.setDisable(!enabled));
-                }
-            });
-            Platform.runLater(() ->
-            {
-                if (!noText && (button.getText() == null || button.getText().isEmpty()))
-                    button.setText(name);
-                button.setDisable(!startEnabled);
-            });
-        });
-        button.setOnAction(e -> {
-            action.setFrame(this);
-            action.actionPerformed(this);
-        });
-    }
-
-    /**
-     * A FX replacement method for setButtonAction
-     * @param action
-     * @param noText
-     */
-    @OnThread(Tag.FXPlatform)
-    private void setFXButtonAction(FXPkgMgrAction action, ButtonBase button, boolean noText)
-    {
-        action.setButtonAction(button);
-        button.setOnAction(e -> {
-            action.setFrame(this);
-            action.actionPerformed();
-        });
-        if (!noText && (button.getText() == null || button.getText().isEmpty()))
-            button.setText(action.getName());
-    }
-    
-    /**
      * setupMenus - Create the menu bar
      */
     private void setupMenus()
@@ -3363,50 +3144,47 @@ public class PkgMgrFrame
         List<JavaFXUtil.SwingOrFXMenu> menubar = new ArrayList<>();
         
         {
-            JavaFXUtil.FXPlusSwingMenu menu = new JavaFXUtil.FXPlusSwingMenu(() -> new Menu(Config.getString("menu.package")));
-            menubar.add(menu);
-            createMenuItem(new NewProjectAction(this), menu);
-            createMenuItem(new OpenProjectAction(this), menu);
-            menu.addFX(() -> {
-                recentProjectsMenu = new Menu(Config.getString("menu.package.openRecent"));
-                recentProjectsMenu.setOnShowing(e -> updateRecentProjects());
-                // Must update once now or else menu is empty, in which case the on-showing
-                // action never gets triggered:
-                updateRecentProjects();
-                return recentProjectsMenu;
-            });
-            createMenuItem(new OpenNonBlueJAction(this), menu);
-            createMenuItem(new OpenArchiveAction(this), menu);
-            createMenuItem(closeProjectAction, menu);
-            createMenuItem(saveProjectAction, menu);
-            createMenuItem(saveProjectAsAction, menu);
-            menu.addFX(SeparatorMenuItem::new);
+            Menu menu = new Menu(Config.getString("menu.package"));
+            menubar.add(new FXOnlyMenu(menu));
+            menu.getItems().add(new NewProjectAction(this).makeMenuItem());
+            menu.getItems().add(new OpenProjectAction(this).makeMenuItem());
+            recentProjectsMenu = new Menu(Config.getString("menu.package.openRecent"));
+            recentProjectsMenu.setOnShowing(e -> updateRecentProjects());
+            // Must update once now or else menu is empty, in which case the on-showing
+            // action never gets triggered:
+            updateRecentProjects();
+            menu.getItems().add(recentProjectsMenu);
+            menu.getItems().add(new OpenNonBlueJAction(this).makeMenuItem());
+            menu.getItems().add(new OpenArchiveAction(this).makeMenuItem());
+            menu.getItems().add(closeProjectAction.makeMenuItem());
+            menu.getItems().add(saveProjectAction.makeMenuItem());
+            menu.getItems().add(saveProjectAsAction.makeMenuItem());
+            menu.getItems().add(new SeparatorMenuItem());
 
-            createMenuItem(importProjectAction, menu);
-            createMenuItem(exportProjectAction, menu);
-            menu.addFX(SeparatorMenuItem::new);
+            menu.getItems().add(importProjectAction.makeMenuItem());
+            menu.getItems().add(exportProjectAction.makeMenuItem());
+            menu.getItems().add(new SeparatorMenuItem());
 
-            createMenuItem(pageSetupAction, menu);
-            createMenuItem(printAction, menu);
+            menu.getItems().add(pageSetupAction.makeMenuItem());
+            menu.getItems().add(printAction.makeMenuItem());
 
             if (!Config.usingMacScreenMenubar()) { // no "Quit" here for Mac
-                menu.addFX(SeparatorMenuItem::new);
-                createMenuItem(new QuitAction(this), menu);
+                menu.getItems().add(new SeparatorMenuItem());
+                menu.getItems().add(new QuitAction(this).makeMenuItem());
             }
         }
 
         {
-            JMenu menu = new JMenu(Config.getString("menu.edit"));
-            menu.setMnemonic(Config.getMnemonicKey("menu.edit"));
-            menubar.add(new JavaFXUtil.SwingMenu(menu));
-            createMenuItem(newClassAction, menu);
-            createMenuItem(newPackageAction, menu);
-            createMenuItem(newCSSAction, menu);
-            createMenuItem(addClassAction, menu);
-            createMenuItem(removeAction, menu);
-            menu.addSeparator();
+            Menu menu = new Menu(Config.getString("menu.edit"));
+            menubar.add(new FXOnlyMenu(menu));
+            menu.getItems().add(newClassAction.makeMenuItem());
+            menu.getItems().add(newPackageAction.makeMenuItem());
+            menu.getItems().add(newCSSAction.makeMenuItem());
+            menu.getItems().add(addClassAction.makeMenuItem());
+            menu.getItems().add(removeAction.makeMenuItem());
+            menu.getItems().add(new SeparatorMenuItem());
 
-            createMenuItem(newInheritsAction, menu);
+            menu.getItems().add(newInheritsAction.makeMenuItem());
         }
 
         ExtensionsManager extMgr = ExtensionsManager.getInstance();
@@ -3422,47 +3200,50 @@ public class PkgMgrFrame
                 return fxMenu;
             });
 
-            List<JMenuItem> swingItems = new ArrayList<>();
-            swingItems.add(new JMenuItem(compileAction));
-            swingItems.add(new JMenuItem(compileSelectedAction));
-            swingItems.add(new JMenuItem(rebuildAction));
-            swingItems.add(new JMenuItem(restartVMAction));
-            mixedMenu.addSwing(swingItems);
+            mixedMenu.addFX(compileAction::makeMenuItem);
+            mixedMenu.addFX(compileSelectedAction::makeMenuItem);
+            mixedMenu.addFX(rebuildAction::makeMenuItem);
+            mixedMenu.addFX(restartVMAction::makeMenuItem);
             mixedMenu.addFX(SeparatorMenuItem::new);
 
-            swingItems.clear();
-            swingItems.add(new JMenuItem(useLibraryAction));
-            swingItems.add(new JMenuItem(generateDocsAction));
+            mixedMenu.addFX(useLibraryAction::makeMenuItem);
+            mixedMenu.addFX(generateDocsAction::makeMenuItem);
 
-            testingMenu = new JMenu(Config.getString("menu.tools.testing"));
-            testingMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
+            Menu testingMenu = new Menu(Config.getString("menu.tools.testing"));
             {
-                createMenuItem(runTestsAction, testingMenu);
-                createMenuItem(endTestRecordAction, testingMenu);
-                createMenuItem(cancelTestRecordAction, testingMenu);
+                testingMenu.getItems().add(runTestsAction.makeMenuItem());
+                testingMenu.getItems().add(endTestRecordAction.makeMenuItem());
+                testingMenu.getItems().add(cancelTestRecordAction.makeMenuItem());
             }
-            swingItems.add(testingMenu);
-
-            mixedMenu.addSwing(swingItems);
-            swingItems.clear();
+            mixedMenu.addFX(() -> testingMenu);
 
             //team menu setup
             teamMenu = new Menu(Config.getString("menu.tools.teamwork"));
 //            teamMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
             {
-                FXAbstractAction checkoutAction = new CheckoutAction(this);
-                shareProjectMenuItem = teamActions.getImportAction().makeMenuItem();
+                TeamAction checkoutAction = new CheckoutAction();
+                MenuItem checkoutMenuItem = new MenuItem();
+                checkoutAction.useMenuItem(this, checkoutMenuItem);
+                shareProjectMenuItem = new MenuItem();
+                teamActions.getImportAction().useMenuItem(this, shareProjectMenuItem);
 
-                updateMenuItem = teamActions.getUpdateAction().makeMenuItem();
-                updateMenuItem.setText(Config.getString("team.menu.update"));
-                commitMenuItem = teamActions.getCommitCommentAction().makeMenuItem();
-                commitMenuItem.setText(Config.getString("team.menu.commit"));
-                statusMenuItem = teamActions.getStatusAction().makeMenuItem();
-                showLogMenuItem = teamActions.getShowLogAction().makeMenuItem();
+                updateMenuItem = new MenuItem();
+                teamActions.getUpdateAction().useMenuItem(this, updateMenuItem);
+                //MOEFX is this needed any more?  Will clash with binding
+                //updateMenuItem.setText(Config.getString("team.menu.update"));
+                commitMenuItem = new MenuItem();
+                teamActions.getCommitCommentAction().useMenuItem(this, commitMenuItem);
+                //MOEFX is this needed any more?  Will clash with binding
+                //commitMenuItem.setText(Config.getString("team.menu.commit"));
+                statusMenuItem = new MenuItem();
+                teamActions.getStatusAction().useMenuItem(this, statusMenuItem);
+                showLogMenuItem = new MenuItem();
+                teamActions.getShowLogAction().useMenuItem(this, showLogMenuItem);
 
-                teamSettingsMenuItem = teamActions.getTeamSettingsAction().makeMenuItem();
+                teamSettingsMenuItem = new MenuItem();
+                teamActions.getTeamSettingsAction().useMenuItem(this, teamSettingsMenuItem);
 
-                teamMenu.getItems().addAll(checkoutAction.makeMenuItem(),
+                teamMenu.getItems().addAll(checkoutMenuItem,
                         shareProjectMenuItem,
                         new SeparatorMenuItem(),
                         updateMenuItem,
@@ -3479,8 +3260,7 @@ public class PkgMgrFrame
             if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
                                                    // Mac
                 mixedMenu.addFX(SeparatorMenuItem::new);
-                swingItems.add(new JMenuItem(new PreferencesAction(this)));
-                mixedMenu.addSwing(swingItems);
+                mixedMenu.addFX(() -> new PreferencesAction(this).makeMenuItem());
             }
 
             // If this is the first frame create the extension tools menu now.
@@ -3541,21 +3321,20 @@ public class PkgMgrFrame
         }
 
         {
-            JMenu menu = new JMenu(Config.getString("menu.help"));
-            menu.setMnemonic(Config.getMnemonicKey("menu.help"));
-            menubar.add(new JavaFXUtil.SwingMenu(menu));
+            Menu menu = new Menu(Config.getString("menu.help"));
             if (!Config.usingMacScreenMenubar()) { // no "About" here for Mac
-                createMenuItem(new HelpAboutAction(this), menu);
+                menu.getItems().add(new HelpAboutAction(this).makeMenuItem());
             }
-            createMenuItem(new CheckVersionAction(this), menu);
-            createMenuItem(new CheckExtensionsAction(this), menu);
-            createMenuItem(new ShowCopyrightAction(this), menu);
-            menu.addSeparator();
+            menu.getItems().add(new CheckVersionAction(this).makeMenuItem());
+            menu.getItems().add(new CheckExtensionsAction(this).makeMenuItem());
+            menu.getItems().add(new ShowCopyrightAction(this).makeMenuItem());
+            menu.getItems().add(new SeparatorMenuItem());
 
-            createMenuItem(new WebsiteAction(this), menu);
-            createMenuItem(new TutorialAction(this), menu);
-            createMenuItem(new StandardAPIHelpAction(this), menu);
+            menu.getItems().add(new WebsiteAction(this).makeMenuItem());
+            menu.getItems().add(new TutorialAction(this).makeMenuItem());
+            menu.getItems().add(new StandardAPIHelpAction(this).makeMenuItem());
             addUserHelpItems(menu);
+            menubar.add(new FXOnlyMenu(menu));
         }
 
         FXPlatformSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);
@@ -3568,52 +3347,6 @@ public class PkgMgrFrame
             });
         }));
     }
-
-    /**
-     * Add a new menu item to a menu.
-     */
-    private static JMenuItem createMenuItem(Action action, JMenu menu)
-    {
-        JMenuItem item = menu.add(action);
-        item.setIcon(null);
-        return item;
-    }
-
-    /**
-     * Add a new menu item (with a PkgMgrAction action) to a menu.
-     */
-    private JMenuItem createMenuItem(PkgMgrAction action, JMenu menu)
-    {
-        JMenuItem item = menu.add(wrapPkgMgrAction(action));
-        item.setIcon(null);
-        return item;
-    }
-    
-    private static JMenuItem createMenuItem(Action action, JavaFXUtil.FXPlusSwingMenu menu)
-    {
-        JMenuItem item = new JMenuItem(action);
-        item.setIcon(null);
-        menu.addSwing(Collections.singletonList(item));
-        return item;
-    }
-
-    /**
-     * Return the menu tool bar.
-     * 
-     * public JMenu getToolsMenu() { return toolsMenu; }
-     * 
-     * /** Add or remove a separator in the tools menu for extensions as needed.
-     * To be deleted, Damiano public void toolsExtensionsCheckSeparator() {
-     * if(extMgr.haveMenuItems( )) { // do we need one? if
-     * (toolsExtensionsSeparatorIndex > 0) // have one already return;
-     * 
-     * toolsExtensionsSeparatorIndex = toolsMenu.getItemCount();
-     * toolsMenu.addSeparator(); } else { // don't need one if
-     * (toolsExtensionsSeparatorIndex <= 0) // don't have one return;
-     * 
-     * toolsMenu.remove(toolsExtensionsSeparatorIndex);
-     * toolsExtensionsSeparatorIndex = 0; } }
-     */
 
     /**
      * Called on (almost) every menu invocation to clean up.
@@ -3639,6 +3372,7 @@ public class PkgMgrFrame
      */
     private void setupActionDisableSet()
     {
+        //MOEFX I think this is more simply done with binding?
         actionsToDisable.add(closeProjectAction);
         actionsToDisable.add(saveProjectAction);
         actionsToDisable.add(saveProjectAsAction);
@@ -3667,13 +3401,12 @@ public class PkgMgrFrame
      * Add user defined help menus. Users can add help menus via the
      * bluej.help.items property. See comment in bluej.defs.
      */
-    private void addUserHelpItems(JMenu menu)
+    private void addUserHelpItems(Menu menu)
     {
         String helpItems = Config.getPropString("bluej.help.items", "");
 
         if (helpItems != null && helpItems.length() > 0) {
-            menu.addSeparator();
-            URLDisplayer urlDisplayer = new URLDisplayer();
+            menu.getItems().add(new SeparatorMenuItem());
 
             StringTokenizer t = new StringTokenizer(helpItems);
 
@@ -3681,10 +3414,9 @@ public class PkgMgrFrame
                 String itemID = t.nextToken();
                 String itemName = Config.getPropString("bluej.help." + itemID + ".label");
                 String itemURL = Config.getPropString("bluej.help." + itemID + ".url");
-                JMenuItem item = new JMenuItem(itemName);
-                item.setActionCommand(itemURL);
-                item.addActionListener(urlDisplayer);
-                menu.add(item);
+                MenuItem item = new MenuItem(itemName);
+                item.setOnAction(e -> showWebPage(itemURL));
+                menu.getItems().add(item);
             }
         }
     }
@@ -3901,20 +3633,6 @@ public class PkgMgrFrame
         boolean hasSelection = !curSelection.isEmpty();
         removeAction.setEnabled(hasSelection);
         compileSelectedAction.setEnabled(hasSelection);
-    }
-
-    class URLDisplayer
-        implements ActionListener
-    {
-        public URLDisplayer()
-        {}
-
-        @Override
-        public void actionPerformed(ActionEvent evt)
-        {
-            String url = evt.getActionCommand();
-            showWebPage(url);
-        }
     }
 
     // Used as a way to tag the three main panes in the PkgMgrFrame window

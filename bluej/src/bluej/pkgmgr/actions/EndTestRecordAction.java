@@ -42,7 +42,7 @@ final public class EndTestRecordAction extends PkgMgrAction
     public EndTestRecordAction(PkgMgrFrame pmf)
     {
         super(pmf, "menu.tools.end");
-        SwingUtilities.invokeLater(() -> putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test.end")));
+        shortDescription = Config.getString("tooltip.test.end");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

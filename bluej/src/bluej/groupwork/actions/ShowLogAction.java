@@ -34,9 +34,9 @@ import bluej.pkgmgr.PkgMgrFrame;
  */
 public class ShowLogAction extends TeamAction
 {
-    public ShowLogAction(PkgMgrFrame pmf)
+    public ShowLogAction()
     {
-        super(pmf, Config.getString("team.history"), false);
+        super(Config.getString("team.history"), false);
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

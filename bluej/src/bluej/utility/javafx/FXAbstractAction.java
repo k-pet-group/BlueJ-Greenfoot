@@ -125,16 +125,11 @@ public abstract class FXAbstractAction
     public Button makeButton()
     {
         Button button = new Button(name);
-        setButtonAction(button);
+        button.disableProperty().bind(disabled.or(unavailable));
+        button.setOnAction(e -> actionPerformed());
         if (buttonGraphic != null)
             button.setGraphic(buttonGraphic);
         return button;
-    }
-
-    public void setButtonAction(ButtonBase button)
-    {
-        button.disableProperty().bind(disabled.or(unavailable));
-        button.setOnAction(e -> actionPerformed());
     }
 
     /**
@@ -150,7 +145,7 @@ public abstract class FXAbstractAction
         return menuItem;
     }
 
-    public void prepareMenuItem(MenuItem menuItem)
+    private void prepareMenuItem(MenuItem menuItem)
     {
         prepareContextMenuItem(menuItem);
         boolean cmdPlusMinusOnMac = Config.isMacOS() && accelerator.get() != null &&

@@ -41,7 +41,7 @@ final public class CancelTestRecordAction extends PkgMgrAction
     public CancelTestRecordAction(PkgMgrFrame pmf)
     {
         super(pmf, "menu.tools.cancel");
-        SwingUtilities.invokeLater(() -> putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test.cancel")));
+        shortDescription = Config.getString("tooltip.test.cancel");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

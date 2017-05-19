@@ -77,12 +77,12 @@ public class TeamActionGroup
     {
         if (statusAction == null)
         {
-            statusAction = new StatusAction(null);
-            updateAction = new UpdateDialogAction(null);
-            teamSettingsAction = new TeamSettingsAction(null);
-            commitCommentAction = new CommitCommentAction(null, commitLabel);
-            importAction = new ImportAction(null);
-            showLogAction = new ShowLogAction(null);
+            statusAction = new StatusAction();
+            updateAction = new UpdateDialogAction();
+            teamSettingsAction = new TeamSettingsAction();
+            commitCommentAction = new CommitCommentAction(commitLabel);
+            importAction = new ImportAction();
+            showLogAction = new ShowLogAction();
             setTeamMode(initialTeamMode, initialIsDVCS);
         }
     }
@@ -135,7 +135,7 @@ public class TeamActionGroup
         if (isDCVS){
             label = "team.commitPush";
         }
-        commitCommentAction.setName(Config.getString(label) + "...");
+        commitCommentAction.setName(Config.getString(label), true);
         commitCommentAction.setEnabled(enabled);
         // import is allowed if we are not already shared
         importAction.setEnabled(!enabled);

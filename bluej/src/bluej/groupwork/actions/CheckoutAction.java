@@ -55,9 +55,9 @@ import threadchecker.Tag;
  */
 public class CheckoutAction extends TeamAction
 {
-    public CheckoutAction(PkgMgrFrame pmf)
+    public CheckoutAction()
     {
-        super(pmf, "team.checkout");
+        super("team.checkout", true);
     }
 
     /*

@@ -36,7 +36,7 @@ final public class NewClassAction extends PkgMgrAction
     public NewClassAction(PkgMgrFrame pmf)
     {
         super(pmf, "menu.edit.newClass");
-        putValue(SHORT_DESCRIPTION, Config.getString("tooltip.newClass"));
+        shortDescription = Config.getString("tooltip.newClass");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

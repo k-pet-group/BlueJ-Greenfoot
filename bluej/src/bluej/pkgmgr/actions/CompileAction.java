@@ -37,7 +37,7 @@ final public class CompileAction extends PkgMgrAction
     public CompileAction(PkgMgrFrame pmf)
     {
         super(pmf, "menu.tools.compile");
-        putValue(SHORT_DESCRIPTION, Config.getString("tooltip.compile"));
+        shortDescription = Config.getString("tooltip.compile");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

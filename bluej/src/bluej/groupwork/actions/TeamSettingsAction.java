@@ -21,21 +21,22 @@
  */
 package bluej.groupwork.actions;
 
+import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.actions.FXPkgMgrAction;
+import bluej.pkgmgr.actions.PkgMgrAction;
 
 
 /**
  * Action to show teamwork settings dialog
  *
  */
-public class TeamSettingsAction extends FXPkgMgrAction
+public class TeamSettingsAction extends TeamAction
 {
     /** Creates a new instance of TeamSettingsAction */
-    public TeamSettingsAction(PkgMgrFrame pmf)
+    public TeamSettingsAction()
     {
-        super(pmf, "team.settings");
+        super("team.settings", true);
     }
 
     public void actionPerformed(PkgMgrFrame pmf)

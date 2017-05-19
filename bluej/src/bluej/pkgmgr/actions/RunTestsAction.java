@@ -36,7 +36,7 @@ final public class RunTestsAction extends PkgMgrAction
     public RunTestsAction(PkgMgrFrame pmf)
     {
         super(pmf, "menu.tools.run");
-        putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test"));
+        shortDescription = Config.getString("tooltip.test");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)
