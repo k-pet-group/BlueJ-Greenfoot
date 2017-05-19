@@ -1087,7 +1087,17 @@ public final class Config
         if(keyString.length() == 1) {
             return new KeyCharacterCombination(keyString, modifiers.toArray(new KeyCombination.Modifier[0]));
         }
-        return new KeyCodeCombination(KeyCode.getKeyCode(keyString), modifiers.toArray(new KeyCombination.Modifier[0]));
+        if (keyString.equals("BACK_SPACE"))
+            keyString = "Backspace";
+
+        KeyCode keyCode = KeyCode.getKeyCode(keyString);
+        if (keyCode != null)
+            return new KeyCodeCombination(keyCode, modifiers.toArray(new KeyCombination.Modifier[0]));
+        else
+        {
+            Debug.message("Unknown key: \"" + keyString + "\"");
+            return null;
+        }
     }
 
     /**
