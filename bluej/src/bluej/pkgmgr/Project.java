@@ -53,10 +53,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import bluej.debugger.DebuggerThreadListener;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
 import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -215,19 +219,19 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     @OnThread(Tag.FX) private final List<Rectangle> fxCachedEditorSizes = new ArrayList<>();
 
     /** 1 second timer before starting auto-compile */
-    @OnThread(value = Tag.Any,requireSynchronized = true)
-    private Timer compilerTimer;
+    @OnThread(Tag.FXPlatform)
+    private Timeline compilerTimer;
     // We don't used synchronized here because we could deadlock:
-    @OnThread(Tag.Any)
-    private final AtomicReference<CompileReason> latestCompileReason = new AtomicReference<>(null);
+    @OnThread(Tag.FXPlatform)
+    private CompileReason latestCompileReason;
     // We don't used synchronized here because we could deadlock:
-    @OnThread(Tag.Any)
-    private final AtomicReference<CompileType> latestCompileType = new AtomicReference<>(null);
+    @OnThread(Tag.FXPlatform)
+    private CompileType latestCompileType;
     /** Packages scheduled for autocompilation */
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private Set<Package> scheduledPkgs = new HashSet<>();
     /** Targets scheduled for autocompilation */
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(Tag.FXPlatform)
     private Set<ClassTarget> scheduledTargets = new HashSet<>();
 
     /**
@@ -2241,15 +2245,19 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     }
 
     @OnThread(Tag.Any)
-    public synchronized void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, Package pkg)
+    public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, Package pkg)
     {
-        scheduleCompilation(immediate, reason, type, pkg, null);
+        // We must use invokeLater, even if already on event queue,
+        // to make sure all actions are resolved (e.g. auto-indent post-newline)
+        Platform.runLater(() -> scheduleCompilation(immediate, reason, type, pkg, null));
     }
 
     @OnThread(Tag.Any)
-    public synchronized void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, ClassTarget target)
+    public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, ClassTarget target)
     {
-        scheduleCompilation(immediate, reason, type, null, target);
+        // We must use invokeLater, even if already on event queue,
+        // to make sure all actions are resolved (e.g. auto-indent post-newline)
+        Platform.runLater(() -> scheduleCompilation(immediate, reason, type, null, target));
     }
 
     /**
@@ -2263,8 +2271,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      *
      * Note: only one of pkg or target should be non-null.                  
      */
-    @OnThread(Tag.Any)
-    private synchronized void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, Package pkg, ClassTarget target)
+    @OnThread(Tag.FXPlatform)
+    private void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type, Package pkg, ClassTarget target)
     {
         if (immediate)
         {
@@ -2280,12 +2288,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                 }
             }
 
-            // We must use invokeLater, even if already on event queue,
-            // to make sure all actions are resolved (e.g. auto-indent post-newline)
             if (pkg != null)
-                Platform.runLater(() -> pkg.compileOnceIdle(null, reason, type));
+                pkg.compileOnceIdle(null, reason, type);
             else if (target != null)
-                Platform.runLater(() -> target.getPackage().compileOnceIdle(target, reason, type));
+                target.getPackage().compileOnceIdle(target, reason, type);
         }
         else
         {
@@ -2294,41 +2300,37 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             if (target != null)
                 scheduledTargets.add(target);
 
-            latestCompileReason.set(reason);
-            latestCompileType.set(type);
+            latestCompileReason = reason;
+            latestCompileType = type;
             if (compilerTimer != null)
             {
                 // Re-use existing timer, to avoid lots of reallocation:
-                compilerTimer.restart();
+                compilerTimer.stop();
+                compilerTimer.playFromStart();
             }
             else
             {
-                ActionListener listener = e -> {
+                EventHandler<ActionEvent> listener = e -> {
                     Set<Package> pkgsToCompile;
                     Set<ClassTarget> targetsToCompile;
 
-                    synchronized (Project.this)
-                    {
-                        // Avoid holding Project lock for too long by making a copy of the
-                        // lock-protected set now:
-                        pkgsToCompile = scheduledPkgs;
-                        scheduledPkgs = new HashSet<>();
-                        targetsToCompile = scheduledTargets;
-                        scheduledTargets = new HashSet<>();
-                    }
+                    pkgsToCompile = scheduledPkgs;
+                    scheduledPkgs = new HashSet<>();
+                    targetsToCompile = scheduledTargets;
+                    scheduledTargets = new HashSet<>();
 
                     for (Package p : pkgsToCompile)
                     {
-                        p.compileOnceIdle(null, latestCompileReason.get(), latestCompileType.get());
+                        p.compileOnceIdle(null, latestCompileReason, latestCompileType);
                     }
                     for (ClassTarget t : targetsToCompile)
                     {
-                        t.getPackage().compileOnceIdle(t, latestCompileReason.get(), latestCompileType.get());
+                        t.getPackage().compileOnceIdle(t, latestCompileReason, latestCompileType);
                     }
                 };
-                compilerTimer = new Timer(1000, listener);
-                compilerTimer.setRepeats(false);
-                compilerTimer.start();
+                compilerTimer = new Timeline(new KeyFrame(Duration.millis(1000), listener));
+                compilerTimer.setCycleCount(1);
+                compilerTimer.playFromStart();
             }
         }
     }
