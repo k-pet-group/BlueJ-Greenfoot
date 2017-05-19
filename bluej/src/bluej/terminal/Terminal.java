@@ -92,7 +92,6 @@ import threadchecker.Tag;
  * @author  Philip Stevens
  */
 @SuppressWarnings("serial")
-@OnThread(Tag.FXPlatform)
 public final class Terminal
     implements BlueJEventListener, DebuggerTerminal
 {
@@ -330,9 +329,7 @@ public final class Terminal
     public void dispose()
     {
         showHide(false);
-        Platform.runLater(() -> {
-            window = null;
-        });
+        window = null;
     }
 
     /**
@@ -371,28 +368,26 @@ public final class Terminal
      */
     public void save()
     {
-        Platform.runLater(() -> {
-            File fileName = FileUtility.getSaveFileFX(window,
-                    Config.getString("terminal.save.title"),
-                    null, false);
-            if(fileName != null) {
-                if (fileName.exists()){
-                    if (DialogManager.askQuestionFX(window, "error-file-exists") != 0)
-                        return;
-                }
-                SwingUtilities.invokeLater(() -> {
-                    try
-                    {
-                        FileWriter writer = new FileWriter(fileName);
-                        writer.write(text.getText());
-                        writer.close();
-                    } catch (IOException ex)
-                    {
-                        Platform.runLater(() -> DialogManager.showErrorFX(window, "error-save-file"));
-                    }
-                });
+        File fileName = FileUtility.getSaveFileFX(window,
+                Config.getString("terminal.save.title"),
+                null, false);
+        if(fileName != null) {
+            if (fileName.exists()){
+                if (DialogManager.askQuestionFX(window, "error-file-exists") != 0)
+                    return;
             }
-        });
+
+            try
+            {
+                FileWriter writer = new FileWriter(fileName);
+                writer.write(text.getText());
+                writer.close();
+            }
+            catch (IOException ex)
+            {
+                DialogManager.showErrorFX(window, "error-save-file");
+            }
+        }
     }
     
     public void print()
@@ -606,6 +601,7 @@ public final class Terminal
      * It implements the method on the interface DebuggerTerminal which is called
      * when there is reading request from the terminal on the remote virtual machine
      */
+    @OnThread(Tag.Any)
     public void showOnInput()
     {
         Platform.runLater(() -> {

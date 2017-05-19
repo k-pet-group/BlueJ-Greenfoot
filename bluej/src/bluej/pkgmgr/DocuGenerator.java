@@ -268,7 +268,7 @@ public class DocuGenerator
                 });
             }
             catch (IOException exc) {
-                Platform.runLater(() -> DialogManager.showMessageFX(null, "severe-doc-trouble"));
+                DialogManager.showMessageFX(null, "severe-doc-trouble");
             }
             finally {
                 if (logWriter != null) {

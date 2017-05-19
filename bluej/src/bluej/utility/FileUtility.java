@@ -514,6 +514,7 @@ public class FileUtility
      * @return   a file with the given extension in the given directory,
      *           or 'null' if such a file cannot be found.
      */
+    @OnThread(Tag.Any)
     public static File findFile(File startDir, String suffix)
     {
         File[] files = startDir.listFiles();
@@ -545,6 +546,7 @@ public class FileUtility
      * @return  true if a file with the given suffix exists in the given
      *          directory.
      */
+    @OnThread(Tag.Any)
     public static boolean containsFile(File dir, String suffix)
     {
         if (dir == null)

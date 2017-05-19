@@ -21,6 +21,9 @@
  */
 package bluej.debugger;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.*;
 
 /**
@@ -38,7 +41,7 @@ public interface DebuggerTerminal
 
     /**
      * This is called when there is reading request from the terminal on the remote virtual machine
-     *
      */
-    void  showOnInput();
+    @OnThread(Tag.Any)
+    void showOnInput();
 }
