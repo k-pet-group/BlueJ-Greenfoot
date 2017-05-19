@@ -23,11 +23,12 @@ package bluej.groupwork.ui;
 
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
-
 import bluej.utility.javafx.FXCustomizedDialog;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

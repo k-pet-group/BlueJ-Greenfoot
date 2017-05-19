@@ -30,9 +30,8 @@ import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.utility.SwingWorker;
+import bluej.utility.FXWorker;
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
@@ -117,7 +116,7 @@ public class PushAction extends TeamAction
      *
      * @author Fabio Heday
      */
-    private class PushWorker extends SwingWorker
+    private class PushWorker extends FXWorker
     {
 
         private TeamworkCommand command;
@@ -125,7 +124,6 @@ public class PushAction extends TeamAction
         private final boolean hasPassword;
         private boolean aborted;
 
-        @OnThread(Tag.Swing)
         public PushWorker(Project project)
         {
             command = statusHandle.pushAll(filesToPush);
@@ -172,7 +170,7 @@ public class PushAction extends TeamAction
                 commitCommentsFrame.stopProgress();
                 if (!result.isError() && !result.wasAborted()) {
                     DataCollector.teamCommitProject(project, statusHandle.getRepository(), filesToPush);
-                    EventQueue.invokeLater(() -> commitCommentsFrame.displayMessage(Config.getString("team.push.statusDone")));
+                    commitCommentsFrame.displayMessage(Config.getString("team.push.statusDone"));
                 }
             }
 

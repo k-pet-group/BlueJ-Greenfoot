@@ -49,8 +49,8 @@ import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.DialogManager;
+import bluej.utility.FXWorker;
 import bluej.utility.JavaNames;
-import bluej.utility.SwingWorker;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -137,7 +137,7 @@ public class UpdateAction extends TeamAction
         setEnabled(true);
     }
 
-    private class UpdateWorker extends SwingWorker implements UpdateListener
+    private class UpdateWorker extends FXWorker implements UpdateListener
     {
         private TeamworkCommand command;
         private TeamworkCommandResult result;
@@ -151,7 +151,7 @@ public class UpdateAction extends TeamAction
 
         public Object construct()
         {
-            removedPackages = new ArrayList<String>();
+            removedPackages = new ArrayList<>();
             result = command.getResult();
             return result;
         }

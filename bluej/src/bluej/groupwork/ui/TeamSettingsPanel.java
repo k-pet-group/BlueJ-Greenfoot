@@ -27,7 +27,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import bluej.pkgmgr.PkgMgrFrame;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -52,9 +51,11 @@ import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamSettingsController.ServerType;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 import bluej.utility.javafx.HorizontalRadio;
 import bluej.utility.javafx.JavaFXUtil;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

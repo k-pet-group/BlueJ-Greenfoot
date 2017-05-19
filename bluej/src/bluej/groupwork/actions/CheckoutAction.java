@@ -22,9 +22,7 @@
 package bluej.groupwork.actions;
 
 import java.io.File;
-
 import javafx.application.Platform;
-import javax.swing.SwingUtilities;
 
 import bluej.Config;
 import bluej.groupwork.Repository;
@@ -40,8 +38,8 @@ import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.SwingWorker;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -53,6 +51,7 @@ import threadchecker.Tag;
  *
  * @author Kasper
  */
+@OnThread(Tag.FXPlatform)
 public class CheckoutAction extends TeamAction
 {
     public CheckoutAction()
@@ -60,11 +59,6 @@ public class CheckoutAction extends TeamAction
         super("team.checkout", true);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     public void actionPerformed(PkgMgrFrame oldFrame)
     {
         //TeamSettingsController tsc = new TeamSettingsController(projectDir);
@@ -74,20 +68,18 @@ public class CheckoutAction extends TeamAction
 
         if (tsc.getTeamSettingsDialog().showAndWait().isPresent()) {
             FXPlatformConsumer<File> finishCheckout = projectDir -> {
+                PkgMgrFrame newFrame;
+                if (oldFrame.isEmptyFrame())
+                {
+                    newFrame = oldFrame;
+                }
+                else
+                {
+                    newFrame = PkgMgrFrame.createFrame();
+                    newFrame.setVisible(true);
+                }
 
-                SwingUtilities.invokeLater(() -> {
-                    PkgMgrFrame newFrame;
-                    if (oldFrame.isEmptyFrame())
-                    {
-                        newFrame = oldFrame;
-                    } else
-                    {
-                        newFrame = PkgMgrFrame.createFrame();
-                        newFrame.setVisible(true);
-                    }
-
-                    new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
-                });
+                new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
             };
 
             if (!tsc.isDVCS()) {
@@ -148,7 +140,7 @@ public class CheckoutAction extends TeamAction
      *
      * @author Davin McCall
      */
-    private class CheckoutWorker extends SwingWorker
+    private class CheckoutWorker extends FXWorker
     {
         private Repository repository;
         private PkgMgrFrame newFrame;
@@ -168,7 +160,7 @@ public class CheckoutAction extends TeamAction
 
         /*
          * Get the files from the repository.
-         * @see bluej.utility.SwingWorker#construct()
+         * @see bluej.utility.FXWorker#construct()
          */
         public Object construct()
         {
@@ -191,7 +183,7 @@ public class CheckoutAction extends TeamAction
 
         /*
          * Now open the directory as a BlueJ project.
-         * @see bluej.utility.SwingWorker#finished()
+         * @see bluej.utility.FXWorker#finished()
          */
         public void finished()
         {
@@ -213,7 +205,7 @@ public class CheckoutAction extends TeamAction
             else {
                 Platform.runLater(() -> {
                     TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow());
-                    SwingUtilities.invokeLater(() -> cleanup());
+                    cleanup();
                 });
             }
         }
@@ -221,7 +213,6 @@ public class CheckoutAction extends TeamAction
         /**
          * Clean up after failed checkout.
          */
-        @OnThread(Tag.Swing)
         public void cleanup()
         {
             deleteDirectory(projDir);

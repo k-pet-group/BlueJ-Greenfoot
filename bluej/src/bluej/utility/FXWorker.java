@@ -30,7 +30,9 @@ import threadchecker.Tag;
  * that you subclass to perform GUI-related work in a dedicated thread.
  *
  */
-public abstract class FXWorker {
+@OnThread(Tag.FXPlatform)
+public abstract class FXWorker
+{
     private Object value;  // see getValue(), setValue()
 
     /**

@@ -35,7 +35,7 @@ import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.utility.SwingWorker;
+import bluej.utility.FXWorker;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -151,13 +151,12 @@ public class CommitAction extends TeamAction
      * 
      * @author Davin McCall
      */
-    private class CommitWorker extends SwingWorker
+    private class CommitWorker extends FXWorker
     {
         private TeamworkCommand command;
         private TeamworkCommandResult result;
         private boolean aborted;
         
-        @OnThread(Tag.Swing)
         public CommitWorker(Project project)
         {
             String comment = commitCommentsFrame.getComment();

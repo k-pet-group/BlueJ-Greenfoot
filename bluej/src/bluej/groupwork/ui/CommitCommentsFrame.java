@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import bluej.pkgmgr.PkgMgrFrame;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -61,6 +60,7 @@ import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.actions.CommitAction;
 import bluej.pkgmgr.BlueJPackageFile;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
@@ -71,7 +71,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A Swing based user interface to add commit comments.
+ * A user interface to add commit comments.
  * @author Bruce Quig
  * @author Amjad Altadmri
  */

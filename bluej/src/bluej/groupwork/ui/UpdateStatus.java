@@ -25,7 +25,6 @@ import bluej.groupwork.TeamStatusInfo;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-
 /**
  * A ListView element that can show either a file status or a message string.
  *
