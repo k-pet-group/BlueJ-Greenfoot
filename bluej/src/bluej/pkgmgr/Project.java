@@ -478,51 +478,44 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             Utility.bringToFrontFX(null);
             // Prompt user to "Save elsewhere"
 
-            SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
-            AtomicReference<File> projDir = new AtomicReference<>(projectDir);
-            Platform.runLater(() -> {
-                DialogManager.showMessageFX(null, "project-is-readonly", new String[]{projDir.get().toString()});
 
-                boolean done = false;
+            DialogManager.showMessageFX(null, "project-is-readonly", new String[]{projectDir.toString()});
 
-                while (!done)
-                {
-                    // Get a file name to save under
-                    File newName = FileUtility.getSaveProjectFX(null, Config.getString("pkgmgr.saveAs.title"));
+            boolean done = false;
 
-                    if (newName != null) {
-                        int result = FileUtility.copyDirectory(projDir.get(), newName);
+            while (!done)
+            {
+                // Get a file name to save under
+                File newName = FileUtility.getSaveProjectFX(null, Config.getString("pkgmgr.saveAs.title"));
 
-                        switch (result) {
-                            case FileUtility.NO_ERROR:
-                                // It worked, use this as the new project:
-                                projDir.set(newName);
-                                done = true;
-                                break;
+                if (newName != null) {
+                    int result = FileUtility.copyDirectory(projectDir, newName);
 
-                            case FileUtility.DEST_EXISTS_NOT_DIR:
-                                DialogManager.showErrorFX(null, "directory-exists-file");
-                                break;
-                            case FileUtility.DEST_EXISTS_NON_EMPTY:
-                                DialogManager.showErrorFX(null, "directory-exists-non-empty");
-                                break;
+                    switch (result) {
+                        case FileUtility.NO_ERROR:
+                            // It worked, use this as the new project:
+                            projectDir = newName;
+                            done = true;
+                            break;
 
-                            case FileUtility.SRC_NOT_DIRECTORY:
-                            case FileUtility.COPY_ERROR:
-                                DialogManager.showErrorFX(null, "cannot-save-project");
+                        case FileUtility.DEST_EXISTS_NOT_DIR:
+                            DialogManager.showErrorFX(null, "directory-exists-file");
+                            break;
+                        case FileUtility.DEST_EXISTS_NON_EMPTY:
+                            DialogManager.showErrorFX(null, "directory-exists-non-empty");
+                            break;
 
-                                break;
-                        }
-                    }
-                    else {
-                        done = true; // if they pressed cancel, just continue with old project
+                        case FileUtility.SRC_NOT_DIRECTORY:
+                        case FileUtility.COPY_ERROR:
+                            DialogManager.showErrorFX(null, "cannot-save-project");
+
+                            break;
                     }
                 }
-                loop.exit();
-            });
-
-            loop.enter();
-            projectDir = projDir.get();
+                else {
+                    done = true; // if they pressed cancel, just continue with old project
+                }
+            }
         }
 
         // check whether it already exists
@@ -534,7 +527,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
                 //if is shared project, check for svn working copy version.
                 if (proj.isTeamProject() && !proj.getTeamSettingsController().isDVCS() && proj.getTeamSettingsController().getWorkingCopyVersion() != 1.6) {
-                    Platform.runLater(() -> DialogManager.showMessageFX(null, "SVNWorkingCopyNot16"));
+                    DialogManager.showMessageFX(null, "SVNWorkingCopyNot16");
                 }
 
                 projects.put(projectDir, proj);
@@ -1399,7 +1392,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
         for (PkgMgrFrame frame : frames)
         {
-            Platform.runLater(() -> frame.doSave());
+            frame.doSave();
             frame.setStatus(Config.getString("pkgmgr.packageSaved"));
         }
     }
@@ -1461,10 +1454,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             Target target = i.next();
             if (target != null){
                 PackageEditor packageEditor = target.getPackage().getEditor();
-                Platform.runLater(() -> {
-                    packageEditor.addToSelection(target);
-                    packageEditor.repaint();
-                });
+                packageEditor.addToSelection(target);
+                packageEditor.repaint();
             }
         }
     }
@@ -1598,7 +1589,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
         // get rid of any inspectors that are open that were not cleaned up
         // as part of removing objects from the bench
-        Platform.runLater(() -> removeAllInspectors());
+        removeAllInspectors();
 
         // remove views for classes loaded by this classloader
         View.removeAll(currentClassLoader);
@@ -1627,10 +1618,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             for (PkgMgrFrame frame : frames)
             {
                 ObjectBench bench = frame.getObjectBench();
-                Platform.runLater(() -> {
-                    bench.removeAllObjects(getUniqueId());
-                    frame.clearTextEval();
-                });
+                bench.removeAllObjects(getUniqueId());
+                frame.clearTextEval();
             }
         }
     }
@@ -2198,7 +2187,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         if(statusFrame == null) {
             statusFrame = new StatusFrame(this);
             final StatusFrame f = this.statusFrame;
-            Platform.runLater(() -> f.setLocationRelativeTo(parent.get()));
+            f.setLocationRelativeTo(parent.get());
         }
         return statusFrame;
     }
@@ -2294,9 +2283,9 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             // We must use invokeLater, even if already on event queue,
             // to make sure all actions are resolved (e.g. auto-indent post-newline)
             if (pkg != null)
-                EventQueue.invokeLater(() -> pkg.compileOnceIdle(null, reason, type));
+                Platform.runLater(() -> pkg.compileOnceIdle(null, reason, type));
             else if (target != null)
-                EventQueue.invokeLater(() -> target.getPackage().compileOnceIdle(target, reason, type));
+                Platform.runLater(() -> target.getPackage().compileOnceIdle(target, reason, type));
         }
         else
         {
@@ -2553,6 +2542,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         private final DebuggerThread debuggerThread;
         private final String debuggerThreadDisplay;
 
+        @OnThread(Tag.Any)
         public DebuggerThreadDetails(DebuggerThread dt)
         {
             this.debuggerThread = dt;

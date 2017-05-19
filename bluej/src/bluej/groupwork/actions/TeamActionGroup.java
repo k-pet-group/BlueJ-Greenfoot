@@ -32,7 +32,7 @@ import threadchecker.Tag;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FXPlatform)
 public class TeamActionGroup
 {
     private final String commitLabel;

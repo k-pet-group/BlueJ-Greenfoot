@@ -196,7 +196,6 @@ public class ExecControls
      * @param project  the project this window is associated with
      * @param debugger the debugger this window is debugging
      */
-    @OnThread(Tag.Swing)
     public ExecControls(Project project, Debugger debugger, ObservableList<DebuggerThreadDetails> debuggerThreads)
     {
         if (project == null || debugger == null) {

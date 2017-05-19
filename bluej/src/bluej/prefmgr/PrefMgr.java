@@ -53,7 +53,7 @@ import bluej.editor.EditorManager;
  *
  * @author  Andrew Patterson
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FXPlatform)
 public class PrefMgr
 {
     // publicly accessible names for flags
