@@ -374,7 +374,7 @@ public class Main
     /**
      * Quit menu item was chosen.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static void wantToQuit()
     {
         int projectCount = Project.getOpenProjectCount();

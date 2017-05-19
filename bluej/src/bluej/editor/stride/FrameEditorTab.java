@@ -1372,11 +1372,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public BooleanProperty cheatSheetShowingProperty()
     {
         return getParent().catalogueShowingProperty();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
+    @Override
     public void focusWhenShown()
     {
         withTopLevelFrame(f -> f.focusOnBody(TopLevelFrame.BodyFocus.BEST_PICK));
@@ -2597,6 +2600,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Pane getDragTargetCursorPane()
     {
         return getParent().getDragCursorPane();
@@ -2731,6 +2735,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     //package-visible
+    @OnThread(Tag.FXPlatform)
     FXTabbedEditor getParent()
     {
         return parent.get();

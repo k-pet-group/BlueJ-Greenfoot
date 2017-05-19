@@ -140,6 +140,7 @@ public interface InteractionManager extends SuggestionListParent
     @OnThread(Tag.FXPlatform)
     public void searchLink(PossibleLink link, FXPlatformConsumer<Optional<LinkedIdentifier>> callback);
 
+    @OnThread(Tag.FXPlatform)
     Pane getDragTargetCursorPane();
 
     void ensureImportsVisible();
@@ -167,6 +168,7 @@ public interface InteractionManager extends SuggestionListParent
 
     boolean isEditable();
 
+    @OnThread(Tag.FXPlatform)
     BooleanProperty cheatSheetShowingProperty();
 
     @OnThread(Tag.FXPlatform)

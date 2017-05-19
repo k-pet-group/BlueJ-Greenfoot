@@ -129,6 +129,7 @@ public class InheritedMethodFrame extends SingleLineFrame
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> operations = new ArrayList<>();

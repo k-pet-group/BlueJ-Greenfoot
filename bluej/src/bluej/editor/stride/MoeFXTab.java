@@ -46,7 +46,7 @@ import threadchecker.Tag;
 /**
  * Created by neil on 13/04/2016.
  */
-public @OnThread(Tag.FX) class MoeFXTab extends FXTab
+public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
 {
     // -------- INSTANCE VARIABLES --------
     private boolean initialised = false;
@@ -134,9 +134,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
         tabHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             if (e.getButton() == MouseButton.MIDDLE)
             {
-                SwingUtilities.invokeLater(() ->
-                    moeEditor.setEditorVisible(false)
-                );
+                moeEditor.setEditorVisible(false);
             }
         });
         setGraphic(tabHeader);
@@ -145,16 +143,14 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     @Override
     public void notifySelected()
     {
-        SwingUtilities.invokeLater(() -> moeEditor.notifyVisibleTab(true));
+        moeEditor.notifyVisibleTab(true);
     }
 
     @Override
     public void notifyUnselected()
     {
-        SwingUtilities.invokeLater(() -> {
-            moeEditor.notifyVisibleTab(false);
-            moeEditor.cancelFreshState();
-        });
+        moeEditor.notifyVisibleTab(false);
+        moeEditor.cancelFreshState();
     }
 
     @Override
@@ -162,7 +158,7 @@ public @OnThread(Tag.FX) class MoeFXTab extends FXTab
     {
         this.parent = parent;
         moeEditor.setParent(parent, partOfMove);
-        SwingUtilities.invokeLater(() -> moeEditor.notifyVisibleTab(false));
+        moeEditor.notifyVisibleTab(false);
     }
 
     @Override

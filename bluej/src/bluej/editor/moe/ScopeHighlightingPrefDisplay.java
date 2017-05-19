@@ -93,7 +93,7 @@ public class ScopeHighlightingPrefDisplay
         {
             colorPanel = new ScopeColorsBorderPane();
             colorPanel.setBackground(new Background(new BackgroundFill(colorPanel.scopeBackgroundColorProperty().get(), null, null)));
-            JavaFXUtil.addChangeListenerPlatform(colorPanel.scopeBackgroundColorProperty(), bkColor -> {
+            JavaFXUtil.addChangeListener(colorPanel.scopeBackgroundColorProperty(), bkColor -> {
                 colorPanel.setBackground(new Background(new BackgroundFill(bkColor, null, null)));
             });
             JavaFXUtil.addStyleClass(colorPanel, "prefmgr-scope-colour-container");

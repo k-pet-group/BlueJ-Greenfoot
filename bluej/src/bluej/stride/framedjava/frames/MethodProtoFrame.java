@@ -56,6 +56,8 @@ import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.Throws;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeFrame<MethodProtoElement>
 {
@@ -134,6 +136,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     }    
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> r = new ArrayList<>(super.getContextOperations());

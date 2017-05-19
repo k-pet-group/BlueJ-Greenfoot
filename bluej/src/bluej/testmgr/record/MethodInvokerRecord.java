@@ -167,7 +167,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * up local variables if the result of the method is used more than once or
      * placed on the bench by using "Get".
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private String toTestMethodInit(PkgMgrFrame pkgMgrFrame, String secondIndent)
     {
         // If we have already prepared the method call, we return the name that

@@ -42,6 +42,6 @@ final public class CloseProjectAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        Platform.runLater(() -> pmf.doClose(true, true));
+        pmf.doClose(true, true);
     }
 }

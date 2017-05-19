@@ -505,6 +505,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      *
      * Overridden by subclasses.
      */
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> ops = new ArrayList<FrameOperation>();

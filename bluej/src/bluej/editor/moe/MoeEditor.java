@@ -542,6 +542,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * Load the file "filename" and show the editor window.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean showFile(String filename, Charset charset, boolean compiled, String docFilename)
     {
         this.filename = filename;
@@ -662,6 +663,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @param vis  The new visible value
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setEditorVisible(boolean vis)
     {
         if (vis) {
@@ -765,6 +767,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * can be removed from the list of open editors.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void close()
     {
         try {
@@ -917,6 +920,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @param len         the number of characters to select
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setSelection(int lineNumber, int columnNumber, int len)
     {
         Element line = getSourceLine(lineNumber);
@@ -934,6 +938,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @param columnNumber2  The new selection value
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setSelection(int lineNumber1, int columnNumber1, int lineNumber2, int columnNumber2)
     {
         /*
@@ -1088,6 +1093,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @param interfaceStatus  If true, display class interface, otherwise source.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void showInterface(boolean interfaceStatus)
     {
         interfaceToggle.getSelectionModel().select(interfaceStatus ? 1 : 0);
@@ -1144,6 +1150,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      *         text.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public SourceLocation getLineColumnFromOffset(int offset)
     {
         if (offset < 0) {
@@ -1388,6 +1395,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @return the source length (>= 0)
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public int getTextLength ()
     {
         return sourceDocument.getLength();
@@ -1399,6 +1407,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * Return the number of lines in the source document.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public int numberOfLines()
     {
         return sourceDocument.getDefaultRootElement().getElementCount();
@@ -1410,6 +1419,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @see bluej.editor.Editor#getParsedNode()
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public ParsedCUNode getParsedNode()
     {
         return sourceDocument.getParser();
@@ -1445,7 +1455,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * A BlueJEvent was raised. Check whether it is one that we're interested in.
      */
     @Override
-    @OnThread(Tag.Swing)
     public void blueJEvent(int eventId, Object arg)
     {
         switch(eventId) {
@@ -1539,6 +1548,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @param msg  the message to display
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void writeMessage(String msg)
     {
         info.message(msg);
@@ -2585,7 +2595,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 if (errorDisplay != null)
                 {
                     ErrorDisplay old = errorDisplay;
-                    Platform.runLater(() -> old.popup.hide());
+                    old.popup.hide();
                 }
 
                 // First, try to get the character after the caret:
@@ -2602,13 +2612,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 int ypos = (int)(pos.getMinY() + (4*pos.getHeight()/3));
                 errorDisplay = new ErrorDisplay(details);
                 ErrorDisplay newDisplay = errorDisplay;
-                Platform.runLater(() -> {
-                    newDisplay.createPopup();
-                    newDisplay.popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
-                    newDisplay.popup.setAnchorX(xpos);
-                    newDisplay.popup.setAnchorY(ypos);
-                    newDisplay.popup.show(getWindow());
-                });
+
+                newDisplay.createPopup();
+                newDisplay.popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
+                newDisplay.popup.setAnchorX(xpos);
+                newDisplay.popup.setAnchorY(ypos);
+                newDisplay.popup.show(getWindow());
 
                 if (watcher != null) {
                     watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
@@ -2618,7 +2627,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         else if (errorDisplay != null)
         {
             ErrorDisplay old = errorDisplay;
-            Platform.runLater(() -> old.popup.hide());
+            old.popup.hide();
             errorDisplay = null;
         }
     }
@@ -2693,10 +2702,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 title = "Moe:  " + filename;
             }
         }
-        String finalTitle = title;
-        Platform.runLater(() -> {
-            fxTab.setWindowTitle(finalTitle);
-        });
+        fxTab.setWindowTitle(title);
     }
     
     // --------------------------------------------------------------------
@@ -3122,15 +3128,17 @@ public final class MoeEditor extends ScopeColorsBorderPane
             SuggestionList suggestionList = new SuggestionList(new SuggestionListParent()
             {
                 @Override
+                @OnThread(Tag.FX)
                 public StringExpression getFontSizeCSS()
                 {
                     return PrefMgr.getEditorFontCSS(true);
                 }
 
                 @Override
+                @OnThread(Tag.FX)
                 public void setupSuggestionWindow(Stage window)
                 {
-                    sourcePane.setFakeCaret(true);
+                    JavaFXUtil.runNowOrLater(() -> sourcePane.setFakeCaret(true));
                 }
             }, suggestionDetails, null, SuggestionShown.RARE, i ->
             {
@@ -3468,7 +3476,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @Override
     public boolean isOpen()
     {
-        return fxTabbedEditor != null && fxTabbedEditor.isWindowVisibleSwing();
+        return fxTabbedEditor != null && fxTabbedEditor.isWindowVisible();
     }
     
     public String getTitle()
@@ -3486,7 +3494,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
                     {
                         // Pop up in a dialog:
-                        Platform.runLater(() -> DialogManager.showTextWithCopyButtonFX(getWindow(), Config.getString("pkgmgr.accessibility.compileDone"), "BlueJ"));
+                        DialogManager.showTextWithCopyButtonFX(getWindow(), Config.getString("pkgmgr.accessibility.compileDone"), "BlueJ");
                     }
                 }
                 watcher.scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
@@ -3503,7 +3511,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
                     {
                         // Pop up in a dialog:
-                        Platform.runLater(() -> DialogManager.showTextWithCopyButtonFX(getWindow(), err.message, "BlueJ"));
+                        DialogManager.showTextWithCopyButtonFX(getWindow(), err.message, "BlueJ");
                     }
                 }
             }
@@ -3529,7 +3537,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @param partOfMove True if this is part of a move to another window (and thus we shouldn't record
      *                   open or close)
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
         if (watcher != null)
@@ -3556,9 +3564,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // package visible
     void updateHeaderHasErrors(boolean hasErrors)
     {
-        Platform.runLater(() -> {
-            fxTab.setErrorStatus(hasErrors);
-        });
+        fxTab.setErrorStatus(hasErrors);
     }
 
     @OnThread(Tag.FX)
@@ -3604,7 +3610,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
         }
         catch (IOException ioe) {
-            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
 
@@ -3660,7 +3666,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
         }
         catch (IOException ioe) {
-            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
 
@@ -3695,7 +3701,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
         }
         catch (IOException ioe) {
-            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
 
@@ -3736,7 +3742,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
         }
         catch (IOException ioe) {
-            Platform.runLater(() -> DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage()));
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
 

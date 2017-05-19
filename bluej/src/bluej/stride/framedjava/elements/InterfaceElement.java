@@ -319,7 +319,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         frame.show(reason);        
     }
     
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private MoeSyntaxDocument getSourceDocument(ExpressionSlot completing)
     {
         return getDAP(completing).getDocument(projectResolver);
@@ -397,7 +397,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
             this.fragmentPositions = fragmentPositions;
         }
 
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public MoeSyntaxDocument getDocument(EntityResolver projectResolver)
         {
             if (document == null)

@@ -58,6 +58,7 @@ public interface Editor
      * 
      * @param vis  true to make the editor visible, or false to hide it.
      */
+    @OnThread(Tag.FXPlatform)
     void setEditorVisible(boolean vis);
 
     /**
@@ -85,6 +86,7 @@ public interface Editor
     /**
      * Close the editor window.
      */
+    @OnThread(Tag.FXPlatform)
     void close();
 
     /**
@@ -131,6 +133,7 @@ public interface Editor
      *  
      *  @param msg the message to display
      */
+    @OnThread(Tag.FXPlatform)
     public void writeMessage(String msg);
 
 

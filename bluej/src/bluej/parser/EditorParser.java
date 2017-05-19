@@ -71,6 +71,7 @@ import bluej.parser.symtab.Selection;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class EditorParser extends JavaParser
 {
     protected Stack<JavaParentNode> scopeStack = new Stack<JavaParentNode>();

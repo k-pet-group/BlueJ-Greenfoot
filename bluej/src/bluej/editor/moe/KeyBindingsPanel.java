@@ -69,6 +69,7 @@ import threadchecker.Tag;
  * @author Marion Zalk
  *
  */
+@OnThread(Tag.FXPlatform)
 public class KeyBindingsPanel extends GridPane implements PrefPanelListener
 {
 
@@ -210,7 +211,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
 
     @OnThread(Tag.FXPlatform)
     public void commitEditing() {
-       SwingUtilities.invokeLater(() -> handleClose());
+       handleClose();
     }
 
     @OnThread(Tag.FXPlatform)
@@ -241,16 +242,12 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
      */
     private void handleDefaults()
     {
-        Platform.runLater(() -> {
-            int answer = DialogManager.askQuestionFX(parent.get(), "default-keys");
-            if (answer == 0)
-            {
-                SwingUtilities.invokeLater(() -> {
-                    actions.setDefaultKeyBindings();
-                    handleFuncListSelect();
-                });
-            }
-        });
+        int answer = DialogManager.askQuestionFX(parent.get(), "default-keys");
+        if (answer == 0)
+        {
+            actions.setDefaultKeyBindings();
+            handleFuncListSelect();
+        }
     }
 
     /**
@@ -287,7 +284,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     private void handleClose()
     {
         if(!actions.save())
-            Platform.runLater(() -> DialogManager.showErrorFX(parent.get(), "cannot-save-keys"));
+            DialogManager.showErrorFX(parent.get(), "cannot-save-keys");
         setVisible(false);
     }
     /**
@@ -364,6 +361,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         return helpText;
     }
 
+    @OnThread(Tag.FXPlatform)
     private static class KeyCaptureDialog extends Dialog<KeyCodeCombination>
     {
         public KeyCaptureDialog()

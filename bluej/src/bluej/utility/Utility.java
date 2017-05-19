@@ -310,7 +310,7 @@ public class Utility
      * @param url the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Swing)
     public static boolean openWebBrowser(String url)
     {
         if (Config.isWinOS()) { // Windows
@@ -357,7 +357,7 @@ public class Utility
      * @param url the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Swing)
     public static boolean openWebBrowser(URL url)
     {
         if (Config.isWinOS()) {
@@ -1328,6 +1328,7 @@ public class Utility
      * Decreases the given font size by one "notch", where a notch changes
      * in size depending on the current font size (bigger notches at bigger sizes)
      */
+    @OnThread(Tag.FXPlatform)
     public static void decreaseFontSize(IntegerProperty fontSize)
     {
         int prev = fontSize.get();
@@ -1338,6 +1339,7 @@ public class Utility
      * Increases the given font size by one "notch", where a notch changes
      * in size depending on the current font size (bigger notches at bigger sizes)
      */
+    @OnThread(Tag.FXPlatform)
     public static void increaseFontSize(IntegerProperty fontSize)
     {
         int prev = fontSize.get();

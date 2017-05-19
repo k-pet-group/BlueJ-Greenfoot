@@ -56,12 +56,10 @@ public class CSSTarget extends NonCodeEditableTarget
         super(aPackage, file.getName());
         this.file = file;
 
-        Platform.runLater(() -> {
-            JavaFXUtil.addStyleClass(pane, "css-target");
-            Label name = new Label(file.getName());
-            BorderPane.setAlignment(name, Pos.CENTER);
-            pane.setTop(name);
-        });
+        JavaFXUtil.addStyleClass(pane, "css-target");
+        Label name = new Label(file.getName());
+        BorderPane.setAlignment(name, Pos.CENTER);
+        pane.setTop(name);
     }
 
     @Override
@@ -91,17 +89,17 @@ public class CSSTarget extends NonCodeEditableTarget
     private ContextMenu createMenu()
     {
         MenuItem open = new MenuItem(openStr);
-        open.setOnAction(e -> SwingUtilities.invokeLater(() -> {
+        open.setOnAction(e -> {
             open();
-        }));
+        });
         JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
         ContextMenu contextMenu = new ContextMenu(open);
 
         MenuItem remove = new MenuItem(removeStr);
-        remove.setOnAction(e -> SwingUtilities.invokeLater(() ->
+        remove.setOnAction(e ->
         {
             getPackage().getEditor().raiseRemoveTargetEvent(this);
-        }));
+        });
         JavaFXUtil.addStyleClass(remove, "class-action-inbuilt");
         contextMenu.getItems().add(remove);
 

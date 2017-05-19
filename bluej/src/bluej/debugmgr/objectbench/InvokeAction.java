@@ -26,6 +26,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import bluej.views.MethodView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Simple action representing an interactive method invocation.
@@ -33,6 +35,7 @@ import bluej.views.MethodView;
  * @author Davin McCall
  * @version $Id: InvokeAction.java 6215 2009-03-30 13:28:25Z polle $
  */
+@OnThread(Tag.Swing)
 public class InvokeAction extends AbstractAction
 {
     MethodView methodView;

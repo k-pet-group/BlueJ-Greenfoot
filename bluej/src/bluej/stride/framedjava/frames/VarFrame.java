@@ -360,6 +360,7 @@ public class VarFrame extends SingleLineFrame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         //final

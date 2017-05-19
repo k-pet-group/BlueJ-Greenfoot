@@ -1083,6 +1083,7 @@ public class SuggestionList
         /**
          * Gets font size, ready to put after "-fx-font-size" in inline style.
          */
+        @OnThread(Tag.FX)
         public StringExpression getFontSizeCSS();
 
         /**

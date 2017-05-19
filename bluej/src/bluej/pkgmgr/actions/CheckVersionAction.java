@@ -45,6 +45,6 @@ final public class CheckVersionAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        Platform.runLater(() -> new VersionCheckDialog(pmf.getFXWindow()).showAndWait());
+        new VersionCheckDialog(pmf.getFXWindow()).showAndWait();
     }
 }

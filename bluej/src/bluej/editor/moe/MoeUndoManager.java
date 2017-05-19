@@ -32,6 +32,8 @@ import org.fxmisc.undo.UndoManager;
 import org.fxmisc.undo.UndoManagerFactory;
 import org.reactfx.EventStream;
 import org.reactfx.Guard;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.CompoundEdit;
@@ -108,6 +110,7 @@ public class MoeUndoManager implements UndoManagerFactory
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public <C> UndoManager create(EventStream<C> eventStream, Function<? super C, ? extends C> function, Consumer<C> consumer)
     {
         undoManager = delegate.create(eventStream, function, consumer);
@@ -115,6 +118,7 @@ public class MoeUndoManager implements UndoManagerFactory
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public <C> UndoManager create(EventStream<C> eventStream, Function<? super C, ? extends C> function, Consumer<C> consumer, BiFunction<C, C, Optional<C>> biFunction)
     {
         undoManager = delegate.create(eventStream, function, consumer, biFunction);

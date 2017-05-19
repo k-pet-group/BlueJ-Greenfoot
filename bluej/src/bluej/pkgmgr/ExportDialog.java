@@ -106,7 +106,7 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
         public final List<String> classNames;
         public final List<File> jarFiles;
         
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public ProjectInfo(Project project)
         {
             classNames = project.getPackageNames().stream().sorted().flatMap(pkgName ->

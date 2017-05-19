@@ -84,7 +84,9 @@ public class PrefMgr
     // other constants
     private static final int NUM_RECENT_PROJECTS = Config.getPropInteger("bluej.numberOfRecentProjects", 12);
     // initialised by a call to setMenuFontSize()
+    @OnThread(Tag.Swing)
     private static Font popupMenuFont;
+    @OnThread(Tag.Swing)
     private static Font italicMenuFont;
     // initialised by a call to setEditorFontSize()
     @OnThread(Tag.FX)
@@ -186,11 +188,14 @@ public class PrefMgr
             Config.putPropString("bluej.recentProject" + i, recentProjects.get(i));
         }
     }
+
+    @OnThread(Tag.Swing)
     public static Font getStandoutMenuFont()
     {
         return italicMenuFont;
     }
 
+    @OnThread(Tag.Swing)
     public static Font getPopupMenuFont()
     {
         return popupMenuFont;   
@@ -323,7 +328,7 @@ public class PrefMgr
         return includeFamily ? editorFontCSS : editorFontSizeOnlyCSS;
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public static ObservableIntegerValue getScopeHighlightStrength()
     {
         return highlightStrength;

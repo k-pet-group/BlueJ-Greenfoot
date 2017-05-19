@@ -282,17 +282,15 @@ public class AssertPanel extends VBox
 
         String param1 = info.needsFirstField() ? assertData.getText() : null;
         String param2 = info.needsSecondField() ? deltaData.getText() : null;
-        SwingUtilities.invokeLater(() -> {
-            Optional<Integer> optTestId = testIdentifier.get();
-            optTestId.ifPresent(testId -> 
-                DataCollector.assertTestMethod(pkg,
-                    testId,
-                    invocationIdentifier,
-                    info.assertMethodName,
-                    param1,
-                    param2)
-            );
-        });
+        Optional<Integer> optTestId = testIdentifier.get();
+        optTestId.ifPresent(testId ->
+            DataCollector.assertTestMethod(pkg,
+                testId,
+                invocationIdentifier,
+                info.assertMethodName,
+                param1,
+                param2)
+        );
     }
     
 }

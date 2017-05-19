@@ -39,7 +39,7 @@ import threadchecker.Tag;
  * The three subclasses of this class (at the moment) are FrameEditorTab for Stride classes,
  * MoeFXTab for Java classes, and WebTab for web browser (for documentation).
  */
-@OnThread(Tag.FX)
+@OnThread(Tag.FXPlatform)
 abstract class FXTab extends Tab
 {
     private final boolean showCatalogue;
@@ -102,6 +102,7 @@ abstract class FXTab extends Tab
     /**
      * Called when the tab was selected, but now is no longer selected.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract void notifyUnselected();
 
     /**

@@ -140,8 +140,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /** Cached so it can be read from any thread.  Written to once on Swing thread in initialise,
      * then effectively final thereafter */
     @OnThread(Tag.Any) private String projectTitle;
-    @OnThread(Tag.Any)
-    private final AtomicBoolean stageShowingSwing = new AtomicBoolean(false);
     private StringProperty titleStatus = new SimpleStringProperty("");
     private UntitledCollapsiblePane collapsibleCatalogueScrollPane;
     private FrameShelf shelf;
@@ -175,7 +173,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         //add the greenfoot icon to the Stride editor.
         BlueJTheme.setWindowIconFX(stage);
 
-        JavaFXUtil.addChangeListener(stage.showingProperty(), stageShowingSwing::set);
         initialiseFX();
     }
 
@@ -317,7 +314,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 ((FXTab)tabPane.getSelectionModel().getSelectedItem()).notifyUnselected();
         });
 
-        JavaFXUtil.addChangeListener(tabPane.focusedProperty(), focused -> {
+        JavaFXUtil.addChangeListenerPlatform(tabPane.focusedProperty(), focused -> {
             // Very specific work around for Moe editor inside JavaFX SwingNode on Linux:
             // Must make sure focus doesn't remain in the tab header area.
             if (focused)
@@ -409,6 +406,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         });
     }
 
+    @OnThread(Tag.FXPlatform)
     private void updateMenusForTab(FXTab selTab)
     {
         menuBar.getMenus().setAll(selTab.getMenus());
@@ -576,15 +574,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     public boolean isWindowVisible()
     {
         return stage.isShowing();
-    }
-
-    /**
-     * Version of isWindowVisible to be called on the Swing thread.
-     */
-    @OnThread(Tag.Swing)
-    public boolean isWindowVisibleSwing()
-    {
-        return stageShowingSwing.get();
     }
 
     /**
@@ -987,6 +976,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         destination.addTab(tab, true, true, true);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void updateMoveMenus()
     {
         tabPane.getTabs().forEach(t -> updateMenusForTab((FXTab)t));

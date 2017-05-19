@@ -105,6 +105,7 @@ public abstract class SingleLineFrame extends Frame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> ops = new ArrayList<>(super.getContextOperations());

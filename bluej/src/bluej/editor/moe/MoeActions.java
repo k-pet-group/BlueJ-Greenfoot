@@ -1047,6 +1047,8 @@ public final class MoeActions
             this.label = Config.getString(labelKey);
         }
 
+        @OnThread(Tag.Any)
+        @Override
         public String toString()
         {
             return label;

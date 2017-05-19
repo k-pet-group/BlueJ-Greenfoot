@@ -274,9 +274,9 @@ public abstract class ClassRole
                 if (m instanceof MethodView)
                 {
                     MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
-                    menuItem.setOnAction(e -> SwingUtilities.invokeLater(() ->
+                    menuItem.setOnAction(e ->
                         new InvokeAction((MethodView)m, il, prefix + m.getLongDesc()).actionPerformed(null)
-                    ));
+                    );
 
                     // check whether it's time for a submenu
                     int itemCount = menu.size();
@@ -293,9 +293,9 @@ public abstract class ClassRole
                 {
                     MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
                     menu.add(menuItem);
-                    menuItem.setOnAction(e -> SwingUtilities.invokeLater(() ->
+                    menuItem.setOnAction(e ->
                         new ConstructAction((ConstructorView) m, il, prefix + m.getLongDesc()).actionPerformed(null)
-                    ));
+                    );
                     hasEntries = true;
                 }
             }
@@ -307,6 +307,7 @@ public abstract class ClassRole
         return hasEntries;
     }
     // Swing version, for Greenfoot:
+    @OnThread(Tag.Swing)
     public static boolean createMenuItems(JPopupMenu menu, CallableView[] members, ViewFilter filter, int first, int last,
                                           String prefix, InvokeListener il)
     {

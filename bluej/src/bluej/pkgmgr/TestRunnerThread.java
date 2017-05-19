@@ -154,7 +154,7 @@ public class TestRunnerThread extends Thread
         });
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private void startTestFindMethods(ClassTarget ct, CompletableFuture<List<String>> methodsFuture)
     {
         // State 1 is where we confirm that we really do have an executable unit

@@ -97,27 +97,25 @@ final class ExportManager
             .flatMap(p -> p.getClassTargets().stream())
             .anyMatch(ct -> ct.getSourceType() == SourceType.Stride);
 
-        Platform.runLater(() -> {
-            Window parent = frame.getFXWindow();
-            if (dialog == null)
-                dialog = new ExportDialog(parent, projectInfo);
-            else
-                dialog.updateDialog(projectInfo);
-            Optional<ExportDialog.ExportInfo> result = dialog.showAndWait();
+        Window parent = frame.getFXWindow();
+        if (dialog == null)
+            dialog = new ExportDialog(parent, projectInfo);
+        else
+            dialog.updateDialog(projectInfo);
+        Optional<ExportDialog.ExportInfo> result = dialog.showAndWait();
 
-            if (!result.isPresent())
-                return;
-            ExportDialog.ExportInfo info = result.get();
+        if (!result.isPresent())
+            return;
+        ExportDialog.ExportInfo info = result.get();
 
-            File fileName = FileUtility.getSaveFileFX(parent, specifyJar, Arrays.asList(new ExtensionFilter("JAR file", "*.jar")), false);
-            if (fileName == null)
-                return;
+        File fileName = FileUtility.getSaveFileFX(parent, specifyJar, Arrays.asList(new ExtensionFilter("JAR file", "*.jar")), false);
+        if (fileName == null)
+            return;
 
-            String sourceDir = proj.getProjectDir().getPath();
+        String sourceDir = proj.getProjectDir().getPath();
 
-            createJar(proj, fileName.getAbsolutePath().toString(), sourceDir, info.mainClassName, info.selectedFiles,
-                info.includeSource, info.includePkgFiles, hasStride);
-        });
+        createJar(proj, fileName.getAbsolutePath().toString(), sourceDir, info.mainClassName, info.selectedFiles,
+            info.includeSource, info.includePkgFiles, hasStride);
     }
 
     /**

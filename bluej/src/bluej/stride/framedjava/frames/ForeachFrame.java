@@ -107,6 +107,7 @@ public class ForeachFrame extends SingleCanvasFrame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> r = super.getContextOperations();

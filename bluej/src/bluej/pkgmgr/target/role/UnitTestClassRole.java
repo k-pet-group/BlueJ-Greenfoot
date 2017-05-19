@@ -300,7 +300,7 @@ public class UnitTestClassRole extends ClassRole
         if (param != null) {
             // Only running a single test
             Project proj = pmf.getProject();
-            Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(proj, 1));
+            TestDisplayFrame.getTestDisplay().startTest(proj, 1);
         }
         
         new TestRunnerThread(pmf, ct, param).start();
@@ -380,43 +380,42 @@ public class UnitTestClassRole extends ClassRole
         if (newTestName == null)
             return;
 
-        SwingUtilities.invokeLater(() -> {
-            // find out if the method already exists in the unit test src
-            try {
-                Charset charset = pmf.getProject().getProjectCharset();
-                UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
-    
-                SourceSpan existingSpan = uta.getMethodBlockSpan(newTestName);
-    
-                if (existingSpan != null)
-                {
-                    Platform.runLater(() -> {
-                        if (DialogManager.askQuestionFX(pmf.getFXWindow(), "unittest-method-present") == 1)
-                        {
-                            // Don't do anything
-                        }
-                        else
-                        {
-                            SwingUtilities.invokeLater(() -> finishTestCase(pmf, ct, newTestName));
-                        }
-                    });
-                }
-                else
-                {
-                    finishTestCase(pmf, ct, newTestName);
-                }
-            }
-            catch (IOException ioe) { 
+
+        // find out if the method already exists in the unit test src
+        try {
+            Charset charset = pmf.getProject().getProjectCharset();
+            UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
+
+            SourceSpan existingSpan = uta.getMethodBlockSpan(newTestName);
+
+            if (existingSpan != null)
+            {
                 Platform.runLater(() -> {
-                    DialogManager.showErrorWithTextFX(pmf.getFXWindow(), "unittest-io-error", ioe.getLocalizedMessage());
-                    Debug.reportError("Error reading unit test source", ioe);
-                    SwingUtilities.invokeLater(() -> finishTestCase(pmf, ct, newTestName));
+                    if (DialogManager.askQuestionFX(pmf.getFXWindow(), "unittest-method-present") == 1)
+                    {
+                        // Don't do anything
+                    }
+                    else
+                    {
+                        SwingUtilities.invokeLater(() -> finishTestCase(pmf, ct, newTestName));
+                    }
                 });
             }
-        });
+            else
+            {
+                finishTestCase(pmf, ct, newTestName);
+            }
+        }
+        catch (IOException ioe) {
+            Platform.runLater(() -> {
+                DialogManager.showErrorWithTextFX(pmf.getFXWindow(), "unittest-io-error", ioe.getLocalizedMessage());
+                Debug.reportError("Error reading unit test source", ioe);
+                SwingUtilities.invokeLater(() -> finishTestCase(pmf, ct, newTestName));
+            });
+        }
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private void finishTestCase(PkgMgrFrame pmf, ClassTarget ct, String newTestName)
     {
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
@@ -745,10 +744,10 @@ public class UnitTestClassRole extends ClassRole
             super(name);
             this.ped = ped;
             this.t = t;
-            setOnAction(e -> SwingUtilities.invokeLater(() -> actionPerformed(e)));
+            setOnAction(e -> actionPerformed(e));
         }
 
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public abstract void actionPerformed(javafx.event.ActionEvent actionEvent);
     }
 
@@ -776,7 +775,7 @@ public class UnitTestClassRole extends ClassRole
         }
 
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void actionPerformed(ActionEvent e)
         {
             ped.raiseRunTargetEvent(t, testName);
@@ -792,7 +791,7 @@ public class UnitTestClassRole extends ClassRole
         }
 
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void actionPerformed(ActionEvent e)
         {
             ped.raiseMakeTestCaseEvent(t);
@@ -808,7 +807,7 @@ public class UnitTestClassRole extends ClassRole
         }
 
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void actionPerformed(ActionEvent e)
         {
             ped.raiseBenchToFixtureEvent(t);
@@ -824,7 +823,7 @@ public class UnitTestClassRole extends ClassRole
         }
 
         @Override
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         public void actionPerformed(ActionEvent e)
         {
             ped.raiseFixtureToBenchEvent(t);

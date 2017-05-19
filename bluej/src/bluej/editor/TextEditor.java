@@ -29,7 +29,10 @@ import javax.swing.text.Document;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
+@OnThread(Tag.FXPlatform)
 public interface TextEditor extends Editor
 {
     /**

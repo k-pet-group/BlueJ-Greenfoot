@@ -56,6 +56,8 @@ import bluej.stride.slots.EditableSlot;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class to manage the menus for a frame editor.
@@ -111,6 +113,7 @@ class FrameMenuManager extends TabMenuManager
         javaPreviewShowing.set(v == View.JAVA_PREVIEW);
     }
 
+    @OnThread(Tag.FXPlatform)
     List<Menu> getMenus()
     {
         if (menus == null)

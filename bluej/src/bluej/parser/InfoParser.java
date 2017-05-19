@@ -165,7 +165,7 @@ public class InfoParser extends EditorParser
      * Attempt to parse the specified source file, and resolve references via the specified
      * package (and its project). Returns null if the file could not be parsed.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public static ClassInfo parseWithPkg(File f, Package pkg) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);

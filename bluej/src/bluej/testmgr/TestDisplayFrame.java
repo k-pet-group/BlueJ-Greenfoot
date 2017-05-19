@@ -75,7 +75,6 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         return singleton;
     }
 
-    @OnThread(Tag.Any)
     public static BooleanProperty showingProperty()
     {
         return frameShowing;
@@ -429,31 +428,28 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     {
         if ((dtr != null) && (dtr.isError() || dtr.isFailure()))
         {
-            Project projFinal = project;
-            SwingUtilities.invokeLater(() -> {
-                SourceLocation exceptionLocation = dtr.getExceptionLocation();
+            SourceLocation exceptionLocation = dtr.getExceptionLocation();
 
-                if (exceptionLocation == null)
-                {
-                    return;
-                }
+            if (exceptionLocation == null)
+            {
+                return;
+            }
 
-                String packageName = JavaNames.getPrefix(exceptionLocation.getClassName());
+            String packageName = JavaNames.getPrefix(exceptionLocation.getClassName());
 
-                Package spackage = projFinal.getPackage(packageName);
+            Package spackage = project.getPackage(packageName);
 
-                if (spackage == null)
-                {
-                    return;
-                }
+            if (spackage == null)
+            {
+                return;
+            }
 
-                // We have the package name. Now get the source name and
-                // line number.
-                String sourceName = exceptionLocation.getFileName();
-                int lineno = exceptionLocation.getLineNumber();
+            // We have the package name. Now get the source name and
+            // line number.
+            String sourceName = exceptionLocation.getFileName();
+            int lineno = exceptionLocation.getLineNumber();
 
-                spackage.showSource(sourceName, lineno);
-            });
+            spackage.showSource(sourceName, lineno);
         }
     }
 }

@@ -745,16 +745,18 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     public void findMethod(String methodName, List<ParamInfo> params, FXConsumer<NormalMethodFrame> callback)
     {
         ClassElement el = getCode();
-        SwingUtilities.invokeLater(() -> {
+        JavaFXUtil.runNowOrLater(() ->
+        {
             Optional<NormalMethodFrame> method = el.streamMethods()
-                    .filter(e -> {
+                    .filter(e ->
+                    {
                         if (!(e instanceof NormalMethodElement))
                             return false;
                         NormalMethodElement m = (NormalMethodElement) e;
                         return m.equalDeclaration(methodName, params, el);
                     }).map(e -> ((NormalMethodElement) e).getFrame())
                     .findFirst();
-            Platform.runLater(() -> callback.accept(method.orElse(null)));
+            callback.accept(method.orElse(null));
         });
     }
 

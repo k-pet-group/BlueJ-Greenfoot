@@ -813,7 +813,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             if (evt.getClickCount() > 1) // double click
                 inspectObject();
             else { //single click
-                SwingUtilities.invokeLater(() -> ob.fireObjectEvent(this));
+                ob.fireObjectEvent(this);
             }
         }
         //manage focus

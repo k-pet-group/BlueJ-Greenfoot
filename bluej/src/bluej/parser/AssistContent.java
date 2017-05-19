@@ -57,7 +57,8 @@ public abstract class AssistContent
             return new HashSet<>(Arrays.asList(METHOD, FIELD));
         }
     }
-    
+
+    @OnThread(Tag.Any)
     public static class ParamInfo
     {
         private final String fullType;

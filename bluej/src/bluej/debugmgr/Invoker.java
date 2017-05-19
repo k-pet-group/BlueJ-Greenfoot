@@ -1262,12 +1262,14 @@ public class Invoker
             mypackage = p;
         }
 
+        @OnThread(Tag.Any)
         public String transform(String n)
         {
             return cleverQualifyTypeName(mypackage, n);
         }
     }
 
+    @OnThread(Tag.Any)
     static private String cleverQualifyTypeName(Package p, String typeName)
     {
         // if we happen to have a class in this package with the
@@ -1284,15 +1286,15 @@ public class Invoker
         // objects of types which are not in the current package
 
         if (!p.isUnnamedPackage()) {
-            String pkgName = p.getQualifiedName();
-            int firstDot = pkgName.indexOf(".");
+            String pName = p.getQualifiedName();
+            int firstDot = pName.indexOf(".");
 
             if (firstDot >= 0)
-                pkgName = pkgName.substring(0, firstDot);
+                pName = pName.substring(0, firstDot);
 
             // if the first part of the package name exists as a target
             // lets unqualify the typeName
-            if (p.getTarget(pkgName) != null)
+            if (p.getTarget(pName) != null)
                 typeName = JavaNames.getBase(typeName);
         }
 
