@@ -35,7 +35,6 @@ import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.SwingWorker;
 
 import threadchecker.OnThread;
@@ -57,7 +56,7 @@ import threadchecker.Tag;
  * @author Kasper
  */
 @OnThread(Tag.FXPlatform)
-public class CommitAction extends FXAbstractAction
+public class CommitAction extends TeamAction
 {
     private Set<File> newFiles; // which files are new files
     private Set<File> deletedFiles; // which files are to be removed
@@ -69,7 +68,7 @@ public class CommitAction extends FXAbstractAction
     
     public CommitAction(CommitAndPushInterface frame)
     {
-        super(Config.getString("team.commitButton"));
+        super(Config.getString("team.commitButton"), false);
         commitCommentsFrame = frame; 
     }
     
@@ -112,10 +111,8 @@ public class CommitAction extends FXAbstractAction
         this.statusHandle = statusHandle;
     }
     
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed()
+    @Override
+    protected void actionPerformed(PkgMgrFrame pmf)
     {
         Project project = commitCommentsFrame.getProject();
         

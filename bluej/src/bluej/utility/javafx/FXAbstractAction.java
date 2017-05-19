@@ -29,7 +29,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -50,7 +49,6 @@ import threadchecker.Tag;
 public abstract class FXAbstractAction
 {
     private String name;
-    private String shortDescription;
 
     private boolean hasMenuItem = false;
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
@@ -66,14 +64,14 @@ public abstract class FXAbstractAction
     protected FXAbstractAction(String name, KeyCombination accelerator)
     {
         this.name = name;
-        this.accelerator = new SimpleObjectProperty<KeyCombination>(accelerator);
+        this.accelerator = new SimpleObjectProperty<>(accelerator);
         this.buttonGraphic = null;
     }
 
     protected FXAbstractAction(String name, Node buttonGraphic)
     {
         this.name = name;
-        this.accelerator = new SimpleObjectProperty<KeyCombination>(null);
+        this.accelerator = new SimpleObjectProperty<>(null);
         this.buttonGraphic = buttonGraphic;
     }
 
@@ -218,10 +216,5 @@ public abstract class FXAbstractAction
     public void setName(String name)
     {
         this.name = name;
-    }
-
-    public void setShortDescription(String shortDescription)
-    {
-        this.shortDescription = shortDescription;
     }
 }

@@ -28,6 +28,7 @@ import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.CommitAndPushInterface;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.SwingWorker;
 
@@ -35,8 +36,6 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-
-import bluej.utility.javafx.FXAbstractAction;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -46,7 +45,7 @@ import threadchecker.Tag;
  * @author Fabio Heday
  */
 @OnThread(Tag.FXPlatform)
-public class PushAction extends FXAbstractAction
+public class PushAction extends TeamAction
 {
 
     private CommitAndPushInterface commitCommentsFrame;
@@ -56,7 +55,7 @@ public class PushAction extends FXAbstractAction
 
     public PushAction(CommitAndPushInterface frame)
     {
-        super(Config.getString("team.push"));
+        super(Config.getString("team.push"), false);
         commitCommentsFrame = frame;
         this.filesToPush = new HashSet<>();
     }
@@ -97,11 +96,8 @@ public class PushAction extends FXAbstractAction
         this.statusHandle = statusHandle;
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     @Override
-    public void actionPerformed()
+    protected void actionPerformed(PkgMgrFrame pkgMgrFrame)
     {
         Project project = commitCommentsFrame.getProject();
 

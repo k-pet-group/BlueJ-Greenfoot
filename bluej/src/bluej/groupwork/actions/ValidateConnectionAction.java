@@ -25,7 +25,7 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.ui.CheckConnectionDialog;
 import bluej.groupwork.ui.TeamSettingsPanel;
-import bluej.utility.javafx.FXAbstractAction;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.javafx.FXPlatformSupplier;
 
 import javafx.stage.Window;
@@ -38,7 +38,7 @@ import threadchecker.Tag;
  * @author fisker
  */
 @OnThread(Tag.FXPlatform)
-public class ValidateConnectionAction extends FXAbstractAction
+public class ValidateConnectionAction extends TeamAction
 {
     private TeamSettingsPanel teamSettingsPanel;
     private FXPlatformSupplier<Window> owner;
@@ -46,23 +46,16 @@ public class ValidateConnectionAction extends FXAbstractAction
     public ValidateConnectionAction(String name, TeamSettingsPanel teamSettingsPanel,
                                     FXPlatformSupplier<Window> owner)
     {
-        super(name);
+        super(name, true);
         this.teamSettingsPanel = teamSettingsPanel;
         this.owner = owner;
     }
     
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed()
+    @Override
+    protected void actionPerformed(PkgMgrFrame pmf)
     {
         TeamworkProvider provider = teamSettingsPanel.getSelectedProvider();
         TeamSettings settings = teamSettingsPanel.getSettings();
         new CheckConnectionDialog(owner.get(), provider, settings).showAndCheck();
-    }
-
-    public String getName()
-    {
-        return getName();
     }
 }

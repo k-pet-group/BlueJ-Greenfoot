@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import bluej.pkgmgr.PkgMgrFrame;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -133,11 +134,8 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         VBox bottomPanel = new VBox();
 
         updateAction = new UpdateAction(this);
-        updateButton = new Button();// BlueJTheme.getOkButton();
-        updateButton.setOnAction(event -> {
-            updateAction.actionPerformed();
-            includeLayoutCheckbox.setDisable(true);
-        });
+        updateButton = new Button();
+        updateAction.useButton(PkgMgrFrame.getMostRecent(), updateButton);
         updateButton.requestFocus();
 
         Button closeButton = new Button();// BlueJTheme.getCancelButton();
@@ -296,6 +294,11 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     {
         includeLayoutCheckbox.setDisable(false);
         includeLayoutCheckbox.setSelected(includeLayout);
+    }
+
+    public void disableLayoutCheck()
+    {
+        includeLayoutCheckbox.setDisable(true);
     }
 
     /**

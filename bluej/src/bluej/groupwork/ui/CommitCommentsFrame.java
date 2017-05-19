@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import bluej.pkgmgr.PkgMgrFrame;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -145,8 +146,8 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
         bottomPanel.getChildren().add(commitTextScrollPane);
 
         commitAction = new CommitAction(this);
-        commitButton = new Button();// BlueJTheme.getOkButton();
-        commitButton.setOnAction(event -> commitAction.actionPerformed());
+        commitButton = new Button();
+        commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
         commitButton.requestFocus();
 
         Button closeButton = new Button();// BlueJTheme.getCancelButton();

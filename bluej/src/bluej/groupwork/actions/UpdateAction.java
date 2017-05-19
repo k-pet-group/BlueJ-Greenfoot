@@ -49,7 +49,6 @@ import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.DialogManager;
-import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.JavaNames;
 import bluej.utility.SwingWorker;
 
@@ -65,7 +64,7 @@ import threadchecker.Tag;
  * @author Kasper Fisker
  */
 @OnThread(Tag.FXPlatform)
-public class UpdateAction extends FXAbstractAction
+public class UpdateAction extends TeamAction
 {
     private Project project;
     private boolean includeLayout = true;
@@ -81,7 +80,7 @@ public class UpdateAction extends FXAbstractAction
 
     public UpdateAction(UpdateFilesFrame updateFrame)
     {
-        super(Config.getString("team.update"));
+        super(Config.getString("team.update"), true);
         setShortDescription(Config.getString("tooltip.update"));
         this.updateFrame = updateFrame;
     }
@@ -112,10 +111,8 @@ public class UpdateAction extends FXAbstractAction
         this.statusHandle = statusHandle;
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed()
+    @Override
+    protected void actionPerformed(PkgMgrFrame pmf)
     {
         project = updateFrame.getProject();
 
@@ -123,10 +120,10 @@ public class UpdateAction extends FXAbstractAction
             updateFrame.startProgress();
             PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusMessage"));
 
-            worker = new UpdateWorker(project, statusHandle,
-                    filesToUpdate, filesToForceUpdate);
+            worker = new UpdateWorker(project, statusHandle, filesToUpdate, filesToForceUpdate);
             worker.start();
         }
+        updateFrame.disableLayoutCheck();
     }
 
     /**
@@ -345,7 +342,7 @@ public class UpdateAction extends FXAbstractAction
 
 
             /** A list of files to replace with repository version */
-            Set<File> filesToOverride = new HashSet<File>();
+            Set<File> filesToOverride = new HashSet<>();
 
             // Binary conflicts
             for (Iterator<File> i = updateServerResponse.getBinaryConflicts().iterator();

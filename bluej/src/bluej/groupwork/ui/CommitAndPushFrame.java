@@ -34,6 +34,7 @@ import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.BlueJPackageFile;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
@@ -156,8 +157,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
 
         commitAction = new CommitAction(this);
-        commitButton = new Button(Config.getString("team.commitButton"));
-        commitButton.setOnAction(event -> commitAction.actionPerformed());
+        commitButton = new Button();
+        commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
         //Bind commitText properties to enable the commit button if there is a comment.
         commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
 
@@ -184,10 +185,9 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitButtonPane.setAlignment(Pos.CENTER_RIGHT);
         commitButtonPane.getChildren().addAll(includeLayout, commitButton);
 
-
         pushAction = new PushAction(this);
-        pushButton = new Button(Config.getString("team.push"));
-        pushButton.setOnAction(event -> pushAction.actionPerformed());
+        pushButton = new Button();
+        pushAction.useButton(PkgMgrFrame.getMostRecent(), pushButton);
 
         Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
         ListView pushFiles = new ListView(pushListModel);

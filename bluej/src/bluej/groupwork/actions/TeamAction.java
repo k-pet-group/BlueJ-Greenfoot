@@ -22,7 +22,6 @@
 package bluej.groupwork.actions;
 
 import bluej.Config;
-import bluej.pkgmgr.actions.PkgMgrAction;
 import bluej.pkgmgr.PkgMgrFrame;
 
 import javafx.beans.property.BooleanProperty;
@@ -44,6 +43,7 @@ import threadchecker.Tag;
  * 
  * @author fisker
  */
+@OnThread(Tag.FXPlatform)
 public abstract class TeamAction
 {
     private final StringProperty name = new SimpleStringProperty();
@@ -67,7 +67,6 @@ public abstract class TeamAction
      * changes the name of the action.
      * @param name 
      */
-    @OnThread(Tag.FX)
     public void setName(String name, boolean showsDialog)
     {
     	this.name.set(showsDialog ? name : (name + "..."));
@@ -76,6 +75,16 @@ public abstract class TeamAction
     public void setEnabled(boolean enabled)
     {
         disabled.set(!enabled);
+    }
+
+    public boolean isDisabled()
+    {
+        return disabled.get();
+    }
+
+    public void setShortDescription(String shortDescription)
+    {
+        this.shortDescription = shortDescription;
     }
 
     /**
@@ -88,9 +97,7 @@ public abstract class TeamAction
         button.textProperty().bind(name);
         button.disableProperty().unbind();
         button.disableProperty().bind(disabled);
-        button.setOnAction(e -> {
-            actionPerformed(pmf);
-        });
+        button.setOnAction(e -> actionPerformed(pmf));
     }
 
     /**
@@ -103,9 +110,7 @@ public abstract class TeamAction
         menuItem.textProperty().bind(name);
         menuItem.disableProperty().unbind();
         menuItem.disableProperty().bind(disabled);
-        menuItem.setOnAction(e -> {
-            actionPerformed(pmf);
-        });
+        menuItem.setOnAction(e -> actionPerformed(pmf));
     }
 
     protected abstract void actionPerformed(PkgMgrFrame pmf);

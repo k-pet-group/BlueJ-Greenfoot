@@ -27,6 +27,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import bluej.pkgmgr.PkgMgrFrame;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -144,8 +145,8 @@ public class TeamSettingsPanel extends VBox
 
         ValidateConnectionAction validateConnectionAction = new ValidateConnectionAction(
                 Config.getString("team.settings.checkConnection"), this, dialog::getOwner);
-        Button validateButton = new Button(validateConnectionAction.getName());
-        validateButton.setOnAction(event -> validateConnectionAction.actionPerformed());
+        Button validateButton = new Button();
+        validateConnectionAction.useButton(PkgMgrFrame.getMostRecent(), validateButton);
 
         getChildren().addAll(createPropertiesContainer(Config.getString("team.settings.location"), locationPane),
                              createPropertiesContainer(Config.getString("team.settings.personal"), personalPane),
