@@ -145,7 +145,7 @@ public class TeamSettingsPanel extends VBox
         ValidateConnectionAction validateConnectionAction = new ValidateConnectionAction(
                 Config.getString("team.settings.checkConnection"), this, dialog::getOwner);
         Button validateButton = new Button(validateConnectionAction.getName());
-        validateButton.setOnAction(event -> validateConnectionAction.actionPerformed(null));
+        validateButton.setOnAction(event -> validateConnectionAction.actionPerformed());
 
         getChildren().addAll(createPropertiesContainer(Config.getString("team.settings.location"), locationPane),
                              createPropertiesContainer(Config.getString("team.settings.personal"), personalPane),

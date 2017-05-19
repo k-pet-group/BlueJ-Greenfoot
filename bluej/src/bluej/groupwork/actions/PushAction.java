@@ -32,12 +32,11 @@ import bluej.pkgmgr.Project;
 import bluej.utility.SwingWorker;
 
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-import javax.swing.AbstractAction;
-import javafx.application.Platform;
+
+import bluej.utility.javafx.FXAbstractAction;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -46,7 +45,8 @@ import threadchecker.Tag;
  * This class implements the push action.
  * @author Fabio Heday
  */
-public class PushAction extends AbstractAction
+@OnThread(Tag.FXPlatform)
+public class PushAction extends FXAbstractAction
 {
 
     private CommitAndPushInterface commitCommentsFrame;
@@ -101,7 +101,7 @@ public class PushAction extends AbstractAction
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
-    public void actionPerformed(ActionEvent event)
+    public void actionPerformed()
     {
         Project project = commitCommentsFrame.getProject();
 
@@ -176,13 +176,11 @@ public class PushAction extends AbstractAction
                 commitCommentsFrame.stopProgress();
                 if (!result.isError() && !result.wasAborted()) {
                     DataCollector.teamCommitProject(project, statusHandle.getRepository(), filesToPush);
-                    EventQueue.invokeLater(() -> {
-                        commitCommentsFrame.displayMessage(Config.getString("team.push.statusDone"));
-                    });
+                    EventQueue.invokeLater(() -> commitCommentsFrame.displayMessage(Config.getString("team.push.statusDone")));
                 }
             }
 
-            Platform.runLater(() -> TeamUtils.handleServerResponseFX(result, commitCommentsFrame.asWindow()));
+            TeamUtils.handleServerResponseFX(result, commitCommentsFrame.asWindow());
 
             if (!aborted) {
                 setEnabled(true);
@@ -196,5 +194,4 @@ public class PushAction extends AbstractAction
             }
         }
     }
-
 }

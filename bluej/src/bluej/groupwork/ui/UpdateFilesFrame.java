@@ -135,7 +135,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         updateAction = new UpdateAction(this);
         updateButton = new Button();// BlueJTheme.getOkButton();
         updateButton.setOnAction(event -> {
-            updateAction.actionPerformed(null);
+            updateAction.actionPerformed();
             includeLayoutCheckbox.setDisable(true);
         });
         updateButton.requestFocus();

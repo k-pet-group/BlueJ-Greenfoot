@@ -120,6 +120,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 //        DialogManager.centreDialog(this);
 //        rememberPosition("bluej.commitdisplay");
         prepareButtonPane();
+        //setOnShown(e -> org.scenicview.ScenicView.show(this.asWindow().getScene()));
+
     }
 
     /**
@@ -155,7 +157,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         commitAction = new CommitAction(this);
         commitButton = new Button(Config.getString("team.commitButton"));
-        commitButton.setOnAction(event -> commitAction.actionPerformed(null));
+        commitButton.setOnAction(event -> commitAction.actionPerformed());
         //Bind commitText properties to enable the commit button if there is a comment.
         commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
 
@@ -185,7 +187,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         pushAction = new PushAction(this);
         pushButton = new Button(Config.getString("team.push"));
-        pushButton.setOnAction(event -> pushAction.actionPerformed(null));
+        pushButton.setOnAction(event -> pushAction.actionPerformed());
 
         Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
         ListView pushFiles = new ListView(pushListModel);
@@ -533,7 +535,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                     boolean conflicts;
                     conflicts = !mergeConflictsInPush.isEmpty() || !deleteConflictsInPush.isEmpty()
                             || !otherConflictsInPush.isEmpty() || !needsMergeInPush.isEmpty();
-                    if (!commitAction.isEnabled() && conflicts) {
+                    if (commitAction.isDisabled() && conflicts) {
                         //there is a file in some of the conflict list.
                         //check if this fill will commit normally. if it will, we should allow.
                         Set<File> conflictingFilesInPush = new HashSet<>();
@@ -569,7 +571,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                         conflicts = !conflictingFilesInPush.isEmpty();
                     }
 
-                    if (!commitAction.isEnabled() && conflicts) {
+                    if (commitAction.isDisabled() && conflicts) {
 
                         handleConflicts(mergeConflictsInPush, deleteConflictsInPush,
                                 otherConflictsInPush, null);

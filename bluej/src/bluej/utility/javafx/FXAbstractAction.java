@@ -49,7 +49,9 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public abstract class FXAbstractAction
 {
-    protected String name;
+    private String name;
+    private String shortDescription;
+
     private boolean hasMenuItem = false;
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
     private final BooleanProperty disabled = new SimpleBooleanProperty(false);
@@ -207,5 +209,19 @@ public abstract class FXAbstractAction
     public boolean hasMenuItem()
     {
         return hasMenuItem;
+    }
+
+    /**
+     * changes the name of the action.
+     * @param name the new name to be assigned
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public void setShortDescription(String shortDescription)
+    {
+        this.shortDescription = shortDescription;
     }
 }

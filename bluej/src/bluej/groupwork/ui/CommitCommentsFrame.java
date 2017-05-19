@@ -146,7 +146,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
 
         commitAction = new CommitAction(this);
         commitButton = new Button();// BlueJTheme.getOkButton();
-        commitButton.setOnAction(event -> commitAction.actionPerformed(null));
+        commitButton.setOnAction(event -> commitAction.actionPerformed());
         commitButton.requestFocus();
 
         Button closeButton = new Button();// BlueJTheme.getCancelButton();

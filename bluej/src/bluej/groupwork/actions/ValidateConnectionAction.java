@@ -21,26 +21,24 @@
  */
 package bluej.groupwork.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-
-import javafx.application.Platform;
-import javafx.stage.Window;
-
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.ui.CheckConnectionDialog;
 import bluej.groupwork.ui.TeamSettingsPanel;
+import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformSupplier;
+
+import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Test the username, password, host, etc. settings to make sure they are valid
  * 
  * @author fisker
  */
-public class ValidateConnectionAction extends AbstractAction
+@OnThread(Tag.FXPlatform)
+public class ValidateConnectionAction extends FXAbstractAction
 {
     private TeamSettingsPanel teamSettingsPanel;
     private FXPlatformSupplier<Window> owner;
@@ -56,16 +54,15 @@ public class ValidateConnectionAction extends AbstractAction
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed()
     {
         TeamworkProvider provider = teamSettingsPanel.getSelectedProvider();
         TeamSettings settings = teamSettingsPanel.getSettings();
-
-        Platform.runLater(() -> new CheckConnectionDialog(owner.get(), provider, settings).showAndCheck());
+        new CheckConnectionDialog(owner.get(), provider, settings).showAndCheck();
     }
 
     public String getName()
     {
-        return (String) getValue(Action.NAME);
+        return getName();
     }
 }
