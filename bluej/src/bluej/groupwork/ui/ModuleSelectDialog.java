@@ -59,7 +59,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
 {
     private Repository repository;
 
-    private ActivityIndicatorFX progressBar;
+    private ActivityIndicator progressBar;
     private TextField moduleField;
     private ListView moduleList;
     private ModuleListerThread worker;
@@ -142,7 +142,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
 
         // Button box
         HBox buttonBox = new HBox();
-        progressBar = new ActivityIndicatorFX();
+        progressBar = new ActivityIndicator();
         buttonBox.getChildren().add(progressBar);
 //        buttonBox.getChildren().add(Box.createHorizontalGlue());//
         buttonBox.getChildren().add(new Separator(Orientation.HORIZONTAL));

@@ -94,7 +94,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     private TextArea commitText;
     private Button commitButton;
     private CheckBox includeLayout;
-    private ActivityIndicatorFX progressBar;
+    private ActivityIndicator progressBar;
 
     public CommitCommentsFrame(Project proj, Window owner)
     {
@@ -159,7 +159,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
 
         HBox buttonPanel = new HBox();
 
-        progressBar = new ActivityIndicatorFX();
+        progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
 
         VBox checkBoxPanel = new VBox();

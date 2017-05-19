@@ -96,7 +96,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
     private CheckBox includeLayout;
     private TextArea commitText;
-    private ActivityIndicatorFX progressBar;
+    private ActivityIndicator progressBar;
     private Button commitButton, pushButton;
 
     private CommitAction commitAction;
@@ -198,7 +198,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         pushFileScrollPane.setFitToHeight(true);
 
         HBox pushButtonPane = new HBox();
-        progressBar = new ActivityIndicatorFX();
+        progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
         JavaFXUtil.addStyleClass(pushButtonPane, "button-hbox");
         pushButtonPane.setAlignment(Pos.CENTER_RIGHT);

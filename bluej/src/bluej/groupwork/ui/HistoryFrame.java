@@ -71,7 +71,7 @@ import threadchecker.Tag;
 public class HistoryFrame extends FXCustomizedDialog<Void>
 {
     private Project project;
-    private ActivityIndicatorFX activityBar;
+    private ActivityIndicator activityBar;
     private HistoryWorker worker;
 
     private ObservableList<HistoryInfo> listModel = new SimpleListProperty<>();
@@ -143,7 +143,7 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
 
         // Activity indicator and close button
         HBox buttonBox = new HBox();
-        activityBar = new ActivityIndicatorFX();
+        activityBar = new ActivityIndicator();
         buttonBox.getChildren().add(activityBar);
 //        buttonBox.getChildren().add(Box.createHorizontalGlue());
         Button closeButton = new Button(Config.getString("close"));

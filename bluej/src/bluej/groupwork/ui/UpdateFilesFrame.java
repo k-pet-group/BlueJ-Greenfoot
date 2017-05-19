@@ -77,7 +77,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 {
     private Button updateButton;
     private CheckBox includeLayoutCheckbox;
-    private ActivityIndicatorFX progressBar;
+    private ActivityIndicator progressBar;
     private UpdateAction updateAction;
     private UpdateWorker updateWorker;
 
@@ -147,7 +147,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 
         HBox buttonPanel = new HBox();
 
-        progressBar = new ActivityIndicatorFX();
+        progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
 
         VBox checkBoxPanel = new VBox();

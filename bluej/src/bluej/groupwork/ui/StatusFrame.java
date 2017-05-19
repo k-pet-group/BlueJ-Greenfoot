@@ -73,7 +73,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     private StatusTableModel statusModel;
 
     private Button refreshButton;
-    private ActivityIndicatorFX progressBar;
+    private ActivityIndicator progressBar;
     private StatusWorker worker;
 
     private static final int MAX_ENTRIES = 20;
@@ -144,7 +144,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     private Pane makeRefreshPane()
     {
         // progress bar
-        progressBar = new ActivityIndicatorFX();
+        progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
 
         //refresh button

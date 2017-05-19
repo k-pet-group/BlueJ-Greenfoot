@@ -53,7 +53,7 @@ import bluej.groupwork.actions.StatusAction;
 import bluej.groupwork.actions.TeamAction;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.actions.UpdateDialogAction;
-import bluej.groupwork.ui.ActivityIndicatorFX;
+import bluej.groupwork.ui.ActivityIndicator;
 import bluej.pkgmgr.actions.*;
 import bluej.pkgmgr.print.PackagePrintManager;
 import bluej.pkgmgr.target.CSSTarget;
@@ -70,7 +70,6 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -146,7 +145,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -180,7 +178,7 @@ public class PkgMgrFrame
     private Label statusbar;
     // Initialised once, effectively final thereafter:
     @OnThread(Tag.Any)
-    private ActivityIndicatorFX progressbar;
+    private ActivityIndicator progressbar;
     @OnThread(Tag.FX)
     private Label testStatusMessage;
     @OnThread(Tag.FXPlatform)
@@ -528,7 +526,7 @@ public class PkgMgrFrame
             BorderPane.setAlignment(testStatusMessage, Pos.CENTER_LEFT);
             statusArea.setLeft(testStatusMessage);
 
-            progressbar = new ActivityIndicatorFX();
+            progressbar = new ActivityIndicator();
             progressbar.setRunning(false);
             statusArea.setRight(new HBox(progressbar, machineIcon));
 

@@ -34,13 +34,13 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 @OnThread(Tag.FXPlatform)
-public class ActivityIndicatorFX extends StackPane
+public class ActivityIndicator extends StackPane
 {
     private ProgressBar progressBar;
     private Label messageLabel;
     private Timeline animation;
 
-    public ActivityIndicatorFX()
+    public ActivityIndicator()
     {
         progressBar = new ProgressBar();
         progressBar.setVisible(false);
