@@ -233,12 +233,12 @@ public class ExecControls
         window.setScene(scene);
         Config.rememberPositionAndSize(window, "bluej.debugger");
         window.setOnShown(e -> {
-            SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, true));
+            DataCollector.debuggerChangeVisible(project, true);
             visible.set(true);
             //org.scenicview.ScenicView.show(scene);
         });
         window.setOnHidden(e -> {
-            SwingUtilities.invokeLater(() -> DataCollector.debuggerChangeVisible(project, false));
+            DataCollector.debuggerChangeVisible(project, false);
             visible.set(false);
         });
 
@@ -480,7 +480,6 @@ public class ExecControls
      * Create and arrange the GUI components.
      * @param debuggerThreads
      */
-    @OnThread(Tag.Swing)
     private void createWindowContent(ObservableList<DebuggerThreadDetails> debuggerThreads)
     {
         FXPlatformSupplier<MenuBar> fxMenuBar = JavaFXUtil.swingMenuBarToFX(makeMenuBar(), this);

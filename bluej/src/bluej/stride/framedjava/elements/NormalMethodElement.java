@@ -162,7 +162,7 @@ public class NormalMethodElement extends MethodWithBodyElement
         frame.show(reason);        
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public boolean equalDeclaration(String name, List<ParamInfo> params, ClassElement el)
     {
         if ( !this.name.getContent().equals(name) ) {

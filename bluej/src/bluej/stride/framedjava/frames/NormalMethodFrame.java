@@ -119,7 +119,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             }
         }
     };
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private String curOverrideSource = null;
     private final TypeSlot returnType;
     private final TextSlot<NameDefSlotFragment> methodName;
@@ -347,7 +347,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         return returnType.javaProperty();
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void updateOverrideDisplay(ClassElement topLevel)
     {
         if (element == null)
@@ -356,30 +356,29 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         final NormalMethodElement cachedElement = element;
         
         // Now need to look through super-types for method with our name and right signature:
-        SwingUtilities.invokeLater(() -> {
-            List<String> qualParamTypes = cachedElement.getQualifiedParamTypes(topLevel);
-            Reflective overriddenFrom = topLevel.findSuperMethod(cachedElement.getName(), qualParamTypes);
-            if (overriddenFrom != null)
+
+        List<String> qualParamTypes = cachedElement.getQualifiedParamTypes(topLevel);
+        Reflective overriddenFrom = topLevel.findSuperMethod(cachedElement.getName(), qualParamTypes);
+        if (overriddenFrom != null)
+        {
+            String name = overriddenFrom.getSimpleName();
+            if (name.indexOf('.') != -1)
+                name = name.substring(name.lastIndexOf('.') + 1);
+            final String nameFinal = name;
+            if (curOverrideSource == null || !curOverrideSource.equals(nameFinal))
             {
-                String name = overriddenFrom.getSimpleName();
-                if (name.indexOf('.') != -1)
-                    name = name.substring(name.lastIndexOf('.') + 1);
-                final String nameFinal = name;
-                if (curOverrideSource == null || !curOverrideSource.equals(nameFinal))
-                {
-                    curOverrideSource = nameFinal;
-                    Platform.runLater(() -> overrideLabel.setText("overrides method in " + nameFinal));
-                }
+                curOverrideSource = nameFinal;
+                overrideLabel.setText("overrides method in " + nameFinal);
             }
-            else
+        }
+        else
+        {
+            if (curOverrideSource != null)
             {
-                if (curOverrideSource != null)
-                {
-                    curOverrideSource = null;
-                    Platform.runLater(() -> overrideLabel.setText(""));
-                }
+                curOverrideSource = null;
+                overrideLabel.setText("");
             }
-        });
+        }
     }
 
     @Override

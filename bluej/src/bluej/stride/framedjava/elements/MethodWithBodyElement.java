@@ -266,7 +266,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         return streamContained(contents);
     }
     
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public List<String> getQualifiedParamTypes(ClassElement topLevel)
     {
         return params.stream().map(p -> {

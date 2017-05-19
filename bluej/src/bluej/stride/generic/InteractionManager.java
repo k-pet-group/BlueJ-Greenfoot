@@ -151,6 +151,7 @@ public interface InteractionManager extends SuggestionListParent
 
     Paint getHighlightColor();
 
+    @OnThread(Tag.FXPlatform)
     List<AssistContentThreadSafe> getThisConstructors();
 
     FrameEditor getFrameEditor();

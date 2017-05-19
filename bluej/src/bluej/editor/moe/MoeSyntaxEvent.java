@@ -39,7 +39,7 @@ import bluej.parser.nodes.ParsedNode;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.Any)
+@OnThread(Tag.FXPlatform)
 public class MoeSyntaxEvent implements NodeStructureListener
 {
     private final int offset;

@@ -75,6 +75,7 @@ import javax.swing.text.Segment;
  * @author Michael Kolling
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class BlueJSyntaxView
 {
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
@@ -86,6 +87,7 @@ public class BlueJSyntaxView
     private static final int CURVED_CORNER_SIZE = 4;
     // See comments in getImageFor for more info.
     // 1 means draw edge, 2 means draw filling
+    @OnThread(Tag.FX)
     private static final int[][] CORNER_TEMPLATE = new int[][] {
             {0, 0, 1, 1},
             {0, 1, 2, 2},
@@ -171,7 +173,7 @@ public class BlueJSyntaxView
         // We use class color as a proxy for listening to all colors:
         JavaFXUtil.addChangeListenerPlatform(scopeColors.scopeClassColorProperty(), str -> {
             // runLater to make sure all colours have been set:
-            Platform.runLater(() ->
+            JavaFXUtil.runAfterCurrent(() ->
             {
                 resetColors();
                 imageCache.clear();
@@ -236,6 +238,7 @@ public class BlueJSyntaxView
         return imageCache.get(s);
     }
 
+    @OnThread(Tag.FX)
     private Image drawImageFor(ScopeInfo s, int lineHeight)
     {
         WritableImage image = new WritableImage(s.nestedScopes.stream().mapToInt(n -> n.leftRight.rhs + 1).max().orElse(1) + 1, lineHeight);
@@ -354,6 +357,7 @@ public class BlueJSyntaxView
         return image;
     }
 
+    @OnThread(Tag.FX)
     private static void blend(WritableImage image, Color rgba)
     {
         Color c = new Color(rgba.getRed(), rgba.getGreen(), rgba.getBlue(), 1.0);
@@ -367,6 +371,7 @@ public class BlueJSyntaxView
         }
     }
 
+    @OnThread(Tag.FX)
     private static void fillRect(PixelWriter pixelWriter, int x, int y, int w, int h, Color c)
     {
         // If we're trying to draw off the left-hand/top edge, just truncate the rectangles
@@ -395,7 +400,7 @@ public class BlueJSyntaxView
     {
         this.editorPane = editorPane;
         this.widthProperty = editorPane.widthProperty();
-        JavaFXUtil.addChangeListener(widthProperty, w -> {
+        JavaFXUtil.addChangeListenerPlatform(widthProperty, w -> {
             document.fireChangedUpdate(null);
         });
     }
@@ -1832,6 +1837,7 @@ public class BlueJSyntaxView
      * is a list of nested scope boxes applicable to that line.  The first scope
      * is the outermost and last is innermost, so we render them in list order.
      */
+    @OnThread(Tag.FX)
     public static class ScopeInfo
     {
         // For display purposes.  Step overrides breakpoint.

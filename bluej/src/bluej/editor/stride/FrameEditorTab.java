@@ -640,10 +640,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 TopLevelFrame<? extends TopLevelCodeElement> frame = initialSource.createTopLevelFrame(FrameEditorTab.this);
                 frame.regenerateCode();
                 TopLevelCodeElement el = frame.getCode();
-                el.updateSourcePositions();
                 // Finish on the platform thread:
                 JavaFXUtil.runPlatformLater(() ->
                 {
+                    el.updateSourcePositions();
                     FrameEditorTab.this.topLevelFrameProperty.setValue(frame);
                     nameProperty.bind(getTopLevelFrame().nameProperty());
                     // Whenever name changes, trigger recompile even without leaving slot:
@@ -1859,6 +1859,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<AssistContentThreadSafe> getThisConstructors()
     {
         TopLevelCodeElement codeEl = getSource();
@@ -2017,6 +2018,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         });
     }
 
+    @OnThread(Tag.FXPlatform)
     private void updateDisplays()
     {
         // Go through methods and set override tags:
@@ -2600,6 +2602,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return getParent().getDragCursorPane();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void compiled()
     {
         if (getTopLevelFrame() != null)

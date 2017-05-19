@@ -11,6 +11,7 @@ import threadchecker.Tag;
 /**
  * Created by neil on 25/04/2017.
  */
+@OnThread(Tag.FX)
 public interface ScopeColors
 {
     public ObjectExpression<Color> scopeClassColorProperty();

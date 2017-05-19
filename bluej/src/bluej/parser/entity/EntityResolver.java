@@ -22,6 +22,8 @@
 package bluej.parser.entity;
 
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An EntityResolver, broadly speaking, resolves identifiers into packages, classes,
@@ -31,6 +33,7 @@ import bluej.debugger.gentype.Reflective;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public interface EntityResolver
 {
     /**

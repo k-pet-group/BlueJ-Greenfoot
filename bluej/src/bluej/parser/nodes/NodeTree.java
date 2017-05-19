@@ -21,6 +21,9 @@
  */
 package bluej.parser.nodes;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.Iterator;
 
 
@@ -897,11 +900,15 @@ public class NodeTree<T extends RBTreeNode<T>>
             }
         }
 
+        @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public boolean hasNext()
         {
             return current != null;
         }
 
+        @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public NodeAndPosition<T> next()
         {
             while (true) {
@@ -945,10 +952,6 @@ public class NodeTree<T extends RBTreeNode<T>>
                 offset -= top.pnodeOffset + top.pnodeSize; 
             }
             pos = 1; // middle!
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
         }
     }
 }

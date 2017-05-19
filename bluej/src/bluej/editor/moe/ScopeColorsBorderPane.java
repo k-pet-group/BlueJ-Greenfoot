@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by neil on 29/06/2016.
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.FX)
 public class ScopeColorsBorderPane extends BorderPane implements ScopeColors
 {
     private final CssMetaData<ScopeColorsBorderPane, Color> BACKGROUND_COLOR_META_DATA =

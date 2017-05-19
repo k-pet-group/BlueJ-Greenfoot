@@ -44,7 +44,7 @@ public abstract class ParentParsedNode extends ParsedNode
     }
             
     @Override
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
             int length, NodeStructureListener listener)
     {
@@ -88,7 +88,7 @@ public abstract class ParentParsedNode extends ParsedNode
     /**
      * Handle the case of text being inserted directly into this node (not a child).
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     protected int handleInsertion(MoeSyntaxDocument document, int nodePos, int insPos, int length,
             NodeStructureListener listener)
     {
@@ -97,7 +97,7 @@ public abstract class ParentParsedNode extends ParsedNode
     }
     
     @Override
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
@@ -191,7 +191,7 @@ public abstract class ParentParsedNode extends ParsedNode
      * Handle the case of text being removed directly from this node (rather than a
      * child node).
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     protected int handleDeletion(MoeSyntaxDocument document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
@@ -207,14 +207,14 @@ public abstract class ParentParsedNode extends ParsedNode
      * Default implementation, just causes the parent to re-parse
      */
     @Override
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return REMOVE_NODE;
     }
     
     @Override
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {

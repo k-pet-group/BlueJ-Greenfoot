@@ -111,7 +111,7 @@ public interface TopLevelCodeElement
         return new Attribute("strideversion", "1");
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public CodeSuggestions getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing);
 
     @OnThread(Tag.FX)
@@ -124,7 +124,7 @@ public interface TopLevelCodeElement
     // Used to help style the tab:
     public String getStylePrefix();
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public EntityResolver getResolver();
 
     public @OnThread(Tag.FX) InteractionManager getEditor();
@@ -155,11 +155,12 @@ public interface TopLevelCodeElement
         return java;
     }
 
+    @OnThread(Tag.FXPlatform)
     void updateSourcePositions();
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     List<ConstructorReflective> getSuperConstructors();
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     List<AssistContentThreadSafe> getThisConstructors();
 }
