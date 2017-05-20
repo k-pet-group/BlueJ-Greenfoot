@@ -207,7 +207,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                     if (msg != null) {
                         msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
                         String msgFinal = msg;
-                        Platform.runLater(() -> DialogManager.showErrorTextFX(this.asWindow(), msgFinal));
+                        DialogManager.showErrorTextFX(this.asWindow(), msgFinal);
                     }
                 }
                 startProgress();
