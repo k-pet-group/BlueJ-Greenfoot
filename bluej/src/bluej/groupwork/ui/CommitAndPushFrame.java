@@ -145,15 +145,9 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         Label commentLabel = new Label(Config.getString("team.commit.comment"));
         commitText = new TextArea();
-        commitText.setPrefRowCount(5);
+        commitText.setPrefRowCount(20);
         commitText.setPrefColumnCount(35);
-//        commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
-
-        ScrollPane commitTextScrollPane = new ScrollPane(commitText);
-        commitTextScrollPane.setFitToWidth(true);
-        commitTextScrollPane.setFitToHeight(true);
-//        commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
-        VBox.setMargin(commitFileScrollPane, new Insets(0, 0, 10, 0));
+        VBox.setMargin(commitText, new Insets(0, 0, 10, 0));
 
 
         commitAction = new CommitAction(this);
@@ -205,7 +199,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         pushButtonPane.getChildren().addAll(progressBar, pushButton);
 
         mainPane.getChildren().addAll(commitFilesLabel, commitFileScrollPane,
-                commentLabel, commitTextScrollPane,
+                commentLabel, commitText,
                 commitButtonPane,
                 new Separator(Orientation.HORIZONTAL),
                 pushFilesLabel, pushFileScrollPane,
