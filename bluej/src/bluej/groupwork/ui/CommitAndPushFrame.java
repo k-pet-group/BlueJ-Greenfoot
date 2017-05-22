@@ -117,9 +117,9 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         project = proj;
         repository = project.getTeamSettingsController().getRepository(false);
         buildUI();
-//        DialogManager.centreDialog(this);
-//        rememberPosition("bluej.commitdisplay");
         prepareButtonPane();
+//        DialogManager.centreDialog(this);
+        rememberPosition("bluej.commitdisplay");
         //setOnShown(e -> org.scenicview.ScenicView.show(this.asWindow().getScene()));
     }
 
@@ -128,7 +128,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
      */
     private void buildUI()
     {
-        VBox mainPane = new VBox();//
+        VBox mainPane = new VBox();
         JavaFXUtil.addStyleClass(mainPane, "main-pane");
         Label commitFilesLabel = new Label(Config.getString("team.commitPush.commit.files"));
         ListView commitFiles = new ListView(commitListModel);
