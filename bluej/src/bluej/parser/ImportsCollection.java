@@ -36,6 +36,8 @@ import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.lexer.LocatableToken;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Maintain and manage a collection of import statements.
@@ -183,6 +185,7 @@ public class ImportsCollection
      * @param name  The name of the imported type to retrieve
      * @return      A TypeEntity representing the type
      */
+    @OnThread(Tag.FXPlatform)
     public TypeEntity getTypeImport(String name)
     {
         // See if there is a normal import for the given name
@@ -241,6 +244,7 @@ public class ImportsCollection
      * @param name  The name of the imported type to find
      * @return      A TypeEntity, or null if not found
      */
+    @OnThread(Tag.FXPlatform)
     public TypeEntity getTypeImportWC(String name)
     {
         // Try non-static wildcard imports first

@@ -46,7 +46,7 @@ import threadchecker.Tag;
  * 
  * @author Marion Zalk
  */
-@OnThread(Tag.FX)
+@OnThread(Tag.FXPlatform)
 public class ScopeHighlightingPrefDisplay
 {
     public static final int MIN=0;

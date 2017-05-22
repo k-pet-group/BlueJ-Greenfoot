@@ -132,7 +132,6 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    @OnThread(Tag.FXPlatform)
     protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int parseEnd = Math.min(offset + maxParse, nodePos + getSize());
@@ -578,7 +577,6 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     /**
      * Convert a line and column number to an absolute position.
      */
-    @OnThread(Tag.FXPlatform)
     protected static int lineColToPos(MoeSyntaxDocument document, int line, int col)
     {
         return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
@@ -615,7 +613,6 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    @OnThread(Tag.FXPlatform)
     public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {

@@ -64,6 +64,7 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
         menuManager = new TabMenuManager(this)
         {
             @Override
+            @OnThread(Tag.FXPlatform)
             List<Menu> getMenus()
             {
                 updateMoveMenus();

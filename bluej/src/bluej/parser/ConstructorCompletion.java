@@ -80,6 +80,7 @@ public class ConstructorCompletion extends AssistContent
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean getJavadocAsync(final JavadocCallback callback, Executor executor)
     {
         String jd = con.getJavaDoc();
@@ -113,6 +114,7 @@ public class ConstructorCompletion extends AssistContent
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<ParamInfo> getParams()
     {
         // We must get Javadoc before asking for parameter names, as it is this method call that sets the parameter names:
@@ -149,7 +151,7 @@ public class ConstructorCompletion extends AssistContent
         return type;
     }
 
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private Supplier<String> javadocForParam(String paramName)
     {
         String javadocSrc = getJavadoc();

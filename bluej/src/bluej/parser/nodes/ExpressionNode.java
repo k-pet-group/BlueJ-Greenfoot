@@ -33,6 +33,8 @@ import bluej.parser.DocumentReader;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A node representing a parsed expression.
@@ -70,7 +72,8 @@ public class ExpressionNode extends JavaParentNode
         }
         return suggestAsExpression(pos, nodePos, this, defaultType, document);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public static CodeSuggestions suggestAsExpression(int pos, int nodePos, EntityResolver resolver,
             JavaEntity defaultType, MoeSyntaxDocument document)
     {

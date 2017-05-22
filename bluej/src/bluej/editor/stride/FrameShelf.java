@@ -474,6 +474,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         return shelfPane;
     }
 
+    @OnThread(Tag.FXPlatform)
     public void draggedTo(List<Frame> dragSourceFrames, double sceneX, double sceneY, boolean copying)
     {
         Bounds shelfBounds = shelfPane.localToScene(shelfPane.getBoundsInLocal());

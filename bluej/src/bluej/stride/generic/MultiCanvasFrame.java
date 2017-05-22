@@ -30,6 +30,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 
 import bluej.utility.javafx.FXConsumer;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public abstract class MultiCanvasFrame extends Frame implements CanvasParent
 {
@@ -107,6 +109,7 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> r = super.getContextOperations();

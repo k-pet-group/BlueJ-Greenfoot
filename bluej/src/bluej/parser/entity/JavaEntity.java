@@ -25,6 +25,8 @@ import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A general abstraction for handling entities which may have fields or
@@ -40,6 +42,7 @@ public abstract class JavaEntity
     /**
      * If this entity is unresolved, resolve it now as a value.
      */
+    @OnThread(Tag.FXPlatform)
     public ValueEntity resolveAsValue()
     {
         return null;
@@ -48,6 +51,7 @@ public abstract class JavaEntity
     /**
      * If this entity is unresolved, resolve it now as a type.
      */
+    @OnThread(Tag.FXPlatform)
     public TypeEntity resolveAsType()
     {
         return null;
@@ -57,6 +61,7 @@ public abstract class JavaEntity
      * If this entity is unresolved, resolve it now as either a package or a
      * qualified class.
      */
+    @OnThread(Tag.FXPlatform)
     public PackageOrClass resolveAsPackageOrClass()
     {
         return resolveAsType();
@@ -71,7 +76,8 @@ public abstract class JavaEntity
      * 
      * <p>Returns null if no type is available or undetermined (i.e. if the entity
      * has not properly been resolved).
-     */ 
+     */
+    @OnThread(Tag.FXPlatform)
     public abstract JavaType getType();
     
     /**
@@ -88,6 +94,7 @@ public abstract class JavaEntity
      * @param accessSource  The source of the access (for access control purposes)
      * @return  The subentity  (or null if one does not exist)
      */
+    @OnThread(Tag.FXPlatform)
     public abstract JavaEntity getSubentity(String name, Reflective accessSource);
     
     /**

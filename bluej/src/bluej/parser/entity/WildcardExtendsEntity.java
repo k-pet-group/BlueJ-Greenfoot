@@ -24,6 +24,8 @@ package bluej.parser.entity;
 import bluej.debugger.gentype.GenTypeExtends;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Represents a "? extends ..." wildcard entity, where the bound has not yet been resolved.
@@ -40,6 +42,7 @@ public class WildcardExtendsEntity extends TypeArgumentEntity
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeParameter getType()
     {
         TypeEntity ebType = extendsBound.resolveAsType();

@@ -44,7 +44,6 @@ public abstract class ParentParsedNode extends ParsedNode
     }
             
     @Override
-    @OnThread(Tag.FXPlatform)
     public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
             int length, NodeStructureListener listener)
     {
@@ -97,7 +96,6 @@ public abstract class ParentParsedNode extends ParsedNode
     }
     
     @Override
-    @OnThread(Tag.FXPlatform)
     public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {

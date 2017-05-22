@@ -33,12 +33,15 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Parse variable declarations/initializations (for the codepad).
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class CodepadVarParser extends JavaParser
 {
     private EntityResolver resolver;
@@ -71,6 +74,7 @@ public class CodepadVarParser extends JavaParser
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         if (! gotFirstVar) {

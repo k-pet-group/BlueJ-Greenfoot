@@ -76,7 +76,7 @@ public class Import
 
         // check to make sure the path contains some java source files
         if (interestingDirs.size() == 0) {
-            Platform.runLater(() -> DialogManager.showErrorFX(parentWin.get(), "open-non-bluej-no-java"));
+            DialogManager.showErrorFX(parentWin.get(), "open-non-bluej-no-java");
             return false;
         }
 
@@ -113,17 +113,11 @@ public class Import
 
         // now ask if they want to continue if we have detected mismatches
         if (mismatchFiles.size() > 0) {
-            AtomicBoolean shouldContinue = new AtomicBoolean();
-            SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
-            Platform.runLater(() -> {
-                ImportMismatchDialog imd = new ImportMismatchDialog(parentWin.get(), mismatchFiles);
-                boolean cont = imd.showAndWait().orElse(false);
-                shouldContinue.set(cont);
-                loop.exit();
-            });
-            loop.enter();
-            
-            if (!shouldContinue.get())
+            boolean shouldContinue;
+            ImportMismatchDialog imd = new ImportMismatchDialog(parentWin.get(), mismatchFiles);
+            shouldContinue = imd.showAndWait().orElse(false);
+
+            if (!shouldContinue)
                 return false;
         }
 

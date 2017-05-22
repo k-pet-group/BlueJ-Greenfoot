@@ -33,6 +33,8 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.convert.ConversionWarning;
 import bluej.stride.framedjava.convert.JavaStrideParser;
 import bluej.stride.framedjava.elements.CodeElement;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class Parser
 {
@@ -159,6 +161,7 @@ public class Parser
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public static ConversionResult javaToStride(String java, JavaContext context, boolean testing) throws ParseFailure
     {
         JavaStrideParser parser;

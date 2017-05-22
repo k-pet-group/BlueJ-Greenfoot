@@ -223,6 +223,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> r = new ArrayList<>(super.getContextOperations());

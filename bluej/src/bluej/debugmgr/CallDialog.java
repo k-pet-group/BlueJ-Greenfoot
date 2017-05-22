@@ -148,12 +148,12 @@ public abstract class CallDialog extends Dialog<Void>
      * on it with the mouse pointer).
      */
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public void objectEvent(ObjectBenchEvent obe)
     {
         NamedValue value = obe.getValue();
         String name = value.getName();
-        Platform.runLater(() -> insertText(name));
+        insertText(name);
     }
 
     /**

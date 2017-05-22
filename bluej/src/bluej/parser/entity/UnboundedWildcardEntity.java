@@ -23,6 +23,8 @@ package bluej.parser.entity;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeUnbounded;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A TypeArgumentEntity for representing unbounded wildcards ("?").
@@ -32,7 +34,8 @@ import bluej.debugger.gentype.GenTypeUnbounded;
 public class UnboundedWildcardEntity extends TypeArgumentEntity
 {
     private GenTypeClass objClass;
-    
+
+    @OnThread(Tag.FXPlatform)
     public UnboundedWildcardEntity(EntityResolver resolver)
     {
         TypeEntity objEntity = resolver.resolveQualifiedClass("java.lang.Object");

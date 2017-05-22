@@ -22,6 +22,8 @@
 package bluej.parser.entity;
 
 import bluej.debugger.gentype.GenTypeParameter;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A TypeArgumentEntity representing a solid (i.e. non-wildcard) type argument.
@@ -38,6 +40,7 @@ public class SolidTargEntity extends TypeArgumentEntity
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeParameter getType()
     {
         TypeEntity ce = solid.resolveAsType();

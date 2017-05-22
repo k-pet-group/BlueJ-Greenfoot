@@ -25,6 +25,8 @@ import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An entity representing a package. The entity is only presumed to be a package
@@ -44,6 +46,7 @@ public class PackageEntity extends PackageOrClass
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public PackageOrClass getPackageOrClassMember(String name)
     {
         String nname = this.name + "." + name;

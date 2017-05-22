@@ -27,6 +27,8 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.IntersectionType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An entity representing intersection types (such as the bounds for type parameters).
@@ -42,6 +44,7 @@ public class IntersectionTypeEntity extends JavaEntity
      * this yields a "java.lang.Object" entity. If there is only one type, this returns that
      * type.
      */
+    @OnThread(Tag.FXPlatform)
     public static JavaEntity getIntersectionEntity(List<JavaEntity> types, EntityResolver resolver)
     {
         if (types.size() == 0) {
@@ -76,6 +79,7 @@ public class IntersectionTypeEntity extends JavaEntity
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getType()
     {
         GenTypeSolid [] components = new GenTypeSolid[types.size()];

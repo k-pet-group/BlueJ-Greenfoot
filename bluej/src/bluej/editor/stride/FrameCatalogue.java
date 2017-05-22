@@ -140,6 +140,7 @@ public class FrameCatalogue extends VBox
      * that an update is requested by an editor.
      */
     //package-visible
+    @OnThread(Tag.FXPlatform)
     private void fillCatalogue(FrameEditorTab editor)
     {
         if (filled || editor == null)

@@ -307,13 +307,13 @@ public class PrefMgr
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public static IntegerProperty getEditorFontSize()
     {
         return editorFontSize;
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public static StringExpression getEditorFontCSS(boolean includeFamily)
     {
         if (editorFontCSS == null)

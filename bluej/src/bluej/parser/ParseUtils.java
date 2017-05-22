@@ -260,6 +260,7 @@ public class ParseUtils
      * @param resolver  Entity resolver which will (eventually) resolve the entity
      * @param tokens  The tokens making up the specification
      */
+    @OnThread(Tag.FXPlatform)
     public static JavaEntity getImportEntity(EntityResolver resolver,
             Reflective querySource, List<LocatableToken> tokens)
     {
@@ -299,6 +300,7 @@ public class ParseUtils
      * @param querySource  The source of the query - a fully qualified class name
      * @param tokens  The tokens specifying the type
      */
+    @OnThread(Tag.FXPlatform)
     public static JavaEntity getTypeEntity(EntityResolver resolver,
             Reflective querySource, List<LocatableToken> tokens)
     {
@@ -310,6 +312,7 @@ public class ParseUtils
      * Get an entity for a type specification. The returned entity may be unresolved.
      * Returns null if the type specification appears to be invalid.
      */
+    @OnThread(Tag.FXPlatform)
     private static JavaEntity getTypeEntity(EntityResolver resolver, Reflective querySource,
             ListIterator<LocatableToken> i, DepthRef depthRef)
     {
@@ -407,6 +410,7 @@ public class ParseUtils
      * @param depthRef  The current argument depth; will be adjusted on return
      * @return   A JavaEntity representing the type with type arguments applied (or null)
      */
+    @OnThread(Tag.FXPlatform)
     private static JavaEntity processTypeArgs(EntityResolver resolver, Reflective querySource, 
             JavaEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
     {

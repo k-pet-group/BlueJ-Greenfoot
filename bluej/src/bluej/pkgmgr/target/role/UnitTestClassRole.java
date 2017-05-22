@@ -330,7 +330,7 @@ public class UnitTestClassRole extends ClassRole
                 .collect(Collectors.toList());
 
         Project proj = pmf.getProject();
-        Platform.runLater(() -> TestDisplayFrame.getTestDisplay().startTest(proj, testMethods.size()));
+        TestDisplayFrame.getTestDisplay().startTest(proj, testMethods.size());
         return testMethods;
     }
     
@@ -390,16 +390,14 @@ public class UnitTestClassRole extends ClassRole
 
             if (existingSpan != null)
             {
-                Platform.runLater(() -> {
-                    if (DialogManager.askQuestionFX(pmf.getFXWindow(), "unittest-method-present") == 1)
-                    {
-                        // Don't do anything
-                    }
-                    else
-                    {
-                        SwingUtilities.invokeLater(() -> finishTestCase(pmf, ct, newTestName));
-                    }
-                });
+                if (DialogManager.askQuestionFX(pmf.getFXWindow(), "unittest-method-present") == 1)
+                {
+                    // Don't do anything
+                }
+                else
+                {
+                    finishTestCase(pmf, ct, newTestName);
+                }
             }
             else
             {
@@ -407,11 +405,9 @@ public class UnitTestClassRole extends ClassRole
             }
         }
         catch (IOException ioe) {
-            Platform.runLater(() -> {
-                DialogManager.showErrorWithTextFX(pmf.getFXWindow(), "unittest-io-error", ioe.getLocalizedMessage());
-                Debug.reportError("Error reading unit test source", ioe);
-                SwingUtilities.invokeLater(() -> finishTestCase(pmf, ct, newTestName));
-            });
+            DialogManager.showErrorWithTextFX(pmf.getFXWindow(), "unittest-io-error", ioe.getLocalizedMessage());
+            Debug.reportError("Error reading unit test source", ioe);
+            finishTestCase(pmf, ct, newTestName);
         }
     }
 
@@ -636,16 +632,9 @@ public class UnitTestClassRole extends ClassRole
             
             // if we already have fields, ask if we are sure we want to get rid of them
             if (variables != null && variables.size() > 0) {
-                AtomicBoolean shouldContinue = new AtomicBoolean();
-                SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
-                Platform.runLater(() -> {
-                    boolean cont = DialogManager.askQuestionFX(null, "unittest-fixture-present") != 1;
-                    shouldContinue.set(cont);
-                    loop.exit();
-                });
-                loop.enter();
+                boolean shouldContinue = DialogManager.askQuestionFX(null, "unittest-fixture-present") != 1;
 
-                if (!shouldContinue.get())
+                if (!shouldContinue)
                     return;
             }
 

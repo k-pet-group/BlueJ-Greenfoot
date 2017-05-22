@@ -21,6 +21,8 @@
 package bluej.parser.entity;
 
 import bluej.debugger.gentype.GenTypeParameter;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A base type for representing type arguments as they occur in a source program.
@@ -35,5 +37,6 @@ public abstract class TypeArgumentEntity
      * Get the type parameter. This requires resolving the bound if not already done,
      * and so may return null if the bound is not a valid type.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract GenTypeParameter getType();
 }

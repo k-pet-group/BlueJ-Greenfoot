@@ -27,6 +27,9 @@ import javax.swing.AbstractAction;
 
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.views.ConstructorView;
+import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Simple action to construct an object.
@@ -34,10 +37,13 @@ import bluej.views.ConstructorView;
  * @author Davin McCall
  * @version $Id$
  */
+@OnThread(Tag.Swing)
 public class ConstructAction extends AbstractAction
 {
-    private ConstructorView constructor;
-    private InvokeListener invokeListener;
+    @OnThread(Tag.Any)
+    private final ConstructorView constructor;
+    @OnThread(Tag.Any)
+    private final InvokeListener invokeListener;
     
     public ConstructAction(ConstructorView cv, InvokeListener il, String desc)
     {
@@ -51,7 +57,7 @@ public class ConstructAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        invokeListener.callConstructor(constructor);
+        Platform.runLater(() -> invokeListener.callConstructor(constructor));
     }
 
 }

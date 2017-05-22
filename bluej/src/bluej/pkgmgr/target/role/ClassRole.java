@@ -275,7 +275,7 @@ public abstract class ClassRole
                 {
                     MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
                     menuItem.setOnAction(e ->
-                        new InvokeAction((MethodView)m, il, prefix + m.getLongDesc()).actionPerformed(null)
+                        il.executeMethod((MethodView)m)
                     );
 
                     // check whether it's time for a submenu
@@ -294,7 +294,7 @@ public abstract class ClassRole
                     MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
                     menu.add(menuItem);
                     menuItem.setOnAction(e ->
-                        new ConstructAction((ConstructorView) m, il, prefix + m.getLongDesc()).actionPerformed(null)
+                        il.callConstructor((ConstructorView) m)
                     );
                     hasEntries = true;
                 }

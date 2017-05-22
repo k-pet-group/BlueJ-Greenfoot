@@ -24,6 +24,7 @@ package bluej.editor.moe;
 import java.awt.Color;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
@@ -64,6 +65,7 @@ import bluej.utility.PersistentMarkDocument;
  * @author Bruce Quig
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  */
+@OnThread(Tag.Any) // FX if you're going to use it in an editor, but should be fine off-thread otherwise?
 public class MoeSyntaxDocument
 {
     public static final String MOE_FIND_RESULT = "moe-find-result";
@@ -101,6 +103,7 @@ public class MoeSyntaxDocument
     private boolean applyingScopeBackgrounds = false;
 
     protected boolean inNotification = false;
+    // Can be null if we are not being used for an editor pane:
     private final BlueJSyntaxView syntaxView;
     private boolean hasFindHighlights = false;
 
@@ -157,6 +160,7 @@ public class MoeSyntaxDocument
     
     private static int EDIT_INSERT = 0;
     private static int EDIT_DELETE = 1;
+    @OnThread(Tag.Any)
     private static class EditEvent
     {
         int type; //  edit type - INSERT or DELETE
@@ -189,16 +193,15 @@ public class MoeSyntaxDocument
             recentEdits.remove(0);
         }
     }
-    
-    /**
-     * Create an empty MoeSyntaxDocument.
-     */
-    public MoeSyntaxDocument(ScopeColors scopeColors)
+
+    // Have to pass construction function because "this" isn't
+    // available to other constructor callers:
+    private MoeSyntaxDocument(Function<MoeSyntaxDocument, BlueJSyntaxView> makeSyntaxView)
     {
         // defaults to 4 if cannot read property
         tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
         document = new SimpleEditableStyledDocument<>(null, ImmutableSet.of());
-        syntaxView = new BlueJSyntaxView(this, scopeColors);
+        this.syntaxView = makeSyntaxView.apply(this);
 
         document.plainChanges().subscribe(c -> {
             // Must fire remove before insert:
@@ -215,11 +218,26 @@ public class MoeSyntaxDocument
             applyPendingScopeBackgrounds();
         });
     }
+
+    public MoeSyntaxDocument()
+    {
+        this(d -> null);
+    }
+    
+    /**
+     * Create an empty MoeSyntaxDocument.
+     */
+    @OnThread(Tag.FXPlatform)
+    public MoeSyntaxDocument(ScopeColors scopeColors)
+    {
+        this(d -> new BlueJSyntaxView(d, scopeColors));
+    }
     
     /**
      * Create an empty MoeSyntaxDocument, which uses the given entity resolver
      * to resolve symbols.
      */
+    @OnThread(Tag.FXPlatform)
     public MoeSyntaxDocument(EntityResolver parentResolver, ScopeColors scopeColors)
     {
         this(scopeColors);
@@ -371,7 +389,8 @@ public class MoeSyntaxDocument
 
     void fireChangedUpdate(MoeSyntaxEvent mse)
     {
-        syntaxView.updateDamage(mse);
+        if (syntaxView != null)
+            syntaxView.updateDamage(mse);
         if (mse == null)
         {
             // Width change, so apply new backgrounds:
@@ -387,6 +406,8 @@ public class MoeSyntaxDocument
 
     void recalculateScopesForLinesInRange(int firstLineIncl, int lastLineIncl)
     {
+        if (syntaxView == null)
+            return;
         List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(this, firstLineIncl, lastLineIncl);
         if (paragraphScopeInfo.isEmpty())
             return; // Not initialised yet
@@ -401,7 +422,7 @@ public class MoeSyntaxDocument
     {
         // Prevent re-entry, which can it seems can occur when applying
         // token highlight styles:
-        if (applyingScopeBackgrounds)
+        if (applyingScopeBackgrounds || syntaxView == null)
             return;
         applyingScopeBackgrounds = true;
 
@@ -555,6 +576,8 @@ public class MoeSyntaxDocument
      */
     public void setParagraphAttributesForLineNumber(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
     {
+        if (syntaxView == null)
+            return;
         Map<Integer, EnumSet<ParagraphAttribute>> changedLines = syntaxView.setParagraphAttributes(lineNumber, alterAttr);
         updateScopesAfterParaAttrChange(changedLines);
     }
@@ -582,6 +605,8 @@ public class MoeSyntaxDocument
      */
     public void setParagraphAttributes(Map<ParagraphAttribute, Boolean> alterAttr)
     {
+        if (syntaxView == null)
+            return;
         Map<Integer, EnumSet<ParagraphAttribute>> changedLines = syntaxView.setParagraphAttributes(alterAttr);
         updateScopesAfterParaAttrChange(changedLines);
     }
@@ -766,6 +791,7 @@ public class MoeSyntaxDocument
      * inner types.
      * @return Creates a new MoeEditorPane for this document
      */
+    @OnThread(Tag.FXPlatform)
     public MoeEditorPane makeEditorPane(MoeEditor editor, BooleanExpression compiledStatus)
     {
         return new MoeEditorPane(editor, document, syntaxView, compiledStatus);
@@ -823,9 +849,13 @@ public class MoeSyntaxDocument
      */
     public EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNo)
     {
-        return syntaxView.getParagraphAttributes(lineNo);
+        if (syntaxView != null)
+            return syntaxView.getParagraphAttributes(lineNo);
+        else
+            return EnumSet.noneOf(ParagraphAttribute.class);
     }
 
+    @OnThread(Tag.Any)
     public static interface Element
     {
         public Element getElement(int index);
@@ -904,6 +934,7 @@ public class MoeSyntaxDocument
         };
     }
 
+    @OnThread(Tag.Any)
     public class Position
     {
         private final Subscription subscription;

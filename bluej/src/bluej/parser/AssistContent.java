@@ -183,6 +183,7 @@ public abstract class AssistContent
     
     /** Will return empty list if it's a method with no parameters,
      *  but null if it is a variable or type and thus can't have parameters */
+    @OnThread(Tag.FXPlatform)
     public abstract List<ParamInfo> getParams();
 
     /** Get the type for this completion (as a string).
@@ -207,6 +208,7 @@ public abstract class AssistContent
      * delimiters (slash-star at the start and star-slash at the end) and intermediate
      * star characters.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract String getJavadoc();
     
     /**
@@ -258,6 +260,7 @@ public abstract class AssistContent
      * @return  true if the javadoc is already available, false otherwise
      *           (notification is pending).
      */
+    @OnThread(Tag.FXPlatform)
     public abstract boolean getJavadocAsync(JavadocCallback callback, Executor executor);
 
 

@@ -287,6 +287,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> operations = new ArrayList<>(super.getContextOperations());

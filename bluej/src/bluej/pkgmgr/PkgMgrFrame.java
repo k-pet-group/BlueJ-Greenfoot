@@ -2892,10 +2892,17 @@ public class PkgMgrFrame
      */
     public void showWebPage(String url)
     {
-        if (Utility.openWebBrowser(url))
-            setStatus(Config.getString("pkgmgr.webBrowserMsg"));
-        else
-            setStatus(Config.getString("pkgmgr.webBrowserError"));
+        // Web browser must use Swing as it uses Desktop class:
+        SwingUtilities.invokeLater(() ->
+        {
+            boolean openedBrowser = Utility.openWebBrowser(url);
+            Platform.runLater(() -> {
+                if (openedBrowser)
+                    setStatus(Config.getString("pkgmgr.webBrowserMsg"));
+                else
+                    setStatus(Config.getString("pkgmgr.webBrowserError"));
+            });
+        });
     }
 
     // --- the following methods set up the GUI frame ---

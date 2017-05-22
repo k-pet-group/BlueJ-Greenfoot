@@ -25,6 +25,8 @@ import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An unresolved subentity (an entity of form xxx.yyy, where yyy is the subentity name).
@@ -78,6 +80,7 @@ public class UnresolvedSubEntity extends JavaEntity
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public ValueEntity resolveAsValue()
     {
         if (typeArgs != null) {

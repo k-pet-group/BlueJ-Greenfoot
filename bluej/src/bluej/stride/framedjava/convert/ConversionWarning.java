@@ -22,10 +22,13 @@
 package bluej.stride.framedjava.convert;
 
 import bluej.Config;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A warning which occurred during the conversion from Java to Stride
  */
+@OnThread(Tag.Any)
 public abstract class ConversionWarning
 {
     private final String text;
@@ -39,6 +42,7 @@ public abstract class ConversionWarning
     /**
      * An unsupported modifier (e.g. synchronized, volatile) or annotation (e.g. @Test) was found
      */
+    @OnThread(Tag.Any)
     public static class UnsupportedModifier extends ConversionWarning
     {
         public UnsupportedModifier(String context, String modifier)
@@ -50,6 +54,7 @@ public abstract class ConversionWarning
     /**
      * An unsupported language feature was found (e.g. synchronized block, anonymous inner class)
      */
+    @OnThread(Tag.Any)
     public static class UnsupportedFeature extends ConversionWarning
     {
         public UnsupportedFeature(String feature)

@@ -71,7 +71,6 @@ import bluej.parser.symtab.Selection;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.FXPlatform)
 public class EditorParser extends JavaParser
 {
     protected Stack<JavaParentNode> scopeStack = new Stack<JavaParentNode>();
@@ -155,9 +154,9 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    // This tag is not correct, but if document is an instanceof MoeSyntaxDocument, the parsing
-    // should be happening on the Swing thread:
-    @OnThread(value = Tag.Swing, ignoreParent = true)
+    // This tag is hacky, but if document is an instanceof MoeSyntaxDocument, the parsing
+    // should be happening on the FX thread:
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
         // TODO make a proper listener interface

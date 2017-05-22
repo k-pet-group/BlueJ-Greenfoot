@@ -61,6 +61,8 @@ import bluej.parser.entity.WildcardSuperEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.utility.JavaReflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A parser for the codepad.
@@ -355,7 +357,8 @@ public class TextParser extends JavaParser
             break;
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private strictfp void doCast()
     {
         // Conversions allowed are specified in JLS 3rd ed. 5.5.
@@ -1888,6 +1891,7 @@ public class TextParser extends JavaParser
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void gotClassLiteral(LocatableToken token)
     {
         JavaEntity ent = popValueStack();
@@ -1974,6 +1978,7 @@ public class TextParser extends JavaParser
     /**
      * Resolve a type specification. Returns null if the type couldn't be resolved.
      */
+    @OnThread(Tag.FXPlatform)
     private TypeEntity resolveTypeSpec(ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         LocatableToken token = i.next();

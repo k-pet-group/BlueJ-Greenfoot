@@ -24,6 +24,8 @@ package bluej.parser.entity;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeSuper;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Represents a "? super ..." wildcard entity, where the bound has not yet been resolved.
@@ -40,6 +42,7 @@ public class WildcardSuperEntity extends TypeArgumentEntity
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeParameter getType()
     {
         TypeEntity ebType = superBound.resolveAsType();

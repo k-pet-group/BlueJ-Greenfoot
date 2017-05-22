@@ -387,7 +387,7 @@ public class FrameCursor implements RecallableFocus
         shrinkingHeightBindings.get(editor).shrink(this,HIDE_HEIGHT,false);
                                 
         JavaFXUtil.addChangeListener(node.focusedProperty(), nowFocused -> animateShowHide(nowFocused, false));
-        JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> adjustDragTargetPosition());
+        JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
         
         if (editor != null) {
             editor.setupFrameCursor(this);
@@ -571,7 +571,7 @@ public class FrameCursor implements RecallableFocus
         }
     }
 
-    
+    @OnThread(Tag.FXPlatform)
     public void showAsDropTarget(boolean showAsSource, boolean dragPossible, boolean copying)
     {
         int chosen;
@@ -593,13 +593,15 @@ public class FrameCursor implements RecallableFocus
      * 
      * @param classIndex -1 for no drag target, 0 for possible, 1 for source, 2 for imposibble
      */
+    @OnThread(Tag.FXPlatform)
     private void setDragClass(int classIndex)
     {
         JavaFXUtil.selectPseudoClass(node, classIndex,
                 "bj-drag-possible", "bj-drag-source", "bj-drag-impossible");
         setDragTargetOverlayVisible(classIndex != -1, classIndex == 2);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void adjustDragTargetPosition()
     {
         if (dragTargetOverlayFake != null)
@@ -621,7 +623,8 @@ public class FrameCursor implements RecallableFocus
             }
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private void setDragTargetOverlayVisible(boolean visible, boolean showCross)
     {
         Pane dragTargetCursorPane = editor.getDragTargetCursorPane();
@@ -665,6 +668,7 @@ public class FrameCursor implements RecallableFocus
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public void stopShowAsDropTarget()
     {
         animateShowHide(false, false);
@@ -883,6 +887,7 @@ public class FrameCursor implements RecallableFocus
         return node;
     }
 
+    @OnThread(Tag.FXPlatform)
     public void updateDragCopyState(boolean copying)
     {
         if (dragTargetOverlayFake == null)

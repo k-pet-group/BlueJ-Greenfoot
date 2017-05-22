@@ -30,12 +30,15 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.lexer.LocatableToken;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A parser to handle "import" statements for the Code Pad.
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class CodepadImportParser extends JavaParser
 {
     private EntityResolver resolver;
@@ -95,6 +98,7 @@ public class CodepadImportParser extends JavaParser
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken)
     {
         importIsStatic = isStatic;
@@ -124,6 +128,7 @@ public class CodepadImportParser extends JavaParser
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void gotWildcardImport(List<LocatableToken> tokens,
                                      boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken)
     {
@@ -136,6 +141,7 @@ public class CodepadImportParser extends JavaParser
      * Get an entity for the given tokens. The tokens should be a dotted identifier,
      * eg "java.lang.String", "java.awt.Color.BLACK", etc.
      */
+    @OnThread(Tag.FXPlatform)
     protected JavaEntity getEntityForTokens(List<LocatableToken> tokens)
     {
         Iterator<LocatableToken> i = tokens.iterator();

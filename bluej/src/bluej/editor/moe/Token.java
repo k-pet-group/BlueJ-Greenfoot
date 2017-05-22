@@ -40,6 +40,7 @@ public class Token
     public int length;  // Length of text represented by this token
     public Token next;  // Next token in the chain
 
+    @OnThread(Tag.Any)
     public static enum TokenType
     {
         DEFAULT, COMMENT_NORMAL, COMMENT_JAVADOC, COMMENT_SPECIAL, KEYWORD1, KEYWORD2, KEYWORD3, PRIMITIVE, LITERAL1, LITERAL2, LABEL, OPERATOR, INVALID, END;

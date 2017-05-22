@@ -113,5 +113,6 @@ public abstract class TabMenuManager
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     abstract List<Menu> getMenus();
 }

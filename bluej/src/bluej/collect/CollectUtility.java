@@ -61,7 +61,7 @@ class CollectUtility
         final Charset charset;
         final File projectDir;
         // package-visible
-        @OnThread(Tag.Swing)
+        @OnThread(Tag.FXPlatform)
         ProjectDetails(Project project)
         {
             this.projectDir = project.getProjectDir();

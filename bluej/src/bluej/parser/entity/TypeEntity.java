@@ -32,6 +32,8 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An entity which essentially wraps a JavaType.
@@ -74,7 +76,9 @@ public class TypeEntity extends PackageOrClass
     {
         return thisType.asClass();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
+    @Override
     public JavaEntity getSubentity(String name, Reflective accessor)
     {
         GenTypeClass thisClass = thisType.asClass();
@@ -114,6 +118,7 @@ public class TypeEntity extends PackageOrClass
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public TypeEntity getPackageOrClassMember(String name)
     {
         GenTypeClass thisClass = thisType.asClass();

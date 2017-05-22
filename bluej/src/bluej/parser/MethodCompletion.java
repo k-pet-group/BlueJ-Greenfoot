@@ -106,6 +106,7 @@ public class MethodCompletion extends AssistContent
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public String getJavadoc()
     {
         String jd = method.getJavaDoc();
@@ -117,6 +118,7 @@ public class MethodCompletion extends AssistContent
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean getJavadocAsync(final JavadocCallback callback, Executor executor)
     {
         String jd = method.getJavaDoc();
@@ -170,6 +172,7 @@ public class MethodCompletion extends AssistContent
     /**
      * Gets a String that is the method's unique signature
      */
+    @OnThread(Tag.FXPlatform)
     public String getSignature()
     {
         StringBuilder sig = new StringBuilder();
@@ -180,6 +183,7 @@ public class MethodCompletion extends AssistContent
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<ParamInfo> getParams()
     {
         // We must get Javadoc before asking for parameter names, as it is this method call that sets the parameter names:
@@ -196,6 +200,7 @@ public class MethodCompletion extends AssistContent
         return r;
     }
 
+    @OnThread(Tag.FXPlatform)
     private Supplier<String> javadocForParam(String paramName)
     {
         final String javadocSrc = getJavadoc();

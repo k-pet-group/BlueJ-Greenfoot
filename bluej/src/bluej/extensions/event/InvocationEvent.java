@@ -186,7 +186,7 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @return    An array of Classes corresponding to the static types of the method's parameters.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public Class<?>[] getSignature()
     {
         if (signature == null) {

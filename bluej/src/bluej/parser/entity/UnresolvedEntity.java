@@ -25,6 +25,8 @@ import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Represents a java entity whose nature (value or type) is not yet known,
@@ -82,6 +84,7 @@ public class UnresolvedEntity extends JavaEntity
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public ValueEntity resolveAsValue()
     {
         if (typeArguments != null) {

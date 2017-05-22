@@ -1448,6 +1448,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
      * currently active tab.
      */
     //package-visible
+    @OnThread(Tag.FXPlatform)
     void draggedToTab(List<Frame> dragSourceFrames, double sceneX, double sceneY, boolean copying)
     {
         Bounds scrollBounds = scroll.localToScene(scroll.getBoundsInLocal());
@@ -1490,6 +1491,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
      * We just have to tidy up any display of potential drag targets.
      */
     //package-visible
+    @OnThread(Tag.FXPlatform)
     void draggedToAnotherTab()
     {
         if (dragTarget != null)
@@ -2047,6 +2049,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     //package-visible
+    @OnThread(Tag.FXPlatform)
     void decreaseFontSize()
     {
         final IntegerProperty fontSize = PrefMgr.strideFontSizeProperty();
@@ -2054,6 +2057,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     //package-visible
+    @OnThread(Tag.FXPlatform)
     void increaseFontSize()
     {
         final IntegerProperty fontSize = PrefMgr.strideFontSizeProperty();
@@ -2621,7 +2625,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             getTopLevelFrame().ensureImportCanvasShowing();
     }
 
-    void ignoreEdits(FXRunnable during)
+    @OnThread(Tag.FXPlatform)
+    void ignoreEdits(FXPlatformRunnable during)
     {
         loading = true;
         during.run();
@@ -2635,6 +2640,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     //package-visible
+    @OnThread(Tag.FXPlatform)
     List<Menu> getMenus()
     {
         return menuManager.getMenus();

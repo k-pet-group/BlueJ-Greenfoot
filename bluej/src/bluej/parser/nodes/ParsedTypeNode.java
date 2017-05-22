@@ -233,7 +233,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     protected int doPartialParse(ParseParams params, int state)
     {
         if (state == 0) {

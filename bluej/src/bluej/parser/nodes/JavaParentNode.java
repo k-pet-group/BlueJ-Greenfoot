@@ -50,6 +50,8 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.GeneralCache;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A ParentParsedNode extension with Java specific functionality.
@@ -212,6 +214,7 @@ public abstract class JavaParentNode extends ParentParsedNode
      * Resolve a package or type, based on what is visible from the given position in the node.
      * This allows for forward declarations not being visible.
      */
+    @OnThread(Tag.FXPlatform)
     public PackageOrClass resolvePackageOrClass(String name, Reflective querySource, int fromPosition)
     {
         return resolvePackageOrClass(name, querySource);
@@ -253,6 +256,7 @@ public abstract class JavaParentNode extends ParentParsedNode
      * Resolve a value, based on what is visible from a given position within the node.
      * This allows for forward declarations not being visible.
      */
+    @OnThread(Tag.FXPlatform)
     public JavaEntity getValueEntity(String name, Reflective querySource, int fromPosition)
     {
         return getValueEntity(name, querySource);
@@ -267,6 +271,7 @@ public abstract class JavaParentNode extends ParentParsedNode
      * @param fromPosition   position within the node to resolve at
      * @return    A JavaEntity reflecting the result of the resolution
      */
+    @OnThread(Tag.FXPlatform)
     protected JavaEntity getPositionedValueEntity(String name, Reflective querySource, int fromPosition)
     {
         Set<FieldNode> varset = variables.get(name);
@@ -296,6 +301,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
     {
         // Clear the caches now to remove any entries which have become invalid due

@@ -28,6 +28,9 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -373,6 +376,7 @@ public abstract class JavaUtils
      * 
      * @return  true if the access is allowed, false otherwise
      */
+    @OnThread(Tag.FXPlatform)
     public static boolean checkMemberAccess(Reflective container, GenTypeSolid targetType,
             Reflective accessor, int modifiers, boolean isStatic)
     {

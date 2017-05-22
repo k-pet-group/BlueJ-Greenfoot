@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -144,7 +147,8 @@ public class GenTypeTpar extends GenTypeSolid
     {
         throw new UnsupportedOperationException();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass [] getReferenceSupertypes()
     {
         throw new UnsupportedOperationException();

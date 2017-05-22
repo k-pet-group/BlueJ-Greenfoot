@@ -27,6 +27,8 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A JavaEntity subclass for representing type parameters. In particular this avoids
@@ -53,6 +55,7 @@ public class TparEntity extends JavaEntity
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeDeclTpar getType()
     {
         if (bounds != null) {

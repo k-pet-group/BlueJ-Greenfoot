@@ -72,7 +72,7 @@ import difflib.Patch;
  * class, to avoid creating a run-time dependency on the commonds HTTP libraries when running without
  * data collection enabled (eg in Greenfoot).
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FXPlatform)
 public class DataCollectorImpl
 {
     /**

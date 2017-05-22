@@ -82,7 +82,7 @@ public class TestRunnerThread extends Thread
     /**
      * Construct a test runner thread for running a single test.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public TestRunnerThread(PkgMgrFrame pmf, ClassTarget ct, String methodName)
     {
         this.pmf = pmf;
@@ -105,7 +105,7 @@ public class TestRunnerThread extends Thread
             if (methodName == null) {
                 // Run all tests for a target, so find out what they are:
                 CompletableFuture<List<String>> methodsFuture = new CompletableFuture<>();
-                SwingUtilities.invokeLater(() -> startTestFindMethods(ct, methodsFuture));
+                Platform.runLater(() -> startTestFindMethods(ct, methodsFuture));
                 try
                 {
                     allMethods = methodsFuture.get();
@@ -133,7 +133,7 @@ public class TestRunnerThread extends Thread
         }
 
         // Finally, tell the PkgMgrFrame that we're done:
-        SwingUtilities.invokeLater(() -> {
+        Platform.runLater(() -> {
             if (methodName == null)
                 pmf.endTestRun();
         });
@@ -146,12 +146,10 @@ public class TestRunnerThread extends Thread
         boolean quiet = methodName != null && lastResult.isSuccess();
         TestDisplayFrame.getTestDisplay().addResult(lastResult, quiet);
 
-        SwingUtilities.invokeLater(() -> {
-            if (quiet)
-                pmf.setStatus(methodName + " " + Config.getString("pkgmgr.test.succeeded"));
+        if (quiet)
+            pmf.setStatus(methodName + " " + Config.getString("pkgmgr.test.succeeded"));
 
-            DataCollector.testResult(pmf.getPackage(), lastResult);
-        });
+        DataCollector.testResult(pmf.getPackage(), lastResult);
     }
 
     @OnThread(Tag.FXPlatform)

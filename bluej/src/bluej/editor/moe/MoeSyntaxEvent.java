@@ -39,7 +39,7 @@ import bluej.parser.nodes.ParsedNode;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.Any)
 public class MoeSyntaxEvent implements NodeStructureListener
 {
     private final int offset;
@@ -77,13 +77,15 @@ public class MoeSyntaxEvent implements NodeStructureListener
 
     
     // -------------- NodeStructureListener interface ------------------
-    
+
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void nodeRemoved(NodeAndPosition<ParsedNode> node)
     {
         removedNodes.add(node);
         changedNodes.remove(node.getNode());
     }
-    
+
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void nodeChangedLength(NodeAndPosition<ParsedNode> nap, int oldPos,
             int oldSize)
     {

@@ -41,6 +41,7 @@ import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
+import javafx.application.Platform;
 import nu.xom.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -366,7 +367,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     @Override
     public void updateSourcePositions()
     {
-        SwingUtilities.invokeLater(() -> getSourceDocument(null));
+        Platform.runLater(() -> getSourceDocument(null));
     }
 
     @Override

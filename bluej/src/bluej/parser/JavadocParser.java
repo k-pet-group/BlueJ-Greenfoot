@@ -25,6 +25,8 @@ import java.io.Reader;
 
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.symtab.ClassInfo;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class in a copy of InfoParser. However, it is tweaked for performance
@@ -48,6 +50,7 @@ public class JavadocParser extends InfoParser
      * the specified resolver. The source should be assumed to reside in the
      * specified package. Returns null if the source could not be parsed.
      */
+    @OnThread(Tag.FXPlatform)
     public static ClassInfo parse(Reader r, EntityResolver resolver, String targetPkg)
     {
         JavadocParser javadocParser = null;

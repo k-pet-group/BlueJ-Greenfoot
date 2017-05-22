@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import bluej.views.MethodView;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -60,6 +61,6 @@ public class InvokeAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        invokeListener.executeMethod(methodView);
+        Platform.runLater(() -> invokeListener.executeMethod(methodView));
     }
 }

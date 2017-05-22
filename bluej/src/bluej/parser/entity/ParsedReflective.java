@@ -46,6 +46,8 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.nodes.TypeInnerNode;
 import bluej.utility.JavaUtils;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A Reflective implementation for classes which are parsed, but not necessarily compiled.
@@ -74,6 +76,7 @@ public class ParsedReflective extends Reflective
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Reflective getRelativeClass(String name)
     {
         TypeEntity tent = pnode.resolveQualifiedClass(name);
@@ -87,6 +90,7 @@ public class ParsedReflective extends Reflective
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeClass> getSuperTypes()
     {
         List<GenTypeClass> rval = new LinkedList<GenTypeClass>();
@@ -128,6 +132,7 @@ public class ParsedReflective extends Reflective
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<Reflective> getSuperTypesR()
     {
         List<Reflective> rlist = new ArrayList<Reflective>();
@@ -172,6 +177,7 @@ public class ParsedReflective extends Reflective
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeDeclTpar> getTypeParams()
     {
         List<TparEntity> tparEntList = pnode.getTypeParams();
@@ -191,6 +197,7 @@ public class ParsedReflective extends Reflective
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFrom(Reflective r)
     {
         Set<String> done = new HashSet<String>();
@@ -229,6 +236,7 @@ public class ParsedReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public Map<String,FieldReflective> getDeclaredFields()
     {
         Map<String,Set<FieldNode>> allfields = pnode.getInner().getFields();
@@ -254,6 +262,7 @@ public class ParsedReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
         TypeInnerNode pnodeInner = pnode.getInner();

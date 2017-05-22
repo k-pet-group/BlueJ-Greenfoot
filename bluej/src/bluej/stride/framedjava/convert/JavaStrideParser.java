@@ -68,6 +68,8 @@ import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import static bluej.parser.lexer.JavaTokenTypes.SL_COMMENT;
 
@@ -90,6 +92,7 @@ import static bluej.parser.lexer.JavaTokenTypes.SL_COMMENT;
  *    we just build a stack of things we've seen, to be dealt with once
  *    we know what it is later on.
  */
+@OnThread(Tag.Any)
 public class JavaStrideParser extends JavaParser
 {
     /** The original source code being transformed */
@@ -175,6 +178,7 @@ public class JavaStrideParser extends JavaParser
     /**
      * A small class to handle the list of warnings
      */
+    @OnThread(Tag.Any)
     private class WarningManager
     {
         /**
@@ -241,6 +245,7 @@ public class JavaStrideParser extends JavaParser
         return warnings.warnings;
     }
 
+    @OnThread(Tag.Any)
     private class SwitchHandler
     {
         // The initial expression in the switch
@@ -329,6 +334,7 @@ public class JavaStrideParser extends JavaParser
         }
     }
 
+    @OnThread(Tag.Any)
     private class ForHandler
     {
         // The type of the for-each variable, or classic-for variable(s).  null if empty
@@ -428,6 +434,7 @@ public class JavaStrideParser extends JavaParser
      * A class to handle statements/declarations when we have seen them.
      * Can be used for single items or for blocks (see constructor).
      */
+    @OnThread(Tag.Any)
     private abstract class StatementHandler
     {
         /**
@@ -1878,6 +1885,7 @@ public class JavaStrideParser extends JavaParser
         statementHandlers.push(handler);
     }
 
+    @OnThread(Tag.Any)
     private class ArgumentListHandler
     {
         private final List<Expression> args = new ArrayList<>();

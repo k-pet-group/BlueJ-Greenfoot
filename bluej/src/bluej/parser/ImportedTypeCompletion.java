@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 
 import bluej.pkgmgr.JavadocResolver;
 import bluej.stride.generic.InteractionManager.Kind;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class ImportedTypeCompletion extends AssistContent
 {
@@ -118,6 +120,7 @@ public class ImportedTypeCompletion extends AssistContent
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public String getJavadoc()
     {
         if (!extractedJavadoc)
