@@ -80,7 +80,7 @@ public class UpdateAction extends TeamAction
 
     public UpdateAction(UpdateFilesFrame updateFrame)
     {
-        super(Config.getString("team.update"), true);
+        super(Config.getString("team.update"), false);
         setShortDescription(Config.getString("tooltip.update"));
         this.updateFrame = updateFrame;
     }
