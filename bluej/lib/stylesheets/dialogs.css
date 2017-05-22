@@ -429,7 +429,7 @@
 
 .team-commit-push {
     -fx-min-width:  20em;
-    -fx-pref-width: 30em;
+    -fx-pref-width: 34em;
 
     -fx-min-height:  35em;
     -fx-pref-height: 50em;
@@ -451,6 +451,23 @@
 
 .team-commit-push .main-pane .button-hbox {
      -fx-spacing: 0.8em;
+}
+
+.team-update-files
+{
+    -fx-min-width:  32em;
+    -fx-pref-width: 32em;
+
+    -fx-min-height:  16em;
+    -fx-pref-height: 18em;
+}
+
+.team-update-files .main-pane {
+    -fx-spacing: 0.8em;
+}
+
+.team-update-files .main-pane .button-hbox {
+     -fx-spacing: 0.5em;
 }
 
 .team-update-files,

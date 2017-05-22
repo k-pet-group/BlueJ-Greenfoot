@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -60,6 +60,7 @@ import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
 
 import threadchecker.OnThread;
@@ -75,24 +76,22 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 {
-    private Button updateButton;
     private CheckBox includeLayoutCheckbox;
     private ActivityIndicator progressBar;
     private UpdateAction updateAction;
     private UpdateWorker updateWorker;
 
     private Project project;
-
     private Repository repository;
     private ObservableList<UpdateStatus> updateListModel;
 
     private Set<TeamStatusInfo> changedLayoutFiles = new HashSet<>(); // set of TeamStatusInfo
     private Set<File> forcedLayoutFiles = new HashSet<>(); // set of File
-    private boolean includeLayout = true;
 
     private static UpdateStatus noFilesToUpdate = new UpdateStatus(Config.getString("team.noupdatefiles"));
     private static UpdateStatus needUpdate = new UpdateStatus(Config.getString("team.pullNeeded"));
 
+    private boolean includeLayout = true;
     private boolean pullWithNoChanges = false;
 
     public UpdateFilesFrame(Project proj)
@@ -100,7 +99,9 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         super(null, "team.update.title", "team-update-files");
         project = proj;
         buildUI();
+        prepareButtonPane();
 //        DialogManager.centreDialog(this);
+        rememberPosition("bluej.updatedisplay");
     }
 
     /**
@@ -108,18 +109,11 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
      */
     private void buildUI()
     {
-        updateListModel = FXCollections.emptyObservableList();
+        VBox mainPane = new VBox();
+        JavaFXUtil.addStyleClass(mainPane, "main-pane");/////
 
-        //setIconImage(BlueJTheme.getIconImage());
-        rememberPosition("bluej.updatedisplay");
-
-        VBox topPanel = new VBox();
-
-        ScrollPane updateFileScrollPane = new ScrollPane();
-
+        updateListModel = FXCollections.observableArrayList();
         Label updateFilesLabel = new Label(Config.getString("team.update.files"));
-        topPanel.getChildren().add(updateFilesLabel);
-
         ListView<UpdateStatus> updateFiles = new ListView<>(updateListModel);
         if (project.getTeamSettingsController().isDVCS()){
             updateFiles.setCellFactory(param -> new FileRendererCell(project, true));//
@@ -127,30 +121,20 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             updateFiles.setCellFactory(param -> new FileRendererCell(project));//
         }
         updateFiles.setDisable(true);
-        updateFileScrollPane.setContent(updateFiles);
 
-        topPanel.getChildren().add(updateFileScrollPane);
+        ScrollPane updateFileScrollPane = new ScrollPane(updateFiles);
+        updateFileScrollPane.setFitToWidth(true);
+        updateFileScrollPane.setFitToHeight(true);
 
-        VBox bottomPanel = new VBox();
 
         updateAction = new UpdateAction(this);
-        updateButton = new Button();
+        Button updateButton = new Button();
         updateAction.useButton(PkgMgrFrame.getMostRecent(), updateButton);
         updateButton.requestFocus();
-
-        Button closeButton = new Button();// BlueJTheme.getCancelButton();
-        closeButton.setOnAction(event -> {
-            updateAction.cancel();
-            updateWorker.abort();
-            setVisible(false);
-        });
-
-        HBox buttonPanel = new HBox();
 
         progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
 
-        VBox checkBoxPanel = new VBox();
         includeLayoutCheckbox = new CheckBox(Config.getString("team.update.includelayout"));
         includeLayoutCheckbox.setDisable(true);
         includeLayoutCheckbox.setOnAction(event -> {
@@ -172,14 +156,30 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             }
         });
 
-        checkBoxPanel.getChildren().addAll(includeLayoutCheckbox, buttonPanel);
-        buttonPanel.getChildren().addAll(progressBar, updateButton, closeButton);
+        HBox updateButtonPane = new HBox();
+        JavaFXUtil.addStyleClass(updateButtonPane, "button-hbox");
+        updateButtonPane.getChildren().addAll(progressBar, updateButton);
 
-        bottomPanel.getChildren().add(checkBoxPanel);
+        mainPane.getChildren().addAll(updateFilesLabel, updateFileScrollPane, includeLayoutCheckbox, updateButtonPane);
+        getDialogPane().setContent(mainPane);
+    }
 
-        VBox mainPanel = new VBox();
-        mainPanel.getChildren().addAll(topPanel, bottomPanel);
-        getDialogPane().getChildren().add(mainPanel);
+    /**
+     * Create the button panel with a close button
+     * @return Pane the buttonPanel
+     */
+    private void prepareButtonPane()
+    {
+        getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
+        this.setOnCloseRequest(event -> {
+            if (updateWorker != null) {
+                updateWorker.abort();
+            }
+            if (updateAction != null) {
+                updateAction.cancel();
+            }
+            close();
+        });
     }
 
     public void setVisible(boolean visible)
