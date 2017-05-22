@@ -65,7 +65,7 @@ import bluej.utility.PersistentMarkDocument;
  * @author Bruce Quig
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  */
-@OnThread(Tag.Any) // FX if you're going to use it in an editor, but should be fine off-thread otherwise?
+@OnThread(Tag.FXPlatform)
 public class MoeSyntaxDocument
 {
     public static final String MOE_FIND_RESULT = "moe-find-result";
@@ -271,6 +271,7 @@ public class MoeSyntaxDocument
      * @param force  whether to force-enable the parser. If false, the parser will only
      *                be enabled if an entity resolver is available.
      */
+    @OnThread(Tag.FXPlatform)
     public void enableParser(boolean force)
     {
         if (parentResolver != null || force) {
@@ -305,6 +306,7 @@ public class MoeSyntaxDocument
      * parse the specified amount of document (approximately). Return true if
      * a queued re-parse was processed or false if the queue was empty.
      */
+    @OnThread(Tag.FXPlatform)
     private boolean pollReparseQueue(int maxParse)
     {
         try {
@@ -855,7 +857,7 @@ public class MoeSyntaxDocument
             return EnumSet.noneOf(ParagraphAttribute.class);
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public static interface Element
     {
         public Element getElement(int index);

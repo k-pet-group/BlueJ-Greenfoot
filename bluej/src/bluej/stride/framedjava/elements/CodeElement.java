@@ -72,6 +72,7 @@ public abstract class CodeElement
      * 
      * (TODO in the future, this should strengthen to: returning no errors means code won't give syntax error)
      */
+    @OnThread(Tag.FXPlatform)
     public final Stream<SyntaxCodeError> findEarlyErrors(LocationMap rootPathMap)
     {
         if (!isEnable())
@@ -91,7 +92,7 @@ public abstract class CodeElement
     
     // The return should only be compiled if validForCompilation() returns true.
     // However, it might be used for parsing (for code completion) at any point.
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public abstract JavaSource toJavaSource();
     
     public abstract LocatableElement toXML();
@@ -156,6 +157,7 @@ public abstract class CodeElement
         return Collections.emptyList();
     }
 
+    @OnThread(Tag.FXPlatform)
     public static List<JavaSource> toJavaCodes(List<? extends CodeElement> contents)
     {
         return contents.stream().filter(c -> c.isEnable()).map(c -> c.toJavaSource()).collect(Collectors.toList());

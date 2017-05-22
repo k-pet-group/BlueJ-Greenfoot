@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import bluej.stride.generic.InteractionManager.Kind;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class PrimitiveTypeCompletion extends AssistContent
 {
@@ -39,6 +41,7 @@ public class PrimitiveTypeCompletion extends AssistContent
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getName()
     {
         return type;

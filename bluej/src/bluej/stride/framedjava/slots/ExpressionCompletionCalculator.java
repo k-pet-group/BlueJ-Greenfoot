@@ -101,7 +101,7 @@ public class ExpressionCompletionCalculator implements StructuredCompletionCalcu
     }
 
     @OnThread(Tag.FXPlatform)
-    public void withConstructorParamNames(SuperThis constructorKind, FXConsumer<List<List<String>>> handler)
+    public void withConstructorParamNames(SuperThis constructorKind, FXPlatformConsumer<List<List<String>>> handler)
     {
         if (constructorKind == SuperThis.THIS)
         {
@@ -118,7 +118,7 @@ public class ExpressionCompletionCalculator implements StructuredCompletionCalcu
     }
 
     @OnThread(Tag.FXPlatform)
-    public void withParamNames(PosInSourceDoc pos, ExpressionSlot<?> completing, String methodName, CodeElement codeEl, FXConsumer<List<List<String>>> handler)
+    public void withParamNames(PosInSourceDoc pos, ExpressionSlot<?> completing, String methodName, CodeElement codeEl, FXPlatformConsumer<List<List<String>>> handler)
     {
         editor.withCompletions(pos, completing, codeEl, assists ->
             handler.accept(assists.stream()
@@ -135,7 +135,7 @@ public class ExpressionCompletionCalculator implements StructuredCompletionCalcu
     }
 
     @OnThread(Tag.FXPlatform)
-    public void withParamHints(PosInSourceDoc pos, ExpressionSlot<?> completing, String methodName, CodeElement codeEl, FXConsumer<List<List<String>>> handler)
+    public void withParamHints(PosInSourceDoc pos, ExpressionSlot<?> completing, String methodName, CodeElement codeEl, FXPlatformConsumer<List<List<String>>> handler)
     {
         editor.withCompletions(pos, completing, codeEl, assists ->
             handler.accept(assists.stream()
@@ -147,7 +147,7 @@ public class ExpressionCompletionCalculator implements StructuredCompletionCalcu
     }
 
     @OnThread(Tag.FXPlatform)
-    public void withConstructorParamHints(SuperThis constructorKind, int totalParams, FXConsumer<List<List<String>>> handler)
+    public void withConstructorParamHints(SuperThis constructorKind, int totalParams, FXPlatformConsumer<List<List<String>>> handler)
     {
         Function<List<AssistContentThreadSafe>, List<List<String>>> asHints = assists -> assists.stream()
             .filter(a -> a.getParams() != null && a.getParams().size() == totalParams)
@@ -167,7 +167,7 @@ public class ExpressionCompletionCalculator implements StructuredCompletionCalcu
     }
 
     @OnThread(Tag.FXPlatform)
-    public void withMethodHints(PosInSourceDoc pos, ExpressionSlot<?> completing, String methodName, CodeElement codeEl, FXConsumer<List<String>> handler)
+    public void withMethodHints(PosInSourceDoc pos, ExpressionSlot<?> completing, String methodName, CodeElement codeEl, FXPlatformConsumer<List<String>> handler)
     {
         editor.withCompletions(pos, completing, codeEl, assists ->
             handler.accept(assists.stream()

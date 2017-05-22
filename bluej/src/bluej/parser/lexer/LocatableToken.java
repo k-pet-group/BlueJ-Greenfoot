@@ -21,6 +21,10 @@
  */
 package bluej.parser.lexer;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+@OnThread(Tag.Any)
 public class LocatableToken
 {
     private int beginLine, beginColumn;

@@ -41,13 +41,15 @@ import java.util.function.Supplier;
  * 
  * @author Marion Zalk
  */
-@OnThread(Tag.FX)
+@OnThread(Tag.FXPlatform)
 public abstract class AssistContent
 {
+    @OnThread(Tag.Any)
     public static enum Access
     {
         PRIVATE, PROTECTED, PACKAGE, PUBLIC;
     }
+    @OnThread(Tag.Any)
     public static enum CompletionKind
     {
         METHOD, CONSTRUCTOR, FIELD, LOCAL_VAR, FORMAL_PARAM, TYPE;

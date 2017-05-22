@@ -117,6 +117,7 @@ public class WebTab extends FXTab
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     String getWebAddress()
     {
         return browser.getEngine().getLocation();

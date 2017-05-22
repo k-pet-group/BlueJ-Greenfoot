@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.*;
 
 /**
@@ -607,6 +610,7 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * @return the map (of String -> GenTypeParameterizable).
      */
+    @OnThread(Tag.FXPlatform)
     public Map<String,GenTypeParameter> getMap()
     {
         if (isRaw()) {

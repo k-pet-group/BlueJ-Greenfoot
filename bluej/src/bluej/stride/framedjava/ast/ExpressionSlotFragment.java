@@ -51,6 +51,8 @@ import bluej.stride.framedjava.frames.AssignFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public abstract class ExpressionSlotFragment extends StructuredSlotFragment
 {
@@ -65,6 +67,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
     private AssignFrame assignmentLHSParent; // non-null iff we are the LHS of an assignment
 
     // Constructor when generated from slot
+    @OnThread(Tag.FXPlatform)
     public ExpressionSlotFragment(String content, String javaCode, ExpressionSlot slot)
     {
         super(content, javaCode);
@@ -216,6 +219,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Stream<SyntaxCodeError> findEarlyErrors()
     {
         if (content != null && content.endsWith(";"))

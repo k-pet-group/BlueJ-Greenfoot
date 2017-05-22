@@ -105,7 +105,6 @@ public class ParseUtils
      * @return  A suitable GenTypeClass representing the target type for completion
      *           purposes, or null if there is no such suitable type.
      */
-    @OnThread(Tag.Any)
     public static GenTypeClass initGetPossibleCompletions(CodeSuggestions suggests)
     {
         if (suggests != null) {

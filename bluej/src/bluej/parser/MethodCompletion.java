@@ -48,7 +48,7 @@ import bluej.utility.JavaUtils;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.FX)
+@OnThread(Tag.FXPlatform)
 public class MethodCompletion extends AssistContent
 {
     @OnThread(Tag.Any) private final MethodReflective method;
@@ -62,7 +62,6 @@ public class MethodCompletion extends AssistContent
      *                   call on a raw expression, will be null.
      * @param javadocResolver  The javadoc resolver to use
      */
-    @OnThread(Tag.Any)
     public MethodCompletion(MethodReflective method,
             Map<String,GenTypeParameter> typeArgs,
             JavadocResolver javadocResolver)

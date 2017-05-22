@@ -3,6 +3,8 @@ package bluej.debugger;
 import bluej.debugger.gentype.JavaType;
 import bluej.utility.javafx.FXPlatformSupplier;
 import com.sun.jdi.LocalVariable;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.lang.reflect.Modifier;
 
@@ -18,6 +20,7 @@ public class VarDisplayInfo
     // If null, means item was not an inspectable object (probably null or primitive):
     private final FXPlatformSupplier<DebuggerObject> getObjectToInspect;
 
+    @OnThread(Tag.FXPlatform)
     public VarDisplayInfo(DebuggerField field)
     {
         int mods = field.getModifiers();
@@ -51,6 +54,7 @@ public class VarDisplayInfo
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public VarDisplayInfo(JavaType vartype, LocalVariable var, String value, FXPlatformSupplier<DebuggerObject> getObjectToInspect)
     {
         access = null;

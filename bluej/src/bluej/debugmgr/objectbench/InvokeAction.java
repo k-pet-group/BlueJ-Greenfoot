@@ -39,8 +39,10 @@ import threadchecker.Tag;
 @OnThread(Tag.Swing)
 public class InvokeAction extends AbstractAction
 {
-    MethodView methodView;
-    InvokeListener invokeListener;
+    @OnThread(Tag.Any)
+    private final MethodView methodView;
+    @OnThread(Tag.Any)
+    private final InvokeListener invokeListener;
     
     /**
      * Constructor for an InvokeAction.

@@ -136,12 +136,15 @@ public interface TopLevelCodeElement
 
     public Stream<CodeElement> streamContained();
 
+    @OnThread(Tag.FXPlatform)
     public Stream<SyntaxCodeError> findEarlyErrors();
 
     public Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, LocationMap rootPathMap);
-    
+
+    @OnThread(Tag.FXPlatform)
     public JavaSource toJavaSource();
 
+    @OnThread(Tag.FXPlatform)
     public default JavaSource toJavaSource(boolean warning)
     {
         JavaSource java = toJavaSource();

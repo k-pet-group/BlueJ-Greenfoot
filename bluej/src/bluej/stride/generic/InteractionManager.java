@@ -271,6 +271,7 @@ public interface InteractionManager extends SuggestionListParent
      * unnecessary modification notifications
      * @return
      */
+    @OnThread(Tag.FX)
     public boolean isLoading();
 
     public StringExpression getFontSizeCSS();

@@ -22,6 +22,8 @@
 package bluej.testmgr.record;
 
 import bluej.pkgmgr.PkgMgrFrame;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -75,6 +77,7 @@ public class VoidMethodInvokerRecord extends InvokerRecord
      *         src or null if there is none. 
      */    
     @Override
+    @OnThread(Tag.FXPlatform)
     public String toFixtureSetup(String secondIndent)
     {
         // code for the fixture setup involves just inserting the method call

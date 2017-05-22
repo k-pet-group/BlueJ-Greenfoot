@@ -33,7 +33,6 @@ import threadchecker.Tag;
  * A modifier.  Might be a keyword (e.g. "public", "final") or an annotation
  * e.g. "@Override", "@Test(true)"
  */
-@OnThread(Tag.Any)
 interface Modifier
 {
     /**

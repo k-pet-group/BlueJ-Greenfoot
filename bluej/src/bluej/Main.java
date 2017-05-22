@@ -43,6 +43,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import org.fxconnector.helper.FXUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -300,8 +301,7 @@ public class Main
             menuToolkit.setApplicationMenu(defaultApplicationMenu);
 
             // About
-            defaultApplicationMenu.getItems().get(0).setOnAction(event ->
-                    SwingUtilities.invokeLater(() -> PkgMgrFrame.handleAbout()));
+            defaultApplicationMenu.getItems().get(0).setOnAction(event -> PkgMgrFrame.handleAbout());
 
             // Preferences
             // It has been added without a separator due to a bug in the library used
@@ -309,12 +309,12 @@ public class Main
             if (Config.hasAcceleratorKey("menu.tools.preferences")) {
                 preferences.setAccelerator(Config.getAcceleratorKeyFX("menu.tools.preferences"));
             }
-            preferences.setOnAction(event -> SwingUtilities.invokeLater(() -> PkgMgrFrame.handlePreferences()));
+            preferences.setOnAction(event -> PkgMgrFrame.handlePreferences());
             defaultApplicationMenu.getItems().add(1, preferences);
 
             // Quit
             defaultApplicationMenu.getItems().get(defaultApplicationMenu.getItems().size()-1).
-                    setOnAction(event -> SwingUtilities.invokeLater(() -> PkgMgrFrame.handleQuit()));
+                    setOnAction(event -> PkgMgrFrame.handleQuit());
         });
     }
 
@@ -328,7 +328,7 @@ public class Main
                 @Override
                 public void handleAbout(AppEvent.AboutEvent e)
                 {
-                    PkgMgrFrame.handleAbout();
+                    Platform.runLater(() -> PkgMgrFrame.handleAbout());
                 }
             });
 
@@ -336,7 +336,7 @@ public class Main
                 @Override
                 public void handlePreferences(AppEvent.PreferencesEvent e)
                 {
-                    PkgMgrFrame.handlePreferences();
+                    Platform.runLater(() -> PkgMgrFrame.handlePreferences());
                 }
             });
 
@@ -345,7 +345,7 @@ public class Main
                 public void handleQuitRequestWith(AppEvent.QuitEvent e, QuitResponse response)
                 {
                     macEventResponse = response;
-                    PkgMgrFrame.handleQuit();
+                    Platform.runLater(() -> PkgMgrFrame.handleQuit());
                     // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
                     // response.cancelQuit() is called to cancel (in wantToQuit())
                 }
@@ -357,9 +357,13 @@ public class Main
                 {
                     if (launched) {
                         List<File> files = e.getFiles();
-                        for (File file : files) {
-                            PkgMgrFrame.doOpen(file, null);
-                        }
+                        Platform.runLater(() ->
+                        {
+                            for (File file : files)
+                            {
+                                PkgMgrFrame.doOpen(file, null);
+                            }
+                        });
                     }
                     else {
                         initialProjects = e.getFiles();
@@ -368,7 +372,7 @@ public class Main
             });
         }
 
-        Boot.getInstance().setQuitHandler(() -> SwingUtilities.invokeLater(() -> PkgMgrFrame.handleQuit()));
+        Boot.getInstance().setQuitHandler(() -> PkgMgrFrame.handleQuit());
     }
 
     /**
@@ -379,25 +383,22 @@ public class Main
     {
         int projectCount = Project.getOpenProjectCount();
         PkgMgrFrame recentPMF = PkgMgrFrame.getMostRecent();
-        Platform.runLater(() ->
+        int answer = projectCount <= 1 ? 0 : DialogManager.askQuestionFX(recentPMF.getFXWindow(), "quit-all");
+        if (answer == 0)
         {
-            int answer = projectCount <= 1 ? 0 : DialogManager.askQuestionFX(recentPMF.getFXWindow(), "quit-all");
-            if (answer == 0)
+            doQuit();
+        }
+        else
+        {
+            SwingUtilities.invokeLater(() ->
             {
-                doQuit();
-            }
-            else
-            {
-                SwingUtilities.invokeLater(() ->
+                if (macEventResponse != null)
                 {
-                    if (macEventResponse != null)
-                    {
-                        macEventResponse.cancelQuit();
-                        macEventResponse = null;
-                    }
-                });
-            }
-        });
+                    macEventResponse.cancelQuit();
+                    macEventResponse = null;
+                }
+            });
+        }
     }
 
 
@@ -439,7 +440,7 @@ public class Main
                     SwingUtilities.invokeLater(() -> {
                         ExtensionsManager extMgr = ExtensionsManager.getInstance();
                         extMgr.unloadExtensions();
-                        bluej.Main.exit();
+                        Platform.runLater(() -> bluej.Main.exit());
                     });
                 }
             }
@@ -503,14 +504,12 @@ public class Main
     /**
      * Open a single empty bluej window.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private static void openEmptyFrame()
     {
         PkgMgrFrame frame = PkgMgrFrame.createFrame();
-        Platform.runLater(() -> {
-            frame.getFXWindow().setX(FIRST_X_LOCATION);
-            frame.getFXWindow().setY(FIRST_Y_LOCATION);
-        });
+        frame.getFXWindow().setX(FIRST_X_LOCATION);
+        frame.getFXWindow().setY(FIRST_Y_LOCATION);
         frame.setVisible(true);
     }
     
@@ -617,7 +616,7 @@ public class Main
      * The open frame count should be zero by this point as PkgMgrFrame is
      * responsible for cleaning itself up before getting here.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     private static void exit()
     {
         if (PkgMgrFrame.frameCount() > 0) {
@@ -632,7 +631,7 @@ public class Main
 
         // We wrap this in a Platform.runLater/Swing.invokeLater to make sure it
         // runs after any pending FX actions or Swing actions:
-        Platform.runLater(() -> SwingUtilities.invokeLater(() -> System.exit(0)));
+        JavaFXUtil.runAfterCurrent(() -> SwingUtilities.invokeLater(() -> System.exit(0)));
     }
 
     // See comment on the field.

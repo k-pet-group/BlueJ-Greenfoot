@@ -22,6 +22,8 @@
 package bluej.parser.entity;
 
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -33,7 +35,8 @@ import bluej.debugger.gentype.Reflective;
 public class PackageResolver implements EntityResolver
 {
     private EntityResolver parentResolver;
-    private String pkg;
+    @OnThread(Tag.Any)
+    private final String pkg;
     
     public PackageResolver(EntityResolver parentResolver, String pkg)
     {
@@ -73,6 +76,7 @@ public class PackageResolver implements EntityResolver
         return parentResolver.resolveQualifiedClass(name);
     }
 
+    @OnThread(Tag.Any)
     public String getPkg()
     {
         return pkg;

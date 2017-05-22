@@ -28,7 +28,6 @@ import threadchecker.Tag;
 /**
  * A warning which occurred during the conversion from Java to Stride
  */
-@OnThread(Tag.Any)
 public abstract class ConversionWarning
 {
     private final String text;

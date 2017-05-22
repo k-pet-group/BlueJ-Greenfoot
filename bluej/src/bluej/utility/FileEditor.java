@@ -28,6 +28,8 @@ import javax.swing.text.Element;
 import javax.swing.text.PlainDocument;
 
 import bluej.parser.symtab.Selection;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An object which allows (semi) direct editing of files on
@@ -36,6 +38,7 @@ import bluej.parser.symtab.Selection;
  * @author  Andrew Patterson
  * @version $Id: FileEditor.java 6215 2009-03-30 13:28:25Z polle $
  */
+@OnThread(Tag.SwingIsFX) // We should just remove this whole class
 public class FileEditor extends PlainDocument
 {
     private File fileToEdit;

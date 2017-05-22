@@ -21,6 +21,9 @@
  */
 package bluej.parser;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.IOException;
 import java.io.Reader;
 
@@ -35,6 +38,7 @@ import java.io.Reader;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public final class EscapedUnicodeReader extends Reader
 {
     Reader sourceReader;

@@ -36,6 +36,7 @@ import java.util.Set;
  *  
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public abstract class Reflective
 {
     /**

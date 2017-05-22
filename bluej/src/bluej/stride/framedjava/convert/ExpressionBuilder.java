@@ -46,7 +46,6 @@ import threadchecker.Tag;
  * multiple times on the same handler.  We pair them off, and only finish when
  * the outermost expression is completed.
  */
-@OnThread(Tag.Any)
 class ExpressionBuilder
 {
     // The start of the outermost expression

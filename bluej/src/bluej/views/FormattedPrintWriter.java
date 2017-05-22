@@ -33,6 +33,7 @@ import threadchecker.Tag;
  **
  ** FormattedPrintWriter - provides formatting on top of a PrintWriter
  **/
+@OnThread(value = Tag.FXPlatform,ignoreParent = true)
 public abstract class FormattedPrintWriter extends PrintWriter
 {
     public FormattedPrintWriter(OutputStream out)

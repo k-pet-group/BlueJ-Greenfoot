@@ -74,6 +74,7 @@ class CollectUtility
     /**
      * Reads a source code file from the project, and anonymises it
      */
+    @OnThread(Tag.FXPlatform)
     static String readFileAndAnonymise(ProjectDetails proj, File f)
     {
         try {

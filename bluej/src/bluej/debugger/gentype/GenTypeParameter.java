@@ -24,6 +24,8 @@ package bluej.debugger.gentype;
 import java.util.Map;
 
 import bluej.utility.JavaNames;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Interface for a parameterizable type, that is, a type which could have type
@@ -179,6 +181,7 @@ public abstract class GenTypeParameter
     /**
      * Get a string representation of the type, optionally stripping package prefixes
      */
+    @OnThread(Tag.Any)
     public String toString(boolean stripPrefix)
     {
         if (stripPrefix) {

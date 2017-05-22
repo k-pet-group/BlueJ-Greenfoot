@@ -199,11 +199,13 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaSource toJavaSource()
     {
         return getDAP(null).java;
     }
 
+    @OnThread(Tag.FXPlatform)
     private JavaSource generateJavaSource()
     {
         List<JavaFragment> header = new ArrayList<>();
@@ -326,7 +328,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         return getDAP(completing).getDocument(projectResolver);
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     private synchronized DocAndPositions getDAP(ExpressionSlot completing)
     {
         if (sourceDocument == null || sourceDocumentCompleting != completing)

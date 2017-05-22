@@ -62,7 +62,8 @@ public abstract class JavaFragment
             return true;
         }
     };
-    
+
+    @OnThread(Tag.FXPlatform)
     protected abstract String getJavaCode(Destination dest, ExpressionSlot<?> completing, Parser.DummyNameGenerator dummyNameGenerator);
 
     @OnThread(Tag.FX)
@@ -174,6 +175,7 @@ public abstract class JavaFragment
      * 
      * (TODO in the future, this should strengthen to: returning no errors means code won't give syntax error)
      */
+    @OnThread(Tag.FXPlatform)
     public abstract Stream<SyntaxCodeError> findEarlyErrors();
 
     @OnThread(Tag.FXPlatform)

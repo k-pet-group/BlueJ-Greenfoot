@@ -113,7 +113,7 @@ public abstract class Inspector extends Stage
     /**
      * Convert a field to a string representation, used to display the field in the inspector value list.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public static String fieldToString(DebuggerField field)
     {
         int mods = field.getModifiers();

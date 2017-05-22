@@ -363,6 +363,7 @@ class JdiThread extends DebuggerThread
      * The thread must be suspended to do this. Otherwise an empty List
      * is returned.
      */
+    @OnThread(Tag.FXPlatform)
     public List<VarDisplayInfo> getLocalVariables(int frameNo)
     {
         try {

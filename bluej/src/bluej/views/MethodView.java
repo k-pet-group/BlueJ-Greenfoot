@@ -41,7 +41,8 @@ import threadchecker.Tag;
  */
 public class MethodView extends CallableView implements Comparable<MethodView>
 {
-    protected Method method;
+    @OnThread(Tag.Any)
+    protected final Method method;
     protected View returnType;
     private JavaType jtReturnType;
 
@@ -68,6 +69,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         return method.toString();
     }
 
+    @OnThread(Tag.Any)
     public int getModifiers()
     {
         return method.getModifiers();
@@ -289,7 +291,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         return jtReturnType;
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void print(FormattedPrintWriter out, Map<String,GenTypeParameter> typeParams, int indents)
     {
         Comment comment = getComment();

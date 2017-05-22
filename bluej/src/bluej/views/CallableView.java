@@ -113,13 +113,13 @@ public abstract class CallableView extends MemberView
     /**
      * Print the method to a formatting print writer.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void print(FormattedPrintWriter out)
     {
         print(out, 0);
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void print(FormattedPrintWriter out, int indents)
     {
         Comment comment = getComment();

@@ -32,7 +32,6 @@ import threadchecker.Tag;
 /**
  * A class to record the details of a method/constructor currently being parsed.
  */
-@OnThread(Tag.Any)
 class MethodBuilder
 {
     // Type of the method (null if constructor)

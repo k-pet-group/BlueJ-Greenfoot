@@ -32,7 +32,7 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.Parser;
 
-@OnThread(Tag.FX)
+@OnThread(Tag.FXPlatform)
 public class LocalTypeCompletion extends AssistContent
 {
     private final String type;

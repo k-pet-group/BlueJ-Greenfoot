@@ -25,12 +25,15 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import bluej.debugger.gentype.*;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Java 1.5+ version of JavaUtils.
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class JavaUtils15 extends JavaUtils
 {
     /*

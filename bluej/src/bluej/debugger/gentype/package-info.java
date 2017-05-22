@@ -1,8 +1,8 @@
 /**
- * Created by neil on 19/05/2017.
+ * Created by neil on 22/05/2017.
  */
 @OnThread(Tag.FXPlatform)
-package bluej.stride.framedjava.convert;
+package bluej.debugger.gentype;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;

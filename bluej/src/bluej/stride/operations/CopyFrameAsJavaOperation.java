@@ -31,6 +31,8 @@ import bluej.stride.framedjava.frames.GreenfootFrameUtil;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class CopyFrameAsJavaOperation extends FrameOperation
 {
@@ -40,6 +42,7 @@ public class CopyFrameAsJavaOperation extends FrameOperation
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void execute(List<Frame> frames)
     {
         GreenfootFrameUtil.doCopyAsJava(frames);

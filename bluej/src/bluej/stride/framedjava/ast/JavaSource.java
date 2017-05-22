@@ -132,24 +132,25 @@ public class JavaSource
         public void recordPosition(JavaFragment fragment, int posInSource, int lineNumber, int columnNumber, int len);
     }
     
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public String toDiskJavaCodeString()
     {
         return toJavaCodeString(Destination.JAVA_FILE_TO_COMPILE, null, (frag, pos, lineNumber, columnNumber, len) -> frag.recordDiskPosition(lineNumber, columnNumber, len));
     }
 
+    @OnThread(Tag.FXPlatform)
     public String toMemoryJavaCodeString(IdentityHashMap<JavaFragment, Integer> positions, ExpressionSlot<?> completing)
     {
         return toJavaCodeString(Destination.SOURCE_DOC_TO_ANALYSE, completing, (frag, pos, a, b, c) -> positions.put(frag, pos));
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public String toTemporaryJavaCodeString()
     {
         return toJavaCodeString(Destination.TEMPORARY, null, (frag, pos, a, b, c) -> {});
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     private String toJavaCodeString(Destination dest, ExpressionSlot<?> completing, Recorder recorder)
     {
         final Parser.DummyNameGenerator nameGen = new Parser.DummyNameGenerator();

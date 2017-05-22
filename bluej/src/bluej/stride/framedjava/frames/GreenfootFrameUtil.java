@@ -140,6 +140,7 @@ public class GreenfootFrameUtil
         return framesEl;
     }
 
+    @OnThread(Tag.FXPlatform)
     private static String getJavaForMultipleFrames(List<Frame> frames)
     {
         StringBuilder java = new StringBuilder();
@@ -179,6 +180,7 @@ public class GreenfootFrameUtil
         Clipboard.getSystemClipboard().setContent(content);
     }
 
+    @OnThread(Tag.FXPlatform)
     public static void doCopyAsJava(List<Frame> frames)
     {
         // Nothing to copy if nothing selected:

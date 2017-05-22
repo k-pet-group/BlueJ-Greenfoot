@@ -257,6 +257,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private Frame stackHighlight;
     private EditableSlot showingUnderlinesFor = null;
     private ErrorOverviewBar errorOverviewBar;
+    @OnThread(Tag.FX)
     private boolean loading = false;
     // True when we are part way through an animation to set the scroll value:
     private boolean animatingScroll = false;
@@ -1817,11 +1818,22 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         if (f != null)
             f.trackBlank(); // Do this even if loading
 
-        if ( (!isLoading() && getParent() != null) || force) {
-            editor.codeModified();
-            registerStackHighlight(null);
-            JavaFXUtil.runNowOrLater(() -> updateErrorOverviewBar(true));
-            SuggestedFollowUpDisplay.modificationIn(this);
+
+        // If we are loading, we'll thread hop
+        if (!isLoading() || force)
+        {
+            // After loading, this should always be on the FXPlatform thread,
+            // so should always run now:
+            JavaFXUtil.runNowOrLater(() ->
+            {
+                if ((!isLoading() && getParent() != null) || force)
+                {
+                    editor.codeModified();
+                    registerStackHighlight(null);
+                    JavaFXUtil.runNowOrLater(() -> updateErrorOverviewBar(true));
+                    SuggestedFollowUpDisplay.modificationIn(this);
+                }
+            });
         }
     }
 
@@ -1840,6 +1852,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             getParent().bringToFront(this);
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isWindowVisible()
     {
         return getParent() != null && getParent().containsTab(this) && getParent().isWindowVisible();
@@ -2585,6 +2598,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FX)
     public boolean isLoading()
     {
         return loading;

@@ -21,6 +21,9 @@
  */
 package bluej.views;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.lang.reflect.*;
 
 /**
@@ -31,7 +34,8 @@ import java.lang.reflect.*;
  **/
 public final class FieldView extends MemberView
 {
-    private Field field;
+    @OnThread(Tag.Any)
+    private final Field field;
     private View type;
 
     /**
@@ -82,6 +86,7 @@ public final class FieldView extends MemberView
         return field.toString();
     }
 
+    @OnThread(Tag.Any)
     public int getModifiers()
     {
         return field.getModifiers();

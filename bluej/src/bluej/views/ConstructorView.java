@@ -27,6 +27,8 @@ import java.util.List;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.utility.JavaUtils;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A representation of a Java constructor in BlueJ
@@ -36,7 +38,8 @@ import bluej.utility.JavaUtils;
  */
 public final class ConstructorView extends CallableView
 {
-    private Constructor<?> cons;
+    @OnThread(Tag.Any)
+    private final Constructor<?> cons;
 
     /**
      * Constructor.
@@ -55,6 +58,7 @@ public final class ConstructorView extends CallableView
         return cons.toString();
     }
 
+    @OnThread(Tag.Any)
     public int getModifiers()
     {
         return cons.getModifiers();

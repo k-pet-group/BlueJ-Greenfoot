@@ -26,7 +26,10 @@ import java.util.concurrent.Executor;
 
 import bluej.parser.AssistContent.JavadocCallback;
 import bluej.stride.framedjava.ast.AccessPermission;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
+@OnThread(Tag.FXPlatform)
 public class PrefixCompletionWrapper extends AssistContent
 {
     private final String prefix; 
@@ -38,6 +41,7 @@ public class PrefixCompletionWrapper extends AssistContent
         this.wrapped = wrapped;
     }
 
+    @OnThread(Tag.Any)
     public String getName()
     {
         return prefix + wrapped.getName();

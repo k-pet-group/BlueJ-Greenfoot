@@ -86,6 +86,7 @@ abstract class FXTab extends Tab
      * Gets the web address showing in this tab.
      * @return The URL of the web address showing, or null if this is not a web tab.
      */
+    @OnThread(Tag.FXPlatform)
     abstract String getWebAddress();
 
     /**

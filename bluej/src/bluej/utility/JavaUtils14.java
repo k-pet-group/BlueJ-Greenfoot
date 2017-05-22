@@ -21,11 +21,15 @@
  */
 package bluej.utility;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class JavaUtils14
 {
     /**
@@ -45,6 +49,7 @@ public class JavaUtils14
      * Get a type name, with prefix stripped. For array types return the base
      * type name plus the appropriate number of "[]" qualifiers.
      */
+    @OnThread(Tag.FXPlatform)
     public static String getTypeName(Class<?> type)
     {
         return JavaNames.stripPrefix(JavaUtils.getFQTypeName(type));

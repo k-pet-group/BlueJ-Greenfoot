@@ -29,6 +29,8 @@ import javax.swing.text.Segment;
 
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An efficient reader which reads directly from the supplied Document.
@@ -81,12 +83,14 @@ public class DocumentReader extends Reader
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform,ignoreParent = true)
     public void close()
     {
         // Nothing to do
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform,ignoreParent = true)
     public int read()
     {
         if (bufpos == buffer.getEndIndex()) {
@@ -100,6 +104,7 @@ public class DocumentReader extends Reader
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform,ignoreParent = true)
     public int read(char[] cbuf, int off, int len)
     {
         int docAvail = Math.min(len, docLength - docPosition + buffer.getEndIndex() - bufpos);

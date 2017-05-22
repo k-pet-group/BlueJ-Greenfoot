@@ -41,7 +41,7 @@ import threadchecker.Tag;
  *
  * @author  Michael Cahill
  */
-@OnThread(Tag.Any)
+@OnThread(Tag.FXPlatform)
 public class View
 {
     /** The class that this view is for **/

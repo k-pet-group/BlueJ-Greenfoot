@@ -37,7 +37,7 @@ import threadchecker.Tag;
  *
  * @author Bruce Quig
  */
-@OnThread(Tag.Any)
+@OnThread(Tag.FXPlatform)
 public class CallHistory
 {
     private Map<String,List<String>> objectTypes = null;

@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 
 import bluej.parser.ConstructorOrMethodReflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Represents a method from a reflective.
@@ -34,8 +36,9 @@ import bluej.parser.ConstructorOrMethodReflective;
  */
 public class MethodReflective extends ConstructorOrMethodReflective
 {
-    private String name;
-    private JavaType returnType;
+    @OnThread(Tag.Any)
+    private final String name;
+    private final JavaType returnType;
 
     
     /**
@@ -64,6 +67,7 @@ public class MethodReflective extends ConstructorOrMethodReflective
     /**
      * Get the method name.
      */
+    @OnThread(Tag.Any)
     public String getName()
     {
         return name;

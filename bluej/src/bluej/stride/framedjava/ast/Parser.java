@@ -36,6 +36,7 @@ import bluej.stride.framedjava.elements.CodeElement;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+@OnThread(Tag.FXPlatform)
 public class Parser
 {
 

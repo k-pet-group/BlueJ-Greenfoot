@@ -34,8 +34,11 @@ import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.ParsingException;
 import nu.xom.Text;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 //package-visible
+@OnThread(Tag.FXPlatform)
 class CodeAnonymiser
 {
     public static String anonymise(String sourceCode)

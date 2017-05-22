@@ -87,6 +87,7 @@ public class ImportedTypeCompletion extends AssistContent
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getName()
     {
         return type;

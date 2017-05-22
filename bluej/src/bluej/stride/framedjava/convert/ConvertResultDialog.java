@@ -41,7 +41,6 @@ import threadchecker.Tag;
  * either by pasting from the clipboard or a full-class conversion,
  * and there has been either an error or warnings. 
  */
-@OnThread(Tag.FXPlatform)
 public class ConvertResultDialog
 {
     private final Alert alert;

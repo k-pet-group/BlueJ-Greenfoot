@@ -26,6 +26,8 @@ import java.util.concurrent.Executor;
 
 import bluej.parser.AssistContent.JavadocCallback;
 import bluej.stride.framedjava.ast.AccessPermission;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 public class FieldCompletion extends AssistContent
@@ -44,6 +46,7 @@ public class FieldCompletion extends AssistContent
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getName()
     {
         return fieldName;

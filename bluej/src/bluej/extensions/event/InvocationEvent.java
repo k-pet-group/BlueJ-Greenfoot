@@ -261,7 +261,7 @@ public class InvocationEvent implements ExtensionEvent
      */
 
     // TODO: There ought to be a way of retrieving the declared return type of the invoked method.
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.SwingIsFX)
     public Object getResult()
     {
         if (resultObj == null) {
@@ -285,7 +285,7 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @return    The methodResult value
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.SwingIsFX)
     private Object getMethodResult()
     {
         ObjectReference objRef = resultObj.getObjectReference();

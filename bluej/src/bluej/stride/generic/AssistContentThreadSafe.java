@@ -161,7 +161,7 @@ public final class AssistContentThreadSafe
         return typeKind;
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public String getDocHTML()
     {
         String header = (getType() == null ? "" : Utility.escapeAngleBrackets(getType()))

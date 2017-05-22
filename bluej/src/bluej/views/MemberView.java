@@ -21,6 +21,9 @@
  */
 package bluej.views;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.lang.reflect.Modifier;
 
 /**
@@ -64,6 +67,7 @@ public abstract class MemberView
      * the integer.
      * @see Modifier
      */
+    @OnThread(Tag.Any)
     public abstract int getModifiers();
 
     /**

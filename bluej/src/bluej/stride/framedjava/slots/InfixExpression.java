@@ -193,6 +193,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
      *                       If possibilities is empty, there are no methods found.
      *                       If possibilities is not size 1, there are multiple overloads for that name.
      */
+    @OnThread(Tag.FXPlatform)
     private void setPromptsFromParamNames(List<List<String>> possibilities)
     {
         List<StructuredSlotField> curParams = getSimpleParameters();

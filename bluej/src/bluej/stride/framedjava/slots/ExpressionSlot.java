@@ -35,6 +35,7 @@ import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.ChoiceSlot;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -95,7 +96,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
 
     // package-visible
     @OnThread(Tag.FXPlatform)
-    void withParamNamesForConstructor(FXConsumer<List<List<String>>> handler)
+    void withParamNamesForConstructor(FXPlatformConsumer<List<List<String>>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
             completionCalculator.withConstructorParamNames(paramsToConstructor.getValue(SuperThis.EMPTY), handler);
@@ -104,7 +105,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
 
     // package-visible
     @OnThread(Tag.FXPlatform)
-    void withParamNamesForPos(CaretPos pos, String methodName, FXConsumer<List<List<String>>> handler)
+    void withParamNamesForPos(CaretPos pos, String methodName, FXPlatformConsumer<List<List<String>>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
             JavaFragment.PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
@@ -114,7 +115,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
 
     // package-visible
     @OnThread(Tag.FXPlatform)
-    void withParamHintsForPos(CaretPos pos, String methodName, FXConsumer<List<List<String>>> handler)
+    void withParamHintsForPos(CaretPos pos, String methodName, FXPlatformConsumer<List<List<String>>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
             JavaFragment.PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));
@@ -124,7 +125,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
 
     // package-visible
     @OnThread(Tag.FXPlatform)
-    void withParamHintsForConstructor(int totalParams, FXConsumer<List<List<String>>> handler)
+    void withParamHintsForConstructor(int totalParams, FXPlatformConsumer<List<List<String>>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
             completionCalculator.withConstructorParamHints(paramsToConstructor.getValue(SuperThis.EMPTY), totalParams, handler);
@@ -133,7 +134,7 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
 
     // package-visible
     @OnThread(Tag.FXPlatform)
-    void withMethodHint(CaretPos pos, String methodName, FXConsumer<List<String>> handler)
+    void withMethodHint(CaretPos pos, String methodName, FXPlatformConsumer<List<String>> handler)
     {
         editor.afterRegenerateAndReparse(() -> {
             JavaFragment.PosInSourceDoc posJava = getSlotElement().getPosInSourceDoc(topLevel.caretPosToStringPos(pos, true));

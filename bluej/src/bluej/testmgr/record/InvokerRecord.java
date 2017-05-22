@@ -109,7 +109,8 @@ public abstract class InvokerRecord
      *  
      * @return a String reprenting the object initialisation
      *         src or null if there is none. 
-     */    
+     */
+    @OnThread(Tag.FXPlatform)
     public abstract String toFixtureSetup(String secondIndent);
 
     /**

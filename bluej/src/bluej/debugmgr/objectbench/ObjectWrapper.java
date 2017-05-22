@@ -430,7 +430,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         createMethodMenuItems(menu, cl, gt, il, obj, currentPackageName, showObjectMethods);
     }
     // Swing version, needed by Greenfoot:
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.SwingIsFX)
     public static void createMethodMenuItems(JPopupMenu jmenu, Class<?> cl, InvokeListener il, DebuggerObject obj,
                                              String currentPackageName, boolean showObjectMethods)
     {
@@ -527,7 +527,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         }
     }
     // Swing version, needed by Greenfoot:
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.SwingIsFX)
     public static void createMethodMenuItems(JPopupMenu jmenu, Class<?> cl, GenTypeClass gtype, InvokeListener il, DebuggerObject obj,
                                              String currentPackageName, boolean showObjectMethods)
     {
@@ -675,7 +675,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         }
     }
     // Swing version, needed by Greenfoot:
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.SwingIsFX)
     private static void createMenuItems(JComponent jmenu, MethodView[] methods, InvokeListener il, ViewFilter filter,
                                         int sizeLimit, Map<String,GenTypeParameter> genericParams, Hashtable<String, String> methodsUsed)
     {

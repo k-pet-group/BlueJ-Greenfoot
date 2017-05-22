@@ -91,13 +91,13 @@ public final class Comment
         return (String[]) paramnames.clone();
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void print(FormattedPrintWriter out)
     {
         print(out, 0);
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void print(FormattedPrintWriter out, int indents)
     {
         out.setBold(false);

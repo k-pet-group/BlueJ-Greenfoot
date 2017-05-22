@@ -215,11 +215,13 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaSource toJavaSource()
     {
         return getDAP(null).java;
     }
 
+    @OnThread(Tag.FXPlatform)
     private JavaSource generateJavaSource()
     {
         List<JavaFragment> header = new ArrayList<>();
@@ -438,7 +440,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         return getDAP(completing).getDocument(projectResolver);
     }
     
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     private synchronized DocAndPositions getDAP(ExpressionSlot completing)
     {
         if (sourceDocument == null || sourceDocumentCompleting != completing)
@@ -641,6 +643,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Stream<SyntaxCodeError> findEarlyErrors()
     {
         return findEarlyErrors(toXML().buildLocationMap());

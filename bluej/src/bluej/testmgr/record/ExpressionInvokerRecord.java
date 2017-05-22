@@ -22,6 +22,8 @@
 package bluej.testmgr.record;
 
 import bluej.utility.JavaUtils;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Records a single user interaction with the 
@@ -36,6 +38,7 @@ public class ExpressionInvokerRecord extends MethodInvokerRecord
     /**
      * Construct an ExpressionInvokerRecord for the given command/expression.
      */
+    @OnThread(Tag.FXPlatform)
     public ExpressionInvokerRecord(String command) 
     {
         super(JavaUtils.genTypeFromClass(Object.class), command, null);

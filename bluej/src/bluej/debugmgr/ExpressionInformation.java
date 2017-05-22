@@ -36,7 +36,7 @@ import threadchecker.Tag;
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
-@OnThread(Tag.Any)
+@OnThread(Tag.FXPlatform)
 public class ExpressionInformation
 {
     private Comment comment;

@@ -276,7 +276,7 @@ public class DataCollector
         if (Config.isGreenfoot() && !Boot.isTrialRecording()) return;
         startSession();
         if (dontSend()) return;
-        SwingUtilities.invokeLater(() -> DataCollectorImpl.bluejOpened(osVersion, javaVersion, bluejVersion, interfaceLanguage, extensions));
+        DataCollectorImpl.bluejOpened(osVersion, javaVersion, bluejVersion, interfaceLanguage, extensions);
     }
     
     public static void bluejClosed()
