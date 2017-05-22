@@ -97,7 +97,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     private CheckBox includeLayout;
     private TextArea commitText;
     private ActivityIndicator progressBar;
-    private Button commitButton, pushButton;
 
     private CommitAction commitAction;
     private PushAction pushAction;
@@ -151,7 +150,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
 
         commitAction = new CommitAction(this);
-        commitButton = new Button();
+        Button commitButton = new Button();
         commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
         //Bind commitText properties to enable the commit button if there is a comment.
         commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
@@ -180,7 +179,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitButtonPane.getChildren().addAll(includeLayout, commitButton);
 
         pushAction = new PushAction(this);
-        pushButton = new Button();
+        Button pushButton = new Button();
         pushAction.useButton(PkgMgrFrame.getMostRecent(), pushButton);
 
         Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
