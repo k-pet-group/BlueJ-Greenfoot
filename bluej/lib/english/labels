@@ -434,6 +434,7 @@ pkgmgr.newClass.abstract=Abstract Class
 pkgmgr.newClass.interface=Interface
 pkgmgr.newClass.unittest=Unit Test
 pkgmgr.newClass.enum=Enum
+pkgmgr.newClass.JavaFXclass= JavaFX Class
 pkgmgr.newClass.error.noType=No class type selected
 pkgmgr.newClass.error.typeNotAvailable=Type not available for $LANGUAGE
 pkgmgr.newClass.error.notValidClassName=Not a valid $LANGUAGE class name

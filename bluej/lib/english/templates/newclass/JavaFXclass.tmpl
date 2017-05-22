@@ -1,0 +1,66 @@
+$PKGLINE
+
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+/**
+ * Write a description of JavaFx class $CLASSNAME here.
+ *
+ * @author (your name)
+ * @version (a version number or a date)
+ */
+public class $CLASSNAME extends Application
+{
+    // instance variables - replace the example below with your own
+    int count=0;
+
+    @Override
+    public void start(Stage stage) throws Exception
+    {
+        //create a Button or any control item
+        Button myButton=new Button("Count");
+        Label myLabel=new Label();
+
+        //create a new grid pane
+        GridPane pane=new GridPane();
+        pane.setPadding(new Insets(10, 10, 10, 10));
+        pane.setMinSize(300, 300);
+        pane.setVgap(10);
+        pane.setHgap(10);
+
+        //set an action on the button,
+        //in this example it counts number of button clicks and shows the result on a label
+        myButton.setOnAction(new EventHandler<ActionEvent>()
+        {
+          @Override
+           public void handle(ActionEvent e)
+           {
+               count=count+1;
+               myLabel.setText(Integer.toString(count));
+           }
+        });
+
+        //add the button and/or a control item into the pane
+        pane.add(myLabel,1,0);
+        pane.add(myButton,0,0);
+
+        //create a scene
+        Scene scene =new Scene(pane, 300,100);
+
+        //set Stage's title
+        stage.setTitle("JavaFX Example");
+
+        //set Stage's scene
+        stage.setScene(scene);
+
+        //show the stage
+        stage.show();
+    }
+}
