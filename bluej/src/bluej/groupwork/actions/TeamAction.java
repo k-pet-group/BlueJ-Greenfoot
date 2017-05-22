@@ -69,7 +69,7 @@ public abstract class TeamAction
      */
     public void setName(String name, boolean showsDialog)
     {
-    	this.name.set(showsDialog ? name : (name + "..."));
+    	this.name.set(showsDialog ? (name + "...") : name);
     }
 
     public void setEnabled(boolean enabled)

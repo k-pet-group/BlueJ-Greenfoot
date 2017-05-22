@@ -121,7 +121,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 //        rememberPosition("bluej.commitdisplay");
         prepareButtonPane();
         //setOnShown(e -> org.scenicview.ScenicView.show(this.asWindow().getScene()));
-
     }
 
     /**
@@ -162,7 +161,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             if (layoutCheck.isSelected()) {
                 addModifiedLayouts();
                 if (commitButton.isDisable()) {
-                    commitAction.setEnabled(!emptyCommitText);/////
+                    commitAction.setEnabled(!emptyCommitText);
                 }
             } // unselected
             else {
