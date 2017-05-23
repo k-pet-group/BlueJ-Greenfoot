@@ -192,15 +192,13 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
     private void refilter()
     {
         String user = null;
-        int userIndex = userFilterCombo.getSelectionModel().getSelectedIndex();
-        if (userIndex != 0) {
-            user = userFilterCombo.getItems().get(userIndex);
+        if (userFilterCombo.getSelectionModel().getSelectedIndex() > 0) {
+            user = userFilterCombo.getSelectionModel().getSelectedItem();
         }
 
         String file = null;
-        int fileIndex = fileFilterCombo.getSelectionModel().getSelectedIndex();
-        if (fileIndex != 0) {
-            file = fileFilterCombo.getItems().get(fileIndex);
+        if (fileFilterCombo.getSelectionModel().getSelectedIndex() > 0) {
+            file = fileFilterCombo.getSelectionModel().getSelectedItem();
         }
 
         List<HistoryInfo> displayList;
