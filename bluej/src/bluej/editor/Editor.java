@@ -21,7 +21,6 @@
  */
 package bluej.editor;
 
-import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
@@ -33,6 +32,8 @@ import bluej.editor.stride.FrameEditor;
 import bluej.parser.symtab.ClassInfo;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
+import bluej.utility.javafx.FXRunnable;
+import javafx.print.PrinterJob;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -197,10 +198,10 @@ public interface Editor
     boolean isModified();
 
     /**
-     * Prints the contents of the editor
+     * Returns an action which will print the contents of the editor
      */
-    @OnThread(Tag.Any)
-    void printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground);
+    @OnThread(Tag.FXPlatform)
+    FXRunnable printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground);
 
     /**
      * Set the 'read-only' property of this editor.

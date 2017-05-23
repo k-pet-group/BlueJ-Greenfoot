@@ -23,7 +23,6 @@
 package bluej.editor.stride;
 
 
-import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -103,9 +102,11 @@ import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.print.PrinterJob;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -488,7 +489,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.Any)
-            public void printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground) { FrameEditor.this.printTo(printerJob, printLineNumbers, printBackground); }
+            public FXRunnable printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground) { return FrameEditor.this.printTo(printerJob, printLineNumbers, printBackground); }
 
             @Override
             @OnThread(Tag.FXPlatform)
@@ -936,20 +937,11 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    @OnThread(Tag.Any)
-    public void printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground) 
+    @OnThread(Tag.FXPlatform)
+    public FXRunnable printTo(PrinterJob job, boolean printLineNumbers, boolean printBackground)
     {
-        javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
-        if (job.showPrintDialog(null)) {
-            Platform.runLater(() -> {
-                if (job != null) {
-                    boolean success = job.printPage(panel.getSource().getFrame().getNode());
-                    if (success) {
-                        job.endJob();
-                    }
-                }
-            });
-        }
+        return () -> job.printPage(panel.getSource().getFrame().getNode());
+
     }
 
     @Override

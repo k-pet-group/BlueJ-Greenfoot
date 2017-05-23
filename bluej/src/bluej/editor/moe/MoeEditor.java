@@ -26,7 +26,6 @@ import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.print.PageFormat;
-import java.awt.print.PrinterJob;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,8 +80,10 @@ import bluej.stride.slots.SuggestionList.SuggestionListParent;
 import bluej.stride.slots.SuggestionList.SuggestionShown;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.ResizableCanvas;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
@@ -93,11 +94,17 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.print.PrintResolution;
+import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.Effect;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -106,8 +113,10 @@ import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.*;
 
+import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.MouseOverTextEvent;
+import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.w3c.dom.NodeList;
@@ -320,11 +329,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /**
      * Return a validated version of the global PageFormat for BlueJ
      */
+    /*MOEFX
     @OnThread(Tag.Any)
     public static PageFormat getPageFormat(PrinterJob job)
     {
         return job.validatePage(PkgMgrFrame.getPageFormat());
     }
+    */
 
     /**
      * Implementation of the "page setup" user function. This provides a dialog
@@ -332,12 +343,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * Editor is effectively the same as calling from PkgMgrFrame as this saves 
      * back to PkgMgrFrame's global page format object.
      */
+    /*MOEFX
     public static void pageSetup()
     {
         PrinterJob job = PrinterJob.getPrinterJob();
         PageFormat pageFormat = job.pageDialog(PkgMgrFrame.getPageFormat());
         PkgMgrFrame.setPageFormat(pageFormat);
     }
+    */
 
     /**
      * Find the position of a substring in a given string, 
@@ -1607,11 +1620,75 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @param printerJob  A PrinterJob to print to.
      */
     @Override
-    @OnThread(Tag.Any)
-    public void printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground)
+    @OnThread(Tag.FXPlatform)
+    public FXRunnable printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground)
     {
-        PrintHandler pt = new PrintHandler(printerJob, getPageFormat(printerJob), printLineNumbers, printBackground);
-        pt.print();
+        MoeSyntaxDocument doc = new MoeSyntaxDocument(new ScopeColorsBorderPane());
+        doc.copyFrom(sourceDocument);
+        MoeEditorPane editorPane = doc.makeEditorPane(null, null);
+        Scene scene = new Scene(editorPane);
+        Config.addEditorStylesheets(scene);
+        // JavaFX seems to always print at 72 DPI, regardless of printer DPI:
+        // This means that that the point width (1/72 of an inch) is actually the pixel width, too:
+        double pixelWidth = printerJob.getJobSettings().getPageLayout().getPrintableWidth();
+        double pixelHeight = printerJob.getJobSettings().getPageLayout().getPrintableHeight();
+        editorPane.resize(pixelWidth, pixelHeight);
+
+        // We could make page size match screen size by scaling font size by difference in DPIs:
+        //editorPane.styleProperty().unbind();
+        //editorPane.setStyle("-fx-font-size: " + PrefMgr.getEditorFontSize().getValue().doubleValue() * 0.75 + "pt;");
+        editorPane.setPrinting(true, printLineNumbers);
+        editorPane.setWrapText(true);
+        editorPane.requestLayout();
+        editorPane.layout();
+        editorPane.applyCss();
+        // TODO: recalculate scopes, either by
+        //  - copying existing character indent levels, then redrawing
+        //  - adjusting existing scopes by difference in widths from window to paper
+        //doc.enableParser(true);
+        //doc.getParser();
+        //doc.recalculateAllScopes();
+        VirtualFlow<?, ?> virtualFlow = (VirtualFlow<?, ?>) editorPane.lookup(".virtual-flow");
+        // Run printing in another thread:
+        return () -> printPages(printerJob, editorPane, virtualFlow);
+    }
+
+    @OnThread(Tag.FX)
+    private static <T, C extends org.fxmisc.flowless.Cell<T, ?>> void printPages(PrinterJob printerJob, MoeEditorPane editorPane, VirtualFlow<T, C> virtualFlow)
+    {
+        // We must manually scroll down the editor, one page's worth at a time.  We keep track of the top line visible:
+        int topLine = 0;
+        boolean lastPage = false;
+        while (topLine < editorPane.getParagraphs().size() && !lastPage)
+        {
+            // Scroll to make topLien actually at the top:
+            virtualFlow.showAsFirst(topLine);
+            // Take a copy to avoid any update problems:
+            List<C> visibleCells = new ArrayList<>(virtualFlow.visibleCells());
+            C lastCell = visibleCells.get(visibleCells.size() - 1);
+            // Last page if we can see the last editor line:
+            lastPage = virtualFlow.getCellIfVisible(editorPane.getParagraphs().size() - 1).isPresent();
+
+            if (!lastPage)
+            {
+                // If it's not the last page, we crop so that we don't see a partial line at the end of the page
+                // We crop to leave out the last visible cell.  Even if it is fully visible, we remove it
+                // (too hard to determine if it's fully visible):
+                double limitY = virtualFlow.cellToViewport(lastCell, 0, 0).getY();
+                editorPane.setClip(new javafx.scene.shape.Rectangle(editorPane.getWidth(), limitY));
+                topLine += visibleCells.size() - 1;
+            }
+            else
+            {
+                // No need to clip on last page, but we use translateY to move the content we want
+                // up to the top.  (The editor pane won't show empty space beyond the bottom, so we cannot
+                // scroll as far as we would like.  Instead, we have the bottom of the content at the bottom
+                // of the window, and use translateY to do a fake scroll to move it up to the top of the page.)
+                editorPane.setClip(null);
+                editorPane.setTranslateY(-virtualFlow.cellToViewport(virtualFlow.getCell(topLine), 0, 0).getY());
+            }
+            printerJob.printPage(editorPane);
+        }
     }
 
     /**
@@ -1621,18 +1698,24 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     public void print()
     {
-        if (printDialog == null)
-            printDialog = new PrintDialog();
-
-        if (printDialog.display()) {
-            // create a printjob
-            PrinterJob job = PrinterJob.getPrinterJob();
-            if (job.printDialog()) {
-                PrintHandler pt = new PrintHandler(job, getPageFormat(job), printDialog.printLineNumbers(), printDialog.printHighlighting());
-                Thread printJobThread = new Thread(pt);
-                printJobThread.setPriority((Thread.currentThread().getPriority() - 1));
-                printJobThread.start();
-            }
+        //MOEFX show dialog for options (line numbers, background)
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job == null)
+        {
+            DialogManager.showErrorFX(getWindow(),"print.no.printers");
+        }
+        else if (job.showPrintDialog(getWindow()))
+        {
+            new Thread()
+            {
+                @Override
+                @OnThread(value = Tag.FX, ignoreParent = true)
+                public void run()
+                {
+                    printTo(job, true, false).run();
+                    job.endJob();
+                }
+            }.start();
         }
     }
 
@@ -3857,62 +3940,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             p.getStyleClass().add("java-error-popup");
             Config.addPopupStylesheets(p);
             //org.scenicview.ScenicView.show(this.popup.getScene());
-        }
-    }
-
-    /**
-     * Inner class for printing thread to allow printing to occur as a
-     * background operation.
-     * 
-     * @author Bruce Quig
-     */
-    @OnThread(Tag.Any)
-    class PrintHandler
-    implements Runnable
-    {
-        PrinterJob printJob;
-        PageFormat pageFormat;
-        boolean lineNumbers;
-        boolean syntaxHighlighting;
-
-        /**
-         * Construct the PrintHandler.
-         */
-        public PrintHandler(PrinterJob pj, PageFormat format, boolean lineNumbers, boolean syntaxHighlighting)
-        {
-            super();
-            printJob = pj;
-            pageFormat = format;
-            this.lineNumbers = lineNumbers;
-            this.syntaxHighlighting = syntaxHighlighting;
-        }
-
-        /**
-         * Implementation of Runnable interface
-         */
-        @Override
-        public void run()
-        {
-            print();
-        }
-
-        /**
-         * Create MoePrinter and then invoke print method
-         */
-        public void print()
-        {
-            if (printer == null) {
-                printer = new MoePrinter();
-            }
-
-            // print document, using new pageformat object at present
-            SwingUtilities.invokeLater(() -> info.message(Config.getString("editor.info.printing")));
-            if (printer.printDocument(printJob, sourceDocument, lineNumbers, syntaxHighlighting, windowTitle, printFont, pageFormat)) {
-                SwingUtilities.invokeLater(() -> info.message(Config.getString("editor.info.printed")));
-            }
-            else {
-                SwingUtilities.invokeLater(() -> info.message(Config.getString("editor.info.cancelled")));
-            }
         }
     }
 }

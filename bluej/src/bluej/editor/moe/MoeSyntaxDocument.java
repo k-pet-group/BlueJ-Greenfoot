@@ -160,6 +160,12 @@ public class MoeSyntaxDocument
     
     private static int EDIT_INSERT = 0;
     private static int EDIT_DELETE = 1;
+
+    public void copyFrom(MoeSyntaxDocument from)
+    {
+        document.replace(0, document.getLength(), from.document);
+    }
+
     @OnThread(Tag.Any)
     private static class EditEvent
     {

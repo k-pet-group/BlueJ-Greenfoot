@@ -1204,7 +1204,7 @@ public final class MoeActions
 
     private MoeAbstractAction pageSetupAction()
     {
-        return action("page-setup", Category.CLASS, () -> MoeEditor.pageSetup());
+        return action("page-setup", Category.CLASS, () -> {} /*MOEFX MoeEditor.pageSetup()*/);
     }
 
     // --------------------------------------------------------------------

@@ -101,7 +101,7 @@ public class PackagePrintManager extends Thread
             }
 
             for (Editor e : editorsToPrint)
-                e.printTo(printer, dialog.printLineNumbers(), dialog.printHighlighting());
+                e.printTo(null /*MOEFX printer*/, dialog.printLineNumbers(), dialog.printHighlighting());
         }
     }
 

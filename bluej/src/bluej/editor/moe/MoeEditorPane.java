@@ -29,6 +29,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -63,6 +66,8 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     public static final String ERROR_CLASS = "moe-code-error";
     private static final Image UNDERLINE_IMAGE = Config.getFixedImageAsFXImage("error-underline.png");
     private final MoeEditor editor;
+    // Disabled during printing if we don't want line numbers:
+    private final BooleanProperty lineNumbersAllowed = new SimpleBooleanProperty(true);
 
     /**
      * Create an editor pane specifically for Moe.
@@ -102,13 +107,24 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         styleProperty().bind(PrefMgr.getEditorFontCSS(true));
         setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
-        JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
-        JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
+        JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS).and(lineNumbersAllowed));
+        if (compiledStatus != null) // Can be null when printing
+            JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
         syntaxView.setEditorPane(this);
+        setPrinting(false, true);
 
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
             JavaFXUtil.runPlatformLater(() -> requestLayout());
         });
+    }
+
+    public void setPrinting(boolean printing, boolean showLineNumbers)
+    {
+        JavaFXUtil.selectPseudoClass(this, printing ? 1 : 0, "bj-screen", "bj-printing");
+        if (printing)
+        {
+            lineNumbersAllowed.set(showLineNumbers);
+        }
     }
 
     /*

@@ -140,7 +140,8 @@
 .moe-find-field:bj-no-find-result {
     -fx-text-fill: red;
 }
-.moe-bracket-highlight {
+/* Don't show when printing */
+.moe-editor-pane:bj-screen .moe-bracket-highlight {
     -rtfx-background-color: hsb(0, 0%, 70%);
 }
 
