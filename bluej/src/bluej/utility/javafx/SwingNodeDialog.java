@@ -58,6 +58,7 @@ import threadchecker.Tag;
  * dialogs to being FX windows until we have time to go back and convert
  * them properly to FX.
  */
+//MOEFX remove this
 public class SwingNodeDialog
 {
     @OnThread(Tag.Any)

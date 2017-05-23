@@ -21,151 +21,64 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-
-import bluej.utility.javafx.SwingNodeDialog;
+import bluej.pkgmgr.Package;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Window;
+import bluej.Config;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.BlueJTheme;
-import bluej.Config;
-import bluej.utility.DialogManager;
 
 /**
  * A print dialog with options specific to the editor.
  */
-public class PrintDialog extends SwingNodeDialog
+public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
 {
-    private boolean ok = false; // result: which button?
-    private JCheckBox printLineNumbers;
-    private JCheckBox printHighlighting;
-    private boolean printLineNumbersSelected;
-    private boolean printHighlightingSelected;
+    @OnThread(Tag.Any)
+    public static class PrintChoices
+    {
+        public final boolean printLineNumbers;
+        public final boolean printHighlighting;
+
+        public PrintChoices(boolean printLineNumbers, boolean printHighlighting)
+        {
+            this.printLineNumbers = printLineNumbers;
+            this.printHighlighting = printHighlighting;
+        }
+    }
 
     /**
      * Creates a new PrintDialog object.
+     *
+     * @param pkg The Package, if printing a whole package.
+     *            Null if printing a single class.
      */
-    public PrintDialog()
+    public PrintDialog(Window owner, Package pkg)
     {
         setTitle(Config.getString("editor.printDialog.title"));
-        setModal(true);
+        initOwner(owner);
+        initModality(Modality.WINDOW_MODAL);
 
 
-        JPanel mainPanel = new JPanel();
+        getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK);
+        CheckBox checkLineNumbers = new CheckBox(Config.getString("editor.printDialog.printLineNumbers"));
+        checkLineNumbers.setSelected(true);
 
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BlueJTheme.dialogBorder);
-        mainPanel.add(Box.createVerticalStrut(
-                              BlueJTheme.dialogCommandButtonsVertical));
+        CheckBox checkHighlighting = new CheckBox(Config.getString("editor.printDialog.printHighlighting"));
+        checkHighlighting.setSelected(false);
 
-        printLineNumbers = new JCheckBox(Config.getString("editor.printDialog.printLineNumbers"));
-        printLineNumbers.setSelected(true);
-        mainPanel.add(printLineNumbers);
-                
-        printHighlighting = new JCheckBox(Config.getString("editor.printDialog.printHighlighting"));
-        mainPanel.add(printHighlighting);
-                
-        mainPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JButton okButton = BlueJTheme.getOkButton();
-        okButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) { doOK(); }
-        });
-        
-        JButton cancelButton = BlueJTheme.getCancelButton();
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt)
+        VBox vBox = new VBox(checkLineNumbers, checkHighlighting);
+        vBox.setSpacing(8);
+        getDialogPane().setContent(vBox);
+        setResultConverter(bt -> {
+            if (bt == ButtonType.OK)
             {
-                doCancel();
+                return new PrintChoices(checkLineNumbers.isSelected(), checkHighlighting.isSelected());
             }
+            return null;
         });
-
-        DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
-
-        setDefaultButton(okButton);
-
-        mainPanel.add(buttonPanel);
-
-        getContentPane().add(mainPanel);
-        pack();
-
-        DialogManager.centreDialog(this);
-    }
-
-    /**
-     * Show this dialog and return true if "OK" was pressed, false if
-     * cancelled.
-     * 
-     * @return the status of the print job, proceed if true, cancel if false
-     */
-    public boolean display()
-    {
-        ok = false;
-        setVisible(true);
-
-        return ok;
-    }
-
-    /**
-     * Close action called when OK button is pressed.  It only sets ok boolean
-     * flag to true as long as one of the check boxes is selected
-     */
-    public void doOK()
-    {
-        ok = true;
-        storeValues();
-        setVisible(false);
-    }
-
-    /**
-     * Close action when Cancel is pressed.
-     */
-    public void doCancel()
-    {
-        ok = false;
-        setVisible(false);
-    }
-
-    /**
-     * Print line numbers selection status
-     * 
-     * @return true if radio button is selected meaning line numbers should be
-     *         printed
-     */
-    public boolean printLineNumbers()
-    {
-        return printLineNumbersSelected;
-    }
-
-    /**
-     * Print with syntax highlighting selection status
-     * 
-     * @return true if radio button is selected meaning source code should be
-     *         printed with syntax highlighting
-     */
-    public boolean printHighlighting()
-    {
-        return printHighlightingSelected;
-    }
-    
-    // While on Swing thread, store selections ready for later retrieval from another thread:
-    private void storeValues()
-    {
-        printLineNumbersSelected = printLineNumbers.isSelected();
-        printHighlightingSelected = printHighlighting.isSelected();
     }
 }

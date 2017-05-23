@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
+import bluej.utility.javafx.FXRunnable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;

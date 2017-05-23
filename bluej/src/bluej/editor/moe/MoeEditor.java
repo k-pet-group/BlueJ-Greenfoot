@@ -61,6 +61,7 @@ import bluej.compiler.CompileType;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.MoeActions.MoeAbstractAction;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
+import bluej.editor.moe.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
@@ -1642,12 +1643,20 @@ public final class MoeEditor extends ScopeColorsBorderPane
         editorPane.requestLayout();
         editorPane.layout();
         editorPane.applyCss();
-        // TODO: recalculate scopes, either by
+        // TODO: recalculate scopes to match width, either by
         //  - copying existing character indent levels, then redrawing
         //  - adjusting existing scopes by difference in widths from window to paper
         //doc.enableParser(true);
         //doc.getParser();
         //doc.recalculateAllScopes();
+        if (!printBackground)
+        {
+            // Remove styles:
+            for (int i = 0; i < doc.getDocument().getParagraphs().size(); i++)
+            {
+                doc.getDocument().setParagraphStyle(i, null);
+            }
+        }
         VirtualFlow<?, ?> virtualFlow = (VirtualFlow<?, ?>) editorPane.lookup(".virtual-flow");
         // Run printing in another thread:
         return () -> printPages(printerJob, editorPane, virtualFlow);
@@ -1656,12 +1665,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FX)
     private static <T, C extends org.fxmisc.flowless.Cell<T, ?>> void printPages(PrinterJob printerJob, MoeEditorPane editorPane, VirtualFlow<T, C> virtualFlow)
     {
+        virtualFlow.scrollXToPixel(0);
         // We must manually scroll down the editor, one page's worth at a time.  We keep track of the top line visible:
         int topLine = 0;
         boolean lastPage = false;
         while (topLine < editorPane.getParagraphs().size() && !lastPage)
         {
-            // Scroll to make topLien actually at the top:
+            // Scroll to make topLine actually at the top:
             virtualFlow.showAsFirst(topLine);
             // Take a copy to avoid any update problems:
             List<C> visibleCells = new ArrayList<>(virtualFlow.visibleCells());
@@ -1698,7 +1708,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     public void print()
     {
-        //MOEFX show dialog for options (line numbers, background)
+        Optional<PrintChoices> choices = new PrintDialog(getWindow(), null).showAndWait();
+        if (!choices.isPresent())
+            return;
         PrinterJob job = PrinterJob.createPrinterJob();
         if (job == null)
         {
@@ -1712,7 +1724,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 @OnThread(value = Tag.FX, ignoreParent = true)
                 public void run()
                 {
-                    printTo(job, true, false).run();
+                    printTo(job, choices.get().printLineNumbers, choices.get().printHighlighting).run();
                     job.endJob();
                 }
             }.start();

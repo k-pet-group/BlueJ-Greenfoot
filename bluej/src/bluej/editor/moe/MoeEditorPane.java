@@ -31,16 +31,13 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.StyledText;
@@ -51,8 +48,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
@@ -67,7 +62,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     private static final Image UNDERLINE_IMAGE = Config.getFixedImageAsFXImage("error-underline.png");
     private final MoeEditor editor;
     // Disabled during printing if we don't want line numbers:
-    private final BooleanProperty lineNumbersAllowed = new SimpleBooleanProperty(true);
+    private final BooleanProperty showLineNumbers = new SimpleBooleanProperty(true);
 
     /**
      * Create an editor pane specifically for Moe.
@@ -107,7 +102,8 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         styleProperty().bind(PrefMgr.getEditorFontCSS(true));
         setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
-        JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", PrefMgr.flagProperty(PrefMgr.LINENUMBERS).and(lineNumbersAllowed));
+        showLineNumbers.bind(PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
+        JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", showLineNumbers);
         if (compiledStatus != null) // Can be null when printing
             JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
         syntaxView.setEditorPane(this);
@@ -123,7 +119,8 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         JavaFXUtil.selectPseudoClass(this, printing ? 1 : 0, "bj-screen", "bj-printing");
         if (printing)
         {
-            lineNumbersAllowed.set(showLineNumbers);
+            this.showLineNumbers.unbind();
+            this.showLineNumbers.set(showLineNumbers);
         }
     }
 

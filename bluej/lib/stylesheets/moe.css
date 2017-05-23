@@ -66,10 +66,6 @@
     -fx-text-overrun: clip;
     -fx-alignment: bottom-right;
     -fx-graphic-text-gap: 0;
-    -fx-min-width: 24;
-    -fx-pref-width: 24;
-    -fx-max-width: 24;
-    -fx-border-width: 0 1 0 0;
     -fx-label-padding: 0 2 0 0;
     -fx-border-style: solid;
     -fx-border-color: gray;
@@ -77,6 +73,19 @@
 }
 .moe-line-label:bj-odd {
     -fx-background-color: rgb(245, 245, 245);
+}
+.moe-editor-pane:bj-screen .moe-line-label, .moe-editor-pane:bj-printing:bj-line-numbers .moe-line-label {
+    -fx-min-width: 24;
+    -fx-pref-width: 24;
+    -fx-max-width: 24;
+    -fx-border-width: 0 1 0 0;
+}
+/* Hide when printing without line numbers */
+.moe-editor-pane:bj-printing .moe-line-label {
+    -fx-min-width: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-border-width: 0;
 }
 .moe-editor-pane:bj-uncompiled .moe-line-label {
     -fx-background-image: url("../images/grey-diagonal.png");
