@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,12 +23,16 @@ package bluej.groupwork;
 
 import java.io.File;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * An interface for listening to changes performed to local files
  * by an update from the repository.
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public interface UpdateListener
 {
     /**

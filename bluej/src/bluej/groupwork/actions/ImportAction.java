@@ -21,16 +21,14 @@
  */
 package bluej.groupwork.actions;
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import javafx.application.Platform;
 
 import bluej.Config;
@@ -46,11 +44,15 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
  */
+@OnThread(Tag.FXPlatform)
 public class ImportAction extends TeamAction 
 {
     public ImportAction()
@@ -90,7 +92,7 @@ public class ImportAction extends TeamAction
             String msg = DialogManager.getMessage("team-error-saving-project");
             if (msg != null) {
                 String finalMsg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
-                Platform.runLater(() -> DialogManager.showErrorTextFX(pmf.getFXWindow(), finalMsg));
+                DialogManager.showErrorTextFX(pmf.getFXWindow(), finalMsg);
                 return;
             }
         }
@@ -107,32 +109,38 @@ public class ImportAction extends TeamAction
                 TeamworkCommand command = repository.shareProject();
                 result = command.getResult();
 
-                if (! result.isError()) {
-                    final AtomicReference<Set<File>> files = new AtomicReference<>();
-                    final AtomicBoolean isDVCS = new AtomicBoolean();
-                    try
-                    {
-                        EventQueue.invokeAndWait(() -> {
-                            project.setTeamSettingsController(tsc);
-                            Set<File> projFiles = tsc.getProjectFiles(true);
-                            // Make copy, to ensure thread safety:
-                            files.set(new HashSet<>(projFiles));
-                            isDVCS.set(tsc.isDVCS());
-                        });
+                if (! result.isError())
+                {
+                    // Run and Wait
+                    CompletableFuture<Set<File>> filesFuture = new CompletableFuture<>();
+                    CompletableFuture<Boolean> isDVCSFuture = new CompletableFuture<>();
+
+                    Platform.runLater( () -> {
+                        project.setTeamSettingsController(tsc);
+                        Set<File> projFiles = tsc.getProjectFiles(true);
+                        // Make copy, to ensure thread safety:
+                        filesFuture.complete(new HashSet<>(projFiles));
+                        isDVCSFuture.complete(tsc.isDVCS());
+                    });
+
+                    try {
+                        Set<File> files = filesFuture.get();
+                        Boolean isDVCS = isDVCSFuture.get();
+
+                        Set<File> newFiles = new LinkedHashSet<>(files);
+                        Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
+                        command = repository.commitAll(newFiles, binFiles, Collections.emptySet(),
+                                files, Config.getString("team.import.initialMessage"));
+                        result = command.getResult();
+                        //In DVCS, we need an aditional command: pushChanges.
+                        if (isDVCS){
+                            command = repository.pushChanges();
+                            result = command.getResult();
+                        }
                     }
-                    catch (InvocationTargetException | InterruptedException e)
+                    catch (InterruptedException | ExecutionException e)
                     {
                         Debug.reportError(e);
-                    }
-                    Set<File> newFiles = new LinkedHashSet<>(files.get());
-                    Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
-                    command = repository.commitAll(newFiles, binFiles, Collections.emptySet(),
-                            files.get(), Config.getString("team.import.initialMessage"));
-                    result = command.getResult();
-                    //In DVCS, we need an aditional command: pushChanges.
-                    if (isDVCS.get()){
-                        command = repository.pushChanges();
-                        result = command.getResult();
                     }
                 }
 

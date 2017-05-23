@@ -22,6 +22,7 @@
 package bluej.utility;
 
 import javafx.application.Platform;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -30,7 +31,6 @@ import threadchecker.Tag;
  * that you subclass to perform GUI-related work in a dedicated thread.
  *
  */
-@OnThread(Tag.FXPlatform)
 public abstract class FXWorker
 {
     private Object value;  // see getValue(), setValue()
@@ -75,7 +75,7 @@ public abstract class FXWorker
      * Called on the event dispatching thread (not on the worker thread)
      * after the <code>construct</code> method has returned.
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public void finished() { }
 
     /**

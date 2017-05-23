@@ -56,7 +56,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -250,7 +249,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                     if (msg != null) {
                         msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
                         String msgFinal = msg;
-                        Platform.runLater(() -> DialogManager.showErrorTextFX(this.asWindow(), msgFinal));
+                        DialogManager.showErrorTextFX(this.asWindow(), msgFinal);
                     }
                 }
                 startProgress();

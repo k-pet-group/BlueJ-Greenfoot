@@ -85,52 +85,45 @@ public class CheckoutAction extends TeamAction
             if (!tsc.isDVCS()) {
                 //if not DVCS, we need to select module.
                 ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame::getFXWindow, tsc.getRepository(true));
-                Platform.runLater(() -> moduleDialog.setLocationRelativeTo(oldFrame.getFXWindow()));
+                moduleDialog.setLocationRelativeTo(oldFrame.getFXWindow());
                 moduleDialog.showAndWait();
 
                 String moduleName = moduleDialog.getModuleName();
                 if (moduleName != null) {
-                    Platform.runLater(() ->
+                    File parentDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.filechooser.title"));
+                    if (parentDir == null)
+                        return; // User cancelled
+
+                    if (Package.isPackage(parentDir))
                     {
-                        File parentDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.filechooser.title"));
-
-                        if (parentDir == null)
-                            return; // User cancelled
-
-                        if (Package.isPackage(parentDir))
-                        {
-                            Debug.message("Attempted to checkout a project into an existing project: " + parentDir);
-                            DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
-                            return;
-                        }
-                        finishCheckout.accept(new File(parentDir, moduleName));
-                    });
+                        Debug.message("Attempted to checkout a project into an existing project: " + parentDir);
+                        DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
+                        return;
+                    }
+                    finishCheckout.accept(new File(parentDir, moduleName));
                 } else {
                     //null module.
                     return;
                 }
             } else {
-
                 //it is a DVCS project.
                 //there is no module selection in a DVCS project. Therefore,
                 //the selected file is the project dir.
-                Platform.runLater(() -> {
-                    File projectDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.DVCS.filechooser.title"));
-                    if (projectDir != null)
+                File projectDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.DVCS.filechooser.title"));
+                if (projectDir != null)
+                {
+                    if (Package.isPackage(projectDir))
                     {
-                        if (Package.isPackage(projectDir))
-                        {
-                            Debug.message("Attempted to checkout a project into an existing project: " + projectDir);
-                            DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
-                            return;
-                        }
-                        finishCheckout.accept(projectDir);
-                    } else
-                    {
-                        //no project dir. nothing to do.
+                        Debug.message("Attempted to checkout a project into an existing project: " + projectDir);
+                        DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
                         return;
                     }
-                });
+                    finishCheckout.accept(projectDir);
+                } else
+                {
+                    //no project dir. nothing to do.
+                    return;
+                }
             }
         }
     }

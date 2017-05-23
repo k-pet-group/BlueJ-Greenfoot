@@ -34,14 +34,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class is responsible for reading and writing the configuration files
@@ -50,6 +50,7 @@ import bluej.utility.Debug;
  *
  * @author fisker
  */
+@OnThread(Tag.FXPlatform)
 public class TeamSettingsController
 {
     // Don't need synchronized because it's never modified again:

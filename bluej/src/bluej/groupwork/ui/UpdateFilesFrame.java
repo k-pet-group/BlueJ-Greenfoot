@@ -326,6 +326,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         private boolean aborted;
         private StatusHandle statusHandle;
 
+        @OnThread(Tag.FXPlatform)
         public UpdateWorker()
         {
             super();
@@ -366,6 +367,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             aborted = true;
         }
 
+        @OnThread(Tag.FXPlatform)
         public void finished()
         {
             stopProgress();

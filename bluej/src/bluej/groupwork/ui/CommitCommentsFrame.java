@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -213,7 +212,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                     if (msg != null) {
                         msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
                         String msgFinal = msg;
-                        Platform.runLater(() -> DialogManager.showErrorTextFX(asWindow(), msgFinal));
+                        DialogManager.showErrorTextFX(asWindow(), msgFinal);
                     }
                 }
                 startProgress();

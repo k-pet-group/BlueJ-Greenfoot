@@ -27,7 +27,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ObservableList;
@@ -234,7 +233,7 @@ public class TeamSettingsPanel extends VBox
 
 //        yourNameField.setPromptText(Config.getString("team.settings.yourName"));
         // Request focus on the username field by default.
-        Platform.runLater(() -> yourNameField.requestFocus());
+        yourNameField.requestFocus();
 
         switch (type) {
             case Subversion:
