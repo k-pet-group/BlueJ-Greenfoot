@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -74,7 +75,7 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
     private ActivityIndicator activityBar;
     private HistoryWorker worker;
 
-    private ObservableList<HistoryInfo> listModel = new SimpleListProperty<>();
+    private ObservableList<HistoryInfo> listModel = FXCollections.observableArrayList();
     private ListView<HistoryInfo> historyList = new ListView<>(listModel);
     private ScrollPane historyPane = new ScrollPane(historyList);
     private List<HistoryInfo> historyInfoList;
