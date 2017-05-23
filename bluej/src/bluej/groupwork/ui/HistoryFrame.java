@@ -31,7 +31,7 @@ import java.util.TreeSet;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Orientation;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -39,9 +39,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import bluej.Config;
@@ -56,6 +56,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -113,16 +114,18 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
 //        historyList.setPreferredSize(size);
 
         HBox filterBox = new HBox();
-        filterBox.setAlignment(Pos.BASELINE_CENTER);
+        filterBox.setAlignment(Pos.BASELINE_LEFT);
         filterBox.getChildren().addAll(new Label(Config.getString("team.history.filefilter") + " "), fileFilterCombo,
-                                       new Separator(Orientation.HORIZONTAL),
-                                       new Label(Config.getString("team.history.userfilter") + " "), userFilterCombo);
+                                       new Label(Config.getString("team.history.userfilter") + " "), userFilterCombo,
+                                       activityBar);
+        HBox.setMargin(fileFilterCombo, new Insets(0, 40, 0, 0));
+        HBox.setMargin(userFilterCombo, new Insets(0, 40, 0, 0));
 
         // Main content pane
         VBox mainPane = new VBox();
-        mainPane.getChildren().addAll(historyPane, new Separator(Orientation.VERTICAL),
-                                      filterBox, new Separator(Orientation.VERTICAL),
-                                      activityBar);
+        JavaFXUtil.addStyleClass(mainPane, "main-pane");
+        mainPane.getChildren().addAll(historyPane, filterBox);
+        VBox.setVgrow(historyPane, Priority.ALWAYS);
         return mainPane;
     }
 

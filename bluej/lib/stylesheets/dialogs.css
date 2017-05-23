@@ -453,8 +453,7 @@
      -fx-spacing: 0.8em;
 }
 
-.team-update-files
-{
+.team-update-files {
     -fx-min-width:  32em;
     -fx-pref-width: 32em;
 
@@ -470,8 +469,7 @@
      -fx-spacing: 0.5em;
 }
 
-.team-status
-{
+.team-status {
     -fx-min-width:  10em;
     -fx-pref-width: 25em;
 
@@ -479,9 +477,20 @@
     -fx-pref-height: 24em;
 }
 
+.team-history {
+    -fx-min-width:  45em;
+    -fx-pref-width: 50em;
+
+    -fx-min-height:  30em;
+    -fx-pref-height: 40em;
+}
+
+.team-history .main-pane {
+    -fx-spacing: 1em;
+}
+
 .team-commit-comments,
 .team-conflicts,
-.team-history,
 .team-module-select
 {
     -fx-min-width:  10em;
