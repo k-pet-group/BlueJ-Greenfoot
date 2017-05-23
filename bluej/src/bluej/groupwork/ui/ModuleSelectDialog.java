@@ -167,7 +167,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
         Button cancelButton = new Button(); //BlueJTheme.getCancelButton();
         cancelButton.setOnAction(event -> {
             if (worker != null) {
-                worker.cancel();
+                worker.abort();
             }
             hide();
         });
@@ -246,7 +246,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
             }
         }
 
-        public void cancel()
+        public void abort()
         {
             if (command != null) {
                 command.cancel();

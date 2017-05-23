@@ -228,5 +228,7 @@ public class CheckoutAction extends TeamAction
                 }
             }
         }
+
+        public void abort() {}
     }
 }

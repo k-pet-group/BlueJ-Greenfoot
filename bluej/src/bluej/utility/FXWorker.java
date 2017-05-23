@@ -39,7 +39,8 @@ public abstract class FXWorker
      * Class to maintain reference to current worker thread
      * under separate synchronization control.
      */
-    private static class ThreadVar {
+    private static class ThreadVar
+    {
         private Thread thread;
         ThreadVar(Thread t) { thread = t; }
         synchronized Thread get() { return thread; }
@@ -47,6 +48,32 @@ public abstract class FXWorker
     }
 
     private ThreadVar threadVar;
+
+    /**
+     * Start a thread that will call the <code>construct</code> method
+     * and then exit.
+     */
+    public FXWorker()
+    {
+        Runnable doConstruct = new Runnable() {
+            @Override
+            @OnThread(value = Tag.Unique, ignoreParent = true)
+            public void run()
+            {
+                try {
+                    setValue(construct());
+                }
+                finally {
+                    threadVar.clear();
+                }
+
+                Platform.runLater(() -> finished());
+            }
+        };
+
+        Thread t = new Thread(doConstruct);
+        threadVar = new ThreadVar(t);
+    }
 
     /**
      * Get the value produced by the worker thread, or null if it
@@ -115,33 +142,6 @@ public abstract class FXWorker
         }
     }
 
-
-    /**
-     * Start a thread that will call the <code>construct</code> method
-     * and then exit.
-     */
-    public FXWorker()
-    {
-        Runnable doConstruct = new Runnable() {
-            @Override
-            @OnThread(value = Tag.Unique, ignoreParent = true)
-            public void run()
-            {
-                try {
-                    setValue(construct());
-                }
-                finally {
-                    threadVar.clear();
-                }
-
-                Platform.runLater(() -> finished());
-            }
-        };
-
-        Thread t = new Thread(doConstruct);
-        threadVar = new ThreadVar(t);
-    }
-
     /**
      * Start the worker thread.
      */
@@ -152,4 +152,6 @@ public abstract class FXWorker
             t.start();
         }
     }
+
+    public abstract void abort();
 }

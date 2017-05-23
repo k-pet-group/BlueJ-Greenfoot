@@ -146,7 +146,7 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
         getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
         this.setOnCloseRequest(event -> {
             if (worker != null) {
-                worker.cancel();
+                worker.abort();
             }
         });
     }
@@ -182,13 +182,6 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
             worker = new HistoryWorker(repository);
             worker.start();
             activityBar.setRunning(true);
-        }
-    }
-
-    public void abort()
-    {
-        if (worker != null) {
-            worker.cancel();
         }
     }
 
@@ -332,10 +325,10 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
             }
         }
 
-        public void cancel()
+        public void abort()
         {
+            activityBar.setRunning(false);
             if (command != null) {
-                activityBar.setRunning(false);
                 command.cancel();
                 command = null;
             }
