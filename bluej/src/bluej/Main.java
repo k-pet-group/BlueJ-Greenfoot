@@ -43,7 +43,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import org.fxconnector.helper.FXUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
