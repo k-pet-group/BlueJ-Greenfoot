@@ -120,7 +120,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         secondColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 1));
 
         TableColumn<TeamStatusInfo, Object> thirdColumn = new TableColumn<>(statusModel.getColumnName(2));
-        thirdColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.4));
+        thirdColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.39));
         JavaFXUtil.addStyleClass(thirdColumn, "team-status-thirdColumn");
         thirdColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 2)));
         thirdColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 2));

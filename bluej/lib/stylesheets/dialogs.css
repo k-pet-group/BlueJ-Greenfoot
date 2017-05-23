@@ -470,12 +470,19 @@
      -fx-spacing: 0.5em;
 }
 
-.team-update-files,
+.team-status
+{
+    -fx-min-width:  10em;
+    -fx-pref-width: 25em;
+
+    -fx-min-height:  16em;
+    -fx-pref-height: 24em;
+}
+
 .team-commit-comments,
 .team-conflicts,
 .team-history,
-.team-module-select,
-.team-status
+.team-module-select
 {
     -fx-min-width:  10em;
     -fx-pref-width: 25em;
