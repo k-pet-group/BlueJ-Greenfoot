@@ -25,15 +25,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -80,7 +79,6 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
     private ListView<HistoryInfo> historyList = new ListView<>(listModel);
     private ComboBox<String> fileFilterCombo = new ComboBox<>();
     private ComboBox<String> userFilterCombo = new ComboBox<>();
-    private Label filterSpacer = new Label("                              ");
     private ActivityIndicator activityBar = new ActivityIndicator();
 
     /**
@@ -90,9 +88,9 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
     {
         super(pmf.getFXWindow(), "team.history.title", "team-history");
         project = pmf.getProject();
-        getDialogPane().setContent(makeMainPane());
-        prepareButtonPane();
         prepareData();
+        prepareButtonPane();
+        getDialogPane().setContent(makeMainPane());
     }
 
     /**
@@ -114,20 +112,11 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
 //        Dimension size = historyList.getPreferredSize();
 //        historyList.setPreferredSize(size);
 
-        // File and user filter boxes
-        fileFilterCombo.setDisable(true);
-        userFilterCombo.setDisable(true);
-        // Add in a spacer, which helps ensure the initial size of the frame is ok.
-        // When the filter combo boxes are filled, the spacer is removed.
-        // TODO these should be changed to Separators and styled in the CSS
-        userFilterCombo.getItems().add("         ");
-        fileFilterCombo.getItems().add("               ");
-
         HBox filterBox = new HBox();
+        filterBox.setAlignment(Pos.BASELINE_CENTER);
         filterBox.getChildren().addAll(new Label(Config.getString("team.history.filefilter") + " "), fileFilterCombo,
                                        new Separator(Orientation.HORIZONTAL),
-                                       new Label(Config.getString("team.history.userfilter") + " "), userFilterCombo,
-                                       filterSpacer);
+                                       new Label(Config.getString("team.history.userfilter") + " "), userFilterCombo);
 
         // Main content pane
         VBox mainPane = new VBox();
@@ -236,34 +225,25 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
      */
     private void resetFilterBoxes()
     {
-        Set<String> users = new HashSet<>();
-        Set<String> files = new HashSet<>();
+        SortedSet<String> files = new TreeSet<>();
+        SortedSet<String> users = new TreeSet<>();
 
         for (HistoryInfo info : historyInfoList) {
             users.add(info.getUser());
             Collections.addAll(files, info.getFiles());
         }
 
-        List<String> usersList = new ArrayList<>(users);
-        Collections.sort(usersList);
-        List<String> filesList = new ArrayList<>(files);
-        Collections.sort(filesList);
-
-        EventHandler<ActionEvent> filterActionListener = e -> refilter();
+        fileFilterCombo.getItems().clear();
+        fileFilterCombo.getItems().add(Config.getString("team.history.allFiles"));
+        fileFilterCombo.getItems().addAll(files);
+        fileFilterCombo.getSelectionModel().selectFirst();
+        fileFilterCombo.setOnAction(e -> refilter());
 
         userFilterCombo.getItems().clear();
         userFilterCombo.getItems().add(Config.getString("team.history.allUsers"));
-        userFilterCombo.getItems().addAll(usersList);
-        userFilterCombo.setOnAction(filterActionListener);
-        userFilterCombo.setDisable(false);
-
-        fileFilterCombo.getItems().clear();
-        fileFilterCombo.getItems().add(Config.getString("team.history.allFiles"));
-        fileFilterCombo.getItems().addAll(filesList);
-        fileFilterCombo.setOnAction(filterActionListener);
-        fileFilterCombo.setDisable(false);
-
-        filterSpacer.setVisible(false);
+        userFilterCombo.getItems().addAll(users);
+        userFilterCombo.getSelectionModel().selectFirst();
+        userFilterCombo.setOnAction(e -> refilter());
     }
 
     /**
