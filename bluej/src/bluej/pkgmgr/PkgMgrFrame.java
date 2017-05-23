@@ -41,6 +41,8 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.codepad.CodePad;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.editor.moe.PrintDialog;
+import bluej.editor.moe.PrintDialog.PrintChoices;
 import bluej.extensions.SourceType;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.FXMenuManager;
@@ -103,6 +105,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.print.PrinterJob;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -114,6 +117,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -138,13 +142,12 @@ import threadchecker.Tag;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.print.PageFormat;
-import java.awt.print.Paper;
-import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -159,11 +162,7 @@ public class PkgMgrFrame
     private static PkgMgrFrame recentFrame = null;
 
     // instance fields:
-    private static final AtomicInteger nextTestIdentifier = new AtomicInteger(0); 
-    // set PageFormat for default page for default printer
-    // this variable is lazy initialised
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private static PageFormat pageFormat = null;
+    private static final AtomicInteger nextTestIdentifier = new AtomicInteger(0);
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static final List<PkgMgrFrame> frames = new ArrayList<>(); // of PkgMgrFrames
     private static final ExtensionsManager extMgr = ExtensionsManager.getInstance();
@@ -219,7 +218,6 @@ public class PkgMgrFrame
     private final PkgMgrAction saveProjectAsAction = new SaveProjectAsAction(this);
     private final PkgMgrAction importProjectAction = new ImportProjectAction(this);
     private final PkgMgrAction exportProjectAction = new ExportProjectAction(this);
-    private final PkgMgrAction pageSetupAction = new PageSetupAction(this);
     private final PkgMgrAction printAction = new PrintAction(this);
     @OnThread(Tag.Any)
     private final PkgMgrAction newClassAction = new NewClassAction(this);
@@ -269,7 +267,6 @@ public class PkgMgrFrame
     // lazy initialised dialogs
     @OnThread(Tag.FXPlatform)
     private LibraryCallDialog libraryCallDialog = null;
-    private ProjectPrintDialog projectPrintDialog = null;
     private ExportManager exporter;
 
     @OnThread(Tag.FX)
@@ -959,64 +956,6 @@ public class PkgMgrFrame
                 allFrame.doClose(true, true);
             }
         }
-    }
-    
-    /**
-     * accessor method for PageFormat object that can be used by various
-     * printing subsystems eg. source code printing from editor
-     * 
-     * @return common PageFormat object representing page preferences
-     */
-    @OnThread(Tag.Any)
-    public static synchronized PageFormat getPageFormat()
-    {
-        if (pageFormat == null) {
-            pageFormat = PrinterJob.getPrinterJob().defaultPage();
-
-        }
-        //Important that this is set before the margins:
-        int orientation = Config.getPropInteger("bluej.printer.paper.orientation", pageFormat.getOrientation());
-        pageFormat.setOrientation(orientation);
-        
-        Paper paper = pageFormat.getPaper();
-        int x = Config.getPropInteger("bluej.printer.paper.x", 72);
-        int y = Config.getPropInteger("bluej.printer.paper.y", 72);
-        int width = Config.getPropInteger("bluej.printer.paper.width", (int)paper.getWidth() - 72 - x);
-        int height = Config.getPropInteger("bluej.printer.paper.height", (int)paper.getHeight() - 72 - y);
-        paper.setImageableArea(x, y, width, height);
-        //paper is a copy of pageFormat's paper, so we must use set again to make the changes:
-        pageFormat.setPaper(paper);
-        return pageFormat;
-    }
-    
-    /**
-     * set method for printing PageFormat. Called by other elements that may
-     * manipulate pageformat, at this stage the source editor is the only
-     * component that does. The assumption is that the PageFormat should be
-     * uniform between all components that may want to send output to a printer.
-     * 
-     * @param page
-     *            the new PageFormat
-     */
-    public static synchronized void setPageFormat(PageFormat page)
-    {
-        pageFormat = page;
-        // We must get the measurements from the paper (which ignores orientation)
-        // rather than page format (which takes it into account) because ultimately
-        // we will use paper.setImageableArea to load the dimensions again
-        Paper paper = pageFormat.getPaper();
-        double x = paper.getImageableX();
-        double y = paper.getImageableY();
-        double width = paper.getImageableWidth();
-        double height = paper.getImageableHeight();
-        //The sizes are in points, so saving them as an integer should be precise enough:
-        Config.putPropInteger("bluej.printer.paper.x", (int)x);
-        Config.putPropInteger("bluej.printer.paper.y", (int)y);
-        Config.putPropInteger("bluej.printer.paper.width", (int)width);
-        Config.putPropInteger("bluej.printer.paper.height", (int)height);
-        int orientation = pageFormat.getOrientation();
-        Config.putPropInteger("bluej.printer.paper.orientation", orientation);
-
     }
 
     /**
@@ -1997,29 +1936,26 @@ public class PkgMgrFrame
     }
 
     /**
-     * Creates a page setup dialog to alter page dimensions.
-     *  
-     */
-    public void doPageSetup()
-    {
-        PrinterJob job = PrinterJob.getPrinterJob();
-        PageFormat pfmt = job.pageDialog(getPageFormat());
-        setPageFormat(pfmt);
-    }
-
-    /**
      * Implementation of the "print" user function
      */
     public void doPrint()
     {
-        if (projectPrintDialog == null)
-            projectPrintDialog = new ProjectPrintDialog(this);
+        Optional<PrintChoices> choices = new PrintDialog(getFXWindow(), getPackage()).showAndWait();
+        if (!choices.isPresent())
+            return;
 
-        if (projectPrintDialog.display()) {
-            PackagePrintManager printManager = new PackagePrintManager(this.getPackage(), getPageFormat(),
-                    projectPrintDialog);
-            printManager.start();
+        javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
+        if (job == null)
+        {
+            DialogManager.showErrorFX(getFXWindow(),"print.no.printers");
+            return;
         }
+        if (!job.showPrintDialog(getFXWindow()))
+            return;
+
+
+        PackagePrintManager printManager = new PackagePrintManager(job, this, choices.get());
+        printManager.start();
     }
 
     /**
@@ -3110,7 +3046,6 @@ public class PkgMgrFrame
             menu.getItems().add(exportProjectAction.makeMenuItem());
             menu.getItems().add(new SeparatorMenuItem());
 
-            menu.getItems().add(pageSetupAction.makeMenuItem());
             menu.getItems().add(printAction.makeMenuItem());
 
             if (!Config.usingMacScreenMenubar()) { // no "Quit" here for Mac
@@ -3326,7 +3261,6 @@ public class PkgMgrFrame
         actionsToDisable.add(saveProjectAsAction);
         actionsToDisable.add(importProjectAction);
         actionsToDisable.add(exportProjectAction);
-        actionsToDisable.add(pageSetupAction);
         actionsToDisable.add(printAction);
         actionsToDisable.add(newClassAction);
         actionsToDisable.add(newPackageAction);
@@ -3578,6 +3512,28 @@ public class PkgMgrFrame
         boolean hasSelection = !curSelection.isEmpty();
         removeAction.setEnabled(hasSelection);
         compileSelectedAction.setEnabled(hasSelection);
+    }
+
+    @OnThread(Tag.FX)
+    public void printDiagram(PrinterJob printJob)
+    {
+        CompletableFuture<Boolean> done = new CompletableFuture<>();
+        // It seems to print corrupted (though I don't know why),
+        // so we thread hop to take a screenshot and print that;
+        Platform.runLater(() -> {
+            WritableImage image = new WritableImage((int)editor.getWidth(), (int)editor.getHeight());
+            this.editor.snapshot(null, image);
+            printJob.printPage(new ImageView(image));
+            done.complete(true);
+        });
+        try
+        {
+            done.get();
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            Debug.reportError(e);
+        }
     }
 
     // Used as a way to tag the three main panes in the PkgMgrFrame window

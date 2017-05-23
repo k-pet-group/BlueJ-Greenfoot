@@ -446,7 +446,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             editActions.add("save");
             editActions.add("reload");
             editActions.add("print");
-            editActions.add("page-setup");
             editActions.add("compile");
             editActions.add("cut-to-clipboard");
             editActions.add("indent-block");
@@ -2042,27 +2041,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
-     * Allow the enabling/disabling of print menu option. Added to disable the
-     * printing og javadoc html for the time being until until implemented.
-     * (This is reliant on the use of j2sdk1.4 and Java Unified Print Service
-     * implementation JSR 6)
-     * 
-     * @param flag  true to setEnabled printing from menu.
-     */
-    public void enablePrinting(boolean flag)
-    {
-        MoeAbstractAction printAction = actions.getActionByName("print");
-        if (printAction != null) {
-            printAction.setEnabled(flag);
-        }
-        MoeAbstractAction pageSetupAction = actions.getActionByName("page-setup");
-        if (pageSetupAction != null) {
-            pageSetupAction.setEnabled(flag);
-        }
-
-    }
-
-    /**
      * Switch on the source view (if it isn't showing already).
      */
     private void switchToSourceView()
@@ -2950,7 +2928,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private MenuBar createMenuBar()
     {
         return new MenuBar(
-            createMenu("class", "save reload - page-setup print - close"),
+            createMenu("class", "save reload - print - close"),
             createMenu("edit", "undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block autoindent - insert-method add-javadoc"),
             createMenu("tools", "find find-next find-next-backward replace go-to-line - compile toggle-breakpoint - toggle-interface-view"),
             createMenu("option", "increase-font decrease-font reset-font - key-bindings preferences")
@@ -3087,7 +3065,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
 
         if (isNonReadmeAction(actionName) && !sourceIsCode){
-            button.setDisable(true);
+            //MOEFX figure out why this if statement is needed
+            if (!button.disableProperty().isBound())
+                button.setDisable(true);
         }
 
         // never get keyboard focus:

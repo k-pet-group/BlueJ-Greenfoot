@@ -456,6 +456,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         }
     }
 
+    //MOEFX: remove this
     @OnThread(Tag.FXPlatform)
     private void scheduleWindowWiggle()
     {

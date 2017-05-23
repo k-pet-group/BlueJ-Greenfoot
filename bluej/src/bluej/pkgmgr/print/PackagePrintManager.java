@@ -21,24 +21,23 @@
  */
 package bluej.pkgmgr.print;
 
-import java.awt.Dimension;
-import java.awt.print.PageFormat;
-import java.awt.print.PrinterJob;
+import bluej.Config;
+import bluej.editor.Editor;
+import bluej.editor.moe.PrintDialog.PrintChoices;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.ReadmeTarget;
+import bluej.utility.Debug;
+import bluej.utility.javafx.FXRunnable;
+import javafx.print.PrinterJob;
+import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.swing.SwingUtilities;
-
-import bluej.utility.javafx.FXRunnable;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-import bluej.Config;
-import bluej.editor.Editor;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.ProjectPrintDialog;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.ReadmeTarget;
 
 
 /**
@@ -50,41 +49,40 @@ import bluej.pkgmgr.target.ReadmeTarget;
  */
 public class PackagePrintManager extends Thread
 {
-    private PageFormat pageFormat;
-    private Package pkg;
-    private ProjectPrintDialog dialog;
-    private List<Editor> editorsToPrint = new ArrayList<>();
-    private Dimension pkgSize;
+    private final List<FXRunnable> printActions = new ArrayList<>();
+    private final PrinterJob job;
 
     /**
      * Constructor for PackagePrinter.
      * 
      * @param pkg package to be printed
-     * @param pageFormat pageformat of printer job
-     * @param dialog the project print dialog used by user to select which
-     *        assets to print.
+     * @param printChoices the print options chosen by the user
      */
     @OnThread(Tag.FXPlatform)
-    public PackagePrintManager(Package pkg, PageFormat pageFormat, 
-                               ProjectPrintDialog dialog)
+    public PackagePrintManager(PrinterJob job, PkgMgrFrame pkgMgrFrame, PrintChoices printChoices)
     {
-        this.pkg = pkg;
-        this.pkgSize = null;//pkg.getMinimumSize();
-        this.pageFormat = pageFormat;
-        this.dialog = dialog;
-        
-        // We need to pull out the editors in this method, because getEditor may
-        // need to create the editor, and so it must be on the Swing thread,
-        // unlike the print job:
-        if (dialog.printSource())
-        {
-            editorsToPrint.addAll(pkg.getAllClassnamesWithSource().stream().map(className -> ((ClassTarget) pkg.getTarget(className)).getEditor()).collect(Collectors.toList()));
+        this.job = job;
+
+        if (printChoices.printDiagram) {
+            printActions.add(() -> printClassDiagram(job, pkgMgrFrame));
         }
-        if (dialog.printReadme())
+
+        Package pkg = pkgMgrFrame.getPackage();
+        
+        // We need to pull out the editors in this method, because printTo needs
+        // to run on the FXPlatform thread:
+        if (printChoices.printSource)
+        {
+            printActions.addAll(pkg.getAllClassnamesWithSource().stream()
+                    .map(className -> ((ClassTarget) pkg.getTarget(className)).getEditor())
+                    .map(ed -> ed.printTo(job, printChoices.printLineNumbers, printChoices.printHighlighting))
+                    .collect(Collectors.toList()));
+        }
+        if (printChoices.printReadme)
         {
             ReadmeTarget readmeTgt = pkg.getReadmeTarget();
             if (readmeTgt != null)
-                editorsToPrint.add(readmeTgt.getEditor());
+                printActions.add(readmeTgt.getEditor().printTo(job, printChoices.printLineNumbers, printChoices.printHighlighting));
         }
     }
 
@@ -92,18 +90,21 @@ public class PackagePrintManager extends Thread
      * Overridden run method called as part of the usage of this class as a
      * background operation via a thread with lower priority.
      */
+    @OnThread(value = Tag.FX, ignoreParent = true)
     public void run()
     {
-        PrinterJob printer = PrinterJob.getPrinterJob();
-
-        if (printer.printDialog()) {
-            if (dialog.printDiagram()) {
-                printClassDiagram(printer);
+        try
+        {
+            for (FXRunnable printAction : printActions)
+            {
+                printAction.run();
             }
-
-            for (Editor e : editorsToPrint)
-                e.printTo(null /*MOEFX printer*/, dialog.printLineNumbers(), dialog.printHighlighting());
         }
+        catch (Throwable t)
+        {
+            Debug.reportError(t);
+        }
+        job.endJob();
     }
 
     /**
@@ -111,14 +112,9 @@ public class PackagePrintManager extends Thread
      * 
      * @param printJob the printer job to print the diagram to.
      */
-    public void printClassDiagram(PrinterJob printJob)
+    public void printClassDiagram(PrinterJob printJob, PkgMgrFrame pkgMgrFrame)
     {
-        ClassDiagramPrinter diagramPrinter = new ClassDiagramPrinter(printJob, 
-                                                                     pkg,
-                                                                     pkgSize,
-                                                                     pageFormat);
-        SwingUtilities.invokeLater(() -> pkg.setStatus(Config.getString("pkgmgr.info.printing")));
-        diagramPrinter.printPackage();
+        pkgMgrFrame.printDiagram(printJob);
     }
 
 }

@@ -38,7 +38,6 @@ import javax.swing.JPanel;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
 
-import bluej.utility.javafx.SwingNodeDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -453,8 +452,6 @@ public class DialogManager
     {
         centreWindow(dialog, (Window)dialog.getParent());
     }
-
-    public static void centreDialog(SwingNodeDialog dialog) { }
 
     public static void centreDialog(Dialog dialog) { }
 

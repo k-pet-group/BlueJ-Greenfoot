@@ -947,7 +947,6 @@ public final class MoeActions
         MoeAbstractAction[] myActions = {
                 saveAction(),
                 reloadAction(),
-                pageSetupAction(),
                 printAction(),
                 closeAction(),
 
@@ -1200,11 +1199,6 @@ public final class MoeActions
     private MoeAbstractAction printAction()
     {
         return action("print", Category.CLASS, () -> getEditor().print());
-    }
-
-    private MoeAbstractAction pageSetupAction()
-    {
-        return action("page-setup", Category.CLASS, () -> {} /*MOEFX MoeEditor.pageSetup()*/);
     }
 
     // --------------------------------------------------------------------

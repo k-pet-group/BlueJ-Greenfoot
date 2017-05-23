@@ -40,11 +40,20 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
     @OnThread(Tag.Any)
     public static class PrintChoices
     {
+        // These three only apply for whole package:
+        public final boolean printDiagram;
+        public final boolean printReadme;
+        public final boolean printSource;
+        // These two apply for single class, or when
+        // printSource is true for whole package:
         public final boolean printLineNumbers;
         public final boolean printHighlighting;
 
-        public PrintChoices(boolean printLineNumbers, boolean printHighlighting)
+        public PrintChoices(boolean printDiagram, boolean printReadme, boolean printSource, boolean printLineNumbers, boolean printHighlighting)
         {
+            this.printDiagram = printDiagram;
+            this.printReadme = printReadme;
+            this.printSource = printSource;
             this.printLineNumbers = printLineNumbers;
             this.printHighlighting = printHighlighting;
         }
@@ -72,11 +81,47 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
 
         VBox vBox = new VBox(checkLineNumbers, checkHighlighting);
         vBox.setSpacing(8);
+
+        final CheckBox checkReadme;
+        final CheckBox checkDiagram;
+        final CheckBox checkSource;
+        if (pkg != null)
+        {
+            checkSource = new CheckBox(Config.getString("pkgmgr.printDialog.printSource"));
+            checkLineNumbers.disableProperty().bind(checkSource.selectedProperty().not());
+            checkHighlighting.disableProperty().bind(checkSource.selectedProperty().not());
+            vBox.getChildren().add(0, checkSource);
+
+            if (pkg.isUnnamedPackage())
+            {
+                checkReadme = new CheckBox(Config.getString("pkgmgr.printDialog.printReadme"));
+                vBox.getChildren().add(0, checkReadme);
+            }
+            else
+            {
+                checkReadme = null;
+            }
+            checkDiagram = new CheckBox(Config.getString("pkgmgr.printDialog.printDiagram"));
+            vBox.getChildren().add(0, checkDiagram);
+        }
+        else
+        {
+            checkReadme = null;
+            checkDiagram = null;
+            checkSource = null;
+        }
+
+
         getDialogPane().setContent(vBox);
         setResultConverter(bt -> {
             if (bt == ButtonType.OK)
             {
-                return new PrintChoices(checkLineNumbers.isSelected(), checkHighlighting.isSelected());
+                return new PrintChoices(
+                    checkDiagram == null ? false : checkDiagram.isSelected(),
+                    checkReadme == null ? false : checkReadme.isSelected(),
+                    checkSource == null ? false : checkSource.isSelected(),
+                    checkLineNumbers.isSelected(),
+                    checkHighlighting.isSelected());
             }
             return null;
         });

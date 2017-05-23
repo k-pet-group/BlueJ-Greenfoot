@@ -940,7 +940,34 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FXPlatform)
     public FXRunnable printTo(PrinterJob job, boolean printLineNumbers, boolean printBackground)
     {
-        return () -> job.printPage(panel.getSource().getFrame().getNode());
+        CompletableFuture<Boolean> inited = new CompletableFuture<>();
+        if (panel == null)
+        {
+            setVisibleFX(true, false);
+        }
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), init -> {
+            inited.complete(init);
+
+        });
+        return () -> {
+            try
+            {
+                inited.get();
+                // If we try to print off-thread
+                // then things get seriously messed up for the editors
+                // afterwards.  So we hop back to platform thread to print:
+                CompletableFuture<Boolean> done = new CompletableFuture<>();
+                Platform.runLater(() -> {
+                    job.printPage(panel.getSource().getFrame().getNode());
+                    done.complete(true);
+                });
+                done.get();
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                Debug.reportError(e);
+            }
+        };
 
     }
 

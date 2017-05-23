@@ -112,6 +112,7 @@ public class BetterVBox extends Pane
         if (width == -1 || width == 2000)
         {
             Debug.printCallStack("Problem in BetterVBox: calculating height first, which should not happen -- are you running ScenicView?");
+            width = 2000;
         }
         final Insets padding = getPadding();
         final double contentWidth = width - (int)padding.getLeft() - (int)padding.getRight();
