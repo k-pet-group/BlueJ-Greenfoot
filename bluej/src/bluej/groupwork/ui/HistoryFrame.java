@@ -106,13 +106,6 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
         historyPane.setFitToWidth(true);
         historyPane.setFitToHeight(true);
 
-        // Find a suitable size for the history list
-        // TODO maybe not needed for FX
-        listModel.setAll(getTemporaryDumpInfoList());
-        listModel.setAll(Collections.emptyList());
-//        Dimension size = historyList.getPreferredSize();
-//        historyList.setPreferredSize(size);
-
         HBox filterBox = new HBox();
         filterBox.setAlignment(Pos.BASELINE_LEFT);
         filterBox.getChildren().addAll(new Label(Config.getString("team.history.filefilter") + " "), fileFilterCombo,
@@ -141,22 +134,6 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
                 worker.abort();
             }
         });
-    }
-
-    private List<HistoryInfo> getTemporaryDumpInfoList()
-    {
-        List<HistoryInfo> tempList = new ArrayList<>(5);
-        HistoryInfo tempInfo;
-        if (project.getTeamSettingsController().isDVCS()){
-            tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "", "2006/11/34 12:34:56", "John Smith J. Doe", "this is the expected comment length of comments");
-        } else {
-            tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "1.1", "2006/11/34 12:34:56", "abraham", "this is the expected comment length of comments");
-        }
-
-        for (int i = 0; i < 8; i++) {
-            tempList.add(tempInfo);
-        }
-        return tempList;
     }
 
     private void prepareData()
