@@ -22,12 +22,14 @@
 package bluej.groupwork.ui;
 
 import bluej.groupwork.HistoryInfo;
+
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -50,9 +52,7 @@ public class HistoryCell extends ListCell<HistoryInfo>
         }
         else
         {
-            String topText = info.getDate() + "  "  + info.getRevision() + "  " + info.getUser();
-            setText(topText);
-
+            setText(info.getDate() + "  "  + info.getRevision() + "  " + info.getUser());
             setGraphic(getGraphics(info));
         }
     }
