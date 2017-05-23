@@ -38,13 +38,11 @@ import bluej.utility.JavaNames;
 import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SwingNodeFixed;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.embed.swing.SwingNode;
 import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -59,7 +57,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Polygon;
@@ -114,8 +111,6 @@ public class ExecControls
 
     @OnThread(Tag.FX)
     private Stage window;
-    @OnThread(Tag.Any)
-    private SwingNode swingNode;
     @OnThread(Tag.FXPlatform)
     private BorderPane fxContent;
 
@@ -161,8 +156,6 @@ public class ExecControls
         this.window = new Stage();
         window.setTitle(Config.getApplicationName() + ":  " + Config.getString("debugger.execControls.windowTitle"));
         BlueJTheme.setWindowIconFX(window);
-        this.swingNode = new SwingNodeFixed();
-        VBox.setVgrow(swingNode, Priority.ALWAYS);
         createWindowContent(debuggerThreads);
         TilePane buttons = new TilePane(Orientation.HORIZONTAL, stopButton, stepButton, stepIntoButton, continueButton, terminateButton);
         buttons.setPrefColumns(buttons.getChildren().size());
