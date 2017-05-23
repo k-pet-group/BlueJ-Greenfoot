@@ -38,6 +38,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javafx.application.Platform;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
@@ -192,9 +194,9 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         binaryConflicts.add(file);
                     }
                     if (!file.exists()) {
-                        listener.fileRemoved(file);
+                        Platform.runLater(() -> listener.fileRemoved(file));
                     } else {
-                        listener.fileUpdated(file);
+                        Platform.runLater(() -> listener.fileUpdated(file));
                     }
                     break;
                 case MODIFY:
