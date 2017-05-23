@@ -2368,8 +2368,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             catch (IOException ioe) {}
             File file = new File(filename);
             lastModified = file.lastModified();
-            
-            sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
+
             sourceDocument.enableParser(false);
             //NAVIFX
             //naviView.setDocument(sourceDocument);
