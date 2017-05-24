@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -93,6 +96,7 @@ public class TextType extends GenTypeSolid
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenType#mapTparsToTypes(java.util.Map)
      */
+    @OnThread(Tag.Any)
     public JavaType mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         throw new UnsupportedOperationException();
@@ -110,6 +114,7 @@ public class TextType extends GenTypeSolid
         throw new UnsupportedOperationException();
     }
 
+    @OnThread(Tag.Any)
     public GenTypeSolid getLowerBound()
     {
         throw new UnsupportedOperationException();

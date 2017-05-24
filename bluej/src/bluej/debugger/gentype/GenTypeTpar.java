@@ -37,7 +37,6 @@ public class GenTypeTpar extends GenTypeSolid
         name = parname;
     }
 
-    @OnThread(Tag.Any)
     public String getTparName()
     {
         return name;

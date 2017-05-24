@@ -78,32 +78,39 @@ public class JdiDebugger extends Debugger
     private static final int loaderPriority = Thread.NORM_PRIORITY - 2;
 
     // If false, specifies that a new VM should be started when the old one dies
+    @OnThread(Tag.Any)
     private boolean autoRestart = true;
 
     // Did we order the VM to restart ourself? This is used to flag the launch()
     // method that a new loader thread doesn't need to be re-created.
+    @OnThread(Tag.Any)
     private boolean selfRestart = false;
 
     /**
      * The reference to the current remote VM handler. Will be null if the remote VM is not
      * currently running.
      */
+    @OnThread(Tag.Any)
     private VMReference vmRef;
 
     // the thread that we spawn to load the current remote VM
+    @OnThread(Tag.Any)
     private MachineLoaderThread machineLoader;
     
     /** An object to provide a lock for server thread execution */
+    @OnThread(Tag.Any)
     private Object serverThreadLock = new Object();
 
     // a set holding all the JdiThreads in the VM
+    @OnThread(Tag.Any)
     private JdiThreadSet allThreads;
 
     // A listener for changes to debugger threads.
     private final DebuggerThreadListener threadListener;
 
     // listeners for events that occur in the debugger
-    private List<DebuggerListener> listenerList = new ArrayList<DebuggerListener>();
+    @OnThread(Tag.Any)
+    private final List<DebuggerListener> listenerList = new ArrayList<DebuggerListener>();
 
     // the directory to launch the VM in
     private File startingDirectory;
@@ -113,6 +120,7 @@ public class JdiDebugger extends Debugger
 
     // a Set of strings which have been used as names on the
     // object bench. We endeavour to not reuse them.
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private Set<String> usedNames;
     
     /**
@@ -121,6 +129,7 @@ public class JdiDebugger extends Debugger
      * add a listener and know the state at the time the listener was added. Furthermore the
      * state will only be set to RUNNING while the server thread lock is also held.
      */
+    @OnThread(Tag.Any)
     private int machineState = NOTREADY;
     
     // classpath to be used for the remote VM
@@ -164,6 +173,7 @@ public class JdiDebugger extends Debugger
      * Start debugging.
      */
     @Override
+    @OnThread(Tag.Any)
     public synchronized void launch()
     {
         // This could be either an initial launch (selfRestart == false) or
@@ -272,6 +282,7 @@ public class JdiDebugger extends Debugger
      * @param l
      *            the DebuggerListener to remove
      */
+    @OnThread(Tag.Any)
     public void removeDebuggerListener(DebuggerListener l)
     {
         synchronized (listenerList) {
@@ -282,6 +293,7 @@ public class JdiDebugger extends Debugger
     /**
      * Get a copy of the listener list.
      */
+    @OnThread(Tag.Any)
     private DebuggerListener [] getListeners()
     {
         synchronized (listenerList) {
@@ -534,6 +546,7 @@ public class JdiDebugger extends Debugger
      * @return a DebuggerTestResult object
      */
     @Override
+    @OnThread(Tag.Any)
     public DebuggerTestResult runTestMethod(String className, String methodName)
     {
         ArrayReference arrayRef = null;
@@ -736,7 +749,8 @@ public class JdiDebugger extends Debugger
     /**
      * notify all listeners that have registered interest for
      * notification on this event type.
-     */ 
+     */
+    @OnThread(Tag.Any)
     private void fireTargetEvent(DebuggerEvent ce, boolean skipUpdate)
     {
         // Guaranteed to return a non-null array
@@ -747,7 +761,8 @@ public class JdiDebugger extends Debugger
             listeners[i].processDebuggerEvent(ce, skipUpdate);
         }
     }
-    
+
+    @OnThread(Tag.Any)
     void raiseStateChangeEvent(int newState)
     {
         // It might look this method should be synchronized, but it shouldn't,
@@ -770,7 +785,8 @@ public class JdiDebugger extends Debugger
             doStateChange(machineState, newState);
         }
     }
-    
+
+    @OnThread(Tag.Any)
     private void doStateChange(int oldState, int newState)
     {
         DebuggerListener[] ll;
@@ -885,6 +901,7 @@ public class JdiDebugger extends Debugger
      * @param tr   the thread in which code hit the breakpoint/step
      * @param bp   true for a breakpoint, false for a step
      */
+    @OnThread(Tag.Any)
     public void breakpoint(final ThreadReference tr, final int debuggerEventType, boolean skipUpdate, DebuggerEvent.BreakpointProperties props)
     {
         final JdiThread breakThread = allThreads.find(tr);
@@ -905,6 +922,7 @@ public class JdiDebugger extends Debugger
      * @return   true if the event is screened, that is, the GUI should not be updated because the
      *                result of the event is temporary.
      */
+    @OnThread(Tag.Any)
     public boolean screenBreakpoint(ThreadReference thread, int debuggerEventType,
             DebuggerEvent.BreakpointProperties props)
     {
@@ -930,6 +948,7 @@ public class JdiDebugger extends Debugger
      * Called by VMReference when the machine disconnects. The disconnect event
      * follows a machine 'exit' event.
      */
+    @OnThread(Tag.Any)
     synchronized void vmDisconnect()
     {
         if (autoRestart) {
@@ -969,6 +988,7 @@ public class JdiDebugger extends Debugger
      * Use this event to keep our thread tree model up to date. Currently we
      * ignore the thread group and construct all threads at the same level.
      */
+    @OnThread(Tag.Any)
     void threadStart(final ThreadReference tr)
     {
         final JdiThread newThread = new JdiThread(this, tr);
@@ -981,6 +1001,7 @@ public class JdiDebugger extends Debugger
      * 
      * Use this event to keep our thread tree model up to date.
      */
+    @OnThread(Tag.Any)
     void threadDeath(final ThreadReference tr)
     {
         JdiThread jdiThread = allThreads.removeThread(tr);
@@ -996,6 +1017,7 @@ public class JdiDebugger extends Debugger
      * 
      * @return the VM reference.
      */
+    @OnThread(Tag.Any)
     private VMReference getVM()
     {
         MachineLoaderThread mlt = machineLoader;
@@ -1028,9 +1050,11 @@ public class JdiDebugger extends Debugger
      */
     class MachineLoaderThread extends Thread
     {
+        @OnThread(Tag.Any)
         MachineLoaderThread()
         {}
 
+        @OnThread(value = Tag.Unique, ignoreParent = true)
         public void run()
         {
             try {
@@ -1115,6 +1139,7 @@ public class JdiDebugger extends Debugger
     /**
      * A thread has become halted; inform listeners.
      */
+    @OnThread(Tag.Any)
     void threadHalted(final JdiThread thread)
     {
         DebuggerEvent event = new DebuggerEvent(this, DebuggerEvent.THREAD_HALT_UNKNOWN, thread, null);
@@ -1138,6 +1163,7 @@ public class JdiDebugger extends Debugger
     /**
      * A thread has been resumed; inform listeners.
      */
+    @OnThread(Tag.Any)
     void threadResumed(final JdiThread thread)
     {
         DebuggerEvent event = new DebuggerEvent(this, DebuggerEvent.THREAD_CONTINUE, thread, null);
@@ -1163,6 +1189,7 @@ public class JdiDebugger extends Debugger
      * but no need to fire listeners
      * @param serverThread
      */
+    @OnThread(Tag.Any)
     public void serverThreadResumed(ThreadReference serverThread)
     {
         allThreads.find(serverThread).notifyResumed();

@@ -21,12 +21,16 @@
  */
 package bluej.debugger;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A class representing the running of a single test
  * method.
  *
  * @author  Andrew Patterson
  */
+@OnThread(Tag.Any)
 public abstract class DebuggerTestResult
 {
     /**

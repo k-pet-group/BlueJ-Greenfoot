@@ -33,10 +33,13 @@ import java.io.*;
  */
 public interface DebuggerTerminal
 {
+    @OnThread(Tag.Any)
     Writer getErrorWriter();
 
+    @OnThread(Tag.Any)
     Writer getWriter();
 
+    @OnThread(Tag.Any)
     Reader getReader();
 
     /**

@@ -1901,10 +1901,8 @@ public class ClassTarget extends DependentTarget
                 menu.getItems().add(JavaFXUtil.withStyleClass(JavaFXUtil.makeMenuItem(launchFXStr,() -> {
                     PackageEditor ed = getPackage().getEditor();
                     Window fxWindow = ed.getFXWindow();
-                    SwingUtilities.invokeLater(() -> {
-                        CompletableFuture<DebuggerResult> result = getPackage().getDebugger().launchFXApp(cl.getName());
-                        putFXLaunchResult(ed, fxWindow, result);
-                    });
+                    CompletableFuture<DebuggerResult> result = getPackage().getDebugger().launchFXApp(cl.getName());
+                    putFXLaunchResult(ed, fxWindow, result);
                 }, null), MENU_STYLE_INBUILT));
             }
             
@@ -1937,7 +1935,6 @@ public class ClassTarget extends DependentTarget
         });
     }
 
-    @OnThread(Tag.Swing)
     private void putFXLaunchResult(PackageEditor ed, Window fxWindow, CompletableFuture<DebuggerResult> result)
     {
         result.thenAccept(new Consumer<DebuggerResult>()

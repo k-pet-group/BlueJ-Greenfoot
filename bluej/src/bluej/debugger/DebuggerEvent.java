@@ -21,12 +21,16 @@
  */
 package bluej.debugger;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.EventObject;
 
 
 /**
  * Represents an event occurring in the BlueJ debugger implementation.
  */
+@OnThread(Tag.Any)
 public class DebuggerEvent extends EventObject
 {
     public static interface BreakpointProperties

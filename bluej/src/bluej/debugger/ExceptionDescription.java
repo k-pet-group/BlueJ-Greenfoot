@@ -21,6 +21,9 @@
  */
 package bluej.debugger;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.List;
 
 /**
@@ -28,6 +31,7 @@ import java.util.List;
  *
  * @author Michael Kolling
  */
+@OnThread(Tag.Any)
 public final class ExceptionDescription
 {
     private String className;

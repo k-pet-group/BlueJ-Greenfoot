@@ -28,6 +28,8 @@ import java.util.concurrent.CompletableFuture;
 
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.jdi.JdiDebugger;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class defining the debugger primitives needed by BlueJ. May be supported by different
@@ -109,6 +111,7 @@ public abstract class Debugger
      * 
      * <p>This can be a lengthy process so this should be executed in a sub thread.
      */
+    @OnThread(Tag.Any)
     public abstract void launch();
 
     /**
@@ -130,6 +133,7 @@ public abstract class Debugger
      * 
      * @param l  the DebuggerListener to remove
      */
+    @OnThread(Tag.Any)
     public abstract void removeDebuggerListener(DebuggerListener l);
 
     /**
@@ -206,6 +210,7 @@ public abstract class Debugger
      * @param  methodName the name of the method
      * @return            a DebuggerTestResult object
      */
+    @OnThread(Tag.Any)
     public abstract DebuggerTestResult runTestMethod(String className, String methodName);
 
     /**

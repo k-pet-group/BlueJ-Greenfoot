@@ -21,11 +21,15 @@
  */
 package bluej.debugger.jdi;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Is thrown when the creation of the debug WM fails.
  * @author Kasper Fisker
  * @version $Id: JdiVmCreationException.java 6215 2009-03-30 13:28:25Z polle $
  */
+@OnThread(Tag.Any)
 public class JdiVmCreationException extends Exception {
 
 }

@@ -21,6 +21,9 @@
  */
 package bluej.debugger;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * The listener for Debugger events.
  *
@@ -49,6 +52,7 @@ package bluej.debugger;
  * 
  * @see DebuggerEvent
  */
+@OnThread(Tag.Any)
 public interface DebuggerListener
 {
     /**

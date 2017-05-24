@@ -26,6 +26,8 @@ import java.util.*;
 import bluej.utility.Debug;
 
 import com.sun.jdi.ThreadReference;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A wrapper around a TreeSet that helps us
@@ -33,6 +35,7 @@ import com.sun.jdi.ThreadReference;
  * 
  * @author  Michael Kolling
  */
+@OnThread(Tag.Any)
 public class JdiThreadSet extends HashSet<JdiThread>
 {
     /**

@@ -30,12 +30,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A network test which logs diagnostics information.
  *  
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class NetworkTest
 {
     public static void doTest()

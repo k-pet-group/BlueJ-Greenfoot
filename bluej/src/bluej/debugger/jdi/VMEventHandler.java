@@ -53,17 +53,20 @@ import com.sun.jdi.request.StepRequest;
  *
  * @author  Michael Kolling
  */
+@OnThread(Tag.Any)
 class VMEventHandler extends Thread
 {
     final static String DONT_RESUME = "dontResume";
     
     private VMReference vm;
     private EventQueue queue;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean queueEmpty;
     
     /**
      * A class to represent a thread halted/resumed event.
      */
+    @OnThread(Tag.Any)
     private class ThreadEvent
     {
         ThreadEvent(JdiThread thread, boolean state)
@@ -76,7 +79,8 @@ class VMEventHandler extends Thread
     }
     
     private Queue<ThreadEvent> haltedThreads = new LinkedList<ThreadEvent>();
-    
+
+    @OnThread(Tag.Any)
     volatile boolean exiting = false;
     
     VMEventHandler(VMReference vm, VirtualMachine vmm)
@@ -86,7 +90,8 @@ class VMEventHandler extends Thread
         queue = vmm.eventQueue();
         start();  // will execute our own run method
     }
-    
+
+    @OnThread(value = Tag.Unique, ignoreParent = true)
     public void run()
     {
         while (!exiting) {

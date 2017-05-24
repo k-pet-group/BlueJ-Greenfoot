@@ -129,6 +129,7 @@ import javafx.application.Platform;
  * 
  * @author Michael Kolling
  */
+@OnThread(Tag.Any)
 class VMReference
 {
     // the class name of the execution server class running on the remote VM
@@ -154,7 +155,6 @@ class VMReference
     private DebuggerTerminal term;
     // The remote virtual machine and process we are referring to
     private VirtualMachine machine = null;
-    private Process remoteVMprocess = null;
 
     // The handler for virtual machine events
     private VMEventHandler eventHandler = null;
@@ -173,21 +173,19 @@ class VMReference
 
     // a record of the threads we start up for
     // redirecting ExecServer streams
+    @OnThread(Tag.Any)
     private IOHandlerThread inputStreamRedirector = null;
+    @OnThread(Tag.Any)
     private IOHandlerThread outputStreamRedirector = null;
+    @OnThread(Tag.Any)
     private IOHandlerThread errorStreamRedirector = null;
 
     // the current class loader in the ExecServer
     private ClassLoaderReference currentLoader = null;
 
     private int exitStatus;
+    @OnThread(Tag.Any)
     private ExceptionDescription lastException;
-    
-    // array index of memory transport parameter 
-    private int transportIndex = 0;
-    
-    private boolean isDefaultEncoding = true;
-    private String streamEncoding = null;
 
     /**
      * Launch a remote debug VM using a TCP/IP socket.
@@ -200,6 +198,7 @@ class VMReference
      *            the virtual machine manager
      * @return an instance of a VirtualMachine or null if there was an error
      */
+    @OnThread(Tag.Any)
     public VirtualMachine localhostSocketLaunch(File initDir, URL[] libraries, DebuggerTerminal term,
             VirtualMachineManager mgr)
     {
@@ -278,13 +277,12 @@ class VMReference
             paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/" + Config.getVMIconsName());
             paramList.add("-Xdock:name=" + Config.getVMDockName());
         }
-        
-        // Index for where the transport parameter is to be added
-        transportIndex = paramList.size();
 
-        streamEncoding = Config.getPropString("bluej.terminal.encoding", null);
-        isDefaultEncoding = (streamEncoding == null);
-        if (! isDefaultEncoding) {
+        // Index for where the transport parameter is to be added
+        int transportIndex = paramList.size();
+
+        String streamEncoding = Config.getPropString("bluej.terminal.encoding", null);
+        if (streamEncoding != null) {
             // Set the input/output encoding to the same as the terminal encoding, to avoid confusion
             // that mismatching these two causes. See bug #509.
             paramList.add("-Dfile.encoding=" + streamEncoding);
@@ -295,7 +293,7 @@ class VMReference
         // set output encoding if specified, default is to use system default
         // this gets passed to ExecServer's main as an arg which can then be 
         // used to specify encoding
-        if(!isDefaultEncoding) {
+        if(streamEncoding != null) {
             paramList.add(streamEncoding);
         }
         
@@ -360,7 +358,8 @@ class VMReference
                                 + ",address=" + address);
                         launchParams = paramList.toArray(new String[paramList.size()]);
                         paramList.remove(transportIndex);
-                        
+
+                        final Process remoteVMprocess;
                         try {
                             remoteVMprocess = launchVM(initDir, launchParams);
                         }
@@ -371,7 +370,7 @@ class VMReference
 
                         try {
                             machine = connector.accept(arguments);
-                            redirectToTerminal(term);
+                            redirectToTerminal(term, remoteVMprocess, streamEncoding);
                         }
                         catch (Throwable t) {
                             // failed to connect.
@@ -381,11 +380,10 @@ class VMReference
                                 // whether the process has already exited.
                                 int exitCode = remoteVMprocess.exitValue();
                                 Debug.log("" + System.currentTimeMillis() + ": remote VM process has prematurely terminated with exit code: " + exitCode);
-                                drainOutput();
+                                drainOutput(remoteVMprocess);
                             }
                             catch (IllegalThreadStateException itse) {}
                             remoteVMprocess.destroy();
-                            remoteVMprocess = null;
                             throw t;
                         }
                         finally {
@@ -437,7 +435,7 @@ class VMReference
     /**
      * Read and log anything that the remote VM process output before it died.
      */
-    private void drainOutput()
+    private void drainOutput(Process remoteVMprocess)
     {
         InputStreamReader stdout = new InputStreamReader(remoteVMprocess.getInputStream());
         char charBuf[] = new char[2048];
@@ -489,6 +487,7 @@ class VMReference
      *                  the debug vm process
      * @param term      the terminal to connect to process I/O
      */
+    @OnThread(Tag.Any)
     private Process launchVM(File initDir, String [] params)
         throws IOException
     {    
@@ -545,10 +544,9 @@ class VMReference
     /**
      * Redirect input, output and error streams of the remote process to the terminal.
      */
-    private void redirectToTerminal(DebuggerTerminal term) throws UnsupportedEncodingException
+    @OnThread(Tag.Any)
+    private void redirectToTerminal(DebuggerTerminal term, Process vmProcess, String streamEncoding) throws UnsupportedEncodingException
     {
-        Process vmProcess = remoteVMprocess;
-        
         // redirect standard streams from process to Terminal
         // error stream System.err
         Reader errorReader = null;
@@ -557,7 +555,7 @@ class VMReference
         // input stream System.in
         Writer inputWriter = null;
         
-        if(isDefaultEncoding) {
+        if(streamEncoding == null) {
             errorReader = new InputStreamReader(vmProcess.getErrorStream());
             outReader = new InputStreamReader(vmProcess.getInputStream());
             inputWriter = new OutputStreamWriter(vmProcess.getOutputStream());            
@@ -578,6 +576,7 @@ class VMReference
      * Create the second virtual machine and start the execution server (class
      * ExecServer) on that machine.
      */
+    @OnThread(Tag.Any)
     public VMReference(JdiDebugger owner, DebuggerTerminal term, File initialDirectory, URL[] libraries)
         throws JdiVmCreationException
     {
@@ -611,6 +610,7 @@ class VMReference
     /**
      * Close down this virtual machine.
      */
+    @OnThread(Tag.Any)
     public synchronized void close()
     {
         if (machine != null) {
@@ -768,6 +768,7 @@ class VMReference
      * 
      * @param urls  the classpath as an array of URL
      */
+    @OnThread(Tag.Any)
     ClassLoaderReference newClassLoader(URL [] urls)
     {
         synchronized(workerThread) {
@@ -2229,6 +2230,7 @@ class VMReference
         private Writer writer;
         private volatile boolean keepRunning = true;
 
+        @OnThread(Tag.Any)
         IOHandlerThread(Reader reader, Writer writer)
         {
             super("BlueJ I/O Handler");

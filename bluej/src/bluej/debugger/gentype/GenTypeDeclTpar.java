@@ -131,7 +131,6 @@ public class GenTypeDeclTpar extends GenTypeTpar
      * 
      * Example: T extends Integer
      */
-    @OnThread(Tag.Any)
     public String toString(boolean stripPrefix)
     {
         //need prefix to match java.lang.Object

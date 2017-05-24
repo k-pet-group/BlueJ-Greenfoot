@@ -858,7 +858,7 @@ public class FrameEditor implements Editor
             curBreakpoint = js.handleStop(lineNumber, debugInfo);
             if (curBreakpoint.isBreakpointFrame())
             {
-                SwingUtilities.invokeLater(() -> thread.step());
+                thread.step();
             }
             else
             {

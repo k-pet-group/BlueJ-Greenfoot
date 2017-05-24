@@ -181,7 +181,6 @@ public abstract class GenTypeParameter
     /**
      * Get a string representation of the type, optionally stripping package prefixes
      */
-    @OnThread(Tag.Any)
     public String toString(boolean stripPrefix)
     {
         if (stripPrefix) {

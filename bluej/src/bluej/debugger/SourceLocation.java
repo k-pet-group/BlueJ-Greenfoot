@@ -21,11 +21,15 @@
  */
 package bluej.debugger;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This class holds a location in some source code
  *
  * @author  Michael Kolling
  */
+@OnThread(Tag.Any)
 public final class SourceLocation
 {
     private String classname;

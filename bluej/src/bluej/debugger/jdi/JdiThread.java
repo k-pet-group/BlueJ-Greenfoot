@@ -83,13 +83,15 @@ class JdiThread extends DebuggerThread
     }
 
     /** the reference to the remote thread */
-    private ThreadReference rt;
+    @OnThread(Tag.Any)
+    private final ThreadReference rt;
     
     /** We track suspension status internally */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private boolean isSuspended;
     
     /** Any active step request */
+    @OnThread(Tag.Any)
     StepRequest stepRequest;
     
     /*
@@ -102,13 +104,15 @@ class JdiThread extends DebuggerThread
     // stores a stack frame that was selected for this
     // thread (selection is done for debugging)
     private int selectedFrame;
-   
+
+    @OnThread(Tag.Any)
     private EventRequestManager eventReqMgr;
     
     private JdiDebugger debugger;
 
     // ---- instance: ----
 
+    @OnThread(Tag.Any)
     public JdiThread(JdiDebugger debugger, ThreadReference rt)
     {
         this.rt = rt;
@@ -136,6 +140,7 @@ class JdiThread extends DebuggerThread
     /** 
      * Return the reference to the thread object in the remote machine.
      */
+    @OnThread(Tag.Any)
     ThreadReference getRemoteThread()
     {
         return rt;
@@ -560,6 +565,7 @@ class JdiThread extends DebuggerThread
      * Inform the JdiThread that the underlying thread has been suspended due to
      * (for example) hitting a breakpoint.
      */
+    @OnThread(Tag.Any)
     public void stopped()
     {
         synchronized (this)
@@ -626,6 +632,7 @@ class JdiThread extends DebuggerThread
      * A previously set step may not have completed yet - find out and
      * if it is so, remove it.
      */
+    @OnThread(Tag.Any)
     private void clearPreviousStep(ThreadReference thread)
     {
         if (eventReqMgr == null)
@@ -637,6 +644,7 @@ class JdiThread extends DebuggerThread
         }
     }
 
+    @OnThread(Tag.Any)
     private void getEventRequestManager()
     {
         eventReqMgr = rt.virtualMachine().eventRequestManager();
@@ -667,6 +675,7 @@ class JdiThread extends DebuggerThread
      * Called when we are the serverThread, to let us know we've been resumed
      * (and should update our internal status accordingly)
      */
+    @OnThread(Tag.Any)
     public synchronized void notifyResumed()
     {
         isSuspended = false;

@@ -35,6 +35,8 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Represents an object running on the user (remote) machine, together with an optional generic
@@ -51,6 +53,7 @@ public class JdiObject extends DebuggerObject
      *  @return      a new JdiObject or a new JdiArray object if
      *               remote object is an array
      */
+    @OnThread(Tag.Any)
     public static JdiObject getDebuggerObject(ObjectReference obj)
     {
         if (obj instanceof ArrayReference) {
@@ -100,9 +103,11 @@ public class JdiObject extends DebuggerObject
     
     // -- instance methods --
 
-    ObjectReference obj;  // the remote object represented
+    @OnThread(Tag.Any)
+    protected ObjectReference obj;  // the remote object represented
     GenTypeClass genType = null; // the generic type, if known
-    List<Field> fields;
+    @OnThread(Tag.Any)
+    private final List<Field> fields = new ArrayList<>();
     
     // used by JdiArray.
     protected JdiObject()
@@ -115,6 +120,7 @@ public class JdiObject extends DebuggerObject
      *
      *  @param  obj  the remote debugger object (Jdi code) this encapsulates.
      */
+    @OnThread(Tag.Any)
     private JdiObject(ObjectReference obj)
     {
         this.obj = obj;
@@ -269,18 +275,19 @@ public class JdiObject extends DebuggerObject
     /**
      *  Get the list of fields for this object.
      */
+    @OnThread(Tag.Any)
     protected void getRemoteFields()
     {
         if (obj != null) {
             ReferenceType cls = obj.referenceType();
             if (cls != null) {
-                fields = cls.allFields();
+                fields.addAll(cls.allFields());
                 return;
             }
         }
         // either null object or unavailable fields
         // lets give them an empty list of fields
-        fields = new ArrayList<Field>();
+        fields.clear();
     }
 
     /**

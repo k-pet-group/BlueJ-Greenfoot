@@ -22,6 +22,8 @@
 package bluej.debugger;
 
 import bluej.debugger.gentype.JavaType;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Representation of a class or object field, together with its value.
@@ -83,6 +85,7 @@ public abstract class DebuggerField
     /**
      * Check whether the field type is a reference type.
      */
+    @OnThread(Tag.FXPlatform)
     public boolean isReferenceType()
     {
         return ! getType().isPrimitive();

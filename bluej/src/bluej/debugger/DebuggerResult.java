@@ -21,6 +21,9 @@
  */
 package bluej.debugger;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This class represents the result of a debugger invocation (execution of user code).
  * The three result types are:
@@ -31,9 +34,10 @@ package bluej.debugger;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class DebuggerResult
 {
-    private int exitStatus; // one of Debugger.NORMAL_EXIT, EXCEPTION, TERMINATED
+    private final int exitStatus; // one of Debugger.NORMAL_EXIT, EXCEPTION, TERMINATED
     private DebuggerObject resultObject;
     private ExceptionDescription exception;
     

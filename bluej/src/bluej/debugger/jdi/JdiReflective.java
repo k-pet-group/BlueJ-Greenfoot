@@ -73,6 +73,9 @@ import com.sun.jdi.ShortType;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.Type;
 import com.sun.jdi.VirtualMachine;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A Reflective for Jdi classes.
  * 
@@ -112,6 +115,7 @@ public class JdiReflective extends Reflective
      * @param sourceType
      *            The type from which a reference to this type was obtained
      */
+    @OnThread(Tag.Any)
     public JdiReflective(String name, ReferenceType sourceType)
     {
         this.name = name;
@@ -522,6 +526,7 @@ public class JdiReflective extends Reflective
      *            An iterator into the string
      * @return the fully qualified class name
      */
+    @OnThread(Tag.Any)
     private static String readClassName(StringIterator i)
     {
         char c = i.next();
@@ -687,7 +692,6 @@ public class JdiReflective extends Reflective
         return result;
     }
 
-    
     private static GenTypeClass innerFromSignature(StringIterator i, String outerName, GenTypeClass outer,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
     {
@@ -1121,7 +1125,8 @@ public class JdiReflective extends Reflective
         
         return null;
     }
-    
+
+    @OnThread(Tag.Any)
     static class StringIterator
     {
         int i = 0;

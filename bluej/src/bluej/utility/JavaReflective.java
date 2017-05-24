@@ -441,6 +441,7 @@ public class JavaReflective extends Reflective
      * @param tpars  The set of type parameters to create mappings for
      * @param map    The map of name to type parameter
      */
+    @OnThread(Tag.FXPlatform)
     private void storeTparMappings(List<GenTypeDeclTpar> tpars, Map<String, ? super GenTypeDeclTpar> map)
     {
         for (GenTypeDeclTpar tpar : tpars) {

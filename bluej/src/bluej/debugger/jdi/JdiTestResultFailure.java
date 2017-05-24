@@ -22,10 +22,13 @@
 package bluej.debugger.jdi;
 
 import bluej.debugger.SourceLocation;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Represents the result of running a single test method.
  */
+@OnThread(Tag.Any)
 public class JdiTestResultFailure extends JdiTestResult
 {
     SourceLocation failPoint;
