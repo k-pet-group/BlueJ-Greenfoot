@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -99,69 +100,37 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     {
         super(owner, "team.commit.title", "team-commit-comments");
         project = proj;
-        buildUI();
+        getDialogPane().setContent(makeMainPane());
+        prepareButtonPane();
 //        DialogManager.centreDialog(this);
+        rememberPosition("bluej.commitdisplay");
     }
 
     /**
-     * Create the user-interface for the error display dialog.
+     *
      */
-    protected void buildUI()
+    protected SplitPane makeMainPane()
     {
-        //setIconImage(BlueJTheme.getIconImage());
-        rememberPosition("bluej.commitdisplay");
-
-        SplitPane splitPane = new SplitPane();
-        splitPane.setDividerPositions(0.5);
-
-        VBox topPanel = new VBox();
-
-        ScrollPane commitFileScrollPane = new ScrollPane();
-
-        Label commitFilesLabel = new Label(Config.getString("team.commit.files"));
-        topPanel.getChildren().add(commitFilesLabel);
-
         ListView commitFiles = new ListView(commitListModel);
         commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
         commitFiles.setDisable(true);
-        commitFileScrollPane.setContent(commitFiles);
-
-        topPanel.getChildren().add(commitFileScrollPane);
-
-        splitPane.getItems().add(topPanel);
-
-        VBox bottomPanel = new VBox();
-        Label commentLabel = new Label(Config.getString("team.commit.comment"));
-        bottomPanel.getChildren().add(commentLabel);
+        ScrollPane commitFileScrollPane = new ScrollPane(commitFiles);
 
         commitText = new TextArea("");
         commitText.setPrefRowCount(6);
         commitText.setPrefColumnCount(42);
-
-        commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
-
+//        commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
         ScrollPane commitTextScrollPane = new ScrollPane(commitText);
-        commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
-        bottomPanel.getChildren().add(commitTextScrollPane);
+//        commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
 
         commitAction = new CommitAction(this);
         commitButton = new Button();
         commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
         commitButton.requestFocus();
 
-        Button closeButton = new Button();// BlueJTheme.getCancelButton();
-        closeButton.setOnAction(event -> {
-            commitWorker.abort();
-            commitAction.cancel();
-            setVisible(false);
-        });
-
-        HBox buttonPanel = new HBox();
-
         progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
 
-        VBox checkBoxPanel = new VBox();
         includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
         includeLayout.setDisable(true);
         includeLayout.setOnAction(event -> {
@@ -179,12 +148,36 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
             }
         });
 
-        checkBoxPanel.getChildren().addAll(includeLayout, buttonPanel);
-        buttonPanel.getChildren().addAll(progressBar, commitButton, closeButton);
-        bottomPanel.getChildren().add(checkBoxPanel);
+        VBox topPanel = new VBox();
+        topPanel.getChildren().addAll(new Label(Config.getString("team.commit.files")), commitFileScrollPane);
 
-        splitPane.getItems().add(bottomPanel);
-        getDialogPane().getChildren().add(splitPane);
+        HBox buttonPanel = new HBox();
+        buttonPanel.getChildren().addAll(progressBar, commitButton);
+
+        VBox bottomPanel = new VBox();
+        bottomPanel.getChildren().addAll(new Label(Config.getString("team.commit.comment")),
+                                         commitTextScrollPane, includeLayout, buttonPanel);
+
+        SplitPane splitPane = new SplitPane();
+        splitPane.setDividerPositions(0.5);
+        splitPane.getItems().addAll(topPanel, bottomPanel);
+        return splitPane;
+    }
+
+    /**
+     * Create the button panel with a Resolve button and a close button
+     * @return Pane the buttonPanel
+     */
+    private void prepareButtonPane()
+    {
+        //close button
+        getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
+        this.setOnCloseRequest(event -> {
+            if (commitWorker != null) {
+                commitWorker.abort();
+                commitAction.cancel();
+            }
+        });
     }
 
     public void setVisible(boolean visible)
