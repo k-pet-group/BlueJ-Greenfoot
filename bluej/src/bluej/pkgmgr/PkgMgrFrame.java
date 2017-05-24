@@ -3447,26 +3447,6 @@ public class PkgMgrFrame
         Utility.bringToFrontFX(getFXWindow());
     }
 
-    // Copied from FXTabbedEditor, only needed until we swap to FX for the whole window:
-    @OnThread(Tag.FXPlatform)
-    private void scheduleWindowWiggle(Stage stage)
-    {
-        if (cancelWiggle != null)
-        {
-            cancelWiggle.run();
-        }
-        cancelWiggle = JavaFXUtil.runAfter(Duration.seconds(0.5),() -> {
-            if (!stage.isMaximized() && !stage.isIconified())
-            {
-                // Left and right one pixel:
-                final double x = stage.getX();
-                stage.setX(x + 1);
-                // Must wait before reversing, so that SwingNode sees change:
-                JavaFXUtil.runAfterCurrent(() -> stage.setX(x));
-            }
-        });
-    }
-
     @OnThread(Tag.FXPlatform)
     public synchronized void doNewInherits()
     {

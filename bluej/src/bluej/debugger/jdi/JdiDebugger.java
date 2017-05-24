@@ -39,7 +39,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.debugger.DebuggerThreadModel;
 import bluej.debugmgr.Invoker;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;

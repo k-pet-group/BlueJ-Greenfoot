@@ -631,25 +631,6 @@ public class MoeSyntaxDocument
         return parsedNode.getMarkTokensFor(pos, length, 0, this);
     }
 
-    /**
-     * Get an integer value from a property whose value is hex-encoded.
-     * @param propName  The name of the property
-     * @param def       The default value if the property is undefined or
-     *                  not parseable as a hexadecimal
-     * @return  The value
-     */
-    @OnThread(Tag.Any)
-    private static int getPropHexInt(String propName, int def)
-    {
-        String strVal = Config.getPropString(propName, null, Config.moeUserProps);
-        try {
-            return Integer.parseInt(strVal, 16);
-        }
-        catch (NumberFormatException nfe) {
-            return def;
-        }
-    }
-    
     /* 
      * If text was inserted, the reparse-record tree needs to be updated.
      */

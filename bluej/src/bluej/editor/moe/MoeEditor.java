@@ -257,8 +257,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private boolean mayHaveBreakpoints;     // true if there were BP here
     private boolean ignoreChanges = false;
     private boolean tabsAreExpanded = false;
-    private MoePrinter printer;
-    private PrintDialog printDialog;
     /** Used to obtain javadoc for arbitrary methods */
     private final JavadocResolver javadocResolver;
     private ReparseRunner reparseRunner;
@@ -2398,18 +2396,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         else {
             return null;
         }
-    }
-
-    // --------------------------------------------------------------------
-
-    // --------------------------------------------------------------------
-
-    /**
-     * Find and return a position in the source document.
-     */
-    private int getPositionInLine(int lineNo)
-    {
-        return getSourceLine(lineNo).getStartOffset();
     }
 
     // --------------------------------------------------------------------

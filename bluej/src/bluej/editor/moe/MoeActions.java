@@ -1818,11 +1818,6 @@ public final class MoeActions
         return action("go-to-line", Category.MISC, () -> getEditor().goToLine());
     }
 
-    private MoeAbstractAction doNothingAction()
-    {
-        return action("", Category.MISC, () -> {});
-    }
-
     /**
      * Class CommentLineAction - add a comment symbol to the given line.
      */

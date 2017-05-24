@@ -1443,13 +1443,6 @@ public class Utility
         s.flush();
     }
 
-    @FunctionalInterface
-    public static interface SwingSupplier<T>
-    {
-        @OnThread(Tag.Swing)
-        public T get();
-    }
-
     private static class ExternalProcessLogger extends Thread
     {
         String commandAsStr;

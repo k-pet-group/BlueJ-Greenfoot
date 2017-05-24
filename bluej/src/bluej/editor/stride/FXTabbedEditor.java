@@ -144,8 +144,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private UntitledCollapsiblePane collapsibleCatalogueScrollPane;
     private FrameShelf shelf;
     private boolean dragFromShelf;
-    @OnThread(Tag.FXPlatform)
-    private FXPlatformRunnable cancelWiggle;
 
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
@@ -395,15 +393,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         stage.titleProperty().bind(Bindings.concat(
             JavaFXUtil.applyPlatform(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
                 ," - ", projectTitle, titleStatus));
-
-        JavaFXUtil.addChangeListenerPlatform(stage.widthProperty(), w -> {
-            if (Config.isWinOS() && tabPane.getSelectionModel().getSelectedItem() instanceof MoeFXTab)
-                scheduleWindowWiggle();
-        });
-        JavaFXUtil.addChangeListenerPlatform(stage.heightProperty(), h -> {
-            if (Config.isWinOS() && tabPane.getSelectionModel().getSelectedItem() instanceof MoeFXTab)
-                scheduleWindowWiggle();
-        });
     }
 
     @OnThread(Tag.FXPlatform)
@@ -441,12 +430,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         //Debug.time("initialisedFX");
         if (!tabPane.getTabs().contains(panel)) {
             tabPane.getTabs().add(panel);
-            // Do a size up and down for Moe tabs because SwingNode seems to
-            // have problems painting initially on some Windows systems.
-            if (panel instanceof MoeFXTab && !stage.isMaximized() && !stage.isIconified() && Config.isWinOS())
-            {
-                scheduleWindowWiggle();
-            }
             if (toFront)
             {
                 setWindowVisible(visible, panel);
@@ -454,26 +437,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 Platform.runLater(panel::focusWhenShown);
             }
         }
-    }
-
-    //MOEFX: remove this
-    @OnThread(Tag.FXPlatform)
-    private void scheduleWindowWiggle()
-    {
-        if (cancelWiggle != null)
-        {
-            cancelWiggle.run();
-        }
-        cancelWiggle = JavaFXUtil.runAfter(Duration.seconds(0.5),() -> {
-            if (!stage.isMaximized() && !stage.isIconified())
-            {
-                // Left and right one pixel:
-                final double x = stage.getX();
-                stage.setX(x + 1);
-                // Must wait before reversing, so that SwingNode sees change:
-                JavaFXUtil.runAfterCurrent(() -> stage.setX(x));
-            }
-        });
     }
 
     /** 
