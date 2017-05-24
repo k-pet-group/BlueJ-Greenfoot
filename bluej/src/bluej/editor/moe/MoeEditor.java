@@ -1717,13 +1717,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         else if (job.showPrintDialog(getWindow()))
         {
+            FXRunnable printAction = printTo(job, choices.get().printLineNumbers, choices.get().printHighlighting);
             new Thread()
             {
                 @Override
                 @OnThread(value = Tag.FX, ignoreParent = true)
                 public void run()
                 {
-                    printTo(job, choices.get().printLineNumbers, choices.get().printHighlighting).run();
+                    printAction.run();
                     job.endJob();
                 }
             }.start();

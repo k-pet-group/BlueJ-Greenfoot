@@ -3520,7 +3520,7 @@ public class PkgMgrFrame
         CompletableFuture<Boolean> done = new CompletableFuture<>();
         // It seems to print corrupted (though I don't know why),
         // so we thread hop to take a screenshot and print that;
-        Platform.runLater(() -> {
+        JavaFXUtil.runPlatformLater(() -> {
             WritableImage image = new WritableImage((int)editor.getWidth(), (int)editor.getHeight());
             this.editor.snapshot(null, image);
             printJob.printPage(new ImageView(image));

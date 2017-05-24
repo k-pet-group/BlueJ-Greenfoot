@@ -371,7 +371,7 @@ public class Main
             });
         }
 
-        Boot.getInstance().setQuitHandler(() -> PkgMgrFrame.handleQuit());
+        Boot.getInstance().setQuitHandler(() -> Platform.runLater(PkgMgrFrame::handleQuit));
     }
 
     /**
@@ -414,35 +414,20 @@ public class Main
         // handle open packages so they are re-opened on startup
         handleOrphanPackages(pkgFrames);
 
-        JavaFXUtil.runNowOrLater(new FXPlatformRunnable()
-        {
-            int i = pkgFrames.length - 1;
+        int i = pkgFrames.length - 1;
+        // We replicate some of the behaviour of doClose() here
+        // rather than call it to avoid a nasty recursion
+        while (i >= 0) {
+            PkgMgrFrame aFrame = pkgFrames[i--];
+            aFrame.doSave();
+            aFrame.closePackage();
+            PkgMgrFrame.closeFrame(aFrame);
+        }
 
-            @Override
-            public @OnThread(Tag.FXPlatform) void run()
-            {
-                // We replicate some of the behaviour of doClose() here
-                // rather than call it to avoid a nasty recursion
-                if (i >= 0) {
-                    PkgMgrFrame aFrame = pkgFrames[i--];
-                    aFrame.doSave();
-                    SwingUtilities.invokeLater(() -> {
-                        aFrame.closePackage();
-                        Platform.runLater(() -> {
-                            PkgMgrFrame.closeFrame(aFrame);
-                            run();
-                        });
-                    });
-                }
-                else
-                {
-                    SwingUtilities.invokeLater(() -> {
-                        ExtensionsManager extMgr = ExtensionsManager.getInstance();
-                        extMgr.unloadExtensions();
-                        Platform.runLater(() -> bluej.Main.exit());
-                    });
-                }
-            }
+        SwingUtilities.invokeLater(() -> {
+            ExtensionsManager extMgr = ExtensionsManager.getInstance();
+            extMgr.unloadExtensions();
+            Platform.runLater(() -> bluej.Main.exit());
         });
     }
 

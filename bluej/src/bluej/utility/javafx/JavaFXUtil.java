@@ -483,13 +483,14 @@ public class JavaFXUtil
      * @param <T> The type inside the property
      * @return An observable corresponding to object.property
      */
-    public static <S, T> ObservableValue<T> apply(ObservableValue<S> object, FXFunction<S, ObservableValue<T>> property, T def)
+    @OnThread(Tag.FXPlatform)
+    public static <S, T> ObservableValue<T> applyPlatform(ObservableValue<S> object, FXPlatformFunction<S, ObservableValue<T>> property, T def)
     {
         // Easier to create new property and use change listeners to update the binding than try
         // to make an all-in-one binding:
         ObjectProperty<T> r = new SimpleObjectProperty<>(object.getValue() == null ? def : property.apply(object.getValue()).getValue());
 
-        addChangeListener(object, value -> {
+        addChangeListenerPlatform(object, value -> {
             r.unbind();
 
             if (value == null)

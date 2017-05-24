@@ -488,7 +488,7 @@ public class FrameEditor implements Editor
             public void reInitBreakpoints() { FrameEditor.this.reInitBreakpoints(); }
 
             @Override
-            @OnThread(Tag.Any)
+            @OnThread(Tag.FXPlatform)
             public FXRunnable printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground) { return FrameEditor.this.printTo(printerJob, printLineNumbers, printBackground); }
 
             @Override
@@ -957,7 +957,7 @@ public class FrameEditor implements Editor
                 // then things get seriously messed up for the editors
                 // afterwards.  So we hop back to platform thread to print:
                 CompletableFuture<Boolean> done = new CompletableFuture<>();
-                Platform.runLater(() -> {
+                JavaFXUtil.runPlatformLater(() -> {
                     job.printPage(panel.getSource().getFrame().getNode());
                     done.complete(true);
                 });

@@ -393,7 +393,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         });
 
         stage.titleProperty().bind(Bindings.concat(
-            JavaFXUtil.apply(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
+            JavaFXUtil.applyPlatform(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
                 ," - ", projectTitle, titleStatus));
 
         JavaFXUtil.addChangeListenerPlatform(stage.widthProperty(), w -> {

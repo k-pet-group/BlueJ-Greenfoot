@@ -133,14 +133,17 @@ class DataSubmitter
                 {
                     SwingUtilities.invokeLater(() -> {
                         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.DATA_SUBMISSION_FAILED_EVENT));
-                        if (Boot.isTrialRecording())
+                        Platform.runLater(() ->
                         {
-                            // If we just gave up, and we are specifically in a trial, show a dialog
-                            // to the user warning them of this:
-                            if (!Config.isGreenfoot()) // Greenfoot shows the dialog on the Greenfoot VM, only show if we are BlueJ:
-                                Platform.runLater(() -> new DataSubmissionFailedDialog().show());
-                            Project.getProjects().forEach(project -> project.setAllEditorStatus(" - NOT RECORDING"));
-                        }
+                            if (Boot.isTrialRecording())
+                            {
+                                // If we just gave up, and we are specifically in a trial, show a dialog
+                                // to the user warning them of this:
+                                if (!Config.isGreenfoot()) // Greenfoot shows the dialog on the Greenfoot VM, only show if we are BlueJ:
+                                    new DataSubmissionFailedDialog().show();
+                                Project.getProjects().forEach(project -> project.setAllEditorStatus(" - NOT RECORDING"));
+                            }
+                        });
                     });
                 }
             }
