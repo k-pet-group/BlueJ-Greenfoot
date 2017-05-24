@@ -21,17 +21,11 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Color;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentEvent.EventType;
-import javax.swing.text.AbstractDocument.DefaultDocumentEvent;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.Segment;
 
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
@@ -39,7 +33,6 @@ import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.editor.moe.Token.TokenType;
 import bluej.utility.Utility;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
@@ -55,7 +48,6 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.utility.Debug;
-import bluej.utility.PersistentMarkDocument;
 
 
 /**
@@ -814,11 +806,9 @@ public class MoeSyntaxDocument
         segment.count = s.length();
     }
 
-    //MOEFX: remove attrSet
-    //MOEFX: we may actually want to make this test-only, as it doesn't track the caret position
-    public void insertString(int start, String src, Object attrSet)
+    public void insertString(int start, String text)
     {
-        document.replace(start, start, ReadOnlyStyledDocument.fromString(src, null, ImmutableSet.of(), StyledText.textOps()));
+        replace(start, 0, text);
     }
 
     public void replace(int start, int length, String text)

@@ -39,14 +39,8 @@ import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -845,7 +839,7 @@ public final class MoeActions
             // indent same as line above
             String indent = prevLineText.substring(0, targetIndentPos);
             doc.remove(lineStart, currentIndentPos);
-            doc.insertString(lineStart, indent, null);
+            doc.insertString(lineStart, indent);
             if(firstChar == '}')
                 removeTab();
         }
@@ -907,7 +901,7 @@ public final class MoeActions
             }
             if (count != startCount) { // there was a TAB in this line...
                 doc.remove(start, length);
-                doc.insertString(start, text, null);
+                doc.insertString(start, text);
             }
             lineNo++;
             line = root.getElement(lineNo);
@@ -1835,7 +1829,7 @@ public final class MoeActions
                 String lineText = doc.getText(lineStart, lineEnd - lineStart);
                 if (lineText.trim().length() > 0) {
                     int textStart = MoeIndent.findFirstNonIndentChar(lineText, true);
-                    doc.insertString(lineStart+textStart, "// ", null);
+                    doc.insertString(lineStart+textStart, "// ");
                 }
         }
     }
@@ -1880,7 +1874,7 @@ public final class MoeActions
         public void apply(Element line, MoeSyntaxDocument doc)
         {
             int lineStart = line.getStartOffset();
-            doc.insertString(lineStart, spaces.substring(0, tabSize), null);
+            doc.insertString(lineStart, spaces.substring(0, tabSize));
         }
     }
 

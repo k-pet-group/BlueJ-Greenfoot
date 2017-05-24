@@ -31,11 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.text.BadLocationException;
-
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.ScopeColors;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -446,7 +443,7 @@ public class BasicParseTest extends junit.framework.TestCase
     {
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver, ScopeColors.dummy());
         document.enableParser(true);
-        document.insertString(0, sourceCode, null);
+        document.insertString(0, sourceCode);
         return document.getParser();
     }
     

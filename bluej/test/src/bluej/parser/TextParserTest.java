@@ -23,10 +23,7 @@ package bluej.parser;
 
 import java.util.List;
 
-import javax.swing.text.BadLocationException;
-
 import bluej.editor.moe.ScopeColors;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugmgr.codepad.DeclaredVar;
@@ -67,7 +64,7 @@ public class TextParserTest extends TestCase
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver, ScopeColors.dummy());
         document.enableParser(true);
-        document.insertString(0, sourceCode, null);
+        document.insertString(0, sourceCode);
         return document.getParser();
     }
     

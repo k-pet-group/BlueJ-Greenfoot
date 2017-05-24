@@ -33,7 +33,6 @@ import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.MoeSyntaxDocument.Position;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
-import bluej.utility.Debug;
 
 /**
  * This class contains the "auto layout" functionality of the editor.
@@ -467,9 +466,9 @@ public class MoeIndent
         {
             String lineSeparator = System.getProperty("line.separator");
                 if (twoSeparators) {
-                    doc.insertString(position, lineSeparator + lineSeparator, null);
+                    doc.insertString(position, lineSeparator + lineSeparator);
                 } else {
-                    doc.insertString(position, lineSeparator, null);
+                    doc.insertString(position, lineSeparator);
                 }
             if (position > prevCaretPos) {
                 return prevCaretPos;

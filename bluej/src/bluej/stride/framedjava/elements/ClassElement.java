@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.editor.moe.ScopeColors;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.entity.PackageResolver;
@@ -73,7 +72,6 @@ import bluej.stride.framedjava.frames.ClassFrame;
 import bluej.stride.framedjava.frames.ConstructorFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.Frame.ShowReason;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 /**
@@ -635,7 +633,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
             if (document == null)
             {
                 document = new MoeSyntaxDocument(projectResolver, ScopeColors.dummy());
-                document.insertString(0, src, null);
+                document.insertString(0, src);
                 document.enableParser(true);
             }
             return document;

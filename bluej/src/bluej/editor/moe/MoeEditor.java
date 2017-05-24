@@ -25,7 +25,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.awt.print.PageFormat;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,7 +51,6 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.text.BadLocationException;
 
@@ -84,7 +82,6 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ResizableCanvas;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
@@ -95,17 +92,13 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.print.PrintResolution;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.Effect;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -117,7 +110,6 @@ import javafx.stage.*;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.MouseOverTextEvent;
-import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.w3c.dom.NodeList;
@@ -144,7 +136,6 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.pkgmgr.JavadocResolver;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -322,34 +313,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         this.fxTabbedEditor = getDefaultEditor.get();
         this.fxTab = new MoeFXTab(this, fxWindowTitle);
     }
-
-    // --------------------------------------------------------------------
-
-    /**
-     * Return a validated version of the global PageFormat for BlueJ
-     */
-    /*MOEFX
-    @OnThread(Tag.Any)
-    public static PageFormat getPageFormat(PrinterJob job)
-    {
-        return job.validatePage(PkgMgrFrame.getPageFormat());
-    }
-    */
-
-    /**
-     * Implementation of the "page setup" user function. This provides a dialog
-     * for print page setup. PageSetup is global to BlueJ. Calling this from the 
-     * Editor is effectively the same as calling from PkgMgrFrame as this saves 
-     * back to PkgMgrFrame's global page format object.
-     */
-    /*MOEFX
-    public static void pageSetup()
-    {
-        PrinterJob job = PrinterJob.getPrinterJob();
-        PageFormat pageFormat = job.pageDialog(PkgMgrFrame.getPageFormat());
-        PkgMgrFrame.setPageFormat(pageFormat);
-    }
-    */
 
     /**
      * Find the position of a substring in a given string, 
@@ -1273,7 +1236,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             sourceDocument.remove(beginOffset, endOffset - beginOffset);
         }
 
-        sourceDocument.insertString(beginOffset, newText, null);
+        sourceDocument.insertString(beginOffset, newText);
     }
 
     /**

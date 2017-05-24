@@ -30,12 +30,8 @@ import java.util.List;
 
 import java.util.stream.Stream;
 
-import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
-
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.editor.moe.ScopeColors;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.entity.PackageResolver;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
@@ -59,7 +55,6 @@ import bluej.stride.framedjava.frames.InterfaceFrame;
 import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.Frame.ShowReason;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 public class InterfaceElement extends DocumentContainerCodeElement implements TopLevelCodeElement
@@ -406,7 +401,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
             if (document == null)
             {
                 document = new MoeSyntaxDocument(projectResolver, ScopeColors.dummy());
-                document.insertString(0, src, null);
+                document.insertString(0, src);
                 document.enableParser(true);
             }
             return document;

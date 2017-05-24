@@ -23,10 +23,7 @@ package bluej.parser;
 
 import java.util.List;
 
-import javax.swing.text.BadLocationException;
-
 import bluej.editor.moe.ScopeColors;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import junit.framework.TestCase;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -68,7 +65,7 @@ public class IncrementalParseTest extends TestCase
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver, ScopeColors.dummy());
         document.enableParser(true);
-        document.insertString(0, sourceCode, null);
+        document.insertString(0, sourceCode);
         return document;
     }
     
@@ -89,7 +86,7 @@ public class IncrementalParseTest extends TestCase
         
         aDoc.remove(8, 1);  // remove the opening '{' of the class
         aDoc.flushReparseQueue();
-        aDoc.insertString(8, "{", null);  // re-insert it
+        aDoc.insertString(8, "{");  // re-insert it
         aDoc.flushReparseQueue();
         
         // Now check that the structure is the same
@@ -114,11 +111,11 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(33, nap.getSize());
         
-        aDoc.insertString(8, "impl", null);
+        aDoc.insertString(8, "impl");
         aDoc.flushReparseQueue();
-        aDoc.insertString(12, "ements ", null);
+        aDoc.insertString(12, "ements ");
         aDoc.flushReparseQueue();
-        aDoc.insertString(19, "Runnable ", null);
+        aDoc.insertString(19, "Runnable ");
         aDoc.flushReparseQueue();
         
         // Check that the structure is correct
@@ -141,7 +138,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(11, nap.getSize());
         
-        aDoc.insertString(10, "\n", null);
+        aDoc.insertString(10, "\n");
         aDoc.flushReparseQueue();
         aDoc.remove(10, 1);
         aDoc.flushReparseQueue();
@@ -172,7 +169,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(67, nap.getSize());
 
         // Insert "else" clause, length 13
-        aDoc.insertString(59, "    else { }\n", null);
+        aDoc.insertString(59, "    else { }\n");
         aDoc.flushReparseQueue();
 
         // Check that the structure is correct
@@ -222,7 +219,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(11, nap.getSize());
         
         // Now insert a new '}' which should terminate the class:
-        aDoc.insertString(10, "}\n", null);
+        aDoc.insertString(10, "}\n");
         aDoc.flushReparseQueue();
         
         nap = aNode.findNodeAt(0, 0);
@@ -264,7 +261,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(11, nap.getEnd());
      
         // Now insert a new '}' and then remove it again
-        aDoc.insertString(10, "}", null);
+        aDoc.insertString(10, "}");
         aDoc.flushReparseQueue();
         aDoc.remove(10, 1);
         
@@ -339,7 +336,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(30, nap.getEnd());
         
         // Re-insert '}'
-        aDoc.insertString(27, "}", null);
+        aDoc.insertString(27, "}");
         
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);
@@ -416,7 +413,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(45, nap.getSize());
         
         // Insert "if() {"
-        aDoc.insertString(39, "if(true) {", null);
+        aDoc.insertString(39, "if(true) {");
         
         aNode = aDoc.getParser();
         
@@ -447,7 +444,7 @@ public class IncrementalParseTest extends TestCase
         // Remove "if() {" etc, re-insert, re-check
         aDoc.remove(39, 10);
         aDoc.flushReparseQueue();
-        aDoc.insertString(39, "if(true) {", null);
+        aDoc.insertString(39, "if(true) {");
         
         aNode = aDoc.getParser();
         
@@ -492,7 +489,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(28, nap.getSize());
         
         // Change the multi-line comment to a single line
-        aDoc.insertString(0, "/", null);
+        aDoc.insertString(0, "/");
         
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(18, 0);
@@ -639,7 +636,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(18, nap.getSize());
         
         // Now re-insert the newline
-        aDoc.insertString(32, "\n", null);
+        aDoc.insertString(32, "\n");
 
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);
@@ -705,7 +702,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(19, nap.getSize());
         
         // Insert beginning of new method declaration:
-        aDoc.insertString(14, "<T> fff(List<", null);
+        aDoc.insertString(14, "<T> fff(List<");
         
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);
@@ -745,7 +742,7 @@ public class IncrementalParseTest extends TestCase
         assertTrue(etypes.isEmpty());
         
         // Now make it extend String
-        aDoc.insertString(7, " extends String", null);
+        aDoc.insertString(7, " extends String");
         aNode = aDoc.getParser();
         
         nap = aNode.findNodeAt(0,0);
@@ -761,7 +758,7 @@ public class IncrementalParseTest extends TestCase
         
         // Now make it extend Object
         aDoc.remove(16, 6);  // "String"
-        aDoc.insertString(16, "Object", null);
+        aDoc.insertString(16, "Object");
         aNode = aDoc.getParser();
         
         nap = aNode.findNodeAt(0,0);
@@ -783,11 +780,11 @@ public class IncrementalParseTest extends TestCase
     {
         MoeSyntaxDocument aDoc = docForSource("", "");
         
-        aDoc.insertString(0, "class ", null);
+        aDoc.insertString(0, "class ");
         aDoc.getParser(); // empty reparse queue
-        aDoc.insertString(6, "A\n", null);
+        aDoc.insertString(6, "A\n");
         aDoc.getParser(); // empty reparse queue
-        aDoc.insertString(8, "{\n\n}\n", null);
+        aDoc.insertString(8, "{\n\n}\n");
         
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
@@ -797,7 +794,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(12, nap.getSize());
         
         // Insert a method
-        aDoc.insertString(10, "    public void x() { }", null);
+        aDoc.insertString(10, "    public void x() { }");
         
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);
@@ -891,13 +888,13 @@ public class IncrementalParseTest extends TestCase
         assertEquals(45, nap.getSize());
         
         // Now insert " extends javax.swing.JFrame"
-        aDoc.insertString(7, " extends javax", null);
+        aDoc.insertString(7, " extends javax");
         aNode = aDoc.getParser();
         
-        aDoc.insertString(21, ".", null);
+        aDoc.insertString(21, ".");
         aNode = aDoc.getParser();
         
-        aDoc.insertString(22, "swing.JFrame", null);
+        aDoc.insertString(22, "swing.JFrame");
         
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);
@@ -924,7 +921,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(86, nap.getSize());
         
-        aDoc.insertString(48, ".", null);  // insert "." after "JFrame" - cause error
+        aDoc.insertString(48, ".");  // insert "." after "JFrame" - cause error
         aNode = aDoc.getParser();
         
         aDoc.remove(48, 1);  // remove it again
@@ -1043,11 +1040,11 @@ public class IncrementalParseTest extends TestCase
         assertEquals(18, nap.getSize());
         
         // Insert '//' before 'for' and the next two lines
-        aDoc.insertString(61, "//", null);
+        aDoc.insertString(61, "//");
         aDoc.getParser();
-        aDoc.insertString(61 + 39 + 2, "//", null);
+        aDoc.insertString(61 + 39 + 2, "//");
         aDoc.getParser();
-        aDoc.insertString(61 + 39 + 9 + 4, "//", null);
+        aDoc.insertString(61 + 39 + 9 + 4, "//");
         
         aNode = aDoc.getParser();
         
@@ -1111,7 +1108,7 @@ public class IncrementalParseTest extends TestCase
 
         
         
-        aDoc.insertString(100, ", c", null);
+        aDoc.insertString(100, ", c");
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);        
         classNode = (ParsedTypeNode) nap.getNode();
