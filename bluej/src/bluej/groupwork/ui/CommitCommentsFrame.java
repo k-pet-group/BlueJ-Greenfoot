@@ -80,7 +80,6 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
 {
     private Project project;
     private Repository repository;
-
     private CommitAction commitAction;
     private CommitWorker commitWorker;
 
@@ -89,12 +88,11 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     /** The packages whose layout should be committed compulsorily */
     private Set<File> packagesToCommmit = new HashSet<>();
 
-    private static String noFilesToCommit = Config.getString("team.nocommitfiles");
+    private final TextArea commitText = new TextArea("");
+    private final CheckBox includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
+    private final ActivityIndicator progressBar = new ActivityIndicator();
 
-    private TextArea commitText;
-    private Button commitButton;
-    private CheckBox includeLayout;
-    private ActivityIndicator progressBar;
+    private static final String noFilesToCommit = Config.getString("team.nocommitfiles");
 
     public CommitCommentsFrame(Project proj, Window owner)
     {
@@ -109,14 +107,13 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     /**
      *
      */
-    protected SplitPane makeMainPane()
+    private SplitPane makeMainPane()
     {
         ListView commitFiles = new ListView(commitListModel);
         commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
         commitFiles.setDisable(true);
         ScrollPane commitFileScrollPane = new ScrollPane(commitFiles);
 
-        commitText = new TextArea("");
         commitText.setPrefRowCount(6);
         commitText.setPrefColumnCount(42);
 //        commitText.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
@@ -124,14 +121,12 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
 //        commitTextScrollPane.setMinSize(commitText.getMinWidth(), commitText.getPrefHeight());
 
         commitAction = new CommitAction(this);
-        commitButton = new Button();
+        Button commitButton = new Button();
         commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
         commitButton.requestFocus();
 
-        progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
 
-        includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
         includeLayout.setDisable(true);
         includeLayout.setOnAction(event -> {
             CheckBox layoutCheck = (CheckBox)event.getSource();
@@ -165,8 +160,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     }
 
     /**
-     * Create the button panel with a Resolve button and a close button
-     * @return Pane the buttonPanel
+     * Prepare the button panel with a Resolve button and a close button
      */
     private void prepareButtonPane()
     {
@@ -246,7 +240,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
             }
         }
         if (commitListModel.isEmpty()) {
-            commitListModel.add(noFilesToCommit);
+            commitListModel.add(noFilesToCommit); // TODO should be TeamStatusInfo objects only
             commitText.setDisable(true);
         }
     }
