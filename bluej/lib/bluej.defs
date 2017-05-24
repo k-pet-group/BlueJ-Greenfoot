@@ -507,10 +507,6 @@ bluej.debug=false
 image.readme=readme.png
 image.readme-selected=readme-selected.png
 
-# arrow buttons
-image.build.depends=arrow_black_uml.gif
-image.build.extends=darrow_black_uml.gif
-
 # editor breakpoint and step mark
 image.editor.breakmark=break.gif
 image.editor.stepmark=stepmark.gif

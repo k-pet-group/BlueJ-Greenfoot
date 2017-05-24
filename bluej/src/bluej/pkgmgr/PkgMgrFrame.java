@@ -134,6 +134,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -2864,7 +2865,12 @@ public class PkgMgrFrame
         topButtons.getChildren().add(newClassAction.makeButton());
         imgExtendsButton = newInheritsAction.makeButton();
         imgExtendsButton.setText(null);
-        imgExtendsButton.setGraphic(new ImageView(Config.getImageAsFXImage("image.build.extends")));
+        SVGPath arrow = new SVGPath();
+        // See http://jxnblk.com/paths/?d=M2%2010%20L22%2010%20L22%2016%20L32%2010%20L22%204%20L22%2010%20Z
+        arrow.setContent("M2 10 L22 10 L22 16 L32 10 L22 4 L22 10 Z");
+        arrow.setFill(null);
+        arrow.setStroke(Color.BLACK);
+        imgExtendsButton.setGraphic(arrow);
         topButtons.getChildren().add(imgExtendsButton);
         topButtons.getChildren().add(compileAction.makeButton());
         toolPanel.getChildren().add(topButtons);

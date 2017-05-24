@@ -37,8 +37,7 @@ final public class NewInheritsAction extends PkgMgrAction
     public NewInheritsAction(PkgMgrFrame pmf)
     {
         super(pmf, "menu.edit.newInherits");
-        //MOEFX what did this do?
-        //putValue(SMALL_ICON, Config.getImageAsIcon("image.build.extends"));
+        //MOEFX should shortDescription become tooltip?
         shortDescription = Config.getString("tooltip.newExtends");
     }
     
