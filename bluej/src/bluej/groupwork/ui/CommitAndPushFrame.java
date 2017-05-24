@@ -90,25 +90,23 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     private Repository repository;
 
     private Set<TeamStatusInfo> changedLayoutFiles = new HashSet<>();
-    private ObservableList commitListModel = FXCollections.observableArrayList();
-    private ObservableList pushListModel = FXCollections.observableArrayList();
+    private ObservableList<TeamStatusInfo> commitListModel = FXCollections.observableArrayList();
+    private ObservableList<TeamStatusInfo> pushListModel = FXCollections.observableArrayList();
 
-    private CheckBox includeLayout;
-    private TextArea commitText;
-    private ActivityIndicator progressBar;
+    private final CheckBox includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
+    private final TextArea commitText = new TextArea();
+    private final ActivityIndicator progressBar = new ActivityIndicator();
+    private final ListView<TeamStatusInfo> pushFiles = new ListView<>(pushListModel);
 
     private CommitAction commitAction;
     private PushAction pushAction;
     private CommitAndPushWorker commitAndPushWorker;
-    private boolean emptyCommitText = true;
 
+    private boolean emptyCommitText = true;
     //sometimes, usually after a conflict resolution, we need to push in order
     //to update HEAD.
     private boolean pushWithNoChanges = false;
 
-    private static final String noFilesToCommit = Config.getString("team.nocommitfiles");
-    private static final String noFilesToPush = Config.getString("team.nopushfiles");
-    private static final String pushNeeded = Config.getString("team.pushNeeded");
 
     public CommitAndPushFrame(Project proj, Window owner)
     {
@@ -127,21 +125,16 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
      */
     private void buildUI()
     {
-        VBox mainPane = new VBox();
-        JavaFXUtil.addStyleClass(mainPane, "main-pane");
-        Label commitFilesLabel = new Label(Config.getString("team.commitPush.commit.files"));
-        ListView commitFiles = new ListView(commitListModel);
-//            commitFiles.setCellRenderer(new FileRenderer(project, false));
+        ListView<TeamStatusInfo> commitFiles = new ListView<>(commitListModel);
+        commitFiles.setPlaceholder(new Label(Config.getString("team.nocommitfiles")));
         commitFiles.setDisable(true);
 
         ScrollPane commitFileScrollPane = new ScrollPane(commitFiles);
         commitFileScrollPane.setFitToWidth(true);
         commitFileScrollPane.setFitToHeight(true);
-        commitFiles.setBackground(mainPane.getBackground());//
+//        commitFiles.setBackground(mainPane.getBackground());//
         VBox.setMargin(commitFileScrollPane, new Insets(0, 0, 20, 0));
 
-        Label commentLabel = new Label(Config.getString("team.commit.comment"));
-        commitText = new TextArea();
         commitText.setPrefRowCount(20);
         commitText.setPrefColumnCount(35);
         VBox.setMargin(commitText, new Insets(0, 0, 10, 0));
@@ -153,7 +146,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         //Bind commitText properties to enable the commit button if there is a comment.
         commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
 
-        includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
         includeLayout.setDisable(true);
         includeLayout.setOnAction(event -> {
             CheckBox layoutCheck = (CheckBox) event.getSource();
@@ -165,7 +157,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             } // unselected
             else {
                 removeModifiedLayouts();
-                if (isCommitListEmpty()) {
+                if (commitListModel.isEmpty()) {
                     commitAction.setEnabled(false);
                 }
             }
@@ -176,28 +168,32 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitButtonPane.setAlignment(Pos.CENTER_RIGHT);
         commitButtonPane.getChildren().addAll(includeLayout, commitButton);
 
+
+        VBox commitPane = new VBox();
+        commitPane.getChildren().addAll(new Label(Config.getString("team.commitPush.commit.files")), commitFileScrollPane,
+                                        new Label(Config.getString("team.commit.comment")), commitText,
+                                        commitButtonPane);
+
+
         pushAction = new PushAction(this);
         Button pushButton = new Button();
         pushAction.useButton(PkgMgrFrame.getMostRecent(), pushButton);
 
         Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
-        ListView pushFiles = new ListView(pushListModel);
-//            pushFiles.setCellRenderer(new FileRenderer(project, true));
         pushFiles.setDisable(true);
         ScrollPane pushFileScrollPane = new ScrollPane(pushFiles);
         pushFileScrollPane.setFitToWidth(true);
         pushFileScrollPane.setFitToHeight(true);
 
         HBox pushButtonPane = new HBox();
-        progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
         JavaFXUtil.addStyleClass(pushButtonPane, "button-hbox");
         pushButtonPane.setAlignment(Pos.CENTER_RIGHT);
         pushButtonPane.getChildren().addAll(progressBar, pushButton);
 
-        mainPane.getChildren().addAll(commitFilesLabel, commitFileScrollPane,
-                commentLabel, commitText,
-                commitButtonPane,
+        VBox mainPane = new VBox();
+        JavaFXUtil.addStyleClass(mainPane, "main-pane");
+        mainPane.getChildren().addAll(commitPane,
                 new Separator(Orientation.HORIZONTAL),
                 pushFilesLabel, pushFileScrollPane,
                 pushButtonPane);
@@ -205,8 +201,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     }
 
     /**
-     * Create the button panel with a close button
-     * @return Pane the buttonPanel
+     * Prepare the button panel with a close button
      */
     private void prepareButtonPane()
     {
@@ -284,14 +279,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         // remove modified layouts from list of files shown for commit
         commitListModel.removeAll(changedLayoutFiles);
         if (commitListModel.isEmpty()) {
-            commitListModel.add(noFilesToCommit);
             commitText.setDisable(true);
         }
-    }
-
-    private boolean isCommitListEmpty()
-    {
-        return commitListModel.isEmpty() || commitListModel.contains(noFilesToCommit);
     }
 
     @Override
@@ -338,8 +327,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
     private void addModifiedLayouts()
     {
-        if (commitListModel.contains(noFilesToCommit)) {
-            commitListModel.remove(noFilesToCommit);
+        if (commitListModel.isEmpty()) {
             commitText.setDisable(false);
         }
         // add diagram layout files to list of files to be committed
@@ -570,9 +558,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                     }
                 }
 
-                if (commitListModel.isEmpty()) {
-                    commitListModel.add(noFilesToCommit);
-                } else {
+                if (!commitListModel.isEmpty()) {
                     commitText.setDisable(false);
                     commitText.requestFocus();
                     commitAction.setEnabled(!emptyCommitText);
@@ -580,9 +566,9 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
                 if (pushListModel.isEmpty()){
                     if (isPushAvailable){
-                        pushListModel.add(pushNeeded);
+                        pushFiles.setPlaceholder(new Label(Config.getString("team.pushNeeded")));
                     } else {
-                        pushListModel.add(noFilesToPush);
+                        pushFiles.setPlaceholder(new Label(Config.getString("team.nopushfiles")));
                     }
                 }
 
