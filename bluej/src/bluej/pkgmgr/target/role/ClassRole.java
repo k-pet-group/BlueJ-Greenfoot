@@ -307,7 +307,7 @@ public abstract class ClassRole
         return hasEntries;
     }
     // Swing version, for Greenfoot:
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.SwingIsFX)
     public static boolean createMenuItems(JPopupMenu menu, CallableView[] members, ViewFilter filter, int first, int last,
                                           String prefix, InvokeListener il)
     {

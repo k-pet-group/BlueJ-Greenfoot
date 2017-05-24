@@ -37,6 +37,7 @@ public class PrimitiveDebugVarInfo implements DebugVarInfo
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Node getDisplay(DebugVarInfo prev)
     {
         Label l = new Label(value);
@@ -48,6 +49,7 @@ public class PrimitiveDebugVarInfo implements DebugVarInfo
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public String getInternalValueString()
     {
         return value;

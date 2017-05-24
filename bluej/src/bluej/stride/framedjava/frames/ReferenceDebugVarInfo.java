@@ -61,6 +61,7 @@ public class ReferenceDebugVarInfo implements DebugVarInfo
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public String getInternalValueString()
     {
         return "" + field.getValueObject(null).getObjectReference().uniqueID();

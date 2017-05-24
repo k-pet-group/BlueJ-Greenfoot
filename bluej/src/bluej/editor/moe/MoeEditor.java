@@ -3186,13 +3186,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 .collect(Collectors.toList());
 
             int originalPosition = suggestToken == null ? sourcePane.getCaretPosition() : suggestToken.getPosition();
+            StringExpression editorFontCSS = PrefMgr.getEditorFontCSS(true);
             SuggestionList suggestionList = new SuggestionList(new SuggestionListParent()
             {
                 @Override
                 @OnThread(Tag.FX)
                 public StringExpression getFontSizeCSS()
                 {
-                    return PrefMgr.getEditorFontCSS(true);
+                    return editorFontCSS;
                 }
 
                 @Override

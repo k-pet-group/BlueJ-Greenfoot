@@ -112,6 +112,7 @@ public class PackagePrintManager extends Thread
      * 
      * @param printJob the printer job to print the diagram to.
      */
+    @OnThread(Tag.FX)
     public void printClassDiagram(PrinterJob printJob, PkgMgrFrame pkgMgrFrame)
     {
         pkgMgrFrame.printDiagram(printJob);

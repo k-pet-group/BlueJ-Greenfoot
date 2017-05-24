@@ -34,5 +34,6 @@ public interface DebugVarInfo
      * Gets a String that will change whenever the contents of the variable changes.
      * Used to decide whether a variable has changed since last display
      */
+    @OnThread(Tag.FXPlatform)
     String getInternalValueString(); 
 }
