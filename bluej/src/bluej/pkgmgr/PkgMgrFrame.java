@@ -1144,12 +1144,12 @@ public class PkgMgrFrame
         teamActions.getStatusAction().useMenuItem(this, statusMenuItem);
 
         teamActions.getCommitCommentAction().useMenuItem(this, commitMenuItem);
-        //MOEFX is this needed any more?  Will clash with bind
-        //commitMenuItem.setText(Config.getString("team.menu.commit"));
+        commitMenuItem.textProperty().unbind();
+        commitMenuItem.setText(Config.getString("team.menu.commit"));
 
         teamActions.getUpdateAction().useMenuItem(this, updateMenuItem);
-        //MOEFX is this needed any more?  Will clash with bind
-        //updateMenuItem.setText(Config.getString("team.menu.update"));
+        updateMenuItem.textProperty().unbind();
+        updateMenuItem.setText(Config.getString("team.menu.update"));
 
         teamActions.getShowLogAction().useMenuItem(this, showLogMenuItem);
     }
@@ -3115,12 +3115,12 @@ public class PkgMgrFrame
 
                 updateMenuItem = new MenuItem();
                 teamActions.getUpdateAction().useMenuItem(this, updateMenuItem);
-                //MOEFX is this needed any more?  Will clash with binding
-                //updateMenuItem.setText(Config.getString("team.menu.update"));
+                updateMenuItem.textProperty().unbind();
+                updateMenuItem.setText(Config.getString("team.menu.update"));
                 commitMenuItem = new MenuItem();
                 teamActions.getCommitCommentAction().useMenuItem(this, commitMenuItem);
-                //MOEFX is this needed any more?  Will clash with binding
-                //commitMenuItem.setText(Config.getString("team.menu.commit"));
+                commitMenuItem.textProperty().unbind();
+                commitMenuItem.setText(Config.getString("team.menu.commit"));
                 statusMenuItem = new MenuItem();
                 teamActions.getStatusAction().useMenuItem(this, statusMenuItem);
                 showLogMenuItem = new MenuItem();
@@ -3261,7 +3261,7 @@ public class PkgMgrFrame
      */
     private void setupActionDisableSet()
     {
-        //MOEFX I think this is more simply done with binding?
+        //TODO I think this is more simply done with binding?
         actionsToDisable.add(closeProjectAction);
         actionsToDisable.add(saveProjectAction);
         actionsToDisable.add(saveProjectAsAction);
@@ -3280,8 +3280,6 @@ public class PkgMgrFrame
         actionsToDisable.add(restartVMAction);
         actionsToDisable.add(useLibraryAction);
         actionsToDisable.add(generateDocsAction);
-        //MOEFX:
-        //actionsToDisable.add(showDebuggerAction);
         actionsToDisable.add(runTestsAction);
     }
 

@@ -1161,7 +1161,7 @@ public class BlueJSyntaxView
 
                 // Calculate/store indent
                 OptionalInt cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                int indent = cboundsX.orElse(0); //MOEFX: is this right?
+                int indent = cboundsX.orElse(0);
                 for (j = scopeStack.listIterator(scopeStack.size()); j.hasPrevious(); ) {
                     NodeAndPosition<ParsedNode> next = j.previous();
                     if (next.getPosition() <= curpos) {
@@ -1174,7 +1174,7 @@ public class BlueJSyntaxView
                         Integer oindent = nodeIndents.get(next.getNode());
                         if (oindent != null && nws != -1) {
                             cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                            indent = cboundsX.orElse(0); //MOEFX: is this right?
+                            indent = cboundsX.orElse(0);
                             updateNodeIndent(next, indent, oindent, dmgRange);
                         }
                     }
@@ -1208,7 +1208,7 @@ public class BlueJSyntaxView
                                 Integer oindent = nodeIndents.get(nap.getNode());
                                 if (oindent != null && nws != -1) {
                                     cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                                    indent = cboundsX.orElse(0); //MOEFX: is this right?
+                                    indent = cboundsX.orElse(0);
                                     updateNodeIndent(nap, indent, oindent, dmgRange);
                                 }
                             }
@@ -1287,7 +1287,7 @@ public class BlueJSyntaxView
             boolean doContinue = true;
 
             OptionalInt cboundsX = getLeftEdge(dmgPoint);
-            int dpI = cboundsX.orElse(0); //MOEFX: is this right?; // damage point indent
+            int dpI = cboundsX.orElse(0); // damage point indent
 
             while (doContinue && ! rscopeStack.isEmpty()) {
                 NodeAndPosition<ParsedNode> rtop = rscopeStack.remove(rscopeStack.size() - 1);
@@ -1336,7 +1336,7 @@ public class BlueJSyntaxView
                     }
 
                     cboundsX = getLeftEdge(nws + lineEl.getStartOffset());
-                    int newIndent = cboundsX.orElse(0); //MOEFX: is this right?
+                    int newIndent = cboundsX.orElse(0);
 
                     if (newIndent < cachedIndent) {
                         nodeIndents.put(rtop.getNode(), newIndent);
@@ -1530,7 +1530,7 @@ public class BlueJSyntaxView
         }
         else if (changes.isRemove()) {
             damageStart = Math.min(damageStart, changes.getOffset());
-            int [] r = reassessIndentsRemove(damageStart, true); //TODO MOEFX changes.isMultilineChange()
+            int [] r = reassessIndentsRemove(damageStart, true); //TODO we shouldn't always pass multiLine as true
             damageStart = r[0];
             damageEnd = r[1];
         }
@@ -1539,27 +1539,6 @@ public class BlueJSyntaxView
             int line = map.getElementIndex(damageStart);
             int lastline = map.getElementIndex(damageEnd - 1);
             document.recalculateScopesForLinesInRange(line, lastline);
-        }
-
-        /*MOEFX is this all handled ok by the code above?
-        DocumentEvent.ElementChange ec = changes.getChange(map);
-        Element[] added = (ec != null) ? ec.getChildrenAdded() : null;
-        Element[] removed = (ec != null) ? ec.getChildrenRemoved() : null;
-        if (((added != null) && (added.length > 0)) || 
-                ((removed != null) && (removed.length > 0))) {
-            // This case is handled Ok by the superclass.
-            super.updateDamage(changes, a, f);
-        } else*/ {
-            // This is the case we have to fix. The PlainView implementation only
-            // repaints a single line; we need to repaint the whole range.
-            //super.updateDamage(changes);
-            /*
-            int choffset = changes.getOffset();
-            int chlength = Math.max(changes.getLength(), 1);
-            int line = map.getElementIndex(choffset);
-            int lastline = map.getElementIndex(choffset + chlength - 1);
-            damageLineRange(line, lastline);
-            */
         }
     }
 

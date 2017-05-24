@@ -163,11 +163,7 @@ public class Boot
      */
     private Boot(Properties props, final FXPlatformSupplier<Image> image)
     {
-        // Display the splash window, and wait until it's been painted before
-        // proceeding. Otherwise, the event thread may be occupied by BlueJ
-        // starting up and the window might *never* be painted.
-
-        // MOEFX TODO are we still at risk of not seeing the splash screen?
+        // Display the splash window:
         Platform.runLater(() -> splashWindow = new SplashWindow(image.get()));
 
         this.commandLineProps = props;
@@ -212,7 +208,18 @@ public class Boot
                 if (url != null)
                     return new Image(url.toString());
                 else
-                    return new WritableImage(500, 300); // Just use blank
+                {
+                    // Just use blank
+                    WritableImage writableImage = new WritableImage(500, 300);
+                    for (int y = 0; y < writableImage.getHeight(); y++)
+                    {
+                        for (int x = 0; x < writableImage.getWidth(); x++)
+                        {
+                            writableImage.getPixelWriter().setColor(x, y, javafx.scene.paint.Color.WHITE);
+                        }
+                    }
+                    return writableImage;
+                }
             }
         };
         if(isGreenfoot) {

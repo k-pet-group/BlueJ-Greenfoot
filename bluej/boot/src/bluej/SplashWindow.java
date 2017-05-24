@@ -65,6 +65,9 @@ public class SplashWindow extends Stage
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         setX((screenBounds.getWidth() - image.getWidth()) / 2);
         setY((screenBounds.getHeight() - image.getHeight()) / 2);
+        setOnShown(e -> {
+            toFront();
+        });
         show();
 
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(5000), e -> {
