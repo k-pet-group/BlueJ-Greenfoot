@@ -53,7 +53,6 @@ public class JdiObject extends DebuggerObject
      *  @return      a new JdiObject or a new JdiArray object if
      *               remote object is an array
      */
-    @OnThread(Tag.Any)
     public static JdiObject getDebuggerObject(ObjectReference obj)
     {
         if (obj instanceof ArrayReference) {

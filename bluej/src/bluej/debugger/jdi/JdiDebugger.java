@@ -35,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.debugger.*;
+import bluej.utility.javafx.FXPlatformSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -624,7 +625,7 @@ public class JdiDebugger extends Debugger
      *            the class to start
      */
     @Override
-    public DebuggerResult runClassMain(String className)
+    public FXPlatformSupplier<DebuggerResult> runClassMain(String className)
         throws ClassNotFoundException
     {
         VMReference vmr = getVM();
@@ -639,9 +640,9 @@ public class JdiDebugger extends Debugger
     }
 
     @Override
-    public CompletableFuture<DebuggerResult> launchFXApp(String className)
+    public CompletableFuture<FXPlatformSupplier<DebuggerResult>> launchFXApp(String className)
     {
-        CompletableFuture<DebuggerResult> result = new CompletableFuture<>();
+        CompletableFuture<FXPlatformSupplier<DebuggerResult>> result = new CompletableFuture<>();
         // Can't use lambda as need self-reference:
         BlueJEventListener listener = new BlueJEventListener()
         {
@@ -659,7 +660,7 @@ public class JdiDebugger extends Debugger
                     }
                     else
                     {
-                        result.complete(new DebuggerResult(Debugger.TERMINATED));
+                        result.complete(() -> new DebuggerResult(Debugger.TERMINATED));
                     }
                 }
             }
@@ -675,7 +676,7 @@ public class JdiDebugger extends Debugger
      * Construct a class instance using the default constructor.
      */
     @Override
-    public DebuggerResult instantiateClass(String className)
+    public FXPlatformSupplier<DebuggerResult> instantiateClass(String className)
     {
         VMReference vmr = getVM();
         if (vmr != null) {
@@ -684,7 +685,7 @@ public class JdiDebugger extends Debugger
             }
         }
         else {
-            return new DebuggerResult(Debugger.TERMINATED);
+            return () -> new DebuggerResult(Debugger.TERMINATED);
         }
     }
     
@@ -692,7 +693,7 @@ public class JdiDebugger extends Debugger
      * @see bluej.debugger.Debugger#instantiateClass(java.lang.String, java.lang.String[], bluej.debugger.DebuggerObject[])
      */
     @Override
-    public DebuggerResult instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
+    public FXPlatformSupplier<DebuggerResult> instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
     {
         // If there are no arguments, use the default constructor
         if (paramTypes == null || args == null || paramTypes.length == 0 || args.length == 0) {
@@ -713,7 +714,7 @@ public class JdiDebugger extends Debugger
             }
         }
         else {
-            return new DebuggerResult(Debugger.TERMINATED);
+            return () -> new DebuggerResult(Debugger.TERMINATED);
         }
     }
     

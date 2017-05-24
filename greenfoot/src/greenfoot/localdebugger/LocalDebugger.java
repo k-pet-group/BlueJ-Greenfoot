@@ -21,6 +21,7 @@
  */
 package greenfoot.localdebugger;
 
+import bluej.utility.javafx.FXPlatformSupplier;
 import greenfoot.core.Simulation;
 
 import java.lang.reflect.Constructor;
@@ -181,13 +182,13 @@ public class LocalDebugger extends Debugger
     }
 
     @Override
-    public CompletableFuture<DebuggerResult> launchFXApp(String className)
+    public CompletableFuture<FXPlatformSupplier<DebuggerResult>> launchFXApp(String className)
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public DebuggerResult instantiateClass(String className)
+    public FXPlatformSupplier<DebuggerResult> instantiateClass(String className)
     {
         ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
         
@@ -195,7 +196,8 @@ public class LocalDebugger extends Debugger
             Class<?> cl = currentLoader.loadClass(className);
             QueuedInstantiation q = new QueuedInstantiation(cl);
             Simulation.getInstance().runLater(q);
-            return q.getResult();
+            DebuggerResult result = q.getResult();
+            return () -> result;
         }
         catch (ClassNotFoundException cnfe) {
             Debug.reportError("Invoking constructor", cnfe);
@@ -203,11 +205,11 @@ public class LocalDebugger extends Debugger
         catch (LinkageError le) {
             Debug.reportError("Invoking constructor", le);
         }
-        return new DebuggerResult(new ExceptionDescription("Internal error"));
+        return () -> new DebuggerResult(new ExceptionDescription("Internal error"));
     }
 
     @Override
-    public DebuggerResult instantiateClass(String className,
+    public FXPlatformSupplier<DebuggerResult> instantiateClass(String className,
             String[] paramTypes, DebuggerObject[] args)
     {
         throw new UnsupportedOperationException();
@@ -295,14 +297,15 @@ public class LocalDebugger extends Debugger
     }
     
     @Override
-    public DebuggerResult runClassMain(String className)
+    public FXPlatformSupplier<DebuggerResult> runClassMain(String className)
             throws ClassNotFoundException
     {
         ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
         Class<?> c = currentLoader.loadClass(className);
         QueuedExecution qe = new QueuedExecution(c);
         Simulation.getInstance().runLater(qe);
-        return qe.getResult();
+        DebuggerResult result = qe.getResult();
+        return () -> result;
     }
 
     @Override

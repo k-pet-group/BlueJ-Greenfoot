@@ -102,7 +102,7 @@ public class ConstructorInvoker
                     argObjects[i] = debugger.getMirror(args[i]);
                 }
                 
-                result = debugger.instantiateClass(className, argTypes, argObjects);
+                result = debugger.instantiateClass(className, argTypes, argObjects).get();
                 final DebuggerObject debugObject = result.getResultObject();
                 
                 EventQueue.invokeLater(new Runnable() {

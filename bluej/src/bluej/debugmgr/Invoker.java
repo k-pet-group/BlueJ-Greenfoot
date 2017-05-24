@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import bluej.utility.javafx.FXPlatformSupplier;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
@@ -519,14 +521,14 @@ public class Invoker
                 public void run() {
                     Platform.runLater(Invoker.this::closeCallDialog);
                     
-                    final DebuggerResult result = debugger.instantiateClass(className);
+                    final FXPlatformSupplier<DebuggerResult> result = debugger.instantiateClass(className);
 
                     Platform.runLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            handleResult(result, false); // handles error situations
+                            handleResult(result.get(), false); // handles error situations
                         }
                     });
                 }
@@ -1146,14 +1148,14 @@ public class Invoker
         new Thread() {
             public void run() {
                 try {
-                    final DebuggerResult result = debugger.runClassMain(shellClassName);
+                    final FXPlatformSupplier<DebuggerResult> result = debugger.runClassMain(shellClassName);
                     
                     Platform.runLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            handleResult(result, constructing);
+                            handleResult(result.get(), constructing);
                             finishCall(true);
                         }
                     });

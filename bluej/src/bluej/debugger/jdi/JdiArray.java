@@ -43,10 +43,8 @@ import threadchecker.Tag;
  */
 public class JdiArray extends JdiObject
 {
-    @OnThread(Tag.Any)
     private JavaType componentType;
 
-    @OnThread(Tag.Any)
     protected JdiArray(ArrayReference obj)
     {
         this.obj = obj;
@@ -119,7 +117,6 @@ public class JdiArray extends JdiObject
         }
     }
 
-    @OnThread(Tag.Any)
     private void calcComponentType()
     {
         ArrayType ar = (ArrayType) obj.referenceType();

@@ -69,6 +69,7 @@ import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.utility.*;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
 import bluej.views.ConstructorView;
@@ -1901,7 +1902,7 @@ public class ClassTarget extends DependentTarget
                 menu.getItems().add(JavaFXUtil.withStyleClass(JavaFXUtil.makeMenuItem(launchFXStr,() -> {
                     PackageEditor ed = getPackage().getEditor();
                     Window fxWindow = ed.getFXWindow();
-                    CompletableFuture<DebuggerResult> result = getPackage().getDebugger().launchFXApp(cl.getName());
+                    CompletableFuture<FXPlatformSupplier<DebuggerResult>> result = getPackage().getDebugger().launchFXApp(cl.getName());
                     putFXLaunchResult(ed, fxWindow, result);
                 }, null), MENU_STYLE_INBUILT));
             }
@@ -1935,24 +1936,24 @@ public class ClassTarget extends DependentTarget
         });
     }
 
-    private void putFXLaunchResult(PackageEditor ed, Window fxWindow, CompletableFuture<DebuggerResult> result)
+    private void putFXLaunchResult(PackageEditor ed, Window fxWindow, CompletableFuture<FXPlatformSupplier<DebuggerResult>> result)
     {
-        result.thenAccept(new Consumer<DebuggerResult>()
+        result.thenAccept(new Consumer<FXPlatformSupplier<DebuggerResult>>()
         {
             @Override
             @OnThread(Tag.Worker)
-            public void accept(DebuggerResult r)
+            public void accept(FXPlatformSupplier<DebuggerResult> supplier)
             {
-                switch (r.getExitStatus())
-                {
-                    case Debugger.NORMAL_EXIT:
-                        Platform.runLater(() ->
-                        {
+                Platform.runLater(() -> {
+                    DebuggerResult r = supplier.get();
+                    switch (r.getExitStatus())
+                    {
+                        case Debugger.NORMAL_EXIT:
                             DebuggerObject obj = r.getResultObject();
                             ed.raisePutOnBenchEvent(fxWindow, obj, obj.getGenType(), null, false, Optional.empty());
-                        });
-                        break;
-                }
+                            break;
+                    }
+                });
             }
         });
     }

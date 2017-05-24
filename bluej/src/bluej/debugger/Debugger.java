@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.jdi.JdiDebugger;
+import bluej.utility.javafx.FXPlatformSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -221,7 +222,7 @@ public abstract class Debugger
     /**
      * "Run" a class (i.e. invoke its main method without arguments)
      */
-    public abstract DebuggerResult runClassMain(String className)
+    public abstract FXPlatformSupplier<DebuggerResult> runClassMain(String className)
         throws ClassNotFoundException;
 
     /**
@@ -229,7 +230,7 @@ public abstract class Debugger
      * @param className  The name of the class to instantiate
      * @return   The result of the constructor call
      */
-    public abstract DebuggerResult instantiateClass(String className);
+    public abstract FXPlatformSupplier<DebuggerResult> instantiateClass(String className);
 
     /**
      * Instantiate a class using a specific constructor for that class.
@@ -239,7 +240,7 @@ public abstract class Debugger
      * @param args       The arguments
      * @return   The result of the constructor call
      */
-    public abstract DebuggerResult instantiateClass(String className, String [] paramTypes, DebuggerObject [] args);
+    public abstract FXPlatformSupplier<DebuggerResult> instantiateClass(String className, String [] paramTypes, DebuggerObject [] args);
     
     /**
      * Get a class from the virtual machine, using the current classloader.
@@ -255,7 +256,7 @@ public abstract class Debugger
     public abstract DebuggerClass getClass(String className, boolean initialize)
         throws ClassNotFoundException;
 
-    public abstract CompletableFuture<DebuggerResult> launchFXApp(String className);
+    public abstract CompletableFuture<FXPlatformSupplier<DebuggerResult>> launchFXApp(String className);
 
     /**
      * Get a reference to a string in the remote machine whose value is the
