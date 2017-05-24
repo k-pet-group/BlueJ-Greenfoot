@@ -83,7 +83,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     private CommitAction commitAction;
     private CommitWorker commitWorker;
 
-    private ObservableList commitListModel = FXCollections.emptyObservableList();
+    private ObservableList commitListModel = FXCollections.observableArrayList();
     private Set<TeamStatusInfo> changedLayoutFiles = new HashSet<>();
     /** The packages whose layout should be committed compulsorily */
     private Set<File> packagesToCommmit = new HashSet<>();
