@@ -30,6 +30,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -48,7 +49,6 @@ public abstract class TeamAction
 {
     private final StringProperty name = new SimpleStringProperty();
     private final BooleanProperty disabled = new SimpleBooleanProperty(false);
-    //MOEFX: What does this do?  Tooltip?
     protected String shortDescription;
 
     /**
@@ -98,6 +98,10 @@ public abstract class TeamAction
         button.disableProperty().unbind();
         button.disableProperty().bind(disabled);
         button.setOnAction(e -> actionPerformed(pmf));
+        if (shortDescription != null)
+        {
+            Tooltip.install(button, new Tooltip(shortDescription));
+        }
     }
 
     /**

@@ -25,6 +25,8 @@ import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.javafx.FXAbstractAction;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -45,7 +47,8 @@ public abstract class PkgMgrAction extends FXAbstractAction
     // --------- CLASS VARIABLES ----------
 
     protected PkgMgrFrame pmf;
-    //MOEFX what should we do with short description? (Tooltip?)
+    // JavaFX doesn't support tooltips on menu items unless we use custom items,
+    // so this is somewhat redundant now unless you have a button showing for the action
     protected String shortDescription;
 
     // --------- INSTANCE METHODS ----------
@@ -109,6 +112,10 @@ public abstract class PkgMgrAction extends FXAbstractAction
         // PkgMgrFrame buttons don't take focus:
         Button b = super.makeButton();
         b.setFocusTraversable(false);
+        if (shortDescription != null)
+        {
+            Tooltip.install(b, new Tooltip(shortDescription));
+        }
         return b;
     }
 }
