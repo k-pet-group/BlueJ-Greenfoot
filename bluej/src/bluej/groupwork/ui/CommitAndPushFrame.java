@@ -169,12 +169,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitButtonPane.getChildren().addAll(includeLayout, commitButton);
 
 
-        VBox commitPane = new VBox();
-        commitPane.getChildren().addAll(new Label(Config.getString("team.commitPush.commit.files")), commitFileScrollPane,
-                                        new Label(Config.getString("team.commit.comment")), commitText,
-                                        commitButtonPane);
-
-
         pushAction = new PushAction(this);
         Button pushButton = new Button();
         pushAction.useButton(PkgMgrFrame.getMostRecent(), pushButton);
@@ -193,7 +187,9 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         VBox mainPane = new VBox();
         JavaFXUtil.addStyleClass(mainPane, "main-pane");
-        mainPane.getChildren().addAll(commitPane,
+        mainPane.getChildren().addAll(new Label(Config.getString("team.commitPush.commit.files")), commitFileScrollPane,
+                new Label(Config.getString("team.commit.comment")), commitText,
+                commitButtonPane,
                 new Separator(Orientation.HORIZONTAL),
                 pushFilesLabel, pushFileScrollPane,
                 pushButtonPane);
@@ -387,7 +383,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
     class CommitAndPushWorker extends FXWorker implements StatusListener
     {
-
         List<TeamStatusInfo> response;
         TeamworkCommand command;
         TeamworkCommandResult result;
