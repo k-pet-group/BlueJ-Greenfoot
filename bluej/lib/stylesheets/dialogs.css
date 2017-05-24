@@ -489,7 +489,14 @@
     -fx-spacing: 1em;
 }
 
-.team-commit-comments,
+.team-commit-comments {
+    -fx-min-width:  30em;
+    -fx-pref-width: 40em;
+
+    -fx-min-height:  30em;
+    -fx-pref-height: 40em;
+}
+
 .team-conflicts,
 .team-module-select
 {
