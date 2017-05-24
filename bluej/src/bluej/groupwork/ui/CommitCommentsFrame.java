@@ -83,7 +83,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     private CommitAction commitAction;
     private CommitWorker commitWorker;
 
-    private ObservableList commitListModel = FXCollections.observableArrayList();
+    private ObservableList<TeamStatusInfo> commitListModel = FXCollections.observableArrayList();
     private Set<TeamStatusInfo> changedLayoutFiles = new HashSet<>();
     /** The packages whose layout should be committed compulsorily */
     private Set<File> packagesToCommmit = new HashSet<>();
@@ -91,8 +91,6 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     private final TextArea commitText = new TextArea("");
     private final CheckBox includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
     private final ActivityIndicator progressBar = new ActivityIndicator();
-
-    private static final String noFilesToCommit = Config.getString("team.nocommitfiles");
 
     public CommitCommentsFrame(Project proj, Window owner)
     {
@@ -109,7 +107,8 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
      */
     private SplitPane makeMainPane()
     {
-        ListView commitFiles = new ListView(commitListModel);
+        ListView<TeamStatusInfo> commitFiles = new ListView<>(commitListModel);
+        commitFiles.setPlaceholder(new Label(Config.getString("team.nocommitfiles")));
         commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
         commitFiles.setDisable(true);
         ScrollPane commitFileScrollPane = new ScrollPane(commitFiles);
@@ -138,7 +137,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
             // unselected
             else {
                 removeModifiedLayouts();
-                if (isCommitListEmpty())
+                if (commitListModel.isEmpty())
                     commitAction.setEnabled(false);
             }
         });
@@ -240,20 +239,13 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
             }
         }
         if (commitListModel.isEmpty()) {
-            commitListModel.add(noFilesToCommit); // TODO should be TeamStatusInfo objects only
             commitText.setDisable(true);
         }
     }
 
-    private boolean isCommitListEmpty()
-    {
-        return commitListModel.isEmpty() || commitListModel.contains(noFilesToCommit);
-    }
-
     private void addModifiedLayouts()
     {
-        if(commitListModel.contains(noFilesToCommit)) {
-            commitListModel.remove(noFilesToCommit);
+        if(commitListModel.isEmpty()) {
             commitText.setDisable(false);
         }
         // add diagram layout files to list of files to be committed
@@ -417,9 +409,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                     commitAction.setDeletedFiles(filesToDelete);
                 }
 
-                if (commitListModel.isEmpty()) {
-                    commitListModel.add(noFilesToCommit);
-                } else {
+                if (!commitListModel.isEmpty()) {
                     commitText.setDisable(false);
                     commitText.requestFocus();
                     commitAction.setEnabled(true);
