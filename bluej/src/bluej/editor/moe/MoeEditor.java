@@ -2858,14 +2858,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         
         //add popup menu
         sourcePane.setContextMenu(createPopupMenu());
-
-        // Set the size, respecting the current environment maximums.
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        Rectangle maxBounds = ge.getMaximumWindowBounds();
-        int myWidth = Math.min(900, (int) maxBounds.getWidth());
-        int myHeight = Math.min(700, (int) maxBounds.getHeight());
-        //MOEFX
-        //setSize(myWidth, myHeight);
     }
 
 
@@ -3015,9 +3007,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
 
         if (isNonReadmeAction(actionName) && !sourceIsCode){
-            //MOEFX figure out why this if statement is needed
-            if (!button.disableProperty().isBound())
-                button.setDisable(true);
+            action.setEnabled(false);
         }
 
         // never get keyboard focus:
