@@ -43,6 +43,7 @@ import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.print.PrinterJob;
@@ -220,8 +221,6 @@ public final class Terminal
         text.setEditable(false);
         text.getStyleClass().add("terminal");
         text.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
-        //MOEFX
-        //text.setMargin(new Insets(6, 6, 6, 6));
         unlimitedBufferingCall.addListener(c -> {
             // Toggle unlimited buffering; need to chop if necessary
             trimToMaxBufferLines(text);
@@ -234,6 +233,9 @@ public final class Terminal
         });
         input.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
         input.setEditable(false);
+        // Mainly for visuals, we disable when not in use:
+        input.disableProperty().bind(input.editableProperty().not());
+        input.promptTextProperty().bind(Bindings.when(input.editableProperty()).then("").otherwise(Config.getString("terminal.notRunning")));
 
         Nodes.addInputMap(input, InputMap.sequence(
                 // CTRL-D (unix/Mac EOF)
@@ -737,8 +739,6 @@ public final class Terminal
             };
             errorText.setOnOutsideSelectionMousePress(onClick);
             errorText.setOnInsideSelectionMousePressRelease(onClick);
-            //MOEFX
-            //errorText.setMargin(new Insets(6, 6, 6, 6));
         }
         splitPane.getItems().add(errorScrollPane);
         Config.rememberDividerPosition(window, splitPane, "bluej.terminal.dividerpos");

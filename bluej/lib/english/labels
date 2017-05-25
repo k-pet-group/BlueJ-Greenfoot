@@ -558,6 +558,7 @@ terminal.recordCalls = Record method calls
 terminal.buffering = Unlimited buffering
 terminal.save.title = Save terminal text
 terminal.save.buttonText = Save
+terminal.notRunning=Can only enter input while your programming is running
 
 #TestDisplay Window
 testdisplay.title = BlueJ:  Test Results
