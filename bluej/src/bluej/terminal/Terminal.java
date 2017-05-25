@@ -220,11 +220,7 @@ public final class Terminal
         this.project = project;
 
         buffer = new InputBuffer(256);
-        int width = Config.isGreenfoot() ? 80 : Config.getPropInteger("bluej.terminal.width", 80);
-        int height = Config.isGreenfoot() ? 10 : Config.getPropInteger("bluej.terminal.height", 22);
         text = new StyledTextArea<Void, StdoutStyle>(null, (t, v) -> {}, StdoutStyle.OUTPUT, this::applyStyle);
-        //MOEFX: set size
-                //height, width, buffer, this.project, this, false);
 
         VirtualizedScrollPane<?> scrollPane = new VirtualizedScrollPane<>(text);
         text.setEditable(false);
@@ -233,7 +229,8 @@ public final class Terminal
         //MOEFX
         //text.setMargin(new Insets(6, 6, 6, 6));
         unlimitedBufferingCall.addListener(c -> {
-            //MOEFX toggle unlimited buffering; need to chop if necessary
+            // Toggle unlimited buffering; need to chop if necessary
+            trimToMaxBufferLines(text);
         });
 
         input = new TextField();
@@ -461,13 +458,21 @@ public final class Terminal
 
         pane.append(styled(s, style));
 
+        if (pane != errorText)
+        {
+            trimToMaxBufferLines(pane);
+        }
+
+        pane.end(SelectionPolicy.CLEAR);
+    }
+
+    private <S extends TextAreaStyle> void trimToMaxBufferLines(StyledTextArea<Void, S> pane)
+    {
         if (!unlimitedBufferingCall.get() && pane.getParagraphs().size() >= MAX_BUFFER_LINES)
         {
             int newStart = pane.position(pane.getParagraphs().size() - MAX_BUFFER_LINES, 0).toOffset();
             pane.replaceText(0, newStart, "");
         }
-
-        pane.end(SelectionPolicy.CLEAR);
     }
 
     /**
@@ -714,8 +719,6 @@ public final class Terminal
 
         if(errorText == null) {
             errorText = new StyledTextArea<Void, StderrStyle>(null, (t, v) -> {}, StderrStyle.NORMAL, this::applyStyle);
-            //MOEFX: set size
-            //TermTextArea(Config.isGreenfoot() ? 15 : 5, 80, null, project, this, true);
             errorScrollPane = new VirtualizedScrollPane<>(errorText);
             errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             errorText.setEditable(false);
@@ -744,6 +747,7 @@ public final class Terminal
             //errorText.setUnlimitedBuffering(true);
         }
         splitPane.getItems().add(errorScrollPane);
+        Config.rememberDividerPosition(window, splitPane, "bluej.terminal.dividerpos");
         errorShown = true;
     }
     

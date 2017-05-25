@@ -2074,9 +2074,17 @@ public final class Config
 
         JavaFXUtil.addChangeListener(splitPane.getDividers().get(0).positionProperty(), pos -> putPropInteger(locationName, (int)(pos.doubleValue() * SCALE)));
 
-        window.addEventHandler(WindowEvent.WINDOW_SHOWN, e -> {
+        if (window.isShowing())
+        {
             splitPane.setDividerPosition(0, initialPos);
-        });
+        }
+        else
+        {
+            window.addEventHandler(WindowEvent.WINDOW_SHOWN, e ->
+            {
+                splitPane.setDividerPosition(0, initialPos);
+            });
+        }
     }
 
     public static KeyCode getKeyCodeForYesNo(InteractionManager.ShortcutKey keyPurpose)
