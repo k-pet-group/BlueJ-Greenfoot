@@ -64,6 +64,7 @@
     -fx-max-width: 130px;
 }
 .pmf-tools .button {
+    -fx-padding: 0.333333em;
     -fx-max-width: 9999;
 }
 .pmf-tools > .titled-pane > .content > * {
