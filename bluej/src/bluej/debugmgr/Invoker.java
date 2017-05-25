@@ -21,25 +21,6 @@
  */
 package bluej.debugmgr;
 
-import javax.swing.SwingUtilities;
-import java.awt.EventQueue;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import bluej.utility.javafx.FXPlatformSupplier;
-import javafx.application.Platform;
-import javafx.stage.Stage;
-
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileInputFile;
@@ -47,8 +28,8 @@ import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
-import bluej.compiler.FXCompileObserver;
 import bluej.compiler.EventqueueCompileObserverAdapter;
+import bluej.compiler.FXCompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
@@ -73,11 +54,29 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Debugger class that arranges invocation of constructors or methods. This
@@ -87,11 +86,12 @@ import threadchecker.Tag;
  * @author Michael Kolling
  */
 public class Invoker
-    implements FXCompileObserver
+    implements FXCompileObserver, ChangeListener<Package>
 {
     public static final int OBJ_NAME_LENGTH = 8;
     public static final String SHELLNAME = "__SHELL";
     private static int shellNumber = 0;
+    private PkgMgrFrame pmf = null;
 
     private static final synchronized String getShellName()
     {
@@ -300,6 +300,7 @@ public class Invoker
             }
         };
         this.sourceCharset = pmf.getProject().getProjectCharset();
+        this.pmf = pmf;
     }
     
     /**
@@ -351,6 +352,10 @@ public class Invoker
             //org.scenicview.ScenicView.show(cDialog.getDialogPane());
 
             dialog = cDialog;
+            if (pmf != null)
+            {
+                pmf.packageProperty().addListener(this);
+            }
         }
     }
 
@@ -1108,6 +1113,10 @@ public class Invoker
             dialog.saveCallHistory();
             dialog = null;
         }
+        if (pmf != null)
+        {
+            pmf.packageProperty().removeListener(this);
+        }
     }
 
     /**
@@ -1251,6 +1260,16 @@ public class Invoker
         }
         catch (Throwable e) {
             e.printStackTrace(System.err);
+        }
+    }
+
+    @Override
+    public void changed(ObservableValue<? extends Package> observable, Package oldValue, Package newValue)
+    {
+        if (newValue == null && dialog != null)
+        {
+            // Will also remove us as a listener:
+            closeCallDialog();
         }
     }
 

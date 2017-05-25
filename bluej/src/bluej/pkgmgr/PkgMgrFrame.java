@@ -93,6 +93,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -3518,6 +3519,11 @@ public class PkgMgrFrame
         {
             Debug.reportError(e);
         }
+    }
+
+    public ReadOnlyObjectProperty<Package> packageProperty()
+    {
+        return pkg;
     }
 
     // Used as a way to tag the three main panes in the PkgMgrFrame window
