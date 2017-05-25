@@ -90,7 +90,6 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         super(null, "team.status", "team-status");
         project = proj;
         isDVCS = project.getTeamSettingsController().isDVCS();
-        // The layout should be Vertical, if not replace with a VBox.
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
     }
