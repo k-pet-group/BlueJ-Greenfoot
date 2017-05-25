@@ -1580,6 +1580,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             // dispose windows for local classes. Should not run user code
             // on the event queue, so run it in a separate thread.
             new Thread() {
+                @OnThread(Tag.Unique)
                 public void run() {
                     getDebugger().disposeWindows();
                 }

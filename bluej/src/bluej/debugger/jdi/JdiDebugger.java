@@ -613,6 +613,7 @@ public class JdiDebugger extends Debugger
      * Dispose all top level windows in the remote machine.
      */
     @Override
+    @OnThread(Tag.Any)
     public void disposeWindows()
     {
         VMReference vmr = getVMNoWait();
@@ -633,6 +634,7 @@ public class JdiDebugger extends Debugger
      *            the class to start
      */
     @Override
+    @OnThread(Tag.Any)
     public FXPlatformSupplier<DebuggerResult> runClassMain(String className)
         throws ClassNotFoundException
     {
@@ -684,6 +686,7 @@ public class JdiDebugger extends Debugger
      * Construct a class instance using the default constructor.
      */
     @Override
+    @OnThread(Tag.Any)
     public FXPlatformSupplier<DebuggerResult> instantiateClass(String className)
     {
         VMReference vmr = getVM();
@@ -730,7 +733,8 @@ public class JdiDebugger extends Debugger
      * @see bluej.debugger.Debugger#getClass(java.lang.String, boolean)
      */
     @Override
-    public DebuggerClass getClass(String className, boolean initialize)
+    @OnThread(Tag.Any)
+    public FXPlatformSupplier<DebuggerClass> getClass(String className, boolean initialize)
         throws ClassNotFoundException
     {
         VMReference vmr = getVM();
@@ -750,7 +754,7 @@ public class JdiDebugger extends Debugger
             }
         }
 
-        return new JdiClass(classMirror);
+        return () -> new JdiClass(classMirror);
     }
 
     // ----- end server thread methods -----
@@ -1043,6 +1047,7 @@ public class JdiDebugger extends Debugger
      * 
      * @return  The VMReference or null if it's not available.
      */
+    @OnThread(Tag.Any)
     private VMReference getVMNoWait()
     {
         // Store a single value of machineLoader in a local variable to avoid

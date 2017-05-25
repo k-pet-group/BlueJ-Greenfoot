@@ -153,6 +153,7 @@ public class DocuGenerator
          * If this call was successful let the result be shown in a browser.
          */
         @Override
+        @OnThread(value = Tag.Unique, ignoreParent = true)
         public void run()
         {
             // Process docuRun;
@@ -266,7 +267,7 @@ public class DocuGenerator
                 });
             }
             catch (IOException exc) {
-                DialogManager.showMessageFX(null, "severe-doc-trouble");
+                Platform.runLater(() -> DialogManager.showMessageFX(null, "severe-doc-trouble"));
             }
             finally {
                 if (logWriter != null) {
@@ -284,7 +285,8 @@ public class DocuGenerator
     {
         private InputStream   readStream;
         private OutputStream outStream;
-        
+
+        @OnThread(Tag.Any)
         public EchoThread(InputStream r,OutputStream out)
         {
             readStream = r;
@@ -292,6 +294,7 @@ public class DocuGenerator
         }
         
         @Override
+        @OnThread(value = Tag.Unique, ignoreParent = true)
         public void run()
         {
             try {

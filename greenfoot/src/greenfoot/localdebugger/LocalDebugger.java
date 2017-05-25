@@ -85,7 +85,7 @@ public class LocalDebugger extends Debugger
     }
 
     @Override
-    public DebuggerClass getClass(String className, boolean initialize)
+    public FXPlatformSupplier<DebuggerClass> getClass(String className, boolean initialize)
             throws ClassNotFoundException
     {
         throw new UnsupportedOperationException();

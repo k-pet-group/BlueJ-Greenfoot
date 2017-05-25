@@ -117,7 +117,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         try {
             // We have to initialise the class; the IBM JDK otherwise throws an ObjectCollectedException
             // exception, seemingly in error.
-            simulationClass = debugger.getClass(SIMULATION_CLASS, true);
+            simulationClass = debugger.getClass(SIMULATION_CLASS, true).get();
 
             Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
             simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
@@ -423,7 +423,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                         stateVar = queuedStateVars.removeFirst();
                     }
                     try {
-                        DebuggerClass simMonClass = debugger.getClass(CLASS_NAME, true);
+                        DebuggerClass simMonClass = debugger.getClass(CLASS_NAME, true).get();
                         DebuggerObject stateObject = null;
                         for (int i = 0; ; i++) {
                             DebuggerField simMonField = simMonClass.getStaticField(i);

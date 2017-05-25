@@ -1181,15 +1181,17 @@ public class ClassTarget extends DependentTarget
      */
     private void inspect()
     {
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+        Project proj = getPackage().getProject();
+
         new Thread() {
             @Override
+            @OnThread(Tag.Unique)
             public void run() {
                 // Try and load the class.
                 try {
-                    DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName(), true);
-                    PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-                    Project proj = getPackage().getProject();
-                    proj.getClassInspectorInstance(clss, getPackage(), pmf.getFXWindow(), ClassTarget.this.getNode());
+                    FXPlatformSupplier<DebuggerClass> clss = getPackage().getDebugger().getClass(getQualifiedName(), true);
+                    Platform.runLater(() -> proj.getClassInspectorInstance(clss.get(), getPackage(), pmf.getFXWindow(), ClassTarget.this.getNode()));
                 }
                 catch (ClassNotFoundException cnfe) {}
             }

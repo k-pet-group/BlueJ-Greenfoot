@@ -85,6 +85,7 @@ import java.util.Map;
  * 
  * @author Michael Kolling
  */
+@OnThread(Tag.FXPlatform)
 public class Invoker
     implements FXCompileObserver, ChangeListener<Package>
 {
@@ -523,18 +524,17 @@ public class Invoker
             // We must however do so in a seperate thread. Otherwise a constructor which
             // goes into an infinite loop can hang BlueJ.
             new Thread() {
+                @OnThread(Tag.Unique)
                 public void run() {
                     Platform.runLater(Invoker.this::closeCallDialog);
                     
                     final FXPlatformSupplier<DebuggerResult> result = debugger.instantiateClass(className);
 
-                    Platform.runLater(new Runnable() {
-                        public void run() {
-                            // the execution is completed, get the result if there was one
-                            // (this could be either a construction or a function result)
-                            
-                            handleResult(result.get(), false); // handles error situations
-                        }
+                    Platform.runLater(() -> {
+                        // the execution is completed, get the result if there was one
+                        // (this could be either a construction or a function result)
+
+                        handleResult(result.get(), false); // handles error situations
                     });
                 }
             }.start();
@@ -1068,6 +1068,7 @@ public class Invoker
      * now. Then clean up.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
     {
         if (dialog != null)
@@ -1264,6 +1265,7 @@ public class Invoker
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void changed(ObservableValue<? extends Package> observable, Package oldValue, Package newValue)
     {
         if (newValue == null && dialog != null)

@@ -263,7 +263,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         // Could do: methodAnns.add(new MethodRef("java.lang.Thread", "run", new LocatedTag(Tag.Unique, false, true, "<Thread.run>")));
         // If we use class annotation with applyToSubclasses, it solves a lot of annoyances where inner class Threads get their package's tags:
         classAnns.put("java.lang.Thread", new LocatedTag(Tag.Unique, true, true, "<Thread>"));
-        methodAnns.add(new MethodRef("java.lang.Thread", "run", new LocatedTag(Tag.Unique, false, true, "<Thread>")));
+        methodAnns.add(new MethodRef("java.lang.Thread", "run", new LocatedTag(Tag.Unique, true, true, "<Thread>")));
         methodAnns.add(new MethodRef("java.lang.Thread", "setPriority", new LocatedTag(Tag.Any, false, true, "<Thread>")));
         methodAnns.add(new MethodRef("java.lang.Thread", "getPriority", new LocatedTag(Tag.Any, false, true, "<Thread>")));
         methodAnns.add(new MethodRef("java.lang.Thread", "start", new LocatedTag(Tag.Any, false, true, "<Thread>")));

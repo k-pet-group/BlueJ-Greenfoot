@@ -49,6 +49,8 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ShortValue;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A wrapper for a field of a BlueJ class.
@@ -150,6 +152,7 @@ public class BField
      * @throws  ProjectNotOpenException   if the project to which this field belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this field belongs has been deleted by the user.
      */
+    @OnThread(Tag.SwingIsFX)
     private Object getStaticField() throws ProjectNotOpenException, PackageNotFoundException
     {
         Package bluejPkg = parentId.getBluejPackage();
@@ -163,7 +166,7 @@ public class BField
 
         DebuggerClass debuggerClass;
         try {
-            debuggerClass = bluejPkg.getDebugger().getClass(className, true);
+            debuggerClass = bluejPkg.getDebugger().getClass(className, true).get();
         }
         catch (java.lang.ClassNotFoundException cnfe) {
             // This may not be an error, the class name may be wrong...

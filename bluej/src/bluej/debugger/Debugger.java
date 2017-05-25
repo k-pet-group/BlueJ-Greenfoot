@@ -218,11 +218,13 @@ public abstract class Debugger
     /**
      * Dispose all top level windows in the remote machine.
      */
+    @OnThread(Tag.Any)
     public abstract void disposeWindows();
 
     /**
      * "Run" a class (i.e. invoke its main method without arguments)
      */
+    @OnThread(Tag.Any)
     public abstract FXPlatformSupplier<DebuggerResult> runClassMain(String className)
         throws ClassNotFoundException;
 
@@ -231,6 +233,7 @@ public abstract class Debugger
      * @param className  The name of the class to instantiate
      * @return   The result of the constructor call
      */
+    @OnThread(Tag.Any)
     public abstract FXPlatformSupplier<DebuggerResult> instantiateClass(String className);
 
     /**
@@ -254,7 +257,8 @@ public abstract class Debugger
      * 
      * @throws ClassNotFoundException if the class couldn't be located.
      */
-    public abstract DebuggerClass getClass(String className, boolean initialize)
+    @OnThread(Tag.Any)
+    public abstract FXPlatformSupplier<DebuggerClass> getClass(String className, boolean initialize)
         throws ClassNotFoundException;
 
     public abstract CompletableFuture<FXPlatformSupplier<DebuggerResult>> launchFXApp(String className);
