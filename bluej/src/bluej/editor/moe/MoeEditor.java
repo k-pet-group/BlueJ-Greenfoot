@@ -1673,7 +1673,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         Optional<PrintChoices> choices = new PrintDialog(getWindow(), null).showAndWait();
         if (!choices.isPresent())
             return;
-        PrinterJob job = PrinterJob.createPrinterJob();
+        PrinterJob job = JavaFXUtil.createPrinterJob();
         if (job == null)
         {
             DialogManager.showErrorFX(getWindow(),"print-no-printers");

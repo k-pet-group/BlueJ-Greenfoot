@@ -76,6 +76,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.print.Printer;
+import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
@@ -684,6 +686,26 @@ public class JavaFXUtil
         {
             polygon.getPoints().set(i, polygon.getPoints().get(i) * scale);
         }
+    }
+
+    /**
+     * Make a printer job.  By default, JavaFX tries to create a job with
+     * the default printer, and returns null if that printer is not available.
+     * If this happens, we try making a job with any other available printer.
+     */
+    public static PrinterJob createPrinterJob()
+    {
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job == null)
+        {
+            for (Printer printer : Printer.getAllPrinters())
+            {
+                job = PrinterJob.createPrinterJob(printer);
+                if (job != null)
+                    return job;
+            }
+        }
+        return job;
     }
 
     /**

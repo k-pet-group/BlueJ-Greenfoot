@@ -32,9 +32,6 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.editor.moe.MoeEditor;
-import bluej.editor.moe.MoeEditorPane;
-import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
@@ -63,11 +60,9 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.fxmisc.flowless.Cell;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CharacterHit;
-import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.TextExt;
 import org.fxmisc.richtext.model.EditableStyledDocument;
@@ -86,7 +81,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -399,7 +393,7 @@ public final class Terminal
     @OnThread(Tag.FXPlatform)
     public void print()
     {
-        PrinterJob job = PrinterJob.createPrinterJob();
+        PrinterJob job = JavaFXUtil.createPrinterJob();
         if (job == null)
         {
             DialogManager.showErrorFX(window,"print-no-printers");

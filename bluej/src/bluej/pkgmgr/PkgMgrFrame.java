@@ -1945,7 +1945,7 @@ public class PkgMgrFrame
         if (!choices.isPresent())
             return;
 
-        javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
+        javafx.print.PrinterJob job = JavaFXUtil.createPrinterJob();
         if (job == null)
         {
             DialogManager.showErrorFX(getFXWindow(),"print-no-printers");
