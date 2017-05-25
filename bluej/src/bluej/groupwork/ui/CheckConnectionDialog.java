@@ -82,20 +82,23 @@ public class CheckConnectionDialog extends FXCustomizedDialog<Void>
     {
         // Must start the thread before calling showAndWait, because
         // we are modal - showAndWait will block.
-        new Thread(() -> {
-            final TeamworkCommandResult res = provider.checkConnection(settings);
-            Platform.runLater(() -> {
-                if (!res.isError()) {
-                    connLabel.setText(Config.getString("team.checkconn.ok"));
-                }
-                else {
-                    connLabel.setText(Config.getString("team.checkconn.bad")
-                            + System.getProperty("line.separator") + System.getProperty("line.separator")
-                            + res.getErrorMessage());
-                }
+        new Thread(new Runnable() {
+            @Override
+            @OnThread(Tag.Unique)
+            public void run() {
+                final TeamworkCommandResult res = provider.checkConnection(settings);
+                Platform.runLater(() -> {
+                    if (!res.isError()) {
+                        connLabel.setText(Config.getString("team.checkconn.ok"));
+                    } else {
+                        connLabel.setText(Config.getString("team.checkconn.bad")
+                                + System.getProperty("line.separator") + System.getProperty("line.separator")
+                                + res.getErrorMessage());
+                    }
 
-                activityIndicator.setProgress(1.0);
-            });
+                    activityIndicator.setProgress(1.0);
+                });
+            }
         }).start();
         showAndWait();
     }

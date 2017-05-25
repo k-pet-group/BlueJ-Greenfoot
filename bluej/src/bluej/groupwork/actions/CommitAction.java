@@ -105,7 +105,6 @@ public class CommitAction extends TeamAction
     /**
      * Set the status handle to use in order to perform the commit operation.
      */
-    @OnThread(Tag.Any)
     public void setStatusHandle(StatusHandle statusHandle)
     {
         this.statusHandle = statusHandle;
@@ -156,7 +155,8 @@ public class CommitAction extends TeamAction
         private TeamworkCommand command;
         private TeamworkCommandResult result;
         private boolean aborted;
-        
+
+        @OnThread(Tag.FXPlatform)
         public CommitWorker(Project project)
         {
             String comment = commitCommentsFrame.getComment();
@@ -174,7 +174,8 @@ public class CommitAction extends TeamAction
             command = statusHandle.commitAll(newFiles, binFiles, deletedFiles, files,
                     forceFiles, comment);
         }
-        
+
+        @OnThread(Tag.Unique)
         public Object construct()
         {
             result = command.getResult();

@@ -149,6 +149,7 @@ public class UpdateAction extends TeamAction
             command = statusHandle.updateTo(this, filesToUpdate, filesToForceUpdate);
         }
 
+        @OnThread(Tag.Unique)
         public Object construct()
         {
             removedPackages = new ArrayList<>();

@@ -102,7 +102,8 @@ public class ImportAction extends TeamAction
         Thread thread = new Thread() {
             
             TeamworkCommandResult result = null;
-            
+
+            @OnThread(Tag.Unique)
             public void run()
             {
                 // boolean resetStatus = true;

@@ -155,6 +155,7 @@ public class CheckoutAction extends TeamAction
          * Get the files from the repository.
          * @see bluej.utility.FXWorker#construct()
          */
+        @OnThread(Tag.Unique)
         public Object construct()
         {
             newFrame.setStatus(Config.getString("team.checkingout"));
@@ -196,10 +197,8 @@ public class CheckoutAction extends TeamAction
                 newFrame.openPackage(initialPackage, newFrame);
             }
             else {
-                Platform.runLater(() -> {
-                    TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow());
-                    cleanup();
-                });
+                TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow());
+                cleanup();
             }
         }
 
@@ -210,7 +209,7 @@ public class CheckoutAction extends TeamAction
         {
             deleteDirectory(projDir);
             projDir.delete();
-            Platform.runLater(() -> newFrame.doClose(true, false));
+            newFrame.doClose(true, false);
         }
         
         /**

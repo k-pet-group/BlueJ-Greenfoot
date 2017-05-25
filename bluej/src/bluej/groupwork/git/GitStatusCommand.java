@@ -30,21 +30,25 @@ import static bluej.groupwork.git.GitUtillities.findForkPoint;
 import static bluej.groupwork.git.GitUtillities.getBehindCount;
 import static bluej.groupwork.git.GitUtillities.getDiffs;
 import static bluej.groupwork.git.GitUtillities.getFileNameFromDiff;
+import static bluej.groupwork.git.GitUtillities.isAheadOnly;
 import bluej.utility.Debug;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import static bluej.groupwork.git.GitUtillities.isAheadOnly;
-import java.util.Map;
 import org.eclipse.jgit.lib.IndexDiff;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Checks the status of a Git repository
@@ -66,6 +70,7 @@ public class GitStatusCommand extends GitCommand
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public TeamworkCommandResult getResult()
     {
         boolean didFilesChange = true;

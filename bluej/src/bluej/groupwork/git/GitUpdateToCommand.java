@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javafx.application.Platform;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
@@ -49,12 +48,15 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Git command to pull project changes from the upstream repository.
  *
  * @author Fabio Heday
  */
+@OnThread(Tag.FXPlatform)
 public class GitUpdateToCommand extends GitCommand implements UpdateResults
 {
 
@@ -74,9 +76,9 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public TeamworkCommandResult getResult()
     {
-
         try (Git repo = Git.open(this.getRepository().getProjectPath())) {
             File gitPath = this.getRepository().getProjectPath();
 
@@ -194,9 +196,9 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         binaryConflicts.add(file);
                     }
                     if (!file.exists()) {
-                        Platform.runLater(() -> listener.fileRemoved(file));
+                        listener.fileRemoved(file);
                     } else {
-                        Platform.runLater(() -> listener.fileUpdated(file));
+                        listener.fileUpdated(file);
                     }
                     break;
                 case MODIFY:

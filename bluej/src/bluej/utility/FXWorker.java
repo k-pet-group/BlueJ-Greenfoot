@@ -153,5 +153,6 @@ public abstract class FXWorker
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public abstract void abort();
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,15 @@
  */
 package bluej.groupwork;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A class to represent team settings
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class TeamSettings
 {
     private TeamworkProvider provider;

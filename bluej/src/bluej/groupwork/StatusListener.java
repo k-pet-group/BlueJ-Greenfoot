@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,9 @@
  */
 package bluej.groupwork;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Interface for listening for results from a status command.
  * 
@@ -37,5 +40,6 @@ public interface StatusListener
      * The status operation is complete. A status handle is provided
      * to allow commit operations.
      */
+    @OnThread(Tag.FXPlatform)
     public void statusComplete(StatusHandle statusHandle);
 }

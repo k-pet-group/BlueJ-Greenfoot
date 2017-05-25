@@ -35,6 +35,7 @@ import bluej.utility.FXWorker;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import javafx.application.Platform;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -89,7 +90,6 @@ public class PushAction extends TeamAction
      * Set the status handle to use in order to perform the commit operation.
      * @param statusHandle
      */
-    @OnThread(Tag.Any)
     public void setStatusHandle(StatusHandle statusHandle)
     {
         this.statusHandle = statusHandle;
@@ -124,6 +124,7 @@ public class PushAction extends TeamAction
         private final boolean hasPassword;
         private boolean aborted;
 
+        @OnThread(Tag.FXPlatform)
         public PushWorker(Project project)
         {
             command = statusHandle.pushAll(filesToPush);
@@ -144,11 +145,12 @@ public class PushAction extends TeamAction
         }
 
         @Override
+        @OnThread(Tag.Unique)
         public Object construct()
         {
             if (!hasPassword)
             {
-                abort();
+                Platform.runLater(this::abort);
                 return null;
             }
             result = command.getResult();

@@ -31,8 +31,6 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * An abstract class for team actions.
@@ -44,7 +42,6 @@ import threadchecker.Tag;
  * 
  * @author fisker
  */
-@OnThread(Tag.FXPlatform)
 public abstract class TeamAction
 {
     private final StringProperty name = new SimpleStringProperty();

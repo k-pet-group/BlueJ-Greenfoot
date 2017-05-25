@@ -241,7 +241,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
                     setModuleList(modules);
                 }
                 else {
-                    Platform.runLater(() -> TeamUtils.handleServerResponseFX(result, ModuleSelectDialog.this.asWindow()));
+                    TeamUtils.handleServerResponseFX(result, ModuleSelectDialog.this.asWindow());
                 }
             }
         }

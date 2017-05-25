@@ -21,8 +21,6 @@
  */
 package bluej.groupwork.actions;
 
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.groupwork.ui.StatusFrame;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -34,7 +32,6 @@ import bluej.pkgmgr.Project;
  * 
  * @author bquig
  */
-@OnThread(Tag.FXPlatform)
 public class StatusAction extends TeamAction
 {
     /** Creates a new instance of StatusAction */
