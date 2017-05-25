@@ -272,6 +272,9 @@ Print
 Cancel
 null
 
+print-no-printers
+Java cannot find any printers.  Please install a printer to be able to print.
+
 open-non-bluej-already-bluej
 The directory you have selected is already
 a BlueJ project.

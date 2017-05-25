@@ -109,6 +109,7 @@ import javafx.stage.*;
 
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.MouseOverTextEvent;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
@@ -1623,13 +1624,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     @OnThread(Tag.FX)
-    private static <T, C extends org.fxmisc.flowless.Cell<T, ?>> void printPages(PrinterJob printerJob, MoeEditorPane editorPane, VirtualFlow<T, C> virtualFlow)
+    public static <T, C extends org.fxmisc.flowless.Cell<T, ?>> void printPages(PrinterJob printerJob, GenericStyledArea<?, ?, ?> editorPane, VirtualFlow<T, C> virtualFlow)
     {
         virtualFlow.scrollXToPixel(0);
         // We must manually scroll down the editor, one page's worth at a time.  We keep track of the top line visible:
         int topLine = 0;
         boolean lastPage = false;
-        while (topLine < editorPane.getParagraphs().size() && !lastPage)
+        int editorLines = editorPane.getParagraphs().size();
+        while (topLine < editorLines && !lastPage)
         {
             // Scroll to make topLine actually at the top:
             virtualFlow.showAsFirst(topLine);
@@ -1637,7 +1639,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             List<C> visibleCells = new ArrayList<>(virtualFlow.visibleCells());
             C lastCell = visibleCells.get(visibleCells.size() - 1);
             // Last page if we can see the last editor line:
-            lastPage = virtualFlow.getCellIfVisible(editorPane.getParagraphs().size() - 1).isPresent();
+            lastPage = virtualFlow.getCellIfVisible(editorLines - 1).isPresent();
 
             if (!lastPage)
             {
@@ -1674,7 +1676,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         PrinterJob job = PrinterJob.createPrinterJob();
         if (job == null)
         {
-            DialogManager.showErrorFX(getWindow(),"print.no.printers");
+            DialogManager.showErrorFX(getWindow(),"print-no-printers");
         }
         else if (job.showPrintDialog(getWindow()))
         {

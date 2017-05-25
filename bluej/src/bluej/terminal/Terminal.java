@@ -21,44 +21,9 @@
  */
 package bluej.terminal;
 
-import javax.swing.SwingUtilities;
-import java.awt.Event;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.print.PrinterJob;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import bluej.BlueJTheme;
-import bluej.pkgmgr.Package;
-import bluej.utility.Debug;
-import bluej.utility.JavaNames;
-import bluej.utility.Utility;
-import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
-
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.debugger.Debugger;
@@ -66,15 +31,47 @@ import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.editor.moe.MoeEditor;
+import bluej.editor.moe.MoeEditorPane;
+import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.editor.moe.ScopeColorsBorderPane;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.JavaNames;
+import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.print.PrinterJob;
+import javafx.scene.Scene;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+import org.fxmisc.flowless.Cell;
+import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CharacterHit;
+import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.TextExt;
+import org.fxmisc.richtext.model.EditableStyledDocument;
+import org.fxmisc.richtext.model.GenericEditableStyledDocument;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 import org.fxmisc.richtext.model.StyledText;
@@ -83,6 +80,20 @@ import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
@@ -167,10 +178,6 @@ public final class Terminal
     }
 
     private static final String WINDOWTITLE = Config.getApplicationName() + ": " + Config.getString("terminal.title");
-    private static final int SHORTCUT_MASK =
-        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    //private static final int ALT_SHORTCUT_MASK =
-    //        SHORTCUT_MASK == Event.CTRL_MASK ? Event.CTRL_MASK : Event.META_MASK;
 
     private static final String RECORDMETHODCALLSPROPNAME = "bluej.terminal.recordcalls";
     private static final String CLEARONMETHODCALLSPROPNAME = "bluej.terminal.clearscreen";
@@ -389,15 +396,50 @@ public final class Terminal
             }
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void print()
     {
-        PrinterJob job = PrinterJob.getPrinterJob();
-        int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
-        Font font = new Font("Monospaced", Font.PLAIN, printFontSize);
-        if (job.printDialog()) {
-            //MOEFX
-            //TerminalPrinter.printTerminal(job, text, job.defaultPage(), font);
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job == null)
+        {
+            DialogManager.showErrorFX(window,"print-no-printers");
+        }
+        else if (job.showPrintDialog(window))
+        {
+            EditableStyledDocument<Void, StyledText<StdoutStyle>, StdoutStyle> doc = new GenericEditableStyledDocument<>(null, StdoutStyle.OUTPUT, StyledText.textOps());
+            doc.replace(0, 0, ReadOnlyStyledDocument.from(text.getDocument()));
+            // Need to make a copy of the text pane for off-thread use:
+            StyledTextArea<Void, StdoutStyle> offScreenEditor = new StyledTextArea<Void, StdoutStyle>(
+                null, (t, v) -> {}, StdoutStyle.OUTPUT, this::applyStyle, doc);
+            Scene scene = new Scene(offScreenEditor);
+            Config.addTerminalStylesheets(scene);
+            // JavaFX seems to always print at 72 DPI, regardless of printer DPI:
+            // This means that that the point width (1/72 of an inch) is actually the pixel width, too:
+            double pixelWidth = job.getJobSettings().getPageLayout().getPrintableWidth();
+            double pixelHeight = job.getJobSettings().getPageLayout().getPrintableHeight();
+            offScreenEditor.resize(pixelWidth, pixelHeight);
+
+            // We could make page size match screen size by scaling font size by difference in DPIs:
+            //editorPane.styleProperty().unbind();
+            //editorPane.setStyle("-fx-font-size: " + PrefMgr.getEditorFontSize().getValue().doubleValue() * 0.75 + "pt;");
+            offScreenEditor.setWrapText(true);
+            offScreenEditor.requestLayout();
+            offScreenEditor.layout();
+            offScreenEditor.applyCss();
+
+            VirtualFlow<?, ?> virtualFlow = (VirtualFlow<?, ?>) offScreenEditor.lookup(".virtual-flow");
+            // Run in background thread:
+            new Thread(new Runnable()
+            {
+                @Override
+                @OnThread(value = Tag.FX, ignoreParent = true)
+                public void run()
+                {
+                    MoeEditor.printPages(job, offScreenEditor, virtualFlow);
+                    job.endJob();
+                }
+            }).start();
         }
     }
 
@@ -826,12 +868,13 @@ public final class Terminal
         public void write(final char[] cbuf, final int off, final int len)
         {
             try {
-                // We use invokeAndWait so that terminal output is limited to
+                // We use a wait so that terminal output is limited to
                 // the processing speed of the event queue. This means the UI
                 // will still respond to user input even if the output is really
                 // gushing.
-                EventQueue.invokeAndWait(new Runnable() {
-                    public void run()
+                CompletableFuture<Boolean> written = new CompletableFuture<>();
+                Platform.runLater(() -> {
+                    try
                     {
                         String s = new String(cbuf, off, len);
                         if (isErrorOut)
@@ -842,12 +885,18 @@ public final class Terminal
                         else
                             writeToPane(text, s, StdoutStyle.OUTPUT);
                     }
+                    finally
+                    {
+                        written.complete(true);
+                    }
                 });
+                // Timeout in case something goes wrong with the printing:
+                written.get(2000, TimeUnit.MILLISECONDS);
             }
-            catch (InvocationTargetException ite) {
-                ite.printStackTrace();
+            catch (InterruptedException | ExecutionException | TimeoutException ie)
+            {
+                Debug.reportError(ie);
             }
-            catch (InterruptedException ie) {}
         }
 
         public void flush() { }

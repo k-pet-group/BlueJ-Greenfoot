@@ -1948,7 +1948,7 @@ public class PkgMgrFrame
         javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
         if (job == null)
         {
-            DialogManager.showErrorFX(getFXWindow(),"print.no.printers");
+            DialogManager.showErrorFX(getFXWindow(),"print-no-printers");
             return;
         }
         if (!job.showPrintDialog(getFXWindow()))
