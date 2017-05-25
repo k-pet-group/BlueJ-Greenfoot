@@ -21,13 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.swing.text.Document;
-
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
@@ -38,6 +31,11 @@ import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TparEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
+
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**

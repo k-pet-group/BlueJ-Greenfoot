@@ -21,16 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.LinkedList;
-import java.util.Stack;
-
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
@@ -38,6 +28,13 @@ import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.LinkedList;
+import java.util.Stack;
 
 /**
  * An abstract base class for nodes which can do incremental parsing.<p>

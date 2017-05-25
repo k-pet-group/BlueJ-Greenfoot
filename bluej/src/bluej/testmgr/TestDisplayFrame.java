@@ -21,8 +21,14 @@
  */
 package bluej.testmgr;
 
-import javax.swing.SwingUtilities;
-import java.util.concurrent.atomic.AtomicBoolean;
+import bluej.BlueJTheme;
+import bluej.Config;
+import bluej.debugger.DebuggerTestResult;
+import bluej.debugger.SourceLocation;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
+import bluej.utility.JavaNames;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -32,7 +38,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -41,15 +54,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import bluej.BlueJTheme;
-import bluej.Config;
-import bluej.debugger.DebuggerTestResult;
-import bluej.debugger.SourceLocation;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
-import bluej.utility.JavaNames;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

@@ -21,10 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import java.util.List;
-
-import javax.swing.text.Document;
-
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.ImportsCollection;
@@ -34,6 +30,8 @@ import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.JavaNames;
+
+import java.util.List;
 
 
 /**

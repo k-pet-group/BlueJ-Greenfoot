@@ -24,9 +24,7 @@ package bluej.editor.moe;
 import bluej.utility.javafx.FXPlatformRunnable;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import org.fxmisc.richtext.model.EditableStyledDocument;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.undo.UndoManagerFactory;
@@ -35,8 +33,6 @@ import org.reactfx.Guard;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.undo.CompoundEdit;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;

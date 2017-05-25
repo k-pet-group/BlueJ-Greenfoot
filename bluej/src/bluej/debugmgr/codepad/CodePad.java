@@ -22,15 +22,25 @@
 
 package bluej.debugmgr.codepad;
 
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javafx.application.Platform;
+import bluej.BlueJEvent;
+import bluej.Config;
+import bluej.collect.DataCollector;
+import bluej.debugger.DebuggerField;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.IndexHistory;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.NamedValue;
+import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.ValueCollection;
+import bluej.parser.TextAnalyzer;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ListChangeListener;
@@ -65,28 +75,16 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.QuadCurveTo;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
-import bluej.BlueJEvent;
-import bluej.Config;
-import bluej.collect.DataCollector;
-import bluej.debugger.DebuggerField;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.ExceptionDescription;
-import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.ExecutionEvent;
-import bluej.debugmgr.IndexHistory;
-import bluej.debugmgr.Invoker;
-import bluej.debugmgr.NamedValue;
-import bluej.debugmgr.ResultWatcher;
-import bluej.debugmgr.ValueCollection;
-import bluej.parser.TextAnalyzer;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.Utility;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * A code pad which can evaluate fragments of Java code.

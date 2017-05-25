@@ -21,34 +21,11 @@
  */
 package bluej.stride.framedjava.frames;
 
-import javax.swing.SwingUtilities;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import javafx.application.Platform;
-import javafx.beans.binding.StringExpression;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-
-import bluej.utility.javafx.FXPlatformConsumer;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
-import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.ASTUtility;
+import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.JavadocUnit;
@@ -60,8 +37,10 @@ import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameContentRow;
@@ -71,27 +50,29 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.ToggleBooleanProperty;
-import bluej.stride.slots.CompletionCalculator;
-import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.*;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import bluej.stride.slots.Focus;
-import bluej.stride.slots.FormalParameters;
-import bluej.stride.slots.HeaderItem;
-import bluej.stride.slots.MethodNameDefTextSlot;
-import bluej.stride.slots.SlotLabel;
-import bluej.stride.slots.SlotTraversalChars;
-import bluej.stride.slots.SuggestionList;
 import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
-import bluej.stride.slots.TextSlot;
-import bluej.stride.slots.TypeCompletionCalculator;
-import bluej.stride.slots.WrappableSlotLabel;
-
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
-import bluej.utility.Utility;
+import javafx.beans.binding.StringExpression;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TextField;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> //implements CodeFrame<NormalMethodElement>
 {

@@ -21,13 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.text.Document;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -42,6 +35,11 @@ import bluej.parser.entity.ValueEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.util.Collections;
+import java.util.List;
 
 
 

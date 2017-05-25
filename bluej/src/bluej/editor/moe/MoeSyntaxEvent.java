@@ -21,17 +21,17 @@
  */
 package bluej.editor.moe;
 
-import java.util.*;
-
-import javax.swing.event.DocumentEvent;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A representation of document events in a MoeSyntaxDocuments. As well as textual

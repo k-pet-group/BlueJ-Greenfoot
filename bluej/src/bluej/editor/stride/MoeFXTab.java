@@ -23,13 +23,9 @@ package bluej.editor.stride;
 
 import bluej.editor.moe.MoeEditor;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SwingNodeFixed;
-
-import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
-import javafx.embed.swing.SwingNode;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -37,10 +33,10 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javax.swing.SwingUtilities;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.List;
 
 
 /**

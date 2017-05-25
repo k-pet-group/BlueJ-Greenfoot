@@ -21,8 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import javax.swing.text.Document;
-
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.JavaEntity;

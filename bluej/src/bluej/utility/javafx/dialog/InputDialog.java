@@ -21,9 +21,9 @@
  */
 package bluej.utility.javafx.dialog;
 
-import javax.swing.SwingUtilities;
-import java.util.Optional;
-import java.util.function.Consumer;
+import bluej.Config;
+import bluej.utility.DialogManager;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -36,11 +36,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
-import bluej.Config;
-import bluej.utility.DialogManager;
-import bluej.utility.javafx.JavaFXUtil;
-import threadchecker.OnThread;
-import threadchecker.Tag;
+import java.util.Optional;
 
 /**
  * A base-class for dialogs which ask for a single text-field input from the user.

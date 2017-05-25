@@ -21,16 +21,14 @@
  */
 package bluej.editor;
 
-import java.nio.charset.Charset;
-
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.swing.text.BadLocationException;
+import java.nio.charset.Charset;
 
 @OnThread(Tag.FXPlatform)
 public interface TextEditor extends Editor

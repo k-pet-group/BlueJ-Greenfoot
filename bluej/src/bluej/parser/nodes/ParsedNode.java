@@ -21,18 +21,16 @@
  */
 package bluej.parser.nodes;
 
-import java.util.Iterator;
-
-import javax.swing.text.Document;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.util.Iterator;
 
 /**
  * A "parsed node" represents a node in a limited parse tree. The tree is limited because

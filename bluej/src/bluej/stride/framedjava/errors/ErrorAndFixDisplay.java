@@ -21,9 +21,13 @@
  */
 package bluej.stride.framedjava.errors;
 
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
+import bluej.editor.EditorWatcher;
+import bluej.editor.stride.CodeOverlayPane;
+import bluej.editor.stride.CodeOverlayPane.WidthLimit;
+import bluej.stride.generic.InteractionManager;
+import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -31,17 +35,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-
-import bluej.editor.EditorWatcher;
-import bluej.editor.stride.CodeOverlayPane;
-import bluej.editor.stride.CodeOverlayPane.WidthLimit;
-import bluej.stride.generic.InteractionManager;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ErrorAndFixDisplay
 {
