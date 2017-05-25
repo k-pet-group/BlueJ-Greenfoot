@@ -21,22 +21,16 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Color;
+import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
+import bluej.parser.SourceLocation;
+import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-
-import javax.swing.JEditorPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.text.BadLocationException;
-
-import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
-import bluej.utility.Utility;
-import javafx.application.Platform;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-import bluej.parser.SourceLocation;
 
 /**
  * Manages the display of parse and compiler errors for a MoeEditor instance.

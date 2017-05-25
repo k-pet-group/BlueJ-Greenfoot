@@ -21,7 +21,21 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.EventQueue;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.MethodReflective;
+import bluej.debugger.gentype.Reflective;
+import bluej.extensions.SourceType;
+import bluej.parser.ConstructorOrMethodReflective;
+import bluej.parser.JavadocParser;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.PackageResolver;
+import bluej.parser.symtab.ClassInfo;
+import bluej.utility.Debug;
+import bluej.utility.JavaNames;
+import bluej.views.CallableView;
+import bluej.views.Comment;
+import bluej.views.View;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,21 +51,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import bluej.debugger.gentype.JavaType;
-import bluej.debugger.gentype.MethodReflective;
-import bluej.debugger.gentype.Reflective;
-import bluej.extensions.SourceType;
-import bluej.parser.ConstructorOrMethodReflective;
-import bluej.parser.JavadocParser;
-import bluej.parser.entity.EntityResolver;
-import bluej.parser.entity.PackageResolver;
-import bluej.parser.symtab.ClassInfo;
-import bluej.utility.Debug;
-import bluej.utility.JavaNames;
-import bluej.views.CallableView;
-import bluej.views.Comment;
-import bluej.views.View;
 
 /**
  * Resolves javadoc from classes within a project.
@@ -164,33 +163,28 @@ public class ProjectJavadocResolver implements JavadocResolver
 
         Properties comments = commentCache.get(declName);
         if (comments == null) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run()
-                {
-                    final Properties comments = getCommentsFromSource(declName);
+            // Note: this is no longer async, but actually as it stands
+            // this method isn't being used anyway...
+            //executor.execute(new Runnable() {
+                //@Override
+                //@OnThread(value = Tag.Worker, ignoreParent = true)
+                //public void run()
+                //{
+                    comments = getCommentsFromSource(declName);
                     if (comments == null) {
-                        EventQueue.invokeLater(new Runnable() {
-                           @Override
-                            public void run()
-                            {
-                               // Javadoc not available; must notify callback.
-                               callback.gotJavadoc(method);
-                            } 
-                        });
-                        return;
+                        //Platform.runLater(() -> {
+                            // Javadoc not available; must notify callback.
+                            callback.gotJavadoc(method);
+                        //});
+                        //return;
                     }
                     
-                    EventQueue.invokeLater(new Runnable() {
-                       @Override
-                        public void run()
-                        {
-                           commentCache.put(declName, comments);
-                           findMethodComment(comments, callback, method, methodSig, true);
-                        } 
-                    });
-                }
-            });
+                    //Platform.runLater(() -> {
+                        commentCache.put(declName, comments);
+                        findMethodComment(comments, callback, method, methodSig, true);
+                    //});
+                //}
+            //});
             return false;
         }
         else {

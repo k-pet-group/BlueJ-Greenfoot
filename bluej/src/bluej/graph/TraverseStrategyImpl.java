@@ -21,13 +21,9 @@
  */
 package bluej.graph;
 
-import java.awt.event.KeyEvent;
-import java.util.Iterator;
-
-import javafx.scene.input.KeyCode;
-
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.Target;
+import javafx.scene.input.KeyCode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

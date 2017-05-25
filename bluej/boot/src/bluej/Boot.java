@@ -29,7 +29,6 @@ import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.*;
 import java.io.File;
 import java.net.*;
 import java.util.ArrayList;

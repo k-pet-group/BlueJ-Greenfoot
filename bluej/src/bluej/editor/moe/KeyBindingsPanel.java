@@ -21,48 +21,42 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Component;
-import java.awt.Event;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.KeyEvent;
+import bluej.Config;
+import bluej.editor.moe.MoeActions.Category;
+import bluej.editor.moe.MoeActions.MoeAbstractAction;
+import bluej.prefmgr.PrefPanelListener;
+import bluej.utility.DialogManager;
+import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.TextFieldListCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination.ModifierValue;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.Window;
+import javafx.util.StringConverter;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
-import javax.swing.Action;
-import javax.swing.FocusManager;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-
-import bluej.editor.moe.MoeActions.Category;
-import bluej.editor.moe.MoeActions.MoeAbstractAction;
-import bluej.utility.Utility;
-import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
-import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.TextFieldListCell;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyCombination.ModifierValue;
-import javafx.scene.layout.*;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.Window;
-
-import bluej.Config;
-import bluej.prefmgr.PrefPanelListener;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.javafx.FXPlatformSupplier;
-import javafx.util.StringConverter;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * KeyBindingsPanel panel for the key bindings in preferences

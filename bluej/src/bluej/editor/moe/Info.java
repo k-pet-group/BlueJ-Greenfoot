@@ -21,23 +21,12 @@
  */
 package bluej.editor.moe;
 
-import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.DialogManager;
-import bluej.utility.javafx.FXPlatformSupplier;
-
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javax.swing.*;           // all the GUI components
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
 /**
  * An information panel, displayed at the bottom of a MoeEditor window. The panel can

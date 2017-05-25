@@ -315,7 +315,7 @@ public class LocalDebugger extends Debugger
     }
 
     @Override
-    public Map<String, DebuggerObject> runTestSetUp(String className)
+    public FXPlatformSupplier<Map<String, DebuggerObject>> runTestSetUp(String className)
     {
         throw new UnsupportedOperationException();
     }

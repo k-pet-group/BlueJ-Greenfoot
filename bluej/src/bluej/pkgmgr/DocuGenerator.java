@@ -21,8 +21,18 @@
  */
 package bluej.pkgmgr;
 
-import javax.swing.SwingUtilities;
-import java.awt.EventQueue;
+import bluej.BlueJEvent;
+import bluej.Config;
+import bluej.extensions.SourceType;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
+import bluej.utility.Utility;
+import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,18 +46,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javafx.application.Platform;
-
-import bluej.BlueJEvent;
-import bluej.Config;
-import bluej.extensions.SourceType;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import bluej.utility.Utility;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * This class handles documentation generation from inside BlueJ.

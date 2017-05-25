@@ -21,55 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.EventQueue;
-import java.awt.Rectangle;
-import java.awt.SecondaryLoop;
-import java.awt.Toolkit;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicReference;
-
-import bluej.debugger.DebuggerThreadListener;
-import bluej.utility.javafx.JavaFXUtil;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.ScaleTransition;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Window;
-import javafx.util.Duration;
-
-import javax.swing.Timer;
-
 import bluej.BlueJEvent;
 import bluej.Boot;
 import bluej.Config;
@@ -84,6 +35,7 @@ import bluej.debugger.DebuggerEvent;
 import bluej.debugger.DebuggerListener;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
+import bluej.debugger.DebuggerThreadListener;
 import bluej.debugmgr.ExecControls;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.inspector.ClassInspector;
@@ -123,11 +75,37 @@ import bluej.utility.ImportScanner;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.View;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Window;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.*;
 
 
 /**
@@ -2413,10 +2391,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         if (rect == null)
             return;
 
-        props.put(prefix + ".x", String.valueOf(rect.x));
-        props.put(prefix + ".y", String.valueOf(rect.y));
-        props.put(prefix + ".width", String.valueOf(rect.width));
-        props.put(prefix + ".height", String.valueOf(rect.height));
+        props.put(prefix + ".x", String.valueOf((int)rect.getX()));
+        props.put(prefix + ".y", String.valueOf((int)rect.getY()));
+        props.put(prefix + ".width", String.valueOf((int)rect.getWidth()));
+        props.put(prefix + ".height", String.valueOf((int)rect.getHeight()));
     }
 
     public void setAllEditorStatus(String status)
@@ -2424,7 +2402,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         fXTabbedEditors.forEach(fte -> fte.setTitleStatus(status));
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FX)
     private Rectangle recallPosition(String prefix, List<Rectangle> cache, int index)
     {
         // First check if we have a cache since we've been opened:

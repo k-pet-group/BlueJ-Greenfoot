@@ -21,35 +21,24 @@
  */
 package bluej.pkgmgr.target;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.io.File;
-import java.lang.reflect.Array;
-import java.util.Properties;
-
-import javax.swing.SwingUtilities;
-
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ResizableCanvas;
-import javafx.application.Platform;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-
 import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import javafx.scene.layout.AnchorPane;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.io.File;
+import java.lang.reflect.Array;
+import java.util.Properties;
 
 /**
  * A sub package (or parent package)
@@ -65,9 +54,6 @@ public class PackageTarget extends Target
 
     static final String openStr = Config.getString("pkgmgr.packagemenu.open");
     static final String removeStr = Config.getString("pkgmgr.packagemenu.remove");
-
-    static final BasicStroke normalStroke = new BasicStroke(1);
-    static final BasicStroke selectedStroke = new BasicStroke(3);
 
     @OnThread(Tag.FXPlatform)
     private boolean isMoveable = true;

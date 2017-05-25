@@ -21,16 +21,12 @@
  */
 package bluej.compiler;
 
-import java.awt.EventQueue;
-import java.lang.reflect.InvocationTargetException;
+import bluej.utility.javafx.FXPlatformRunnable;
+import javafx.application.Platform;
+
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
-import bluej.utility.javafx.FXPlatformRunnable;
-import javafx.application.Platform;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * This class adapts CompileObserver messages to run on the JavaFX GUI thread.

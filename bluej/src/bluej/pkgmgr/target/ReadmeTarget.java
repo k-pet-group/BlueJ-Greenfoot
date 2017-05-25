@@ -21,35 +21,23 @@
  */
 package bluej.pkgmgr.target;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-
-import javax.swing.SwingUtilities;
-
-import javafx.application.Platform;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-
 import bluej.Config;
-import bluej.collect.DiagnosticWithShown;
-import bluej.collect.StrideEditReason;
-import bluej.compiler.CompileReason;
-import bluej.compiler.CompileType;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
-import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * A parent package

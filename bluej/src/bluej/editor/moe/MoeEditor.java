@@ -21,54 +21,45 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-
-import javax.swing.Timer;
-import javax.swing.text.BadLocationException;
-
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
+import bluej.Config;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.compiler.Diagnostic;
+import bluej.debugger.DebuggerThread;
+import bluej.editor.EditorWatcher;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.MoeActions.MoeAbstractAction;
+import bluej.editor.moe.MoeErrorManager.ErrorDetails;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
+import bluej.editor.stride.FrameEditor;
 import bluej.editor.stride.MoeFXTab;
 import bluej.extensions.SourceType;
+import bluej.extensions.editor.Editor;
+import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
+import bluej.parser.CodeSuggestions;
 import bluej.parser.ImportsCollection;
+import bluej.parser.ImportsCollection.LocatableImport;
+import bluej.parser.ParseUtils;
+import bluej.parser.SourceLocation;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
+import bluej.pkgmgr.JavadocResolver;
+import bluej.prefmgr.PrefMgr;
+import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.slots.SuggestionList;
@@ -77,6 +68,9 @@ import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 import bluej.stride.slots.SuggestionList.SuggestionListParent;
 import bluej.stride.slots.SuggestionList.SuggestionShown;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
@@ -101,12 +95,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
-import javafx.stage.*;
-
+import javafx.stage.PopupWindow;
+import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.GenericStyledArea;
@@ -117,41 +116,24 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.BlueJEvent;
-import bluej.BlueJEventListener;
-import bluej.Config;
-import bluej.compiler.Diagnostic;
-import bluej.debugger.DebuggerThread;
-import bluej.editor.EditorWatcher;
-import bluej.editor.moe.MoeErrorManager.ErrorDetails;
-import bluej.editor.stride.FrameEditor;
-import bluej.extensions.editor.Editor;
-import bluej.parser.AssistContent;
-import bluej.parser.CodeSuggestions;
-import bluej.parser.ImportsCollection.LocatableImport;
-import bluej.parser.ParseUtils;
-import bluej.parser.SourceLocation;
-import bluej.parser.entity.EntityResolver;
-import bluej.parser.lexer.LocatableToken;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
-import bluej.parser.nodes.ParsedCUNode;
-import bluej.parser.nodes.ParsedNode;
-import bluej.pkgmgr.JavadocResolver;
-import bluej.prefmgr.PrefMgr;
-import bluej.stride.framedjava.elements.CallElement;
-import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.elements.NormalMethodElement;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.PopupControl;
-import javafx.scene.control.Skin;
-import javafx.scene.control.Skinnable;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.stage.PopupWindow;
+
+import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 /**
  * Moe is the editor of the BlueJ environment. This class is the main class of
@@ -174,9 +156,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     final static int version = 400;
     final static String versionString = "3.3.0";
 
-    // colours
-    final static Color infoColor = new Color(240, 240, 240);
-    final static Color lightGrey = new Color(224, 224, 224);
     // suffixes for resources
     final static String LabelSuffix = "Label";
     final static String ActionSuffix = "Action";
@@ -188,10 +167,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private final static String CRASHFILE_SUFFIX = "#";
     private final static String BACKUP_SUFFIX = "~";
     private final static int NAVIVIEW_WIDTH = 90;       // width of the "naviview" (min-source) box
-    private static final Color highlightBorderColor = new Color(212, 172,45);
-    // Fonts
-    private static final int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
-    private static final Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
 
     // -------- CLASS VARIABLES --------
     private static boolean matchBrackets = false;

@@ -21,19 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.SecondaryLoop;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import javafx.application.Platform;
-import javafx.stage.Window;
-
 import bluej.extensions.SourceType;
 import bluej.parser.InfoParser;
 import bluej.parser.symtab.ClassInfo;
@@ -41,6 +28,15 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.FXPlatformSupplier;
+import javafx.stage.Window;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Utility functions to help in the process of importing directory

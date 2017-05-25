@@ -21,9 +21,17 @@
  */
 package bluej.pkgmgr;
 
-import javax.swing.*;
-import java.awt.EventQueue;
-import java.lang.reflect.InvocationTargetException;
+import bluej.Config;
+import bluej.collect.DataCollector;
+import bluej.debugger.DebuggerTestResult;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.testmgr.TestDisplayFrame;
+import bluej.utility.Debug;
+import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,18 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
-import javafx.application.Platform;
-
-import bluej.utility.Debug;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-import bluej.Config;
-import bluej.collect.DataCollector;
-import bluej.debugger.DebuggerTestResult;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.role.UnitTestClassRole;
-import bluej.testmgr.TestDisplayFrame;
 
 /**
  * Provide a thread class for running unit tests.

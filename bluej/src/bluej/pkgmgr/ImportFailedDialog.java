@@ -21,27 +21,20 @@
  */
 package bluej.pkgmgr;
 
-import bluej.*;
+import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.*;
-import java.awt.Label;
-import java.awt.List;
-import java.awt.ScrollPane;
-import java.awt.event.*;
 import java.io.File;
-import java.util.*;
 import java.util.stream.Collectors;
-import javax.swing.*;
-import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import javafx.stage.*;
 
 /**
  * Dialog for showing the user a list of files which failed

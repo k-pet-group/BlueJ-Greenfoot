@@ -25,6 +25,8 @@ import java.util.concurrent.Executor;
 
 import bluej.debugger.gentype.MethodReflective;
 import bluej.parser.ConstructorOrMethodReflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An interface for javadoc resolvers, which retrieve javadoc for a method. 
@@ -43,6 +45,7 @@ public interface JavadocResolver
 
     public static interface AsyncCallback
     {
+        @OnThread(Tag.FXPlatform)
         void gotJavadoc(ConstructorOrMethodReflective method);
     }
     

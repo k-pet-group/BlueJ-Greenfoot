@@ -21,19 +21,16 @@
  */
 package bluej.graph;
 
-import java.awt.Point;
-import java.awt.event.MouseEvent;
+import bluej.pkgmgr.target.Target;
+import bluej.utility.javafx.FXPlatformConsumer;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import bluej.pkgmgr.target.Target;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * SelectionSet holds a set of selected graph elements. By inserting an

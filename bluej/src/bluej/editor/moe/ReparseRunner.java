@@ -23,14 +23,10 @@ package bluej.editor.moe;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-import java.awt.EventQueue;
-
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.prefmgr.PrefMgr;
 
 /**
  * Process the document re-parse queue.

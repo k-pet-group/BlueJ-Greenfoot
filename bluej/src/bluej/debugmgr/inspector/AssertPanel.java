@@ -21,20 +21,15 @@
  */
 package bluej.debugmgr.inspector;
 
-import javax.swing.SwingUtilities;
-import javax.swing.text.PlainDocument;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
+import bluej.Config;
+import bluej.collect.DataCollector;
+import bluej.debugger.gentype.JavaType;
+import bluej.pkgmgr.Package;
+import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.javafx.FXPlatformSupplier;
-import javafx.application.Platform;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -45,16 +40,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-
-import bluej.Config;
-import bluej.collect.DataCollector;
-import bluej.debugger.gentype.JavaType;
-import bluej.pkgmgr.Package;
-import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.Utility;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * A panel that can record assertion statements.

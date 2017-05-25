@@ -21,12 +21,8 @@
  */
 package bluej.pkgmgr.target.role;
 
-import java.awt.Color;
-import java.awt.Paint;
+import bluej.pkgmgr.target.ClassTarget;
 import javafx.collections.ObservableList;
-
-import bluej.Config;
-import bluej.pkgmgr.target.*;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -38,7 +34,6 @@ import threadchecker.Tag;
 public class AbstractClassRole extends ClassRole
 {
     public final static String ABSTRACT_ROLE_NAME = "AbstractTarget";
-    private static final Color abstractbg = Config.getOptionalItemColour("colour.class.bg.abstract");
     
     /**
      * Create the abstract class role.

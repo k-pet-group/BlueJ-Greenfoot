@@ -21,36 +21,31 @@
  */
 package bluej.collect;
 
-import javax.swing.SwingUtilities;
-import java.awt.SecondaryLoop;
-import java.awt.Toolkit;
-import java.io.File;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import javafx.application.Platform;
-
 import bluej.Boot;
+import bluej.Config;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
-import bluej.extensions.SourceType;
-import bluej.pkgmgr.target.ClassTarget;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-import bluej.Config;
 import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.extensions.SourceType;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.io.File;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * DataCollector for sending off data.

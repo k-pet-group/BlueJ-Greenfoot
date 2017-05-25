@@ -24,6 +24,7 @@ package bluej.debugger.jdi;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -480,11 +481,10 @@ public class JdiDebugger extends Debugger
      * @return a Map of (String name, DebuggerObject obj) entries
      *         null if an error occurs (such as VM termination)
      */
-    public Map<String, DebuggerObject> runTestSetUp(String className)
+    @OnThread(Tag.Any)
+    public FXPlatformSupplier<Map<String, DebuggerObject>> runTestSetUp(String className)
     {
         ArrayReference arrayRef = null;
-        Map<String, DebuggerObject> returnMap = new HashMap<String, DebuggerObject>();
-        
         VMReference vmr = getVM();
         try {
             synchronized (serverThreadLock) {
@@ -505,36 +505,44 @@ public class JdiDebugger extends Debugger
                 // we could return a Map from RUN_TEST_SETUP but then we'd have to use
                 // JDI reflection to make method calls on Map in order to extract the values
                 
-                if (arrayRef != null) {
-                    
+                if (arrayRef != null)
+                {
+                    ArrayReference arrayRefFinal = arrayRef;
                     // The test case object
-                    ObjectReference testObject = (ObjectReference)arrayRef.getValue(arrayRef.length()-1);
-                    // get the associated JdiObject so that we can get potentially generic fields 
-                    // from the test case.
-                    JdiObject jdiTestObject = JdiObject.getDebuggerObject(testObject);
-                    
-                    // last slot in array is test case object so it does not get touched here
-                    // our iteration boundary is therefore one less than array length
-                    for (int i = 0; i < arrayRef.length() - 1; i += 2) {
-                        String fieldName = ((StringReference) arrayRef.getValue(i)).value();
-                        Field testField = testObject.referenceType().fieldByName(fieldName);            
-                        returnMap.put(fieldName, JdiObject
-                                .getDebuggerObject((ObjectReference) arrayRef.getValue(i + 1), testField, jdiTestObject));
-                    }
+                    ObjectReference testObject = (ObjectReference) arrayRef.getValue(arrayRef.length() - 1);
+                    return () -> {
+                        Map<String, DebuggerObject> returnMap = new HashMap<String, DebuggerObject>();
+
+                        // get the associated JdiObject so that we can get potentially generic fields
+                        // from the test case.
+                        JdiObject jdiTestObject = JdiObject.getDebuggerObject(testObject);
+
+                        // last slot in array is test case object so it does not get touched here
+                        // our iteration boundary is therefore one less than array length
+                        for (int i = 0; i < arrayRefFinal.length() - 1; i += 2)
+                        {
+                            String fieldName = ((StringReference) arrayRefFinal.getValue(i)).value();
+                            Field testField = testObject.referenceType().fieldByName(fieldName);
+                            returnMap.put(fieldName, JdiObject
+                                    .getDebuggerObject((ObjectReference) arrayRefFinal.getValue(i + 1), testField, jdiTestObject));
+                        }
+                        // the resulting map consists of entries (String fieldName, JdiObject
+                        // obj)
+                        return returnMap;
+                    };
                 }
+                else
+                    return () -> Collections.emptyMap();
             }
         }
         catch (InvocationException e) {
             // what to do here??
-            return null;
+            return () -> null;
         }
         catch (VMDisconnectedException e) {
-            return null;
+            return () -> null;
         }
-        
-        // the resulting map consists of entries (String fieldName, JdiObject
-        // obj)
-        return returnMap;
+
     }
 
     /**

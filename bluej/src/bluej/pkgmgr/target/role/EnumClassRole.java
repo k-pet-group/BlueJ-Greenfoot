@@ -21,17 +21,12 @@
  */
 package bluej.pkgmgr.target.role;
 
-import java.awt.Color;
-import java.awt.Paint;
-
-import javafx.collections.ObservableList;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-
-import bluej.Config;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.prefmgr.PrefMgr;
+import javafx.collections.ObservableList;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -43,7 +38,6 @@ import threadchecker.Tag;
 public class EnumClassRole extends ClassRole
 {
     public final static String ENUM_ROLE_NAME = "EnumTarget";
-    private static final Color enumbg = Config.getOptionalItemColour("colour.class.bg.enum");
     
     /**
      * Create the enum class role.

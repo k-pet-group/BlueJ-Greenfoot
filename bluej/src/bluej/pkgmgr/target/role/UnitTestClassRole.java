@@ -21,12 +21,41 @@
  */
 package bluej.pkgmgr.target.role;
 
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.GradientPaint;
-import java.awt.Paint;
-import java.awt.SecondaryLoop;
-import java.awt.Toolkit;
+import bluej.Config;
+import bluej.collect.DataCollector;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
+import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.editor.TextEditor;
+import bluej.parser.SourceLocation;
+import bluej.parser.SourceSpan;
+import bluej.parser.UnitTestAnalyzer;
+import bluej.pkgmgr.PackageEditor;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.TestRunnerThread;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget.State;
+import bluej.pkgmgr.target.Target;
+import bluej.testmgr.TestDisplayFrame;
+import bluej.testmgr.record.ExistingFixtureInvokerRecord;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
+import bluej.utility.JavaUtils;
+import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.dialog.InputDialog;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import org.junit.Test;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -42,46 +71,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
-import javax.swing.SwingUtilities;
-
-import bluej.pkgmgr.target.DependentTarget.State;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-
-import bluej.compiler.CompileReason;
-import bluej.compiler.CompileType;
-import bluej.pkgmgr.Project;
-import bluej.utility.javafx.dialog.InputDialog;
-import org.junit.Test;
-
-import bluej.Config;
-import bluej.collect.DataCollector;
-import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.editor.TextEditor;
-import bluej.parser.SourceLocation;
-import bluej.parser.SourceSpan;
-import bluej.parser.UnitTestAnalyzer;
-import bluej.pkgmgr.PackageEditor;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.TestRunnerThread;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.Target;
-import bluej.testmgr.TestDisplayFrame;
-import bluej.testmgr.record.ExistingFixtureInvokerRecord;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
-import bluej.utility.JavaUtils;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * A role object for Junit unit tests.
@@ -92,8 +82,6 @@ public class UnitTestClassRole extends ClassRole
 {
     public static final String UNITTEST_ROLE_NAME = "UnitTestTarget";
     public static final String UNITTEST_ROLE_NAME_JUNIT4 = "UnitTestTargetJunit4";
-
-    private final Color unittestbg = Config.getOptionalItemColour("colour.class.bg.unittest");
 
     private static final String testAll = Config.getString("pkgmgr.test.popup.testAll");
     private static final String createTest = Config.getString("pkgmgr.test.popup.createTest");
@@ -467,32 +455,33 @@ public class UnitTestClassRole extends ClassRole
      */
     private void runTestSetup(final PkgMgrFrame pmf, final ClassTarget ct, final boolean recordAsFixtureToBench)
     {
+        Project project = pmf.getProject();
+
         // Avoid running test setup (which is user code) on the event thread.
         // Run it on a new thread instead.
         new Thread() {
+            @OnThread(value = Tag.Unique, ignoreParent = true)
             public void run() {
+
+                final FXPlatformSupplier<Map<String, DebuggerObject>> dobs = project.getDebugger().runTestSetUp(ct.getQualifiedName());
                 
-                final Map<String,DebuggerObject> dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
-                
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
-                        List<DataCollector.NamedTyped> recordObjects = new ArrayList<DataCollector.NamedTyped>();
-                        Iterator<Map.Entry<String,DebuggerObject>> it = dobs.entrySet().iterator();
-                        
-                        while(it.hasNext()) {
-                            Map.Entry<String,DebuggerObject> mapent = it.next();
-                            DebuggerObject objVal = mapent.getValue();
-                            
-                            if (! objVal.isNullObject()) {
-                                String actualName = pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null, Optional.empty());
-                                recordObjects.add(new DataCollector.NamedTyped(actualName, objVal.getClassName()));
-                            }
+                Platform.runLater(() -> {
+                    List<DataCollector.NamedTyped> recordObjects = new ArrayList<DataCollector.NamedTyped>();
+                    Iterator<Map.Entry<String,DebuggerObject>> it = dobs.get().entrySet().iterator();
+
+                    while(it.hasNext()) {
+                        Map.Entry<String,DebuggerObject> mapent = it.next();
+                        DebuggerObject objVal = mapent.getValue();
+
+                        if (! objVal.isNullObject()) {
+                            String actualName = pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null, Optional.empty());
+                            recordObjects.add(new DataCollector.NamedTyped(actualName, objVal.getClassName()));
                         }
-                        
-                        if (recordAsFixtureToBench)
-                        {
-                            DataCollector.fixtureToObjectBench(pmf.getPackage(), ct.getSourceFile(), recordObjects);
-                        }
+                    }
+
+                    if (recordAsFixtureToBench)
+                    {
+                        DataCollector.fixtureToObjectBench(pmf.getPackage(), ct.getSourceFile(), recordObjects);
                     }
                 });
             }

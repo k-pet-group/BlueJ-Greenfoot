@@ -21,30 +21,6 @@
  */
 package bluej.debugmgr.inspector;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.swing.SwingUtilities;
-
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.StageStyle;
-
 import bluej.Config;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
@@ -55,14 +31,35 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.Debug;
 import bluej.utility.JavaUtils;
 import bluej.utility.javafx.FXFormattedPrintWriter;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.Comment;
 import bluej.views.MethodView;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.StageStyle;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * A window that displays a method return value.
@@ -230,13 +227,7 @@ public class ResultInspector extends Inspector
         ContextMenu copyPopup = new ContextMenu();
         copyPopup.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"),() ->
             {
-                try {
-                    StringSelection ss = new StringSelection(expressionDisplay);
-                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, ss);
-                }
-                catch (IllegalStateException ise) {
-                    Debug.log("Copy: clipboard unavailable.");
-                }
+                Clipboard.getSystemClipboard().setContent(Collections.singletonMap(DataFormat.PLAIN_TEXT, expressionDisplay));
             }
         , null));
         expression.setOnContextMenuRequested(e -> copyPopup.show(expression, e.getScreenX(), e.getScreenY()));

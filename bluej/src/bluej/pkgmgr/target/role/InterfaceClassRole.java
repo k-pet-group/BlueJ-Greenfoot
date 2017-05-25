@@ -21,9 +21,6 @@
  */
 package bluej.pkgmgr.target.role;
 
-import java.awt.*;
-
-import bluej.Config;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -35,7 +32,6 @@ import threadchecker.Tag;
 public class InterfaceClassRole extends ClassRole
 {
     public final static String INTERFACE_ROLE_NAME = "InterfaceTarget";
-    private static final Color interfacebg = Config.getOptionalItemColour("colour.class.bg.interface");
 
     /**
      * Create the interface class role.

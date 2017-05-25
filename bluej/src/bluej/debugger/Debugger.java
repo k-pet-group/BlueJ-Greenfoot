@@ -202,7 +202,8 @@ public abstract class Debugger
      * @param className  the fully qualified name of the class
      * @return          a Map of (String name, DebuggerObject obj) entries
      */
-    public abstract Map<String,DebuggerObject> runTestSetUp(String className);
+    @OnThread(Tag.Any)
+    public abstract FXPlatformSupplier<Map<String,DebuggerObject>> runTestSetUp(String className);
 
     /**
      * Run a single test method in a test class and return the result.

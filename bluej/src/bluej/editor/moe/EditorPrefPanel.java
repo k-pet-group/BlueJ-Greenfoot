@@ -21,12 +21,12 @@
  */
 package bluej.editor.moe;
 
-import javax.swing.SwingUtilities;
-import java.awt.FlowLayout;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import bluej.Config;
+import bluej.editor.EditorManager;
+import bluej.prefmgr.PrefMgr;
+import bluej.prefmgr.PrefMgrDialog;
+import bluej.prefmgr.PrefPanelListener;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
@@ -34,16 +34,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-
-import bluej.BlueJTheme;
-import bluej.Config;
-import bluej.editor.EditorManager;
-import bluej.prefmgr.PrefMgr;
-import bluej.prefmgr.PrefMgrDialog;
-import bluej.prefmgr.PrefPanelListener;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
