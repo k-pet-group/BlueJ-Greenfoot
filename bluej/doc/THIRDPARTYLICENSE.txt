@@ -157,6 +157,17 @@ the auto-generated application menu. This version is distributed under the terms
 the BSD license as found in the "nsmenufx-BSD.txt" file.
 
 
+RichTextFX (2-clause BSD license)
+---------------------------------
+"richtextfx-fat-0.7-M5n.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
+and its dependencies, which all have the option to be licensed under the BSD 2-clause
+license (see the BSD-2clause.txt file), with the following copyrights:
+ReactFX: Copyright (c) 2013-2014, Tomas Mikula
+UndoFX: Copyright (c) 2014, Tomas Mikula
+Flowless: Copyright (c) 2014, TomasMikula
+WellBehavedFX: Copyright (c) 2014, TomasMikula
+RichTextFX: Copyright (c) 2013-2017, Tomas Mikula and contributors
+
 Sequence Library (3-clause BSD license)
 ---------------------------------------
 "sequence-library-1.0.3.jar" is part of a sequence library, available in source form
