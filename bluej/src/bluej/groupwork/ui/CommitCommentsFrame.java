@@ -34,17 +34,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
@@ -66,6 +69,7 @@ import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
 
 import threadchecker.OnThread;
@@ -106,60 +110,57 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     /**
      *
      */
-    private SplitPane makeMainPane()
+    private Pane makeMainPane()
     {
         ListView<TeamStatusInfo> commitFiles = new ListView<>(commitListModel);
         commitFiles.setPlaceholder(new Label(Config.getString("team.nocommitfiles")));
-        commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
+        commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));//
         commitFiles.setDisable(true);
+
         ScrollPane fileScrollPane = new ScrollPane(commitFiles);
         fileScrollPane.setFitToWidth(true);
         fileScrollPane.setFitToHeight(true);
+        VBox.setMargin(fileScrollPane, new Insets(0, 0, 20, 0));
 
-        commitText.setPrefRowCount(6);
-        commitText.setPrefColumnCount(42);
-        ScrollPane messageScrollPane = new ScrollPane(commitText);
-        messageScrollPane.setFitToWidth(true);
-        messageScrollPane.setFitToHeight(true);
+        commitText.setPrefRowCount(20);
+        commitText.setPrefColumnCount(35);
+        VBox.setMargin(commitText, new Insets(0, 0, 10, 0));
 
         commitAction = new CommitAction(this);
         Button commitButton = new Button();
         commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
         commitButton.requestFocus();
+        //Bind commitText properties to enable the commit action/button if there is a comment.
+        commitAction.disabledProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
 
         progressBar.setRunning(false);
 
         includeLayout.setDisable(true);
         includeLayout.setOnAction(event -> {
-            CheckBox layoutCheck = (CheckBox)event.getSource();
+            CheckBox layoutCheck = (CheckBox) event.getSource();
             if(layoutCheck.isSelected()) {
                 addModifiedLayouts();
-                if(commitButton.isDisabled())
-                    commitAction.setEnabled(true);
             }
             // unselected
             else {
                 removeModifiedLayouts();
-                if (commitListModel.isEmpty())
-                    commitAction.setEnabled(false);
             }
         });
 
-        VBox leftPane = new VBox();
-        leftPane.getChildren().addAll(new Label(Config.getString("team.commit.files")), fileScrollPane);
+        HBox commitButtonPane = new HBox();
+        JavaFXUtil.addStyleClass(commitButtonPane, "button-hbox");
+        commitButtonPane.setAlignment(Pos.CENTER_RIGHT);
+        commitButtonPane.getChildren().addAll(includeLayout, commitButton, progressBar);
 
-        HBox buttonPanel = new HBox();
-        buttonPanel.getChildren().addAll(includeLayout, commitButton, progressBar);
+        VBox mainPane = new VBox();
+        JavaFXUtil.addStyleClass(mainPane, "main-pane");
+        mainPane.getChildren().addAll(new Label(Config.getString("team.commit.files")), fileScrollPane,
+                                      new Label(Config.getString("team.commit.comment")), commitText,
+                                      commitButtonPane);
+        VBox.setVgrow(fileScrollPane, Priority.ALWAYS);
+        VBox.setVgrow(commitText, Priority.ALWAYS);
 
-        VBox rightPane = new VBox();
-        rightPane.getChildren().addAll(new Label(Config.getString("team.commit.comment")),
-                                       messageScrollPane, buttonPanel);
-        VBox.setVgrow(messageScrollPane, Priority.ALWAYS);
-
-        SplitPane splitPane = new SplitPane();
-        splitPane.setDividerPositions(0.5);
-        splitPane.getItems().addAll(leftPane, rightPane);
-        return splitPane;
+        return mainPane;
     }
 
     /**
