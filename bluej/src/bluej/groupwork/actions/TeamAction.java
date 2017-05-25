@@ -114,10 +114,5 @@ public abstract class TeamAction
         menuItem.setOnAction(e -> actionPerformed(pmf));
     }
 
-    public BooleanProperty disabledProperty()
-    {
-        return disabled;
-    }
-
     protected abstract void actionPerformed(PkgMgrFrame pmf);
 }

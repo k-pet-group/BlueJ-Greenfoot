@@ -131,7 +131,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
         commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
         commitButton.requestFocus();
         //Bind commitText properties to enable the commit action/button if there is a comment.
-        commitAction.disabledProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
+        commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
 
         progressBar.setRunning(false);
 
