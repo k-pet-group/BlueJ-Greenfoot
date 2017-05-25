@@ -113,6 +113,7 @@ public class MethodDialog extends CallDialog
             else if (parameterList != null) {
                 parameterList.getActualParameter(0).getEditor().requestFocus();
             }
+            //org.scenicview.ScenicView.show(getDialogPane().getScene());
         });
     }
 

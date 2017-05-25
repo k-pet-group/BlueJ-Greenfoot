@@ -214,32 +214,37 @@ public abstract class CallDialog extends Dialog<Void>
         Label startParenthesis = new Label(startString); // TODO increase font size?
         startParenthesis.setAlignment(Pos.BASELINE_LEFT);
         parameterPanel.add(startParenthesis, 0, 0);
+        GridPane.setValignment(startParenthesis, VPos.BASELINE);
 
         for (int i = 0; i < parameterList.formalCount(); i++) {
             ObservableList<? extends Node> components = parameterList.getNodesForFormal(i);
 
             if (components.size() == 1) { // One component means it is not Varargs.
                 Node child = components.get(0);
-                parameterPanel.add(child, 1, i + 1);
+                parameterPanel.add(child, 1, i);
             }
             else { // Varargs.
                 GridPane varargsPane = new GridPane();
                 varargsPane.getStyleClass().add("grid");
                 varargsPane.setAlignment(Pos.BASELINE_LEFT);
+                GridPane.setValignment(varargsPane, VPos.BASELINE);
                 arrangeVarargsComponents(varargsPane, components);
-                components.addListener((ListChangeListener<Node>) c -> arrangeVarargsComponents(varargsPane, c.getList()));
+                components.addListener((ListChangeListener<Node>) c -> {
+                    arrangeVarargsComponents(varargsPane, c.getList());
+                    getDialogPane().getScene().getWindow().sizeToScene();
+                });
 
                 // Second column gets any extra width
                 ColumnConstraints column2 = new ColumnConstraints();
                 column2.setHgrow(Priority.ALWAYS);
                 varargsPane.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints(), new ColumnConstraints() );
 
-                parameterPanel.add(varargsPane, 1, i + 1);
+                parameterPanel.add(varargsPane, 1, i);
             }
 
             Label type = new Label( (i == (parameterList.formalCount() - 1)) ? endString : ",");
             type.setAlignment(Pos.BOTTOM_LEFT);
-            parameterPanel.add(type, 2, i + 1);
+            parameterPanel.add(type, 2, i);
             GridPane.setValignment(type, VPos.BOTTOM);
         }
 
