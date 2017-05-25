@@ -239,6 +239,7 @@ public final class Terminal
             e.consume();
         });
         input.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
+        input.setEditable(false);
 
         Nodes.addInputMap(input, InputMap.sequence(
                 // CTRL-D (unix/Mac EOF)
@@ -251,6 +252,7 @@ public final class Terminal
         ));
 
         splitPane = new SplitPane(new BorderPane(scrollPane, null, null, input, null));
+        JavaFXUtil.addStyleClass(splitPane, "terminal-split");
 
         BorderPane mainPanel = new BorderPane();
         mainPanel.setCenter(splitPane);
@@ -345,7 +347,7 @@ public final class Terminal
     }
 
     /**
-     * Make the window active.
+     * Make the input field active, or not
      */
     public void activate(boolean active)
     {
@@ -743,8 +745,6 @@ public final class Terminal
             errorText.setOnInsideSelectionMousePressRelease(onClick);
             //MOEFX
             //errorText.setMargin(new Insets(6, 6, 6, 6));
-            //MOEFX
-            //errorText.setUnlimitedBuffering(true);
         }
         splitPane.getItems().add(errorScrollPane);
         Config.rememberDividerPosition(window, splitPane, "bluej.terminal.dividerpos");

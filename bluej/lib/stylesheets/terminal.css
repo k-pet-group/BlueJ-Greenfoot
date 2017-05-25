@@ -3,7 +3,9 @@
     -fx-gravity: rear;
 }
 */
-
+.terminal-split {
+    -fx-orientation: vertical;
+}
 .terminal-output {
     -fx-fill: black;
 }
