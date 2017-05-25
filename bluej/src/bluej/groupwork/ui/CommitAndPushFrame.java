@@ -72,6 +72,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
@@ -113,7 +114,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         super(owner, "team.commit.dcvs.title", "team-commit-push");
         project = proj;
         repository = project.getTeamSettingsController().getRepository(false);
-        buildUI();
+        getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
 //        DialogManager.centreDialog(this);
         rememberPosition("bluej.commitdisplay");
@@ -123,7 +124,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     /**
      * Create the user-interface for the error display dialog.
      */
-    private void buildUI()
+    private Pane makeMainPane()
     {
         ListView<TeamStatusInfo> commitFiles = new ListView<>(commitListModel);
         commitFiles.setPlaceholder(new Label(Config.getString("team.nocommitfiles")));
@@ -132,7 +133,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         ScrollPane commitFileScrollPane = new ScrollPane(commitFiles);
         commitFileScrollPane.setFitToWidth(true);
         commitFileScrollPane.setFitToHeight(true);
-//        commitFiles.setBackground(mainPane.getBackground());//
         VBox.setMargin(commitFileScrollPane, new Insets(0, 0, 20, 0));
 
         commitText.setPrefRowCount(20);
@@ -193,7 +193,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                 new Separator(Orientation.HORIZONTAL),
                 pushFilesLabel, pushFileScrollPane,
                 pushButtonPane);
-        getDialogPane().setContent(mainPane);
+        return mainPane;
     }
 
     /**
