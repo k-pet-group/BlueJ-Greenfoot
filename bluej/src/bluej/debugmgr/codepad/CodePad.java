@@ -878,7 +878,7 @@ public class CodePad extends VBox
 
     public void clear()
     {
-        SwingUtilities.invokeLater(this::clearVars);
+        clearVars();
     }
 
     /**

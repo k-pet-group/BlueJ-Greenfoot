@@ -131,7 +131,7 @@ public class MethodDialog extends CallDialog
         } 
         else {
             setWaitCursor(true);
-            SwingUtilities.invokeLater(invoker::callDialogOK);
+            invoker.callDialogOK();
         }
     }
 

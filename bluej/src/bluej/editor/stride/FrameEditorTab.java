@@ -978,9 +978,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private void saveAfterAutomatedEdit()
     {
         modifiedFrame(null, true);
-        SwingUtilities.invokeLater(() ->
-                editor.getWatcher().scheduleCompilation(false, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE)
-        );
+        editor.getWatcher().scheduleCompilation(false, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
     }
 
     @OnThread(Tag.Any)

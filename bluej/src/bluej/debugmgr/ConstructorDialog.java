@@ -171,33 +171,28 @@ public class ConstructorDialog extends CallDialog
             JavaFXUtil.setPseudoclass("bj-dialog-error", true, instanceNameText);
             return;
         }
-        // Must cross threads to check object bench:
-        SwingUtilities.invokeLater(() -> {
-            boolean alreadyOnBench = bench != null && bench.hasObject(newInstanceName);
-            Platform.runLater(() -> {
-                if (alreadyOnBench)
-                {
-                    setErrorMessage(duplicateNameMsg);
-                    JavaFXUtil.setPseudoclass("bj-dialog-error", true, instanceNameText);
-                    return;
-                }
-                JavaFXUtil.setPseudoclass("bj-dialog-error", false, instanceNameText);
+        boolean alreadyOnBench = bench != null && bench.hasObject(newInstanceName);
+        if (alreadyOnBench)
+        {
+            setErrorMessage(duplicateNameMsg);
+            JavaFXUtil.setPseudoclass("bj-dialog-error", true, instanceNameText);
+            return;
+        }
+        JavaFXUtil.setPseudoclass("bj-dialog-error", false, instanceNameText);
 
-                if (!parameterFieldsOk())
-                {
-                    setErrorMessage(emptyFieldMsg);
-                }
-                else if (!typeParameterFieldsOk())
-                {
-                    setErrorMessage(emptyTypeFieldMsg);
-                }
-                else
-                {
-                    setWaitCursor(true);
-                    SwingUtilities.invokeLater(invoker::callDialogOK);
-                }
-            });
-        });
+        if (!parameterFieldsOk())
+        {
+            setErrorMessage(emptyFieldMsg);
+        }
+        else if (!typeParameterFieldsOk())
+        {
+            setErrorMessage(emptyTypeFieldMsg);
+        }
+        else
+        {
+            setWaitCursor(true);
+            SwingUtilities.invokeLater(invoker::callDialogOK);
+        }
     }
     
     /**

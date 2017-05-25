@@ -665,7 +665,7 @@ public class PkgMgrFrame
             frames.remove(frame);
         }
 
-        SwingUtilities.invokeLater(() -> BlueJEvent.removeListener(frame));
+        BlueJEvent.removeListener(frame);
 
         PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEval.get());
         javafx.stage.Window window = frame.getFXWindow();
