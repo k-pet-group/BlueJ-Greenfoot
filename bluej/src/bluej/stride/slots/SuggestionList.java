@@ -669,12 +669,18 @@ public class SuggestionList
             if (singleOptionAvailable)
             {
                 int choice = getFirstEligible();
-                // runLater because our caller won't expect us to call back before show has finished:
-                JavaFXUtil.runAfterCurrent(() -> {
-                    listener.hidden();
-                    listener.suggestionListChoiceClicked(choice);
-                });
-                return;
+                // If it's only a related suggestion, don't complete it!  Show window instead
+                if (choice < choices.size())
+                {
+                    // runLater because our caller won't expect us to call back before show has finished:
+                    JavaFXUtil.runAfterCurrent(() ->
+                    {
+                        listener.hidden();
+                        listener.suggestionListChoiceClicked(choice);
+                    });
+                    return;
+                }
+
             }
         }
 
