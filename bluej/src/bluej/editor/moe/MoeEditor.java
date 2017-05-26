@@ -2599,15 +2599,17 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
                 // First, try to get the character after the caret:
                 Bounds pos = sourcePane.getCharacterBoundsOnScreen(displayPosition, displayPosition + 1).orElse(null);
+                boolean before = false;
                 // That may be null if caret was at end of line, in which case try character before:
                 if (pos == null)
                 {
                     pos = sourcePane.getCharacterBoundsOnScreen(displayPosition - 1, displayPosition).orElse(null);;
+                    before = true;
                 }
                 // If that still doesn't work, give up (may not be on screen)
                 if (pos == null)
                     return;
-                int xpos = (int)(pos.getMinX());
+                int xpos = (int)(before ? pos.getMaxX() : pos.getMinX());
                 int ypos = (int)(pos.getMinY() + (4*pos.getHeight()/3));
                 errorDisplay = new ErrorDisplay(details);
                 ErrorDisplay newDisplay = errorDisplay;
@@ -3092,18 +3094,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
         ParsedCUNode parser = sourceDocument.getParser();
         CodeSuggestions suggests = parser == null ? null : parser.getExpressionType(sourcePane.getCaretPosition(),
                 sourceDocument);
-        LocatableToken suggestToken;
-        int cpos;
-        int xpos = 0, ypos = 0;
-        //get screen positioning too.
-        cpos = sourcePane.getCaretPosition();
-        Bounds screenPos = sourcePane.getCharacterBoundsOnScreen(cpos, cpos).orElse(null);
-        if (screenPos == null)
-            return;
-        Bounds spLoc = sourcePane.screenToLocal(screenPos);
         if (suggests != null)
         {
-            suggestToken = suggests.getSuggestionToken();
+            LocatableToken suggestToken = suggests.getSuggestionToken();
             /*
             PopulateCompletionsWorker worker = new PopulateCompletionsWorker(suggests, suggestToken, xpos, ypos);
             worker.execute();
@@ -3116,6 +3109,28 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 .collect(Collectors.toList());
 
             int originalPosition = suggestToken == null ? sourcePane.getCaretPosition() : suggestToken.getPosition();
+            Bounds screenPos;
+            boolean before = false;
+            if (suggestToken == null)
+            {
+                screenPos = sourcePane.getCaretBounds().orElse(null);
+            }
+            else
+            {
+                // First, try to get the character after the caret:
+                screenPos = sourcePane.getCharacterBoundsOnScreen(originalPosition, originalPosition + 1).orElse(null);
+
+                // That may be null if caret was at end of line, in which case try character before:
+                if (screenPos == null)
+                {
+                    screenPos = sourcePane.getCharacterBoundsOnScreen(originalPosition - 1, originalPosition).orElse(null);;
+                    before = true;
+                }
+            }
+            if (screenPos == null)
+                return;
+            Bounds spLoc = sourcePane.screenToLocal(screenPos);
+
             StringExpression editorFontCSS = PrefMgr.getEditorFontCSS(true);
             SuggestionList suggestionList = new SuggestionList(new SuggestionListParent()
             {
@@ -3189,7 +3204,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             String prefix = sourcePane.getText(originalPosition, sourcePane.getCaretPosition());
             suggestionList.calculateEligible(prefix, true, false);
             suggestionList.updateVisual(prefix);
-            suggestionList.show(sourcePane, new ReadOnlyDoubleWrapper(spLoc.getMinX()), new ReadOnlyDoubleWrapper(spLoc.getMaxY()));
+            suggestionList.show(sourcePane, new ReadOnlyDoubleWrapper(before ? spLoc.getMaxX() : spLoc.getMinX()), new ReadOnlyDoubleWrapper(spLoc.getMaxY()));
 
         } else {
             /*
