@@ -114,7 +114,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     {
         ListView<TeamStatusInfo> commitFiles = new ListView<>(commitListModel);
         commitFiles.setPlaceholder(new Label(Config.getString("team.nocommitfiles")));
-        commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));//
+        commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
         commitFiles.setDisable(true);
 
         ScrollPane fileScrollPane = new ScrollPane(commitFiles);
@@ -130,22 +130,22 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
         Button commitButton = new Button();
         commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
         commitButton.requestFocus();
-        //Bind commitText properties to enable the commit action/button if there is a comment.
-        commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
+        //Bind commitText properties to enable the commit button if there is a comment.
+        commitText.disableProperty().bind(Bindings.isEmpty(commitListModel));
+        commitAction.disabledProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
 
         progressBar.setRunning(false);
 
-        includeLayout.setDisable(true);
         includeLayout.setOnAction(event -> {
             CheckBox layoutCheck = (CheckBox) event.getSource();
-            if(layoutCheck.isSelected()) {
+            if (layoutCheck.isSelected()) {
                 addModifiedLayouts();
-            }
-            // unselected
+            } // unselected
             else {
                 removeModifiedLayouts();
             }
         });
+        includeLayout.setDisable(true);
 
         HBox commitButtonPane = new HBox();
         JavaFXUtil.addStyleClass(commitButtonPane, "button-hbox");
@@ -184,8 +184,6 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
             show();
             // we want to set comments and commit action to disabled
             // until we know there is something to commit
-            commitAction.setEnabled(false);
-            commitText.setDisable(true);
             includeLayout.setSelected(false);
             includeLayout.setDisable(true);
             changedLayoutFiles.clear();
@@ -243,16 +241,10 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                 commitListModel.remove(info);
             }
         }
-        if (commitListModel.isEmpty()) {
-            commitText.setDisable(true);
-        }
     }
 
     private void addModifiedLayouts()
     {
-        if(commitListModel.isEmpty()) {
-            commitText.setDisable(false);
-        }
         // add diagram layout files to list of files to be committed
         Set<File> displayedLayouts = new HashSet<>();
         for (TeamStatusInfo info : changedLayoutFiles) {
@@ -415,9 +407,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                 }
 
                 if (!commitListModel.isEmpty()) {
-                    commitText.setDisable(false);
                     commitText.requestFocus();
-                    commitAction.setEnabled(true);
                 }
             }
         }

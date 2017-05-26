@@ -103,7 +103,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     private PushAction pushAction;
     private CommitAndPushWorker commitAndPushWorker;
 
-    private boolean emptyCommitText = true;
     //sometimes, usually after a conflict resolution, we need to push in order
     //to update HEAD.
     private boolean pushWithNoChanges = false;
@@ -128,6 +127,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     {
         ListView<TeamStatusInfo> commitFiles = new ListView<>(commitListModel);
         commitFiles.setPlaceholder(new Label(Config.getString("team.nocommitfiles")));
+        commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
         commitFiles.setDisable(true);
 
         ScrollPane commitFileScrollPane = new ScrollPane(commitFiles);
@@ -139,21 +139,18 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitText.setPrefColumnCount(35);
         VBox.setMargin(commitText, new Insets(0, 0, 10, 0));
 
-
         commitAction = new CommitAction(this);
         Button commitButton = new Button();
         commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
+        commitButton.requestFocus();
         //Bind commitText properties to enable the commit button if there is a comment.
-        commitButton.disableProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
+        commitText.disableProperty().bind(Bindings.isEmpty(commitListModel));
+        commitAction.disabledProperty().bind(Bindings.or(commitText.disabledProperty(), commitText.textProperty().isEmpty()));
 
-        includeLayout.setDisable(true);
         includeLayout.setOnAction(event -> {
             CheckBox layoutCheck = (CheckBox) event.getSource();
             if (layoutCheck.isSelected()) {
                 addModifiedLayouts();
-                if (commitButton.isDisable()) {
-                    commitAction.setEnabled(!emptyCommitText);
-                }
             } // unselected
             else {
                 removeModifiedLayouts();
@@ -162,6 +159,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                 }
             }
         });
+        includeLayout.setDisable(true);
 
         HBox commitButtonPane = new HBox();
         JavaFXUtil.addStyleClass(commitButtonPane, "button-hbox");
@@ -219,8 +217,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         if (show) {
             // we want to set comments and commit action to disabled
             // until we know there is something to commit
-            commitAction.setEnabled(false);//
-            commitText.setDisable(true);//
             commitText.setText("");//
             includeLayout.setSelected(false);
             includeLayout.setDisable(true);//
@@ -274,9 +270,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     {
         // remove modified layouts from list of files shown for commit
         commitListModel.removeAll(changedLayoutFiles);
-        if (commitListModel.isEmpty()) {
-            commitText.setDisable(true);
-        }
     }
 
     @Override
@@ -323,9 +316,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
     private void addModifiedLayouts()
     {
-        if (commitListModel.isEmpty()) {
-            commitText.setDisable(false);
-        }
         // add diagram layout files to list of files to be committed
         Set<File> displayedLayouts = new HashSet<>();
         for (TeamStatusInfo info : changedLayoutFiles) {
@@ -554,9 +544,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                 }
 
                 if (!commitListModel.isEmpty()) {
-                    commitText.setDisable(false);
                     commitText.requestFocus();
-                    commitAction.setEnabled(!emptyCommitText);
                 }
 
                 if (pushListModel.isEmpty()){

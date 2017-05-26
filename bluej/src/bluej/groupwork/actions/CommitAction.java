@@ -69,7 +69,7 @@ public class CommitAction extends TeamAction
     public CommitAction(CommitAndPushInterface frame)
     {
         super(Config.getString("team.commitButton"), false);
-        commitCommentsFrame = frame; 
+        commitCommentsFrame = frame;
     }
     
     /**
@@ -125,8 +125,6 @@ public class CommitAction extends TeamAction
                 PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusMessage"));
             }
             
-            setEnabled(false);
-            
             //doCommit(project);
             worker = new CommitWorker(project);
             worker.start();
@@ -138,7 +136,6 @@ public class CommitAction extends TeamAction
      */
     public void cancel()
     {
-        setEnabled(true);
         if(worker != null) {
             worker.abort();
             worker = null;
@@ -204,19 +201,13 @@ public class CommitAction extends TeamAction
                         //if svn, display the message on the main BlueJ window.
                         PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusDone"));
                     }
-
                 }
             }
             
             TeamUtils.handleServerResponseFX(result, commitCommentsFrame.asWindow());
             
             if (! aborted) {
-                setEnabled(true);
-                if (project.getTeamSettingsController().isDVCS()){
-                    commitCommentsFrame.setVisible(true);
-                } else {
-                    commitCommentsFrame.setVisible(false);
-                }
+                commitCommentsFrame.setVisible(project.getTeamSettingsController().isDVCS());
             }
         }
     }

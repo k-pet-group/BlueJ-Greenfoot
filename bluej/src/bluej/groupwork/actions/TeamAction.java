@@ -45,6 +45,7 @@ import javafx.scene.control.Tooltip;
 public abstract class TeamAction
 {
     private final StringProperty name = new SimpleStringProperty();
+
     private final BooleanProperty disabled = new SimpleBooleanProperty(false);
     protected String shortDescription;
 
@@ -77,6 +78,11 @@ public abstract class TeamAction
     public boolean isDisabled()
     {
         return disabled.get();
+    }
+
+    public BooleanProperty disabledProperty()
+    {
+        return disabled;
     }
 
     public void setShortDescription(String shortDescription)
