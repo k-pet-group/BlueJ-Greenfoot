@@ -56,6 +56,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
         this.type = new Label();
         this.type.minWidthProperty().bind(typeWidth);
         this.type.maxWidthProperty().bind(typeWidth);
+        this.type.setEllipsisString("\u2026");
         this.prefix = new Label();
         this.matching = new Label();
         this.next = new Label();
