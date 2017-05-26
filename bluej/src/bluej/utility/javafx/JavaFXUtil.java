@@ -680,11 +680,25 @@ public class JavaFXUtil
         return ((Supplier<T>)initCode::get).get();
     }
 
-    public static void scalePolygonPoints(javafx.scene.shape.Polygon polygon, double scale)
+    /**
+     * Scales the points by the given scale, and snaps them to nearest integer
+     */
+    public static void scalePolygonPoints(javafx.scene.shape.Polygon polygon, double scale, boolean rotate90)
     {
-        for (int i = 0; i < polygon.getPoints().size(); i++)
+        for (int i = 0; i < polygon.getPoints().size(); i += 2)
         {
-            polygon.getPoints().set(i, polygon.getPoints().get(i) * scale);
+            if (rotate90)
+            {
+                // Swapping, so we need a temporary:
+                double t = polygon.getPoints().get(i + 1) * scale;
+                polygon.getPoints().set(i + 1, polygon.getPoints().get(i) * scale);
+                polygon.getPoints().set(i, t);
+            }
+            else
+            {
+                polygon.getPoints().set(i, polygon.getPoints().get(i) * scale);
+                polygon.getPoints().set(i + 1, polygon.getPoints().get(i + 1) * scale);
+            }
         }
     }
 

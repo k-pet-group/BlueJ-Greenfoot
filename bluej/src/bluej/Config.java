@@ -2130,10 +2130,19 @@ public final class Config
     @OnThread(Tag.FX)
     public static Node makeStopIcon(boolean large)
     {
-        Polygon octagon = new Polygon(14,1, 6,1, 1,6, 1,14, 6,19, 14,19, 19,14, 19,6);
-        if (large)
+        Polygon octagon = new Polygon(
+                9, 0,
+                22, 0,
+                31, 9,
+                31, 22,
+                22, 31,
+                9, 31,
+                0, 22,
+                0, 9
+        );
+        if (!large)
         {
-            JavaFXUtil.scalePolygonPoints(octagon, 1.6);
+            JavaFXUtil.scalePolygonPoints(octagon, 0.5, false);
         }
         JavaFXUtil.addStyleClass(octagon, "octagon");
         Label stop = new Label("STOP");
@@ -2147,12 +2156,12 @@ public final class Config
     public static Polygon makeArrowShape(boolean shortTail)
     {
         return new Polygon(
-                10, 1,
-                17, 9,
-                10, 17,
-                10, 12,
-                shortTail ? 5 : 1, 12,
-                shortTail ? 5 : 1, 6,
+                10, 0,
+                18, 10,
+                10, 20,
+                10, 14,
+                shortTail ? 4 : 0, 14,
+                shortTail ? 4 : 0, 6,
                 10, 6
             );
     }

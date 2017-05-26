@@ -607,7 +607,7 @@ public class ExecControls
     {
         Polygon arrowShape = makeScaledUpArrow(false);
         JavaFXUtil.addStyleClass(arrowShape, "step-icon-arrow");
-        Rectangle bar = new Rectangle(26, 4);
+        Rectangle bar = new Rectangle(28, 6);
         JavaFXUtil.addStyleClass(bar, "step-icon-bar");
         VBox vBox = new VBox(arrowShape, bar);
         JavaFXUtil.addStyleClass(vBox, "step-icon");
@@ -617,8 +617,7 @@ public class ExecControls
     private static Polygon makeScaledUpArrow(boolean shortTail)
     {
         Polygon arrowShape = Config.makeArrowShape(shortTail);
-        JavaFXUtil.scalePolygonPoints(arrowShape, 1.4);
-        arrowShape.setRotate(90);
+        JavaFXUtil.scalePolygonPoints(arrowShape, 1.5, true);
         return arrowShape;
     }
 
@@ -668,8 +667,8 @@ public class ExecControls
         SVGPath path = new SVGPath();
         // See http://jxnblk.com/paths/?d=M2%2016%20Q24%208%2038%2016%20L40%2010%20L48%2026%20L32%2034%20L34%2028%20Q22%2022%206%2028%20Z
         path.setContent("M2 16 Q24 8 38 16 L40 10 L48 26 L32 34 L34 28 Q22 22 6 28 Z");
-        path.setScaleX(0.6);
-        path.setScaleY(0.7);
+        path.setScaleX(0.75);
+        path.setScaleY(0.85);
         JavaFXUtil.addStyleClass(path, "step-into-icon");
         return new Group(path);
     }
@@ -725,20 +724,19 @@ public class ExecControls
     private static Node makeTerminateIcon()
     {
         Polygon s = new Polygon(
-            4, 1,
-            10, 7,
-            16, 1,
-            19, 4,
-            13, 10,
-            19, 16,
-            16, 19,
-            10, 13,
-            4, 19,
-            1, 16,
-            7, 10,
-            1, 4
+            5, 0,
+            15, 10,
+            25, 0,
+            30, 5,
+            20, 15,
+            30, 25,
+            25, 30,
+            15, 20,
+            5, 30,
+            0, 25,
+            10, 15,
+            0, 5
         );
-        JavaFXUtil.scalePolygonPoints(s, 1.6);
         JavaFXUtil.addStyleClass(s, "terminate-icon");
         return s;
     }
