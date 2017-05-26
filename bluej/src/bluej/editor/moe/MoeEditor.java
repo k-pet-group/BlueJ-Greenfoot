@@ -3187,14 +3187,20 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 @Override
                 public @OnThread(Tag.FXPlatform) SuggestionList.SuggestionListListener.Response suggestionListKeyPressed(KeyEvent event, int highlighted)
                 {
-                    if (event.getCode() == KeyCode.ESCAPE)
+                    switch (event.getCode())
                     {
-                        return Response.DISMISS;
-                    }
-                    else if (event.getCode() == KeyCode.ENTER)
-                    {
-                        suggestionListChoiceClicked(highlighted);
-                        return Response.DISMISS;
+                        case ESCAPE:
+                            return Response.DISMISS;
+                        case ENTER:
+                        case TAB:
+                            suggestionListChoiceClicked(highlighted);
+                            return Response.DISMISS;
+                        case BACK_SPACE:
+                            sourcePane.deletePreviousChar();
+                            break;
+                        case DELETE:
+                            sourcePane.deleteNextChar();
+                            break;
                     }
                     return Response.CONTINUE;
                 }
