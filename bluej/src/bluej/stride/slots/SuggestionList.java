@@ -45,6 +45,7 @@ import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableDoubleProperty;
 import javafx.css.Styleable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -638,7 +639,7 @@ public class SuggestionList
     }
 
     @OnThread(Tag.FXPlatform)
-    public void show(final Node reference, final DoubleExpression xOffset, final DoubleExpression yOffset)
+    public void show(final Node reference, final Bounds textBoundsWithinReference)
     {
         // If there's only one option, don't bother showing, just choose it right off the bat:
         if (eligibleCount() == 1)
@@ -680,20 +681,32 @@ public class SuggestionList
             .stream().mapToDouble(s -> s.getVisualBounds().getMaxY()).min().orElse(999999.0);
 
         //editor.getCodeOverlayPane().addOverlay(pane, reference, actualXOffset, yOffset);
-        double windowX = refWindow.getX() + reference.getScene().getX() + xPos + xOffset.get() - typeWidth.get() - 1.0f; //1 pixel for border
-        double windowY = refWindow.getY() + reference.getScene().getY() + reference.localToScene(reference.getBoundsInLocal()).getMinY() + yOffset.get();
+        double windowX = refWindow.getX() + reference.getScene().getX() + xPos + textBoundsWithinReference.getMinX() - typeWidth.get() - 1.0f; //1 pixel for border
+        double windowY = refWindow.getY() + reference.getScene().getY() + reference.localToScene(reference.getBoundsInLocal()).getMinY() + textBoundsWithinReference.getMinY();
         if (screenMaxY < window.getHeight() + windowY)
         {
             // Bottom of suggestions window will be off screen; we must place window above reference, not below
-            windowY = refWindow.getY() + reference.getScene().getY() + reference.localToScene(reference.getBoundsInLocal()).getMinY() - 350.0;
+            windowY -= 350.0;
             moreLabelAtBottom.set(false);
         }
         else
         {
             moreLabelAtBottom.set(true);
+            // We will be below text, so add on its height:
+            windowY += textBoundsWithinReference.getHeight();
         }
         window.setX(windowX);
         window.setY(windowY);
+        /*
+        Debug.message(
+                "Showing at position: " + windowX + ", " + windowY +
+                "\n  Based on " + refWindow.getX() + ", " + refWindow.getY() +
+                "\n  Scene in Window: " + reference.getScene().getX() + ", " + reference.getScene().getY() +
+                "\n  Reference in scene: " + reference.localToScene(reference.getBoundsInLocal()) +
+                "\n  Bounds in reference: " + textBoundsWithinReference +
+                "\n type width: " + typeWidth.get()
+        );*/
+
         if (window.getOwner() == null)
             window.initOwner(reference.getScene().getWindow());
         window.show();

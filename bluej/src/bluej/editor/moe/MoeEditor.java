@@ -86,6 +86,7 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -3110,7 +3111,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
             int originalPosition = suggestToken == null ? sourcePane.getCaretPosition() : suggestToken.getPosition();
             Bounds screenPos;
-            boolean before = false;
             if (suggestToken == null)
             {
                 screenPos = sourcePane.getCaretBounds().orElse(null);
@@ -3124,7 +3124,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 if (screenPos == null)
                 {
                     screenPos = sourcePane.getCharacterBoundsOnScreen(originalPosition - 1, originalPosition).orElse(null);;
-                    before = true;
+                    // Adjust to move to RHS of the rectangle:
+                    screenPos = new BoundingBox(screenPos.getMaxX(), screenPos.getMinY(), 0, screenPos.getHeight());
                 }
             }
             if (screenPos == null)
@@ -3204,7 +3205,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             String prefix = sourcePane.getText(originalPosition, sourcePane.getCaretPosition());
             suggestionList.calculateEligible(prefix, true, false);
             suggestionList.updateVisual(prefix);
-            suggestionList.show(sourcePane, new ReadOnlyDoubleWrapper(before ? spLoc.getMaxX() : spLoc.getMinX()), new ReadOnlyDoubleWrapper(spLoc.getMaxY()));
+            suggestionList.show(sourcePane, spLoc);
 
         } else {
             /*

@@ -39,6 +39,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
@@ -304,7 +305,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             
         }));
                 
-        dropdown.get().show(pane, new ReadOnlyDoubleWrapper(0), pane.heightProperty());
+        dropdown.get().show(pane, new BoundingBox(0, 0, 0, pane.heightProperty().get()));
         
         dropdown.get().calculateEligible(curDisplay.getText(), false, false);
         dropdown.get().setHighlighted(curHighlight == null ? -1 : choices.indexOf(curHighlight), true);

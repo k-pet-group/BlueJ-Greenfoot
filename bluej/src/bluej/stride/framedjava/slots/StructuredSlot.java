@@ -50,6 +50,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.BoundingBox;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -770,7 +771,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             suggestionDisplay = suggList;
             updateSuggestions(true);
             suggestionDisplay.highlightFirstEligible();
-            suggestionDisplay.show(suggestionNode, new ReadOnlyDoubleWrapper(0.0), field.heightProperty());
+            suggestionDisplay.show(suggestionNode, new BoundingBox(0, 0, 0, field.heightProperty().get()));
             fakeCaretShowing.set(true);
         };
         

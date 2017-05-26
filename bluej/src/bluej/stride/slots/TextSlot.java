@@ -51,6 +51,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.BoundingBox;
 import javafx.scene.Node;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -556,7 +557,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 updateSuggestions(true);
                 suggestionDisplayProperty.get().highlightFirstEligible();
                 //Debug.time("!!! Showing");
-                suggestionDisplayProperty.get().show(field.getNode(), suggestionXOffset, field.heightProperty());
+                suggestionDisplayProperty.get().show(field.getNode(), new BoundingBox(suggestionXOffset.get(), 0, 0, field.heightProperty().get()));
                 //Debug.time("!!! Shown");
                 field.setFakeCaretShowing(true);
             };
