@@ -389,6 +389,7 @@ public class PrefMgr
     static {
         //set up fonts
         initEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
+        JavaFXUtil.addChangeListener(editorFontSize, size -> Config.putPropInteger(editorFontSizePropertyName, size.intValue()));
 
         //bluej menu font
         int menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
