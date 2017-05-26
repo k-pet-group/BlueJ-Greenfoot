@@ -25,9 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -345,9 +342,9 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     public Stream<Node> makeDisplayClone(InteractionManager editor)
     {
         return Utility.concat(
-            Stream.of(JavaFXUtil.cloneLabel(openingLabel, editor.getFontSizeCSS())),
+            Stream.of(JavaFXUtil.cloneLabel(openingLabel, editor.getFontCSS())),
             content.makeDisplayClone(editor),
-            Stream.of(JavaFXUtil.cloneLabel(closingLabel, editor.getFontSizeCSS()))
+            Stream.of(JavaFXUtil.cloneLabel(closingLabel, editor.getFontCSS()))
         );
     }
 }

@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableStringValue;
@@ -505,7 +504,7 @@ class StructuredSlotField implements StructuredSlotComponent
         JavaFXUtil.bindList(f.getStyleClass(), field.getStyleClass());
         JavaFXUtil.bindPseudoclasses(f, field.getPseudoClassStates());
         JavaFXUtil.setPseudoclass("bj-pinned", true, f);
-        f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(editor.getFontSizeCSS()).concat(";"));
+        f.styleProperty().bind(field.styleProperty().concat(editor.getFontCSS()));
         return Stream.of(f);
     }
 }

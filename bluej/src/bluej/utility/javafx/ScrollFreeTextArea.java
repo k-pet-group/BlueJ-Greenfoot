@@ -21,9 +21,6 @@
  */
 package bluej.utility.javafx;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,40 +29,25 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Bounds;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import bluej.Config;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.Debug;
 
 /**
  * This is a class to make sure a TextArea always resizes to fit its content.
@@ -81,7 +63,7 @@ public class ScrollFreeTextArea
     private static final Scene scene = new Scene(new VBox(), 4000, 4000);
     private static Scene calculationAidScene = null;
     private static TextArea calculationAid = null;
-    private static String calculationAidFontSize = null;
+    private static String calculationAidFontCSS = null;
     private static List<String> calculationAidStyleClass = null;
     private final SimpleDoubleProperty scale = new SimpleDoubleProperty(1.0);
     // We encapsulate TextArea to make sure no-one external messes with our sizes:
@@ -111,8 +93,8 @@ public class ScrollFreeTextArea
                     textArea.sceneProperty().removeListener(this);
                     textArea.skinProperty().removeListener(this);
 
-                    ScrollFreeTextArea.this.recalculateOneTwoLineHeights(editor.getFontSizeCSS().get());
-                    textArea.getStyleClass().addListener((ListChangeListener<String>) c -> ScrollFreeTextArea.this.recalculateOneTwoLineHeights(editor.getFontSizeCSS().get()));
+                    ScrollFreeTextArea.this.recalculateOneTwoLineHeights(editor.getFontCSS().get());
+                    textArea.getStyleClass().addListener((ListChangeListener<String>) c -> ScrollFreeTextArea.this.recalculateOneTwoLineHeights(editor.getFontCSS().get()));
 
 
                     // Snapshot to make sure textArea internals are all created:
@@ -195,8 +177,8 @@ public class ScrollFreeTextArea
 
         offScreen.setPrefRowCount(0);
         offScreen.setMinHeight(0);
-        offScreen.styleProperty().bind(new SimpleStringProperty("-fx-font-size: ").concat(editor.getFontSizeCSS()).concat(";"));
-        JavaFXUtil.addChangeListener(editor.getFontSizeCSS(), this::recalculateOneTwoLineHeights);
+        offScreen.styleProperty().bind(editor.getFontCSS());
+        JavaFXUtil.addChangeListener(editor.getFontCSS(), this::recalculateOneTwoLineHeights);
         
         // Given the way we are currently doing the sizes, that we bind the preferred height,
         // we run into a problem that the width may change during a layout pass, but the
@@ -220,7 +202,7 @@ public class ScrollFreeTextArea
         suggestedOneLineHeight = twoLine - extraLine + 2 /* fudge factor */;
     }
     
-    private double calculateHeight(String fontSize, String text)
+    private double calculateHeight(String fontCSS, String text)
     {
         if (calculationAid == null || calculationAidScene == null)
         {
@@ -231,10 +213,10 @@ public class ScrollFreeTextArea
             calculationAidScene = new Scene(new Pane(calculationAid), 4000, 4000);
             Config.addEditorStylesheets(calculationAidScene);
         }
-        if (!fontSize.equals(calculationAidFontSize))
+        if (!fontCSS.equals(calculationAidFontCSS))
         {
-            calculationAid.setStyle("-fx-font-size: " + fontSize + ";");
-            calculationAidFontSize = fontSize;
+            calculationAid.setStyle(fontCSS);
+            calculationAidFontCSS = fontCSS;
             calculationAid.applyCss();
         }
         if (!calculationAid.getStyleClass().equals(calculationAidStyleClass))

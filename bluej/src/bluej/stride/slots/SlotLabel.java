@@ -293,7 +293,7 @@ public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
     @Override
     public Stream<Label> makeDisplayClone(InteractionManager editor)
     {
-        Label copy = JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS());
+        Label copy = JavaFXUtil.cloneLabel(l, editor.getFontCSS());
         return Stream.of(copy);
     }
 

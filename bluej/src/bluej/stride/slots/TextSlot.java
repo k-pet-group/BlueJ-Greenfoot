@@ -1075,7 +1075,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         JavaFXUtil.bindList(f.getStyleClass(), field.getStyleClass());
         JavaFXUtil.bindPseudoclasses(f, field.getPseudoClassStates());
         JavaFXUtil.setPseudoclass("bj-pinned", true, f);
-        f.styleProperty().bind(field.styleProperty().concat("-fx-font-size:").concat(editor.getFontSizeCSS()).concat(";"));
+        f.styleProperty().bind(field.styleProperty().concat(editor.getFontCSS()));
         return Stream.of(f);
     }
 

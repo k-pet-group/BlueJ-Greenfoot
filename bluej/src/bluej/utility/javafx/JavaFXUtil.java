@@ -457,7 +457,7 @@ public class JavaFXUtil
         Label copy = new Label();
         copy.textProperty().bind(l.textProperty());
         bindList(copy.getStyleClass(), l.getStyleClass());
-        copy.styleProperty().bind(l.styleProperty().concat("-fx-font-size:").concat(fontSize).concat(";"));
+        copy.styleProperty().bind(l.styleProperty().concat(fontSize));
         bindPseudoclasses(copy, l.getPseudoClassStates());
         return copy;
     }

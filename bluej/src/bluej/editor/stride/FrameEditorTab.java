@@ -88,6 +88,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
@@ -233,7 +234,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private final SimpleBooleanProperty debugVarVisibleProperty = new SimpleBooleanProperty(false);
     private List<HighlightedBreakpoint> latestExecHistory;
     private StringBinding strideFontSizeAsString;
-    private StringExpression strideFontSizeAsStringPT;
+    private StringExpression strideFontCSS;
 
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
@@ -2016,7 +2017,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private void updateFontSize()
     {
         // We don't bind because topLevelFrame may change
-        getTopLevelFrame().getNode().setStyle("-fx-font-size: " + getFontSizeCSS().get() + ";");
+        getTopLevelFrame().getNode().setStyle(getFontCSS().get());
 
         JavaFXUtil.runAfter(Duration.millis(500),
             () -> getTopLevelFrame().getAllFrames().forEach(Frame::fontSizeChanged));
@@ -2039,13 +2040,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
-    public StringExpression getFontSizeCSS()
+    public StringExpression getFontCSS()
     {
         if (strideFontSizeAsString == null)
             strideFontSizeAsString = PrefMgr.strideFontSizeProperty().asString();
-        if (strideFontSizeAsStringPT == null)
-            strideFontSizeAsStringPT = strideFontSizeAsString.concat("pt");
-        return strideFontSizeAsStringPT;
+        if (strideFontCSS == null)
+            strideFontCSS = Bindings.concat("-fx-font-size:", strideFontSizeAsString, "pt;");
+        return strideFontCSS;
     }
 
     private void calculateBirdseyeRectangle()

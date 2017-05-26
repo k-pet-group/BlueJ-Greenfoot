@@ -28,13 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
@@ -79,7 +77,6 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.slots.SuggestionList;
 import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
 import nu.xom.Element;
 import threadchecker.OnThread;
@@ -105,7 +102,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     {
         this.parent = parent;
         shelfPane.setCenter(canvas.getNode());
-        shelfPane.setStyle("-fx-font-size: " + getFontSizeCSS().get() + ";");
+        shelfPane.setStyle(getFontCSS().get());
         this.centralStorage = storage;
         storage.registerShelf(this);
     }
@@ -464,9 +461,9 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
-    public StringExpression getFontSizeCSS()
+    public StringExpression getFontCSS()
     {
-        return new ReadOnlyStringWrapper("10pt");
+        return new ReadOnlyStringWrapper("-fx-font-size:10pt;");
     }
 
     public Node getNode()

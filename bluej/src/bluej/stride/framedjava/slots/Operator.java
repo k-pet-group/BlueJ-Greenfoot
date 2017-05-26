@@ -28,7 +28,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableStringValue;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -242,7 +241,7 @@ class Operator
 
     public Node makeDisplayClone(InteractionManager editor)
     {
-        return JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS());
+        return JavaFXUtil.cloneLabel(l, editor.getFontCSS());
     }
 
     public static enum Precedence

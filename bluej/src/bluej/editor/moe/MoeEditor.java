@@ -3121,7 +3121,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             {
                 @Override
                 @OnThread(Tag.FX)
-                public StringExpression getFontSizeCSS()
+                public StringExpression getFontCSS()
                 {
                     return editorFontCSS;
                 }

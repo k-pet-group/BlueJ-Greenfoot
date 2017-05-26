@@ -274,7 +274,7 @@ public interface InteractionManager extends SuggestionListParent
     @OnThread(Tag.FX)
     public boolean isLoading();
 
-    public StringExpression getFontSizeCSS();
+    public StringExpression getFontCSS();
 
     public ReadOnlyObjectProperty<Frame.View> viewProperty();
 

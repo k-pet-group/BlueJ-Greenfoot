@@ -453,7 +453,7 @@ public class SuggestionList
         listBox.setBackground(null);
         listBox.setItems(this.showingItems);
 
-        listBox.setStyle("-fx-font-size: " + listParent.getFontSizeCSS().get() + ";");
+        listBox.setStyle(listParent.getFontCSS().get());
 
         this.docPane = new Pane();
         docPane.setMinWidth(400.0);
@@ -1081,10 +1081,11 @@ public class SuggestionList
     public static interface SuggestionListParent
     {
         /**
-         * Gets font size, ready to put after "-fx-font-size" in inline style.
+         * Gets font size as a complete piece of CSS (including any "-fx-font-size:" etc)
+         * ready to set as the inline style.
          */
         @OnThread(Tag.FX)
-        public StringExpression getFontSizeCSS();
+        public StringExpression getFontCSS();
 
         /**
          * Add any necessary listeners to a code completion window

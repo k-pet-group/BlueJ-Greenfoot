@@ -28,8 +28,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.OverrunStyle;
-import javafx.scene.layout.Region;
 
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
@@ -189,7 +187,7 @@ public class WrappableSlotLabel implements HeaderItem, CopyableHeaderItem
     @Override
     public Stream<Node> makeDisplayClone(InteractionManager editor)
     {
-        List<Node> copies = Utility.mapList(words, l -> JavaFXUtil.cloneLabel(l, editor.getFontSizeCSS()));
+        List<Node> copies = Utility.mapList(words, l -> JavaFXUtil.cloneLabel(l, editor.getFontCSS()));
         copies.forEach(n -> HangingFlowPane.setAlignment(n, alignment));
         return copies.stream();
     }
