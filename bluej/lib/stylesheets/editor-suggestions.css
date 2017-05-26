@@ -11,7 +11,7 @@
     -fx-border-width: 1;
     -fx-border-style: solid outside;
 
-    -bj-max-width: 25em;
+    -bj-pref-width: 25em;
     -bj-type-width: 5em;
 }
 

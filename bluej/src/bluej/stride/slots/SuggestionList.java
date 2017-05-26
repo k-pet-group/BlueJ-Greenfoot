@@ -99,18 +99,19 @@ public class SuggestionList
     {
         private final SimpleStyleableDoubleProperty cssTypeWidthProperty = new SimpleStyleableDoubleProperty(TYPE_WIDTH_META_DATA);
         public final SimpleStyleableDoubleProperty cssTypeWidthProperty() { return cssTypeWidthProperty; }
-        private final SimpleStyleableDoubleProperty cssMaxWidthProperty = new SimpleStyleableDoubleProperty(MAX_WIDTH_META_DATA);
-        public final SimpleStyleableDoubleProperty cssMaxWidthProperty() { return cssMaxWidthProperty; }
+        // ListView doesn't offer -fx-pref-width as style, so we implement it ourselves:
+        private final SimpleStyleableDoubleProperty cssPrefWidthProperty = new SimpleStyleableDoubleProperty(PREF_WIDTH_META_DATA);
+        public final SimpleStyleableDoubleProperty cssPrefWidthProperty() { return cssPrefWidthProperty; }
 
         private static final CssMetaData<SuggestionListView, Number> TYPE_WIDTH_META_DATA =
                 JavaFXUtil.cssSize("-bj-type-width", SuggestionListView::cssTypeWidthProperty);
-        private static final CssMetaData<SuggestionListView, Number> MAX_WIDTH_META_DATA =
-                JavaFXUtil.cssSize("-bj-max-width", SuggestionListView::cssMaxWidthProperty);
+        private static final CssMetaData<SuggestionListView, Number> PREF_WIDTH_META_DATA =
+                JavaFXUtil.cssSize("-bj-pref-width", SuggestionListView::cssPrefWidthProperty);
 
         private static final List <CssMetaData <? extends Styleable, ? > > cssMetaDataList =
                 JavaFXUtil.extendCss(ListView.getClassCssMetaData())
                   .add(TYPE_WIDTH_META_DATA)
-                  .add(MAX_WIDTH_META_DATA)
+                  .add(PREF_WIDTH_META_DATA)
                   .build();
 
         public static List <CssMetaData <? extends Styleable, ? > > getClassCssMetaData() { return cssMetaDataList; }
@@ -120,6 +121,7 @@ public class SuggestionList
         {
             setEditable(false);
             setCellFactory(lv -> new SuggestionCell(typeWidth, clickListener));
+            prefWidthProperty().bind(cssPrefWidthProperty);
         }
     }
 
