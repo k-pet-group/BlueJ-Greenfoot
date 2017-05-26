@@ -3155,7 +3155,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 @Override
                 public @OnThread(Tag.FXPlatform) void suggestionListChoiceClicked(int highlighted)
                 {
-                    codeComplete(possibleCompletions[highlighted], originalPosition, sourcePane.getCaretPosition());
+                    if (highlighted != -1)
+                    {
+                        codeComplete(possibleCompletions[highlighted], originalPosition, sourcePane.getCaretPosition());
+                    }
                 }
 
                 @Override

@@ -444,11 +444,15 @@ public class SuggestionList
         this.window = new Stage(StageStyle.TRANSPARENT);
         this.listBox = new SuggestionListView(this.typeWidth, item -> {
             highlighted = doubleSuggestions.indexOf(item);
-            listener.suggestionListChoiceClicked(getHighlighted());
-            expectingToLoseFocus = true;
-            hiding = true;
-            window.hide();
-            listener.hidden();
+            int highlighted = getHighlighted();
+            if (highlighted != -1)
+            {
+                listener.suggestionListChoiceClicked(highlighted);
+                expectingToLoseFocus = true;
+                hiding = true;
+                window.hide();
+                listener.hidden();
+            }
         });
         JavaFXUtil.addStyleClass(listBox, "suggestion-list");
         this.typeWidth.bind(choices.stream().allMatch(s -> s.type == null) ? new ReadOnlyDoubleWrapper(0.0) : listBox.cssTypeWidthProperty());
@@ -996,7 +1000,8 @@ public class SuggestionList
          * An item has been selected by clicking on it.
          * @param highlighted The index of the item in the original list passed
          *                    to the SuggestionList constructor (regardless of what is
-         *                    currently eligible/ineligible)
+         *                    currently eligible/ineligible).  -1 if the user clicked
+         *                    outside a suggestion
          */
         @OnThread(Tag.FXPlatform)
         void suggestionListChoiceClicked(int highlighted);

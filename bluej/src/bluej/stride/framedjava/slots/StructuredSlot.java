@@ -855,10 +855,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     @OnThread(Tag.FXPlatform)
     private void executeSuggestion(int selected, ModificationToken token)
     {
+        if (selected == -1)
+            return;
+
         String name;
         List<String> params;
         char opening;
-        if (fileCompletions != null && selected != -1)
+        if (fileCompletions != null)
         {
             FileCompletion fc = fileCompletions.get(selected);
             name = fc.getFile().getName();
