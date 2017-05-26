@@ -632,7 +632,7 @@ public class SuggestionList
                 default:
                     int selected = getHighlighted();
                     if (selected == -1 && eligibleCount() == 1)
-                        selected = getFirstEligible();
+                        selected = getFirstEligible() % choices.size();
                     if (listener.suggestionListKeyPressed(e, selected) == SuggestionListListener.Response.DISMISS)
                     {
                         expectingToLoseFocus = true;
