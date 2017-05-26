@@ -20,13 +20,13 @@ public class $CLASSNAME extends Application
 {
     // instance variables - replace the example below with your own
     int count=0;
+    Label myLabel=new Label();
 
     @Override
     public void start(Stage stage) throws Exception
     {
         //create a Button or any control item
         Button myButton=new Button("Count");
-        Label myLabel=new Label();
 
         //create a new grid pane
         GridPane pane=new GridPane();
@@ -35,17 +35,8 @@ public class $CLASSNAME extends Application
         pane.setVgap(10);
         pane.setHgap(10);
 
-        //set an action on the button,
-        //in this example it counts number of button clicks and shows the result on a label
-        myButton.setOnAction(new EventHandler<ActionEvent>()
-        {
-          @Override
-           public void handle(ActionEvent e)
-           {
-               count=count+1;
-               myLabel.setText(Integer.toString(count));
-           }
-        });
+        //set an action on the button using method reference
+        myButton.setOnAction(this::buttonClick);
 
         //add the button and/or a control item into the pane
         pane.add(myLabel,1,0);
@@ -62,5 +53,14 @@ public class $CLASSNAME extends Application
 
         //show the stage
         stage.show();
+    }
+    /**
+     * this will be executed when the button is clicked
+     */
+    private void buttonClick(ActionEvent event)
+    {
+        //counts number of button clicks and shows the result on a label
+        count=count+1;
+        myLabel.setText(Integer.toString(count));
     }
 }
