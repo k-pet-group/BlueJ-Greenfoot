@@ -6,8 +6,11 @@
 
 .suggestion-list {
     -fx-background-color: suggestion-background;
-    -fx-padding: 2 0 2 0;
-    
+    -fx-padding: 2 0 0 0;
+    -fx-border-color: hsb(0, 0%, 70%);
+    -fx-border-width: 1;
+    -fx-border-style: solid outside;
+
     -bj-max-width: 25em;
     -bj-type-width: 5em;
 }
@@ -15,11 +18,12 @@
 .suggestion {
     -fx-padding: 0 2 0 0;
     -fx-cursor: hand;
-    -fx-background-color: suggestion-background;
+    -fx-background-color: transparent;
 }
 
 .suggestion-cell {
     -fx-padding: 0;
+    -fx-background-color: transparent;
 }
 
 .suggestion-prefix, .suggestion-matching, .suggestion-next, .suggestion-suffix {
@@ -37,7 +41,7 @@
     -fx-border-color: rgb(150, 150, 150);
     -fx-border-radius: 2;
     -fx-label-padding: 1;
-    -fx-background-color: suggestion-background;
+    -fx-background-color: transparent;
     -fx-background-radius: 2;
 }
 
@@ -50,7 +54,7 @@
     -fx-background-color: hsb(0, 0%, 95%);
     -fx-text-fill: hsb(0, 0%, 40%);
     /* To get some padding: */
-    -fx-border-color: suggestion-background;
+    -fx-border-color: transparent;
     -fx-border-width: 5 0 2 0;
 }
 
@@ -67,9 +71,10 @@
 .suggestion-javadoc, .suggestion-file-preview {
     -fx-background-color: hsb(180, 8%, 97%);
     -fx-background-radius: 0 5 5 0;
-    -fx-border-color: hsb(0, 0%, 40%);
+    -fx-border-color: hsb(0, 0%, 70%);
     -fx-border-width: 1;
     -fx-border-radius: 0 5 5 0;
+    -fx-border-style: solid outside;
 }
 .suggestion-file-preview {
     -fx-padding: 20 20 20 20;    
@@ -103,8 +108,6 @@
     -fx-border-color: hsb(0, 0%, 70%) transparent hsb(0, 0%, 70%) transparent;
 }
 
-.suggestion-dialog-lhs {
-    -fx-border-width: 0 1 0 1;
-    -fx-border-color: hsb(0, 0%, 70%);
-    -fx-border-style: solid inside;
+.suggestion-top-level {
+    -fx-padding: 1; /* Needed to get border of inner item to show */
 }

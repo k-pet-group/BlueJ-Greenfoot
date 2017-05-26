@@ -46,6 +46,7 @@ import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableDoubleProperty;
 import javafx.css.Styleable;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -474,6 +475,7 @@ public class SuggestionList
         // This is a heuristic: double the font size for each item, but it seems to work well:
         listBox.setPrefHeight(2 * PrefMgr.strideFontSizeProperty().get() * choices.size());
         listAndDocBorderPane.setCenter(listAndMoreAndTransPane);
+        BorderPane.setMargin(listAndMoreAndTransPane, new Insets(0, 1, 0, 0));
         listAndDocBorderPane.setRight(docPane);
         listAndDocBorderPane.setMaxHeight(300.0);
         Label moreLabel = new Label("Showing common options. Press Ctrl+Space again to see all options");
