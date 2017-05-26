@@ -21,7 +21,7 @@
 .token-primitive {
     -fx-fill: #cc0000;
 }
-.token-string {
+.token-string-literal {
     -fx-fill: #006600;
 }
 .token-label {

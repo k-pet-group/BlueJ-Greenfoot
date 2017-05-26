@@ -456,10 +456,10 @@ public abstract class JavaParentNode extends ParentParsedNode
                 tokType = TokenType.KEYWORD1;
             }
             else if (lt.getType() == JavaTokenTypes.STRING_LITERAL) {
-                tokType = TokenType.LITERAL1;
+                tokType = TokenType.STRING_LITERAL;
             }
             else if (lt.getType() == JavaTokenTypes.CHAR_LITERAL) {
-                tokType = TokenType.LITERAL2;
+                tokType = TokenType.CHAR_LITERAL;
             }
             else {
                 switch (lt.getType()) {
