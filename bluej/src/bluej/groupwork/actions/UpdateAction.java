@@ -52,6 +52,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.JavaNames;
 
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -204,13 +205,15 @@ public class UpdateAction extends TeamAction
                 if (t != null && ! (t instanceof ClassTarget)) {
                     return;
                 }
-                ClassTarget ct = (ClassTarget) t;
-                if (ct == null) {
-                    ct = pkg.addClass(name);
-                    pkg.positionNewTarget(ct);
-                    DataCollector.addClass(pkg, ct);
-                }
-                ct.reload();
+                Platform.runLater(() -> {
+                    ClassTarget ct = (ClassTarget) t;
+                    if (ct == null) {
+                        ct = pkg.addClass(name);
+                        pkg.positionNewTarget(ct);
+                        DataCollector.addClass(pkg, ct);
+                    }
+                    ct.reload();
+                });
             }
         }
 
@@ -300,11 +303,13 @@ public class UpdateAction extends TeamAction
 
 
                 if (t == null && f.exists()) {
-                    //create new target.
-                    ClassTarget ct = pkg.addClass(name);
-                    pkg.positionNewTarget(ct);
-                    DataCollector.addClass(pkg, ct);
-                    ct.reload();
+                    Platform.runLater(() -> {
+                        //create new target.
+                        ClassTarget ct = pkg.addClass(name);
+                        pkg.positionNewTarget(ct);
+                        DataCollector.addClass(pkg, ct);
+                        ct.reload();
+                    });
                     return;
                 }
 
@@ -312,8 +317,10 @@ public class UpdateAction extends TeamAction
                     return;
                 }
 
-                ClassTarget ct = (ClassTarget) t;
-                ct.reload();
+                Platform.runLater(() -> {
+                    ClassTarget ct = (ClassTarget) t;
+                    ct.reload();
+                });
             }
         }
 

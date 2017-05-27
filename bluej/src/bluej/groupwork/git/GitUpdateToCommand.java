@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javafx.application.Platform;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
@@ -139,7 +140,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             processChanges(repo, conflicts);
             
             if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
-                listener.handleConflicts(this);
+                Platform.runLater(() -> listener.handleConflicts(this));
             }
         } catch (IOException ex) {
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
