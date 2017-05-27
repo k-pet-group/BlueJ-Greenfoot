@@ -22,6 +22,9 @@
 package bluej.groupwork;
 
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * An interface to represent a teamwork command.
  * 
@@ -39,5 +42,6 @@ public interface TeamworkCommand
      * Complete execution of the command, and get the result.
      * Command execution might not begin until this method is called.
      */
+    @OnThread(Tag.FXPlatform)
     public TeamworkCommandResult getResult();
 }
