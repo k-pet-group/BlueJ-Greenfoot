@@ -61,18 +61,16 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
         }
 
         setHeaderText(null);//
-//        setGraphic(new ImageView(this.getClass().getResource("team.png").toString()));
 
-        makeButtonPane();
+        prepareButtonPane();
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, getDialogPane().getStyleClass());
         getDialogPane().setContent(teamSettingsPanel);
     }
 
     /**
-     * Set up the panel containing the ok and cancel buttons, with associated
-     * actions.
+     * Set up the buttons panel to contain ok and cancel buttons, and associate their actions.
      */
-    private void makeButtonPane()
+    private void prepareButtonPane()
     {
         // Set the button types.
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);

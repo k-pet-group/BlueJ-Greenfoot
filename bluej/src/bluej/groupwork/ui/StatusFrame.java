@@ -159,8 +159,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     }
 
     /**
-     * Create the button panel with a Resolve button and a close button
-     * @return Pane the buttonPanel
+     * Set up the buttons panel to contain a close button, and register the close action.
      */
     private void prepareButtonPane()
     {
