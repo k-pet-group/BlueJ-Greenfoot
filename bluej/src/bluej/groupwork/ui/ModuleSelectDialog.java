@@ -21,18 +21,17 @@
  */
 package bluej.groupwork.ui;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
@@ -58,11 +57,13 @@ import threadchecker.Tag;
 public class ModuleSelectDialog extends FXCustomizedDialog<Void>
 {
     private Repository repository;
+    private ModuleListerWorker worker;
 
-    private ActivityIndicator progressBar;
-    private TextField moduleField;
-    private ListView moduleList;
-    private ModuleListerThread worker;
+    private final ActivityIndicator progressBar = new ActivityIndicator();
+    // Module text field
+    private final TextField moduleField = new TextField();
+    // Modules list
+    private final ListView moduleList = new ListView();
 
     private boolean wasOk;
 
@@ -70,33 +71,15 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
     {
         super(owner.get(), "team.moduleselect.title", "team-module-select");
         this.repository = repository;
-        setModal(true);
-        buildUI();
+        getDialogPane().setContent(makeMainPane());
+        prepareButtonPane();
     }
 
-    private void buildUI()
+    private Pane makeMainPane()
     {
-        // Content pane
-        VBox contentPane = new VBox();
-        setContentPane(contentPane);
-
-        moduleField = new TextField();
         moduleField.setPrefColumnCount(20);
-
-        // Module text field
         HBox moduleBox = new HBox();
-        moduleBox.getChildren().addAll(new Label(Config.getString("team.moduleselect.label")),
-                new Separator(Orientation.HORIZONTAL), moduleField);
-
-        contentPane.getChildren().addAll(moduleBox,
-                new Separator(Orientation.VERTICAL),
-                new Separator(),
-                new Separator(Orientation.VERTICAL),
-                new Label(Config.getString("team.moduleselect.available")));
-
-        // Modules list
-        HBox moduleListBox = new HBox();
-        moduleList = new ListView();
+        moduleBox.getChildren().addAll(new Label(Config.getString("team.moduleselect.label")), moduleField);
 
         /*moduleList.setSelectionMode(ObservableList.SINGLE_SELECTION);
         moduleList.getSelectionModel().addListSelectionListener(
@@ -127,51 +110,46 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
         });
 
         ScrollPane moduleListSP = new ScrollPane(moduleList);
+        moduleListSP.setFitToWidth(true);
+        moduleListSP.setFitToHeight(true);
         final Button listButton = new Button(Config.getString("team.moduleselect.show"));
         listButton.setOnAction(event -> {
             listButton.setDisable(true);
             startProgressBar();
-            worker = new ModuleListerThread();
+            worker = new ModuleListerWorker();
             worker.start();
         });
-        moduleListBox.getChildren().addAll(moduleListSP,
-                new Separator(Orientation.HORIZONTAL),
-                listButton);
+        HBox moduleListBox = new HBox();
+        moduleListBox.getChildren().addAll(moduleListSP, listButton);
 
-        contentPane.getChildren().addAll(moduleListBox, new Separator(Orientation.VERTICAL));
+        // Main pane
+        VBox mainPane = new VBox();
+        mainPane.getChildren().addAll(moduleBox, new Label(Config.getString("team.moduleselect.available")),
+                                      moduleListBox, progressBar);
+        return mainPane;
+    }
 
-        // Button box
-        HBox buttonBox = new HBox();
-        progressBar = new ActivityIndicator();
-        buttonBox.getChildren().add(progressBar);
-//        buttonBox.getChildren().add(Box.createHorizontalGlue());//
-        buttonBox.getChildren().add(new Separator(Orientation.HORIZONTAL));
-
-        contentPane.getChildren().addAll(buttonBox);
+    /**
+     * Set up the buttons panel to contain ok and cancel buttons, and associate their actions.
+     */
+    private void prepareButtonPane()
+    {
+        // Set the button types.
+        getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 
         // Ok button
-        buttonBox.getChildren().add(new Separator(Orientation.HORIZONTAL));
-
-        Button okButton = new Button();
-        okButton.requestFocus();
+        Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.disableProperty().bind(moduleField.textProperty().isEmpty());
         okButton.setOnAction(event -> {
             wasOk = true;
-            hide();
+            close();
         });
-        okButton.setDisable(true);
-        buttonBox.getChildren().add(okButton);
 
-        // Cancel button
-        buttonBox.getChildren().add(new Separator(Orientation.HORIZONTAL));
-        Button cancelButton = new Button(); //BlueJTheme.getCancelButton();
-        cancelButton.setOnAction(event -> {
+        this.setOnCloseRequest(event -> {
             if (worker != null) {
                 worker.abort();
             }
-            hide();
         });
-        buttonBox.getChildren().add(cancelButton);
     }
 
     /**
@@ -214,13 +192,13 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
      *
      * @author Davin McCall
      */
-    private class ModuleListerThread extends FXWorker
+    private class ModuleListerWorker extends FXWorker
     {
         private TeamworkCommand command;
         private TeamworkCommandResult result;
         private ObservableList<String> modules;
 
-        public ModuleListerThread()
+        public ModuleListerWorker()
         {
             modules = FXCollections.observableArrayList();
             command = repository.getModules(modules);
