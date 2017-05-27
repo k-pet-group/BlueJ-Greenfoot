@@ -30,12 +30,13 @@ import java.util.List;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -65,36 +66,45 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
         this.project = project;
         this.bluejConflicts = bluejConflicts;
         this.nonBluejConflicts = nonBlueJConflicts;
-        buildUI();
+
+        getDialogPane().setContent(makeMainPane());
+        //close button
+        getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
+//        DialogManager.centreDialog(this);
+        rememberPosition("bluej.teamwork.conflicts");
+
     }
 
-    private void buildUI()
+    private Pane makeMainPane()
     {
         VBox mainPanel = new VBox();
-        Pane bluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
-                bluejConflicts);
-        Pane nonBluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
-                nonBluejConflicts);
-        Pane buttonPanel = makeButtonPanel();
 
+        Pane bluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"), bluejConflicts);
         mainPanel.getChildren().add(bluejConflictsPanel);
+
+        Pane nonBluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"), nonBluejConflicts);
         if (nonBluejConflicts.size() > 0) {
             mainPanel.getChildren().add(nonBluejConflictsPanel);
         }
-        mainPanel.getChildren().add(buttonPanel);
-        getDialogPane().getChildren().add(mainPanel);
 
-        rememberPosition("bluej.teamwork.conflicts");
+        //resolve button
+        Button resolveButton = new Button(Config.getString("team.conflicts.show"));
+        resolveButton.setOnAction(event -> {
+            project.openEditorsForSelectedTargets();
+            // move to resolve button
+            close();
+        });
+        resolveButton.requestFocus();
+        resolveButton.setDisable(bluejConflicts.size() <= 0);
+        mainPanel.getChildren().add(resolveButton);
+
+        return mainPanel;
     }
 
     private Pane makeConflictsPanel(String headline, List<String> conflicts)
     {
         VBox labelPanel = new VBox();
-//        labelPanel.setBorder(BlueJTheme.dialogBorder);
         labelPanel.setAlignment(Pos.BASELINE_LEFT);
-
-        //heading
-        labelPanel.getChildren().addAll(new Label(headline), new Separator(Orientation.VERTICAL));//5
 
         VBox conflictsPanel = new VBox();
         conflictsPanel.setAlignment(Pos.BASELINE_LEFT);
@@ -107,41 +117,14 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
         }
 
         ScrollPane scrollPane = new ScrollPane(conflictsPanel);
-        labelPanel.getChildren().add(scrollPane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
+        //heading
+        labelPanel.getChildren().addAll(new Label(headline),
+                                        new Separator(Orientation.VERTICAL), //5
+                                        scrollPane);
 
         return labelPanel;
-    }
-
-    /**
-     * Create the button panel with a Resolve button and a close button
-     * @return Pane the buttonPanel
-     */
-    private Pane makeButtonPanel()
-    {
-        Pane buttonPanel = new FlowPane();
-
-        //TODO
-//        buttonPanel.setAlignment(??);
-//        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-//        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        //close button
-        Button closeButton = new Button(Config.getString("close"));
-        closeButton.setOnAction(event -> close());
-
-        //resolve button
-        Button resolveButton = new Button(Config.getString("team.conflicts.show"));
-        resolveButton.setOnAction(event -> {
-            project.openEditorsForSelectedTargets();
-            // move to resolve button
-            close();
-        });
-
-        resolveButton.requestFocus();
-
-        buttonPanel.getChildren().addAll(resolveButton, closeButton);
-        resolveButton.setDisable(bluejConflicts.size() <= 0);
-
-        return buttonPanel;
     }
 }
