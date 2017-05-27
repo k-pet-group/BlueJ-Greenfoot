@@ -43,9 +43,10 @@ import java.util.Set;
 public class GitStatusHandle implements StatusHandle
 {
 
-    private GitRepository repository;
+    private final GitRepository repository;
     private final boolean pushNeeded, pullNeeded;
 
+    @OnThread(Tag.Any)
     public GitStatusHandle(GitRepository repository, boolean pushNeeded, boolean pullNeeded)
     {
         this.repository = repository;
@@ -64,6 +65,7 @@ public class GitStatusHandle implements StatusHandle
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public TeamworkCommand updateTo(UpdateListener listener, Set<File> files, Set<File> forceFiles)
     {
         return new GitUpdateToCommand(repository, listener, files, forceFiles);
@@ -82,12 +84,14 @@ public class GitStatusHandle implements StatusHandle
     }
 
     @Override
+    @OnThread(Tag.Any)
     public boolean pushNeeded()
     {
         return pushNeeded;
     }
 
-    //@Override
+    @Override
+    @OnThread(Tag.Any)
     public boolean pullNeeded()
     {
         return pullNeeded;

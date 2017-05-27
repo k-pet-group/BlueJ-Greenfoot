@@ -40,6 +40,8 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A subversion repository implementation.
@@ -215,6 +217,7 @@ public class SvnRepository
      * Execute a subversion command with the client lock held. This is called by
      * subversion commands internally, to acquire the client lock.
      */
+    @OnThread(Tag.Worker)
     public TeamworkCommandResult execCommand(SvnCommand command)
     {
         synchronized (clientLock) {

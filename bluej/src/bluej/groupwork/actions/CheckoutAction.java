@@ -155,7 +155,7 @@ public class CheckoutAction extends TeamAction
          * Get the files from the repository.
          * @see bluej.utility.FXWorker#construct()
          */
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             newFrame.setStatus(Config.getString("team.checkingout"));

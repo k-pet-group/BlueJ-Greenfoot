@@ -34,6 +34,8 @@ import org.tigris.subversion.javahl.StatusKind;
 import bluej.groupwork.*;
 import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Subversion "status" command.
@@ -53,7 +55,8 @@ public class SvnStatusCommand extends SvnCommand
         this.listener = listener;
         this.filter = filter;
     }
-    
+
+    @OnThread(Tag.Worker)
     protected TeamworkCommandResult doCommand()
     {
         SVNClientInterface client = getClient();
@@ -238,6 +241,7 @@ public class SvnStatusCommand extends SvnCommand
      * Provide status information for files in a directory which is
      * unversioned (and therefore ignored) according to subversion
      */
+    @OnThread(Tag.Worker)
     private void statLocalDir(File dir)
     {
         File [] subFiles = dir.listFiles(filter);
@@ -250,6 +254,7 @@ public class SvnStatusCommand extends SvnCommand
         }
     }
 
+    @OnThread(Tag.Worker)
     private void complete(Set<File> completed, Map<File,Set<TeamStatusInfo>> unreported,
             TeamStatusInfo rinfo)
     {

@@ -32,7 +32,7 @@ import threadchecker.Tag;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.Worker)
 public interface UpdateListener
 {
     /**
@@ -59,5 +59,6 @@ public interface UpdateListener
     /**
      * Conflicts must be handled.
      */
+    @OnThread(Tag.FXPlatform)
     public void handleConflicts(UpdateResults updateResults);
 }

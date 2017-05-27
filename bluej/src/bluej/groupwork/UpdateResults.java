@@ -21,6 +21,9 @@
  */
 package bluej.groupwork;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +58,7 @@ public interface UpdateResults
      *               local version. (For any file not in the set, the local version
      *               is retained). 
      */
+    @OnThread(Tag.FXPlatform)
     public void overrideFiles(Set<File> files);
 
 }

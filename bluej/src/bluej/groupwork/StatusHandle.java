@@ -99,6 +99,7 @@ public interface StatusHandle
      * systems such as GIT.
      * @return 
      */
+    @OnThread(Tag.Worker)
     public default boolean pullNeeded()
     {
         return false;

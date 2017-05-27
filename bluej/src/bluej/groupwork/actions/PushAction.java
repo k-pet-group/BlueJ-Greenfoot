@@ -145,7 +145,7 @@ public class PushAction extends TeamAction
         }
 
         @Override
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             if (!hasPassword)

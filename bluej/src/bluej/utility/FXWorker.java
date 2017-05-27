@@ -57,7 +57,7 @@ public abstract class FXWorker
     {
         Runnable doConstruct = new Runnable() {
             @Override
-            @OnThread(value = Tag.Unique, ignoreParent = true)
+            @OnThread(value = Tag.Worker, ignoreParent = true)
             public void run()
             {
                 try {
@@ -95,7 +95,7 @@ public abstract class FXWorker
     /**
      * Compute the value to be returned by the <code>get</code> method.
      */
-    @OnThread(Tag.Unique)
+    @OnThread(Tag.Worker)
     public abstract Object construct();
 
     /**

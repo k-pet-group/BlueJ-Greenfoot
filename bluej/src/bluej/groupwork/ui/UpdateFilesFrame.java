@@ -347,13 +347,14 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         /* (non-Javadoc)
          * @see bluej.groupwork.StatusListener#statusComplete(bluej.groupwork.CommitHandle)
          */
+        @OnThread(Tag.Worker)
         public void statusComplete(StatusHandle statusHandle)
         {
             pullWithNoChanges = statusHandle.pullNeeded();
             this.statusHandle = statusHandle;
         }
 
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             result = command.getResult();

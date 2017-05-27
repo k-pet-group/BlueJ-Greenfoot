@@ -36,12 +36,13 @@ public interface TeamworkCommand
      * Cancel execution of the command. This can be called from any
      * thread, and should return immediately.
      */
+    @OnThread(Tag.Any)
     public void cancel();
     
     /**
      * Complete execution of the command, and get the result.
      * Command execution might not begin until this method is called.
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Worker)
     public TeamworkCommandResult getResult();
 }

@@ -172,7 +172,7 @@ public class CommitAction extends TeamAction
                     forceFiles, comment);
         }
 
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             result = command.getResult();

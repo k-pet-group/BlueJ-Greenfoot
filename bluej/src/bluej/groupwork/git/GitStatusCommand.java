@@ -70,7 +70,7 @@ public class GitStatusCommand extends GitCommand
     }
 
     @Override
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Worker)
     public TeamworkCommandResult getResult()
     {
         boolean didFilesChange = true;

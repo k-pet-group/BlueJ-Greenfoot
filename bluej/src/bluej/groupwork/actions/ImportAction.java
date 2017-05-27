@@ -103,7 +103,7 @@ public class ImportAction extends TeamAction
             
             TeamworkCommandResult result = null;
 
-            @OnThread(Tag.Unique)
+            @OnThread(value = Tag.Worker, ignoreParent = true)
             public void run()
             {
                 // boolean resetStatus = true;

@@ -150,7 +150,7 @@ public class UpdateAction extends TeamAction
             command = statusHandle.updateTo(this, filesToUpdate, filesToForceUpdate);
         }
 
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             removedPackages = new ArrayList<>();
@@ -161,6 +161,7 @@ public class UpdateAction extends TeamAction
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#fileAdded(java.io.File)
          */
+        @OnThread(Tag.Worker)
         public void fileAdded(final File f)
         {
             project.prepareCreateDir(f.getParentFile());
@@ -220,6 +221,7 @@ public class UpdateAction extends TeamAction
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#fileRemoved(java.io.File)
          */
+        @OnThread(Tag.Worker)
         public void fileRemoved(final File f)
         {
             String fileName = f.getName();
@@ -267,6 +269,7 @@ public class UpdateAction extends TeamAction
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#fileUpdated(java.io.File)
          */
+        @OnThread(Tag.Worker)
         public void fileUpdated(final File f)
         {
             String fileName = f.getName();
@@ -327,6 +330,7 @@ public class UpdateAction extends TeamAction
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#dirRemoved(java.io.File)
          */
+        @OnThread(Tag.Worker)
         public void dirRemoved(final File f)
         {
             String path = makeRelativePath(project.getProjectDir(), f);
@@ -337,6 +341,7 @@ public class UpdateAction extends TeamAction
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#handleConflicts(bluej.groupwork.UpdateServerResponse)
          */
+        @OnThread(Tag.FXPlatform)
         public void handleConflicts(final UpdateResults updateServerResponse)
         {
             if (updateServerResponse == null) {

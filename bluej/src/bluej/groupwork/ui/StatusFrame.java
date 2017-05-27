@@ -254,7 +254,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
             aborted = true;
         }
 
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             result = command.getResult();

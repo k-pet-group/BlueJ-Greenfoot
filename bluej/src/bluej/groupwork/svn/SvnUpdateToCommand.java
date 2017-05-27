@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javafx.application.Platform;
 import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.ConflictDescriptor;
 import org.tigris.subversion.javahl.ConflictResult;
@@ -51,6 +52,8 @@ import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateListener;
 import bluej.groupwork.UpdateResults;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Subversion command to update to a particular revision.
@@ -75,7 +78,8 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
         this.forceFiles = forceFiles;
         this.listener = listener;
     }
-    
+
+    @OnThread(Tag.Worker)
     protected TeamworkCommandResult doCommand()
     {
         SVNClientInterface client = getClient();
@@ -200,7 +204,7 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                 }
             }
             if (! conflicts.isEmpty() || ! binaryConflicts.isEmpty()) {
-                listener.handleConflicts(this);
+                Platform.runLater(() -> listener.handleConflicts(this));
             }
         }
         

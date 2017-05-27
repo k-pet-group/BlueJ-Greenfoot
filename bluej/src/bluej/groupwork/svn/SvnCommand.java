@@ -28,6 +28,8 @@ import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandAborted;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Base class for subversion command implementations.
@@ -85,11 +87,13 @@ abstract public class SvnCommand
         return repository;
     }
 
+    @OnThread(Tag.Worker)
     public TeamworkCommandResult getResult()
     {
         return repository.execCommand(this);
     }
-    
+
+    @OnThread(Tag.Worker)
     public TeamworkCommandResult doCommand(SVNClientInterface client)
     {
         synchronized (this) {
@@ -104,6 +108,7 @@ abstract public class SvnCommand
                        // cause the next command to be cancelled
         return result;
     }
-    
+
+    @OnThread(Tag.Worker)
     abstract protected TeamworkCommandResult doCommand();
 }

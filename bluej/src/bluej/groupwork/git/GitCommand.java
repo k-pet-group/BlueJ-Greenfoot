@@ -32,6 +32,8 @@ import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.util.FS;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Base class for Git commands.
@@ -45,6 +47,7 @@ public abstract class GitCommand implements TeamworkCommand
     private boolean cancelled = false;
     private final GitRepository repository;
 
+    @OnThread(Tag.Any)
     public GitCommand(GitRepository repository)
     {
         this.repository = repository;

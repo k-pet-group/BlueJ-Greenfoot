@@ -57,27 +57,28 @@ import threadchecker.Tag;
  *
  * @author Fabio Heday
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.Worker)
 public class GitUpdateToCommand extends GitCommand implements UpdateResults
 {
-
-    private final Set<File> files;
     private final Set<File> forceFiles;
     private final UpdateListener listener;
+    // Conflicts written to on worker thread, read from on GUI thread:
+    @OnThread(Tag.Any)
     private final List<File> conflicts = new ArrayList<>();
+    @OnThread(Tag.Any)
     private final Set<File> binaryConflicts = new HashSet<>();
     private List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
 
+    @OnThread(Tag.Any)
     public GitUpdateToCommand(GitRepository repository, UpdateListener listener, Set<File> files, Set<File> forceFiles)
     {
         super(repository);
-        this.files = files;
         this.forceFiles = forceFiles;
         this.listener = listener;
     }
 
     @Override
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Worker)
     public TeamworkCommandResult getResult()
     {
         try (Git repo = Git.open(this.getRepository().getProjectPath())) {
@@ -153,18 +154,21 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     }
 
     @Override
+    @OnThread(Tag.Any)
     public List<File> getConflicts()
     {
         return conflicts;
     }
 
     @Override
+    @OnThread(Tag.Any)
     public Set<File> getBinaryConflicts()
     {
         return binaryConflicts;
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void overrideFiles(Set<File> files)
     {
         for (File f : files) {
@@ -179,6 +183,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
         }
     }
 
+    @OnThread(Tag.Worker)
     private void processChanges(Git repo, List<File> conflicts)
     {
         for (DiffEntry remoteDiffItem : listOfDiffsRemote) {
