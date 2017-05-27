@@ -428,11 +428,19 @@
 }
 
 .team-commit-push {
-    -fx-min-width:  20em;
-    -fx-pref-width: 34em;
-
     -fx-min-height:  35em;
     -fx-pref-height: 50em;
+}
+
+.team-commit-comments {
+    -fx-min-height:  30em;
+    -fx-pref-height: 40em;
+}
+
+.team-commit-push, .team-commit-comments
+ {
+    -fx-min-width:  20em;
+    -fx-pref-width: 34em;
 
     -fx-padding: 1em;
 
@@ -445,11 +453,13 @@
      -fx-border-width: 2;
 }
 
-.team-commit-push .main-pane {
+.team-commit-push .main-pane, .team-commit-comments .main-pane {
     -fx-spacing: 0.5em;
 }
 
-.team-commit-push .main-pane .button-hbox {
+.team-commit-push .main-pane .button-hbox,
+.team-commit-comments .main-pane .button-hbox
+ {
      -fx-spacing: 0.8em;
 }
 
@@ -487,14 +497,6 @@
 
 .team-history .main-pane {
     -fx-spacing: 1em;
-}
-
-.team-commit-comments {
-    -fx-min-width:  30em;
-    -fx-pref-width: 40em;
-
-    -fx-min-height:  30em;
-    -fx-pref-height: 40em;
 }
 
 .team-conflicts,
