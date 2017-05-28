@@ -166,22 +166,30 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
         }
         finally {
             client.notification2(null);
-            
-            Iterator<File> i;
-            for (i = addedList.iterator(); i.hasNext(); ) {
-                listener.fileAdded(i.next());
-            }
-            for (i = updatedList.iterator(); i.hasNext(); ) {
-                listener.fileUpdated(i.next());
-            }
-            for (i = removedList.iterator(); i.hasNext(); ) {
-                listener.fileRemoved(i.next());
-            }
-            for (i = removedDirs.iterator(); i.hasNext(); ) {
-                listener.dirRemoved(i.next());
-            }
+
+            Platform.runLater(() ->
+            {
+                Iterator<File> i;
+                for (i = addedList.iterator(); i.hasNext(); )
+                {
+                    listener.fileAdded(i.next());
+                }
+                for (i = updatedList.iterator(); i.hasNext(); )
+                {
+                    listener.fileUpdated(i.next());
+                }
+                for (i = removedList.iterator(); i.hasNext(); )
+                {
+                    listener.fileRemoved(i.next());
+                }
+                for (i = removedDirs.iterator(); i.hasNext(); )
+                {
+                    listener.dirRemoved(i.next());
+                }
+            });
             
             if (! conflicts.isEmpty()) {
+                Iterator<File> i;
                 for (i = conflicts.iterator(); i.hasNext(); ) {
                     File file = (File) i.next();
                     try {

@@ -42,6 +42,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Class containing static methods for manipulating/navigating Git tree.
@@ -184,6 +186,7 @@ public class GitUtillities
      * @param list
      * @return
      */
+    @OnThread(Tag.Any)
     public static DiffEntry getDiffFromList(File entryFile, List<DiffEntry> list)
     {
         for (DiffEntry e : list) {

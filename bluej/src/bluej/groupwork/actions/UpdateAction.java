@@ -161,197 +161,189 @@ public class UpdateAction extends TeamAction
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#fileAdded(java.io.File)
          */
-        @OnThread(Tag.Worker)
+        @OnThread(Tag.FXPlatform)
         public void fileAdded(final File f)
         {
-            Platform.runLater(() -> {
-                project.prepareCreateDir(f.getParentFile());
+            project.prepareCreateDir(f.getParentFile());
 
-                String fileName = f.getName();
-                if (! fileName.endsWith(".java") &&
-                        ! fileName.endsWith(".class") &&
-                        ! BlueJPackageFile.isPackageFileName(fileName)) {
+            String fileName = f.getName();
+            if (! fileName.endsWith(".java") &&
+                    ! fileName.endsWith(".class") &&
+                    ! BlueJPackageFile.isPackageFileName(fileName)) {
+                return;
+            }
+
+            // First find out the package name...
+            String packageName = project.getPackageForFile(f);
+            if (packageName == null) {
+                return;
+            }
+
+            if (BlueJPackageFile.isPackageFileName(fileName)) {
+                if (packageName.length() > 0) {
+                    // If we now have a new package, we might need to add it
+                    // as a target in an existing package
+                    String parentPackageName = JavaNames.getPrefix(packageName);
+                    Package parentPackage = project.getCachedPackage(parentPackageName);
+                    if (parentPackage != null) {
+                        Target t = parentPackage.addPackage(JavaNames.getBase(packageName));
+                        parentPackage.positionNewTarget(t);
+                    }
+                }
+            }
+            else {
+                int n = fileName.lastIndexOf(".");
+                String name = fileName.substring(0, n);
+                if (! JavaNames.isIdentifier(name)) {
                     return;
                 }
 
-                // First find out the package name...
-                String packageName = project.getPackageForFile(f);
-                if (packageName == null) {
+                Package pkg = project.getCachedPackage(packageName);
+                if (pkg == null) {
+                    return;
+                }
+                Target t = pkg.getTarget(name);
+                if (t != null && ! (t instanceof ClassTarget)) {
                     return;
                 }
 
-                if (BlueJPackageFile.isPackageFileName(fileName)) {
-                    if (packageName.length() > 0) {
-                        // If we now have a new package, we might need to add it
-                        // as a target in an existing package
-                        String parentPackageName = JavaNames.getPrefix(packageName);
-                        Package parentPackage = project.getCachedPackage(parentPackageName);
-                        if (parentPackage != null) {
-                            Target t = parentPackage.addPackage(JavaNames.getBase(packageName));
-                            parentPackage.positionNewTarget(t);
-                        }
-                    }
+                ClassTarget ct = (ClassTarget) t;
+                if (ct == null) {
+                    ct = pkg.addClass(name);
+                    pkg.positionNewTarget(ct);
+                    DataCollector.addClass(pkg, ct);
                 }
-                else {
-                    int n = fileName.lastIndexOf(".");
-                    String name = fileName.substring(0, n);
-                    if (! JavaNames.isIdentifier(name)) {
-                        return;
-                    }
-
-                    Package pkg = project.getCachedPackage(packageName);
-                    if (pkg == null) {
-                        return;
-                    }
-                    Target t = pkg.getTarget(name);
-                    if (t != null && ! (t instanceof ClassTarget)) {
-                        return;
-                    }
-
-                    ClassTarget ct = (ClassTarget) t;
-                    if (ct == null) {
-                        ct = pkg.addClass(name);
-                        pkg.positionNewTarget(ct);
-                        DataCollector.addClass(pkg, ct);
-                    }
-                    ct.reload();
-                }
-            });
+                ct.reload();
+            }
         }
 
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#fileRemoved(java.io.File)
          */
-        @OnThread(Tag.Worker)
+        @OnThread(Tag.FXPlatform)
         public void fileRemoved(final File f)
         {
-            Platform.runLater(() ->
+            String fileName = f.getName();
+            if (!fileName.endsWith(".java") &&
+                    !fileName.endsWith(".class") &&
+                    !BlueJPackageFile.isPackageFileName(fileName))
             {
-                String fileName = f.getName();
-                if (!fileName.endsWith(".java") &&
-                        !fileName.endsWith(".class") &&
-                        !BlueJPackageFile.isPackageFileName(fileName))
-                {
-                    return;
-                }
+                return;
+            }
 
-                // First find out the package name...
-                String packageName = project.getPackageForFile(f);
-                if (packageName == null)
-                {
-                    return;
-                }
-
-                if (BlueJPackageFile.isPackageFileName(fileName))
-                {
-                    // Delay removing the package until
-                    // after the update has finished, and only do it if there
-                    // are no files left in the package.
-                    removedPackages.add(packageName);
-                }
-                else
-                {
-                    // Remove a class
-                    int n = fileName.lastIndexOf(".");
-                    String name = fileName.substring(0, n);
-                    Package pkg = project.getCachedPackage(packageName);
-                    if (pkg == null)
-                    {
-                        return;
-                    }
-                    Target t = pkg.getTarget(name);
-                    if (!(t instanceof ClassTarget))
-                    {
-                        return;
-                    }
-
-                    ClassTarget ct = (ClassTarget) t;
-                    if (ct.hasSourceCode() && !fileName.endsWith(".java"))
-                    {
-                        ct.markModified();
-                    }
-                    else
-                    {
-                        ct.remove();
-                    }
-                }
-            });
-        }
-
-        /* (non-Javadoc)
-         * @see bluej.groupwork.UpdateListener#fileUpdated(java.io.File)
-         */
-        @OnThread(Tag.Worker)
-        public void fileUpdated(final File f)
-        {
-            Platform.runLater(() ->
+            // First find out the package name...
+            String packageName = project.getPackageForFile(f);
+            if (packageName == null)
             {
-                String fileName = f.getName();
-                if (!fileName.endsWith(".java") &&
-                        !fileName.endsWith(".class") &&
-                        !BlueJPackageFile.isPackageFileName(fileName))
-                {
-                    return;
-                }
+                return;
+            }
 
-                // First find out the package name...
-                String packageName = project.getPackageForFile(f);
-                if (packageName == null)
-                {
-                    return;
-                }
+            if (BlueJPackageFile.isPackageFileName(fileName))
+            {
+                // Delay removing the package until
+                // after the update has finished, and only do it if there
+                // are no files left in the package.
+                removedPackages.add(packageName);
+            }
+            else
+            {
+                // Remove a class
+                int n = fileName.lastIndexOf(".");
+                String name = fileName.substring(0, n);
                 Package pkg = project.getCachedPackage(packageName);
                 if (pkg == null)
                 {
                     return;
                 }
-
-                if (BlueJPackageFile.isPackageFileName(fileName))
+                Target t = pkg.getTarget(name);
+                if (!(t instanceof ClassTarget))
                 {
-                    try
-                    {
-                        if (includeLayout)
-                        {
-                            pkg.reReadGraphLayout();
-                        }
-                    }
-                    catch (IOException ioe)
-                    {
-                        ioe.printStackTrace();
-                    }
+                    return;
+                }
+
+                ClassTarget ct = (ClassTarget) t;
+                if (ct.hasSourceCode() && !fileName.endsWith(".java"))
+                {
+                    ct.markModified();
                 }
                 else
                 {
-                    int n = fileName.lastIndexOf(".");
-                    String name = fileName.substring(0, n);
-                    Target t = pkg.getTarget(name);
-
-
-                    if (t == null && f.exists())
-                    {
-                        //create new target.
-                        ClassTarget ct = pkg.addClass(name);
-                        pkg.positionNewTarget(ct);
-                        DataCollector.addClass(pkg, ct);
-                        ct.reload();
-                        return;
-                    }
-
-                    if (!(t instanceof ClassTarget))
-                    {
-                        return;
-                    }
-
-                    ClassTarget ct = (ClassTarget) t;
-                    ct.reload();
+                    ct.remove();
                 }
-            });
+            }
+        }
+
+        /* (non-Javadoc)
+         * @see bluej.groupwork.UpdateListener#fileUpdated(java.io.File)
+         */
+        @OnThread(Tag.FXPlatform)
+        public void fileUpdated(final File f)
+        {
+            String fileName = f.getName();
+            if (!fileName.endsWith(".java") &&
+                    !fileName.endsWith(".class") &&
+                    !BlueJPackageFile.isPackageFileName(fileName))
+            {
+                return;
+            }
+
+            // First find out the package name...
+            String packageName = project.getPackageForFile(f);
+            if (packageName == null)
+            {
+                return;
+            }
+            Package pkg = project.getCachedPackage(packageName);
+            if (pkg == null)
+            {
+                return;
+            }
+
+            if (BlueJPackageFile.isPackageFileName(fileName))
+            {
+                try
+                {
+                    if (includeLayout)
+                    {
+                        pkg.reReadGraphLayout();
+                    }
+                }
+                catch (IOException ioe)
+                {
+                    ioe.printStackTrace();
+                }
+            }
+            else
+            {
+                int n = fileName.lastIndexOf(".");
+                String name = fileName.substring(0, n);
+                Target t = pkg.getTarget(name);
+
+
+                if (t == null && f.exists())
+                {
+                    //create new target.
+                    ClassTarget ct = pkg.addClass(name);
+                    pkg.positionNewTarget(ct);
+                    DataCollector.addClass(pkg, ct);
+                    ct.reload();
+                    return;
+                }
+
+                if (!(t instanceof ClassTarget))
+                {
+                    return;
+                }
+
+                ClassTarget ct = (ClassTarget) t;
+                ct.reload();
+            }
         }
 
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#dirRemoved(java.io.File)
          */
-        @OnThread(Tag.Worker)
+        @OnThread(Tag.FXPlatform)
         public void dirRemoved(final File f)
         {
             String path = makeRelativePath(project.getProjectDir(), f);

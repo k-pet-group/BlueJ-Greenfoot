@@ -67,7 +67,9 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     private final List<File> conflicts = new ArrayList<>();
     @OnThread(Tag.Any)
     private final Set<File> binaryConflicts = new HashSet<>();
-    private List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
+    private List<DiffEntry> listOfDiffsLocal;
+    @OnThread(Tag.Any)
+    private List<DiffEntry> listOfDiffsRemote;
 
     @OnThread(Tag.Any)
     public GitUpdateToCommand(GitRepository repository, UpdateListener listener, Set<File> files, Set<File> forceFiles)
@@ -193,7 +195,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             switch (remoteDiffItem.getChangeType()) {
                 case ADD:
                 case COPY:
-                    listener.fileAdded(file);
+                    Platform.runLater(() -> listener.fileAdded(file));
                     break;
                 case DELETE:
                     if (localDiffItem != null && localDiffItem.getChangeType() == DiffEntry.ChangeType.MODIFY) {
@@ -202,13 +204,13 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         binaryConflicts.add(file);
                     }
                     if (!file.exists()) {
-                        listener.fileRemoved(file);
+                        Platform.runLater(() -> listener.fileRemoved(file));
                     } else {
-                        listener.fileUpdated(file);
+                        Platform.runLater(() -> listener.fileUpdated(file));
                     }
                     break;
                 case MODIFY:
-                    listener.fileUpdated(file);
+                    Platform.runLater(() -> listener.fileUpdated(file));
                     break;
             }
         }
