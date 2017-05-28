@@ -164,49 +164,50 @@ public class UpdateAction extends TeamAction
         @OnThread(Tag.Worker)
         public void fileAdded(final File f)
         {
-            project.prepareCreateDir(f.getParentFile());
+            Platform.runLater(() -> {
+                project.prepareCreateDir(f.getParentFile());
 
-            String fileName = f.getName();
-            if (! fileName.endsWith(".java") &&
-                    ! fileName.endsWith(".class") &&
-                    ! BlueJPackageFile.isPackageFileName(fileName)) {
-                return;
-            }
+                String fileName = f.getName();
+                if (! fileName.endsWith(".java") &&
+                        ! fileName.endsWith(".class") &&
+                        ! BlueJPackageFile.isPackageFileName(fileName)) {
+                    return;
+                }
 
-            // First find out the package name...
-            String packageName = project.getPackageForFile(f);
-            if (packageName == null) {
-                return;
-            }
+                // First find out the package name...
+                String packageName = project.getPackageForFile(f);
+                if (packageName == null) {
+                    return;
+                }
 
-            if (BlueJPackageFile.isPackageFileName(fileName)) {
-                if (packageName.length() > 0) {
-                    // If we now have a new package, we might need to add it
-                    // as a target in an existing package
-                    String parentPackageName = JavaNames.getPrefix(packageName);
-                    Package parentPackage = project.getCachedPackage(parentPackageName);
-                    if (parentPackage != null) {
-                        Target t = parentPackage.addPackage(JavaNames.getBase(packageName));
-                        parentPackage.positionNewTarget(t);
+                if (BlueJPackageFile.isPackageFileName(fileName)) {
+                    if (packageName.length() > 0) {
+                        // If we now have a new package, we might need to add it
+                        // as a target in an existing package
+                        String parentPackageName = JavaNames.getPrefix(packageName);
+                        Package parentPackage = project.getCachedPackage(parentPackageName);
+                        if (parentPackage != null) {
+                            Target t = parentPackage.addPackage(JavaNames.getBase(packageName));
+                            parentPackage.positionNewTarget(t);
+                        }
                     }
                 }
-            }
-            else {
-                int n = fileName.lastIndexOf(".");
-                String name = fileName.substring(0, n);
-                if (! JavaNames.isIdentifier(name)) {
-                    return;
-                }
+                else {
+                    int n = fileName.lastIndexOf(".");
+                    String name = fileName.substring(0, n);
+                    if (! JavaNames.isIdentifier(name)) {
+                        return;
+                    }
 
-                Package pkg = project.getCachedPackage(packageName);
-                if (pkg == null) {
-                    return;
-                }
-                Target t = pkg.getTarget(name);
-                if (t != null && ! (t instanceof ClassTarget)) {
-                    return;
-                }
-                Platform.runLater(() -> {
+                    Package pkg = project.getCachedPackage(packageName);
+                    if (pkg == null) {
+                        return;
+                    }
+                    Target t = pkg.getTarget(name);
+                    if (t != null && ! (t instanceof ClassTarget)) {
+                        return;
+                    }
+
                     ClassTarget ct = (ClassTarget) t;
                     if (ct == null) {
                         ct = pkg.addClass(name);
@@ -214,8 +215,8 @@ public class UpdateAction extends TeamAction
                         DataCollector.addClass(pkg, ct);
                     }
                     ct.reload();
-                });
-            }
+                }
+            });
         }
 
         /* (non-Javadoc)
@@ -224,46 +225,57 @@ public class UpdateAction extends TeamAction
         @OnThread(Tag.Worker)
         public void fileRemoved(final File f)
         {
-            String fileName = f.getName();
-            if (! fileName.endsWith(".java") &&
-                    ! fileName.endsWith(".class") &&
-                    ! BlueJPackageFile.isPackageFileName(fileName)) {
-                return;
-            }
-
-            // First find out the package name...
-            String packageName = project.getPackageForFile(f);
-            if (packageName == null) {
-                return;
-            }
-
-            if (BlueJPackageFile.isPackageFileName(fileName)) {
-                // Delay removing the package until
-                // after the update has finished, and only do it if there
-                // are no files left in the package.
-                removedPackages.add(packageName);
-            }
-            else {
-                // Remove a class
-                int n = fileName.lastIndexOf(".");
-                String name = fileName.substring(0, n);
-                Package pkg = project.getCachedPackage(packageName);
-                if (pkg == null) {
-                    return;
-                }
-                Target t = pkg.getTarget(name);
-                if (! (t instanceof ClassTarget)) {
+            Platform.runLater(() ->
+            {
+                String fileName = f.getName();
+                if (!fileName.endsWith(".java") &&
+                        !fileName.endsWith(".class") &&
+                        !BlueJPackageFile.isPackageFileName(fileName))
+                {
                     return;
                 }
 
-                ClassTarget ct = (ClassTarget) t;
-                if (ct.hasSourceCode() && ! fileName.endsWith(".java")) {
-                    ct.markModified();
+                // First find out the package name...
+                String packageName = project.getPackageForFile(f);
+                if (packageName == null)
+                {
+                    return;
                 }
-                else {
-                    ct.remove();
+
+                if (BlueJPackageFile.isPackageFileName(fileName))
+                {
+                    // Delay removing the package until
+                    // after the update has finished, and only do it if there
+                    // are no files left in the package.
+                    removedPackages.add(packageName);
                 }
-            }
+                else
+                {
+                    // Remove a class
+                    int n = fileName.lastIndexOf(".");
+                    String name = fileName.substring(0, n);
+                    Package pkg = project.getCachedPackage(packageName);
+                    if (pkg == null)
+                    {
+                        return;
+                    }
+                    Target t = pkg.getTarget(name);
+                    if (!(t instanceof ClassTarget))
+                    {
+                        return;
+                    }
+
+                    ClassTarget ct = (ClassTarget) t;
+                    if (ct.hasSourceCode() && !fileName.endsWith(".java"))
+                    {
+                        ct.markModified();
+                    }
+                    else
+                    {
+                        ct.remove();
+                    }
+                }
+            });
         }
 
         /* (non-Javadoc)
@@ -272,59 +284,68 @@ public class UpdateAction extends TeamAction
         @OnThread(Tag.Worker)
         public void fileUpdated(final File f)
         {
-            String fileName = f.getName();
-            if (! fileName.endsWith(".java") &&
-                    ! fileName.endsWith(".class") &&
-                    ! BlueJPackageFile.isPackageFileName(fileName)) {
-                return;
-            }
+            Platform.runLater(() ->
+            {
+                String fileName = f.getName();
+                if (!fileName.endsWith(".java") &&
+                        !fileName.endsWith(".class") &&
+                        !BlueJPackageFile.isPackageFileName(fileName))
+                {
+                    return;
+                }
 
-            // First find out the package name...
-            String packageName = project.getPackageForFile(f);
-            if (packageName == null) {
-                return;
-            }
-            Package pkg = project.getCachedPackage(packageName);
-            if (pkg == null) {
-                return;
-            }
+                // First find out the package name...
+                String packageName = project.getPackageForFile(f);
+                if (packageName == null)
+                {
+                    return;
+                }
+                Package pkg = project.getCachedPackage(packageName);
+                if (pkg == null)
+                {
+                    return;
+                }
 
-            if (BlueJPackageFile.isPackageFileName(fileName)) {
-                try {
-                    if (includeLayout) {
-                        pkg.reReadGraphLayout();
+                if (BlueJPackageFile.isPackageFileName(fileName))
+                {
+                    try
+                    {
+                        if (includeLayout)
+                        {
+                            pkg.reReadGraphLayout();
+                        }
+                    }
+                    catch (IOException ioe)
+                    {
+                        ioe.printStackTrace();
                     }
                 }
-                catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-            else {
-                int n = fileName.lastIndexOf(".");
-                String name = fileName.substring(0, n);
-                Target t = pkg.getTarget(name);
+                else
+                {
+                    int n = fileName.lastIndexOf(".");
+                    String name = fileName.substring(0, n);
+                    Target t = pkg.getTarget(name);
 
 
-                if (t == null && f.exists()) {
-                    Platform.runLater(() -> {
+                    if (t == null && f.exists())
+                    {
                         //create new target.
                         ClassTarget ct = pkg.addClass(name);
                         pkg.positionNewTarget(ct);
                         DataCollector.addClass(pkg, ct);
                         ct.reload();
-                    });
-                    return;
-                }
+                        return;
+                    }
 
-                if (! (t instanceof ClassTarget)) {
-                    return;
-                }
+                    if (!(t instanceof ClassTarget))
+                    {
+                        return;
+                    }
 
-                Platform.runLater(() -> {
                     ClassTarget ct = (ClassTarget) t;
                     ct.reload();
-                });
-            }
+                }
+            });
         }
 
         /* (non-Javadoc)
@@ -527,6 +548,7 @@ public class UpdateAction extends TeamAction
     /**
      * Make a relative path between a file and containing directory. 
      */
+    @OnThread(Tag.Any)
     private static String makeRelativePath(File parent, File file)
     {
         String parentStr = parent.getAbsolutePath();
