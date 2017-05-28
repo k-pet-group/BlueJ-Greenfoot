@@ -62,6 +62,7 @@ public class CommitAction extends TeamAction
     private Set<File> deletedFiles; // which files are to be removed
     private Set<File> files; // files to commit (includes both of above)
     private CommitAndPushInterface commitCommentsFrame;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private StatusHandle statusHandle;
     
     private CommitWorker worker;
@@ -105,7 +106,8 @@ public class CommitAction extends TeamAction
     /**
      * Set the status handle to use in order to perform the commit operation.
      */
-    public void setStatusHandle(StatusHandle statusHandle)
+    @OnThread(Tag.Worker)
+    public synchronized void setStatusHandle(StatusHandle statusHandle)
     {
         this.statusHandle = statusHandle;
     }

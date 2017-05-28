@@ -244,7 +244,7 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
             this.repository = repository;
         }
 
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             response = command.getResult();

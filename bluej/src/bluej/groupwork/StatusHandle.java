@@ -88,6 +88,7 @@ public interface StatusHandle
      * systems such as GIT.
      * @return 
      */
+    @OnThread(Tag.Worker)
     public default boolean pushNeeded()
     {
         return true;

@@ -85,6 +85,7 @@ import threadchecker.Tag;
  * @author Fabio Heday
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements CommitAndPushInterface
 {
     private final Project project;
@@ -331,6 +332,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
      * Start the activity indicator.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void startProgress()
     {
         progressBar.setRunning(true);
@@ -340,9 +342,10 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
      * Stop the activity indicator. Call from any thread.
      */
     @Override
+    @OnThread(Tag.Any)
     public void stopProgress()
     {
-        progressBar.setRunning(false);
+        JavaFXUtil.runNowOrLater(() -> progressBar.setRunning(false));
     }
 
     @Override
@@ -404,7 +407,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         /*
          * @see bluej.groupwork.StatusListener#statusComplete(bluej.groupwork.CommitHandle)
          */
-        @OnThread(Tag.Any)
+        @OnThread(Tag.Worker)
         @Override
         public void statusComplete(StatusHandle statusHandle)
         {
@@ -413,7 +416,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             pushAction.setStatusHandle(statusHandle);
         }
 
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         @Override
         public Object construct()
         {

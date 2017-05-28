@@ -38,7 +38,7 @@ import threadchecker.Tag;
  * 
  * @author Amjad Altadmri
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class HistoryCell extends ListCell<HistoryInfo>
 {
     @Override

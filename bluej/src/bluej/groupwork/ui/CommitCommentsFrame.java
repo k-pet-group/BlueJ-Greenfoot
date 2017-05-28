@@ -295,6 +295,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     /**
      * Start the activity indicator.
      */
+    @OnThread(Tag.FXPlatform)
     public void startProgress()
     {
         progressBar.setRunning(true);
@@ -303,9 +304,10 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     /**
      * Stop the activity indicator. Call from any thread.
      */
+    @OnThread(Tag.Any)
     public void stopProgress()
     {
-        progressBar.setRunning(false);
+        JavaFXUtil.runNowOrLater(() -> progressBar.setRunning(false));
     }
 
     public Project getProject()
@@ -350,14 +352,14 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
         /*
          * @see bluej.groupwork.StatusListener#statusComplete(bluej.groupwork.CommitHandle)
          */
-        @OnThread(Tag.Any)
+        @OnThread(Tag.Worker)
         @Override
         public void statusComplete(StatusHandle statusHandle)
         {
             commitAction.setStatusHandle(statusHandle);
         }
 
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         @Override
         public Object construct()
         {

@@ -47,10 +47,10 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class PushAction extends TeamAction
 {
-
     private CommitAndPushInterface commitCommentsFrame;
     private Set<File> filesToPush;
     private PushWorker worker;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private StatusHandle statusHandle;
 
     public PushAction(CommitAndPushInterface frame)
@@ -90,7 +90,8 @@ public class PushAction extends TeamAction
      * Set the status handle to use in order to perform the commit operation.
      * @param statusHandle
      */
-    public void setStatusHandle(StatusHandle statusHandle)
+    @OnThread(Tag.Worker)
+    public synchronized void setStatusHandle(StatusHandle statusHandle)
     {
         this.statusHandle = statusHandle;
     }

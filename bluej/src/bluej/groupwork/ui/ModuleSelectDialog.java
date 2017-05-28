@@ -204,7 +204,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
             command = repository.getModules(modules);
         }
 
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             result = command.getResult();

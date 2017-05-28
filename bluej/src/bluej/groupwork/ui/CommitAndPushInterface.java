@@ -63,6 +63,7 @@ public interface CommitAndPushInterface
     /**
      * Stop the activity indicator. Call from any thread.
      */
+    @OnThread(Tag.Any)
     public void stopProgress();
     
     public Project getProject();

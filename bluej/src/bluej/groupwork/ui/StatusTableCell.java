@@ -39,7 +39,7 @@ import threadchecker.Tag;
  *
  * @author Amjad Altadmri
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class StatusTableCell extends TableCell<TeamStatusInfo, Object>
 {
     private final boolean isDVCS;
