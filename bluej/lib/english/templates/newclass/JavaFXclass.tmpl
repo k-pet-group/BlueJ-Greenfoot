@@ -11,25 +11,25 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 /**
- * Write a description of JavaFx class $CLASSNAME here.
+ * Write a description of JavaFX class $CLASSNAME here.
  *
  * @author (your name)
  * @version (a version number or a date)
  */
 public class $CLASSNAME extends Application
 {
-    // instance variables - replace the example below with your own
-    int count=0;
-    Label myLabel=new Label();
+    // We keep track of the count, and label displaying the count:
+    private int count = 0;
+    private Label myLabel = new Label("0");
 
     @Override
     public void start(Stage stage) throws Exception
     {
-        //create a Button or any control item
-        Button myButton=new Button("Count");
+        // Create a Button or any control item
+        Button myButton = new Button("Count");
 
-        //create a new grid pane
-        GridPane pane=new GridPane();
+        // Create a new grid pane
+        GridPane pane = new GridPane();
         pane.setPadding(new Insets(10, 10, 10, 10));
         pane.setMinSize(300, 300);
         pane.setVgap(10);
@@ -38,29 +38,27 @@ public class $CLASSNAME extends Application
         //set an action on the button using method reference
         myButton.setOnAction(this::buttonClick);
 
-        //add the button and/or a control item into the pane
-        pane.add(myLabel,1,0);
-        pane.add(myButton,0,0);
+        // Add the button and label into the pane
+        pane.add(myLabel, 1, 0);
+        pane.add(myButton, 0, 0);
 
-        //create a scene
-        Scene scene =new Scene(pane, 300,100);
-
-        //set Stage's title
+        // JavaFX must have a Scene (window content) inside a Stage (window)
+        Scene scene = new Scene(pane, 300,100);
         stage.setTitle("JavaFX Example");
-
-        //set Stage's scene
         stage.setScene(scene);
 
-        //show the stage
+        // Show the Stage (window)
         stage.show();
     }
+
     /**
-     * this will be executed when the button is clicked
+     * This will be executed when the button is clicked
+     * It increments the count by 1
      */
     private void buttonClick(ActionEvent event)
     {
-        //counts number of button clicks and shows the result on a label
-        count=count+1;
+        // Counts number of button clicks and shows the result on a label
+        count = count + 1;
         myLabel.setText(Integer.toString(count));
     }
 }

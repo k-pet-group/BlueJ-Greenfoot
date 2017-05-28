@@ -97,10 +97,8 @@
                 <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
                 <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
             </classpath>
-            <!-- MOEFX: disable thread checker for now
-            <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
+            <compilerarg value="-Xmaxerrs"/><compilerarg value="100"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
-            -->
         </compile>
 
     </target>
@@ -146,10 +144,8 @@
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
-            <!-- MOEFX: disable thread checker for now
             <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
-            -->
 
             <!-- <compilerarg value="-J-XX:+UnlockCommercialFeatures"/>
             <compilerarg value="-J-XX:+FlightRecorder"/>
