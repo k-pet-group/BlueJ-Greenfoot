@@ -68,6 +68,7 @@ public class AboutGreenfootDialog extends JDialog
         text.addText("The Greenfoot team:" + "\n ", false, true);
         text.addText("      Amjad Altadmri\n");
         text.addText("      Neil Brown\n");
+        text.addText("      Hamza Hamza\n");
         text.addText("      Michael K\u00F6lling\n");
         text.addText("      Davin McCall\n");        
         aboutPanel.add(text, BorderLayout.CENTER);
