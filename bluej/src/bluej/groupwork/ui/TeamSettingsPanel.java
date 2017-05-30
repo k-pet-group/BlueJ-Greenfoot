@@ -527,20 +527,20 @@ public class TeamSettingsPanel extends VBox
     {
         teamSettingsDialog.getOkButton().disableProperty().unbind();
 
-        BooleanBinding enabled = userField.textProperty().isEmpty();
+        BooleanBinding disabled = userField.textProperty().isEmpty();
         switch (serverTypes.selectedProperty().get()) {
             case Subversion:
-                enabled = enabled.or(serverField.textProperty().isEmpty());
+                disabled = disabled.or(serverField.textProperty().isEmpty());
                 break;
             case Git:
-                enabled = enabled.or(uriField.textProperty().isEmpty())
+                disabled = disabled.or(uriField.textProperty().isEmpty())
                         .or(yourNameField.textProperty().isEmpty())
                         .or(yourEmailField.textProperty().isEmpty())
                         .or(Bindings.createBooleanBinding(() -> !yourEmailField.getText().contains("@"), yourEmailField.textProperty()));
                 break;
         }
 
-        teamSettingsDialog.getOkButton().disableProperty().bind(enabled);
+        teamSettingsDialog.getOkButton().disableProperty().bind(disabled);
     }
 
     /**
