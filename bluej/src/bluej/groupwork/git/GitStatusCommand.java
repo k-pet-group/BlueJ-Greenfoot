@@ -26,11 +26,11 @@ import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamStatusInfo.Status;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
-import static bluej.groupwork.git.GitUtillities.findForkPoint;
-import static bluej.groupwork.git.GitUtillities.getBehindCount;
-import static bluej.groupwork.git.GitUtillities.getDiffs;
-import static bluej.groupwork.git.GitUtillities.getFileNameFromDiff;
-import static bluej.groupwork.git.GitUtillities.isAheadOnly;
+import static bluej.groupwork.git.GitUtilities.findForkPoint;
+import static bluej.groupwork.git.GitUtilities.getBehindCount;
+import static bluej.groupwork.git.GitUtilities.getDiffs;
+import static bluej.groupwork.git.GitUtilities.getFileNameFromDiff;
+import static bluej.groupwork.git.GitUtilities.isAheadOnly;
 import bluej.utility.Debug;
 
 import java.io.File;

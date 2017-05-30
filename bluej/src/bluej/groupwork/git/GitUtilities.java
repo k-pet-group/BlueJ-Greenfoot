@@ -50,7 +50,7 @@ import threadchecker.Tag;
  *
  * @author heday
  */
-public class GitUtillities
+public class GitUtilities
 {
 
     /**
