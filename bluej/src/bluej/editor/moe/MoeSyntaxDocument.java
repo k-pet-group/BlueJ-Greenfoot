@@ -851,6 +851,9 @@ public class MoeSyntaxDocument
             @Override
             public Element getElement(int index)
             {
+                if (index >= document.getParagraphs().size())
+                    return null;
+
                 Paragraph<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> p = document.getParagraph(index);
                 int pos = document.getAbsolutePosition(index, 0);
                 return new Element()
