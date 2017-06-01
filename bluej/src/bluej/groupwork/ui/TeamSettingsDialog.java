@@ -60,11 +60,13 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
             setTitle(getTitle() + " - " + teamSettingsController.getProject().getProjectName());
         }
 
-        setHeaderText(null);//
+        setHeaderText(null);
 
         prepareButtonPane();
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, getDialogPane().getStyleClass());
         getDialogPane().setContent(teamSettingsPanel);
+
+        setResultConverter(bt -> bt == ButtonType.OK ? getSettings() : null);
     }
 
     /**
