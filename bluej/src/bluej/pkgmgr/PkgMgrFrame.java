@@ -172,9 +172,6 @@ public class PkgMgrFrame
     private TitledPane testPanel;
     @OnThread(Tag.FXPlatform)
     private TitledPane teamPanel;
-    @OnThread(Tag.FXPlatform)
-    private ButtonBase imgExtendsButton;
-    private @OnThread(Tag.FX) ButtonBase runButton;
     @OnThread(Tag.FX)
     private Label statusbar;
     // Initialised once, effectively final thereafter:
@@ -2450,7 +2447,7 @@ public class PkgMgrFrame
      */
     public void doTest()
     {
-        runButton.setDisable(true);
+        runTestsAction.setAvailable(false);
 
         List<ClassTarget> l = getPackage().getTestTargets();
 
@@ -2484,7 +2481,7 @@ public class PkgMgrFrame
     public void endTestRun()
     {
         TestDisplayFrame.getTestDisplay().endMultipleTests();
-        runButton.setDisable(false);
+        runTestsAction.setAvailable(true);
     }
 
     /**
@@ -2864,7 +2861,7 @@ public class PkgMgrFrame
         VBox topButtons = new VBox();
         JavaFXUtil.addStyleClass(topButtons, "pmf-tools-top");
         topButtons.getChildren().add(newClassAction.makeButton());
-        imgExtendsButton = newInheritsAction.makeButton();
+        Button imgExtendsButton = newInheritsAction.makeButton();
         imgExtendsButton.setText(null);
         SVGPath arrow = new SVGPath();
         // See http://jxnblk.com/paths/?d=M2%2010%20L22%2010%20L22%2016%20L32%2010%20L22%204%20L22%2010%20Z
@@ -2895,7 +2892,7 @@ public class PkgMgrFrame
         VBox testPanelItems = new VBox();
         JavaFXUtil.addStyleClass(testPanelItems, "pmf-tools-test-items");
         testPanel.setContent(testPanelItems);
-        runButton = runTestsAction.makeButton();
+        Button runButton = runTestsAction.makeButton();
         runButton.setText(Config.getString("pkgmgr.test.run"));
         testPanelItems.getChildren().add(runButton);
 
