@@ -422,11 +422,17 @@ public class MoeSyntaxDocument
     {
         // Prevent re-entry, which can it seems can occur when applying
         // token highlight styles:
-        if (applyingScopeBackgrounds || syntaxView == null)
+        if (applyingScopeBackgrounds)
+            return;
+        // No point doing scopes (in fact, not possible) if there's no editor involved:
+        if (syntaxView == null || syntaxView.editorPane == null)
             return;
         applyingScopeBackgrounds = true;
+        // Setting paragraph styles can cause RichTextFX to scroll the window, which we
+        // don't want.  So we save and restore the scroll Y:
+        double scrollY = syntaxView.editorPane.getEstimatedScrollY();
 
-        // Take a copy:
+        // Take a copy of backgrounds to avoid concurrent modification:
         Set<Entry<Integer, ScopeInfo>> pendingBackgrounds = new HashMap<>(pendingScopeBackgrounds).entrySet();
         pendingScopeBackgrounds.clear();
 
@@ -450,6 +456,10 @@ public class MoeSyntaxDocument
             }
         }
 
+        // The setParagraphStyle causes a layout-request with request-follow-caret.  We have to
+        // purge that layout request by executing it, before we restore the scroll Y:
+        syntaxView.editorPane.layout();
+        syntaxView.editorPane.setEstimatedScrollY(scrollY);
 
         applyingScopeBackgrounds = false;
     }
@@ -592,7 +602,7 @@ public class MoeSyntaxDocument
                 ScopeInfo prevStyle = document.getParagraphStyle(changedLine.getKey() - 1);
                 if (prevStyle != null)
                 {
-                    document.setParagraphStyle(changedLine.getKey() - 1, prevStyle.withAttributes(changedLine.getValue()));
+                    setParagraphStyle(changedLine.getKey() - 1, prevStyle.withAttributes(changedLine.getValue()));
                 }
             }
         }

@@ -100,7 +100,8 @@ public class BlueJSyntaxView
     private final ScopeColors scopeColors;
     private int imageCacheLineHeight;
     private ReadOnlyDoubleProperty widthProperty; // width of editor view
-    private MoeEditorPane editorPane;
+    // package-protected:
+    MoeEditorPane editorPane;
 
     /* Scope painting colours */
     /* The following are initialized by resetColors() */
