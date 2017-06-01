@@ -1448,9 +1448,22 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             saveState.setState(StatusLabel.Status.CHANGED);
             setChanged();
-            if (watcher != null) {
+            // If we aren't code, just save the change:
+            if (!sourceIsCode)
+            {
+                try
+                {
+                    save();
+                }
+                catch (IOException e)
+                {
+                    Debug.reportError(e);
+                }
+            }
+            else if (watcher != null) {
                 watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
+
             madeChangeOnCurrentLine = false; // Not since last compilation
         }
         else
@@ -2437,7 +2450,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private void setCompileStatus(boolean compiled)
     {
         actions.getActionByName("toggle-breakpoint").setEnabled(compiled && viewingCode());
-        if (!compiled)
+        if (sourceIsCode && !compiled)
             compiledProperty.set(false);
     }
 
@@ -2516,7 +2529,18 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         if (madeChangeOnCurrentLine)
         {
-            if (watcher != null) {
+            if (!sourceIsCode)
+            {
+                try
+                {
+                    save();
+                }
+                catch (IOException e)
+                {
+                    Debug.reportError(e);
+                }
+            }
+            else if (watcher != null) {
                 watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
             madeChangeOnCurrentLine = false;
