@@ -656,7 +656,8 @@ public final class Terminal
             }
 
             if (this.isShown()) {
-                window.requestFocus();
+                Utility.bringToFrontFX(window);
+                input.requestFocus();
             }
         });
     }
