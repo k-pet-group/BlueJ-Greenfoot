@@ -31,6 +31,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -39,6 +40,7 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.paint.ImagePattern;
+import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.StyledText;
 import threadchecker.OnThread;
@@ -111,6 +113,32 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
 
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
             JavaFXUtil.runPlatformLater(() -> requestLayout());
+        });
+        // We must redraw any incomplete backgrounds once
+        // they become visible:
+        VirtualFlow virtualFlow = (VirtualFlow) lookup(".virtual-flow");
+        virtualFlow.visibleCells().addListener((ListChangeListener) c -> {
+            if (editor.getSourceDocument() == null)
+                return;
+
+            int earliestIncomplete = -1, latestIncomplete = -1;
+            for (int i = 0; i < getParagraphs().size(); i++)
+            {
+                ScopeInfo paragraphStyle = getDocument().getParagraphStyle(i);
+                if (paragraphStyle != null && paragraphStyle.isIncomplete() && virtualFlow.getCellIfVisible(i).isPresent())
+                {
+                    if (earliestIncomplete == -1)
+                        earliestIncomplete = i;
+                    latestIncomplete = i;
+                }
+            }
+            if (earliestIncomplete != -1)
+            {
+                editor.getSourceDocument().recalculateScopesForLinesInRange(earliestIncomplete, latestIncomplete);
+                // Must call this to apply pending scope backgrounds:
+                editor.getSourceDocument().flushReparseQueue();
+
+            }
         });
     }
 

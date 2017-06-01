@@ -107,6 +107,7 @@ import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.GenericStyledArea;
@@ -259,6 +260,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FXPlatform)
     private boolean respondingToChange;
     private String lastSearchString = "";
+    private boolean firstTimeShowing = true;
 
     /**
      * Constructor. Title may be null.
@@ -630,7 +632,16 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             fxTabbedEditor.bringToFront(fxTab);
             if (callbackOnOpen != null)
+            {
                 callbackOnOpen.run();
+            }
+            // Calculating the scopes properly needs a visible editor,
+            // so once we're shown, recalculate the scopes:
+            if (firstTimeShowing)
+            {
+                firstTimeShowing = false;
+                JavaFXUtil.runAfter(Duration.millis(200), () -> sourceDocument.recalculateAllScopes());
+            }
         }
     }
 

@@ -210,16 +210,16 @@ public class BlueJSyntaxView
             return null;
     }
 
-    protected final void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, int fullWidth,
+    protected final void paintScopeMarkers(List<ScopeInfo> scopes, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods)
     {
-        paintScopeMarkers(scopes, document, fullWidth, firstLine, lastLine, onlyMethods, false);
+        paintScopeMarkers(scopes, fullWidth, firstLine, lastLine, onlyMethods, false);
     }
 
-    public List<ScopeInfo> recalculateScopes(MoeSyntaxDocument moeSyntaxDocument, int firstLineIncl, int lastLineIncl)
+    List<ScopeInfo> recalculateScopes(int firstLineIncl, int lastLineIncl)
     {
         List<ScopeInfo> scopes = new ArrayList<>();
-        paintScopeMarkers(scopes, moeSyntaxDocument, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), firstLineIncl, lastLineIncl, false);
+        paintScopeMarkers(scopes, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), firstLineIncl, lastLineIncl, false);
         return scopes;
     }
 
@@ -422,7 +422,7 @@ public class BlueJSyntaxView
         Element belowLineEl;
     }
 
-    protected void paintScopeMarkers(List<ScopeInfo> scopes, MoeSyntaxDocument document, int fullWidth,
+    protected void paintScopeMarkers(List<ScopeInfo> scopes, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
         //optimization for the raspberry pi.
@@ -587,6 +587,12 @@ public class BlueJSyntaxView
 
                 drawInfo.scopes.nestedScopes.add(calculatedNestedScope(drawInfo, xpos, rbound));
             }
+            else if (xpos == -1)
+            {
+                // Mark as incomplete so we know to redraw later:
+                drawInfo.scopes.incomplete = true;
+            }
+
             nodeDepth++;
         }
 
@@ -965,7 +971,7 @@ public class BlueJSyntaxView
         // An indent value of zero is only given by getCharacterBoundsOnScreen when the editor
         // hasn't been shown yet, so we recalculate whenever we find that indent value in the
         // hope that the editor is now visible:
-        if (indent == null || indent == 0) {
+        if (indent == null || indent <= 0) {
             indent = getNodeIndent(doc, nap);
             nodeIndents.put(nap.getNode(), indent);
         }
@@ -1839,6 +1845,7 @@ public class BlueJSyntaxView
 
         private final List<SingleNestedScope> nestedScopes = new ArrayList<>();
         private final EnumSet<ParagraphAttribute> attributes;
+        private boolean incomplete = false;
 
         public ScopeInfo(EnumSet<ParagraphAttribute> attributes)
         {
@@ -1856,6 +1863,12 @@ public class BlueJSyntaxView
             scopeInfo.nestedScopes.addAll(nestedScopes);
             return scopeInfo;
         }
+
+        public boolean isIncomplete()
+        {
+            return incomplete;
+        }
+
 
         private static class SingleNestedScope
         {
@@ -1901,6 +1914,7 @@ public class BlueJSyntaxView
 
             ScopeInfo scopeInfo = (ScopeInfo) o;
 
+            if (incomplete != scopeInfo.incomplete) return false;
             if (!attributes.equals(scopeInfo.attributes)) return false;
             return nestedScopes.equals(scopeInfo.nestedScopes);
         }
@@ -1910,6 +1924,7 @@ public class BlueJSyntaxView
         {
             int result = nestedScopes.hashCode();
             result = 31 * result + attributes.hashCode();
+            result += isIncomplete() ? 1 : 0;
             return result;
         }
     }

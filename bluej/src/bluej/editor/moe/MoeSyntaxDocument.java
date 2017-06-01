@@ -408,7 +408,7 @@ public class MoeSyntaxDocument
     {
         if (syntaxView == null)
             return;
-        List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(this, firstLineIncl, lastLineIncl);
+        List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(firstLineIncl, lastLineIncl);
         if (paragraphScopeInfo.isEmpty())
             return; // Not initialised yet
         for (int i = 0; i < paragraphScopeInfo.size(); i++)
