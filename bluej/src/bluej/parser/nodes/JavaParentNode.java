@@ -162,6 +162,10 @@ public abstract class JavaParentNode extends ParentParsedNode
             Set<FieldNode> varset = variables.get(childName);
             if (varset != null) {
                 varset.remove(child.getNode());
+                if (varset.isEmpty())
+                {
+                    variables.remove(childName);
+                }
             }
         }
     }
