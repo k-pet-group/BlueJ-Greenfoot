@@ -462,6 +462,7 @@ public final class Terminal
         }
 
         pane.end(SelectionPolicy.CLEAR);
+        pane.requestFollowCaret();
     }
 
     private <S extends TextAreaStyle> void trimToMaxBufferLines(StyledTextArea<Void, S> pane)
