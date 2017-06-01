@@ -123,6 +123,15 @@ public final class MoeActions
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionNextWordAction));
         }
 
+        // RichTextFX has some default bindings for actions which we have on menu accelerators
+        // (Plus, we want to allow users to override them.)
+        // So we override those bindings to do nothing, letting our menu accelerators take over:
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN), null);
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN), null);
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN), null);
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN), null);
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.Y, KeyCombination.SHORTCUT_DOWN), null);
+
         // install our own keymap, with the existing one as parent:
         updateKeymap();
     }
@@ -139,8 +148,11 @@ public final class MoeActions
                 keymap.entrySet().stream()
                     // Only use keymap if item isn't on a menu accelerator:
                     .filter(e -> !e.getValue().hasMenuItem())
-                ).map(e -> InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed()))
-                 .toArray(InputMap[]::new));
+                ).map(e -> InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> {
+                MoeAbstractAction action = e.getValue();
+                if (action != null)
+                    action.actionPerformed();
+                })).toArray(InputMap[]::new));
             Nodes.addInputMap(getTextComponent(), curKeymap);
         }
     }
