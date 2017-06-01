@@ -658,29 +658,9 @@ public final class MoeActions
     // --------------------------------------------------------------------
 
     /**
-     * Called at every insertion of text into the document.
-     */
-    public void textInsertAction(int offset, int length)
-    {
-        if (length == 1) { // single character inserted
-            char ch = editor.getSourcePane().getText(offset, offset + 1).charAt(0);
-
-            // 'ch' is the character that was just typed
-            // currently, the only character upon which we act is the
-            // closing brace ('}')
-
-            if (ch == '}' && PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
-                closingBrace(offset);
-            }
-        }
-    }
-
-    // --------------------------------------------------------------------
-
-    /**
      * We just typed a closing brace character - indent appropriately.
      */
-    private void closingBrace(int offset)
+    public void closingBrace(int offset)
     {
         int lineIndex = getCurrentLineIndex();
         Element line = getLine(lineIndex);

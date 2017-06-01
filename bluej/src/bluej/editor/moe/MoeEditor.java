@@ -1427,7 +1427,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             {
                 boolean singleLineChange = !c.getInserted().contains("\n") && !c.getRemoved().contains("\n");
                 boolean inserted = !c.getInserted().isEmpty();
-                documentContentChanged(singleLineChange, inserted, c.getPosition(), c.getInsertionEnd() - c.getPosition());
+                documentContentChanged(singleLineChange, inserted, c.getPosition(), c.getInsertionEnd() - c.getPosition(), c.getInserted());
             }
         });
     }
@@ -1435,7 +1435,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /**
      * A change has been made to the source code content.
      */
-    private void documentContentChanged(boolean singleLineChange, boolean inserted, int offset, int insertionLength)
+    private void documentContentChanged(boolean singleLineChange, boolean inserted, int offset, int insertionLength, String insertedContent)
     {
         // Prevent re-entry to this method.  In theory this shouldn't happen as we
         // shouldn't modify the document in this function.  But it seems like sometimes
@@ -1484,8 +1484,16 @@ public final class MoeEditor extends ScopeColorsBorderPane
         
         // This may handle re-indentation; as this mutates the
         // document, it must be done outside the notification.
-        if (inserted) {
-            JavaFXUtil.runAfterCurrent(() -> actions.textInsertAction(offset, insertionLength));
+        if (inserted && "}".equals(insertedContent) && PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
+            JavaFXUtil.runAfterCurrent(() -> {
+                // It's possible, e.g. due to de-indenting, that by the time we
+                // get here, the offset won't be valid any more, in which case don't
+                // worry about it:
+                if (offset + insertionLength <= getSourcePane().getLength() && sourcePane.getText(offset, offset + insertionLength).equals("}"))
+                {
+                    actions.closingBrace(offset);
+                }
+            });
         }
         
         recordEdit(false);        
