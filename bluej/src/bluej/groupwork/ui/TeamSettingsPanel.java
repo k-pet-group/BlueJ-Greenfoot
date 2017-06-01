@@ -549,6 +549,7 @@ public class TeamSettingsPanel extends VBox
      */
     public void disableRepositorySettings()
     {
+        serverTypes.setDisable(true);
         groupField.setDisable(true);
         prefixField.setDisable(true);
         serverField.setDisable(true);

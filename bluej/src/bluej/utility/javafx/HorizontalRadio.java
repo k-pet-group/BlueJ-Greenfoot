@@ -109,4 +109,11 @@ public class HorizontalRadio<T>
         buttonsByValue.get(item).fire();
     }
 
+    public void setDisable(boolean disabled)
+    {
+        for (ButtonBase button : buttonsByValue.values())
+        {
+            button.setDisable(disabled);
+        }
+    }
 }
