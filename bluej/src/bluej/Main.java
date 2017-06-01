@@ -381,8 +381,9 @@ public class Main
     public static void wantToQuit()
     {
         int projectCount = Project.getOpenProjectCount();
-        PkgMgrFrame recentPMF = PkgMgrFrame.getMostRecent();
-        int answer = projectCount <= 1 ? 0 : DialogManager.askQuestionFX(recentPMF.getFXWindow(), "quit-all");
+        // We set a null owner here to make the dialog come to the front of all windows;
+        // the user may have triggered the quit shortcut from any window, not just a PkgMgrFrame:
+        int answer = projectCount <= 1 ? 0 : DialogManager.askQuestionFX(null, "quit-all");
         if (answer == 0)
         {
             doQuit();

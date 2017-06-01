@@ -285,7 +285,7 @@ public class DialogManager
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, messageAndButtons.getMessage(), buttons.toArray(new ButtonType[0]));
             alert.setHeaderText("");
             alert.initOwner(parent);
-            alert.initModality(Modality.WINDOW_MODAL);
+            alert.initModality(parent == null ? Modality.APPLICATION_MODAL : Modality.WINDOW_MODAL);
             alert.setTitle(Config.getApplicationName() + ":  " +
                 Config.getString("dialogmgr.question"));
             return alert.showAndWait().map(buttons::indexOf).orElse(buttons.size() - 1);
