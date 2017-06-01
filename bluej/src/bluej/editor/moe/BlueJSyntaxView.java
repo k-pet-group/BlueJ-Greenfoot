@@ -29,6 +29,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.javafx.FXCache;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
@@ -709,18 +710,28 @@ public class BlueJSyntaxView
         }
         else
         {
-            Optional<Bounds> screenBounds = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1);
-            if (screenBounds.isPresent())
+            try
             {
-                // Minus 24 to allow for the left-hand margin:
-                double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
-                return OptionalInt.of((int)indent);
+                Optional<Bounds> screenBounds = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1);
+                if (screenBounds.isPresent())
+                {
+                    // Minus 24 to allow for the left-hand margin:
+                    double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
+                    return OptionalInt.of((int) indent);
+                }
             }
-            else
+            catch (IllegalArgumentException | IndexOutOfBoundsException e)
             {
-                // Not on screen, wider than any indent we have cached, nothing we can do:
-                return OptionalInt.empty();
+                // This occurs when asking about the last character in the file
+                // Report it only if not at end of file:
+                if (startOffset < editorPane.getLength() - 1)
+                {
+                    Debug.reportError(e);
+                }
             }
+
+            // Not on screen, wider than any indent we have cached, nothing we can do:
+            return OptionalInt.empty();
         }
     }
 
