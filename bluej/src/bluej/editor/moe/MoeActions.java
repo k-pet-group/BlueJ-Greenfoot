@@ -64,10 +64,11 @@ import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * A set of actions supported by the Moe editor. This is a singleton: the
- * actions are shared between all editor instances.
+ * A set of actions supported by the Moe editor. This has a single instance
+ * per editor.
  *
  * Actions are stored both in a hash-map and in an array. The hash-map is used
  * for fast lookup by name, whereas the array is needed to support complete,
@@ -97,6 +98,9 @@ public final class MoeActions
     public MoeAbstractAction compileOrNextErrorAction;
     public MoeAbstractAction contentAssistAction;
     private HashMap<String, MoeAbstractAction> actions; // All of the actions in a hash-map by their name
+    // The built-in fixed key combinations we add:
+    private final ObservableMap<KeyCodeCombination, MoeAbstractAction> builtInKeymap = FXCollections.observableHashMap();
+    // The user-configurable key combinations:
     private final ObservableMap<KeyCodeCombination, MoeAbstractAction> keymap = FXCollections.observableHashMap();
     private org.fxmisc.wellbehaved.event.InputMap<javafx.scene.input.KeyEvent> curKeymap; // the editor's keymap
     private boolean lastActionWasCut; // true if last action was a cut action
@@ -111,6 +115,14 @@ public final class MoeActions
             setDefaultKeyBindings();
         lastActionWasCut = false;
 
+        if (Config.isMacOS())
+        {
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.ALT_DOWN), actions.get(DefaultEditorKit.previousWordAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN), actions.get(DefaultEditorKit.nextWordAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionPreviousWordAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionNextWordAction));
+        }
+
         // install our own keymap, with the existing one as parent:
         updateKeymap();
     }
@@ -122,11 +134,13 @@ public final class MoeActions
         {
             if (curKeymap != null)
                 Nodes.removeInputMap(getTextComponent(), curKeymap);
-            curKeymap = InputMap.sequence(keymap.entrySet().stream()
+            curKeymap = InputMap.sequence(Stream.concat(
+                builtInKeymap.entrySet().stream(),
+                keymap.entrySet().stream()
                     // Only use keymap if item isn't on a menu accelerator:
                     .filter(e -> !e.getValue().hasMenuItem())
-                    .map(e -> InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed()))
-                    .collect(Collectors.toList()).toArray(new InputMap[0]));
+                ).map(e -> InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed()))
+                 .toArray(InputMap[]::new));
             Nodes.addInputMap(getTextComponent(), curKeymap);
         }
     }
