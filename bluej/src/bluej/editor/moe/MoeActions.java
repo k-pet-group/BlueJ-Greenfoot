@@ -809,7 +809,7 @@ public final class MoeActions
         int lineEnd = line.getEndOffset();
         String lineText = doc.getText(lineStart, lineEnd - lineStart);
         indentPos = MoeIndent.findFirstNonIndentChar(lineText, true);
-        char firstChar = lineText.charAt(indentPos);
+        char firstChar = lineText.isEmpty() ? '\u0000' : lineText.charAt(indentPos);
         doc.remove(lineStart, indentPos);
         String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
         if (firstChar == '*') {
