@@ -1136,6 +1136,8 @@ public class PkgMgrFrame
         teamActions.getUpdateAction().useButton(this, updateButton);
         teamActions.getCommitCommentAction().useButton(this, commitButton);
         teamActions.getImportAction().useButton(this, teamShareButton);
+        teamShareButton.textProperty().unbind();
+        teamShareButton.setText(Config.getString("team.import.short"));
 
         teamActions.getTeamSettingsAction().useMenuItem(this, teamSettingsMenuItem);
         teamActions.getImportAction().useMenuItem(this, shareProjectMenuItem);
