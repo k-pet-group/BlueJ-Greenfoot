@@ -486,6 +486,14 @@
     -fx-min-height:  16em;
     -fx-pref-height: 24em;
 }
+.replacement-button-bar {
+    -fx-padding: 0.833em; /* 10px */
+}
+.status-table {
+    -fx-border-color: hsb(0, 0%, 70%);
+    -fx-border-width: 1;
+    -fx-border-style: solid;
+}
 
 .team-history {
     -fx-min-width:  45em;

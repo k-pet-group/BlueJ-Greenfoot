@@ -31,11 +31,14 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -90,11 +93,26 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         super(null, "team.status", "team-status");
         project = proj;
         isDVCS = project.getTeamSettingsController().isDVCS();
-        getDialogPane().setContent(makeMainPane());
+        Node content = makeMainPane();
+        makeRefreshPaneComponents();
+        setDialogPane(new DialogPane() {
+            @Override
+            protected Node createButtonBar()
+            {
+                Node actualButtonBar = super.createButtonBar();
+                BorderPane borderPane = new BorderPane(progressBar, null, actualButtonBar, null, refreshButton);
+                JavaFXUtil.addStyleClass(borderPane, "replacement-button-bar");
+                return borderPane;
+            }
+        });
+        // Since we swap out dialog pane, must redo some styling:
+        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-status");
+        Config.addDialogStylesheets(getDialogPane());
+        getDialogPane().setContent(content);
         prepareButtonPane();
     }
 
-    private Pane makeMainPane()
+    private Node makeMainPane()
     {
         // try and set up a reasonable default amount of entries that avoids resizing
         // and scrolling once we get info back from repository
@@ -107,55 +125,46 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         // statusTable.getTableHeader().setReorderingAllowed(false);
 
         TableColumn<TeamStatusInfo, String> firstColumn = new TableColumn<>(statusModel.getColumnName(0));
-        firstColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.3));
         JavaFXUtil.addStyleClass(firstColumn, "team-status-firstColumn");
         firstColumn.setCellValueFactory(v ->
                 new ReadOnlyStringWrapper(ResourceDescriptor.getResource(project, v.getValue(), false)));
 
         TableColumn<TeamStatusInfo, Object> secondColumn = new TableColumn<>(statusModel.getColumnName(1));
-        secondColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.3));
         JavaFXUtil.addStyleClass(secondColumn, "team-status-secondColumn");
         secondColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 1)));
         secondColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 1));
 
         TableColumn<TeamStatusInfo, Object> thirdColumn = new TableColumn<>(statusModel.getColumnName(2));
-        thirdColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.39));
         JavaFXUtil.addStyleClass(thirdColumn, "team-status-thirdColumn");
         thirdColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 2)));
         thirdColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 2));
 
         statusTable.getColumns().setAll(firstColumn, secondColumn, thirdColumn);
 
-        ScrollPane statusScroller = new ScrollPane(statusTable);
-        statusScroller.setFitToWidth(true);
-        statusScroller.setFitToHeight(true);
+        statusTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        VBox mainPane = new VBox();
-        mainPane.setSpacing(10);
-        mainPane.getChildren().addAll(statusScroller, makeRefreshPane());
-        return mainPane;
+        statusTable.setBackground(null);
+        JavaFXUtil.addStyleClass(statusTable, "status-table");
+
+        // Wrap in border pane so that padding works right:
+        return new BorderPane(statusTable);
     }
 
     /**
      * Create the Refresh button and status progress bar
-     * @return Pane the progress HBox
      */
-    private Pane makeRefreshPane()
+    private void makeRefreshPaneComponents()
     {
         // progress bar
         progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
+        BorderPane.setAlignment(progressBar, Pos.CENTER);
 
         //refresh button
         refreshButton = new Button(Config.getString("team.status.refresh"));
         refreshButton.setDisable(true);
         refreshButton.setOnAction(event -> update());
         refreshButton.requestFocus();
-
-        HBox box = new HBox();
-        box.setAlignment(Pos.BASELINE_CENTER);
-        box.getChildren().addAll(progressBar, refreshButton);
-        return box;
     }
 
     /**
