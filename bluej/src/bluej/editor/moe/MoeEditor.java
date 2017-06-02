@@ -95,6 +95,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -802,7 +803,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
             }
             errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
-            info.messageImportant(Config.getString("editor.info.compileError"));
+            info.messageImportant(getCompileErrorLabel());
             repaint();
             //NAVIFX
             //naviView.repaintLines((int)diagnostic.getStartLine(), (int)diagnostic.getEndLine());
@@ -975,9 +976,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
             else if (!successful)
             {
-                info.messageImportant(Config.getString("editor.info.compileError"));
+                info.messageImportant(getCompileErrorLabel());
             }
         }
+    }
+
+    private String getCompileErrorLabel()
+    {
+        return Config.getString("editor.info.compileError").replace("$", actions.getKeyStrokesForAction("compile").stream().map(KeyCodeCombination::getDisplayText).collect(Collectors.joining(" " + Config.getString("or") + " ")));
     }
 
     /**
