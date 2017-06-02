@@ -45,7 +45,7 @@ public class UpdateDialogAction extends TeamAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         project = pmf.getProject();
-        if (project != null) {
+        if (project != null && project.getTeamSettingsController().initRepository()) {
             project.getUpdateDialog().setVisible(true);
         }
     }
