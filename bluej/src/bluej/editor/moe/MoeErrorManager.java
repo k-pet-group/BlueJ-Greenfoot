@@ -24,6 +24,7 @@ package bluej.editor.moe;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.parser.SourceLocation;
 import bluej.utility.Utility;
+import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -65,7 +66,7 @@ public class MoeErrorManager
         
         MoeEditorPane sourcePane = editor.getSourcePane();
         sourcePane.setStyleSpans(startPos, sourcePane.getStyleSpans(startPos, endPos).mapStyles(s -> Utility.setAdd(s, MoeEditorPane.ERROR_CLASS)));
-        editor.getSourceDocument().setParagraphAttributesForLineNumber(startPos, Collections.singletonMap(ParagraphAttribute.ERROR, true));
+        editor.getSourceDocument().setParagraphAttributesForLineNumber(editor.getSourcePane().offsetToPosition(startPos, Bias.Forward).getMajor() + 1, Collections.singletonMap(ParagraphAttribute.ERROR, true));
         errorInfos.add(new ErrorDetails(startPos, endPos, message, identifier));
         setNextErrorEnabled.accept(true);
         editor.updateHeaderHasErrors(true);

@@ -126,7 +126,7 @@ public class BlueJSyntaxView
 
     public static enum ParagraphAttribute
     {
-        STEP_MARK("bj-step-mark"), BREAKPOINT("bj-breakpoint"), ERROR("bj-error"), ERROR_ABOVE("bj-error-above"), ERROR_BELOW("bj-error-below");
+        STEP_MARK("bj-step-mark"), BREAKPOINT("bj-breakpoint"), ERROR("bj-error");
 
         private final String pseudoClass;
 
