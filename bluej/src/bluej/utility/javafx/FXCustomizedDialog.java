@@ -25,7 +25,9 @@ import bluej.Config;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 import threadchecker.OnThread;
@@ -46,8 +48,21 @@ public class FXCustomizedDialog<R> extends Dialog<R>
         initModality(Modality.WINDOW_MODAL);
         setTitle(Config.getString(title));
         setResizable(true);
+        setDialogPane(new DialogPane() {
+            @Override
+            protected Node createButtonBar()
+            {
+                return wrapButtonBar(super.createButtonBar());
+            }
+        });
         JavaFXUtil.addStyleClass(this.getDialogPane(), style);
         Config.addDialogStylesheets(getDialogPane());
+    }
+
+    // For overriding by subclasses: lets you put other elements to left of button bar
+    protected Node wrapButtonBar(Node original)
+    {
+        return original;
     }
 
     protected void setModal(boolean makeModal)

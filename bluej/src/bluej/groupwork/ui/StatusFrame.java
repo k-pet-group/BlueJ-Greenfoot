@@ -94,22 +94,17 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         project = proj;
         isDVCS = project.getTeamSettingsController().isDVCS();
         Node content = makeMainPane();
-        makeRefreshPaneComponents();
-        setDialogPane(new DialogPane() {
-            @Override
-            protected Node createButtonBar()
-            {
-                Node actualButtonBar = super.createButtonBar();
-                BorderPane borderPane = new BorderPane(progressBar, null, actualButtonBar, null, refreshButton);
-                JavaFXUtil.addStyleClass(borderPane, "replacement-button-bar");
-                return borderPane;
-            }
-        });
-        // Since we swap out dialog pane, must redo some styling:
-        JavaFXUtil.addStyleClass(this.getDialogPane(), "team-status");
-        Config.addDialogStylesheets(getDialogPane());
         getDialogPane().setContent(content);
         prepareButtonPane();
+    }
+
+    @Override
+    protected Node wrapButtonBar(Node original)
+    {
+        makeRefreshPaneComponents();
+        BorderPane borderPane = new BorderPane(progressBar, null, original, null, refreshButton);
+        JavaFXUtil.addStyleClass(borderPane, "replacement-button-bar");
+        return borderPane;
     }
 
     private Node makeMainPane()

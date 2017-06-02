@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
@@ -102,6 +103,13 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         prepareButtonPane();
 //        DialogManager.centreDialog(this);
         rememberPosition("bluej.updatedisplay");
+    }
+
+    @Override
+    protected Node wrapButtonBar(Node original)
+    {
+        //TODO move buttons to bottom left
+        return super.wrapButtonBar(original);
     }
 
     /**
