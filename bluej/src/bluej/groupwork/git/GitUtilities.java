@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -37,6 +38,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.ReflogEntry;
+import org.eclipse.jgit.lib.ReflogReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -84,6 +86,9 @@ public class GitUtilities
      */
     public static List<DiffEntry> getDiffs(Git repo, String masterString, RevCommit forkPoint)
     {
+        if (forkPoint == null)
+            return Collections.emptyList();
+
         List<DiffEntry> diffs = new ArrayList<>();
         try {
 
@@ -135,7 +140,11 @@ public class GitUtilities
     {
         try (RevWalk walk = new RevWalk(repository)) {
             RevCommit tipCommit = walk.lookupCommit(repository.resolve(tip));
-            List<ReflogEntry> reflog = repository.getReflogReader(base).getReverseEntries();
+            ReflogReader reflogReader = repository.getReflogReader(base);
+            // Can't find base point:
+            if (reflogReader == null)
+                return null;
+            List<ReflogEntry> reflog = reflogReader.getReverseEntries();
             if (reflog.isEmpty()) {
                 return null; // no fork point.
             }
