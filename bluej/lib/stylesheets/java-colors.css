@@ -64,3 +64,10 @@
     -fx-background-color: white;
     -fx-highlight-fill: hsb(211, 50%, 90%);
 }
+
+.moe-find-result {
+    -rtfx-background-color: hsb(211, 20%, 99%);
+}
+.moe-editor-pane .caret {
+   -fx-stroke: rgb(255, 0, 100);
+}#

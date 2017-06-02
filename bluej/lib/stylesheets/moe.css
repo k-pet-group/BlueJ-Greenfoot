@@ -131,19 +131,12 @@
     /*-rtfx-underline-color: repeating-image-pattern("../images/error-underline.png");*/
     /* -rtfx-underline-width: 2; */
 }
-.moe-find-result {
-    -rtfx-background-color: green;
-}
 .moe-find-field:bj-no-find-result {
     -fx-text-fill: red;
 }
 /* Don't show when printing */
 .moe-editor-pane:bj-screen .moe-bracket-highlight {
     -rtfx-background-color: hsb(0, 0%, 70%);
-}
-
-.moe-editor-pane .caret {
-   -fx-stroke: rgb(255, 0, 100);
 }
 
 /* By default icons are hidden, until pseudo-class applied to parent: */
