@@ -50,6 +50,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
@@ -65,6 +66,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     private final MoeEditor editor;
     // Disabled during printing if we don't want line numbers:
     private final BooleanProperty showLineNumbers = new SimpleBooleanProperty(true);
+    private final AtomicBoolean queuedRecalculation = new AtomicBoolean(false);
 
     /**
      * Create an editor pane specifically for Moe.
@@ -132,7 +134,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                     latestIncomplete = i;
                 }
             }
-            if (earliestIncomplete != -1)
+            if (earliestIncomplete != -1 && queuedRecalculation.compareAndSet(false, true))
             {
                 int earliestIncompleteFinal = earliestIncomplete;
                 int latestIncompleteFinal = latestIncomplete;
@@ -142,6 +144,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                     editor.getSourceDocument().recalculateScopesForLinesInRange(earliestIncompleteFinal, latestIncompleteFinal);
                     // Must call this to apply pending scope backgrounds:
                     editor.getSourceDocument().flushReparseQueue();
+                    queuedRecalculation.set(false);
                 });
             }
         });
