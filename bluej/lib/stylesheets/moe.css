@@ -64,32 +64,31 @@
 .moe-line-label {
     -fx-font-size: 10px;
     -fx-text-overrun: clip;
-    -fx-alignment: bottom-right;
+    -fx-alignment: center-right;
     -fx-graphic-text-gap: 0;
     -fx-label-padding: 0 2 0 0;
-    -fx-border-style: solid;
-    -fx-border-color: gray;
-    -fx-background-color: rgb(255, 255, 255);
+    -fx-background-color: gray, rgb(255, 255, 255);
 }
 .moe-line-label:bj-odd {
-    -fx-background-color: rgb(245, 245, 245);
+    /* -fx-background-color: rgb(245, 245, 245); */
 }
 .moe-editor-pane:bj-screen .moe-line-label, .moe-editor-pane:bj-printing:bj-line-numbers .moe-line-label {
     -fx-min-width: 24;
     -fx-pref-width: 24;
     -fx-max-width: 24;
-    -fx-border-width: 0 1 0 0;
+    -fx-background-insets: 0 0 0 0, 0 1 0 0;
 }
 /* Hide when printing without line numbers */
 .moe-editor-pane:bj-printing .moe-line-label {
     -fx-min-width: 0;
     -fx-pref-width: 0;
     -fx-max-width: 0;
-    -fx-border-width: 0;
+    -fx-background-color: white;
+    -fx-background-insets: 0;
 }
 .moe-editor-pane:bj-uncompiled .moe-line-label {
-    -fx-background-image: url("../images/grey-diagonal.png");
-    -fx-background-size: 100% 100%;
+    -fx-background-color: gray, hsb(0, 0%, 75%);
+    -fx-background-insets: -1 0 -1 0, -1 1 -1 0;
 }
 /* Line numbers or not, breakpoint or step overrides them: */
 .moe-editor-pane .moe-line-label:bj-breakpoint,
@@ -105,17 +104,8 @@
 .moe-editor-pane .moe-line-label:bj-step-mark .moe-step-mark-icon {
     visibility: visible;
 }
-.moe-editor-pane:bj-uncompiled .moe-line-label:bj-error-below {
-    -fx-background-image: url("../images/red-diagonal-down.png");
-    -fx-background-size: 100% 100%;
-}
-.moe-editor-pane:bj-uncompiled .moe-line-label:bj-error-above {
-    -fx-background-image: url("../images/red-diagonal-up.png");
-    -fx-background-size: 100% 100%;
-}
 .moe-editor-pane:bj-uncompiled .moe-line-label:bj-error {
-    -fx-background-color: red;
-    -fx-background-image: null;
+    -fx-background-color: hsb(0, 70%, 50%);
 }
 
 /* By default show no line number, unless bj-line-numbers pseudo-class present */
