@@ -2723,13 +2723,21 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private void doBracketMatch()
     {
         int matchBracket = getBracketMatch();
-        // remove existing bracket if needed
-        removeBracketHighlight();
-        if(matchBracket != -1)
+
+        // This is a kludge.  Changing the style causes the node to be swapped out, which causes issues with mouse dragging
+        // because the node is swapped as the drag begins.  So we wrap this in a run later
+        // so that the drag can begin before the node is swapped.  It's ugly, but it seems
+        // to work:
+        JavaFXUtil.runPlatformLater(() ->
         {
-            sourceDocument.addStyle(getSourcePane().getCaretPosition() - 1, getSourcePane().getCaretPosition(), MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
-            sourceDocument.addStyle(matchBracket, matchBracket + 1, MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
-        }
+            // remove existing bracket if needed
+            removeBracketHighlight();
+            if(matchBracket != -1)
+            {
+                sourceDocument.addStyle(getSourcePane().getCaretPosition() - 1, getSourcePane().getCaretPosition(), MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
+                sourceDocument.addStyle(matchBracket, matchBracket + 1, MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
+            }
+        });
     }
 
     private void removeBracketHighlight()
