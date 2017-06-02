@@ -34,6 +34,8 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * This class is the BlueJ boot loader. bluej.Boot is the class that should be 
@@ -162,8 +164,20 @@ public class Boot
      */
     private Boot(Properties props, final FXPlatformSupplier<Image> image)
     {
+        CompletableFuture<Boolean> shown = new CompletableFuture<>();
         // Display the splash window:
-        Platform.runLater(() -> splashWindow = new SplashWindow(image.get()));
+        Platform.runLater(() -> {
+            splashWindow = new SplashWindow(image.get());
+            shown.complete(true);
+        });
+        try
+        {
+            shown.get();
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            // Just ignore it and continue, I guess...
+        }
 
         this.commandLineProps = props;
     }
