@@ -3220,9 +3220,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 @Override
                 public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
                 {
-                    if (event.getCharacter().equals("\b"))
+                    if (event.getCharacter().equals("\b") || event.getCharacter().equals("\u007F"))
                     {
-                        sourcePane.deletePreviousChar();
+                        // Backspace/delete; handled by key pressed event, lower down
                     }
                     else if (event.getCharacter().equals("\n"))
                     {
