@@ -2791,7 +2791,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         finder=new FindPanel(this);
         finder.setVisible(false);
 
-        saveState = new StatusLabel(StatusLabel.Status.SAVED);
+        saveState = new StatusLabel(StatusLabel.Status.SAVED, this, errorManager);
 
         info = new Info();
         BorderPane commentsPanel = new BorderPane();

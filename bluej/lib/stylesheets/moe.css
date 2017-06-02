@@ -18,8 +18,15 @@
 .moe-bottom-status-row {
     -fx-padding: 0.25em 0.5em 0.25em 0.5em;
 }
-
-.moe-status-label {
+.moe-status-label-wrapper {
+    -fx-border-style: solid inside;
+    -fx-border-color: hsb(0, 0%, 70%);
+    -fx-border-width: 0 0 0 1;
+}
+.moe-status-label-wrapper:bj-status-error {
+    -fx-cursor: hand;
+}
+.moe-status-label-wrapper .label {
     -fx-font-family: "Source Sans Pro";
     -fx-font-style: italic;
     -fx-text-fill: hsb(0, 0%, 70%);
@@ -28,10 +35,11 @@
 
     -fx-min-width: 5em;
     -fx-alignment: top-center;
-
-    -fx-border-style: solid inside;
-    -fx-border-color: hsb(0, 0%, 70%);
-    -fx-border-width: 0 0 0 1;
+}
+.moe-status-label-wrapper .error-count-label {
+    -fx-font-style: normal;
+    -fx-text-fill: hsb(0, 70%, 80%);
+    -fx-underline: true;
 }
 .moe-info {
     -fx-font-family: "Source Sans Pro";

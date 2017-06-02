@@ -24,6 +24,11 @@ package bluej.editor.moe;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.parser.SourceLocation;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -40,7 +45,7 @@ import java.util.function.Consumer;
  */
 public class MoeErrorManager
 {
-    private final List<ErrorDetails> errorInfos = new ArrayList<>();
+    private final ObservableList<ErrorDetails> errorInfos = FXCollections.observableArrayList();
     private MoeEditor editor;
     private Consumer<Boolean> setNextErrorEnabled;
     /**
@@ -82,6 +87,11 @@ public class MoeErrorManager
         errorInfos.clear();
         setNextErrorEnabled.accept(false);
         editor.updateHeaderHasErrors(false);
+    }
+
+    public void listenForErrorChange(FXPlatformConsumer<List<ErrorDetails>> listener)
+    {
+        errorInfos.addListener((ListChangeListener<? super ErrorDetails>) c -> listener.accept(Collections.unmodifiableList(errorInfos)));
     }
     
     // Returns null if there is no next error.

@@ -25,11 +25,10 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.VBox;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Status label for the Moe editor.
@@ -37,7 +36,7 @@ import java.time.format.DateTimeFormatter;
  * @author Michael Kolling
  */
 @OnThread(Tag.FXPlatform)
-public final class StatusLabel extends Label
+public final class StatusLabel extends VBox
 {
     public static enum Status
     {
@@ -58,14 +57,37 @@ public final class StatusLabel extends Label
         }
     }
 
+    private final Label statusLabel;
+    private final Label errorLabel;
     private Status state;
+    private int errorCount = 0;
 
-    public StatusLabel(Status initialState)
+    public StatusLabel(Status initialState, MoeEditor editor, MoeErrorManager errorManager)
     {
-        JavaFXUtil.addStyleClass(this, "moe-status-label");
+        JavaFXUtil.addStyleClass(this, "moe-status-label-wrapper");
         styleProperty().bind(PrefMgr.getEditorFontCSS(false));
-        setText(initialState.getDisplayText());
         state = initialState;
+        statusLabel = new Label();
+        errorLabel = new Label();
+        JavaFXUtil.addStyleClass(errorLabel, "error-count-label");
+        getChildren().setAll(statusLabel, errorLabel);
+        updateLabel();
+        errorManager.listenForErrorChange(errs -> {
+            errorCount = errs.size();
+            updateLabel();
+        });
+        // Click on either of the labels, or background will work:
+        setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY)
+            {
+                // We don't mean for this to function as a compile button when there are no errors:
+                if (errorCount > 0)
+                {
+                    editor.compileOrShowNextError();
+                }
+                e.consume();
+            }
+        });
     }
 
     // ------------- PUBLIC METHODS ---------------
@@ -88,10 +110,20 @@ public final class StatusLabel extends Label
     public void setState(Status newState)
     {
         state = newState;
-        String newText = state.getDisplayText();
-        // Make it always be two lines tall:
-        if (!newText.contains("\n"))
-            newText += "\n ";
-        setText(newText);
+        updateLabel();
+    }
+
+    private void updateLabel()
+    {
+        statusLabel.setText(state.getDisplayText().replace("\n", ""));
+        if (errorCount > 0)
+        {
+            errorLabel.setText("Errors: " + errorCount);
+        }
+        else
+        {
+            errorLabel.setText("");
+        }
+        JavaFXUtil.setPseudoclass("bj-status-error", errorCount > 0, this);
     }
 }
