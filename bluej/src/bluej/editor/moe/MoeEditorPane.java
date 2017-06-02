@@ -134,10 +134,15 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
             }
             if (earliestIncomplete != -1)
             {
-                editor.getSourceDocument().recalculateScopesForLinesInRange(earliestIncomplete, latestIncomplete);
-                // Must call this to apply pending scope backgrounds:
-                editor.getSourceDocument().flushReparseQueue();
-
+                int earliestIncompleteFinal = earliestIncomplete;
+                int latestIncompleteFinal = latestIncomplete;
+                // Must run later so that we don't affect visible cells now (which may be during the layout pass):
+                JavaFXUtil.runPlatformLater(() ->
+                {
+                    editor.getSourceDocument().recalculateScopesForLinesInRange(earliestIncompleteFinal, latestIncompleteFinal);
+                    // Must call this to apply pending scope backgrounds:
+                    editor.getSourceDocument().flushReparseQueue();
+                });
             }
         });
     }
