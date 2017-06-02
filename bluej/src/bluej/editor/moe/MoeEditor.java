@@ -114,6 +114,7 @@ import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.MouseOverTextEvent;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
+import org.fxmisc.wellbehaved.event.*;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
@@ -2832,6 +2833,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
         });
         sourcePane.setMouseOverTextDelay(java.time.Duration.ofMillis(400));
         sourcePane.addEventHandler(MouseOverTextEvent.ANY, this::mouseOverText);
+        Nodes.addInputMap(sourcePane, org.fxmisc.wellbehaved.event.InputMap.consume(EventPattern.keyPressed(KeyCode.ESCAPE), e -> {
+            if (finder != null && finder.isVisible())
+            {
+                finder.close();
+            }
+        }));
 
         // default showing:
         //currentTextPane = sourcePane;
