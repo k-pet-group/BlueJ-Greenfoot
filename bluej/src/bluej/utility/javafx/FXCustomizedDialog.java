@@ -50,6 +50,7 @@ public class FXCustomizedDialog<R> extends Dialog<R>
         setResizable(true);
         setDialogPane(new DialogPane() {
             @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             protected Node createButtonBar()
             {
                 return wrapButtonBar(super.createButtonBar());
