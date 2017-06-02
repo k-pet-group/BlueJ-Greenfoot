@@ -616,7 +616,16 @@ public class Utility
 
     public static <T> Comparator<List<T>> listComparator(Comparator<T> itemComparator)
     {
-        return Comparator.<List<T>>comparingInt(List::size).thenComparing((a, b) -> {
+        return (a, b) -> {
+            if (a == null)
+                return b == null ? 0 : -1; // If b is null, equal, otherwise a first
+            else if (b == null)
+                return 1; // We know a isn't null, so b first
+            // We now know neither a nor b is null:
+            int sizeCmp = Integer.compare(a.size(), b.size());
+            if (sizeCmp != 0)
+                return sizeCmp;
+
             // We know lists are same size because we have reached here:
             for (int i = 0; i < a.size(); i++)
             {
@@ -625,7 +634,7 @@ public class Utility
                     return cmp;
             }
             return 0;
-        });
+        };
     }
     
     /**
