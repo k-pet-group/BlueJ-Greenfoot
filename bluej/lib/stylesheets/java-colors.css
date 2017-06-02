@@ -59,3 +59,8 @@
     -fx-fill: rgb(20, 140, 20);
     -fx-stroke: white;
 }
+
+.moe-editor-pane {
+    -fx-background-color: white;
+    -fx-highlight-fill: hsb(211, 50%, 90%);
+}
