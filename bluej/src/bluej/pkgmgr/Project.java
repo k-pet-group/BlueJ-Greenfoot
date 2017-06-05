@@ -2094,10 +2094,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /**
      * Get the update dialog for this project
      */
-    public UpdateFilesFrame getUpdateDialog()
+    public UpdateFilesFrame getUpdateDialog(PkgMgrFrame pmf)
     {
         if (updateFilesFrame == null) {
-            updateFilesFrame = new UpdateFilesFrame(this);
+            updateFilesFrame = new UpdateFilesFrame(this, pmf.getFXWindow());
         }
         return updateFilesFrame;
     }
@@ -2168,7 +2168,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     public StatusFrame getStatusWindow(FXPlatformSupplier<javafx.stage.Window> parent)
     {
         if(statusFrame == null) {
-            statusFrame = new StatusFrame(this);
+            statusFrame = new StatusFrame(this, parent.get());
             final StatusFrame f = this.statusFrame;
             f.setLocationRelativeTo(parent.get());
         }

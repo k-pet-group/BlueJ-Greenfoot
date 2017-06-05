@@ -34,14 +34,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -54,6 +50,7 @@ import bluej.groupwork.TeamViewFilter;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.Project;
+import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
@@ -88,14 +85,14 @@ public class StatusFrame extends FXCustomizedDialog<Void>
      * Creates a new instance of StatusFrame. Called via factory method
      * getStatusWindow.
      */
-    public StatusFrame(Project proj)
+    public StatusFrame(Project project, Window owner)
     {
-        super(null, "team.status", "team-status");
-        project = proj;
+        super(owner, "team.status", "team-status");
+        this.project = project;
         isDVCS = project.getTeamSettingsController().isDVCS();
-        Node content = makeMainPane();
-        getDialogPane().setContent(content);
+        getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
+        DialogManager.centreDialog(this);
     }
 
     @Override

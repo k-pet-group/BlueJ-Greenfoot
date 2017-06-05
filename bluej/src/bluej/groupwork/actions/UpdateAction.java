@@ -452,7 +452,7 @@ public class UpdateAction extends TeamAction
                 project.clearAllSelections();
                 project.selectTargetsInGraphs(targets);
 
-                ConflictsDialog conflictsDialog = new ConflictsDialog(project,
+                ConflictsDialog conflictsDialog = new ConflictsDialog(project, updateFrame.asWindow(),
                         blueJconflicts, nonBlueJConflicts);
                 conflictsDialog.show();
             }

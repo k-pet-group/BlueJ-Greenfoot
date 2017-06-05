@@ -23,6 +23,7 @@ package bluej.groupwork.ui;
 
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
+import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 
 import javafx.scene.control.Button;
@@ -50,9 +51,9 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
      * Create a team settings dialog with a reference to the team settings
      * controller that it manipulates.
      */
-    public TeamSettingsDialog(Window parent, TeamSettingsController controller)
+    public TeamSettingsDialog(Window owner, TeamSettingsController controller)
     {
-        super(parent, "team.settings.title", "team-settings");
+        super(owner, "team.settings.title", "team-settings");
         setResizable(false);
         teamSettingsController = controller;
 
@@ -65,6 +66,7 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
         prepareButtonPane();
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, getDialogPane().getStyleClass());
         getDialogPane().setContent(teamSettingsPanel);
+        DialogManager.centreDialog(this);
 
         setResultConverter(bt -> bt == ButtonType.OK ? getSettings() : null);
     }

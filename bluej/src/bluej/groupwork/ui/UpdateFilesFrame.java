@@ -42,6 +42,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.groupwork.actions.UpdateAction;
@@ -95,14 +96,13 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     private boolean includeLayout = true;
     private boolean pullWithNoChanges = false;
 
-    public UpdateFilesFrame(Project proj)
+    public UpdateFilesFrame(Project project, Window owner)
     {
-        super(null, "team.update.title", "team-update-files");
-        project = proj;
+        super(owner, "team.update.title", "team-update-files");
+        this.project = project;
         buildUI();
         prepareButtonPane();
-//        DialogManager.centreDialog(this);
-        loadAndTrackPosition("bluej.updatedisplay");
+        DialogManager.centreDialog(this);
     }
 
     @Override

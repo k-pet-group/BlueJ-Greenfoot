@@ -97,14 +97,13 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     private final CheckBox includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
     private final ActivityIndicator progressBar = new ActivityIndicator();
 
-    public CommitCommentsFrame(Project proj, Window owner)
+    public CommitCommentsFrame(Project project, Window owner)
     {
         super(owner, "team.commit.title", "team-commit-comments");
-        project = proj;
+        this.project = project;
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
-//        DialogManager.centreDialog(this);
-        loadAndTrackPosition("bluej.commitdisplay");
+        DialogManager.centreDialog(this);
     }
 
     /**

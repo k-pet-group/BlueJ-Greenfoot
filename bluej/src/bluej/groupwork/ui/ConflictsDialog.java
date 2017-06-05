@@ -23,6 +23,7 @@ package bluej.groupwork.ui;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
+import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -55,14 +57,14 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
     private Project project;
 
     /**
-     * @param project2
-     * @param blueJconflicts
+     * @param project
+     * @param bluejConflicts
      * @param nonBlueJConflicts
      */
-    public ConflictsDialog(Project project, List<String> bluejConflicts,
-                           List<String> nonBlueJConflicts)
+    public ConflictsDialog(Project project, Window owner,
+                           List<String> bluejConflicts, List<String> nonBlueJConflicts)
     {
-        super(null, "team.conflicts.title", "team-conflicts");
+        super(owner, "team.conflicts.title", "team-conflicts");
         this.project = project;
         this.bluejConflicts = bluejConflicts;
         this.nonBluejConflicts = nonBlueJConflicts;
@@ -70,9 +72,7 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
         getDialogPane().setContent(makeMainPane());
         //close button
         getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
-//        DialogManager.centreDialog(this);
-        loadAndTrackPosition("bluej.teamwork.conflicts");
-
+        DialogManager.centreDialog(this);
     }
 
     private Pane makeMainPane()

@@ -54,6 +54,7 @@ import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
@@ -92,6 +93,7 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
         prepareData();
         prepareButtonPane();
         getDialogPane().setContent(makeMainPane());
+        DialogManager.centreDialog(this);
     }
 
     /**

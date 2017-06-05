@@ -40,6 +40,7 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
+import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -73,6 +74,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
         this.repository = repository;
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
+        DialogManager.centreDialog(this);
     }
 
     private Pane makeMainPane()

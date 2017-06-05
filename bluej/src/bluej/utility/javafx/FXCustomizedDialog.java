@@ -70,11 +70,6 @@ public class FXCustomizedDialog<R> extends Dialog<R>
         initModality(makeModal ? Modality.APPLICATION_MODAL : Modality.NONE);
     }
 
-    protected void loadAndTrackPosition(String locationPrefix)
-    {
-        setOnShown(e -> Config.loadAndTrackPosition(asWindow(), locationPrefix));
-    }
-
     protected void setContentPane(Node content)
     {
         getDialogPane().setContent(content);

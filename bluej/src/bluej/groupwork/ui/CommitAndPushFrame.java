@@ -116,9 +116,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         repository = project.getTeamSettingsController().getRepository(false);
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
-//        DialogManager.centreDialog(this);
-        loadAndTrackPosition("bluej.commitdisplay");
-        //setOnShown(e -> org.scenicview.ScenicView.show(this.asWindow().getScene()));
+        DialogManager.centreDialog(this);
     }
 
     /**

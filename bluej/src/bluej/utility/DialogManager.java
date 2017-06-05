@@ -453,15 +453,23 @@ public class DialogManager
         centreWindow(dialog, (Window)dialog.getParent());
     }
 
-    public static void centreDialog(Dialog dialog) { }
-
-
     /**
      * centreWindow - try to center a window within a parent window
      */
     public static void centreWindow(Window child, Window parent)
     {
         child.setLocationRelativeTo(parent);
+    }
+
+    public static void centreDialog(Dialog dialog)
+    {
+        dialog.setOnShown(event -> centreWindow(dialog, dialog.getOwner()));
+    }
+
+    private static void centreWindow(Dialog dialog, javafx.stage.Window owner)
+    {
+        dialog.setX(owner.getX() + owner.getWidth()/2d - dialog.getWidth()/2d);
+        dialog.setY(owner.getY() + owner.getHeight()/2d - dialog.getHeight()/2d);
     }
 
     public static void addOKCancelButtons(JPanel panel, JButton okButton, JButton cancelButton) 
