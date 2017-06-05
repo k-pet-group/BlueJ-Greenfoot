@@ -61,14 +61,25 @@ public class MoeUndoManager implements UndoManagerFactory
     }
 
     /**
-     * Carry out the given edit and treat it as a single compound edit; listeners
-     * for edits will only be informed of the final state not any intermediate states,
-     * and the edit will not merge in the undo manager with other edits before or after.
+     * Runs the given edit action.  See comment within.
      */
     public void compoundEdit(FXPlatformRunnable edit)
     {
         breakEdit();
-        try(Guard currentEdit = ((EditableStyledDocument)editor.getSourcePane().getDocument()).beingUpdatedProperty().suspend())
+        // What we would like to do is carry out the given edit and treat it as a single compound edit; listeners
+        // for edits would only be informed of the final state not any intermediate states,
+        // and the edit will not merge in the undo manager with other edits before or after.
+
+        // However, this is not what pausing the updates does.  The changes are paused, but they are then later played back
+        // individually.  The document in the listener will be reflecting the final state of the document, not the
+        // intermediate state at that point of change.  This means if you do an insert and delete during
+        // the compound edit, the inserted change will get notified, even though the inserted text
+        // is no longer there.  What we probably need is an update mechanism building on top of RichTextFX
+        // (and perhaps an undo manager which can merge non-adjacent changes).  For now though, we just
+        // avoid suspending the updates, and live with the fact that the updates will get played separately
+        // (esp. since they wouldn't merge in the undo manager anyway)
+
+        //try(Guard currentEdit = ((EditableStyledDocument)editor.getSourcePane().getDocument()).beingUpdatedProperty().suspend())
         {
             edit.run();
         }
