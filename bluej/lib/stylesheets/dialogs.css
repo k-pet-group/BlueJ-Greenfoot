@@ -427,6 +427,11 @@
     -fx-pref-height: 18em;
 }
 
+.team-test-connection .pane{
+    -fx-padding: 0.833em; /* 10px */
+    -fx-spacing: 0.833em;
+}
+
 .team-commit-push {
     -fx-min-height:  35em;
     -fx-pref-height: 50em;

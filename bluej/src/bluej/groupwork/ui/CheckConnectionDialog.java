@@ -34,6 +34,7 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.TeamworkProvider;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -66,6 +67,7 @@ public class CheckConnectionDialog extends FXCustomizedDialog<Void>
     {
         VBox contentPane = new VBox();
         contentPane.setMinHeight(120.0);
+        JavaFXUtil.addStyleClass(contentPane, "pane");
         getDialogPane().setContent(contentPane);
         getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
 
