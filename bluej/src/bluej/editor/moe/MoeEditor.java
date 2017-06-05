@@ -2648,15 +2648,26 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     old.popup.hide();
                 }
 
-                // First, try to get the character after the caret:
-                Bounds pos = sourcePane.getCharacterBoundsOnScreen(displayPosition, displayPosition + 1).orElse(null);
+                Bounds pos = null;
                 boolean before = false;
-                // That may be null if caret was at end of line, in which case try character before:
-                if (pos == null)
+                try
                 {
-                    pos = sourcePane.getCharacterBoundsOnScreen(displayPosition - 1, displayPosition).orElse(null);;
-                    before = true;
+                    // First, try to get the character after the caret:
+                    pos = sourcePane.getCharacterBoundsOnScreen(displayPosition, displayPosition + 1).orElse(null);
+
+                    // That may be null if caret was at end of line, in which case try character before:
+                    if (pos == null)
+                    {
+                        pos = sourcePane.getCharacterBoundsOnScreen(displayPosition - 1, displayPosition).orElse(null);
+                        before = true;
+                    }
                 }
+                catch (IllegalArgumentException e)
+                {
+                    // Can happen if display position is out of bounds (while pending updates get flushed)
+                    // Will fall through to null case below...
+                }
+
                 // If that still doesn't work, give up (may not be on screen)
                 if (pos == null)
                     return;
@@ -2843,7 +2854,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
             // It's important to use runAfterCurrent, because this listener
             // can get called during the layout pass, and altering the styles
             // during this pass can cause an exception, so we must do it later:
-            JavaFXUtil.runAfterCurrent(() -> caretMoved());
+            JavaFXUtil.runAfterCurrent(() -> {
+                showErrorPopupForCaretPos(sourcePane.getCaretPosition(), false);
+            });
         });
         sourcePane.setMouseOverTextDelay(java.time.Duration.ofMillis(400));
         sourcePane.addEventHandler(MouseOverTextEvent.ANY, this::mouseOverText);
