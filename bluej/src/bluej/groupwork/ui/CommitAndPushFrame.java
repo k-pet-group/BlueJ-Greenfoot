@@ -108,7 +108,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     //to update HEAD.
     private boolean pushWithNoChanges = false;
 
-
     public CommitAndPushFrame(Project proj, Window owner)
     {
         super(owner, "team.commit.dcvs.title", "team-commit-push");
@@ -241,7 +240,9 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                 startProgress();
                 commitAndPushWorker = new CommitAndPushWorker();
                 commitAndPushWorker.start();
-                show(); // looking at the else before, this line is maybe wrong
+                if (!isShowing()) {
+                    show();
+                }
             }
             else {
                 hide();
