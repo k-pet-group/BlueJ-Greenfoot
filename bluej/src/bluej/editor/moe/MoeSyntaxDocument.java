@@ -32,6 +32,7 @@ import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.editor.moe.Token.TokenType;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableSet;
 import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
@@ -212,8 +213,9 @@ public class MoeSyntaxDocument
                 fireInsertUpdate(c.getPosition(), c.getInsertionEnd() - c.getPosition());
             }
             // Apply backgrounds from simple update, as it may not even
-            // trigger a reparse:
-            applyPendingScopeBackgrounds();
+            // trigger a reparse.  This must be done later, after the document has finished
+            // doing all the updates to the content, before we can mess with paragraph styles:
+            JavaFXUtil.runAfterCurrent(() -> applyPendingScopeBackgrounds());
         });
     }
 
