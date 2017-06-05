@@ -2032,7 +2032,7 @@ public final class Config
     }
 
     @OnThread(Tag.FXPlatform)
-    public static void rememberPosition(Window window, String locationPrefix)
+    public static void loadAndTrackPosition(Window window, String locationPrefix)
     {
         JavaFXUtil.addChangeListener(window.xProperty(), x -> putLocation(locationPrefix, (int)window.getX(), (int)window.getY()));
         JavaFXUtil.addChangeListener(window.yProperty(), y -> putLocation(locationPrefix, (int)window.getX(), (int)window.getY()));
@@ -2043,9 +2043,9 @@ public final class Config
     }
 
     @OnThread(Tag.FXPlatform)
-    public static void rememberPositionAndSize(Window window, String locationPrefix)
+    public static void loadAndTrackPositionAndSize(Window window, String locationPrefix)
     {
-        rememberPosition(window, locationPrefix);
+        loadAndTrackPosition(window, locationPrefix);
 
         JavaFXUtil.addChangeListener(window.widthProperty(), x -> putSize(locationPrefix, (int)window.getWidth(), (int)window.getHeight()));
         JavaFXUtil.addChangeListener(window.heightProperty(), y -> putSize(locationPrefix, (int)window.getWidth(), (int)window.getHeight()));

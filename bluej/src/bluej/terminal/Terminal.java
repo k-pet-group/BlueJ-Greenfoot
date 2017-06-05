@@ -285,7 +285,7 @@ public final class Terminal
 
         JavaFXUtil.addChangeListenerPlatform(showingProperty, this::showHide);
 
-        Config.rememberPositionAndSize(window, "bluej.terminal");
+        Config.loadAndTrackPositionAndSize(window, "bluej.terminal");
         BlueJEvent.addListener(this);
     }
 

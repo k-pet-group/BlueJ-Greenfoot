@@ -104,7 +104,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
 //        DialogManager.centreDialog(this);
-        rememberPosition("bluej.commitdisplay");
+        loadAndTrackPosition("bluej.commitdisplay");
     }
 
     /**

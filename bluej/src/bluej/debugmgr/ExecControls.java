@@ -177,7 +177,7 @@ public class ExecControls
         Scene scene = new Scene(fxContent);
         Config.addDebuggerStylesheets(scene);
         window.setScene(scene);
-        Config.rememberPositionAndSize(window, "bluej.debugger");
+        Config.loadAndTrackPositionAndSize(window, "bluej.debugger");
         window.setOnShown(e -> {
             DataCollector.debuggerChangeVisible(project, true);
             showingProperty.set(true);

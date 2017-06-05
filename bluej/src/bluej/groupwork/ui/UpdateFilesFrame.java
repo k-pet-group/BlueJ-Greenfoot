@@ -102,7 +102,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         buildUI();
         prepareButtonPane();
 //        DialogManager.centreDialog(this);
-        rememberPosition("bluej.updatedisplay");
+        loadAndTrackPosition("bluej.updatedisplay");
     }
 
     @Override

@@ -25,7 +25,6 @@ import bluej.Config;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.stage.Modality;
@@ -71,9 +70,9 @@ public class FXCustomizedDialog<R> extends Dialog<R>
         initModality(makeModal ? Modality.APPLICATION_MODAL : Modality.NONE);
     }
 
-    protected void rememberPosition(String locationPrefix)
+    protected void loadAndTrackPosition(String locationPrefix)
     {
-        setOnShown(e -> Config.rememberPosition(asWindow(), locationPrefix));
+        setOnShown(e -> Config.loadAndTrackPosition(asWindow(), locationPrefix));
     }
 
     protected void setContentPane(Node content)

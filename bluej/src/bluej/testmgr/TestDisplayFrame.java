@@ -190,7 +190,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         frame.setMinWidth(500.0);
         frame.setMinHeight(250.0);
 
-        Config.rememberPositionAndSize(frame, "bluej.testdisplay");
+        Config.loadAndTrackPositionAndSize(frame, "bluej.testdisplay");
 
         SplitPane mainDivider = new SplitPane();
         mainDivider.setOrientation(Orientation.VERTICAL);

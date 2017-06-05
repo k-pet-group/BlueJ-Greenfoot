@@ -71,7 +71,7 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
         //close button
         getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
 //        DialogManager.centreDialog(this);
-        rememberPosition("bluej.teamwork.conflicts");
+        loadAndTrackPosition("bluej.teamwork.conflicts");
 
     }
 
