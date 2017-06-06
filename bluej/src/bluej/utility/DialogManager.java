@@ -461,11 +461,13 @@ public class DialogManager
         child.setLocationRelativeTo(parent);
     }
 
+    @OnThread(Tag.FXPlatform)
     public static void centreDialog(Dialog dialog)
     {
         dialog.setOnShown(event -> centreWindow(dialog, dialog.getOwner()));
     }
 
+    @OnThread(Tag.FXPlatform)
     private static void centreWindow(Dialog dialog, javafx.stage.Window owner)
     {
         dialog.setX(owner.getX() + owner.getWidth()/2d - dialog.getWidth()/2d);
