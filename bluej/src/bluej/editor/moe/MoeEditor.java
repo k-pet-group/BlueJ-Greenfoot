@@ -2060,9 +2060,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 if (watcher != null) {
                     watcher.generateDoc();
                 }
-                refreshHtmlDisplay();
             }
 
+            refreshHtmlDisplay();
             interfaceToggle.getSelectionModel().selectLast();
             viewingHTML.set(true);
             watcher.showingInterface(true);
