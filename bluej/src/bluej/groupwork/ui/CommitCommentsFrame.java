@@ -180,7 +180,6 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     public void setVisible(boolean visible)
     {
         if (visible) {
-            show();
             // we want to set comments and commit action to disabled
             // until we know there is something to commit
             includeLayout.setSelected(false);
@@ -206,6 +205,9 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                 startProgress();
                 commitWorker = new CommitWorker();
                 commitWorker.start();
+                if (!isShowing()) {
+                    show();
+                }
             }
             else {
                 hide();
