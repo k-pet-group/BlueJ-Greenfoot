@@ -84,7 +84,7 @@ greenfoot.url.discuss=http://www.greenfootgallery.org/topics/
 greenfoot.url.javaStdLib=https://docs.oracle.com/javase/8/docs/api/
 
 # Options for the generation of the JavaDoc shown in the documentation view of the editor.
-doctool.options=-author -version -nodeprecated -protected
+doctool.options=-author -version -nodeprecated -protected  -Xdoclint:none
 
 #####################################################################
 ## Information about the game server to publish to via the 'Export'
