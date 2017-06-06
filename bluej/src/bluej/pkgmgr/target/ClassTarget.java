@@ -101,6 +101,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -842,20 +843,27 @@ public class ClassTarget extends DependentTarget
         return true;
     }
 
-    public boolean setEqualModifiedDates()
+    /**
+     * Checks if the source file was modified in the future, and if so, set the modification time
+     * to now.
+     */
+    public void fixSourceModificationDate()
     {
-        File src = getSourceFile();
-        File clss = getClassFile();
-
         // if just a .class file with no src, it better be up to date
         if (sourceAvailable == SourceType.NONE) {
-            return true;
+            return;
         }
+
+        File src = getSourceFile();
 
         // if the src file has last-modified date greater than the class file's one, then
         // set the last-modified date of the class file equal to the src file last-modified date,
-        if (src.exists() && (src.lastModified() > clss.lastModified())) src.setLastModified(clss.lastModified());
-        return true;
+        long now = Instant.now().toEpochMilli();
+        // Tiny bit of leeway just in case of clock syncs, etc:
+        if (src.exists() && (src.lastModified() > now + 1000))
+        {
+            src.setLastModified(now);
+        }
     }
 
     /**

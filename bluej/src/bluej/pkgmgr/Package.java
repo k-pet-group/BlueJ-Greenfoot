@@ -44,7 +44,6 @@ import java.util.TreeSet;
 
 import javafx.application.Platform;
 
-import bluej.extensions.BDependency;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -2618,10 +2617,9 @@ public final class Package
                     catch (Exception ex) {
                         ex.printStackTrace();
                     }
-                    // if the src file has last-modified date greater than the class file's one, then
-                    // set the last-modified date of the class file equal to the src file last-modified date,
+                    // If the src file has last-modified date in the future, fix the date.
                     // this will remove uncompiled strips on the class
-                    t.setEqualModifiedDates();
+                    t.fixSourceModificationDate();
                     // Empty class files should not be marked compiled,
                     // even though compilation is "successful".
                     newCompiledState &= t.upToDate();
