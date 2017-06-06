@@ -51,8 +51,7 @@ public class HistoryCell extends ListCell<HistoryInfo>
         }
         else
         {
-            // commentArea.setWrapText(true);
-            setText(info.getDate() + "  "  + info.getRevision() + "  " + info.getUser() + "\n" + info.getComment());
+            setText(info.getDate() + "  "  + info.getRevision() + "\n" + info.getUser() + "\n" + info.getComment());
             setGraphic(getGraphics(info));
         }
     }
@@ -61,6 +60,10 @@ public class HistoryCell extends ListCell<HistoryInfo>
     {
         ObservableList<String> files = FXCollections.observableArrayList(info.getFiles());
         ListView<String> filesListView = new ListView<>(files);
+        // Generally cells are around 24px
+        final int ROW_HEIGHT = 24;
+        // This sets the initial height of the ListView:
+        filesListView.setPrefHeight(files.size() * ROW_HEIGHT + 2);
         return filesListView;
     }
 }

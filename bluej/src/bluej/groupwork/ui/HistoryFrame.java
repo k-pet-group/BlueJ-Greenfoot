@@ -102,7 +102,6 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
     private Pane makeMainPane()
     {
         // History list
-        JavaFXUtil.addStyleClass(historyList, "files-list");
         historyList.setCellFactory(param -> new HistoryCell());
         ScrollPane historyPane = new ScrollPane(historyList);
         historyPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);

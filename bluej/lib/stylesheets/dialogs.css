@@ -502,7 +502,7 @@
 
 .team-history {
     -fx-min-width:  45em;
-    -fx-pref-width: 50em;
+    -fx-pref-width: 45em;
 
     -fx-min-height:  30em;
     -fx-pref-height: 40em;
@@ -510,10 +510,6 @@
 
 .team-history .main-pane {
     -fx-spacing: 1em;
-}
-
-.team-history .main-pane .files-list{
-    -fx-padding: 1em;
 }
 
 .team-conflicts,
