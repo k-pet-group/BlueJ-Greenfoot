@@ -23,12 +23,11 @@ package bluej.groupwork.ui;
 
 import bluej.groupwork.HistoryInfo;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.ListView;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -52,29 +51,16 @@ public class HistoryCell extends ListCell<HistoryInfo>
         }
         else
         {
-            setText(info.getDate() + "  "  + info.getRevision() + "  " + info.getUser());
+            // commentArea.setWrapText(true);
+            setText(info.getDate() + "  "  + info.getRevision() + "  " + info.getUser() + "\n" + info.getComment());
             setGraphic(getGraphics(info));
         }
     }
 
     private Node getGraphics(HistoryInfo info)
     {
-        String [] files = info.getFiles();
-        String filesText = files[0];
-        for (int i = 1; i < files.length; i++) {
-            filesText += "\n" + files[i];
-        }
-        HBox filesBox = new HBox();
-        filesBox.getChildren().addAll(new Label("    "), new TextArea(filesText));
-
-        Label commentArea = new Label();
-        commentArea.setWrapText(true);
-        commentArea.setText(info.getComment());
-        HBox commentBox = new HBox();
-        commentBox.getChildren().addAll(new Label("        "), commentArea);
-
-        VBox mainBox = new VBox();
-        mainBox.getChildren().addAll(/*topLabel,*/ filesBox, commentBox);
-        return mainBox;
+        ObservableList<String> files = FXCollections.observableArrayList(info.getFiles());
+        ListView<String> filesListView = new ListView<>(files);
+        return filesListView;
     }
 }

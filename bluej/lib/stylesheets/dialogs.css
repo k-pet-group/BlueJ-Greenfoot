@@ -512,6 +512,10 @@
     -fx-spacing: 1em;
 }
 
+.team-history .main-pane .files-list{
+    -fx-padding: 1em;
+}
+
 .team-conflicts,
 .team-module-select
 {
