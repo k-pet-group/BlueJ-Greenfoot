@@ -136,7 +136,7 @@ public class TeamSettingsController
         project = proj;
         projectDir = proj.getProjectDir();
         repository = null;
-        checkTeamSettingsDialog();
+        disableRepositorySettings();
     }
     
     /**
@@ -168,13 +168,9 @@ public class TeamSettingsController
     {
         if (authRequired && password == null) {
             // If we don't yet know the password, prompt the user
-            getTeamSettingsDialog().showAndWait();
+            if (!getTeamSettingsDialog().showAndWait().isPresent())
+                return null; // user cancelled, password still null
 
-            // If we still don't know it, user cancelled
-            if (password == null) {
-                return null;
-            }
-            
             TeamSettings settings = teamSettingsDialog.getSettings();
             if (repository == null) {
                 repository = settings.getProvider().getRepository(projectDir, settings);
@@ -391,7 +387,9 @@ public class TeamSettingsController
     {
         if (teamSettingsDialog == null) {
             teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getFXWindow(), this);
-            checkTeamSettingsDialog();
+            // TODO This shouldn't happen here, it should be after
+            // a successful operation, such as a Checkout.
+            disableRepositorySettings();
         }
 
         return teamSettingsDialog;
@@ -401,7 +399,7 @@ public class TeamSettingsController
      * Disable the repository fields in the team settings dialog if
      * we have a project attached.
      */
-    private void checkTeamSettingsDialog()
+    private void disableRepositorySettings()
     {
         if (teamSettingsDialog != null && project != null) {
             // We have a project, which means we have an established
