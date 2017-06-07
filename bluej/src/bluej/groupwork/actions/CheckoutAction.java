@@ -22,7 +22,6 @@
 package bluej.groupwork.actions;
 
 import java.io.File;
-import javafx.application.Platform;
 
 import bluej.Config;
 import bluej.groupwork.Repository;
@@ -89,41 +88,36 @@ public class CheckoutAction extends TeamAction
                 moduleDialog.showAndWait();
 
                 String moduleName = moduleDialog.getModuleName();
-                if (moduleName != null) {
-                    File parentDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.filechooser.title"));
-                    if (parentDir == null)
-                        return; // User cancelled
+                if (moduleName == null)
+                    return; //null module.
 
-                    if (Package.isPackage(parentDir))
-                    {
-                        Debug.message("Attempted to checkout a project into an existing project: " + parentDir);
-                        DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
-                        return;
-                    }
-                    finishCheckout.accept(new File(parentDir, moduleName));
-                } else {
-                    //null module.
+                File parentDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.filechooser.title"));
+                if (parentDir == null)
+                    return; // User cancelled
+
+                if (Package.isPackage(parentDir))
+                {
+                    Debug.message("Attempted to checkout a project into an existing project: " + parentDir);
+                    DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
                     return;
                 }
-            } else {
+                finishCheckout.accept(new File(parentDir, moduleName));
+            }
+            else {
                 //it is a DVCS project.
                 //there is no module selection in a DVCS project. Therefore,
                 //the selected file is the project dir.
                 File projectDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.DVCS.filechooser.title"));
-                if (projectDir != null)
+                if (projectDir == null)
+                    return;//no project dir. nothing to do.
+
+                if (Package.isPackage(projectDir))
                 {
-                    if (Package.isPackage(projectDir))
-                    {
-                        Debug.message("Attempted to checkout a project into an existing project: " + projectDir);
-                        DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
-                        return;
-                    }
-                    finishCheckout.accept(projectDir);
-                } else
-                {
-                    //no project dir. nothing to do.
+                    Debug.message("Attempted to checkout a project into an existing project: " + projectDir);
+                    DialogManager.showErrorFX(null, "team-cannot-import-into-existing-project");
                     return;
                 }
+                finishCheckout.accept(projectDir);
             }
         }
     }
