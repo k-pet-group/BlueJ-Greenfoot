@@ -91,7 +91,7 @@ public class PrefMgr
     // initialised by a call to setEditorFontSize()
     @OnThread(Tag.FX)
     private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(DEFAULT_JAVA_FONT_SIZE);
-    private static final StringProperty editorStandardFont = new SimpleStringProperty("Source Code Pro");
+    private static final StringProperty editorStandardFont = new SimpleStringProperty("Roboto Mono");
     @OnThread(Tag.FX)
     private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
 
@@ -289,10 +289,10 @@ public class PrefMgr
 
             String font;
             if(Config.isMacOS()) {
-                font = Config.getPropString(editorMacFontPropertyName, "Source Code Pro");
+                font = Config.getPropString(editorMacFontPropertyName, "Roboto Mono");
             }
             else {
-                font = Config.getPropString(editorFontPropertyName, "Source Code Pro");
+                font = Config.getPropString(editorFontPropertyName, "Roboto Mono");
             }
             editorStandardFont.set(font);
         }
