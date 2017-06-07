@@ -195,7 +195,7 @@ public class GitProvider implements TeamworkProvider
         }
         
         String server = settings.getServer();
-        if ((server == null || server.isEmpty()) && !protocol.equals("file")){
+        if ((server == null || server.isEmpty()) /*&& !protocol.equals("file") // file protocol is unsupported currently*/ ){
             throw new UnsupportedSettingException(Config.getString("team.error.cannotParseServer"));
         }
         
