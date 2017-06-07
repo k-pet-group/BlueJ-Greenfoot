@@ -78,7 +78,8 @@ public class GitProvider implements TeamworkProvider
     @Override
     public String[] getProtocols() 
     {
-        return new String[]{"https", "http", "ssh", "git", "file"};
+        // 'file' protocol has been removed as it is not supported currently
+        return new String[]{"https", "http", "ssh", "git"};
     }
 
     @Override
