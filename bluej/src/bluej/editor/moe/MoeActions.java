@@ -101,7 +101,9 @@ public final class MoeActions
     // The built-in fixed key combinations we add:
     private final ObservableMap<KeyCodeCombination, MoeAbstractAction> builtInKeymap = FXCollections.observableHashMap();
     // The user-configurable key combinations:
-    private final ObservableMap<KeyCodeCombination, MoeAbstractAction> keymap = FXCollections.observableHashMap();
+    // LinkedHashMap retains the order so that the shortcut which becomes the menu accelerator is consistent.
+    // Shouldn't matter for behaviour, but a bit nicer than showing arbitrary shortcut on the menu item every time you load:
+    private final ObservableMap<KeyCodeCombination, MoeAbstractAction> keymap = FXCollections.observableMap(new LinkedHashMap<>());
     private org.fxmisc.wellbehaved.event.InputMap<javafx.scene.input.KeyEvent> curKeymap; // the editor's keymap
     private boolean lastActionWasCut; // true if last action was a cut action
     private MoeAbstractAction[] overrideActions;
@@ -125,7 +127,7 @@ public final class MoeActions
 
         // RichTextFX has some default bindings for actions which we have on menu accelerators
         // (Plus, we want to allow users to override them.)
-        // So we override those bindings to do nothing, letting our menu accelerators take over:
+        // So we override those bindings to do nothing, letting our menu accelerators/defined shortcuts take over:
         builtInKeymap.put(new KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN), null);
         builtInKeymap.put(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN), null);
         builtInKeymap.put(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN), null);
@@ -143,16 +145,32 @@ public final class MoeActions
         {
             if (curKeymap != null)
                 Nodes.removeInputMap(getTextComponent(), curKeymap);
-            curKeymap = InputMap.sequence(Stream.concat(
+            // Join built-in keymap (important that it goes first in order, so it can get overridden) with custom keymap:
+            Stream<Entry<KeyCodeCombination, MoeAbstractAction>> joinedKeyMapStream = Stream.concat(
                 builtInKeymap.entrySet().stream(),
                 keymap.entrySet().stream()
                     // Only use keymap if item isn't on a menu accelerator:
-                    .filter(e -> !e.getValue().hasMenuItem())
-                ).map(e -> InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> {
-                MoeAbstractAction action = e.getValue();
-                if (action != null)
-                    action.actionPerformed();
-                })).toArray(InputMap[]::new));
+                    .filter(e -> !e.getValue().hasMenuItemWithAccelerator(e.getKey()))
+            );
+
+            // We need to make sure later items overwrite earlier ones.  I thought InputMap.sequence
+            // would do this, but it appears not to have the desired effect (an early ignore is not
+            // overridden by a later consume).  Stream.distinct() won't do what we want because we want
+            // to distinguish only by key, so we use an interim map to make sure we only keep the last
+            // value for each key:
+            HashMap<KeyCodeCombination, MoeAbstractAction> all = new HashMap<>();
+            joinedKeyMapStream.forEach(kv -> all.put(kv.getKey(), kv.getValue()));
+            joinedKeyMapStream = all.entrySet().stream();
+
+            curKeymap = InputMap.sequence(joinedKeyMapStream.map(e -> {
+                // If no action, it means ignore the keypress
+                if (e.getValue() == null)
+                    return InputMap.ignore(EventPattern.keyPressed(e.getKey()));
+                else
+                {
+                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed());
+                }
+            }).toArray(InputMap[]::new));
             Nodes.addInputMap(getTextComponent(), curKeymap);
         }
     }

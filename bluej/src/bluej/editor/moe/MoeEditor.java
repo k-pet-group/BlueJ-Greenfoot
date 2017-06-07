@@ -2903,6 +2903,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // create menubar and menus
 
         menubar = createMenuBar();
+        // Must update keymap after making menu to remove shortcuts which are now handled by menu:
         actions.updateKeymap();
         fxMenus.clear();
         menubar.getMenus().forEach(fxMenus::add);

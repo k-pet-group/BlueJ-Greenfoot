@@ -39,6 +39,8 @@ import javafx.scene.input.KeyCombination;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.Objects;
+
 
 /**
  * An FX Abstract Action to replace the Swing Action class
@@ -204,9 +206,16 @@ public abstract class FXAbstractAction
         return name.hashCode();
     }
 
-    public boolean hasMenuItem()
+    /**
+     * Determines whether this action has a menu item which has been created, and which has the given
+     * shortcut as an accelerator (compared using .equals method).  We don't check if the menu item
+     * is actually visible, or enabled, etc, that's up to the caller.
+     * @param shortcut
+     * @return
+     */
+    public boolean hasMenuItemWithAccelerator(KeyCombination shortcut)
     {
-        return hasMenuItem;
+        return hasMenuItem && Objects.equals(accelerator.get(), shortcut);
     }
 
     /**
