@@ -104,14 +104,6 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
     }
 
     /**
-     * Enabled or disable to "Ok" button of the dialog.
-     */
-    public void setOkButtonEnabled(boolean enabled)
-    {
-        okButton.setDisable(!enabled);
-    }
-
-    /**
      * Get the settings specified by the user
      */
     public TeamSettings getSettings()
