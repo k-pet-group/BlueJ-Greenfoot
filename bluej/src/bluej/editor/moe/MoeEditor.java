@@ -2031,6 +2031,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         viewingHTML.set(false);
         interfaceToggle.getSelectionModel().selectFirst();
         watcher.showingInterface(false);
+        clearMessage();
         //NAVIFX
         //dividerPanel.endTemporaryHide();
     }
