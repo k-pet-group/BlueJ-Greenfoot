@@ -1446,7 +1446,7 @@ public final class MoeActions
     {
         return action("new-line", Category.EDIT, () -> {
 
-            editor.getSourcePane().insertText(editor.getSourcePane().getCaretPosition(), "\n");
+            editor.getSourcePane().replaceSelection("\n");
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
             {
