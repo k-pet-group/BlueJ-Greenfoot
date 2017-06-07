@@ -171,9 +171,14 @@ public class PushAction extends TeamAction
 
             if (!aborted) {
                 commitCommentsFrame.stopProgress();
-                if (!result.isError() && !result.wasAborted()) {
-                    DataCollector.teamCommitProject(project, statusHandle.getRepository(), filesToPush);
-                    commitCommentsFrame.displayMessage(Config.getString("team.push.statusDone"));
+                if (!result.isError()) {
+                    if ( !result.wasAborted()) {
+                        DataCollector.teamCommitProject(project, statusHandle.getRepository(), filesToPush);
+                        commitCommentsFrame.displayMessage(Config.getString("team.push.statusDone"));
+                    }
+                }
+                else { // result is Error
+                    commitCommentsFrame.displayMessage(Config.getString("team.push.error"));
                 }
             }
 

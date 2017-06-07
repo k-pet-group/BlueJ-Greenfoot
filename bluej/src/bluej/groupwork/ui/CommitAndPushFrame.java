@@ -264,6 +264,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitListModel.clear();
         pushListModel.clear();
         setComment("");
+        progressBar.setMessage("");
     }
 
     private void removeModifiedLayouts()
