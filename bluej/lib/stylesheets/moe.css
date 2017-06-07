@@ -1,6 +1,6 @@
 .moe-top-bar {
     -fx-padding: 0.75em 1em 0.75em 1em;
-    -fx-background-color: hsb(0, 0%, 50%), rgb(214, 217, 223);
+    -fx-background-color: hsb(0, 0%, 50%), rgb(225, 225, 225);
     -fx-background-insets: 0 0 0 0, 0 0 1 0;
 }
 .moe-top-bar-buttons {
@@ -12,7 +12,7 @@
     -fx-label-padding: 0 0.3em 0 0.3em;
 }
 .moe-bottom-bar {
-    -fx-background-color: hsb(0, 0%, 50%), rgb(214, 217, 223);
+    -fx-background-color: hsb(0, 0%, 50%), rgb(225, 225, 225);
     -fx-background-insets: 0 0 0 0, 1 0 0 0;
 }
 .moe-bottom-status-row {
