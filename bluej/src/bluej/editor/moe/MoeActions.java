@@ -47,6 +47,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyCombination.ModifierValue;
+import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
@@ -1501,14 +1502,18 @@ public final class MoeActions
     {
         return action("copy-line", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            getActionByName("caret-begin-line").actionPerformed();
-            getActionByName("selection-down").actionPerformed();
+            int prevPos = editor.getSourcePane().getCaretPosition();
+            editor.getSourcePane().paragraphStart(SelectionPolicy.CLEAR);
+            editor.getSourcePane().paragraphEnd(SelectionPolicy.EXTEND);
+            editor.getSourcePane().nextChar(SelectionPolicy.EXTEND);
             if (addToClipboard) {
                 addSelectionToClipboard(editor);
             }
             else {
-                getActionByName("copy-to-clipboard").actionPerformed();
+                editor.getSourcePane().copy();
             }
+            // This will keep us on next line, but with no selection:
+            editor.getSourcePane().setCaretPosition(editor.getSourcePane().getSelection().getEnd());
             lastActionWasCut = true;
         });
     }
@@ -1520,14 +1525,15 @@ public final class MoeActions
     {
         return action("cut-line", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            getActionByName("caret-begin-line").actionPerformed();
-            getActionByName("selection-down").actionPerformed();
+            editor.getSourcePane().paragraphStart(SelectionPolicy.CLEAR);
+            editor.getSourcePane().paragraphEnd(SelectionPolicy.EXTEND);
+            editor.getSourcePane().nextChar(SelectionPolicy.EXTEND);
             if (addToClipboard) {
                 addSelectionToClipboard(editor);
-                getActionByName("delete-previous").actionPerformed();
+                editor.getSourcePane().replaceSelection("");
             }
             else {
-                getActionByName("cut-to-clipboard").actionPerformed();
+                editor.getSourcePane().cut();
             }
             lastActionWasCut = true;
         });
@@ -1564,19 +1570,15 @@ public final class MoeActions
     {
         return action("cut-end-of-line", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-
-            getActionByName("selection-end-line").actionPerformed();
             MoeEditorPane textComponent = getTextComponent();
-            String selection = textComponent.getSelectedText();
-            if (selection == null)
-                getActionByName("selection-forward").actionPerformed();
+            textComponent.paragraphEnd(SelectionPolicy.ADJUST);
 
             if (addToClipboard) {
                 addSelectionToClipboard(editor);
-                getActionByName("delete-previous").actionPerformed();
+                textComponent.replaceSelection("");
             }
             else {
-                getActionByName("cut-to-clipboard").actionPerformed();
+                textComponent.cut();
             }
             lastActionWasCut = true;
         });
