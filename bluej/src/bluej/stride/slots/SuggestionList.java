@@ -479,7 +479,7 @@ public class SuggestionList
         listAndMoreAndTransPane.setPickOnBounds(false);
         listBox.setMaxHeight(300.0);
         // This is a heuristic: double the font size for each item, but it seems to work well:
-        listBox.setPrefHeight(2 * PrefMgr.strideFontSizeProperty().get() * choices.size());
+        listBox.setPrefHeight(choices.isEmpty() ? 100.0 : 2 * PrefMgr.strideFontSizeProperty().get() * choices.size());
         listAndDocBorderPane.setCenter(listAndMoreAndTransPane);
         BorderPane.setMargin(listAndMoreAndTransPane, new Insets(0, 1, 0, 0));
         listAndDocBorderPane.setRight(docPane);
