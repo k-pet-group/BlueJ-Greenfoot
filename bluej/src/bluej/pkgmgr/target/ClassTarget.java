@@ -296,7 +296,7 @@ public class ClassTarget extends DependentTarget
             }
 
         }
-        canvas.sceneProperty().addListener((observable, oldValue, newValue) -> {
+        JavaFXUtil.addChangeListener(canvas.sceneProperty(), scene -> {
             nameLabel.applyCss();
             updateSize();
         });
@@ -1831,13 +1831,15 @@ public class ClassTarget extends DependentTarget
      * Resizes the class so the entire classname + type parameter are visible
      *  
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Any)
     private void updateSize()
     {
-        String displayName = getDisplayName();
-        int width = calculateWidth(nameLabel, displayName);
-        setSize(width, getHeight());
-        repaint();
+        Platform.runLater(() -> {
+            String displayName = getDisplayName();
+            int width = calculateWidth(nameLabel, displayName);
+            setSize(width, getHeight());
+            repaint();
+        });
     }
 
     /**
