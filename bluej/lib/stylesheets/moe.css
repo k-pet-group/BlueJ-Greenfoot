@@ -38,7 +38,7 @@
 }
 .moe-status-label-wrapper .error-count-label {
     -fx-font-style: normal;
-    -fx-text-fill: hsb(0, 70%, 80%);
+    -fx-text-fill: hsb(5, 43%, 66%);
     -fx-underline: true;
 }
 .moe-info {
