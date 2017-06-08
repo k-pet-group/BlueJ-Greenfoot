@@ -711,6 +711,7 @@ public class ExecControls
         public void actionPerformed()
         {
             try {
+                clearThreadDetails();
                 // throws an illegal state exception
                 // if we press this whilst we are already
                 // restarting the remote VM
