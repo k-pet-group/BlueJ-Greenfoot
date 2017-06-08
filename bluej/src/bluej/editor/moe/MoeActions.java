@@ -124,6 +124,11 @@ public final class MoeActions
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN), actions.get(DefaultEditorKit.nextWordAction));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionPreviousWordAction));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionNextWordAction));
+
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN), actions.get(DefaultEditorKit.beginLineAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.META_DOWN), actions.get(DefaultEditorKit.endLineAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginLineAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndLineAction));
         }
 
         // RichTextFX has some default bindings for actions which we have on menu accelerators
@@ -958,6 +963,12 @@ public final class MoeActions
                 new BeginWordAction(false),
                 new BeginWordAction(true),
 
+                //With and without selection for each:
+                new EndLineAction(false),
+                new EndLineAction(true),
+                new BeginLineAction(false),
+                new BeginLineAction(true),
+                
                 deleteWordAction(),
 
                 selectWordAction()
@@ -1635,7 +1646,7 @@ public final class MoeActions
 
     private abstract class MoeActionWithOrWithoutSelection extends MoeAbstractAction
     {
-        private final boolean withSelection;
+        protected final boolean withSelection;
 
         protected MoeActionWithOrWithoutSelection(String actionName, Category category, boolean withSelection)
         {
@@ -1741,6 +1752,52 @@ public final class MoeActions
             int origPos = c.getCaretDot();
             int start = findWordLimit(c, origPos, false);
             moveCaret(c, start);
+        }
+    }
+
+    private class BeginLineAction extends MoeActionWithOrWithoutSelection
+    {
+        public BeginLineAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionBeginLineAction : DefaultEditorKit.beginLineAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            MoeEditorPane ed = getTextComponent();
+            if (ed.getCaretColumn() > 1)
+            {
+                ed.lineStart(withSelection ? SelectionPolicy.EXTEND : SelectionPolicy.CLEAR);
+            }
+            else
+            {
+                // Already at start, try going next word
+                int line = ed.getCurrentParagraph();
+                int oldPos = ed.getCaretPosition();
+                ed.wordBreaksForwards(1, withSelection ? SelectionPolicy.EXTEND : SelectionPolicy.CLEAR);
+                if (ed.getCurrentParagraph() != line)
+                {
+                    // That took us to next line; our line must have been all whitespace,
+                    // so move back:
+                    ed.setCaretPosition(oldPos);
+                }
+
+            }
+        }
+    }
+
+    private class EndLineAction extends MoeActionWithOrWithoutSelection
+    {
+        public EndLineAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionEndLineAction : DefaultEditorKit.endLineAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            getTextComponent().lineEnd(withSelection ? SelectionPolicy.EXTEND : SelectionPolicy.CLEAR);
         }
     }
 
