@@ -24,24 +24,26 @@ package bluej.pkgmgr.target;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.input.KeyEvent;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 import java.util.Properties;
-import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.Node;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A general target in a package
@@ -111,189 +113,187 @@ public abstract class Target
     /**
      * Create a new target with default size.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.FXPlatform)
     public Target(Package pkg, String identifierName)
     {
-        Platform.runLater(() -> {
-            pane.setPrefWidth(calculateWidth(identifierName));
-            pane.setPrefHeight(DEF_HEIGHT);
-            // We set this here rather than via CSS because we vary it dynamically:
-            pane.setCursor(Cursor.HAND);
-            JavaFXUtil.addStyleClass(pane, "target");
-            pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
-            
-            pane.setFocusTraversable(true);
-            JavaFXUtil.addFocusListener(pane, hasFocus -> {
-                // Here's the logic.  If we are focused after a mouse click,
-                // the click listener will already have selected us before the
-                // focus.  In which case this guard won't fire because we are selected.
-                // This only fires if we received focus some other way while not being selected,
-                // which should only be via keyboard traversal (tab, or ctrl-tab),
-                // in which case we should cancel the selection and only select the focused item:
-                if (hasFocus && !isSelected())
-                    pkg.getEditor().selectOnly(this);
-                
-                if (!hasFocus)
-                    pkg.getEditor().checkForLossOfFocus();
-            });
-            
-            pane.setOnMouseClicked(e -> {
-                if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
-                    doubleClick();
-                else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
-                {
-                    // We first check if the user was drawing an extends arrow,
-                    // in which case a click will finish that off.
-                    if (!pkg.getEditor().clickForExtends(this, e.getSceneX(), e.getSceneY()))
-                    {
-                        // Not drawing; proceed with normal click handling.
-                        
-                        // Single left-click.  Is modifier down?
-                        if (e.isShiftDown() || e.isShortcutDown())
-                        {
-                            pkg.getEditor().toggleSelection(this);
-                        }
-                        else
-                        {
-                            pkg.getEditor().selectOnly(this);
-                        }
-                    }
-                    updateCursor(e, false);
-                    if (isSelected())
-                        pane.requestFocus();
-                }
-                e.consume();    
-            });
-            pane.setOnMouseMoved(e -> {
-                updateCursor(e, false);
-                pkg.getEditor().setMouseIn(this);
-            });
-            pane.setOnMouseExited(e -> {
-                pkg.getEditor().setMouseLeft(this);
-            });
+        pane.setPrefWidth(calculateWidth(new Label(), identifierName));
+        pane.setPrefHeight(DEF_HEIGHT);
+        // We set this here rather than via CSS because we vary it dynamically:
+        pane.setCursor(Cursor.HAND);
+        JavaFXUtil.addStyleClass(pane, "target");
+        pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
 
-            pane.setOnMousePressed(e -> {
-                if (e.getButton() == MouseButton.PRIMARY)
-                {
-                    // Dismiss context menu if the user left-clicks on the target:
-                    // (Usual JavaFX behaviour is to keep the menu showing if you
-                    // click the menu's parent but I think users will expect it to
-                    // dismiss if they click anywhere besides the menu.)
-                    showingMenu(null);
-                    pressDeltaX = e.getX();
-                    pressDeltaY = e.getY();
-                    // Check if it's in the corner (and selected), in which case it will be a resize:
-                    pressIsResize = isSelected() && cursorAtResizeCorner(e);
-                    // This will save the positions of everything currently selected,
-                    // including us (by calling us back via savePreMove/savePreResize):
-                    if (pressIsResize && isResizable())
-                        pkg.getEditor().startedResize();
-                    else
-                        pkg.getEditor().startedMove();
-                }
-                e.consume();
-            });
-            pane.setOnMouseDragged(e -> {
-                if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends())
-                {
-                    if (pressIsResize && isResizable())
-                    {
-                        int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
-                        int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
-                        pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
-                    }
-                    else if (isMoveable())
-                    {
-                        // They didn't select us yet, but we still allow a drag-move.
-                        // Select us as they start dragging:
-                        if (!isSelected())
-                        {
-                            pkg.getEditor().selectOnly(this);
-                            pkg.getEditor().startedMove();
-                        }
-                        // Need position relative to the editor to set new position:
-                        Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
-                        int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX));
-                        int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
-                        pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
-                        updateCursor(e, true);
-                    }
-                }
-                e.consume();
-            });
-            pane.setOnMouseReleased(e -> {
-                pkg.getEditor().endResize();
-            });
-            pane.setOnKeyTyped(e -> {
-                // + or - on the keyboard do a resize:
-                if (e.getCharacter().length() > 0 && "+-".contains(e.getCharacter()) && isResizable())
-                {
-                    pkg.getEditor().startedResize();
-                    int delta = e.getCharacter().equals("+") ? PackageEditor.GRID_SIZE : -PackageEditor.GRID_SIZE;
-                    pkg.getEditor().resizeBy(delta, delta);
-                    pkg.getEditor().endResize();
-
-                    e.consume();
-                }
-            });
-            pane.setOnKeyPressed(e -> {
-                if (isArrowKey(e))
-                {
-                    // Ctrl and arrow keys does a resize:
-                    if (e.isControlDown())
-                    {
-                        if (isResizable())
-                        {
-                            // Resize:
-                            pkg.getEditor().startedResize();
-                            int d = PackageEditor.GRID_SIZE;
-                            pkg.getEditor().resizeBy(
-                                e.getCode() == KeyCode.LEFT ? -d : (e.getCode() == KeyCode.RIGHT ? d : 0),
-                                e.getCode() == KeyCode.UP ? -d : (e.getCode() == KeyCode.DOWN ? d : 0));
-                            pkg.getEditor().endResize();
-                        }
-                    }
-                    else if (e.isShiftDown())
-                    {
-                        // Shift and arrow keys does a move:
-                        if (isMoveable())
-                        {
-                            // Move:
-                            pkg.getEditor().startedMove();
-                            int d = PackageEditor.GRID_SIZE;
-                            pkg.getEditor().moveBy(
-                                e.getCode() == KeyCode.LEFT ? -d : (e.getCode() == KeyCode.RIGHT ? d : 0),
-                                e.getCode() == KeyCode.UP ? -d : (e.getCode() == KeyCode.DOWN ? d : 0));
-                        }
-                    }
-                    else
-                    {
-                        // If no modifiers then navigate around the diagram:
-                        pkg.getEditor().navigate(e);
-                    }
-
-                    e.consume();
-                }
-                else if (e.getCode() == KeyCode.ESCAPE)
-                {
-                    // We will still have focus, so rather than
-                    // clear selection completely, just select us:
-                    pkg.getEditor().selectOnly(this);
-                    e.consume();
-                }
-                else if (e.getCode() == KeyCode.A && !e.isAltDown()) // Allow Ctrl or Cmd, or plain
-                {
-                    pkg.getEditor().selectAll();
-                    e.consume();
-                }
-            });
-
-            JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
+        pane.setFocusTraversable(true);
+        JavaFXUtil.addFocusListener(pane, hasFocus -> {
+            // Here's the logic.  If we are focused after a mouse click,
+            // the click listener will already have selected us before the
+            // focus.  In which case this guard won't fire because we are selected.
+            // This only fires if we received focus some other way while not being selected,
+            // which should only be via keyboard traversal (tab, or ctrl-tab),
+            // in which case we should cancel the selection and only select the focused item:
+            if (hasFocus && !isSelected())
                 pkg.getEditor().selectOnly(this);
-                popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
-                return true;
-            }, KeyCode.SPACE, KeyCode.ENTER);
+
+            if (!hasFocus)
+                pkg.getEditor().checkForLossOfFocus();
         });
+
+        pane.setOnMouseClicked(e -> {
+            if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
+                doubleClick();
+            else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
+            {
+                // We first check if the user was drawing an extends arrow,
+                // in which case a click will finish that off.
+                if (!pkg.getEditor().clickForExtends(this, e.getSceneX(), e.getSceneY()))
+                {
+                    // Not drawing; proceed with normal click handling.
+
+                    // Single left-click.  Is modifier down?
+                    if (e.isShiftDown() || e.isShortcutDown())
+                    {
+                        pkg.getEditor().toggleSelection(this);
+                    }
+                    else
+                    {
+                        pkg.getEditor().selectOnly(this);
+                    }
+                }
+                updateCursor(e, false);
+                if (isSelected())
+                    pane.requestFocus();
+            }
+            e.consume();
+        });
+        pane.setOnMouseMoved(e -> {
+            updateCursor(e, false);
+            pkg.getEditor().setMouseIn(this);
+        });
+        pane.setOnMouseExited(e -> {
+            pkg.getEditor().setMouseLeft(this);
+        });
+
+        pane.setOnMousePressed(e -> {
+            if (e.getButton() == MouseButton.PRIMARY)
+            {
+                // Dismiss context menu if the user left-clicks on the target:
+                // (Usual JavaFX behaviour is to keep the menu showing if you
+                // click the menu's parent but I think users will expect it to
+                // dismiss if they click anywhere besides the menu.)
+                showingMenu(null);
+                pressDeltaX = e.getX();
+                pressDeltaY = e.getY();
+                // Check if it's in the corner (and selected), in which case it will be a resize:
+                pressIsResize = isSelected() && cursorAtResizeCorner(e);
+                // This will save the positions of everything currently selected,
+                // including us (by calling us back via savePreMove/savePreResize):
+                if (pressIsResize && isResizable())
+                    pkg.getEditor().startedResize();
+                else
+                    pkg.getEditor().startedMove();
+            }
+            e.consume();
+        });
+        pane.setOnMouseDragged(e -> {
+            if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends())
+            {
+                if (pressIsResize && isResizable())
+                {
+                    int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
+                    int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
+                    pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
+                }
+                else if (isMoveable())
+                {
+                    // They didn't select us yet, but we still allow a drag-move.
+                    // Select us as they start dragging:
+                    if (!isSelected())
+                    {
+                        pkg.getEditor().selectOnly(this);
+                        pkg.getEditor().startedMove();
+                    }
+                    // Need position relative to the editor to set new position:
+                    Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
+                    int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX));
+                    int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
+                    pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
+                    updateCursor(e, true);
+                }
+            }
+            e.consume();
+        });
+        pane.setOnMouseReleased(e -> {
+            pkg.getEditor().endResize();
+        });
+        pane.setOnKeyTyped(e -> {
+            // + or - on the keyboard do a resize:
+            if (e.getCharacter().length() > 0 && "+-".contains(e.getCharacter()) && isResizable())
+            {
+                pkg.getEditor().startedResize();
+                int delta = e.getCharacter().equals("+") ? PackageEditor.GRID_SIZE : -PackageEditor.GRID_SIZE;
+                pkg.getEditor().resizeBy(delta, delta);
+                pkg.getEditor().endResize();
+
+                e.consume();
+            }
+        });
+        pane.setOnKeyPressed(e -> {
+            if (isArrowKey(e))
+            {
+                // Ctrl and arrow keys does a resize:
+                if (e.isControlDown())
+                {
+                    if (isResizable())
+                    {
+                        // Resize:
+                        pkg.getEditor().startedResize();
+                        int d = PackageEditor.GRID_SIZE;
+                        pkg.getEditor().resizeBy(
+                            e.getCode() == KeyCode.LEFT ? -d : (e.getCode() == KeyCode.RIGHT ? d : 0),
+                            e.getCode() == KeyCode.UP ? -d : (e.getCode() == KeyCode.DOWN ? d : 0));
+                        pkg.getEditor().endResize();
+                    }
+                }
+                else if (e.isShiftDown())
+                {
+                    // Shift and arrow keys does a move:
+                    if (isMoveable())
+                    {
+                        // Move:
+                        pkg.getEditor().startedMove();
+                        int d = PackageEditor.GRID_SIZE;
+                        pkg.getEditor().moveBy(
+                            e.getCode() == KeyCode.LEFT ? -d : (e.getCode() == KeyCode.RIGHT ? d : 0),
+                            e.getCode() == KeyCode.UP ? -d : (e.getCode() == KeyCode.DOWN ? d : 0));
+                    }
+                }
+                else
+                {
+                    // If no modifiers then navigate around the diagram:
+                    pkg.getEditor().navigate(e);
+                }
+
+                e.consume();
+            }
+            else if (e.getCode() == KeyCode.ESCAPE)
+            {
+                // We will still have focus, so rather than
+                // clear selection completely, just select us:
+                pkg.getEditor().selectOnly(this);
+                e.consume();
+            }
+            else if (e.getCode() == KeyCode.A && !e.isAltDown()) // Allow Ctrl or Cmd, or plain
+            {
+                pkg.getEditor().selectAll();
+                e.consume();
+            }
+        });
+
+        JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
+            pkg.getEditor().selectOnly(this);
+            popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
+            return true;
+        }, KeyCode.SPACE, KeyCode.ENTER);
 
         if (pkg == null)
             throw new NullPointerException();
@@ -338,11 +338,11 @@ public abstract class Target
      * @return the width the target should have to fully display its name.
      */
     @OnThread(Tag.FX)
-    protected static int calculateWidth(String name)
+    protected static int calculateWidth(Labeled node, String name)
     {
         int width = 0;
         if (name != null)
-            width = (int)JavaFXUtil.measureString(new javafx.scene.control.Label(), name);//(int) PrefMgr.getTargetFont().getStringBounds(name, FRC).getWidth();
+            width = (int)JavaFXUtil.measureString(node, name);
         if ((width + 20) <= DEF_WIDTH)
             return DEF_WIDTH;
         else

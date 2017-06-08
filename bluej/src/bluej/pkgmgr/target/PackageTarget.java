@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,17 +28,20 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
+
+import java.io.File;
+import java.lang.reflect.Array;
+import java.util.Properties;
+
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.io.File;
-import java.lang.reflect.Array;
-import java.util.Properties;
 
 /**
  * A sub package (or parent package)
@@ -68,7 +71,7 @@ public class PackageTarget extends Target
         JavaFXUtil.addStyleClass(name, "package-target-name");
         name.setMaxWidth(9999.0);
         pane.setTop(name);
-        setSize(calculateWidth(baseName), DEF_HEIGHT + TAB_HEIGHT);
+        setSize(calculateWidth(name, baseName), DEF_HEIGHT + TAB_HEIGHT);
 
         Pane center = new Pane();
         BorderPane centerWrapper = new BorderPane(center);

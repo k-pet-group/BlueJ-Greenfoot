@@ -74,6 +74,22 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.lang.ClassNotFoundException;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -89,26 +105,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.lang.ClassNotFoundException;
+import javax.swing.SwingUtilities;
 
 /**
  * A class target in a package, i.e. a target that is a class file built from
@@ -295,6 +296,10 @@ public class ClassTarget extends DependentTarget
             }
 
         }
+        canvas.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            nameLabel.applyCss();
+            updateSize();
+        });
     }
     
     private void calcSourceAvailable()
@@ -1830,7 +1835,7 @@ public class ClassTarget extends DependentTarget
     private void updateSize()
     {
         String displayName = getDisplayName();
-        int width = calculateWidth(displayName);
+        int width = calculateWidth(nameLabel, displayName);
         setSize(width, getHeight());
         repaint();
     }

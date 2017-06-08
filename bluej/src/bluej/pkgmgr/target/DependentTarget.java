@@ -21,12 +21,9 @@
  */
 package bluej.pkgmgr.target;
 
-import javax.swing.SwingUtilities;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javafx.application.Platform;
 
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
@@ -77,10 +74,10 @@ public abstract class DependentTarget extends EditableTarget
     {
         super(pkg, identifierName);
 
-        inUses = new ArrayList<UsesDependency>();
-        outUses = new ArrayList<UsesDependency>();
-        parents = new ArrayList<Dependency>();
-        children = new ArrayList<Dependency>();
+        inUses = new ArrayList<>();
+        outUses = new ArrayList<>();
+        parents = new ArrayList<>();
+        children = new ArrayList<>();
 
         assoc = null;
     }
@@ -497,7 +494,7 @@ public abstract class DependentTarget extends EditableTarget
             t.setPos(getX() + 30, getY() - 30);
             if (isResizable())
                 t.setSize(getWidth(), getHeight());
-            t. recalcDependentPositions();
+            t.recalcDependentPositions();
         }
     }
 
@@ -536,5 +533,4 @@ public abstract class DependentTarget extends EditableTarget
         repaint();
         redraw();
     }
-
 }

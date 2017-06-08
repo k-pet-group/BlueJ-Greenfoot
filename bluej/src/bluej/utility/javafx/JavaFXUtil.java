@@ -31,13 +31,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import bluej.editor.stride.CodeOverlayPane.WidthLimit;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
@@ -109,7 +107,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -117,14 +114,16 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
+import bluej.Config;
+import bluej.editor.stride.CodeOverlayPane.WidthLimit;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.WindowOverlayPane;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-import bluej.Config;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -257,7 +256,7 @@ public class JavaFXUtil
      * details on cache behaviour.
      */
     private static final FXCache<Font, FXCache<String, Double>> measured =
-        new FXCache<Font, FXCache<String, Double>>(f -> new FXCache<String, Double>(s -> {
+        new FXCache<>(f -> new FXCache<>(s -> {
             if (s == null || s.length() == 0)
                 return 0.0;
 
