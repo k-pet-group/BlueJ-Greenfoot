@@ -44,6 +44,9 @@
 .moe-info {
     -fx-font-family: "Source Sans Pro";
 }
+.moe-info-text {
+    -fx-fill: hsb(0, 0%, 40%);
+}
 
 .moe-find-panel {
     -fx-padding: 0.5em 1em 0.5em 1em;

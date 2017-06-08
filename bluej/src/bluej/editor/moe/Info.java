@@ -49,6 +49,7 @@ public final class Info extends TextFlow
     {
         JavaFXUtil.addStyleClass(this, "moe-info");
         text = new Text();
+        JavaFXUtil.addStyleClass(text, "moe-info-text");
         getChildren().add(text);
 
         text.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
