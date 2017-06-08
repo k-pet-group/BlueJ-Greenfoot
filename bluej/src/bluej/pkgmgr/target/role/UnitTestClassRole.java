@@ -45,6 +45,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
 import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.dialog.InputDialog;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -72,6 +73,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 
 /**
  * A role object for Junit unit tests.
@@ -194,6 +197,7 @@ public class UnitTestClassRole extends ClassRole
     {
         menu.add(testAction);
         testAction.setDisable(!enableTestAll);
+        JavaFXUtil.addStyleClass(testAction, MENU_STYLE_INBUILT);
     }
 
     /**

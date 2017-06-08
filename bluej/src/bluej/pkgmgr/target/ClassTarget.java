@@ -191,7 +191,7 @@ public class ClassTarget extends DependentTarget
     private boolean recordedAsOpen = false;
     @OnThread(Tag.FXPlatform)
     private boolean visible = true;
-    private static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
+    public static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
     @OnThread(Tag.FXPlatform)
     private static String[] pseudos;
 
