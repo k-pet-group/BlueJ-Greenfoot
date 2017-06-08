@@ -2531,9 +2531,8 @@ public final class Package
                 setStatus(compiling);
             }
 
-            // Change view of source classes.  Reset the error state if we are
-            // going to keep the classes.
-            markAsCompiling(sources, type.keepClasses());
+            // Change view of source classes.
+            markAsCompiling(sources, true);
         }
 
         @Override
