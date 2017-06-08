@@ -475,12 +475,13 @@ public class BlueJSyntaxView
 
             while (curLine <= lastLine) {
 
+                ScopeInfo scope = new ScopeInfo(EnumSet.noneOf(ParagraphAttribute.class));
+                scopes.add(scope);
+
                 if (prevScopeStack.isEmpty()) {
                     break;
                 }
 
-                ScopeInfo scope = new ScopeInfo(EnumSet.noneOf(ParagraphAttribute.class));
-                scopes.add(scope);
                 drawScopes(fullWidth, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
 
                 // Next line
