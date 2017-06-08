@@ -460,12 +460,6 @@ public class ClassTarget extends DependentTarget
     @Override
     public void setState(State newState)
     {
-        // Must do this even if state hasn't changed, because if state was HAS_ERROR
-        // and has now become HAS_ERROR then we still need to mark compile as finished:
-        if (editor != null && newState != State.NEEDS_COMPILE) {
-            editor.compileFinished(newState == State.COMPILED, true);
-        }
-
         if (getState() != newState)
         {
             String qualifiedName = getQualifiedName();
@@ -498,7 +492,7 @@ public class ClassTarget extends DependentTarget
         if (editor != null)
         {
             if (editor.compileStarted()) {
-                markKnownError();
+                markKnownError(true);
             }
         }
     }
@@ -983,8 +977,14 @@ public class ClassTarget extends DependentTarget
         return visible;
     }
 
-    public void markCompiled()
+    public void markCompiled(boolean classesKept)
     {
+        // Must do this even if state hasn't changed, because if state was HAS_ERROR
+        // and has now become HAS_ERROR then we still need to mark compile as finished:
+        if (editor != null) {
+            editor.compileFinished(false, classesKept);
+        }
+
         setState(State.COMPILED);
     }
 
@@ -2512,8 +2512,14 @@ public class ClassTarget extends DependentTarget
      * Mark that there is a known compilation error with this target.
      * (Mark is cleared when state is set to COMPILING).
      */
-    public void markKnownError()
+    public void markKnownError(boolean classesKept)
     {
+        // Must do this even if state hasn't changed, because if state was HAS_ERROR
+        // and has now become HAS_ERROR then we still need to mark compile as finished:
+        if (editor != null) {
+            editor.compileFinished(false, classesKept);
+        }
+
         // Errors are marked as part of compilation, so we expect that a suitable ClassEvent
         // is generated when compilation finishes; no need for it here.
         setState(State.HAS_ERROR);

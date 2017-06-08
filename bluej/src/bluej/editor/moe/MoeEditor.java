@@ -803,7 +803,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
             }
             errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
-            info.messageImportant(getCompileErrorLabel());
             repaint();
             //NAVIFX
             //naviView.repaintLines((int)diagnostic.getStartLine(), (int)diagnostic.getEndLine());
@@ -967,14 +966,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public void compileFinished(boolean successful, boolean classesKept)
     {
         compiledProperty.set(successful && classesKept);
-        if (isVisible())
+        if (isVisible() && classesKept)
         {
             // Compilation requested via the editor interface has completed
-            if (successful && classesKept)
+            if (successful)
             {
                 info.messageImportant(Config.getString("editor.info.compiled"));
             }
-            else if (!successful)
+            else
             {
                 info.messageImportant(getCompileErrorLabel());
             }

@@ -2257,7 +2257,7 @@ public final class Package
             if (project.isClosing()) {
                 return ErrorShown.ERROR_NOT_SHOWN;
             }
-            t.markKnownError();
+            t.markKnownError(compileType.keepClasses());
             boolean shown = targetEditor.displayDiagnostic(diagnostic, errorIndex, compileType);
             return shown ? ErrorShown.ERROR_SHOWN : ErrorShown.ERROR_NOT_SHOWN;
         }
@@ -2629,7 +2629,7 @@ public final class Package
                 }
 
                 if (newCompiledState)
-                    t.markCompiled();
+                    t.markCompiled(type.keepClasses());
                 t.setQueued(false);
                 if (t.editorOpen())
                 {
