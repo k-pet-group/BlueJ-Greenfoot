@@ -38,6 +38,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
@@ -46,6 +47,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
@@ -1637,7 +1639,8 @@ public class BlueJSyntaxView
         };
         listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
         paragraphAttributeListeners.put(lineNumber, listener);
-        return label;
+        BorderPane.setMargin(label, new Insets(0, 3, 0, 0));
+        return new BorderPane(label);
     }
 
     // Red octagon with white STOP on it.  By doing it as a shape rather than

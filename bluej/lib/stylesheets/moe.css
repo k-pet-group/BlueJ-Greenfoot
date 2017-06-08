@@ -76,6 +76,8 @@
     -fx-graphic-text-gap: 0;
     -fx-label-padding: 0 2 0 0;
     -fx-background-color: gray, rgb(255, 255, 255);
+    /* Note there is an inset of 3 pixels to right of this item,
+      but it's added in code */
 }
 .moe-line-label:bj-odd {
     /* -fx-background-color: rgb(245, 245, 245); */
