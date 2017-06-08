@@ -721,7 +721,7 @@ public class BlueJSyntaxView
         {
             try
             {
-                Optional<Bounds> screenBounds = editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1);
+                Optional<Bounds> screenBounds = startOffset + 1 < editorPane.getLength() ? editorPane.getCharacterBoundsOnScreen(startOffset, startOffset + 1) : Optional.empty();
                 if (screenBounds.isPresent())
                 {
                     // Minus 24 to allow for the left-hand margin:
