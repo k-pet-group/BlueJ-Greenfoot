@@ -123,28 +123,30 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
             if (editor.getSourceDocument() == null)
                 return;
 
-            int earliestIncomplete = -1, latestIncomplete = -1;
-            for (int i = 0; i < getParagraphs().size(); i++)
+            // Must run later so that we don't affect visible cells now (which may be during the layout pass):
+            // Also, this will stop us making too many getCellIfVisible calls if we have multiple consecutive visibleCells changes:
+            if (queuedRecalculation.compareAndSet(false, true))
             {
-                ScopeInfo paragraphStyle = getDocument().getParagraphStyle(i);
-                if (paragraphStyle != null && paragraphStyle.isIncomplete() && virtualFlow.getCellIfVisible(i).isPresent())
-                {
-                    if (earliestIncomplete == -1)
-                        earliestIncomplete = i;
-                    latestIncomplete = i;
-                }
-            }
-            if (earliestIncomplete != -1 && queuedRecalculation.compareAndSet(false, true))
-            {
-                int earliestIncompleteFinal = earliestIncomplete;
-                int latestIncompleteFinal = latestIncomplete;
-                // Must run later so that we don't affect visible cells now (which may be during the layout pass):
                 JavaFXUtil.runPlatformLater(() ->
                 {
-                    editor.getSourceDocument().recalculateScopesForLinesInRange(earliestIncompleteFinal, latestIncompleteFinal);
-                    // Must call this to apply pending scope backgrounds:
-                    editor.getSourceDocument().flushReparseQueue();
                     queuedRecalculation.set(false);
+                    int earliestIncomplete = -1, latestIncomplete = -1;
+                    for (int i = 0; i < getParagraphs().size(); i++)
+                    {
+                        ScopeInfo paragraphStyle = getDocument().getParagraphStyle(i);
+                        if (paragraphStyle != null && paragraphStyle.isIncomplete() && virtualFlow.getCellIfVisible(i).isPresent())
+                        {
+                            if (earliestIncomplete == -1)
+                                earliestIncomplete = i;
+                            latestIncomplete = i;
+                        }
+                    }
+                    if (earliestIncomplete != -1)
+                    {
+                        editor.getSourceDocument().recalculateScopesForLinesInRange(earliestIncomplete, latestIncomplete);
+                        // Must call this to apply pending scope backgrounds:
+                        editor.getSourceDocument().flushReparseQueue();
+                    }
                 });
             }
         });
