@@ -27,14 +27,16 @@ import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 import java.util.Collection;
 import java.util.List;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 
 /**
  * This class controls the selection (the set of selected elements in the graph).
@@ -125,7 +127,12 @@ public class SelectionController
     {
         if (isButtonOne(evt)) {
             if (evt.getClickCount() > 1) {
-                selection.doubleClick();
+                selection.getSelected().forEach(target -> {
+                    if (evt.getTarget().equals(target)) {
+                        selection.doubleClick();
+                        return;
+                    }
+                });
             }
         }
     }
