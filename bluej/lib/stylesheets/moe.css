@@ -16,7 +16,7 @@
     -fx-background-insets: 0 0 0 0, 1 0 0 0;
 }
 .moe-bottom-status-row {
-    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
+    -fx-padding: 0.3em 0.5em 0.3em 0.5em;
 }
 .moe-status-label-wrapper {
     -fx-border-style: solid inside;
@@ -43,7 +43,6 @@
 }
 .moe-info {
     -fx-font-family: "Source Sans Pro";
-    -fx-min-height: 3.0em;
 }
 
 .moe-find-panel {

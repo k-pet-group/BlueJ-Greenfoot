@@ -2825,6 +2825,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         BorderPane.setAlignment(info, Pos.TOP_LEFT);
         BorderPane.setAlignment(saveState, Pos.CENTER_RIGHT);
         JavaFXUtil.addStyleClass(commentsPanel, "moe-bottom-status-row");
+        commentsPanel.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
 
         bottomArea.setBottom(commentsPanel);
         bottomArea.setTop(finder);
