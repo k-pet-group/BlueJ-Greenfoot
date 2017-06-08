@@ -38,6 +38,7 @@ import bluej.debugmgr.ValueCollection;
 import bluej.parser.TextAnalyzer;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
@@ -62,6 +63,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -75,6 +78,9 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.QuadCurveTo;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -380,6 +386,15 @@ public class CodePad extends VBox
         historyView = new ListView<>();
         historyView.setFocusTraversable(false);
         historyView.setEditable(false);
+
+        inputField.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+        historyView.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+
+        Nodes.addInputMap(inputField, InputMap.sequence(
+            InputMap.consume(EventPattern.keyPressed(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),
+            InputMap.consume(EventPattern.keyPressed(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize()))
+        ));
+
         // We can't lookup the scroll bar until we're in the scene and showing.
         // But also, we don't care about showing the shadow until there are items in the history
         // to be scrolled.  So a neat solution is to add the effect the first time items
