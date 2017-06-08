@@ -82,7 +82,6 @@ import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -262,7 +261,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FXPlatform)
     private boolean respondingToChange;
     private String lastSearchString = "";
-    private boolean firstTimeShowing = true;
 
     /**
      * Constructor. Title may be null.
@@ -639,10 +637,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
             // Calculating the scopes properly needs a visible editor,
             // so once we're shown, recalculate the scopes:
-            if (firstTimeShowing)
+            if (sourceDocument.notYetShown)
             {
-                firstTimeShowing = false;
-                JavaFXUtil.runAfter(Duration.millis(200), () -> sourceDocument.recalculateAllScopes());
+                JavaFXUtil.runAfter(Duration.millis(200), () -> {
+                    sourceDocument.notYetShown = false;
+                    sourceDocument.recalculateAllScopes();
+                });
             }
         }
     }

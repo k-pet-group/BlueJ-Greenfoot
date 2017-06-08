@@ -99,6 +99,8 @@ public class MoeSyntaxDocument
     // Can be null if we are not being used for an editor pane:
     private final BlueJSyntaxView syntaxView;
     private boolean hasFindHighlights = false;
+    // package-visible:
+    boolean notYetShown = true;
 
 
     public Position createPosition(int initialPos)
@@ -402,6 +404,9 @@ public class MoeSyntaxDocument
 
     void recalculateAllScopes()
     {
+        if (notYetShown)
+            return;
+
         recalculateScopesForLinesInRange(0, document.getParagraphs().size() - 1);
         applyPendingScopeBackgrounds();
     }
