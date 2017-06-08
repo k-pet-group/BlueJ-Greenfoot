@@ -38,6 +38,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXAbstractAction;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
@@ -1477,6 +1478,11 @@ public final class MoeActions
         return action("new-line", Category.EDIT, () -> {
 
             editor.getSourcePane().replaceSelection("\n");
+            // We seem to need to force the layout now after requesting to follow,
+            // or otherwise sometimes it doesn't scroll down to track the new caret position
+            // if we just request but don't layout:
+            editor.getSourcePane().requestFollowCaret();
+            editor.getSourcePane().layout();
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
             {
@@ -1506,6 +1512,7 @@ public final class MoeActions
     {
         return action("paste-from-clipboard", Category.EDIT, () -> {
             editor.getSourcePane().paste();
+            editor.getSourcePane().requestFollowCaret();
         });
     }
 
