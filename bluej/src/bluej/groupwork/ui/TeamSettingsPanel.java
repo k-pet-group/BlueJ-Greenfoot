@@ -143,8 +143,7 @@ public class TeamSettingsPanel extends VBox
             updateOKButtonBinding();
         });
 
-        ValidateConnectionAction validateConnectionAction = new ValidateConnectionAction(
-                Config.getString("team.settings.checkConnection"), this, dialog::getOwner);
+        ValidateConnectionAction validateConnectionAction = new ValidateConnectionAction(this, dialog::getOwner);
         Button validateButton = new Button();
         validateConnectionAction.useButton(PkgMgrFrame.getMostRecent(), validateButton);
 

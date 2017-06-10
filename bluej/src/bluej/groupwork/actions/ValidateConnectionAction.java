@@ -43,10 +43,9 @@ public class ValidateConnectionAction extends TeamAction
     private TeamSettingsPanel teamSettingsPanel;
     private FXPlatformSupplier<Window> owner;
     
-    public ValidateConnectionAction(String name, TeamSettingsPanel teamSettingsPanel,
-                                    FXPlatformSupplier<Window> owner)
+    public ValidateConnectionAction(TeamSettingsPanel teamSettingsPanel, FXPlatformSupplier<Window> owner)
     {
-        super(name, true);
+        super("team.settings.checkConnection", true);
         this.teamSettingsPanel = teamSettingsPanel;
         this.owner = owner;
     }
